@@ -1,6 +1,6 @@
 # CLAUDE.md: working notes for continuing רשת החיים
 
-This file is the hand-off between development sessions. Read it first, then `CONTRACT.md` (architecture), `CHANGELOG.md` (what each version did) and `docs/DEVLOG.md` (how it was built).
+This file is the hand-off between development sessions. Read it first, then `docs/ROADMAP.md` (the owner's way of thinking and the ideas he wants developed, in Hebrew), `CONTRACT.md` (architecture), `CHANGELOG.md` (what each version did) and `docs/DEVLOG.md` (how it was built).
 
 ## The project in one paragraph
 
@@ -44,9 +44,12 @@ Blender runs on the owner's PC and is reached through the Blender MCP bridge. `t
 
 Done: river crossing logs, more flowers and insects, richer ambient sound, tree and flower graphics, performance work for weak PCs, a full code review with fixes, Mac builds, the public repo with README, CHANGELOG and dev log.
 
+1.2.2 in progress: the rain sound on the start screen and the unclear injured-animal alert are fixed in the code; installers not built yet (bump the version and follow the release checklist).
+
 Open, in rough priority order:
 - Real-world testing: children playing (watch where they get stuck), a weak school PC, a real Mac.
 - Lower-detail models for far-away animals (biggest remaining performance win).
 - Click targets of 24 to 32 px in the album and web puzzle at 1024x600.
 - Auto quality still reacts slowly on very weak machines.
 - Feedback from the Baba Da instructors' pilot group.
+- The owner's development ideas (coral reef zone, more card games, the Lab, visual programming of drones and robots, two known bugs) are in `docs/ROADMAP.md`.

@@ -460,6 +460,10 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   }
 
   // ─────────────────────────────────────────── selection, panel, hover
+  // what happened to an injured animal and what to do (panel and hover label)
+  function hurtText(a) {
+    return `${a.injured.cause}. ` + (a.injured.saving ? 'רובוט הצלה בדרך' : `שלחו רובוט הצלה! גוררים אותו מלשונית טכנולוגיה ${gw(a.sp.id, 'לידו', 'לידה', 'לידם', 'לידן')}`);
+  }
   function select(e) {
     W.selected = e || null;
     if (!e) { markers.select(null); W.selectedSpecies = null; ui.hideSpecies(); rebuildLinks(); return; }
@@ -499,6 +503,9 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
         if (anims.length) { health = anims.reduce((s, a) => s + a.energy, 0) / anims.length; status = health < 0.3 ? 'רעב – מחפש אוכל' : health < 0.6 ? 'קצת רעב' : 'שבע ומרוצה'; }
         else { health = 1; status = 'פעילה'; }
         if (!ents.some(a => a.isActive?.())) status += sp.active === 'night' ? ' · ' + gw(sp.id, 'ישן – מתעורר', 'ישנה – מתעוררת', 'ישנים – מתעוררים', 'ישנות – מתעוררות') + ' בלילה' : ' · ' + gw(sp.id, 'נח', 'נחה', 'נחים', 'נחות') + ' עכשיו';
+        // an injured one: say what happened and what to do, first (the "!" alone did not explain it)
+        const hurt = anims.find(a => a.injured);
+        if (hurt) status = `❗ ${hurtText(hurt)}`;
       }
     }
     const rels = reg.panelRelations(id).map(r => ({
@@ -1343,7 +1350,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
       const fc = fieldcam && fieldcam.pickAt(lastMove.x, lastMove.y);
       const h = fc ? null : pick(lastMove.x, lastMove.y);
       if (fc) { ui.showHover({ x: lastMove.x, y: lastMove.y, name: 'מצלמת שטח', sub: 'לחצו כדי להסתכל דרכה' }); canvas.style.cursor = 'pointer'; }
-      else if (h) { const sub = h.isPlant ? `${h.sp.kindName}${h.growth < 0.95 ? ` · גדל ${Math.round(h.growth * 100)}%` : ''}` : (h.state === 'sleep' ? gw(h.sp.id, 'ישן', 'ישנה', 'ישנים', 'ישנות') : h.state === 'eat' ? gw(h.sp.id, 'אוכל', 'אוכלת', 'אוכלים', 'אוכלות') : h.energy < 0.3 ? gw(h.sp.id, 'רעב', 'רעבה', 'רעבים', 'רעבות') : h.sp.kindName); ui.showHover({ x: lastMove.x, y: lastMove.y, name: h.sp.name, sub }); canvas.style.cursor = 'pointer'; }
+      else if (h) { const sub = h.injured ? '❗ ' + hurtText(h) : h.isPlant ? `${h.sp.kindName}${h.growth < 0.95 ? ` · גדל ${Math.round(h.growth * 100)}%` : ''}` : (h.state === 'sleep' ? gw(h.sp.id, 'ישן', 'ישנה', 'ישנים', 'ישנות') : h.state === 'eat' ? gw(h.sp.id, 'אוכל', 'אוכלת', 'אוכלים', 'אוכלות') : h.energy < 0.3 ? gw(h.sp.id, 'רעב', 'רעבה', 'רעבים', 'רעבות') : h.sp.kindName); ui.showHover({ x: lastMove.x, y: lastMove.y, name: h.sp.name, sub }); canvas.style.cursor = 'pointer'; }
       else { ui.hideHover(); canvas.style.cursor = ''; }
     }
     if (fieldcam) fieldcam.update(rdt);

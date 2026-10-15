@@ -324,7 +324,7 @@ export function createTools(ctx) {
       else if (sp.dispersers.length && !sp.dispersers.some(x => present.has(x))) lines.push(`🌱 אין מי שיפיץ את הזרעים של ה${sp.name}: ${sp.dispersers.map(x => reg.byId.get(x)?.name).join(', ')}.`);
     }
     const inj = W.animals.filter(a => a.injured);
-    if (inj.length) lines.push(`🚑 ${inj.map(a => a.sp.name).join(', ')} ${inj.length > 1 ? 'פגועים' : gw(inj[0].sp.id, 'פגוע', 'פגועה', 'פגועים', 'פגועות')} – שלחו רובוט הצלה!`);
+    for (const a of inj) lines.push(`❗ ${a.sp.name} ${a.injured.cause}. ${a.injured.saving ? 'רובוט הצלה כבר בדרך.' : 'שלחו רובוט הצלה!'}`);
     if (W.road && !W.road.bridge) lines.push('🛣 הכביש חותך את היער לשניים. לחצו עליו כדי לתקן.');
     const wg = TOOL_DEFS.find(t => t.id === 'watergen');
     if ((W.drought > 0.2 || (W.biomeId === 'grove' && W.season === 'summer')) && unlocked(wg) && count('watergen') < wg.max) lines.push('☀ האדמה יבשה. מחולל מים מהאוויר ליד העצים יעזור.');
@@ -379,8 +379,10 @@ export function createTools(ctx) {
     if (a.loco === 'flying') { a.path = null; a.perch = null; a.pos.y = env.heightAt(a.pos.x, a.pos.z) + 0.3; }
     a.injured = { t: 0, max: 80, cause };
     a.state = 'sleep'; a.action = 'sleep';
+    removeBadge(a);   // a short-lived drone "!" on it would otherwise expire and take the alert with it
     addBadge(a, 999, true);
-    ui.toast(`🚑 ${a.sp.name} ${cause}! גררו רובוט הצלה (בלשונית טכנולוגיה) ${gw(a.sp.id, 'לידו', 'לידה', 'לידם', 'לידן')}.`, 'warn');
+    // the alert says plainly what happened and what to do; it stays long enough for a young reader
+    ui.toast(`${a.sp.name} ${cause}! שלחו רובוט הצלה: גררו אותו מלשונית טכנולוגיה אל סימן הקריאה האדום.`, 'warn', 9000);
     audio.play('event');
     if (!unlocked(TOOL_DEFS.find(t => t.id === 'rescue'))) { W.allToolsUnlocked = true; }   // the rescue robot must be available when needed
   }
@@ -400,7 +402,7 @@ export function createTools(ctx) {
     a.vis.update(rdt, { action: 'sleep', speed: 0, t, night: W.nightGlow });
     if (a.injured.t > a.injured.max && !a.injured.saving) {
       a.injured = null; removeBadge(a); a.leave();
-      ui.toast(`ה${a.sp.name} ${gw(a.sp.id,'לא קיבל עזרה בזמן ועזב','לא קיבלה עזרה בזמן ועזבה','לא קיבלו עזרה בזמן ועזבו','לא קיבלו עזרה בזמן ועזבו')} את היער.`, 'bad');
+      ui.toast(`${a.sp.name} ${gw(a.sp.id,'לא קיבל עזרה בזמן ועזב','לא קיבלה עזרה בזמן ועזבה','לא קיבלו עזרה בזמן ועזבו','לא קיבלו עזרה בזמן ועזבו')} את היער.`, 'bad');
     }
   }
 

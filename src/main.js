@@ -111,6 +111,7 @@ async function boot() {
   function closeGame() {
     if (game) { try { game.dispose(); } catch (e) { console.error(e); } game = null; }
     if (gameZone) { releasePack(gameZone); gameZone = null; }
+    audio.setBiome(null);   // every way out of an island silences its ambience (rain and river included)
   }
   async function loadBiome(id, save = null) {
     if (loading) return; loading = true;
