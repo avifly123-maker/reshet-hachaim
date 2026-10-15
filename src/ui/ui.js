@@ -6,7 +6,7 @@ import { ISLAND_ART } from '../data/island-art.js';
 import { avatarHTML, avatarName, AVATAR_IDS } from './avatars.js';
 
 /* ------------------------------------------------------------------ helpers */
-const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+export const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const clamp01 = (x) => Math.max(0, Math.min(1, +x || 0));
 function h(tag, cls, html, parent) {
   const e = document.createElement(tag);
@@ -76,7 +76,7 @@ const I = {
   info: '<circle class="f" cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".9" fill="currentColor"/>',
   quality: '<path class="f" d="M3 18l5.5-8 4 5.5 2.5-3.5L21 18z"/><path d="M3 18l5.5-8 4 5.5 2.5-3.5L21 18z"/><circle cx="16.5" cy="6.5" r="2"/>',
 };
-const icon = (n, cls) => `<svg class="ic${cls ? ' ' + cls : ''}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${I[n] || ''}</svg>`;
+export const icon = (n, cls) => `<svg class="ic${cls ? ' ' + cls : ''}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${I[n] || ''}</svg>`;
 
 const ANIMAL_KINDS = new Set(['animal', 'colony', 'swarm']);
 const TYPE_COLORS = {
@@ -310,6 +310,7 @@ export function createUI(root, bus) {
           <button data-mode="full" role="radio">${icon('web')}<span><b>מתקדמים</b><small>כל המינים, אירועים וטכנולוגיה</small></span></button>
         </div>
         <button class="st-learn" data-learn="1"><span class="st-book">${icon('book')}</span><span><b>מרכז הלמידה</b><small>חידון ואלבום קלפים</small></span></button>
+        <button class="st-learn st-research" data-research="1"><span class="st-book">${icon('flask')}</span><span><b>חוקרי היער</b><small>תעלומות, מדידות ומעבדה</small></span></button>
       </div>
       <div class="st-cards"></div>
       <ol class="st-how">
@@ -321,6 +322,7 @@ export function createUI(root, bus) {
     S.mode = S.mode || 'full';
     startEl.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => { S.mode = b.dataset.mode; paintModes(); emit('start:mode', { mode: S.mode }); renderStartIntros(); }));
     startEl.querySelector('[data-learn]').addEventListener('click', () => emit('ui:learn'));
+    startEl.querySelector('[data-research]').addEventListener('click', () => emit('ui:research'));
     paintModes();
     const renderStartIntros = () => (biomes || []).forEach((b, i) => { const el = startEl.querySelectorAll('.bc-intro')[i]; if (el) el.textContent = (S.mode === 'kids' && b.kidsIntro) ? b.kidsIntro : b.intro; });
     setTimeout(renderStartIntros, 0);
@@ -915,7 +917,11 @@ export function createUI(root, bus) {
   });
 
   /* tray height → CSS var so side panels end above it */
-  function syncTrayH() { const r = tray.getBoundingClientRect(), t = tray.querySelector('.tr-top').getBoundingClientRect(); root.style.setProperty('--trayH', (tray.offsetParent ? Math.round(innerHeight - Math.min(r.top, t.top || r.top)) : 0) + 'px'); layoutCoach(); }
+  function syncTrayH() {
+    // a mystery (חוקרי היער) has its research desk where the tray was: the island frames itself above it
+    const desk = root.classList.contains('research') && root.querySelector('.rs-desk');
+    if (desk) { root.style.setProperty('--trayH', Math.round(innerHeight - desk.getBoundingClientRect().top) + 'px'); layoutCoach(); return; }
+    const r = tray.getBoundingClientRect(), t = tray.querySelector('.tr-top').getBoundingClientRect(); root.style.setProperty('--trayH', (tray.offsetParent ? Math.round(innerHeight - Math.min(r.top, t.top || r.top)) : 0) + 'px'); layoutCoach(); }
   if (typeof ResizeObserver !== 'undefined') new ResizeObserver(syncTrayH).observe(tray);
   window.addEventListener('resize', () => { syncTrayH(); layoutCoach(); });
 

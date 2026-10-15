@@ -263,7 +263,7 @@ export function createTools(ctx) {
     W.points -= d.cost;
     W.stats.toolUse = W.stats.toolUse || {}; W.stats.toolUse[id] = (W.stats.toolUse[id] || 0) + 1;
     audio.play('place');
-    if (!told.has(id)) { told.add(id); ui.toast(d.fact, 'info'); }
+    if (!told.has(id) && !W.research) { told.add(id); ui.toast(d.fact, 'info'); }
     if (id === 'drone') return launchSurvey(hit);
     if (id === 'seeddrone') return launchSeeding(hit);
     if (id === 'rescue') return sendRobot(hit, chk.target);
@@ -346,6 +346,7 @@ export function createTools(ctx) {
     flights.push({ kind: 'seed', mesh, t: 0, dur: 6, start, target, dropped: false });
   }
   function dropSeeds(f) {
+    if (W.research) { W.research.onSeeds?.(f.target); return; }   // a mystery: the seeds go into the soil (the model's seed bank)
     const pool = (W.biomeId === 'amazon' ? ['cecropia', 'fig', 'brazilnut', 'kapok', 'acai', 'heliconia'] : ['oak', 'carob', 'terebinth', 'mastic', 'sage', 'rockrose'])
       .filter(id => W.unlocked.has(id) || reg.byId.get(id)?.unlock === 'start');
     let n = 0;
@@ -364,7 +365,7 @@ export function createTools(ctx) {
   let injuryT = 120;
   function injuredNear(x, z, r) { let best = null, bd = r; for (const a of W.animals) if (a.injured && !a.injured.saving && a.alive && !a.leaving) { const d = Math.hypot(a.pos.x - x, a.pos.z - z); if (d < bd) { bd = d; best = a; } } return best; }
   function maybeInjure(dt) {
-    if (W.kids || W.day < 2 || W.animals.some(a => a.injured)) return;
+    if (W.kids || W.research || W.day < 2 || W.animals.some(a => a.injured)) return;
     if (W.missions?.current()?.goal?.type === 'rescue') injuryT = Math.min(injuryT, 25);
     injuryT -= dt; if (injuryT > 0) return;
     injuryT = 150 + Math.random() * 120;
@@ -497,7 +498,7 @@ export function createTools(ctx) {
         f.mesh.position.set(f.start.x + (tx - f.start.x) * k, f.start.y + (ty - f.start.y) * rise, f.start.z + (tz - f.start.z) * k);
         f.mesh.rotation.y = -ang; f.mesh.rotation.z = 0.15;
         if (Math.random() < rdt * 3) markers.burst(_v.set(f.mesh.position.x, env.heightAt(f.mesh.position.x, f.mesh.position.z) + 0.5, f.mesh.position.z), '#6fd0ff', 4, { size: 0.3, speed: 0.6, up: 0.3 });
-        if (u >= 1) { disposeObject(f.mesh); flights.splice(i, 1); surveyReport(); }
+        if (u >= 1) { disposeObject(f.mesh); flights.splice(i, 1); if (W.research) W.research.onSurvey?.(); else surveyReport(); }   // a mystery shows its own count
       } else {
         const u = clamp(f.t / f.dur);
         if (u < 0.6) f.mesh.position.lerpVectors(f.start, f.target, u / 0.6);
@@ -548,7 +549,7 @@ export function createTools(ctx) {
           const fresh = !W.photos.has(key);
           if (fresh) {
             W.photos.add(key); W.points += 3; audio.play('points');
-            ui.toast(`📷 מצלמת השטח צילמה: ${a.sp.name}${W.nightGlow > 0.5 ? ' – בלילה!' : ''} (+3)`, 'good');
+            if (!W.research) ui.toast(`📷 מצלמת השטח צילמה: ${a.sp.name}${W.nightGlow > 0.5 ? ' – בלילה!' : ''} (+3)`, 'good');   // a mystery reports its counts in its own notebook
           }
           if (hooks.onShot) hooks.onShot(p, a, fresh);
         }

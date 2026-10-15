@@ -11,6 +11,8 @@ import { KIDS } from './data/kids.js';
 import { ZONES } from './data/zones.js';
 import { loadPack, loadedPack, releasePack } from './core/packs.js';
 import * as profiles from './core/profiles.js';
+import { createResearchHub } from './research/hub.js';
+import { caseById } from './research/cases/index.js';
 
 // Zones (biomes): the start screen draws them from the registry (data/zones.js); a zone's content and species models
 // arrive in its pack – { zone: { data, plants, animals }, release() } – loaded when the zone is chosen (core/packs.js).
@@ -113,10 +115,11 @@ async function boot() {
     if (gameZone) { releasePack(gameZone); gameZone = null; }
     audio.setBiome(null);   // every way out of an island silences its ambience (rain and river included)
   }
-  async function loadBiome(id, save = null) {
+  // research = a mystery of חוקרי היער (src/research/): the zone's full content, the case's own island, no save
+  async function loadBiome(id, save = null, research = null) {
     if (loading) return; loading = true;
     ui.hideStart();
-    root.classList.toggle('kids', MODE === 'kids');
+    root.classList.toggle('kids', MODE === 'kids' && !research);
     try {
       // the zone's pack: already in (chosen before, or loading since the click), or fetched now behind the loading screen
       if (!zoneOf(id)) { ui.setLoading(0.01, 'מכינים את היער...'); await loadPack(id); }
@@ -126,14 +129,14 @@ async function boot() {
       ui.setLoadingActions([{ label: 'חזרה למסך הפתיחה', onClick: () => showStart() }]);
       loading = false; return;
     }
-    const biome = biomeFor(id), Z = zoneOf(id);
+    const biome = research ? zoneOf(id).data : biomeFor(id), Z = zoneOf(id);
     ui.setTips(biome.tips);
     ui.setLoading(0.02, 'מכינים את היער...');
     closeGame();
     resetAutoQ(2);   // a fresh island: forget the previous one's frame timing (the loading gap would count as one huge frame)
     try {
       gameZone = id;
-      game = await createGame({ save, pipe, ui, audio, bus, biome, plantBuilders: Z.plants, animalBuilders: Z.animals, quality, onExit: () => { closeGame(); resetAutoQ(2); audio.setBiome(null); showStart(); } });
+      game = await createGame({ save, research, pipe, ui, audio, bus, biome, plantBuilders: Z.plants, animalBuilders: Z.animals, quality, onExit: () => { closeGame(); resetAutoQ(2); audio.setBiome(null); showStart(); if (research) researchHub.open(); } });
       const g = game;
       if (SOFTWARE_GL) setTimeout(() => game && game === g && ui.toast('שימו לב: המחשב הזה מצייר בלי מנהל התקן גרפי, ולכן המשחק איטי. עדכון מנהל ההתקן של כרטיס המסך יפתור את זה.', 'warn'), 2500);
       // warm up shaders before revealing
@@ -143,7 +146,7 @@ async function boot() {
     } catch (e) {
       console.error(e);
       closeGame();
-      const hasSave = !!save || !!readSave(id);
+      const hasSave = !research && (!!save || !!readSave(id));
       ui.setLoading(0, hasSave ? 'משהו השתבש בטעינה של היער השמור. אפשר לחזור, או להתחיל יער חדש.' : 'משהו השתבש בטעינה. אפשר לחזור למסך הפתיחה ולנסות שוב.');
       ui.setLoadingActions([
         { label: 'חזרה למסך הפתיחה', onClick: () => showStart() },
@@ -189,6 +192,9 @@ async function boot() {
   bus.on('profile:reset', ({ id }) => { if (game || loading) return; if (profiles.reset(id)) { playerChanged(); ui.toast('השחקן אופס – מתחילים מההתחלה', 'good'); } });
   bus.on('profile:remove', ({ id }) => { if (game || loading) return; if (profiles.remove(id)) playerChanged(); });
   bus.on('ui:learn', () => { audio.start(); getHub().then((h) => h.open(), (e) => console.error(e)); });
+  // חוקרי היער: the research centre and its mysteries
+  const researchHub = createResearchHub(root, { onPick: (id) => { const C = caseById(id); if (!C) return; loadPack(C.zone).catch(() => { /* reported by loadBiome */ }); loadBiome(C.zone, null, C); } });
+  bus.on('ui:research', () => { audio.start(); researchHub.open(); });
   bus.on('audio:mute', ({ muted }) => audio.setMuted(muted));
   // Compile every shader the current island can need – including species not placed yet – right now, in one go.
   // Changing quality makes all materials rebuild their shaders (shadows / tone mapping change), so without this the
@@ -298,7 +304,7 @@ async function boot() {
     if (fpsEl) { fpsN++; const now = performance.now(); if (now - fpsT > 1000) { const i = pipe.renderer.info.render; fpsEl.textContent = `${Math.round(fpsN * 1000 / (now - fpsT))} fps · ${quality} · x${pipe.resScale.toFixed(2)} · ${i.calls} calls · ${Math.round(i.triangles / 1000)}k tris`; fpsN = 0; fpsT = now; } }
   }
   frame();
-  window.__app = { bus, ui, audio, pipe, loadBiome, get game() { return game; } };
+  window.__app = { bus, ui, audio, pipe, loadBiome, researchHub, openCase: (id) => { const C = caseById(id); if (C) loadBiome(C.zone, null, C); }, get game() { return game; } };
 }
 
 boot();

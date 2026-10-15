@@ -23,6 +23,7 @@ import { RELATION_TYPES, SEASON_NAMES, START_POINTS, gw, activeNameFor } from '.
 import { clamp, smoothstep, damp, makeRng, SEASONS } from '../core/util.js';
 import { key as profileKey } from '../core/profiles.js';
 import { createFieldReport } from './report.js';
+import { createResearchSession } from '../research/session.js';
 
 const DAY_LEN = 270;            // seconds of game time per day
 const MAX_PLANTS = 95, MAX_ANIMALS = 75;
@@ -51,7 +52,7 @@ function farTreeSources(biomeId, plantBuilders) {
   }));
 }
 
-export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, animalBuilders, quality, onExit, save = null }) {
+export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, animalBuilders, quality, onExit, save = null, research = null }) {
   const scene = pipe.scene, camera = pipe.camera, canvas = pipe.renderer.domElement;
   const reg = buildRegistry(biome);
   const W = {
@@ -65,6 +66,8 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     stats: { pollinations: {}, dispersals: 0, experiments: 0, births: 0, missionStart: {} },
     treeFallen: false, experiment: null, selected: null, selectedSpecies: null, kids: biome.mode === 'kids',
     maxPlants: MAX_ALL_PLANTS, maxAnimals: MAX_ANIMALS,
+    // חוקרי היער: a mystery case. Its population model owns births, hunger and numbers; the entities only show them
+    research: research || null,
   };
   let report = null;   // "דוח החוקר" daily log (created once the forest is restored or seeded)
 
@@ -222,6 +225,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   };
   W.tryCatch = (pred, prey) => {
     if (!alive(prey) || prey.leaving || prey.touring) return;   // the animal the child rides on is safe
+    if (W.research) { pred.energy = 1; pred.eatCD = 25; W.observe(pred, prey, 'eats', true); return; }   // a mystery: the model counts the catches
     if (prey.type !== 'animal') { pred.energy = 1; pred.eatCD = 20; W.observe(pred, prey, 'eats'); return; }   // a colony or swarm feeds it without disappearing
     const cnt = W.countAlive(prey.sp.id);
     const p = prey.sp.isInsect ? 0.3 : cnt <= 2 ? 0.1 : 0.3;
@@ -232,7 +236,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   W.disperseSeed = (animal, sp, x, z, src) => {
     W.stats.dispersals++;
     W.points += 1;
-    const room = W.plantRoom(sp) && W.countAlive(sp.id) < sp.maxCount;
+    const room = !W.research && W.plantRoom(sp) && W.countAlive(sp.id) < sp.maxCount;   // in a mystery the model decides where new plants come up
     const pos = room ? findSpotNear(sp, x, z, 5) : null;
     const p = pos ? spawnPlant(sp, pos.x, pos.z, { growth: 0.05 }) : null;
     const at = pos || { x, z };
@@ -255,6 +259,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     return best;
   };
   W.selfSeed = (parent) => {
+    if (W.research) return;
     const sp = parent.sp;
     if (!W.plantRoom(sp) || W.countAlive(sp.id) >= sp.maxCount) return;
     if (sp.needs?.host) return;
@@ -283,7 +288,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   W.onTreeLanded = (p) => { audio.play('thunder'); markers.burst(_v.set(p.x, p.y + 2, p.z), '#d8c6a0', 40, { size: 0.6, speed: 4 }); lightDirty = true; };
   W.animalLeaves = (a, reason) => {
     if (a.leaving) return;
-    if ((W.kids || a.touring) && reason === 'hunger') { a.energy = 0.35; return; }
+    if ((W.kids || W.research || a.touring) && reason === 'hunger') { a.energy = 0.35; return; }
     a.leave(); report?.animalLeft(reason);
     if (reason === 'hunger' && W.simT - (W._lastLeaveToast || -99) > 15) { W._lastLeaveToast = W.simT; ui.toast(`${a.sp.name} ${gw(a.sp.id,'עזב את האי – לא מצא','עזבה את האי – לא מצאה','עזבו את האי – לא מצאו','עזבו את האי – לא מצאו')} מספיק אוכל.`, 'bad'); audio.play('remove'); }
   };
@@ -821,6 +826,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
 
   // ─────────────────────────────────────────── experiment ("what if it disappears?")
   function startExperiment(id) {
+    if (W.research) return;   // a mystery has its own experiments (its ideas); taking a species away would break its numbers
     const sp = reg.byId.get(id);
     const ents = [...W.plants.filter(p => p.sp.id === id && alive(p)), ...W.animals.filter(a => a.sp.id === id && alive(a) && !a.leaving)];
     if (!ents.length) { ui.toast(`אין ${sp.name} באי – אין מה לבדוק.`, 'warn'); return; }
@@ -898,7 +904,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
       };
     });
   }
-  function refreshTray() { ui.setTray(tools ? [...trayCards(), ...tools.cards()] : trayCards()); }
+  function refreshTray() { if (W.research) return; ui.setTray(tools ? [...trayCards(), ...tools.cards()] : trayCards()); }
 
   // ─────────────────────────────────────────── save / load (localStorage, optional)
   const SAVE_KEY = profileKey('web-of-life-' + biome.id);   // per player
@@ -1166,6 +1172,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     };
   }
   function saveGame(quiet) {
+    if (W.research) return true;
     try { localStorage.setItem(SAVE_SLOT, JSON.stringify(serialize())); if (!quiet) { ui.toast('היער נשמר ✓ בפעם הבאה תוכלו להמשיך מכאן', 'good'); audio.play('points'); } return true; }
     catch (e) { if (!quiet) ui.toast('לא הצלחתי לשמור במחשב הזה', 'bad'); return false; }
   }
@@ -1228,8 +1235,10 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   ui.setToggles({ lightmap: false, web: false, sound: !audio.muted, quality: pipe.quality === 'min' ? 'low' : pipe.quality });
   ui.setTips(biome.tips);
   // a saved forest, or a few wild things so a new island never starts empty
-  if (save) restore(save); else seedStartingNature();
-  report = createFieldReport({ W, reg, biome, light, missions, thumbs, ui, bus, audio, saved: save && save.report });
+  let session = null;
+  if (research) session = createResearchSession({ W, C: research, env, reg, scene, light, markers, rig, ui, audio, bus, tools, fieldcam, thumbs, spawnPlant, spawnAnimal, randomPlaceSpot, findSpotNear, addStump, select, refit: () => fitViewToUI(true), exit: () => onExit && onExit() });
+  else if (save) restore(save); else seedStartingNature();
+  report = research ? null : createFieldReport({ W, reg, biome, light, missions, thumbs, ui, bus, audio, saved: save && save.report });   // a mystery has its own lab report
   W.report = report;
   if (W._toolSave) tools.restore(W._toolSave, (x, z) => W.plants.find(p => alive(p) && p.isTree && Math.hypot(p.x - x, p.z - z) < 1.5));
   updateLight(true);
@@ -1237,7 +1246,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     const s = light.brightSpots(1, 4)[0] || W.stumps[0];
     if (s) W.gapPos = { x: s.x, z: s.z };
   }
-  refreshTray();
+  if (research) { ui.setTray([]); try { session.start(); } catch (e) { session.dispose(); session = null; throw e; } } else refreshTray();
   ui.setLoading(1, 'מוכנים!');
   audio.setBiome(biome.id);
 
@@ -1267,7 +1276,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   }
 
   function update(rdt, t) {
-    const dt = ui.isModalOpen() ? 0 : rdt * W.speed;
+    const dt = ui.isModalOpen() || (session && session.paused()) ? 0 : rdt * W.speed;   // a mystery's notebook (intro, lab, the end) stops the clock too
     W.lastTickDt = dt;
     W.simT += dt;
     // time of day / seasons
@@ -1305,7 +1314,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     tools.update(dt, rdt, t);
     // births
     birthT += dt;
-    if (birthT > 8) { birthT = 0; births(); hungerWarnings(); }
+    if (birthT > 8) { birthT = 0; if (!W.research) { births(); hungerWarnings(); } }
     // vitality & points
     vitT += dt;
     if (vitT >= 1) {
@@ -1316,7 +1325,8 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     }
     autoSaveT -= rdt; if (autoSaveT <= 0) { if (W.experiment || pendingEvent) autoSaveT = 5; else { autoSaveT = 40; if (W.simT > 10) saveGame(true); } }
     // missions & events (start only after the welcome tutorial)
-    if (!W.missionsOn && (coachStep < 0 && coachStarted && W.simT > 4)) W.missionsOn = true;
+    if (!W.missionsOn && !W.research && (coachStep < 0 && coachStarted && W.simT > 4)) W.missionsOn = true;
+    if (session) session.update(dt, rdt, t);
     if (W.missionsOn) missions.tick();
     moments?.tick(rdt);
     if (W.experiment) {
@@ -1359,7 +1369,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     fitT -= rdt; if (fitT <= 0) { fitT = 0.5; fitViewToUI(false); }
     // audio ambience
     audio.update({ dayFrac: W.dayFrac, season: W.season, rain: W.rain, wind: W.wind, vitality: W.vitality, night, cameraHeight: camera.position.y, fire: W.fires.length ? 1 : 0, speed: dt > 0 ? W.speed : 0 });
-    if (!coachStarted) { coachStarted = true; if (!W.restored) setTimeout(() => startCoach(false), 900); }
+    if (!coachStarted) { coachStarted = true; if (!W.restored && !W.research) setTimeout(() => startCoach(false), 900); }
   }
 
   function weatherUpdate(dt, rdt) {
@@ -1428,6 +1438,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   }
 
   function dispose() {
+    if (session) { session.dispose(); session = null; }
     if (report) { report.dispose(); }   // closes the report screen and keeps the child's note before the last save
     // leaving mid-experiment: bring the species back first, so nothing is lost and the banner does not stay on screen
     if (W.experiment) { restoreExperimentEntities(); W._saveAfterExperiment = false; }

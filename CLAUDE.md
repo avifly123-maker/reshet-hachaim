@@ -40,6 +40,26 @@ Headless notes: SwiftShader is slow and makes the game start on the 'min' tier; 
 
 Blender runs on the owner's PC and is reached through the Blender MCP bridge. `tools/blender/animal_kit.py` is the toolkit; `tools/blender/animals/<id>.py` is one spec per animal (31 animals). Exports come back as JSON in the tool result and are written to `art/rigged/<zone>/<id>.json` (`tools/blender/bridge/pulltxt.py`), then packed by `tools/build-rigged.py` into `src/data/rigged-*.js`. Each upload of a changed script must use a new staged file name (`tools/blender/bridge/push.sh`), or the cached old content arrives. Panoramas, ground textures, props and the card pack also come from Blender (`tools/build-*.py`).
 
+## Two lines of work (decided 2026-10-16)
+
+- **1.2.x** (branch `main`): the finished product. Only bug fixes and small improvements (1.2.2, 1.2.3, ...).
+- **1.3.0** (branch `claude/research-1.3`): **חוקרי היער**, the research world. Built on its own branch; merge `main` into it now and then so fixes reach it. Released as 1.3.0 when it is ready.
+
+## חוקרי היער (research world, 1.3.0 in progress)
+
+Design: `docs/RESEARCH.md` (Hebrew). Code: `src/research/`.
+
+- A mystery (תעלומה) is one case file in `src/research/cases/` (data only: model, board, tools, ideas, hints, guesses, texts, scene, tests). `cases/index.js` lists them; `hub.js` shows them by level (מתחילים / בינוני / מתקדמים) next to the "בקרוב" ones.
+- `model.js` is a population model in plain numbers (no three.js): vars (animals, plants, stocks) and flows (produce, consume, prey with a refuge, germinate, mature, decay); animals grow by how fed they are, leave when hungry or crowded (caps can be tied to a stock, e.g. owls per nest box), arrive from outside when there is food and room. No hard limit on numbers.
+- `runner.js` holds the rules shared by the game and the tests: idea cost (`perUnit`), budget, `max`, and the balance clock (three lights; waits at kids/middle, restarts at advanced).
+- `session.js` runs a case inside `createGame({ research: C })`: the island shows a sample of the numbers (`visual`: sqrt for many animals, seedlings stay small until the model says they grew up); tools reveal numbers (night camera counts only at night, drone, quadrat); ideas change the model; "לראות מה קורה" runs the model 3x for 90 model seconds; renewable hint bulbs; lab with RTL graphs and the child's guess; stars (healed, right guess, thrift); a card pack the first time; torah edition: a source card (`SOURCE_CARDS` with `earn: 'research:<id>'`).
+- game.js / tools.js hooks are all gated by `W.research` (no missions, coach, births, saves, daily report, injuries, experiments; the camera and seed drone report to the mystery).
+- Beginner texts are fully vocalised (ניקוד מלא). `node tools/validate-research.mjs --all` checks references, nikud on every beginner string, and runs `tests/research/solvable.mjs`: doing nothing fails, every trap fails alone, every fix heals within the limit, with three season lengths. A case that fails does not ship.
+- Relation types of the research engine (competes, harms habitat, limits, changes the environment) live only in the research world; the collectible cards keep their four attributes.
+- Headless: `window.__app.openCase('mice-owl')`; `window.__game.research.dbg` has `useTool`, `applyIdea`, `startFF`, `openLab`, `runner`, `model`.
+
+Stage 1 done: engine, research centre, mystery 1 "יותר מדי קוצנים" end to end. Next (docs/RESEARCH.md): the other two beginner mysteries, then middle (המלכודת, החורש שלא מתחדש, הנמלים שאכלו את היער), then advanced with the goat and jackal models.
+
 ## Where things stand (1.2.1)
 
 Done: river crossing logs, more flowers and insects, richer ambient sound, tree and flower graphics, performance work for weak PCs, a full code review with fixes, Mac builds, the public repo with README, CHANGELOG and dev log.

@@ -1,0 +1,221 @@
+// חוקרי היער – the screens of a mystery in progress: the balance meter, the board of measurements, the research table
+// (tools, ideas, budget, hints, lab), notes from the field notebook, "see what happens", the lab and the end.
+// Plain DOM inside #ui, styled by src/research/research.css (same field-kit look as the rest of the game).
+import { icon, esc } from '../ui/ui.js';
+import { TOOL_ICONS } from '../game/tools.js';
+
+const svgURL = (body, bg) => 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="${bg}"/>${body}</svg>`);
+export const R_ICONS = {
+  quadrat: svgURL('<g stroke="#8a5a32" stroke-width="3"><path d="M17 20v28M47 20v28"/></g><rect x="15" y="18" width="34" height="28" fill="#8fbf5a" fill-opacity=".35" stroke="#f08a24" stroke-width="2.5"/><circle cx="26" cy="30" r="2.5" fill="#6b4a2a"/><circle cx="37" cy="36" r="2.5" fill="#6b4a2a"/><path d="M32 40c0-5 3-7 6-8" stroke="#3f8f2e" stroke-width="2.4" fill="none"/>', '#f6ead6'),
+  seed: svgURL('<g fill="#7a5530"><ellipse cx="24" cy="30" rx="5" ry="7" transform="rotate(-25 24 30)"/><ellipse cx="38" cy="26" rx="5" ry="7" transform="rotate(20 38 26)"/><ellipse cx="33" cy="41" rx="5" ry="7" transform="rotate(-5 33 41)"/></g><path d="M12 50h40" stroke="#a37a4c" stroke-width="3"/>', '#f1e5cf'),
+  sprout: svgURL('<path d="M32 50V30" stroke="#3f8f2e" stroke-width="3.5"/><path d="M32 34c-2-8-9-11-16-10 0 7 7 11 16 10zM32 30c2-8 9-11 16-10 0 7-7 11-16 10z" fill="#6fbf4a"/><path d="M18 51h28" stroke="#8a5a32" stroke-width="3.5"/>', '#e6f2da'),
+  rain: svgURL('<path d="M18 30a10 10 0 0 1 19-5 8 8 0 1 1 6 14H21a7 7 0 0 1-3-9z" fill="#b7c9d6"/><g stroke="#3a8fd0" stroke-width="3"><path d="M24 44l-3 7M33 44l-3 7M42 44l-3 7"/></g>', '#e6f1f8'),
+  nightcam: TOOL_ICONS.camera, camera: TOOL_ICONS.camera, drone: TOOL_ICONS.drone, nestbox: TOOL_ICONS.nestbox, seeddrone: TOOL_ICONS.seeddrone,
+};
+const SERIES_COLORS = ['#c8473a', '#3a7fc8', '#4f9a3c', '#d99a2b', '#8a5ab8', '#2f9a95'];
+const LIGHT_ICONS = { life: 'paw', regen: 'sprout', env: 'drop' };
+
+export function createResearchUI(root, o) {
+  const { T, C, thumbs } = o;
+  const kids = C.level === 'kids';
+  const els = [];
+  const mk = (cls, html, parent = root, tag = 'div') => { const e = document.createElement(tag); e.className = cls; if (html != null) e.innerHTML = html; parent.appendChild(e); if (parent === root) els.push(e); return e; };
+  const pic = (thumb, ic, cls = 'rs-pic') => thumb ? `<img class="${cls}" src="${thumb}" alt="" draggable="false">` : R_ICONS[ic] ? `<img class="${cls}" src="${R_ICONS[ic]}" alt="" draggable="false">` : `<span class="${cls} rs-pic-ic">${icon(ic || 'leaf')}</span>`;
+  const ideaPic = (i) => i.thumb ? pic(i.thumb) : pic(null, i.icon);
+
+  let meter, board, table, notes, ffEl, ro = null;   // leaving goes through the game's own home button (toolbar)
+  function mount() {
+    root.classList.add('research');
+    if (kids) root.classList.add('rs-kids');
+    meter = mk('rs-meter plate', `<div class="rs-m-title">${esc(T('meter'))}</div>
+      <div class="rs-lights">${['life', 'regen', 'env'].map((k) => `<div class="rs-light" data-k="${k}"><span class="rs-bulb">${icon(LIGHT_ICONS[k])}</span><span class="rs-l-name">${esc(C.lightNames[k])}</span></div>`).join('')}</div>
+      <div class="rs-clock"><div class="rs-clock-fill"></div></div><div class="rs-m-line"></div>`);
+    board = mk('rs-board paper', `<h3>${esc(T('board'))}</h3><ul class="rs-rows"></ul>`);
+    table = mk('rs-table', '');
+    notes = mk('rs-notes', '');
+    ffEl = mk('rs-ff', '');
+    ffEl.addEventListener('click', (e) => { if (e.target.closest('[data-see]')) o.onSee(); });
+    table.addEventListener('click', onTableClick);
+    if (typeof ResizeObserver !== 'undefined') { ro = new ResizeObserver(() => window.dispatchEvent(new Event('resize'))); ro.observe(table); }
+    notes.addEventListener('click', onNoteClick);
+  }
+
+  // ───────────── balance meter
+  let lastSig = '';
+  let solvedLine = '';
+  function setSolved(text) { solvedLine = text; lastSig = ''; if (meter) meter.classList.add('solved'); }
+  function setLights(L, held, hold) {
+    if (!meter) return;
+    const sig = `${L.life}${L.regen}${L.env}|${Math.floor(held)}|${solvedLine}`;
+    if (sig === lastSig) return; lastSig = sig;
+    for (const k of ['life', 'regen', 'env']) meter.querySelector(`[data-k="${k}"]`).classList.toggle('on', !!L[k]);
+    const all = L.life && L.regen && L.env;
+    meter.classList.toggle('all', all);
+    meter.querySelector('.rs-clock-fill').style.width = (100 * held / hold).toFixed(1) + '%';
+    meter.querySelector('.rs-m-line').textContent = solvedLine ? solvedLine : all ? T('balanced', { n: Math.max(0, Math.ceil(hold - held)) }) : held > 0 ? T('clockWaits') : T('notYet');
+  }
+
+  // ───────────── the board of measurements
+  let boardSig = '';
+  function setBoard(rows) {
+    if (!board) return;
+    const sig = rows.map((r) => `${r.id}:${r.known ? r.value : '?'}:${r.trend}`).join('|');
+    if (sig === boardSig) return; boardSig = sig;
+    board.querySelector('.rs-rows').innerHTML = rows.map((r) => `<li class="${r.known ? 'k' : 'u'}">${pic(r.thumb, r.icon)}<span class="rs-r-name">${esc(r.name)}</span>
+      ${r.known ? `<b class="rs-r-val">${r.value}</b><i class="rs-trend t${r.trend}">${r.trend > 0 ? '▲' : r.trend < 0 ? '▼' : '•'}</i>`
+        : `<button class="rs-r-q" data-tool="${r.tool ? r.tool.id : ''}" title="${esc(T('unknown'))}">?${r.tool ? pic(null, r.tool.icon, 'rs-r-tool') : ''}</button>`}</li>`).join('');
+    board.querySelectorAll('.rs-r-q').forEach((b) => b.addEventListener('click', () => b.dataset.tool && o.onTool(b.dataset.tool)));
+  }
+
+  // ───────────── the research table
+  function setTable(st) {
+    if (!table) return;
+    table.innerHTML = `<div class="rs-desk">
+      <section class="rs-sec rs-sec-tools"><h4>${esc(T('tools'))}</h4><div class="rs-tools">${st.tools.map((t) => `<button class="rs-tool${t.placed ? ' placed' : ''}" data-tool="${t.id}">${pic(null, t.icon)}<span>${esc(t.name)}</span>${t.placed ? `<i class="rs-ok">${icon('check')}</i>` : ''}</button>`).join('')}</div></section>
+      <section class="rs-sec rs-sec-ideas"><h4>${esc(T('ideas'))}</h4><div class="rs-ideas">${st.ideas.map((i) => `<div class="rs-idea${i.full ? ' full' : ''}${i.tech ? ' tech' : ''}" data-idea="${i.id}">${ideaPic(i)}<span class="rs-i-title">${esc(i.title)}</span>
+        <span class="rs-i-amts">${i.amounts.map((n) => `<button data-n="${n}" ${i.full ? 'disabled' : ''}>${i.amounts.length > 1 || n > 1 ? (n > 1 ? '×' + n : '×1') : `${icon('plus')}`}<small>${i.perUnit ? i.cost * n : i.cost}</small></button>`).join('')}</span>
+        ${i.used ? `<i class="rs-used">${i.used}</i>` : ''}</div>`).join('')}</div></section>
+      <section class="rs-sec rs-sec-side">
+        <div class="rs-budget" title="${esc(T('budget'))}"><span>${esc(T('budget'))}</span><b>${st.budget}</b><div class="rs-b-bar"><i style="width:${st.budgetMax ? (100 * st.budget / st.budgetMax).toFixed(0) : 0}%"></i></div></div>
+        <button class="rs-hint" data-hint="1">${icon('bulb')}<span>${esc(T('hint'))}</span><span class="rs-bulbs"></span></button>
+        <button class="rs-lab" data-lab="1">${icon('flask')}<span>${esc(T('lab'))}</span></button>
+      </section></div>`;
+    setBulbs(bulbsN, bulbsMax);
+  }
+  function onTableClick(e) {
+    const t = e.target.closest('[data-tool]'); if (t) { o.onTool(t.dataset.tool); return; }
+    const amt = e.target.closest('.rs-idea [data-n]');
+    if (amt) { const card = amt.closest('.rs-idea'); card.classList.remove('pulse'); void card.offsetWidth; card.classList.add('pulse'); o.onIdea(card.dataset.idea, +amt.dataset.n); return; }
+    if (e.target.closest('[data-hint]')) { o.onHint(); return; }
+    if (e.target.closest('[data-lab]')) { o.onLab(); }
+  }
+  let bulbsN = 1, bulbsMax = 3;
+  function setBulbs(n, max) {
+    bulbsN = n; bulbsMax = max;
+    const b = table && table.querySelector('.rs-bulbs'); if (!b) return;
+    b.innerHTML = Array.from({ length: max }, (_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('');
+  }
+
+  // ───────────── notes from the field notebook
+  function note(text, opts = {}) {
+    if (!notes) return;
+    const n = mk('rs-note' + (opts.kind ? ' ' + opts.kind : ''), `${opts.icon ? pic(null, opts.icon, 'rs-n-ic') : opts.kind === 'hint' ? `<span class="rs-n-ic rs-pic-ic">${icon('bulb')}</span>` : ''}
+      <div class="rs-n-body"><p>${esc(text)}</p>
+      ${opts.counts ? `<ul class="rs-n-counts">${opts.counts.map((c) => `<li>${pic(c.thumb, c.icon)}<b>${c.value}</b><span>${esc(c.name)}</span></li>`).join('')}</ul>` : ''}
+      ${opts.action ? `<button class="rs-n-act" data-act="${opts.action.id}">${esc(opts.action.label)}</button>` : ''}</div>
+      <button class="rs-n-x" aria-label="${esc(T('close'))}">${icon('close')}</button>`, notes);
+    requestAnimationFrame(() => n.classList.add('on'));
+    const ttl = opts.counts || opts.action ? 14000 : opts.kind === 'hint' ? 12000 : 6500;
+    n._t = setTimeout(() => dropNote(n), ttl);
+    const live = [...notes.children].filter((x) => !x._gone);
+    for (let i = 0; i < live.length - 3; i++) dropNote(live[i]);   // at most three notes at a time: the oldest go
+    return n;
+  }
+  function dropNote(n) { if (!n || n._gone) return; n._gone = true; clearTimeout(n._t); n.classList.remove('on'); setTimeout(() => n.remove(), 350); }
+  function onNoteClick(e) {
+    const a = e.target.closest('[data-act]');
+    if (a) { if (a.dataset.act === 'tonight') o.onToNight(); if (a.dataset.act === 'lab') o.onLab(); dropNote(a.closest('.rs-note')); return; }
+    if (e.target.closest('.rs-n-x')) dropNote(e.target.closest('.rs-note'));
+  }
+
+  // ───────────── "see what happens"
+  function offerSee(idea) {
+    if (!ffEl) return;
+    ffEl.className = 'rs-ff on';
+    ffEl.innerHTML = `<button class="rs-see" data-see="1">${icon('fast')}<span>${esc(T('see'))}</span></button>`;
+    clearTimeout(ffEl._t); ffEl._t = setTimeout(() => { if (!ffEl.classList.contains('run')) ffEl.className = 'rs-ff'; }, 20000);
+  }
+  function setFF({ on, p = 0 }) {
+    if (!ffEl) return;
+    if (on) {
+      if (!ffEl.classList.contains('run')) { ffEl.className = 'rs-ff on run'; ffEl.innerHTML = `<div class="rs-wait">${icon('hourglass')}<span>${esc(T('seeing'))}</span><div class="rs-w-bar"><i></i></div></div>`; }
+      const i = ffEl.querySelector('.rs-w-bar i'); if (i) i.style.width = (100 * p).toFixed(0) + '%';
+    } else { ffEl.className = 'rs-ff'; ffEl.innerHTML = ''; }
+  }
+
+  // ───────────── modals: intro, lab, solved
+  let modal = null;
+  function openModal(cls, html) {
+    closeModal();
+    modal = mk('rs-modal ' + cls, `<div class="rs-scrim"></div><div class="rs-sheet">${html}</div>`);
+    requestAnimationFrame(() => modal && modal.classList.add('on'));
+    return modal;
+  }
+  function closeModal() { if (!modal) return; const m = modal; modal = null; m.classList.remove('on'); const i = els.indexOf(m); if (i >= 0) els.splice(i, 1); setTimeout(() => m.remove(), 300); }
+  const isOpen = () => !!modal;
+
+  function showIntro() {
+    const cast = C.board.filter((b) => b.species).map((b) => `<img src="${thumbs[b.species]}" alt="">`).join('');
+    const m = openModal('rs-intro', `<div class="rs-tape"></div><div class="rs-case-tag">${icon('binoc')}<span>${esc(kids ? 'תַּעֲלוּמָה' : 'תעלומה')}</span></div>
+      <h2>${esc(C.title)}</h2><p class="rs-call">${esc(C.call)}</p><p class="rs-more">${esc(C.callMore)}</p>
+      <div class="rs-cast">${cast}</div>
+      <button class="rs-go">${esc(T('start'))}${icon('arrowL')}</button>`);
+    m.querySelector('.rs-go').addEventListener('click', closeModal);
+    m.querySelector('.rs-scrim').addEventListener('click', closeModal);
+  }
+
+  function openLab(d) {
+    const W0 = 640, H0 = 300, P = { l: 70, r: 22, t: 18, b: 34 };
+    const now = d.now, t0 = Math.min(...d.series.map((s) => s.from), now);
+    const span = Math.max(30, now - t0);
+    // time runs right to left, like the reading direction: the start at the right edge, now at the left
+    const X = (t) => W0 - P.r - (t - t0) / span * (W0 - P.l - P.r);
+    let graph;
+    if (!d.series.length) graph = `<div class="rs-nodata">${pic(null, 'quadrat')}<p>${esc(T('noData'))}</p></div>`;
+    else {
+      const lines = d.series.map((s, i) => {
+        const max = Math.max(1, ...s.points.map((p) => p[1])) * 1.15;
+        const Y = (v) => H0 - P.b - v / max * (H0 - P.t - P.b);
+        const pts = s.points.map((p) => `${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join(' ');
+        const last = s.points[s.points.length - 1] || [now, 0];
+        const col = SERIES_COLORS[i % SERIES_COLORS.length];
+        return { col, s, svg: `<polyline points="${pts}" fill="none" stroke="${col}" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${X(last[0])}" cy="${Y(last[1])}" r="4.5" fill="${col}"/>`, y: Y(last[1]), v: Math.round(last[1]) };
+      });
+      const flags = d.acts.filter((a) => a.t >= t0).map((a) => `<g class="rs-flag"><line x1="${X(a.t)}" x2="${X(a.t)}" y1="${P.t}" y2="${H0 - P.b}" stroke="#7a6a4a" stroke-dasharray="4 4"/><circle cx="${X(a.t)}" cy="${P.t + 2}" r="9" fill="#f6ead6" stroke="#7a6a4a"/></g>`).join('');
+      const flagPics = d.acts.filter((a) => a.t >= t0).map((a) => { const i = a.idea; const src = i && (i.icon.startsWith('species:') ? thumbs[i.icon.slice(8)] : R_ICONS[i.icon]); return src ? `<img class="rs-flag-pic" style="left:${(X(a.t) / W0 * 100).toFixed(2)}%;top:${((P.t - 7) / H0 * 100).toFixed(2)}%" src="${src}" alt="">` : ''; }).join('');
+      // labels at the "now" end (left), pushed apart so they never overlap
+      const labs = lines.map((l) => ({ ...l })).sort((a, b) => a.y - b.y);
+      for (let i = 1; i < labs.length; i++) if (labs[i].y - labs[i - 1].y < 26) labs[i].y = labs[i - 1].y + 26;
+      const labHtml = labs.map((l) => `<div class="rs-g-lab" style="top:${(l.y / H0 * 100).toFixed(2)}%;--c:${l.col}">${pic(l.s.thumb, l.s.icon)}<b>${l.v}</b><span>${esc(l.s.name)}</span></div>`).join('');
+      graph = `<div class="rs-graph"><svg viewBox="0 0 ${W0} ${H0}" preserveAspectRatio="none" aria-hidden="true">
+        <rect x="${P.l}" y="${P.t}" width="${W0 - P.l - P.r}" height="${H0 - P.t - P.b}" fill="none" stroke="#b9ab84"/>
+        ${flags}${lines.map((l) => l.svg).join('')}</svg>${flagPics}${labHtml}
+        <div class="rs-g-axis"><span class="rs-g-start">${esc(T('tStart'))}</span><i></i><span>${icon('hourglass')}${esc(T('tNow'))}</span></div></div>`;
+    }
+    const guesses = d.guesses.map((g) => `<button class="rs-guess${d.guess === g.id ? ' on' : ''}" data-g="${g.id}">${pic(g.icon.startsWith('species:') ? thumbs[g.icon.slice(8)] : null, g.icon)}<span>${esc(g.text)}</span></button>`).join('');
+    const m = openModal('rs-labm', `<div class="rs-lab-desk">
+      <header><h2>${icon('flask')}${esc(T('labTitle'))}</h2><button class="rs-x" aria-label="${esc(T('close'))}">${icon('close')}</button></header>
+      <div class="rs-lab-grid">
+        <section class="rs-lab-graph paper"><h3>${esc(T('graphs'))}</h3>${graph}</section>
+        <section class="rs-lab-book paper"><h3>${esc(T('myGuess'))}</h3><div class="rs-guesses">${guesses}</div></section>
+      </div></div>`);
+    m.querySelector('.rs-x').addEventListener('click', closeModal);
+    m.querySelector('.rs-scrim').addEventListener('click', closeModal);
+    m.querySelectorAll('.rs-guess').forEach((b) => b.addEventListener('click', () => {
+      m.querySelectorAll('.rs-guess').forEach((x) => x.classList.toggle('on', x === b));
+      o.onGuess(b.dataset.g);
+    }));
+  }
+
+  function showSolved(d) {
+    const starNames = [T('starHealed'), T('starGuess'), T('starThrift')];
+    const stars = d.stars.map((s, i) => `<div class="rs-star${s ? ' on' : ''}" style="--i:${i}"><svg viewBox="0 0 24 24"><path d="M12 2.6l2.8 6 6.5.7-4.9 4.4 1.4 6.4L12 16.9l-5.8 3.2 1.4-6.4-4.9-4.4 6.5-.7z"/></svg><span>${esc(starNames[i])}</span></div>`).join('');
+    const src = d.source ? `<div class="rs-src" style="--c:${d.source.col}"><small>${esc(T('sourceWon'))}</small><b>${esc(d.source.title)}</b><p>${esc(d.source.quote || '')}</p><i>${esc(d.source.ref)}</i>${d.source.lesson ? `<p class="rs-src-l">${esc(d.source.lesson)}</p>` : ''}</div>` : '';
+    const m = openModal('rs-solved', `<div class="rs-burst"></div><h2>${esc(T('solvedTitle'))}</h2><div class="rs-stars">${stars}</div>
+      <p class="rs-solved-t">${esc(d.solvedText)}</p>
+      <div class="rs-learn"><b>${esc(T('learned'))}</b> ${esc(d.learned)}</div>
+      <div class="rs-real"><b>${esc(T('realWorld'))}</b> ${esc(d.real)}</div>
+      ${d.pack ? `<div class="rs-pack">${icon('satchel')}<span>${esc(T('packWon'))}</span></div>` : ''}${src}
+      <div class="rs-btns"><button class="rs-more-b">${esc(T('more'))}</button><button class="rs-stay-b">${esc(T('stay'))}</button></div>`);
+    m.querySelector('.rs-more-b').addEventListener('click', () => o.onMore());
+    m.querySelector('.rs-stay-b').addEventListener('click', () => closeModal());
+  }
+
+  function dispose() {
+    if (ro) { ro.disconnect(); ro = null; }
+    for (const e of els) { clearTimeout(e._t); e.remove(); }
+    els.length = 0; modal = null;
+    root.classList.remove('research', 'rs-kids');
+  }
+  return { mount, setLights, setSolved, setBoard, setTable, setBulbs, note, dropNote, offerSee, setFF, showIntro, openLab, showSolved, closeSolved: closeModal, isOpen, dispose };
+}

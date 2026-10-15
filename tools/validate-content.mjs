@@ -324,7 +324,7 @@ checkForbidden('common', COMMON);
   const fs = await import('node:fs'), path = await import('node:path');
   const files = [];
   const walk = (d) => { for (const f of fs.readdirSync(d)) { const q = path.join(d, f); if (fs.statSync(q).isDirectory()) walk(q); else if (/\.js$/.test(f)) files.push(q); } };
-  for (const d of ['src/learn', 'src/ui']) if (fs.existsSync(d)) walk(d);
+  for (const d of ['src/learn', 'src/ui', 'src/research']) if (fs.existsSync(d)) walk(d);
   for (const f of fs.readdirSync('src/data')) if (/torah|source/i.test(f)) files.push(path.join('src/data', f));
   const W = ['אישה', 'אשה', 'נשים', 'ילדה', 'ילדות', 'נערה', 'דינוזאור', 'דינוזאורים', 'אבולוציה'];
   const re = new RegExp(`(^|[^\u05d0-\u05ea])[והבלכמש]{0,2}(${W.join('|')})(?=$|[^\u05d0-\u05ea])`);
