@@ -817,7 +817,14 @@ export function createAudio(options = {}) {
     biome = id;
     if (!ready) return;
     try {
-      if (id) openBed(id); else for (const k in beds) closeBed(k);
+      if (id) openBed(id);
+      else {
+        for (const k in beds) closeBed(k);
+        // leaving the island: nobody calls update() any more, so the weather layers (rain, wind, fire)
+        // would hold their last level on the start screen. Clear the weather and fade the global layer now.
+        S.rain = 0; S.wind = 0; S.fire = 0; S.speed = 1;
+        applyLevels(ac.currentTime);
+      }
       lastLevels = -1;
     } catch (e) { /* ignore */ }
   }

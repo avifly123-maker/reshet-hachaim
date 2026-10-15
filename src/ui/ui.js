@@ -1087,10 +1087,10 @@ export function createUI(root, bus) {
         ${d.text ? `<p>${esc(d.text)}</p>` : ''}`);
       pushToast(t, 6500);
     },
-    toast(text, kind = 'info') {
+    toast(text, kind = 'info', ms = 0) {
       const ic = { info: 'leaf', good: 'check', warn: 'bang', bad: 'bang' }[kind] || 'leaf';
       const t = h('div', `toast small glass k-${kind}`, `<span class="t-ic">${icon(ic)}</span><span>${esc(text)}</span>`);
-      pushToast(t, kind === 'bad' || kind === 'warn' ? 4600 : 3400);
+      pushToast(t, ms || (kind === 'bad' || kind === 'warn' ? 4600 : 3400));
     },
     floatText(x, y, text, color) {
       const f = h('div', 'float', esc(text), fxEl);

@@ -44,6 +44,8 @@ Blender runs on the owner's PC and is reached through the Blender MCP bridge. `t
 
 Done: river crossing logs, more flowers and insects, richer ambient sound, tree and flower graphics, performance work for weak PCs, a full code review with fixes, Mac builds, the public repo with README, CHANGELOG and dev log.
 
+1.2.2 in progress: the rain sound on the start screen and the unclear injured-animal alert are fixed in the code; installers not built yet (bump the version and follow the release checklist).
+
 Open, in rough priority order:
 - Real-world testing: children playing (watch where they get stuck), a weak school PC, a real Mac.
 - Lower-detail models for far-away animals (biggest remaining performance win).
