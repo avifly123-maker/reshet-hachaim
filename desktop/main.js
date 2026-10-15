@@ -152,7 +152,16 @@ ipcMain.handle('report:pdf', async (e, name) => {
 
 let win = null;
 function createWindow() {   // the window first (so closing the hidden migration window never ends the app), the game after
-  Menu.setApplicationMenu(null);
+  // Windows: no menu bar at all. macOS always shows a menu at the top of the screen; keep the standard minimal one so
+  // Cmd+Q, Cmd+H, Cmd+C/V and full screen work as every Mac user expects
+  if (process.platform === 'darwin') {
+    Menu.setApplicationMenu(Menu.buildFromTemplate([
+      { role: 'appMenu' },
+      { role: 'editMenu' },
+      { label: 'תצוגה', submenu: [{ role: 'resetZoom', label: 'גודל רגיל' }, { role: 'zoomIn', label: 'הגדלה' }, { role: 'zoomOut', label: 'הקטנה' }, { type: 'separator' }, { role: 'togglefullscreen', label: 'מסך מלא' }] },
+      { role: 'windowMenu' },
+    ]));
+  } else Menu.setApplicationMenu(null);
   win = new BrowserWindow({
     width: 1366, height: 820, minWidth: 960, minHeight: 600,
     show: false, backgroundColor: '#0d1a14', title: PRODUCT,
@@ -172,11 +181,12 @@ function createWindow() {   // the window first (so closing the hidden migration
   // F11 toggles full screen, Ctrl+R reloads, Ctrl+= / Ctrl+- / Ctrl+0 zoom the interface
   win.webContents.on('before-input-event', (e, input) => {
     if (input.type !== 'keyDown') return;
+    const mod = input.control || (process.platform === 'darwin' && input.meta);   // Ctrl on Windows, Cmd on a Mac
     if (input.key === 'F11') { win.setFullScreen(!win.isFullScreen()); e.preventDefault(); }
-    else if (input.control && (input.key === 'r' || input.key === 'R')) { win.reload(); e.preventDefault(); }
-    else if (input.control && (input.key === '=' || input.key === '+')) { win.webContents.setZoomLevel(Math.min(3, win.webContents.getZoomLevel() + 0.5)); e.preventDefault(); }
-    else if (input.control && input.key === '-') { win.webContents.setZoomLevel(Math.max(-3, win.webContents.getZoomLevel() - 0.5)); e.preventDefault(); }
-    else if (input.control && input.key === '0') { win.webContents.setZoomLevel(0); e.preventDefault(); }
+    else if (mod && (input.key === 'r' || input.key === 'R')) { win.reload(); e.preventDefault(); }
+    else if (mod && (input.key === '=' || input.key === '+')) { win.webContents.setZoomLevel(Math.min(3, win.webContents.getZoomLevel() + 0.5)); e.preventDefault(); }
+    else if (mod && input.key === '-') { win.webContents.setZoomLevel(Math.max(-3, win.webContents.getZoomLevel() - 0.5)); e.preventDefault(); }
+    else if (mod && input.key === '0') { win.webContents.setZoomLevel(0); e.preventDefault(); }
   });
   win.on('closed', () => { win = null; });
 }

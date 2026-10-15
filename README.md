@@ -16,9 +16,15 @@
 | --- | --- |
 | `reshet-hachaim-setup-1.2.1.exe` | התקנה ל־Windows, המהדורה הכללית |
 | `reshet-hachaim-torah-setup-1.2.1.exe` | התקנה ל־Windows, מהדורה עם מקורות מהתורה ומחז"ל על הטבע |
+| `reshet-hachaim-mac-apple-silicon-1.2.1.zip` | למק עם שבב של אפל (M1 ומעלה), המהדורה הכללית |
+| `reshet-hachaim-mac-intel-1.2.1.zip` | למק עם מעבד אינטל, המהדורה הכללית |
+| `reshet-hachaim-torah-mac-apple-silicon-1.2.1.zip` | למק עם שבב של אפל, מהדורה עם מקורות |
+| `reshet-hachaim-torah-mac-intel-1.2.1.zip` | למק עם מעבד אינטל, מהדורה עם מקורות |
 | `reshet-hachaim-1.2.1.html` | המשחק כולו בקובץ אחד, נפתח בדפדפן Chrome או Edge בלי התקנה |
 
-**התקנה:** מורידים את הקובץ ולוחצים עליו פעמיים. המשחק מותקן ונפתח לבד, ומופיע קיצור דרך על שולחן העבודה. הקובץ לא חתום דיגיטלית, ולכן Windows עלול להציג חלון כחול "Windows הגן על המחשב". לוחצים "מידע נוסף" ואז "הפעל בכל זאת". התקנה של גרסה חדשה נעשית מעל הקודמת, והשמירות נשארות.
+**התקנה ב־Windows:** מורידים את הקובץ ולוחצים עליו פעמיים. המשחק מותקן ונפתח לבד, ומופיע קיצור דרך על שולחן העבודה. הקובץ לא חתום דיגיטלית, ולכן Windows עלול להציג חלון כחול "Windows הגן על המחשב". לוחצים "מידע נוסף" ואז "הפעל בכל זאת". התקנה של גרסה חדשה נעשית מעל הקודמת, והשמירות נשארות.
+
+**התקנה במק:** איזה קובץ? בתפריט התפוח, "אודות המק הזה": אם כתוב שם "שבב Apple M", מורידים את קובץ ה־apple-silicon; אם כתוב "מעבד Intel", את קובץ ה־intel. לוחצים פעמיים על הקובץ שירד, וגוררים את "רשת החיים" לתיקיית היישומים. בפתיחה הראשונה מק מציג הודעה שאינו יכול לאמת את המפתח, כי היישום לא נרשם אצל אפל. לוחצים "סיום", פותחים "הגדרות המערכת", נכנסים ל"פרטיות ואבטחה", גוללים למטה ולוחצים "פתח בכל זאת" ליד "רשת החיים". צריך לעשות את זה רק פעם אחת. (בגרסאות מק ישנות: קליק ימני על היישום, "פתח", ושוב "פתח".)
 
 ## מה יש במשחק
 
@@ -57,7 +63,7 @@
 
 ## For developers
 
-**Reshet HaChaim** ("Web of Life") is an offline 3D ecosystem game in Hebrew. Plain JavaScript (ES modules) and [three.js](https://threejs.org) r186, bundled by [esbuild](https://esbuild.github.io) into a single self-contained HTML file, and wrapped in [Electron](https://www.electronjs.org) for a Windows installer. No network at runtime: no CDN, no web fonts, no external images.
+**Reshet HaChaim** ("Web of Life") is an offline 3D ecosystem game in Hebrew. Plain JavaScript (ES modules) and [three.js](https://threejs.org) r186, bundled by [esbuild](https://esbuild.github.io) into a single self-contained HTML file, and wrapped in [Electron](https://www.electronjs.org) for Windows and macOS. No network at runtime: no CDN, no web fonts, no external images.
 
 ### Build
 
@@ -67,6 +73,9 @@ node build.mjs                      # → dist/index.html (single offline file, 
 node build.mjs --edition=torah      # → dist/index-torah.html
 node build.mjs --desktop            # → desktop/app/ (core + per-zone packs, served as app://game/)
 cd desktop && npm install && npx electron-builder --win nsis --x64                              # general installer
+npx electron-builder --mac                  # Mac: release/mac-arm64/*.app and release/mac/*.app (Intel)
+rcodesign sign release/mac-arm64/reshet-hachaim.app     # ad-hoc signature (apple-codesign; required on Apple Silicon)
+python3 ../tools/zip-mac-app.py release/mac-arm64/reshet-hachaim.app out.zip "רשת החיים.app"   # zip that keeps symlinks
 node ../build.mjs --desktop --edition=torah && npx electron-builder --config builder-torah.json --win nsis --x64
 ```
 
