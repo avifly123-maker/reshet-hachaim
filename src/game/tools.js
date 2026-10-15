@@ -200,15 +200,7 @@ const badgeTex = (() => {
   x.fillStyle = '#fff'; x.font = 'bold 40px Arial'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('!', 32, 34);
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
 })();
-// injured animals get their own sign (a white first-aid cross), so it is not mixed up with a drone finding
-const aidTex = (() => {
-  const c = document.createElement('canvas'); c.width = c.height = 64; const x = c.getContext('2d');
-  x.fillStyle = '#e5483b'; x.beginPath(); x.arc(32, 32, 28, 0, Math.PI * 2); x.fill();
-  x.strokeStyle = '#fff'; x.lineWidth = 5; x.stroke();
-  x.fillStyle = '#fff'; x.fillRect(26, 14, 12, 36); x.fillRect(14, 26, 36, 12);
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
-})();
-function makeBadge(aid) { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: aid ? aidTex : badgeTex, depthTest: false, transparent: true })); s.scale.setScalar(1.6); s.renderOrder = 20; return s; }
+function makeBadge() { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: badgeTex, depthTest: false, transparent: true })); s.scale.setScalar(1.6); s.renderOrder = 20; return s; }
 
 // ─────────────────────────────────────────── the tools system
 export function createTools(ctx) {
@@ -332,7 +324,7 @@ export function createTools(ctx) {
       else if (sp.dispersers.length && !sp.dispersers.some(x => present.has(x))) lines.push(`🌱 אין מי שיפיץ את הזרעים של ה${sp.name}: ${sp.dispersers.map(x => reg.byId.get(x)?.name).join(', ')}.`);
     }
     const inj = W.animals.filter(a => a.injured);
-    for (const a of inj) lines.push(`🚑 ${a.sp.name} ${a.injured.cause}. ${a.injured.saving ? 'רובוט הצלה כבר בדרך.' : 'שלחו רובוט הצלה!'}`);
+    for (const a of inj) lines.push(`❗ ${a.sp.name} ${a.injured.cause}. ${a.injured.saving ? 'רובוט הצלה כבר בדרך.' : 'שלחו רובוט הצלה!'}`);
     if (W.road && !W.road.bridge) lines.push('🛣 הכביש חותך את היער לשניים. לחצו עליו כדי לתקן.');
     const wg = TOOL_DEFS.find(t => t.id === 'watergen');
     if ((W.drought > 0.2 || (W.biomeId === 'grove' && W.season === 'summer')) && unlocked(wg) && count('watergen') < wg.max) lines.push('☀ האדמה יבשה. מחולל מים מהאוויר ליד העצים יעזור.');
@@ -387,10 +379,10 @@ export function createTools(ctx) {
     if (a.loco === 'flying') { a.path = null; a.perch = null; a.pos.y = env.heightAt(a.pos.x, a.pos.z) + 0.3; }
     a.injured = { t: 0, max: 80, cause };
     a.state = 'sleep'; a.action = 'sleep';
-    removeBadge(a);   // a drone "!" on it would block the first-aid sign
+    removeBadge(a);   // a short-lived drone "!" on it would otherwise expire and take the alert with it
     addBadge(a, 999, true);
     // the alert says plainly what happened and what to do; it stays long enough for a young reader
-    ui.toast(`🚑 ${a.sp.name} ${cause}! שלחו רובוט הצלה: גררו אותו מלשונית טכנולוגיה אל הצלב האדום.`, 'warn', 9000);
+    ui.toast(`${a.sp.name} ${cause}! שלחו רובוט הצלה: גררו אותו מלשונית טכנולוגיה אל סימן הקריאה האדום.`, 'warn', 9000);
     audio.play('event');
     if (!unlocked(TOOL_DEFS.find(t => t.id === 'rescue'))) { W.allToolsUnlocked = true; }   // the rescue robot must be available when needed
   }
@@ -417,7 +409,7 @@ export function createTools(ctx) {
   // ───── badges
   function addBadge(ent, secs, pulse) {
     if (badges.some(b => b.follow === ent)) return;
-    const s = makeBadge(!!ent.injured); group.add(s);
+    const s = makeBadge(); group.add(s);
     badges.push({ sprite: s, follow: ent, until: W.simT + secs, pulse });
   }
   function removeBadge(ent) { for (let i = badges.length - 1; i >= 0; i--) if (badges[i].follow === ent) { disposeObject(badges[i].sprite); badges.splice(i, 1); } }
