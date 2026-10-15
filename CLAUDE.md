@@ -1,6 +1,6 @@
 # CLAUDE.md: working notes for continuing רשת החיים
 
-This file is the hand-off between development sessions. Read it first, then `CONTRACT.md` (architecture), `CHANGELOG.md` (what each version did) and `docs/DEVLOG.md` (how it was built).
+This file is the hand-off between development sessions. Read it first, then `docs/ROADMAP.md` (the owner's way of thinking and the ideas he wants developed, in Hebrew), `CONTRACT.md` (architecture), `CHANGELOG.md` (what each version did) and `docs/DEVLOG.md` (how it was built).
 
 ## The project in one paragraph
 
@@ -50,3 +50,4 @@ Open, in rough priority order:
 - Click targets of 24 to 32 px in the album and web puzzle at 1024x600.
 - Auto quality still reacts slowly on very weak machines.
 - Feedback from the Baba Da instructors' pilot group.
+- The owner's development ideas (coral reef zone, more card games, the Lab, visual programming of drones and robots, two known bugs) are in `docs/ROADMAP.md`.

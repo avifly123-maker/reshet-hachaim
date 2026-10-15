@@ -10,7 +10,7 @@
 
 ## הורדה
 
-הגרסה האחרונה נמצאת בעמוד [Releases](https://github.com/avifly123-maker/reshet-hachaim/releases/latest). יש שם שלושה קבצים:
+הגרסה האחרונה נמצאת בעמוד [Releases](https://github.com/avifly123-maker/reshet-hachaim/releases/latest). יש שם שבעה קבצים:
 
 | קובץ | מה זה |
 | --- | --- |
