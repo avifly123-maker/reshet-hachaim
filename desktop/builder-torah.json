@@ -1,0 +1,48 @@
+{
+  "appId": "org.babada.reshethachaim.torah",
+  "productName": "רשת החיים – מהדורה תורנית",
+  "executableName": "reshet-hachaim-torah",
+  "directories": {
+    "output": "release",
+    "buildResources": "build"
+  },
+  "files": [
+    "main.js",
+    "preload.js",
+    "report-pdf.js",
+    "app/**/*",
+    "!app/build-info.json"
+  ],
+  "asar": true,
+  "win": {
+    "target": [
+      {
+        "target": "nsis",
+        "arch": [
+          "x64"
+        ]
+      }
+    ],
+    "icon": "build/icon-torah.ico",
+    "signExecutable": false
+  },
+  "nsis": {
+    "oneClick": true,
+    "perMachine": false,
+    "allowElevation": false,
+    "createDesktopShortcut": "always",
+    "createStartMenuShortcut": true,
+    "shortcutName": "רשת החיים – מהדורה תורנית",
+    "uninstallDisplayName": "רשת החיים – מהדורה תורנית",
+    "runAfterFinish": true,
+    "deleteAppDataOnUninstall": false,
+    "artifactName": "reshet-hachaim-torah-setup-${version}.exe",
+    "installerIcon": "build/icon-torah.ico",
+    "uninstallerIcon": "build/icon-torah.ico"
+  },
+  "publish": null,
+  "extraMetadata": {
+    "name": "reshet-hachaim-torah",
+    "productName": "רשת החיים – מהדורה תורנית"
+  }
+}

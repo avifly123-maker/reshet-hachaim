@@ -1,0 +1,10 @@
+node_modules/
+dist/
+scratch/
+desktop/node_modules/
+desktop/release/
+desktop/app/
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db

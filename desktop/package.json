@@ -1,0 +1,62 @@
+{
+  "name": "reshet-hachaim",
+  "productName": "רשת החיים",
+  "version": "1.2.1",
+  "description": "רשת החיים – משחק חינוכי על המגוון הביולוגי (בבא דע)",
+  "author": "Avi Fleischman for Baba Da",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "build-app": "cd .. && node build.mjs --desktop",
+    "dist": "npm run build-app && electron-builder --win nsis --x64",
+    "dist-torah": "cd .. && node build.mjs --desktop --edition=torah && cd desktop && electron-builder --config builder-torah.json --win nsis --x64"
+  },
+  "build": {
+    "appId": "org.babada.reshethachaim",
+    "productName": "רשת החיים",
+    "executableName": "reshet-hachaim",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "report-pdf.js",
+      "app/**/*",
+      "!app/build-info.json"
+    ],
+    "asar": true,
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "signExecutable": false
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowElevation": false,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "רשת החיים",
+      "uninstallDisplayName": "רשת החיים",
+      "runAfterFinish": true,
+      "deleteAppDataOnUninstall": false,
+      "artifactName": "reshet-hachaim-setup-${version}.exe",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico"
+    },
+    "publish": null
+  },
+  "devDependencies": {
+    "electron": "^37.10.3",
+    "electron-builder": "^26.15.3"
+  }
+}

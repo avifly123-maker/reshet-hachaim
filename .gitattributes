@@ -1,0 +1,17 @@
+* text=auto eol=lf
+*.glb binary
+*.png binary
+*.jpg binary
+*.webp binary
+*.ico binary
+*.blend binary
+# generated, large data modules: do not diff
+src/data/rigged-*.js linguist-generated=true -diff
+src/data/*-art.js linguist-generated=true -diff
+src/data/panorama.js linguist-generated=true -diff
+src/data/ground-textures.js linguist-generated=true -diff
+src/data/props.js linguist-generated=true -diff
+src/data/thumbs.js linguist-generated=true -diff
+src/data/tree-shadow.js linguist-generated=true -diff
+src/data/logo.js linguist-generated=true -diff
+src/ui/fonts.css linguist-generated=true -diff

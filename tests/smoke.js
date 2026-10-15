@@ -1,0 +1,13 @@
+import * as THREE from 'three';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+const c = document.getElementById('game');
+const r = new THREE.WebGLRenderer({ canvas: c, antialias: true });
+r.setSize(innerWidth, innerHeight); r.shadowMap.enabled = true;
+const s = new THREE.Scene(); s.background = new THREE.Color('#88aacc');
+const cam = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.1, 100); cam.position.set(3, 3, 5); cam.lookAt(0, 0, 0);
+const m = new THREE.Mesh(new THREE.TorusKnotGeometry(1, .3, 100, 16), new THREE.MeshStandardMaterial({ color: 'orange' }));
+m.castShadow = true; s.add(m);
+const g = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), new THREE.MeshStandardMaterial()); g.rotation.x = -Math.PI / 2; g.position.y = -1.5; g.receiveShadow = true; s.add(g);
+const l = new THREE.DirectionalLight('white', 3); l.position.set(3, 6, 2); l.castShadow = true; s.add(l, new THREE.AmbientLight('white', .3));
+console.log('three', THREE.REVISION, 'bloom ok', !!UnrealBloomPass);
+r.render(s, cam);

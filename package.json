@@ -1,0 +1,18 @@
+{
+  "name": "reshet-hachaim",
+  "version": "1.2.1",
+  "description": "רשת החיים – משחק תלת־ממד חינוכי על המגוון הביולוגי (Web of Life: a 3D educational biodiversity game)",
+  "scripts": {
+    "build": "node build.mjs",
+    "build:torah": "node build.mjs --edition=torah",
+    "build:desktop": "node build.mjs --desktop",
+    "validate": "node tools/validate-content.mjs && node tools/validate-kids.mjs"
+  },
+  "author": "Avi Fleischman",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "esbuild": "^0.28.2",
+    "three": "^0.186.1"
+  },
+  "private": true
+}
