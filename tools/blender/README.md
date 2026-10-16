@@ -39,3 +39,22 @@ into the same namespace and upgrades the pipeline without changing any bone or c
 
 Running it: Blender calls must answer within 60 s, so builds run in a background queue inside Blender
 (`enqueue(ids, views=(...), export=True)` / `take()` in the session namespace); each animal takes 10 to 55 s.
+
+### v3 (October 2026): legs, body plans, mouths, bees
+
+- **Three-joint legs:** `anat_legs` splits each lower leg at the wrist / hock into a third bone (`fl3 fr3 hl3 hr3`, from
+  the joint to the ground) and moves the cannon, fetlock and foot blobs (and hoof parts) onto it. `_foot_fn` wraps every
+  clip: on the ground the foot undoes the leg's swing and stays flat, in the air it folds back; knees bend ×1.25 in walk
+  and run. Set `noLeg3` in a spec to keep two bones.
+- **Feet:** hooves are wider than the pastern and sit flat on the ground; paws are wider and longer than the leg, with a
+  pad behind. No leg ends in a point.
+- **Body plans:** `BODY` holds a trunk profile per family (felid, canid, ungulate, rodent, heavy), seven stations from the
+  rump to the brisket (depth, width, centre shift). `body_plan` replaces the species' hips / chest ellipsoids with 17
+  overlapping ellipsoids that follow the profile, sized by the species' own rear and front blobs. `BODY_OF` maps species.
+- **Mouths:** `MOUTH` gives the corner position, the drop below the nose, the thickness and the colour; `_mouth` finds
+  the lip line on the blob union with rays and lays a thin tapered tube along it.
+- **Bees:** `bee_spec(sid, colours)` builds one bee (hairy thorax, banded abdomen on its own bone, compound eyes, elbowed
+  antennae, six jointed legs, two wing pairs) and `bee_actions` (fly / hover with a fast beat, perch with the wings folded
+  back over the abdomen). `honeybee.py` and `orchidbee.py` are the same model in two colourings.
+- Clip rotations are in authoring axes, applied yaw · pitch · roll: for a wing along +x, roll (z) beats it, yaw (y)
+  sweeps it back.

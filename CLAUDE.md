@@ -10,6 +10,7 @@ An offline 3D educational biodiversity game in Hebrew for Baba Da (בבא דע),
 
 - **Content:** no human figures at all, no women or girls depicted or named, no dinosaurs, no "millions of years" (say "בעבר הרחוק"), no evolution language, no pigs. Gentle, simple Hebrew for grades 3 to 5, correct grammatical gender, fully right-to-left. Facts must be checked against a source (`docs/sources.md`). `node tools/validate-content.mjs` enforces the text rules, including UI and torah text.
 - **Talking with the owner:** always in Hebrew, plain everyday language (not a literary style). Documents and printouts fully RTL. Written content for others should not read as machine-written (no em dashes, no hype words).
+- **Upgrades keep the data:** every version (1.2.x and the future 1.3) installs over the previous one and keeps all saves, players and cards. Never change the desktop `appId` / `productName` (both editions), the `app://game` origin or the `web-of-life*` storage keys; `tests/fixtures/saves-<version>.json` holds a save from each released version and `tools/check-old-saves.py` must load all of them.
 - **Look:** polished and colourful but "not a circus". Trees stay procedural (no Blender trees: mixing would look unnatural); animals are Blender-rigged.
 
 ## Build and test

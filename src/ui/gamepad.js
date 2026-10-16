@@ -36,7 +36,7 @@ export function initGamepad({ toast } = {}) {
 
   function show(on) { active = on; cur.classList.toggle('on', on); }
   window.addEventListener('mousemove', (e) => { if (active && e.isTrusted) show(false); }, { passive: true });
-  window.addEventListener('gamepadconnected', () => { toast && toast('שלט משחק מחובר. מזיזים את הסמן בסטיק השמאלי ולוחצים A.', 'info'); loop(); });
+  window.addEventListener('gamepadconnected', () => { toast && toast('שלט משחק מחובר: הסטיק השמאלי מזיז את הסמן, A לוחץ, B חוזר, והסטיק הימני מסובב את המבט.', 'info'); loop(); });
   window.addEventListener('gamepaddisconnected', () => { show(false); setHold('rot', 0); setHold('tilt', 0); setHold('zoom', 0); });
 
   const elAt = () => document.elementFromPoint(x, y);

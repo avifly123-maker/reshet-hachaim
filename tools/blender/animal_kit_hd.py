@@ -762,10 +762,10 @@ def body_plan(spec, fam):
 # species → (how far back the corner is ×head length, how far below the nose ×head length, line thickness ×head length,
 # colour). The line follows the skin: each point is found by a ray against the blob union.
 MOUTH = {
-    'fox': (.42, .07, .012, '#2a1c16'), 'jaguar': (.4, .1, .014, '#2a1a14'), 'gazelle': (.3, .06, .011, '#3a2a20'),
-    'tapir': (.2, .12, .012, '#1e1612'), 'capybara': (.26, .1, .012, '#2a1a10'), 'agouti': (.3, .08, .012, '#2a1a10'),
-    'coati': (.34, .06, .012, '#241812'), 'howler': (.3, .12, .016, '#120c0a'), 'kinkajou': (.32, .1, .014, '#2a1810'),
-    'hyrax': (.28, .09, .013, '#22160e'), 'sloth': (.3, .12, .016, '#2a2420'), 'porcupine': (.26, .09, .012, '#120c08'),
+    'fox': (.42, .07, .009, '#3a2620'), 'jaguar': (.36, .1, .01, '#4a2e24'), 'gazelle': (.3, .06, .008, '#4a3428'),
+    'tapir': (.2, .12, .009, '#2a201a'), 'capybara': (.24, .1, .009, '#3a2618'), 'agouti': (.28, .08, .009, '#3a2618'),
+    'coati': (.32, .06, .009, '#33221a'), 'howler': (.28, .12, .011, '#1a1210'), 'kinkajou': (.3, .1, .01, '#3a2418'),
+    'hyrax': (.26, .09, .01, '#2e1e14'), 'sloth': (.28, .12, .011, '#3a322c'), 'porcupine': (.24, .09, .009, '#1a120c'),
 }
 def _mouth(spec):
     m = MOUTH.get(spec['id'])
@@ -789,18 +789,17 @@ def _mouth(spec):
     part = Part('mouth', bone='head', mat=0, color=srgb(col))
     lip = front(ny - d)
     if lip is None: return spec
-    top = front(ny - r * 1.5)
-    if top is not None:   # the short line from the nose down to the lip (philtrum)
-        part.add(*tube([top + Vector((0, 0, r * 0.4)), lip + Vector((0, 0, r * 0.4))], [r * 0.8, r * 0.9], 5))
-    for sx in (1, -1):
-        pts = [lip + Vector((0, 0, r * 0.4))]
-        for i in range(1, 9):
-            s_ = i / 8; z = lip.z - Lh * back * s_; y = lip.y - d * 0.35 * s_ + d * 0.25 * math.sin(math.pi * s_) * 0.3
-            h = side(sx, y, z)
+    for sx in (1, -1):   # from the middle of the lip back to the corner: dips a little, then rises (a calm closed mouth)
+        pts = []; rads = []
+        for i in range(0, 11):
+            s_ = i / 10; z = lip.z - r * 0.6 - Lh * back * s_
+            y = lip.y - d * 0.55 * s_ + d * 0.5 * s_ * s_
+            h = side(sx, y, z) if i else front(y)
             if h is None: break
-            pts.append(h + Vector((sx * r * 0.35, 0, 0)))
-        if len(pts) > 2:
-            part.add(*tube(pts, [r * (1.0 - 0.35 * (j / (len(pts) - 1))) for j in range(len(pts))], 5))
+            pts.append(h + (Vector((sx * r * 0.15, 0, 0)) if i else Vector((sx * r * 0.3, 0, r * 0.1))))
+            rads.append(r * (0.5 + 0.5 * math.sin(math.pi * min(1.0, 0.15 + s_ * 0.85))))
+        if len(pts) > 3:
+            part.add(*tube(pts, rads, 5))
     if part.v: spec['parts'].append(part)
     return spec
 
@@ -941,7 +940,7 @@ TWEAK = {
     'fox': lambda sp: _part(_fox_head(_smooth_tail(sp, [0.035, 0.06, 0.082, 0.078, 0.06, 0.035])), 'nose', scale=(1.0, 1.0, 1.1), move=(0, 0.003, 0.01)),
     'jaguar': _jaguar_head,
     'capybara': _capy_head,
-    'spinymouse': _seat_spines,
+    'spinymouse': lambda sp: (sp.__setitem__('seatSpines', True) or sp),
 }
 
 # ───────────────────────────────────────── bees (one model: the honeybee and the orchid bee differ only in colour)
@@ -1016,6 +1015,7 @@ def build_hd(spec, place=None, bake=True):
     if spec['id'] in TWEAK: TWEAK[spec['id']](spec)
     if skin_of(spec) == 'feather': _bird_fold(spec)
     if spec['id'] in BODY_OF and not spec.get('noBody'): body_plan(spec, BODY_OF[spec['id']])
+    if spec.get('seatSpines'): _seat_spines(spec)   # after the body plan: the spines sit on the final skin
     if spec['id'] in EYE and not spec.get('noEyeSet'): _set_eyes(spec)
     _mouth(spec)
     if spec['id'] in ANAT and not spec.get('noAnat'):
