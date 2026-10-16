@@ -3,7 +3,8 @@
 LEGH = 0.26
 blobs = [
     dict(t='ell', c=(0, 0.0, -0.04), r=(0.14, 0.15, 0.25), rot=(-12, 0, 0), bone='hips'),
-    dict(t='ell', c=(0, 0.05, 0.12), r=(0.13, 0.14, 0.13), bone='chest'),
+    dict(t='ell', c=(0, 0.04, 0.12), r=(0.15, 0.16, 0.15), bone='chest'),
+    dict(t='ell', c=(0, -0.04, 0.13), r=(0.12, 0.12, 0.11), bone='chest'),          # deep, powerful breast
     dict(t='cap', a=(0, 0.11, 0.17), b2=(0, 0.17, 0.22), r=(0.085, 0.075), bone='neck'),
     dict(t='ell', c=(0, 0.2, 0.25), r=(0.08, 0.085, 0.09), bone='head'),
     # the double crest
@@ -47,12 +48,19 @@ parts.append(beak_part((0, 0.2, 0.32), 0.07, 0.025, 0.035, srgb('#2a2a2c'), srgb
 parts.append(tail_fan((0, 0.01, -0.24), 0.36, 0.1, 0.16, tcol, rows=7, cols=6, thick=0.012))
 
 names = [b[0] for b in bones]
-acts = bird_actions(names, dict(legH=LEGH, hop=False, perch_pitch=-22, flap=38, flap_frames=30, peck=45, glide_dihedral=5,
+acts = bird_actions(names, dict(legH=LEGH, hop=False, perch_pitch=-38, flap=38, flap_frames=30, peck=45, glide_dihedral=5,
                                 frames=dict(glide=120)))
 fr, fn = acts['perch']
 def perch(ph):
     p = fn(ph); p['crest'] = (-20 * smooth(0.4, 0.5, ph) * smooth(0.8, 0.7, ph), 0, 0); return p
 acts['perch'] = (fr, perch)
-SPEC = dict(id='harpy', bones=bones, blobs=blobs, parts=parts, paint=paint, res=0.009, tris=2400, smooth=10, actions=acts,
+for k in ('perch', 'idle', 'eat', 'sleep'):      # an upright eagle: the legs stay under the body, the head stays level
+    fr2, fn2 = acts[k]
+    def w(ph, fn2=fn2):
+        p = fn2(ph); hp = p.get('hips', ((0, 0, 0), None)); tilt = (hp[0] if isinstance(hp[0], (tuple, list)) else hp)[0]
+        for L in ('l', 'r'): p['l' + L] = (-tilt, 0, 0)
+        h = p.get('head', (0, 0, 0)); p['head'] = (h[0] - tilt * 0.8, h[1], h[2]); return p
+    acts[k] = (fr2, w)
+SPEC = dict(id='harpy', foldK=1.35, bones=bones, blobs=blobs, parts=parts, paint=paint, res=0.009, tris=2400, smooth=10, actions=acts,
             meta=dict(height=0.8, length=1.3, speeds={'walk': 0.3, 'fly': 10}, gripY={'perch': -LEGH}, perchOffset=LEGH,
                       map={'hover': 'glide', 'run': 'walk', 'climb': 'perch'}))
