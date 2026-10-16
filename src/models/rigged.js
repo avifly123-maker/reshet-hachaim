@@ -1,7 +1,10 @@
 // Rigged animals made in Blender (tools/blender/animal_kit.py → tools/build-rigged.py → src/data/rigged-<zone>.js).
-// One skinned mesh per animal (vertex colours; a glossy second material for eyes / noses), a skeleton, and looping
-// action clips (idle, walk, eat, sleep, fly…) baked at 30 fps. Implements the AnimalVisual contract (CONTRACT.md §4),
-// so the world code treats it exactly like the procedural models it replaces.
+// One skinned mesh per animal, a skeleton, and looping action clips (idle, walk, eat, sleep, fly…) baked at 30 fps.
+// Implements the AnimalVisual contract (CONTRACT.md §4), so the world code treats it like the procedural models.
+//   v1: vertex colours only.
+//   v2 (tools/blender/animal_kit_hd.py, the "museum diorama" models): a colour texture with soft occlusion and a
+//       normal map baked from a dense sculpt with fur / feather / scale relief, UVs and normals, and a lighter far
+//       version (lod1) that shares the skeleton and the textures – THREE.LOD switches between them by distance.
 import * as THREE from 'three';
 import { makeRng, cachedMaterial, releaseMaterials } from '../core/util.js';
 
@@ -17,10 +20,51 @@ const FALLBACK = {
   glide: ['fly'], hover: ['fly'], hang: ['sleep', 'idle'], sleep: ['idle'], fly: ['idle'], walk: ['idle'],
 };
 
+// the far (light) version takes over beyond this distance (game metres) + a little more for tall animals
+const LOD_FAR = 26, LOD_PER_M = 14;
 const cache = new Map();
+// v2 geometry: positions in a box (int16), uv (uint16), normals (int8), skin, indices grouped by material (1 = glossy)
+function geoV2(d) {
+  const g = new THREE.BufferGeometry();
+  const q = i16(d.pos), n = q.length / 3, bx = d.box, pos = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) for (let k = 0; k < 3; k++) pos[i * 3 + k] = bx[k] + (q[i * 3 + k] + 32768) / 65535 * (bx[k + 3] - bx[k]);
+  const uq = u16(d.uv), uv = new Float32Array(n * 2);
+  for (let i = 0; i < n * 2; i++) uv[i] = uq[i] / 65535;
+  const nb = bytes(d.n), nrm = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) {
+    let x = (nb[i * 3] << 24 >> 24) / 127, y = (nb[i * 3 + 1] << 24 >> 24) / 127, z = (nb[i * 3 + 2] << 24 >> 24) / 127;
+    const l = Math.hypot(x, y, z) || 1; nrm[i * 3] = x / l; nrm[i * 3 + 1] = y / l; nrm[i * 3 + 2] = z / l;
+  }
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+  g.setAttribute('normal', new THREE.BufferAttribute(nrm, 3));
+  g.setAttribute('skinIndex', new THREE.Uint16BufferAttribute(Array.from(bytes(d.sk)), 4));
+  g.setAttribute('skinWeight', new THREE.BufferAttribute(bytes(d.sw), 4, true));
+  const ib = bytes(d.idx), ix = n < 65536 ? new Uint16Array(ib.buffer, 0, ib.length >> 1) : new Uint32Array(ib.buffer, 0, ib.length >> 2);
+  g.setIndex(new THREE.BufferAttribute(ix, 1));
+  const rough = new Float32Array(n).fill(0.82);
+  for (const [s0, cnt, m] of d.groups) if (m === 1) for (let i = s0; i < s0 + cnt; i++) rough[ix[i]] = 0.16;
+  g.setAttribute('aRough', new THREE.BufferAttribute(rough, 1));
+  return g;
+}
+function texture(b64, srgb) {
+  const img = new Image(); const t = new THREE.Texture(img);
+  img.onload = () => { t.needsUpdate = true; };
+  img.src = 'data:image/webp;base64,' + b64;
+  if (srgb) t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 4; t.generateMipmaps = true; t.minFilter = THREE.LinearMipmapLinearFilter;
+  return t;
+}
 function prepare(id, d) {
   let c = cache.get(id);
   if (c) return c;
+  if (d.v === 2) {
+    const geo = geoV2(d), lod = d.lod1 ? geoV2(d.lod1) : null;
+    c = { geo, lod, clips: clipsOf(id, d), bones: d.bones, meta: d.meta || {}, tris: geo.index.count / 3,
+      tex: { map: texture(d.tex.col, true), normalMap: texture(d.tex.nrm, false) } };
+    cache.set(id, c);
+    return c;
+  }
   const g = new THREE.BufferGeometry();
   const q = i16(d.pos), n = q.length / 3, bx = d.box, pos = new Float32Array(n * 3);
   for (let i = 0; i < n; i++) for (let k = 0; k < 3; k++) pos[i * 3 + k] = bx[k] + (q[i * 3 + k] + 32768) / 65535 * (bx[k + 3] - bx[k]);
@@ -38,7 +82,11 @@ function prepare(id, d) {
   for (const [s0, cnt, m] of d.groups) if (m === 1) for (let i = s0; i < s0 + cnt; i++) rough[ix[i]] = 0.18;
   g.setAttribute('aRough', new THREE.BufferAttribute(rough, 1));
   g.computeVertexNormals();
-  // clips
+  c = { geo: g, clips: clipsOf(id, d), bones: d.bones, meta: d.meta || {}, tris: g.index.count / 3 };
+  cache.set(id, c);
+  return c;
+}
+function clipsOf(id, d) {
   const names = d.bones.map((b) => b.n), clips = {};
   for (const [name, cl] of Object.entries(d.clips)) {
     const N = cl.n, fps = cl.fps || 30, times = new Float32Array(N + 1);
@@ -62,11 +110,23 @@ function prepare(id, d) {
     }
     clips[name] = new THREE.AnimationClip(id + ':' + name, N / fps, tracks);
   }
-  c = { geo: g, clips, bones: d.bones, meta: d.meta || {}, tris: g.index.count / 3 };
-  cache.set(id, c);
-  return c;
+  return clips;
 }
 
+// the per-vertex roughness (glossy eyes, noses, claws) is the same shader patch for v1 and v2
+function roughPatch(m) {
+  m.onBeforeCompile = (sh) => {
+    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nattribute float aRough;\nvarying float vRough;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvRough = aRough;');
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying float vRough;')
+      .replace('#include <roughnessmap_fragment>', 'float roughnessFactor = vRough;');
+  };
+  m.customProgramCacheKey = () => 'rigged-rough';
+  return m;
+}
+function materialV2(id, tex) {
+  return cachedMaterial('rigged:hd:' + id, () => roughPatch(new THREE.MeshStandardMaterial({ map: tex.map, normalMap: tex.normalMap, roughness: 0.82, metalness: 0 })));
+}
 function materials() {
   return cachedMaterial('rigged:skin', () => {
     const m = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.85, metalness: 0 });
@@ -87,15 +147,30 @@ export function makeRigged(id, data, opts = {}) {
   const object = new THREE.Group(); object.name = id;
   const bones = P.bones.map((b) => { const o = new THREE.Bone(); o.name = b.n; o.position.fromArray(b.t); o.quaternion.fromArray(b.q); return o; });
   P.bones.forEach((b, i) => { if (b.p >= 0) bones[b.p].add(bones[i]); });
-  const mesh = new THREE.SkinnedMesh(P.geo, materials());
-  mesh.add(bones[0]); mesh.updateMatrixWorld(true);
-  mesh.bind(new THREE.Skeleton(bones));
-  mesh.castShadow = true; mesh.receiveShadow = true;
-  // culling sphere from the rest pose, enlarged so stretched poses (flight, climbing, hanging) never pop out of view
-  mesh.computeBoundingSphere(); mesh.boundingSphere.radius *= 1.7;
-  object.add(mesh);
+  const mat = P.tex ? materialV2(id, P.tex) : materials();
+  const mesh = new THREE.SkinnedMesh(P.geo, mat);
+  const meshes = [mesh];
+  if (P.lod) {
+    // near: the detailed mesh; far: the light one. Both share the bones (kept on the group) and the textures.
+    const far = new THREE.SkinnedMesh(P.lod, mat);
+    const lod = new THREE.LOD();
+    lod.addLevel(mesh, 0); lod.addLevel(far, LOD_FAR + LOD_PER_M * (meta.height || 0.5), 0.1);
+    object.add(bones[0]); object.add(lod); object.updateMatrixWorld(true);
+    const skel = new THREE.Skeleton(bones);
+    mesh.bind(skel); far.bind(skel);
+    meshes.push(far);
+  } else {
+    mesh.add(bones[0]); mesh.updateMatrixWorld(true);
+    mesh.bind(new THREE.Skeleton(bones));
+    object.add(mesh);
+  }
+  for (const m of meshes) {
+    m.castShadow = true; m.receiveShadow = true;
+    // culling sphere from the rest pose, enlarged so stretched poses (flight, climbing, hanging) never pop out of view
+    m.computeBoundingSphere(); m.boundingSphere.radius *= 1.7;
+  }
   const sc = 0.94 + rng() * 0.12; object.scale.setScalar(sc);
-  const mixer = new THREE.AnimationMixer(mesh);
+  const mixer = new THREE.AnimationMixer(P.lod ? object : mesh);
   const acts = {};
   for (const [k, clip] of Object.entries(P.clips)) { const a = mixer.clipAction(clip); a.time = rng() * clip.duration; acts[k] = a; }
   const map = meta.map || {};
@@ -128,13 +203,14 @@ export function makeRigged(id, data, opts = {}) {
   // ones (time is accumulated, so the motion keeps its speed). Off-screen animals cost nothing.
   let seen = true, acc = 0, skip = 0, every = 1;
   const _wp = new THREE.Vector3();
-  mesh.onBeforeRender = (r, sc, cam) => {
+  const onDraw = (r, sc, cam) => {
     seen = true;
     if (!cam || !cam.isPerspectiveCamera) { every = 1; return; }
     const d = cam.position.distanceTo(object.getWorldPosition(_wp));
     const px = (r.domElement.height / (2 * Math.tan(cam.fov * Math.PI / 360))) * object.scale.y * (meta.height || 0.4) / Math.max(0.1, d);
     every = px > 40 ? 1 : px > 18 ? 2 : 3;   // on-screen height in pixels
   };
+  for (const m of meshes) m.onBeforeRender = onDraw;
   const grip = {}; for (const [k, v] of Object.entries(meta.gripY || {})) grip[k] = v * sc;
   return {
     type: 'animal', id, object,
@@ -153,7 +229,7 @@ export function makeRigged(id, data, opts = {}) {
       skip = 0; dirty = false;
       mixer.update(acc); acc = 0;
     },
-    dispose() { mixer.stopAllAction(); mixer.uncacheRoot(mesh); mesh.skeleton.dispose(); object.removeFromParent(); },
+    dispose() { mixer.stopAllAction(); mixer.uncacheRoot(mixer.getRoot()); mesh.skeleton.dispose(); object.removeFromParent(); },
   };
 }
 
@@ -168,6 +244,6 @@ export function withRigged(animals, data) {
 }
 
 export function releaseRigged() {
-  for (const c of cache.values()) c.geo.dispose();
+  for (const c of cache.values()) { c.geo.dispose(); if (c.lod) c.lod.dispose(); if (c.tex) { c.tex.map.dispose(); c.tex.normalMap.dispose(); } }
   cache.clear(); releaseMaterials('rigged:');
 }
