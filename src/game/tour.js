@@ -8,6 +8,7 @@
 import * as THREE from 'three';
 import { gw, defName, prefName, joinObj, dietVerb } from '../data/common.js';
 import { ARROW, holdButton } from './immersive.js';
+import { zoneWord } from '../core/place.js';
 
 const CSS_ID = 'tour-css';
 const CSS = `
@@ -130,13 +131,13 @@ export function createTour({ W, env, reg, camera, canvas, ui, audio, imv, missio
   pick.className = 'tour-pick'; pick.lang = 'he';
   pick.innerHTML = `<div class="tp-back"></div><div class="tp-box paper" role="dialog" aria-modal="true" aria-label="סיור בעיני בעלי חיים">
     <button type="button" class="tp-close" aria-label="סגירה">${ARROW.close}</button>
-    <h2>סיור בעיני בעלי חיים</h2><p>בחרו חיה, ותראו את האי כמו שהיא רואה אותו</p><div class="tp-grid"></div></div>`;
+    <h2>סיור בעיני בעלי חיים</h2><p>בחרו חיה, ותראו את ${zoneWord()} כמו שהיא רואה אותו</p><div class="tp-grid"></div></div>`;
   root.appendChild(pick);
   const grid = pick.querySelector('.tp-grid');
   function openPicker() {
     const ids = presentSpecies().slice(0, 6);
     grid.innerHTML = ids.length ? ids.map(id => { const sp = reg.byId.get(id); return `<button type="button" class="tp-card" data-id="${esc(id)}">${imgHTML(id, 'tp-img')}<b>${esc(sp.name)}</b><small>${esc(locoText(id, sp.locomotion))}</small></button>`; }).join('')
-      : '<p class="tp-none">עוד אין באי בעלי חיים שאפשר לטייל איתם. הביאו בעלי חיים מהמגש, ונסו שוב.</p>';
+      : `<p class="tp-none">עוד אין ${zoneWord('in')} בעלי חיים שאפשר לטייל איתם. הביאו בעלי חיים מהמגש, ונסו שוב.</p>`;
     pick.classList.add('on'); audio && audio.play && audio.play('click');
     const first = grid.querySelector('button'); if (first) requestAnimationFrame(() => { try { first.focus({ preventScroll: true }); } catch (e) { } });
   }
@@ -150,7 +151,7 @@ export function createTour({ W, env, reg, camera, canvas, ui, audio, imv, missio
   // ── riding view overlay
   const el = document.createElement('div');
   el.className = 'imv tour-view'; el.lang = 'he';
-  el.innerHTML = `<button type="button" class="imv-exit" data-a="exit">${ARROW.close}<span>חזרה לאי</span><kbd>Esc</kbd></button>
+  el.innerHTML = `<button type="button" class="imv-exit" data-a="exit">${ARROW.close}<span>חזרה ${zoneWord('lamed')}</span><kbd>Esc</kbd></button>
     <button type="button" class="tv-swap">חיה אחרת</button>
     <div class="tv-cap paper"><div class="tv-head"><span class="tv-imgw"></span><div><div class="tv-name"></div><div class="tv-state"><span class="tv-do"></span><span class="tv-who"></span></div></div></div>
       <div class="tv-note"><b></b><p></p></div><div class="tv-keys"></div></div>
@@ -190,7 +191,7 @@ export function createTour({ W, env, reg, camera, canvas, ui, audio, imv, missio
 
   function start(id) {
     const a = bestOf(id);
-    if (!a) { ui.toast('לא מצאתי עכשיו חיה כזאת באי', 'info'); return; }
+    if (!a) { ui.toast(`לא מצאתי עכשיו חיה כזאת ${zoneWord('in')}`, 'info'); return; }
     if (R) releaseAnimal();
     const mode = modeOf(a);
     R = { a, mode, camYaw: a.heading, lookOff: 0, lookV: 0, turnV: 0, spd: 0, altV: 0, idle: 99, pos: new THREE.Vector3(), look: new THREE.Vector3(), fresh: true,

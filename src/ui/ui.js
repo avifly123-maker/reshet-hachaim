@@ -4,6 +4,7 @@ import { artPos } from '../data/art-focus.js';
 import { TORAH, sourcesOn, setSourcesOn, EDITION_NAME } from '../core/edition.js';
 import { ISLAND_ART } from '../data/island-art.js';
 import { avatarHTML, avatarName, AVATAR_IDS } from './avatars.js';
+import { zoneWord } from '../core/place.js';
 
 /* ------------------------------------------------------------------ helpers */
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -313,7 +314,7 @@ export function createUI(root, bus) {
       </div>
       <div class="st-cards"></div>
       <ol class="st-how">
-        <li><span class="st-n">1</span><span><b>גוררים</b> צמח או בעל חיים אל האי</span></li>
+        <li><span class="st-n">1</span><span><b>גוררים</b> צמח או בעל חיים אל היער</span></li>
         <li><span class="st-n">2</span><span><b>מגלים</b> את הקשרים שביניהם</span></li>
         <li><span class="st-n">3</span><span><b>שומרים</b> על יער מלא חיים ואור</span></li>
       </ol></div>`;
@@ -521,7 +522,7 @@ export function createUI(root, bus) {
           <button class="km-row" data-a="help" role="menuitem">${icon('help')}<span>איך משחקים</span></button>
           <button class="km-row" data-a="save" role="menuitem">${icon('save')}<span>שמירת היער</span></button>
           <button class="km-row" data-a="report" role="menuitem">${icon('pencil')}<span>דוח יומי</span></button>
-          <button class="km-row" data-a="reset" role="menuitem">${icon('target')}<span>מבט על כל האי</span></button>
+          <button class="km-row" data-a="reset" role="menuitem">${icon('target')}<span>מבט על ${zoneWord('all')}</span></button>
         </div>
         <div class="km-set"><h4>הגדרות</h4>
           <button class="km-row km-switch" data-a="sound" role="menuitemcheckbox">${icon('sound')}<span>צלילים</span><i class="sw"></i></button>
@@ -574,9 +575,10 @@ export function createUI(root, bus) {
   paintToggles();
 
   /* ================================================================ MISSIONS */
-  missions.innerHTML = `<header class="m-head"><span class="m-ic">${icon('flower')}</span><h3>משימות</h3><span class="m-count"></span>
+  missions.innerHTML = `<header class="m-head"><span class="m-ic">${icon('flower')}</span><h3>משימות</h3><span class="m-count"></span><button class="m-hist" title="משימות שבוצעו" aria-label="משימות שבוצעו">${icon('check')}<span>בוצעו</span></button>
     <button class="m-fold" title="קפל/פתח" aria-label="קפל או פתח את המשימות" aria-expanded="true">${icon('chevron')}</button></header><ul class="m-list"></ul>`;
   const mList = missions.querySelector('.m-list'), mCount = missions.querySelector('.m-count');
+  missions.querySelector('.m-hist').addEventListener('click', (e) => { e.stopPropagation(); emit('missions:history'); });
   missions.querySelector('.m-head').addEventListener('click', () => { const f = missions.classList.toggle('folded'); missions.querySelector('.m-fold').setAttribute('aria-expanded', String(!f)); });
   mList.addEventListener('click', (e) => {
     const hintB = e.target.closest('.m-hint-btn');
@@ -603,7 +605,7 @@ export function createUI(root, bus) {
       <div class="tr-filter"></div>
       <button class="tr-info" title="מה רואים בקלף?" aria-label="מה רואים בקלף?" aria-expanded="false">${icon('info')}</button>
       <button class="tr-fold" title="הסתר/הצג" aria-label="הסתר או הצג את הקלפים">${icon('chevron')}</button></div>
-    <div class="tr-help" role="note"><p><span class="lg-dot">3</span>כמה יש ביער עכשיו</p><p><span class="lg-cost">${icon('leaf')}20</span>המחיר בנקודות חיים</p><p><span class="lg-drag">${icon('arrowL')}</span>גוררים את הקלף אל האי</p></div>
+    <div class="tr-help" role="note"><p><span class="lg-dot">3</span>כמה יש ביער עכשיו</p><p><span class="lg-cost">${icon('leaf')}20</span>המחיר בנקודות חיים</p><p><span class="lg-drag">${icon('arrowL')}</span>גוררים את הקלף ${zoneWord('to')}</p></div>
     <div class="tr-scroll"><div class="tr-cards"></div></div>
     <div class="tr-cancel">${icon('close')}שחררו כאן כדי לבטל</div>`;
   const trTabs = [...tray.querySelectorAll('[data-tab]')], trFilter = tray.querySelector('.tr-filter');
@@ -725,6 +727,7 @@ export function createUI(root, bus) {
     const act = t.dataset.act, id = S.species.id;
     if (act === 'close') { emit('species:close'); ui.hideSpecies(); }
     else if (act === 'follow') { emit('species:follow', { id }); t.classList.add('on'); }
+    else if (act === 'locate') emit('species:locate', { id });
     else if (act === 'exp') { if (!t.disabled) emit('species:experiment', { id }); }
     else if (act === 'tour') emit('species:tour', { id });
     else if (act === 'select') emit('species:select', { id: t.dataset.id });
@@ -789,6 +792,7 @@ export function createUI(root, bus) {
       </div>
       <footer class="sp-actions">
         ${s.tour ? `<button class="btn sp-tour" data-act="tour">${icon('binoc')}${esc(s.tour)}</button>` : ''}
+        <button class="btn ghosty sp-locate" data-act="locate" title="סמנו את כולם ביער">${icon('target')}איפה?</button>
         <button class="btn ghosty" data-act="follow">${icon('binoc')}עקוב</button>
         <button class="btn amber" data-act="exp" ${s.canRemove === false ? 'disabled title="אין עכשיו מה לבדוק"' : ''}>${icon('flask')}מה יקרה אם ייעלם?</button>
       </footer>`;
@@ -797,7 +801,7 @@ export function createUI(root, bus) {
   }
 
   /* ================================================================ MODALS */
-  const open = { event: null, outcome: null, dialog: null, journal: null };
+  const open = { event: null, outcome: null, dialog: null, journal: null, history: null };
   function makeModal(kind, inner, cls = '') {
     closeModal(kind);
     const wrap = h('div', `modal m-${kind}`, `<div class="backdrop"></div><div class="mbox paper ${cls}">${inner}</div>`, modalEl);
@@ -888,7 +892,7 @@ export function createUI(root, bus) {
     if (bannerBusy || !bannerQ.length) return;
     bannerBusy = true;
     const m = bannerQ.shift();
-    const b = h('div', 'mission-banner', `<div class="mb-ribbon">${icon('check')}</div><small>משימה הושלמה!</small><h3>${esc(m.title)}</h3>${m.rewardText ? `<p>${esc(m.rewardText)}</p>` : ''}`, root);
+    const b = h('div', 'mission-banner', `<div class="mb-ribbon">${icon('check')}</div><small>משימה הושלמה!</small><h3>${esc(m.title)}</h3>${m.note ? `<p class="mb-note">בוצע: ${esc(m.note)}</p>` : ''}${m.rewardText ? `<p>${esc(m.rewardText)}</p>` : ''}`, root);
     requestAnimationFrame(() => b.classList.add('on'));
     confetti();
     setTimeout(() => { b.classList.remove('on'); b.classList.add('off'); }, 3800);
@@ -905,6 +909,7 @@ export function createUI(root, bus) {
       if (qWrap.classList.contains('open')) { setKit(false); kitBtn.focus(); return; }
       if (tray.classList.contains('help-open')) { tray.classList.remove('help-open'); return; }
       if (open.dialog) { if (dismissDialog()) e.preventDefault(); return; }
+      if (open.history) { closeModal('history'); return; }
       if (open.journal) { emit('journal:close'); ui.hideJournal(); return; }
       if (open.outcome) { emit('outcome:close'); closeModal('outcome'); return; }
       if (S.species) { emit('species:close'); ui.hideSpecies(); return; }
@@ -1029,7 +1034,7 @@ export function createUI(root, bus) {
 
     setMissions(list) {
       list = Array.isArray(list) ? list : [];
-      const sig = JSON.stringify(list.map((m) => [m.id, m.title, m.text, m.hint, Math.round(clamp01(m.progress) * 100), !!m.done]));
+      const sig = JSON.stringify(list.map((m) => [m.id, m.title, m.text, m.hint, m.how, m.note, Math.round(clamp01(m.progress) * 100), !!m.done]));
       if (sig === S.missionsSig) return;
       S.missionsSig = sig;
       const hintsOpen = new Set([...mList.querySelectorAll('li.hint-open')].map((x) => x.dataset.id));
@@ -1037,7 +1042,7 @@ export function createUI(root, bus) {
         const p = m.done ? 1 : clamp01(m.progress);
         return `<li data-id="${esc(m.id)}" class="${m.done ? 'done' : ''}${S.openMission === m.id ? ' open' : ''}${hintsOpen.has(m.id) ? ' hint-open' : ''}">
           <div class="m-row"><span class="m-check" style="--p:${(p * 100).toFixed(1)}%">${m.done ? icon('check') : ''}</span><b>${esc(m.title)}</b><span class="m-pc">${m.done ? '' : Math.round(p * 100) + '%'}</span></div>
-          <div class="m-detail"><p>${esc(m.text || '')}</p>${m.hint && !m.done ? `<button class="m-hint-btn">${icon('bulb')}רמז</button><p class="m-hint">${esc(m.hint)}</p>` : ''}</div></li>`;
+          <div class="m-detail"><p>${esc(m.text || '')}</p>${m.done && m.note ? `<p class="m-note">${icon('check')}בוצע: ${esc(m.note)}</p>` : ''}${(m.hint || m.how) && !m.done ? `<button class="m-hint-btn">${icon('bulb')}רמז</button><div class="m-hint">${m.hint ? `<p>${esc(m.hint)}</p>` : ''}${m.how ? `<p class="m-how">${esc(m.how)}</p>` : ''}</div>` : ''}</div></li>`;
       }).join('');
       const d = list.filter((m) => m.done).length;
       mCount.textContent = list.length ? `${d}/${list.length}` : '';
@@ -1121,6 +1126,14 @@ export function createUI(root, bus) {
 
     setToggles(t) { Object.assign(S.toggles, t || {}); paintToggles(); },
 
+    showDoneMissions(list) {
+      list = Array.isArray(list) ? list : [];
+      const w = makeModal('history', `<button class="j-close" title="סגור" aria-label="סגור">${icon('close')}</button>
+        <h2>משימות שבוצעו</h2><p class="mh-sub">${list.length ? (list.length === 1 ? 'השלמתם משימה אחת.' : `השלמתם ${fmt(list.length)} משימות.`) : 'עוד לא השלמתם משימות. המשימה הנוכחית מחכה לכם בצד.'}</p>
+        <ol class="mh-list">${list.map((m) => `<li><span class="mh-ic">${icon('check')}</span><div><b>${esc(m.title)}</b><p>${esc(m.text || '')}</p>${m.note ? `<p class="mh-note">בוצע: ${esc(m.note)}</p>` : ''}</div></li>`).join('')}</ol>`, 'history');
+      const close = () => closeModal('history');
+      w.querySelector('.j-close').addEventListener('click', close); w.querySelector('.backdrop').addEventListener('click', close);
+    },
     showJournal(j) {
       if (!j) return;
       const st = j.stats || {};

@@ -11,6 +11,7 @@ import { KIDS } from './data/kids.js';
 import { ZONES } from './data/zones.js';
 import { loadPack, loadedPack, releasePack } from './core/packs.js';
 import * as profiles from './core/profiles.js';
+import { initGamepad } from './ui/gamepad.js';
 
 // Zones (biomes): the start screen draws them from the registry (data/zones.js); a zone's content and species models
 // arrive in its pack – { zone: { data, plants, animals }, release() } – loaded when the zone is chosen (core/packs.js).
@@ -60,6 +61,7 @@ async function boot() {
   const root = document.getElementById('ui');
   const bus = makeBus();
   const ui = createUI(root, bus);
+  initGamepad({ toast: (t, k) => ui.toast(t, k) });
   ui.setLogo(BABA_DA_LOGO);
   ui.setMode(MODE);
   ui.setProfiles(profiles.state());
