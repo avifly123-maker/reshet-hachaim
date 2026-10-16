@@ -10,21 +10,27 @@
 
 ## הורדה
 
-הגרסה האחרונה נמצאת בעמוד [Releases](https://github.com/avifly123-maker/reshet-hachaim/releases/latest). יש שם שבעה קבצים:
+הגרסה האחרונה היא **1.2.3**, והיא נמצאת בעמוד [Releases](https://github.com/avifly123-maker/reshet-hachaim/releases/latest). יש שם שבעה קבצים:
 
 | קובץ | מה זה |
 | --- | --- |
-| `reshet-hachaim-setup-1.2.1.exe` | התקנה ל־Windows, המהדורה הכללית |
-| `reshet-hachaim-torah-setup-1.2.1.exe` | התקנה ל־Windows, מהדורה עם מקורות מהתורה ומחז"ל על הטבע |
-| `reshet-hachaim-mac-apple-silicon-1.2.1.zip` | למק עם שבב של אפל (M1 ומעלה), המהדורה הכללית |
-| `reshet-hachaim-mac-intel-1.2.1.zip` | למק עם מעבד אינטל, המהדורה הכללית |
-| `reshet-hachaim-torah-mac-apple-silicon-1.2.1.zip` | למק עם שבב של אפל, מהדורה עם מקורות |
-| `reshet-hachaim-torah-mac-intel-1.2.1.zip` | למק עם מעבד אינטל, מהדורה עם מקורות |
-| `reshet-hachaim-1.2.1.html` | המשחק כולו בקובץ אחד, נפתח בדפדפן Chrome או Edge בלי התקנה |
+| `reshet-hachaim-setup-1.2.3.exe` | התקנה ל־Windows, המהדורה הכללית |
+| `reshet-hachaim-torah-setup-1.2.3.exe` | התקנה ל־Windows, מהדורה עם מקורות מהתורה ומחז"ל על הטבע |
+| `reshet-hachaim-mac-apple-silicon-1.2.3.zip` | למק עם שבב של אפל (M1 ומעלה), המהדורה הכללית |
+| `reshet-hachaim-mac-intel-1.2.3.zip` | למק עם מעבד אינטל, המהדורה הכללית |
+| `reshet-hachaim-torah-mac-apple-silicon-1.2.3.zip` | למק עם שבב של אפל, מהדורה עם מקורות |
+| `reshet-hachaim-torah-mac-intel-1.2.3.zip` | למק עם מעבד אינטל, מהדורה עם מקורות |
+| `reshet-hachaim-1.2.3.html` | המשחק כולו בקובץ אחד, נפתח בדפדפן Chrome או Edge בלי התקנה |
 
-**התקנה ב־Windows:** מורידים את הקובץ ולוחצים עליו פעמיים. המשחק מותקן ונפתח לבד, ומופיע קיצור דרך על שולחן העבודה. הקובץ לא חתום דיגיטלית, ולכן Windows עלול להציג חלון כחול "Windows הגן על המחשב". לוחצים "מידע נוסף" ואז "הפעל בכל זאת". התקנה של גרסה חדשה נעשית מעל הקודמת, והשמירות נשארות.
+**התקנה ב־Windows:** מורידים את הקובץ ולוחצים עליו פעמיים. המשחק מותקן ונפתח לבד, ומופיע קיצור דרך על שולחן העבודה. הקובץ לא חתום דיגיטלית, ולכן Windows עלול להציג חלון כחול "Windows הגן על המחשב". לוחצים "מידע נוסף" ואז "הפעל בכל זאת".
 
 **התקנה במק:** איזה קובץ? בתפריט התפוח, "אודות המק הזה": אם כתוב שם "שבב Apple M", מורידים את קובץ ה־apple-silicon; אם כתוב "מעבד Intel", את קובץ ה־intel. לוחצים פעמיים על הקובץ שירד, וגוררים את "רשת החיים" לתיקיית היישומים. בפתיחה הראשונה מק מציג הודעה שאינו יכול לאמת את המפתח, כי היישום לא נרשם אצל אפל. לוחצים "סיום", פותחים "הגדרות המערכת", נכנסים ל"פרטיות ואבטחה", גוללים למטה ולוחצים "פתח בכל זאת" ליד "רשת החיים". צריך לעשות את זה רק פעם אחת. (בגרסאות מק ישנות: קליק ימני על היישום, "פתח", ושוב "פתח".)
+
+**עדכון מגרסה קודמת:** מתקינים את הגרסה החדשה מעל הקיימת, בלי להסיר קודם. השמירות, השחקנים והקלפים נשארים. אפשר לעדכן מכל גרסה, גם מ־1.0.0.
+
+**שלט משחק:** מגרסה 1.2.3 אפשר לשחק גם עם שלט (כמו של Xbox או PlayStation) שמחובר למחשב. העכבר ממשיך לעבוד כרגיל.
+
+מה חדש בכל גרסה: [CHANGELOG](CHANGELOG.md).
 
 ## מה יש במשחק
 
@@ -79,6 +85,8 @@ python3 ../tools/zip-mac-app.py release/mac-arm64/reshet-hachaim.app out.zip "ר
 node ../build.mjs --desktop --edition=torah && npx electron-builder --config builder-torah.json --win nsis --x64
 ```
 
+`tools/pack-release.sh` does all of this and writes the seven release files (the names in the table above) with their SHA-256 sums. The release steps for the owner are in `docs/RELEASE.md`.
+
 Build the torah desktop app first and the general one last: both write to `desktop/app`.
 
 ### Checks
@@ -103,12 +111,12 @@ python3 tools/check-old-saves.py desktop/app                  # saves from 1.0.0
 | `src/audio/audio.js` | all sound, synthesised with Web Audio (no recordings) |
 | `src/data/` | species content (`amazon.js`, `grove.js`, `kids.js`, `torah.js`) and generated asset modules |
 | `art/` | source assets: Blender renders and exports, card paintings, panoramas |
-| `tools/blender/` | Blender Python: `animal_kit.py` and one spec per animal (31 rigged, animated animals), panoramas, ground textures |
+| `tools/blender/` | Blender Python: `animal_kit.py` + `animal_kit_hd.py` and one spec per animal (33: 31 animals and two bees), the session bridge, panoramas, ground textures (see `tools/blender/README.md`) |
 | `tools/build-*.py` | pack `art/` into the `src/data/*.js` modules |
 | `desktop/` | Electron shell (`main.js`, `preload.js`, PDF export) and installer configs |
 | `CONTRACT.md` | the architecture and module contract |
 
-The animals are built in Blender from Python specs: a voxel-remeshed body of blended shapes, per-vertex colours, an armature with automatic weights, and baked action clips (idle, walk, run, eat, sleep, fly, climb, hang…). `tools/build-rigged.py` packs them into compact base64 modules that `src/models/rigged.js` turns into three.js skinned meshes.
+The animals are built in Blender from Python specs: one smooth body from blended shapes (an SDF union with fillets), body plans by family, a neck, three-joint legs with hooves or paws, eyes with lids and a mouth, fur / feather / scale relief and colour baked into textures, an armature with field-based skin weights, and baked action clips (idle, walk with a stance / swing gait, run, eat, sleep, fly with a folding upstroke, climb, hang…). `tools/build-rigged.py` packs them into compact base64 modules that `src/models/rigged.js` turns into three.js skinned meshes.
 
 ### Content rules
 
