@@ -44,11 +44,13 @@ Blender runs on the owner's PC and is reached through the Blender MCP bridge. Af
 ## Where things stand (1.2.3, and 1.3.0 in development)
 
 1.2.3 is built (branch `claude/1.2.3`, installers on the owner's PC in `Documents\reshet-hachaim-blender\installer`):
-- Animals v2 to v4 (`tools/blender/animal_kit_hd.py`, see `tools/blender/README.md`): SDF bodies, baked textures with a natural tone layer, eyes with lids, three-joint legs with hooves and paws and a stance / swing gait, wing beat with a folding upstroke, body plans by family (`BODY`), mouths (`MOUTH`), LOD.
+- Animals v2 to v5 (`tools/blender/animal_kit_hd.py`, see `tools/blender/README.md`): SDF bodies, baked textures with a natural tone layer, eyes with lids, three-joint legs with hooves and paws and a stance / swing gait, wing beat with a folding upstroke, body plans by family (`BODY`), mouths (`MOUTH`), a neck so the head stands out and turns on its own (`NECK`, `NECK_FIX`), LOD. All 33 were exported with v5 on 16.10; `art/rigged` holds them.
 - Two Blender bees (`honeybee.py`, `orchidbee.py`, one model in two colours).
 - "Where?" beacons for a species, mission how-to hints, done-by-itself notes and the completed-missions list, zone names instead of "the island" (`src/core/place.js`), game controller support (`src/ui/gamepad.js`).
 
 `claude/research-1.3` (version 1.3.0, the research world "חוקרי היער") has everything from 1.2.3 merged in; merge each 1.2.x fix into it as well. It installs over 1.2 and keeps all data (see the upgrade rule above).
+
+At the end of a Blender session: stop the queue and keep-awake timers, save the scene to `blend\` and quit Blender (the owner asked that nothing keeps running on his PC). The scripts are the source; the saved `.blend` is only a convenience.
 
 The Blender kit master copy is the repo file; the PC copy at `Documents\reshet-hachaim-blender\animals\animal_kit_hd.py` is updated with the device file tool and exec'd into the Blender session namespace.
 

@@ -56,8 +56,9 @@ def _run(ids, views, act, pct, export):
     sc = ns['scene'](); out = {}
     for sid in ids:
         ns['build_hd'](load(sid))
-        acts = ns['REG'][sid]['spec'].get('actions', {})
+        spec = ns['REG'][sid]['spec']; acts = spec.get('actions', {}); amap = spec.get('meta', {}).get('map', {})
         a = act or ('perch' if 'perch' in acts else 'idle')
+        if a not in acts: a = amap.get(a) or next(iter(acts))   # e.g. the fruit bat has no idle: idle -> hang
         sc.render.resolution_percentage = pct
         for i, (yaw, pitch) in enumerate(views):
             path = os.path.join(TMP, 'r_%s_%d.jpg' % (sid, i)); ns['shot'](sid, path, a, 30, yaw, pitch)

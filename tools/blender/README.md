@@ -78,3 +78,19 @@ Running it: Blender calls must answer within 60 s, so builds run in a background
   call Blender while a job runs.
 - Transfer: kit and spec files go to `Documents\reshet-hachaim-blender\animals` with the device file tool (a new
   staged file name each time); exports come back by staging `animals\out\<id>.json`.
+
+### v5 (October 2026): the neck
+
+- In some animals (the porcupine most of all, also the coati, hyrax, agouti, kinkajou, spiny mouse, sloth, hedgehog,
+  howler, capybara and tapir) the trunk reached past the base of the head: the head looked half buried and its skin was
+  weighted mostly to the chest, so it moved like one cast with the body.
+- `_neck_clear` (species in `NECK_FIX`): trunk ellipsoids reach at most `NECK['reach']` × head length past the head
+  bone's base along the head's direction (longer ones are shortened from the front), the ones near the head are slimmed
+  a little (`taper`), and a tapered neck capsule (bone `head`, weight 0.5) bridges the trunk and the head.
+- `bone_weights` is wrapped: body skin past the head's base and near its axis is handed over to the head and its child
+  bones over a smooth band (`b0` to `b1` × head length), so a look or a nod bends at the neck.
+- `_seat_spines` takes `base` (vertices in the root ring) and `seatSpines` may be a dict of its arguments: the porcupine's
+  quills are seated onto the final skin (floating roots baked as white squares). The porcupine's crest is its own part on
+  the head and chest, and its white throat band has soft edges.
+- `session.py`: when a species has no `idle` clip (the fruit bat), the preview uses its `meta['map']`.
+- How it was measured: for each species, how far the trunk reaches past the head bone's base, and the head-chain weight at the head's base, quarter and middle (the porcupine had 0.10, 0.32, 0.67 before).

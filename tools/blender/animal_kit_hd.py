@@ -863,6 +863,87 @@ def body_plan(spec, fam):
     spec['noSpine'] = True
     return spec
 
+# ───────────────────────────────────────── neck: the head stands out of the trunk and turns on its own (v5)
+# In some animals (the porcupine most of all) the front of the trunk reached past the base of the head, so the head
+# was half buried and its skin was weighted mostly to the chest: it looked and moved like one cast. Two fixes:
+#   _neck_clear  – trunk ellipsoids may reach at most NECK['reach'] × head length past the head bone's base (along
+#                  the head's direction); a longer one is shortened from the front, its rear edge stays put.
+#                  A tapered neck capsule then bridges the trunk and the head (a narrowing, not a collar step).
+#   bone weights – body skin past the head's base, close to the head's axis, is handed over to the head and its
+#                  children (a smooth band from 'b0' to 'b1' × head length), so a look or a nod bends at the neck.
+NECK = dict(reach=0.22, b0=-0.2, b1=0.3, rad=1.9, neck=0.35, span=0.9, taper=0.8)
+NECK_FIX = {'porcupine', 'coati', 'hyrax', 'agouti', 'kinkajou', 'spinymouse', 'sloth', 'hedgehog', 'howler', 'capybara', 'tapir'}
+_NECKW = {}
+
+def _head_axis(spec):
+    bb = {b[0]: b for b in spec['bones']}
+    if 'head' not in bb: return None
+    h = Vector(bb['head'][2]); t = Vector(bb['head'][3]); L = (t - h).length
+    if L < 1e-6: return None
+    return h, (t - h) / L, L
+
+def _neck_clear(spec):
+    ax = _head_axis(spec)
+    if not ax: return spec
+    h, d, L = ax; lim = h.dot(d) + NECK['reach'] * L
+    for bl in spec['blobs']:
+        if bl.get('bone') not in ('chest', 'hips', 'body') or bl['t'] != 'ell' or bl.get('rot'): continue
+        c = Vector(bl['c']); r = bl['r']
+        ext = math.sqrt((r[0] * d.x) ** 2 + (r[1] * d.y) ** 2 + (r[2] * d.z) ** 2)
+        front = c.dot(d) + ext
+        if front <= lim: continue
+        back = c.dot(d) - ext; k = max(0.35, (lim - back) / (front - back))   # new extent along d, as a share of the old
+        cut = (front - back) * (1 - k) / 2
+        bl['c'] = tuple(c - d * cut); bl['r'] = (r[0], r[1], r[2] * k) if abs(d.z) >= max(abs(d.x), abs(d.y)) else (r[0], r[1] * k, r[2])
+    # the shoulders slope into the neck: trunk ellipsoids close to the head get a little slimmer (down to NECK['taper'])
+    for bl in spec['blobs']:
+        if bl.get('bone') not in ('chest', 'hips', 'body') or bl['t'] != 'ell' or bl.get('rot'): continue
+        u = smooth(lim - NECK['span'] * L, lim, Vector(bl['c']).dot(d))
+        if u <= 0: continue
+        r = bl['r']; m = 1 - (1 - NECK['taper']) * u
+        bl['r'] = (r[0] * m, r[1] * m, r[2]) if abs(d.z) >= max(abs(d.x), abs(d.y)) else (r[0] * m, r[1], r[2] * m)
+    # a neck that tapers from the trunk to the head, so the step between them is a smooth narrowing, not a collar
+    hb = [bl for bl in spec['blobs'] if bl.get('bone') == 'head' and bl['t'] == 'ell']
+    if hb:
+        main = max(hb, key=lambda bl: bl['r'][0] * bl['r'][1] * bl['r'][2]); hr = min(main['r'][0], main['r'][1])
+        mc = Vector(main['c']); a = h - d * (NECK['neck'] * L); b = h + (mc - h).project(d) * 0.6
+        a.y += (mc.y - h.y) * 0.5; b.y = b.y * 0.5 + mc.y * 0.5
+        spec['blobs'].append(dict(t='cap', a=tuple(a), b2=tuple(b), r=(hr * 1.3, hr * 0.95), bone='head', w=0.5))
+    return spec
+
+def _neck_setup(spec):
+    """prepare the weight hand-over for build(): the head axis, how far from it skin still counts, the head's bones"""
+    _NECKW.clear()
+    ax = _head_axis(spec)
+    if not ax: return
+    h, d, L = ax
+    kids = {'head'}; ch = True
+    while ch:
+        ch = False
+        for b in spec['bones']:
+            if b[1] in kids and b[0] not in kids: kids.add(b[0]); ch = True
+    hr = max((max(bl['r']) if bl['t'] == 'ell' else max(bl['r'] if isinstance(bl['r'], (list, tuple)) else [bl['r']]))
+             for bl in spec['blobs'] if bl.get('bone') == 'head')
+    _NECKW.update(h=h, d=d, L=L, R=NECK['rad'] * hr, kids=kids)
+
+_bw0 = globals().get('_bw0') or bone_weights
+def bone_weights(p, blobs, bones_by, cand=None, nmax=4):
+    ws = _bw0(p, blobs, bones_by, cand, nmax)
+    N = _NECKW
+    if not N or cand: return ws
+    v = p - N['h']; s = v.dot(N['d']) / N['L']
+    if s <= NECK['b0']: return ws
+    rad = (v - N['d'] * (s * N['L'])).length
+    if rad > N['R']: return ws
+    f = smooth(NECK['b0'], NECK['b1'], s) * smooth(N['R'], N['R'] * 0.75, rad)
+    hw = [(n, w) for n, w in ws if n in N['kids']]; sh = sum(w for _, w in hw)
+    hw = [(n, w / sh) for n, w in hw] if sh > 1e-6 else [('head', 1.0)]
+    acc = {}
+    for n, w in ws: acc[n] = acc.get(n, 0) + w * (1 - f)
+    for n, w in hw: acc[n] = acc.get(n, 0) + w * f
+    items = [(n, w) for n, w in acc.items() if w > 0.03]; t = sum(w for _, w in items)
+    return [(n, w / t) for n, w in items]
+
 # ───────────────────────────────────────── mouths
 # species → (how far back the corner is ×head length, how far below the nose ×head length, line thickness ×head length,
 # colour). The line follows the skin: each point is found by a ray against the blob union.
@@ -1022,7 +1103,7 @@ def _jaguar_head(sp):
     ])
     return _part(sp, 'nose', scale=(0.72, 0.75, 0.7), move=(0, 0.004, -0.004), color='#6e4034')
 
-def _seat_spines(sp, tag='spine', per=4, axis=(0.0, 0.062), embed=0.0015):
+def _seat_spines(sp, tag='spine', per=4, axis=(0.0, 0.062), embed=0.0015, base=None):
     """spines made of `per`-vertex items (base ring + tip) are moved onto the real skin: a ray from outside along each
     spine's radial direction finds the blob union, so none hide under the fur (they would bake as grey patches)"""
     from mathutils.bvhtree import BVHTree
@@ -1031,7 +1112,7 @@ def _seat_spines(sp, tag='spine', per=4, axis=(0.0, 0.062), embed=0.0015):
         if p.tag != tag: continue
         vs = [Vector(v) for v in p.v]
         for i in range(0, len(vs) - per + 1, per):
-            B = sum(vs[i:i + per - 1], Vector()) / (per - 1)
+            nb = base or per - 1; B = sum(vs[i:i + nb], Vector()) / nb    # the ring at the root
             n = Vector((B.x - axis[0], B.y - axis[1], 0))
             if n.length < 1e-6: continue
             n.normalize(); hit = tree.ray_cast(B + n * 0.1, -n, 0.2)
@@ -1046,6 +1127,8 @@ TWEAK = {
     'jaguar': _jaguar_head,
     'capybara': _capy_head,
     'spinymouse': lambda sp: (sp.__setitem__('seatSpines', True) or sp),
+    # quills: 3 rings of 3 + a tip; the root ring goes onto the final skin (floating roots baked as white patches)
+    'porcupine': lambda sp: (sp.__setitem__('seatSpines', dict(tag='quill', per=10, base=3, axis=(0.0, 0.3), embed=0.012)) or sp),
 }
 
 # ───────────────────────────────────────── bees (one model: the honeybee and the orchid bee differ only in colour)
@@ -1120,7 +1203,10 @@ def build_hd(spec, place=None, bake=True):
     if spec['id'] in TWEAK: TWEAK[spec['id']](spec)
     if skin_of(spec) == 'feather': _bird_fold(spec)
     if spec['id'] in BODY_OF and not spec.get('noBody'): body_plan(spec, BODY_OF[spec['id']])
-    if spec.get('seatSpines'): _seat_spines(spec)   # after the body plan: the spines sit on the final skin
+    if spec['id'] in NECK_FIX and not spec.get('noNeckFix'): _neck_clear(spec); _neck_setup(spec)
+    else: _NECKW.clear()
+    if spec.get('seatSpines'):   # after the body plan and the neck: the spines sit on the final skin
+        ss = spec['seatSpines']; _seat_spines(spec, **(ss if isinstance(ss, dict) else {}))
     if spec['id'] in EYE and not spec.get('noEyeSet'): _set_eyes(spec)
     _mouth(spec)
     if spec['id'] in ANAT and not spec.get('noAnat'):
