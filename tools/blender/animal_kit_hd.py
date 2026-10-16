@@ -760,10 +760,30 @@ def _jaguar_head(sp):
     ])
     return _part(sp, 'nose', scale=(0.72, 0.75, 0.7), move=(0, 0.004, -0.004), color='#6e4034')
 
+def _seat_spines(sp, tag='spine', per=4, axis=(0.0, 0.062), embed=0.0015):
+    """spines made of `per`-vertex items (base ring + tip) are moved onto the real skin: a ray from outside along each
+    spine's radial direction finds the blob union, so none hide under the fur (they would bake as grey patches)"""
+    from mathutils.bvhtree import BVHTree
+    V, F = _blob_mesh(sp['blobs'], False); tree = BVHTree.FromPolygons([Vector(v) for v in V], F)
+    for p in sp.get('parts', []):
+        if p.tag != tag: continue
+        vs = [Vector(v) for v in p.v]
+        for i in range(0, len(vs) - per + 1, per):
+            B = sum(vs[i:i + per - 1], Vector()) / (per - 1)
+            n = Vector((B.x - axis[0], B.y - axis[1], 0))
+            if n.length < 1e-6: continue
+            n.normalize(); hit = tree.ray_cast(B + n * 0.1, -n, 0.2)
+            if hit[0] is None: continue
+            off = (hit[0] - n * embed) - B
+            for k in range(i, i + per): vs[k] = vs[k] + off
+        p.v = [tuple(v) for v in vs]
+    return sp
+
 TWEAK = {
     'fox': lambda sp: _part(_fox_head(_smooth_tail(sp, [0.035, 0.06, 0.082, 0.078, 0.06, 0.035])), 'nose', scale=(1.0, 1.0, 1.1), move=(0, 0.003, 0.01)),
     'jaguar': _jaguar_head,
     'capybara': _capy_head,
+    'spinymouse': _seat_spines,
 }
 
 def build_hd(spec, place=None, bake=True):
