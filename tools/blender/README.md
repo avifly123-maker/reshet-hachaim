@@ -58,3 +58,39 @@ Running it: Blender calls must answer within 60 s, so builds run in a background
   back over the abdomen). `honeybee.py` and `orchidbee.py` are the same model in two colourings.
 - Clip rotations are in authoring axes, applied yaw · pitch · roll: for a wing along +x, roll (z) beats it, yaw (y)
   sweeps it back.
+
+### v4 (October 2026): natural colour, gait, flight, the session
+
+- **Colour (`_tone`, `TONE`):** applied in `hd_paint` on top of every species' paint, multiplying it (patterns stay):
+  countershading (darker back, lighter belly), darker toward the feet, broad and medium value noise, a fine grain
+  stretched along the hair flow, a slight warm / cool drift. Strength per skin (fur 1, feather 0.75, scale 1.1,
+  smooth 0.55). `noTone` in a spec turns it off.
+- **Gait:** `quad_actions` is wrapped: walk and run legs are replaced by a stance / swing cycle (stance 62 % of a walk
+  step, 40 % of a run step). Stance: the upper leg moves back at an even pace, a little knee give, the foot bone keeps the
+  paw flat and lifts the heel at the end. Swing: knee and foot fold, the foot opens and reaches forward before landing.
+  The head nods with the front steps. Clips that set `_g` skip `_foot_fn`.
+- **Flight:** `bird_actions` is wrapped: downstroke 40 % of the beat, upstroke 60 % with the hand and tip folded,
+  the tip lags the arm; the beat range is from high above the back to a little below the body.
+- **Body plans:** 29 ellipsoids per trunk, sizes blended from the species' own rump and chest blobs (no rings).
+- **Session (`bridge/session.py`):** run once after Blender starts. One job at a time from a timer with an 8 s pause,
+  cleanup after each animal, renders to `animals/pv`, exports to `animals/out`, `take()` copies results and `clear()`
+  empties them, the bake leaves two CPU cores free. Check progress by listing `pv` / `out` with the device tools; do not
+  call Blender while a job runs.
+- Transfer: kit and spec files go to `Documents\reshet-hachaim-blender\animals` with the device file tool (a new
+  staged file name each time); exports come back by staging `animals\out\<id>.json`.
+
+### v5 (October 2026): the neck
+
+- In some animals (the porcupine most of all, also the coati, hyrax, agouti, kinkajou, spiny mouse, sloth, hedgehog,
+  howler, capybara and tapir) the trunk reached past the base of the head: the head looked half buried and its skin was
+  weighted mostly to the chest, so it moved like one cast with the body.
+- `_neck_clear` (species in `NECK_FIX`): trunk ellipsoids reach at most `NECK['reach']` × head length past the head
+  bone's base along the head's direction (longer ones are shortened from the front), the ones near the head are slimmed
+  a little (`taper`), and a tapered neck capsule (bone `head`, weight 0.5) bridges the trunk and the head.
+- `bone_weights` is wrapped: body skin past the head's base and near its axis is handed over to the head and its child
+  bones over a smooth band (`b0` to `b1` × head length), so a look or a nod bends at the neck.
+- `_seat_spines` takes `base` (vertices in the root ring) and `seatSpines` may be a dict of its arguments: the porcupine's
+  quills are seated onto the final skin (floating roots baked as white squares). The porcupine's crest is its own part on
+  the head and chest, and its white throat band has soft edges.
+- `session.py`: when a species has no `idle` clip (the fruit bat), the preview uses its `meta['map']`.
+- How it was measured: for each species, how far the trunk reaches past the head bone's base, and the head-chain weight at the head's base, quarter and middle (the porcupine had 0.10, 0.32, 0.67 before).

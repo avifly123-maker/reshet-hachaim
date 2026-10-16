@@ -154,6 +154,28 @@ def _flow_of(name, h, t):
     if name.startswith('tail') or d.y < -0.5: return d
     return -d
 
+# ───────────────────────────────────────── natural colour: the layer on top of every species' own paint
+TONE = dict(dorsal=0.14, ventral=0.08, feet=0.11, broad=0.09, patch=0.07, grain=0.07, warm=0.03)
+def _tone(c, P, N, f, skin, s, ylo, yhi):
+    """a real coat is never one flat colour: darker along the back and lighter underneath (countershading), a little
+    darker toward the feet, broad soft cloudiness, smaller patches, a fine grain that follows the hair, and a slight
+    warm / cool drift. Multiplies the species' colour, so its own pattern (spots, bands, masks) stays as it is."""
+    T = TONE; k = {'fur': 1.0, 'feather': 0.75, 'scale': 1.1, 'smooth': 0.55}.get(skin, 1.0)
+    h = max(1e-6, yhi - ylo); yr = (P.y - ylo) / h
+    v = 1.0
+    v *= 1.0 - T['dorsal'] * k * smooth(0.15, 0.85, N.y) * smooth(0.35, 0.75, yr)
+    v *= 1.0 + T['ventral'] * k * smooth(-0.15, -0.75, N.y)
+    v *= 1.0 - T['feet'] * k * smooth(0.3, 0.04, yr)
+    n1 = noise.noise(P * (1 / (0.32 * s)) + Vector((11.3, 2.1, 5.7)))
+    n2 = noise.noise(P * (1 / (0.09 * s)) + Vector((1.7, 9.2, 3.3)))
+    Q = P - f * (P.dot(f)) * 0.9                          # stretched along the hair / feathers
+    n3 = noise.noise(Q * (1 / (0.012 * s)) + Vector((4.4, 0.6, 8.8)))
+    v *= 1.0 + k * (T['broad'] * n1 + T['patch'] * n2 + T['grain'] * n3)
+    w = T['warm'] * k * noise.noise(P * (1 / (0.5 * s)) + Vector((7.0, 3.0, 1.0)))
+    r, g, b = c[0] * v, c[1] * v, c[2] * v
+    r += w; b -= w * 0.8
+    return (max(0.0, min(1.0, r)), max(0.0, min(1.0, g)), max(0.0, min(1.0, b)))
+
 def hd_paint(sid, nb):
     R = REG[sid]; spec = R['spec']; dense = _HD[sid]['dense']; me = dense.data
     meta = spec.get('meta', {}); s = max(0.05, meta.get('length', 1.0))
@@ -175,6 +197,7 @@ def hd_paint(sid, nb):
     nr = np.empty(n * 3, dtype=np.float32); me.vertices.foreach_get('normal', nr); nr = nr.reshape(-1, 3)
     cols = np.ones((n, 4), dtype=np.float32); disp = np.zeros(n, dtype=np.float32)
     gk = 0.22 if skin != 'smooth' else 0.0
+    ys = co[:, 2]; ylo, yhi = float(ys.min()), float(ys.max())   # Blender z = authoring y
     for i in range(n):
         P = Vector((co[i, 0], co[i, 2], -co[i, 1])); N = Vector((nr[i, 0], nr[i, 2], -nr[i, 1]))
         _, gi, _ = kd.find(P)
@@ -197,6 +220,7 @@ def hd_paint(sid, nb):
                 break
         disp[i] = d
         if c is None: c = paint(P, N, 'body') if paint else (0.6, 0.5, 0.4)
+        if not spec.get('noTone'): c = _tone(c, P, N, gflow[gi], skin, s, ylo, yhi)
         k = 1.0 - gk * g
         cols[i, 0] = c[0] * k; cols[i, 1] = c[1] * k; cols[i, 2] = c[2] * k
     co = co + nr * disp[:, None]
@@ -373,6 +397,8 @@ def _img(name, size, noncolor):
 def _bake_scene():
     sb = bpy.data.scenes.get('hdbake') or bpy.data.scenes.new('hdbake')
     sb.render.engine = 'CYCLES'; sb.cycles.device = 'CPU'
+    # leave two cores to Windows and the Blender window, so the computer stays responsive during long bakes
+    sb.render.threads_mode = 'FIXED'; sb.render.threads = max(2, (os.cpu_count() or 4) - 2)
     try: sb.view_settings.view_transform = 'Standard'
     except Exception: pass
     return sb
@@ -656,6 +682,7 @@ def _foot_fn(name, fn, kmul):
     lying = name in ('sleep', 'sit', 'lie', 'rest')
     def f(ph):
         p = fn(ph)
+        if p.get('_g'): return p      # the v4 gait already moves all three joints
         for leg in ('fl', 'fr', 'hl', 'hr'):
             if leg not in p and leg + '2' not in p and not loco:
                 if not lying: p[leg + '3'] = (0, 0, 0)
@@ -672,6 +699,84 @@ def _foot_fn(name, fn, kmul):
                 p[leg + '3'] = (-(u + l), 0, 0)
         return p
     return f
+
+# ───────────────────────────────────────── v4 gait: three joints, a real stance and swing
+_quad0 = globals().get('_quad0') or quad_actions
+def quad_actions(names, c=None):
+    """the kit's clips, with walk and run legs replaced by a gait that has a stance (the foot on the ground, moving back
+    at an even pace, a little give in the knee) and a swing (the knee folds, the foot curls up, then reaches forward and
+    lands). Stance takes 62 % of a walk step and 40 % of a run step. The foot bone (fl3 …) keeps the paw flat on the
+    ground, lifts the heel before the toes leave, folds in the air and opens just before landing."""
+    acts = _quad0(names, c)
+    C = dict(dict(amp=24, knee=34, run_amp=38, run_bound=False, gait=None), **(c or {}))
+    has = set(names)
+    if not {'fl', 'fr', 'hl', 'hr'} <= has: return acts
+    two = 'fl2' in has
+    def legs(ph, A, K, offs, duty):
+        p = {}
+        for leg, off in offs.items():
+            u = (ph + off) % 1.0; front = leg[0] == 'f'
+            if u < duty:
+                st = u / duty; e = st * st * (3 - 2 * st) * 0.25 + st * 0.75
+                ang = -A + 2 * A * e
+                kn = K * 0.14 * math.sin(math.pi * st)
+                curl = (0.45 if front else 0.4) * K * smooth(0.78, 1.0, st)
+                flat = 1.0
+            else:
+                sw = (u - duty) / (1 - duty)
+                ang = A - 2 * A * (0.5 - 0.5 * math.cos(math.pi * sw))
+                kn = K * math.sin(math.pi * min(1.0, sw / 0.9)) ** 0.9
+                curl = (1.3 if front else 1.1) * K * math.sin(math.pi * min(1.0, sw / 0.75)) - 10 * smooth(0.75, 1.0, sw)
+                flat = 1.0 - math.sin(math.pi * sw)
+            if not front: ang *= 0.9
+            kk = kn if front else -kn * 0.85
+            p[leg] = (ang, 0, 0)
+            if two: p[leg + '2'] = (kk, 0, 0)
+            p[leg + '3'] = (-(ang + kk) * flat + curl, 0, 0)
+        p['_g'] = True
+        return p
+    if 'walk' in acts:
+        fr, fn = acts['walk']
+        offs = {'hl': 0, 'fl': 0.25, 'hr': 0.5, 'fr': 0.75} if C.get('gait') != 'trot' else {'hl': 0, 'fr': 0, 'hr': 0.5, 'fl': 0.5}
+        def walk(ph, fn=fn, offs=offs):
+            p = fn(ph); p.update(legs(ph, C['amp'], C['knee'] * 1.25, offs, 0.62))
+            if 'neck' in has:   # the head nods with each front step and stays steady in between
+                n0 = p.get('neck', (0, 0, 0)); n0 = n0[0] if isinstance(n0[0], (tuple, list)) else n0
+                p['neck'] = (n0[0] + 3.5 * math.sin(TAU * (2 * ph + 0.1)), n0[1], n0[2])
+                h0 = p.get('head', (0, 0, 0)); h0 = h0[0] if isinstance(h0[0], (tuple, list)) else h0
+                p['head'] = (h0[0] - 2.5 * math.sin(TAU * (2 * ph + 0.1)), h0[1], h0[2])
+            return p
+        acts['walk'] = (fr, walk)
+    if 'run' in acts:
+        fr, fn = acts['run']
+        offs = {'hl': 0, 'hr': 0.06, 'fl': 0.5, 'fr': 0.56} if C['run_bound'] else {'hl': 0, 'hr': 0.1, 'fl': 0.45, 'fr': 0.55}
+        def run(ph, fn=fn, offs=offs):
+            p = fn(ph); p.update(legs(ph, C['run_amp'], C['knee'] * 1.5, offs, 0.4)); return p
+        acts['run'] = (fr, run)
+    return acts
+
+# ───────────────────────────────────────── v4 flight: a fast downstroke and a folding upstroke
+_bird0 = globals().get('_bird0') or bird_actions
+def bird_actions(names, c=None):
+    """the kit's bird clips with a truer wing beat: the downstroke takes 40 % of the beat with the wing spread, the
+    upstroke 60 % with the hand and the tip folded in; the tip trails the arm"""
+    acts = _bird0(names, c)
+    C = dict(dict(flap=55), **(c or {}))
+    if 'fly' not in acts or 'wl1' not in set(names): return acts
+    fr, fn0 = acts['fly']
+    def fly(ph):
+        p = fn0(ph); a = C['flap']
+        if ph < 0.4: t = ph / 0.4; down = math.cos(math.pi * t); fold = 0.0
+        else: t = (ph - 0.4) / 0.6; down = -math.cos(math.pi * t); fold = math.sin(math.pi * t)
+        lag = math.cos(math.pi * min(1.0, (ph - 0.06) % 1.0 / 0.4)) if ph < 0.46 else down
+        down = 0.8 * down + 0.2           # the beat goes from high above the back to a little below the body
+        for L, s_ in (('l', 1), ('r', -1)):
+            p['w%s1' % L] = (4 * down, s_ * 8 * fold, s_ * a * down)
+            p['w%s2' % L] = (0, s_ * -32 * fold, s_ * a * 0.22 * lag)
+            p['w%s3' % L] = (-8 * fold, s_ * 42 * fold, s_ * a * 0.3 * lag)
+        return p
+    acts['fly'] = (fr, fly)
+    return acts
 
 # species → leg type (+ tweaks); applied by build_hd
 ANAT = {
@@ -744,7 +849,7 @@ def body_plan(spec, fam):
                 u = (t - a[0]) / (b[0] - a[0]); u = u * u * (3 - 2 * u)
                 return tuple(a[j] + (b[j] - a[j]) * u for j in (1, 2, 3))
         return prof[-1][1:]
-    n = 17; t0, t1 = prof[0][0], prof[-1][0]
+    n = 29; t0, t1 = prof[0][0], prof[-1][0]   # many, deeply overlapping: one smooth trunk, no rings
     for i in range(n):
         t = t0 + (t1 - t0) * i / (n - 1); ry, rx, dy = at(t)
         z = z0 + span * t
@@ -753,10 +858,91 @@ def body_plan(spec, fam):
         H = rear['r'][1] + (front['r'][1] - rear['r'][1]) * ks; W = rear['r'][0] + (front['r'][0] - rear['r'][0]) * ks
         y = rear['c'][1] + (front['c'][1] - rear['c'][1]) * k + dy * H
         end = i in (0, n - 1)
-        rz = span * (0.12 if end else 0.1)
+        rz = span * (0.12 if end else 0.11)
         spec['blobs'].append(dict(t='ell', c=(0, y, z), r=(W * rx, H * ry, rz), bone='hips' if t < 0.5 else 'chest'))
     spec['noSpine'] = True
     return spec
+
+# ───────────────────────────────────────── neck: the head stands out of the trunk and turns on its own (v5)
+# In some animals (the porcupine most of all) the front of the trunk reached past the base of the head, so the head
+# was half buried and its skin was weighted mostly to the chest: it looked and moved like one cast. Two fixes:
+#   _neck_clear  – trunk ellipsoids may reach at most NECK['reach'] × head length past the head bone's base (along
+#                  the head's direction); a longer one is shortened from the front, its rear edge stays put.
+#                  A tapered neck capsule then bridges the trunk and the head (a narrowing, not a collar step).
+#   bone weights – body skin past the head's base, close to the head's axis, is handed over to the head and its
+#                  children (a smooth band from 'b0' to 'b1' × head length), so a look or a nod bends at the neck.
+NECK = dict(reach=0.22, b0=-0.2, b1=0.3, rad=1.9, neck=0.35, span=0.9, taper=0.8)
+NECK_FIX = {'porcupine', 'coati', 'hyrax', 'agouti', 'kinkajou', 'spinymouse', 'sloth', 'hedgehog', 'howler', 'capybara', 'tapir'}
+_NECKW = {}
+
+def _head_axis(spec):
+    bb = {b[0]: b for b in spec['bones']}
+    if 'head' not in bb: return None
+    h = Vector(bb['head'][2]); t = Vector(bb['head'][3]); L = (t - h).length
+    if L < 1e-6: return None
+    return h, (t - h) / L, L
+
+def _neck_clear(spec):
+    ax = _head_axis(spec)
+    if not ax: return spec
+    h, d, L = ax; lim = h.dot(d) + NECK['reach'] * L
+    for bl in spec['blobs']:
+        if bl.get('bone') not in ('chest', 'hips', 'body') or bl['t'] != 'ell' or bl.get('rot'): continue
+        c = Vector(bl['c']); r = bl['r']
+        ext = math.sqrt((r[0] * d.x) ** 2 + (r[1] * d.y) ** 2 + (r[2] * d.z) ** 2)
+        front = c.dot(d) + ext
+        if front <= lim: continue
+        back = c.dot(d) - ext; k = max(0.35, (lim - back) / (front - back))   # new extent along d, as a share of the old
+        cut = (front - back) * (1 - k) / 2
+        bl['c'] = tuple(c - d * cut); bl['r'] = (r[0], r[1], r[2] * k) if abs(d.z) >= max(abs(d.x), abs(d.y)) else (r[0], r[1] * k, r[2])
+    # the shoulders slope into the neck: trunk ellipsoids close to the head get a little slimmer (down to NECK['taper'])
+    for bl in spec['blobs']:
+        if bl.get('bone') not in ('chest', 'hips', 'body') or bl['t'] != 'ell' or bl.get('rot'): continue
+        u = smooth(lim - NECK['span'] * L, lim, Vector(bl['c']).dot(d))
+        if u <= 0: continue
+        r = bl['r']; m = 1 - (1 - NECK['taper']) * u
+        bl['r'] = (r[0] * m, r[1] * m, r[2]) if abs(d.z) >= max(abs(d.x), abs(d.y)) else (r[0] * m, r[1], r[2] * m)
+    # a neck that tapers from the trunk to the head, so the step between them is a smooth narrowing, not a collar
+    hb = [bl for bl in spec['blobs'] if bl.get('bone') == 'head' and bl['t'] == 'ell']
+    if hb:
+        main = max(hb, key=lambda bl: bl['r'][0] * bl['r'][1] * bl['r'][2]); hr = min(main['r'][0], main['r'][1])
+        mc = Vector(main['c']); a = h - d * (NECK['neck'] * L); b = h + (mc - h).project(d) * 0.6
+        a.y += (mc.y - h.y) * 0.5; b.y = b.y * 0.5 + mc.y * 0.5
+        spec['blobs'].append(dict(t='cap', a=tuple(a), b2=tuple(b), r=(hr * 1.3, hr * 0.95), bone='head', w=0.5))
+    return spec
+
+def _neck_setup(spec):
+    """prepare the weight hand-over for build(): the head axis, how far from it skin still counts, the head's bones"""
+    _NECKW.clear()
+    ax = _head_axis(spec)
+    if not ax: return
+    h, d, L = ax
+    kids = {'head'}; ch = True
+    while ch:
+        ch = False
+        for b in spec['bones']:
+            if b[1] in kids and b[0] not in kids: kids.add(b[0]); ch = True
+    hr = max((max(bl['r']) if bl['t'] == 'ell' else max(bl['r'] if isinstance(bl['r'], (list, tuple)) else [bl['r']]))
+             for bl in spec['blobs'] if bl.get('bone') == 'head')
+    _NECKW.update(h=h, d=d, L=L, R=NECK['rad'] * hr, kids=kids)
+
+_bw0 = globals().get('_bw0') or bone_weights
+def bone_weights(p, blobs, bones_by, cand=None, nmax=4):
+    ws = _bw0(p, blobs, bones_by, cand, nmax)
+    N = _NECKW
+    if not N or cand: return ws
+    v = p - N['h']; s = v.dot(N['d']) / N['L']
+    if s <= NECK['b0']: return ws
+    rad = (v - N['d'] * (s * N['L'])).length
+    if rad > N['R']: return ws
+    f = smooth(NECK['b0'], NECK['b1'], s) * smooth(N['R'], N['R'] * 0.75, rad)
+    hw = [(n, w) for n, w in ws if n in N['kids']]; sh = sum(w for _, w in hw)
+    hw = [(n, w / sh) for n, w in hw] if sh > 1e-6 else [('head', 1.0)]
+    acc = {}
+    for n, w in ws: acc[n] = acc.get(n, 0) + w * (1 - f)
+    for n, w in hw: acc[n] = acc.get(n, 0) + w * f
+    items = [(n, w) for n, w in acc.items() if w > 0.03]; t = sum(w for _, w in items)
+    return [(n, w / t) for n, w in items]
 
 # ───────────────────────────────────────── mouths
 # species → (how far back the corner is ×head length, how far below the nose ×head length, line thickness ×head length,
@@ -917,7 +1103,7 @@ def _jaguar_head(sp):
     ])
     return _part(sp, 'nose', scale=(0.72, 0.75, 0.7), move=(0, 0.004, -0.004), color='#6e4034')
 
-def _seat_spines(sp, tag='spine', per=4, axis=(0.0, 0.062), embed=0.0015):
+def _seat_spines(sp, tag='spine', per=4, axis=(0.0, 0.062), embed=0.0015, base=None):
     """spines made of `per`-vertex items (base ring + tip) are moved onto the real skin: a ray from outside along each
     spine's radial direction finds the blob union, so none hide under the fur (they would bake as grey patches)"""
     from mathutils.bvhtree import BVHTree
@@ -926,7 +1112,7 @@ def _seat_spines(sp, tag='spine', per=4, axis=(0.0, 0.062), embed=0.0015):
         if p.tag != tag: continue
         vs = [Vector(v) for v in p.v]
         for i in range(0, len(vs) - per + 1, per):
-            B = sum(vs[i:i + per - 1], Vector()) / (per - 1)
+            nb = base or per - 1; B = sum(vs[i:i + nb], Vector()) / nb    # the ring at the root
             n = Vector((B.x - axis[0], B.y - axis[1], 0))
             if n.length < 1e-6: continue
             n.normalize(); hit = tree.ray_cast(B + n * 0.1, -n, 0.2)
@@ -941,6 +1127,8 @@ TWEAK = {
     'jaguar': _jaguar_head,
     'capybara': _capy_head,
     'spinymouse': lambda sp: (sp.__setitem__('seatSpines', True) or sp),
+    # quills: 3 rings of 3 + a tip; the root ring goes onto the final skin (floating roots baked as white patches)
+    'porcupine': lambda sp: (sp.__setitem__('seatSpines', dict(tag='quill', per=10, base=3, axis=(0.0, 0.3), embed=0.012)) or sp),
 }
 
 # ───────────────────────────────────────── bees (one model: the honeybee and the orchid bee differ only in colour)
@@ -1015,7 +1203,10 @@ def build_hd(spec, place=None, bake=True):
     if spec['id'] in TWEAK: TWEAK[spec['id']](spec)
     if skin_of(spec) == 'feather': _bird_fold(spec)
     if spec['id'] in BODY_OF and not spec.get('noBody'): body_plan(spec, BODY_OF[spec['id']])
-    if spec.get('seatSpines'): _seat_spines(spec)   # after the body plan: the spines sit on the final skin
+    if spec['id'] in NECK_FIX and not spec.get('noNeckFix'): _neck_clear(spec); _neck_setup(spec)
+    else: _NECKW.clear()
+    if spec.get('seatSpines'):   # after the body plan and the neck: the spines sit on the final skin
+        ss = spec['seatSpines']; _seat_spines(spec, **(ss if isinstance(ss, dict) else {}))
     if spec['id'] in EYE and not spec.get('noEyeSet'): _set_eyes(spec)
     _mouth(spec)
     if spec['id'] in ANAT and not spec.get('noAnat'):
