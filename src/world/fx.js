@@ -133,6 +133,39 @@ export function createMarkers(scene) {
     // selection pulse
     if (sel.visible) { const p = 1 + Math.sin(t * 4) * 0.06; selRing.scale.setScalar(p); selRing2.rotation.y = t; }
     if (ghost.visible) { const p = 1 + Math.sin(t * 6) * 0.05; gRing.scale.setScalar(p); if (ghostModel) ghostModel.rotation.y += dt * 0.6; }
+    updatePins(dt, t, camera);
+  }
+  // "where are they?": a soft beacon over every individual of one species for a few seconds (they keep following
+  // the animals as they move). locate(list, color, getPos) – getPos(e, v) writes the ground point and returns the height.
+  const pins = []; let pinT = 0, pinDur = 0, pinGet = null;
+  const pinBeamG = new THREE.CylinderGeometry(0.06, 0.18, 1, 8, 1, true); pinBeamG.translate(0, 0.5, 0);
+  const pinDotG = new THREE.OctahedronGeometry(0.55, 0);
+  function pinMat(color, op) { return new THREE.MeshBasicMaterial({ color, transparent: true, opacity: op, depthWrite: false, blending: THREE.AdditiveBlending, fog: false }); }
+  function locate(list, color = '#ffe7a0', getPos = null, dur = 12) {
+    for (const p of pins) { group.remove(p.g); p.g.traverse(o => { if (o.material) o.material.dispose(); if (o.geometry && o.geometry !== pinBeamG && o.geometry !== pinDotG) o.geometry.dispose(); }); }
+    pins.length = 0; pinT = 0; pinDur = list && list.length ? dur : 0; pinGet = getPos;
+    for (const e of (list || []).slice(0, 60)) {
+      const g = new THREE.Group(); const ring = ringMesh(color, 0.8, 1); ring.material.opacity = 0;
+      const beam = new THREE.Mesh(pinBeamG, pinMat(color, 0)); const dot = new THREE.Mesh(pinDotG, pinMat(color, 0));
+      beam.renderOrder = dot.renderOrder = 12; g.add(ring, beam, dot); group.add(g); pins.push({ g, ring, beam, dot, e });
+    }
+    return pins.length;
+  }
+  const _pv = new THREE.Vector3();
+  function updatePins(dt, t, camera) {
+    if (!pins.length) return;
+    pinT += dt; const fade = Math.min(1, pinT / 0.5) * Math.min(1, Math.max(0, (pinDur - pinT) / 1.5));
+    if (pinT >= pinDur) { locate(null); return; }
+    for (const p of pins) {
+      const h = pinGet ? pinGet(p.e, _pv) : 2; if (h == null) { p.g.visible = false; continue; }
+      p.g.visible = true; p.g.position.copy(_pv);
+      // seen from far away the beacon grows, so it stays easy to spot from the overview
+      const k = camera ? Math.min(4, Math.max(1, camera.position.distanceTo(_pv) / 28)) : 1;
+      const top = h + 2.5 * k + Math.sin(t * 2.4 + p.e.x) * 0.25 * k;
+      p.beam.scale.set(k, top, k); p.dot.position.y = top + 0.6 * k; p.dot.scale.setScalar(k); p.dot.rotation.y = t * 1.5;
+      const r = (1.1 + Math.sin(t * 3) * 0.08) * Math.sqrt(k); p.ring.scale.setScalar(r); p.ring.position.y = 0.08;
+      p.ring.material.opacity = 0.85 * fade; p.beam.material.opacity = 0.4 * fade; p.dot.material.opacity = fade;
+    }
   }
   function select(pos, radius, groundY) {
     if (!pos) { sel.visible = false; return; }
@@ -154,6 +187,7 @@ export function createMarkers(scene) {
     scene.remove(group);
     // the ghost model belongs to the caller (drag state) — detach it, don't dispose it
     if (ghostModel) { group.remove(ghostModel); ghostModel = null; }
+    locate(null); pinBeamG.dispose(); pinDotG.dispose();
     const geos = new Set(), mats = new Set();
     group.traverse((o) => {
       if (o.geometry) geos.add(o.geometry);
@@ -162,5 +196,5 @@ export function createMarkers(scene) {
     for (const g of geos) g.dispose();
     for (const m of mats) m.dispose();
   }
-  return { group, burst, update, select, showGhost, dispose };
+  return { group, burst, update, select, showGhost, locate, dispose };
 }

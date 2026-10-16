@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { clamp, makeRng } from '../core/util.js';
 import { gw } from '../data/common.js';
 import { toolProp } from '../world/props.js';
+import { zoneWord } from '../core/place.js';
 
 const svg = (body, bg) => 'data:image/svg+xml;utf8,' + encodeURIComponent(
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="${bg}"/>${body}</svg>`);
@@ -23,7 +24,7 @@ const ICONS = {
 export const TOOL_DEFS = [
   { id: 'drone', name: 'רחפן ניטור', cost: 20, max: 99, needs: 0, color: '#4aa3d6',
     fact: 'רחפן ניטור טס מעל היער, סופר צמחים ובעלי חיים ומגלה איפה יש בעיה: מי רעב, מי בצל, ולמי חסר שותף.',
-    hint: 'גררו לכל מקום באי – הרחפן יטוס סיבוב וידווח' },
+    hint: 'גררו לכל מקום ביער – הרחפן יטוס סיבוב וידווח' },
   { id: 'camera', name: 'מצלמת שטח', cost: 15, max: 6, needs: 0, color: '#5a8a3e',
     fact: 'מצלמת שטח מצלמת לבד כל בעל חיים שעובר לידה, גם בלילה. כך חוקרים מגלים בעלי חיים ביישניים שכמעט אף פעם לא רואים.',
     hint: 'שימו ליד שביל או ליד מקור מזון' },
@@ -234,7 +235,7 @@ export function createTools(ctx) {
   // where can it go?
   function check(id, hit) {
     const d = TOOL_DEFS.find(t => t.id === id);
-    if (!hit) return { ok: false, reason: 'גררו אל האי' };
+    if (!hit) return { ok: false, reason: `גררו ${zoneWord('to')}` };
     if (!unlocked(d)) return { ok: false, reason: `נפתח אחרי ${d.needs} משימות` };
     if (W.points < d.cost) return { ok: false, reason: 'אין מספיק נקודות חיים' };
     if (count(id) >= d.max) return { ok: false, reason: `אפשר להציב עד ${d.max}` };
@@ -320,7 +321,7 @@ export function createTools(ctx) {
     const present = new Set(W.aliveSpecies());
     for (const sid of present) {
       const sp = reg.byId.get(sid); if (!sp?.isPlant) continue;
-      if (sp.pollinators.length && !sp.pollinators.some(x => present.has(x))) lines.push(`🌸 ל${sp.name} אין מאביק באי. מי יכול לעזור: ${sp.pollinators.map(x => reg.byId.get(x)?.name).join(', ')}.`);
+      if (sp.pollinators.length && !sp.pollinators.some(x => present.has(x))) lines.push(`🌸 ל${sp.name} אין מאביק ${zoneWord('in')}. מי יכול לעזור: ${sp.pollinators.map(x => reg.byId.get(x)?.name).join(', ')}.`);
       else if (sp.dispersers.length && !sp.dispersers.some(x => present.has(x))) lines.push(`🌱 אין מי שיפיץ את הזרעים של ה${sp.name}: ${sp.dispersers.map(x => reg.byId.get(x)?.name).join(', ')}.`);
     }
     const inj = W.animals.filter(a => a.injured);

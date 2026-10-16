@@ -550,64 +550,128 @@ LEG_KINDS = {
 LEGBONES = {'fl', 'fl2', 'fr', 'fr2', 'hl', 'hl2', 'hr', 'hr2'}
 def _V(p): return Vector(p)
 def anat_legs(spec, kind, scale=1.0, keep_feet=True, **over):
+    """anatomical legs on the leg bones (fl fl2 fr fr2 hl hl2 hr hr2). v3: each lower leg is split at the wrist / hock
+    into a third bone (fl3 …) that carries the cannon and the foot, so a step can bend three joints; the feet end in a
+    real hoof (wider than the pastern, flat on the ground) or a rounded paw (wider and longer than the leg), never a point."""
     K = dict(LEG_KINDS[kind]); K.update(over)
     bb = {b[0]: (Vector(b[2]), Vector(b[3])) for b in spec['bones']}
     if not LEGBONES <= set(bb): return spec
+    split = not spec.get('noLeg3')
     keep = []
     for bl in spec['blobs']:
         if bl.get('bone') in LEGBONES and not (keep_feet and bl.get('foot')): continue
         keep.append(bl)
-    out = keep; f = scale
+    out = keep; f = scale; joints = {}
     def cap(a, b, r0, r1, bone): out.append(dict(t='cap', a=tuple(a), b2=tuple(b), r=(r0, r1), bone=bone))
     def ell(c, r, bone, rot=None):
         d = dict(t='ell', c=tuple(c), r=tuple(r), bone=bone)
         if rot: d['rot'] = rot
         out.append(d)
+    def hoof(G, can, H, bone, back=0.0):
+        hw, hh, hl = can * 1.2, max(can * 1.15, 0.012 * H), can * 1.45
+        ell(G + Vector((0, hh * 0.95, hl * 0.25 - back)), (hw, hh, hl), bone)              # the hoof: wider than the pastern, flat on the ground
+    def paw(G, can, H, pw, bone, fwd=0.35):
+        w, h, l = max(pw[0] * H, can * 1.55), max(pw[1] * H, can * 0.85), max(pw[2] * H, can * 2.7)
+        ell(G + Vector((0, h * 0.92, l * fwd)), (w, h, l), bone)                              # a rounded paw, toes forward
+        ell(G + Vector((0, h * 1.6, -l * 0.25)), (w * 0.75, h * 1.2, l * 0.45), bone)        # heel / pastern pad behind
     for L in ('l', 'r'):
         # ── foreleg
         S, E = bb['f' + L]; _, G = bb['f' + L + '2']
         H = max(0.05, S.y - G.y) * f
         up = (S - E).length
+        b2, b3 = 'f' + L + '2', ('f' + L + '3') if split else 'f' + L + '2'
         ell(S + (E - S) * 0.3 + Vector((0, 0.03 * H, -0.035 * H)), (K['sh'][0] * H, up * K['sh'][1], K['sh'][2] * H), 'f' + L)   # shoulder / triceps mass
         cap(S, E, K['arm'] * H, K['fa0'] * H * 1.05, 'f' + L)
-        ell(E + Vector((0, 0.01 * H, -K['fa0'] * H * 0.55)), (K['fa0'] * H * 0.7,) * 3, 'f' + L + '2')                      # point of the elbow
+        ell(E + Vector((0, 0.01 * H, -K['fa0'] * H * 0.55)), (K['fa0'] * H * 0.7,) * 3, b2)                      # point of the elbow
         W = E + (G - E) * K['wrist_t']
-        cap(E, W, K['fa0'] * H, K['fa1'] * H, 'f' + L + '2')
-        ell(W, (K['wr'] * H, K['wr'] * H * 1.2, K['wr'] * H), 'f' + L + '2')
+        cap(E, W, K['fa0'] * H, K['fa1'] * H, b2)
+        ell(W, (K['wr'] * H, K['wr'] * H * 1.2, K['wr'] * H), b2)
+        joints['f' + L] = (W, G)
         if K['fet_t']:
             F = E + (G - E) * K['fet_t']
-            cap(W, F, K['can'] * H, K['can'] * H * 0.95, 'f' + L + '2')
-            ell(F, (K['fet'] * H, K['fet'] * H * 1.1, K['fet'] * H * 1.05), 'f' + L + '2')
-            cap(F, G + Vector((0, 0.03 * H, 0.03 * H)), K['can'] * H * 0.9, K['can'] * H * 0.8, 'f' + L + '2')
+            cap(W, F, K['can'] * H, K['can'] * H * 0.95, b3)
+            ell(F, (K['fet'] * H, K['fet'] * H * 1.1, K['fet'] * H * 1.05), b3)
+            cap(F, G + Vector((0, 0.05 * H, 0.03 * H)), K['can'] * H * 0.9, K['can'] * H * 0.85, b3)
+            hoof(G, K['can'] * H, H, b3)
         else:
-            cap(W, G + Vector((0, K['paw'][1] * H, 0)), K['can'] * H, K['can'] * H * 0.95, 'f' + L + '2')
-            pw = K['paw']; ell(G + Vector((0, pw[1] * H * 0.9, pw[2] * H * 0.35)), (pw[0] * H, pw[1] * H, pw[2] * H), 'f' + L + '2')
+            cap(W, G + Vector((0, K['paw'][1] * H, 0)), K['can'] * H, K['can'] * H * 0.95, b3)
+            paw(G, K['can'] * H, H, K['paw'], b3)
         # ── hind leg
         Hp, Kn = bb['h' + L]; _, G = bb['h' + L + '2']
         H = max(0.05, Hp.y - G.y) * f
         th = K['th']; tl = (Kn - Hp).length
+        b2, b3 = 'h' + L + '2', ('h' + L + '3') if split else 'h' + L + '2'
         ell(Hp + (Kn - Hp) * 0.42 + Vector((0, 0.03 * H, -0.04 * H)), (th[0] * H, tl * th[1], th[2] * H), 'h' + L)        # haunch
         cap(Hp, Kn, th[0] * H * 0.75, K['gas0'] * H * 1.1, 'h' + L)
-        ell(Kn + Vector((0, 0, 0.02 * H)), (K['gas0'] * H * 0.85,) * 3, 'h' + L + '2')                                        # stifle
+        ell(Kn + Vector((0, 0, 0.02 * H)), (K['gas0'] * H * 0.85,) * 3, b2)                                        # stifle
         Hk = Kn + (G - Kn) * K['hock_t'] + Vector((0, 0, -K['hback'] * H))
-        cap(Kn, Hk, K['gas0'] * H, K['gas1'] * H, 'h' + L + '2')
-        ell(Hk + Vector((0, 0.01 * H, -K['hock'] * H * 0.45)), (K['hock'] * H * 0.75, K['hock'] * H * 1.1, K['hock'] * H), 'h' + L + '2')   # point of the hock
+        cap(Kn, Hk, K['gas0'] * H, K['gas1'] * H, b2)
+        ell(Hk + Vector((0, 0.01 * H, -K['hock'] * H * 0.45)), (K['hock'] * H * 0.75, K['hock'] * H * 1.1, K['hock'] * H), b2)   # point of the hock
+        joints['h' + L] = (Hk, G)
         if K['fet_t']:
             F = G + Vector((0, 0.1 * H, -0.01 * H))
-            cap(Hk, F, K['mt'] * H, K['mt'] * H * 0.95, 'h' + L + '2')
-            ell(F, (K['fet'] * H, K['fet'] * H * 1.1, K['fet'] * H * 1.05), 'h' + L + '2')
-            cap(F, G + Vector((0, 0.03 * H, 0.03 * H)), K['mt'] * H * 0.9, K['mt'] * H * 0.8, 'h' + L + '2')
+            cap(Hk, F, K['mt'] * H, K['mt'] * H * 0.95, b3)
+            ell(F, (K['fet'] * H, K['fet'] * H * 1.1, K['fet'] * H * 1.05), b3)
+            cap(F, G + Vector((0, 0.05 * H, 0.03 * H)), K['mt'] * H * 0.9, K['mt'] * H * 0.85, b3)
+            hoof(G, K['mt'] * H, H, b3)
         else:
             pw = K['paw']
-            cap(Hk, G + Vector((0, pw[1] * H, 0)), K['mt'] * H, K['mt'] * H * 0.95, 'h' + L + '2')
-            ell(G + Vector((0, pw[1] * H * 0.9, pw[2] * H * 0.3)), (pw[0] * H, pw[1] * H, pw[2] * H * 1.05), 'h' + L + '2')
+            cap(Hk, G + Vector((0, pw[1] * H, 0)), K['mt'] * H, K['mt'] * H * 0.95, b3)
+            paw(G, K['mt'] * H, H, pw, b3, fwd=0.3)
     hb = next((b for b in out if b.get('bone') == 'hips' and b['t'] == 'ell'), None)
     cb = next((b for b in out if b.get('bone') == 'chest' and b['t'] == 'ell'), None)
     if hb and cb and not spec.get('noSpine'):
         r = 0.86 * min(hb['r'][1], cb['r'][1], hb['r'][0] * 1.2, cb['r'][0] * 1.2)
         cap(Vector(hb['c']) + Vector((0, 0.08 * r, 0)), Vector(cb['c']) + Vector((0, 0.08 * r, 0)), r, r, 'hips')
     spec['blobs'] = out
+    if split: _split_legs(spec, joints)
     return spec
+
+def _split_legs(spec, joints):
+    """add the third leg bone (fl3 …: wrist / hock → ground) and give the walk a working foot"""
+    bones = []
+    for b in spec['bones']:
+        n = b[0]
+        if n[:2] in joints and n.endswith('2') and len(n) == 3:
+            J, G = joints[n[:2]]
+            bones.append((n, b[1], b[2], tuple(J)))
+            bones.append((n[:2] + '3', n, tuple(J), b[3]))
+        else: bones.append(b)
+    spec['bones'] = bones
+    for part in spec.get('parts', []):   # hooves / claws made as parts move to the foot bone
+        if part.bone and len(part.bone) == 3 and part.bone[:2] in joints and part.bone.endswith('2'):
+            J, _ = joints[part.bone[:2]]
+            if sum(v[1] for v in part.v) / len(part.v) < J.y: part.bone = part.bone[:2] + '3'
+    spec['actions'] = {k: (v[0], _foot_fn(k, v[1], spec.get('kneeMul', 1.25))) for k, v in spec['actions'].items()}
+
+def _rx(v):
+    if v is None: return 0.0
+    if isinstance(v, (tuple, list)) and len(v) == 2 and isinstance(v[0], (tuple, list)): return v[0][0]
+    return v[0]
+
+def _foot_fn(name, fn, kmul):
+    """the third leg bone in every clip: on the ground the foot stays flat (it undoes the leg's swing), in the air it
+    folds back (the hoof / paw flicks up); the knees bend a little more than before in walk and run"""
+    loco = name in ('walk', 'run', 'swim', 'trot')
+    lying = name in ('sleep', 'sit', 'lie', 'rest')
+    def f(ph):
+        p = fn(ph)
+        for leg in ('fl', 'fr', 'hl', 'hr'):
+            if leg not in p and leg + '2' not in p and not loco:
+                if not lying: p[leg + '3'] = (0, 0, 0)
+                continue
+            u = _rx(p.get(leg)); l = _rx(p.get(leg + '2'))
+            if loco and leg + '2' in p:
+                v = p[leg + '2']; l = l * kmul
+                p[leg + '2'] = (l, v[1], v[2]) if not (isinstance(v[0], (tuple, list))) else ((l, v[0][1], v[0][2]), v[1])
+            if lying: continue
+            if loco:
+                w = min(1.0, abs(l) / 30.0)
+                p[leg + '3'] = (-(u + l) * (1 - w) + (42 if leg[0] == 'f' else 34) * w, 0, 0)
+            else:
+                p[leg + '3'] = (-(u + l), 0, 0)
+        return p
+    return f
 
 # species → leg type (+ tweaks); applied by build_hd
 ANAT = {
@@ -645,6 +709,99 @@ def _lid(C, r, g, col, bone, wide=1.12, tall=0.82, tube=0.2, seg=18, ring=6):
         for j in range(ring):
             i2 = (i + 1) % seg; j2 = (j + 1) % ring; F.append((i * ring + j, i * ring + j2, i2 * ring + j2, i2 * ring + j))
     p = Part('lid', bone=bone, mat=0, color=col); p.add(V, F); return p
+
+# ───────────────────────────────────────── body plans: the trunk's proportions by family
+# Stations from the rump (t=0) to the brisket (t=1): (t, depth ×H, width ×W, centre shift ×H). H, W = the deepest / widest
+# of the species' own hips and chest blobs, so each animal keeps its size and only the profile follows its family.
+BODY = {
+    # cats: rounded haunch, the waist tucked up high, deep chest with the shoulders standing out
+    'felid':    [(.06, .92, .92, .04), (.2, 1.0, 1.0, .0), (.36, .86, .86, .08), (.5, .8, .82, .12), (.64, .95, .95, -.03), (.79, 1.04, 1.0, -.09), (.93, .95, .88, -.07)],
+    # dogs and foxes: like the cats, a little longer and narrower, less extreme waist
+    'canid':    [(.06, .92, .9, .04), (.2, .98, .96, .0), (.36, .86, .86, .06), (.5, .82, .84, .09), (.64, .95, .95, -.03), (.79, 1.02, .98, -.07), (.93, .94, .88, -.05)],
+    # gazelles, goats, deer: a taut barrel (the belly full but held up), the rump high, a deep and narrow chest
+    'ungulate': [(.06, .92, .88, .05), (.2, .98, .95, .02), (.36, .98, .96, .0), (.5, 1.0, 1.0, -.02), (.64, 1.02, .98, -.04), (.79, 1.02, .92, -.07), (.93, .92, .8, -.05)],
+    # rodents and hyraxes: pear-shaped, the weight behind (big haunches), the chest small, sitting low
+    'rodent':   [(.06, .94, .94, -.01), (.2, 1.0, 1.0, .0), (.36, 1.0, 1.0, .0), (.5, .97, .97, .0), (.64, .94, .94, .01), (.79, .92, .9, .02), (.93, .86, .84, .03)],
+    # tapirs, anteaters: a long even barrel
+    'heavy':    [(.06, .92, .92, .02), (.2, .98, .98, .0), (.36, 1.0, 1.0, .0), (.5, 1.0, 1.0, -.01), (.64, 1.0, .98, -.02), (.79, .98, .94, -.03), (.93, .9, .84, -.02)],
+}
+BODY_OF = {'fox': 'canid', 'coati': 'canid', 'kinkajou': 'canid', 'gazelle': 'ungulate', 'agouti': 'rodent', 'capybara': 'rodent',
+           'hyrax': 'rodent', 'spinymouse': 'rodent', 'porcupine': 'rodent', 'tapir': 'heavy', 'anteater': 'heavy'}
+
+def body_plan(spec, fam):
+    """replace the trunk (the hips / chest ellipsoids) with a row of ellipsoids that follow the family's profile"""
+    prof = BODY[fam]
+    trunk = [b for b in spec['blobs'] if b.get('bone') in ('hips', 'chest') and b['t'] == 'ell' and not b.get('fold') and not b.get('keep')]
+    if len(trunk) < 2: return spec
+    z0 = min(b['c'][2] - b['r'][2] for b in trunk); z1 = max(b['c'][2] + b['r'][2] for b in trunk)
+    rear = min(trunk, key=lambda b: b['c'][2]); front = max(trunk, key=lambda b: b['c'][2])
+    span = z1 - z0
+    spec['blobs'] = [b for b in spec['blobs'] if b not in trunk]
+    def at(t):   # the profile between its stations (smooth step), so the row of ellipsoids makes one smooth trunk
+        if t <= prof[0][0]: return prof[0][1:]
+        for a, b in zip(prof, prof[1:]):
+            if t <= b[0]:
+                u = (t - a[0]) / (b[0] - a[0]); u = u * u * (3 - 2 * u)
+                return tuple(a[j] + (b[j] - a[j]) * u for j in (1, 2, 3))
+        return prof[-1][1:]
+    n = 17; t0, t1 = prof[0][0], prof[-1][0]
+    for i in range(n):
+        t = t0 + (t1 - t0) * i / (n - 1); ry, rx, dy = at(t)
+        z = z0 + span * t
+        k = (z - rear['c'][2]) / max(1e-6, front['c'][2] - rear['c'][2]); k = min(1.0, max(0.0, k))
+        ks = k * k * (3 - 2 * k)   # the species' own sizes, rump → chest, shaped by the family profile
+        H = rear['r'][1] + (front['r'][1] - rear['r'][1]) * ks; W = rear['r'][0] + (front['r'][0] - rear['r'][0]) * ks
+        y = rear['c'][1] + (front['c'][1] - rear['c'][1]) * k + dy * H
+        end = i in (0, n - 1)
+        rz = span * (0.12 if end else 0.1)
+        spec['blobs'].append(dict(t='ell', c=(0, y, z), r=(W * rx, H * ry, rz), bone='hips' if t < 0.5 else 'chest'))
+    spec['noSpine'] = True
+    return spec
+
+# ───────────────────────────────────────── mouths
+# species → (how far back the corner is ×head length, how far below the nose ×head length, line thickness ×head length,
+# colour). The line follows the skin: each point is found by a ray against the blob union.
+MOUTH = {
+    'fox': (.42, .07, .009, '#3a2620'), 'jaguar': (.36, .1, .01, '#4a2e24'), 'gazelle': (.3, .06, .008, '#4a3428'),
+    'tapir': (.2, .12, .009, '#2a201a'), 'capybara': (.24, .1, .009, '#3a2618'), 'agouti': (.28, .08, .009, '#3a2618'),
+    'coati': (.32, .06, .009, '#33221a'), 'howler': (.28, .12, .011, '#1a1210'), 'kinkajou': (.3, .1, .01, '#3a2418'),
+    'hyrax': (.26, .09, .01, '#2e1e14'), 'sloth': (.28, .12, .011, '#3a322c'), 'porcupine': (.24, .09, .009, '#1a120c'),
+}
+def _mouth(spec):
+    m = MOUTH.get(spec['id'])
+    if not m or spec.get('noMouth'): return spec
+    from mathutils.bvhtree import BVHTree
+    back, drop, thick, col = m
+    hb = next((b for b in spec['bones'] if b[0] == 'head'), None)
+    noses = [p for p in spec.get('parts', []) if p.tag == 'nose']
+    if not hb or not noses: return spec
+    Lh = (Vector(hb[3]) - Vector(hb[2])).length
+    N = sum((sum((Vector(v) for v in p.v), Vector()) / len(p.v) for p in noses), Vector()) / len(noses)
+    ny = min(min(v[1] for v in p.v) for p in noses)
+    V, F = _blob_mesh(spec['blobs'], False); tree = BVHTree.FromPolygons([Vector(v) for v in V], F)
+    r = Lh * thick; d = Lh * drop
+    def front(y):   # the skin in front at height y, on the middle line
+        h = tree.ray_cast(Vector((0, y, N.z + Lh)), Vector((0, 0, -1)), Lh * 3)
+        return h[0]
+    def side(sx, y, z):
+        h = tree.ray_cast(Vector((sx * Lh, y, z)), Vector((-sx, 0, 0)), Lh * 2)
+        return h[0]
+    part = Part('mouth', bone='head', mat=0, color=srgb(col))
+    lip = front(ny - d)
+    if lip is None: return spec
+    for sx in (1, -1):   # from the middle of the lip back to the corner: dips a little, then rises (a calm closed mouth)
+        pts = []; rads = []
+        for i in range(0, 11):
+            s_ = i / 10; z = lip.z - r * 0.6 - Lh * back * s_
+            y = lip.y - d * 0.55 * s_ + d * 0.5 * s_ * s_
+            h = side(sx, y, z) if i else front(y)
+            if h is None: break
+            pts.append(h + (Vector((sx * r * 0.15, 0, 0)) if i else Vector((sx * r * 0.3, 0, r * 0.1))))
+            rads.append(r * (0.5 + 0.5 * math.sin(math.pi * min(1.0, 0.15 + s_ * 0.85))))
+        if len(pts) > 3:
+            part.add(*tube(pts, rads, 5))
+    if part.v: spec['parts'].append(part)
+    return spec
 
 def _set_eyes(spec, depth=0.38):
     """eyes sit IN the skull at a set depth: the gaze ray finds the skin over each eye (the blob union), the eyeball's
@@ -783,14 +940,84 @@ TWEAK = {
     'fox': lambda sp: _part(_fox_head(_smooth_tail(sp, [0.035, 0.06, 0.082, 0.078, 0.06, 0.035])), 'nose', scale=(1.0, 1.0, 1.1), move=(0, 0.003, 0.01)),
     'jaguar': _jaguar_head,
     'capybara': _capy_head,
-    'spinymouse': _seat_spines,
+    'spinymouse': lambda sp: (sp.__setitem__('seatSpines', True) or sp),
 }
+
+# ───────────────────────────────────────── bees (one model: the honeybee and the orchid bee differ only in colour)
+def bee_actions(sweep=68, flap=58):
+    """fly: a fast beat; perch: the wings folded back over the abdomen, which pumps, antennae feeling around"""
+    def wings(p, a, sw, a2=None):
+        a2 = a if a2 is None else a2
+        p['wl1'] = (0, sw, a); p['wr1'] = (0, -sw, -a); p['wl2'] = (0, sw * 1.05, a2); p['wr2'] = (0, -sw * 1.05, -a2); return p   # yaw: sweep back, roll: beat (roll first)
+    def fly(ph):
+        u = TAU * ph; a = 8 + flap * 0.5 * (1 + math.cos(u))
+        return wings({'body': ((-10 + 3 * math.sin(u), 0, 0), (0, 0.002 * math.cos(u), 0)), 'abd': (6 + 4 * math.sin(u), 0, 0),
+                      'antL': (-10, 0, 0), 'antR': (-10, 0, 0)}, a, 0, a - 6)
+    def hover(ph):
+        p = fly(ph); p['body'] = ((-4, 3 * _S(ph * 0.25), 0), (0, 0.003 * _S(ph * 0.5), 0)); return p
+    def perch(ph):
+        o = smooth(0.1, 0.2, ph) * smooth(0.5, 0.4, ph)        # now and then the wings open a little
+        return wings({'body': ((0, 0, 0), None), 'abd': (4 * _S(ph * 6), 0, 0), 'antL': (8 * _S(ph * 3), 0, 6 * _S(ph * 2)),
+                      'antR': (8 * _S(ph * 3 + 0.3), 0, -6 * _S(ph * 2 + 0.2))}, 16 + 10 * o, sweep * (1 - 0.3 * o))
+    def sleep(ph): return wings({'body': ((0, 0, 0), None), 'abd': (2 * _S(ph), 0, 0)}, 16, sweep)
+    return {'fly': (4, fly), 'hover': (4, hover), 'perch': (120, perch), 'sleep': (60, sleep)}
+
+def bee_spec(sid, P, scale=2.2, meta=None):
+    """P: colours – head, thorax, thorax2, abd, band, legs, wing, vein, eye, pollen (None = no pollen basket)"""
+    k = scale; C = {n: srgb(v) if isinstance(v, str) else v for n, v in P.items()}
+    K = lambda *v: tuple(x * k for x in v)
+    blobs = [dict(t='ell', c=K(0, 0.012, 0.012), r=K(0.0125, 0.012, 0.0135), bone='body'),          # thorax
+             dict(t='ell', c=K(0, 0.0125, 0.0245), r=K(0.0065, 0.0065, 0.004), bone='body'),        # neck
+             dict(t='ell', c=K(0, 0.0125, 0.0315), r=K(0.0098, 0.0095, 0.0062), bone='body'),       # head
+             dict(t='ell', c=K(0, 0.009, -0.0015), r=K(0.0055, 0.0055, 0.004), bone='abd'),         # waist
+             dict(t='ell', c=K(0, 0.005, -0.023), r=K(0.0148, 0.0128, 0.024), rot=(9, 0, 0), bone='abd')]   # abdomen
+    bones = [('body', None, K(0, 0.012, 0.0), K(0, 0.012, 0.04)), ('abd', 'body', K(0, 0.01, 0.0), K(0, 0.004, -0.042))]
+    parts = []
+    FORE = [(0.0, 0.003), (0.015, 0.0072), (0.035, 0.0075), (0.05, 0.003), (0.055, -0.002), (0.047, -0.0065), (0.026, -0.008), (0.008, -0.0045)]
+    HIND = [(0.0, 0.002), (0.012, 0.004), (0.028, 0.0035), (0.036, 0.0), (0.032, -0.004), (0.016, -0.005), (0.004, -0.003)]
+    def wtop(x, z, r):
+        v = smooth(0.85, 0.97, abs(math.sin(math.atan2(z, x) * 5))) * smooth(0.15, 0.3, r)
+        cell = 0.5 + 0.5 * math.sin(x * 900) * math.sin(z * 700)
+        return mix(mix(mix(C['wing'], C['vein'], 0.08 * cell), C['vein'], 0.75 * v), C['vein'], 0.6 * smooth(0.88, 0.99, r))
+    for sx, L in ((1, 'l'), (-1, 'r')):
+        fw = bwing(L, sx, [(a * k, b * k) for a, b in FORE], wtop, wtop, root=K(sx * 0.007, 0.0225, 0.017)); fw.bone = 'w%s1' % L; parts.append(fw)
+        hw = bwing(L, sx, [(a * k, b * k) for a, b in HIND], wtop, wtop, root=K(sx * 0.0075, 0.0215, 0.008)); hw.bone = 'w%s2' % L; parts.append(hw)
+        bones += [('w%s1' % L, 'body', K(sx * 0.007, 0.0225, 0.017), K(sx * 0.06, 0.0225, 0.014)),
+                  ('w%s2' % L, 'body', K(sx * 0.0075, 0.0215, 0.008), K(sx * 0.04, 0.0215, 0.005))]
+        # compound eyes on the sides of the head, glossy
+        e = Part('eye', bone='body', mat=1, color=C['eye']); e.add(*ellipsoid(K(sx * 0.0084, 0.0135, 0.033), K(0.003, 0.0058, 0.0042), 8, 6)); parts.append(e)
+        # elbowed antennae
+        a0, a1, a2 = Vector(K(sx * 0.0028, 0.0185, 0.0385)), Vector(K(sx * 0.0045, 0.0262, 0.0425)), Vector(K(sx * 0.0105, 0.029, 0.0545))
+        an = Part('ant', bone='ant' + ('L' if sx > 0 else 'R'), color=C['legs']); an.add(*tube([a0, a1, a2], [0.0008 * k, 0.0008 * k, 0.0007 * k], 4)); parts.append(an)
+        bones.append(('ant' + ('L' if sx > 0 else 'R'), 'body', tuple(a0), tuple(a2)))
+        # six jointed legs from under the thorax, the hind pair longer
+        for j, (z0, ln) in enumerate(((0.019, 1.0), (0.012, 1.1), (0.005, 1.35))):
+            b0 = Vector(K(sx * 0.006, 0.004, z0)); kn = b0 + Vector(K(sx * 0.0075 * ln, -0.001, -0.0015 * j))
+            ft = kn + Vector(K(sx * 0.003 * ln, -0.0085, (0.004 - 0.006 * j) * ln))
+            lg = Part('leg', bone='body', color=C['legs']); lg.add(*tube([b0, kn, ft], [0.0013 * k, 0.0011 * k, 0.0008 * k], 4)); parts.append(lg)
+            if j == 2 and C.get('pollen') is not None:
+                pb = Part('pollen', bone='body', color=C['pollen']); pb.add(*ellipsoid(tuple(kn + (ft - kn) * 0.45), K(0.0026, 0.0034, 0.0026), 6, 5)); parts.append(pb)
+    def paint(Pn, N, tag):
+        x, y, z = Pn[0] / k, Pn[1] / k, Pn[2] / k
+        n = noise.noise(Vector((x * 900, y * 900, z * 900)))
+        if z > 0.0255: return mix(C['head'], C['thorax2'], 0.15 + 0.15 * n)
+        if z > 0.001: return mix(C['thorax'], C['thorax2'], 0.4 + 0.3 * n + 0.3 * smooth(0.012, 0.022, y))
+        t = (-z) / 0.04
+        band = smooth(0.25, 0.5, math.sin(t * math.pi * 7.2 - 0.6)) * smooth(0.02, 0.12, t)
+        c = mix(C['abd'], C['band'], band)
+        if t > 0.9: c = mix(c, C['band'], 0.7)
+        return mix(c, C['thorax2'], 0.1 * n)
+    return dict(id=sid, bones=bones, blobs=blobs, parts=parts, paint=paint, res=0.0011 * k, tris=900, smooth=6,
+                actions=bee_actions(), skin='fur', noLids=True, meta=meta or {})
 
 def build_hd(spec, place=None, bake=True):
     t0 = time.time()
     if spec['id'] in TWEAK: TWEAK[spec['id']](spec)
     if skin_of(spec) == 'feather': _bird_fold(spec)
+    if spec['id'] in BODY_OF and not spec.get('noBody'): body_plan(spec, BODY_OF[spec['id']])
+    if spec.get('seatSpines'): _seat_spines(spec)   # after the body plan: the spines sit on the final skin
     if spec['id'] in EYE and not spec.get('noEyeSet'): _set_eyes(spec)
+    _mouth(spec)
     if spec['id'] in ANAT and not spec.get('noAnat'):
         kind, over = ANAT[spec['id']]; anat_legs(spec, kind, **over)
     info = build(spec, place)
