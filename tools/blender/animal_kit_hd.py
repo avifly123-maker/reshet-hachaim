@@ -154,6 +154,28 @@ def _flow_of(name, h, t):
     if name.startswith('tail') or d.y < -0.5: return d
     return -d
 
+# ───────────────────────────────────────── natural colour: the layer on top of every species' own paint
+TONE = dict(dorsal=0.14, ventral=0.08, feet=0.11, broad=0.09, patch=0.07, grain=0.07, warm=0.03)
+def _tone(c, P, N, f, skin, s, ylo, yhi):
+    """a real coat is never one flat colour: darker along the back and lighter underneath (countershading), a little
+    darker toward the feet, broad soft cloudiness, smaller patches, a fine grain that follows the hair, and a slight
+    warm / cool drift. Multiplies the species' colour, so its own pattern (spots, bands, masks) stays as it is."""
+    T = TONE; k = {'fur': 1.0, 'feather': 0.75, 'scale': 1.1, 'smooth': 0.55}.get(skin, 1.0)
+    h = max(1e-6, yhi - ylo); yr = (P.y - ylo) / h
+    v = 1.0
+    v *= 1.0 - T['dorsal'] * k * smooth(0.15, 0.85, N.y) * smooth(0.35, 0.75, yr)
+    v *= 1.0 + T['ventral'] * k * smooth(-0.15, -0.75, N.y)
+    v *= 1.0 - T['feet'] * k * smooth(0.3, 0.04, yr)
+    n1 = noise.noise(P * (1 / (0.32 * s)) + Vector((11.3, 2.1, 5.7)))
+    n2 = noise.noise(P * (1 / (0.09 * s)) + Vector((1.7, 9.2, 3.3)))
+    Q = P - f * (P.dot(f)) * 0.9                          # stretched along the hair / feathers
+    n3 = noise.noise(Q * (1 / (0.012 * s)) + Vector((4.4, 0.6, 8.8)))
+    v *= 1.0 + k * (T['broad'] * n1 + T['patch'] * n2 + T['grain'] * n3)
+    w = T['warm'] * k * noise.noise(P * (1 / (0.5 * s)) + Vector((7.0, 3.0, 1.0)))
+    r, g, b = c[0] * v, c[1] * v, c[2] * v
+    r += w; b -= w * 0.8
+    return (max(0.0, min(1.0, r)), max(0.0, min(1.0, g)), max(0.0, min(1.0, b)))
+
 def hd_paint(sid, nb):
     R = REG[sid]; spec = R['spec']; dense = _HD[sid]['dense']; me = dense.data
     meta = spec.get('meta', {}); s = max(0.05, meta.get('length', 1.0))
@@ -175,6 +197,7 @@ def hd_paint(sid, nb):
     nr = np.empty(n * 3, dtype=np.float32); me.vertices.foreach_get('normal', nr); nr = nr.reshape(-1, 3)
     cols = np.ones((n, 4), dtype=np.float32); disp = np.zeros(n, dtype=np.float32)
     gk = 0.22 if skin != 'smooth' else 0.0
+    ys = co[:, 2]; ylo, yhi = float(ys.min()), float(ys.max())   # Blender z = authoring y
     for i in range(n):
         P = Vector((co[i, 0], co[i, 2], -co[i, 1])); N = Vector((nr[i, 0], nr[i, 2], -nr[i, 1]))
         _, gi, _ = kd.find(P)
@@ -197,6 +220,7 @@ def hd_paint(sid, nb):
                 break
         disp[i] = d
         if c is None: c = paint(P, N, 'body') if paint else (0.6, 0.5, 0.4)
+        if not spec.get('noTone'): c = _tone(c, P, N, gflow[gi], skin, s, ylo, yhi)
         k = 1.0 - gk * g
         cols[i, 0] = c[0] * k; cols[i, 1] = c[1] * k; cols[i, 2] = c[2] * k
     co = co + nr * disp[:, None]
@@ -373,6 +397,8 @@ def _img(name, size, noncolor):
 def _bake_scene():
     sb = bpy.data.scenes.get('hdbake') or bpy.data.scenes.new('hdbake')
     sb.render.engine = 'CYCLES'; sb.cycles.device = 'CPU'
+    # leave two cores to Windows and the Blender window, so the computer stays responsive during long bakes
+    sb.render.threads_mode = 'FIXED'; sb.render.threads = max(2, (os.cpu_count() or 4) - 2)
     try: sb.view_settings.view_transform = 'Standard'
     except Exception: pass
     return sb
@@ -656,6 +682,7 @@ def _foot_fn(name, fn, kmul):
     lying = name in ('sleep', 'sit', 'lie', 'rest')
     def f(ph):
         p = fn(ph)
+        if p.get('_g'): return p      # the v4 gait already moves all three joints
         for leg in ('fl', 'fr', 'hl', 'hr'):
             if leg not in p and leg + '2' not in p and not loco:
                 if not lying: p[leg + '3'] = (0, 0, 0)
@@ -672,6 +699,84 @@ def _foot_fn(name, fn, kmul):
                 p[leg + '3'] = (-(u + l), 0, 0)
         return p
     return f
+
+# ───────────────────────────────────────── v4 gait: three joints, a real stance and swing
+_quad0 = globals().get('_quad0') or quad_actions
+def quad_actions(names, c=None):
+    """the kit's clips, with walk and run legs replaced by a gait that has a stance (the foot on the ground, moving back
+    at an even pace, a little give in the knee) and a swing (the knee folds, the foot curls up, then reaches forward and
+    lands). Stance takes 62 % of a walk step and 40 % of a run step. The foot bone (fl3 …) keeps the paw flat on the
+    ground, lifts the heel before the toes leave, folds in the air and opens just before landing."""
+    acts = _quad0(names, c)
+    C = dict(dict(amp=24, knee=34, run_amp=38, run_bound=False, gait=None), **(c or {}))
+    has = set(names)
+    if not {'fl', 'fr', 'hl', 'hr'} <= has: return acts
+    two = 'fl2' in has
+    def legs(ph, A, K, offs, duty):
+        p = {}
+        for leg, off in offs.items():
+            u = (ph + off) % 1.0; front = leg[0] == 'f'
+            if u < duty:
+                st = u / duty; e = st * st * (3 - 2 * st) * 0.25 + st * 0.75
+                ang = -A + 2 * A * e
+                kn = K * 0.14 * math.sin(math.pi * st)
+                curl = (0.45 if front else 0.4) * K * smooth(0.78, 1.0, st)
+                flat = 1.0
+            else:
+                sw = (u - duty) / (1 - duty)
+                ang = A - 2 * A * (0.5 - 0.5 * math.cos(math.pi * sw))
+                kn = K * math.sin(math.pi * min(1.0, sw / 0.9)) ** 0.9
+                curl = (1.3 if front else 1.1) * K * math.sin(math.pi * min(1.0, sw / 0.75)) - 10 * smooth(0.75, 1.0, sw)
+                flat = 1.0 - math.sin(math.pi * sw)
+            if not front: ang *= 0.9
+            kk = kn if front else -kn * 0.85
+            p[leg] = (ang, 0, 0)
+            if two: p[leg + '2'] = (kk, 0, 0)
+            p[leg + '3'] = (-(ang + kk) * flat + curl, 0, 0)
+        p['_g'] = True
+        return p
+    if 'walk' in acts:
+        fr, fn = acts['walk']
+        offs = {'hl': 0, 'fl': 0.25, 'hr': 0.5, 'fr': 0.75} if C.get('gait') != 'trot' else {'hl': 0, 'fr': 0, 'hr': 0.5, 'fl': 0.5}
+        def walk(ph, fn=fn, offs=offs):
+            p = fn(ph); p.update(legs(ph, C['amp'], C['knee'] * 1.25, offs, 0.62))
+            if 'neck' in has:   # the head nods with each front step and stays steady in between
+                n0 = p.get('neck', (0, 0, 0)); n0 = n0[0] if isinstance(n0[0], (tuple, list)) else n0
+                p['neck'] = (n0[0] + 3.5 * math.sin(TAU * (2 * ph + 0.1)), n0[1], n0[2])
+                h0 = p.get('head', (0, 0, 0)); h0 = h0[0] if isinstance(h0[0], (tuple, list)) else h0
+                p['head'] = (h0[0] - 2.5 * math.sin(TAU * (2 * ph + 0.1)), h0[1], h0[2])
+            return p
+        acts['walk'] = (fr, walk)
+    if 'run' in acts:
+        fr, fn = acts['run']
+        offs = {'hl': 0, 'hr': 0.06, 'fl': 0.5, 'fr': 0.56} if C['run_bound'] else {'hl': 0, 'hr': 0.1, 'fl': 0.45, 'fr': 0.55}
+        def run(ph, fn=fn, offs=offs):
+            p = fn(ph); p.update(legs(ph, C['run_amp'], C['knee'] * 1.5, offs, 0.4)); return p
+        acts['run'] = (fr, run)
+    return acts
+
+# ───────────────────────────────────────── v4 flight: a fast downstroke and a folding upstroke
+_bird0 = globals().get('_bird0') or bird_actions
+def bird_actions(names, c=None):
+    """the kit's bird clips with a truer wing beat: the downstroke takes 40 % of the beat with the wing spread, the
+    upstroke 60 % with the hand and the tip folded in; the tip trails the arm"""
+    acts = _bird0(names, c)
+    C = dict(dict(flap=55), **(c or {}))
+    if 'fly' not in acts or 'wl1' not in set(names): return acts
+    fr, fn0 = acts['fly']
+    def fly(ph):
+        p = fn0(ph); a = C['flap']
+        if ph < 0.4: t = ph / 0.4; down = math.cos(math.pi * t); fold = 0.0
+        else: t = (ph - 0.4) / 0.6; down = -math.cos(math.pi * t); fold = math.sin(math.pi * t)
+        lag = math.cos(math.pi * min(1.0, (ph - 0.06) % 1.0 / 0.4)) if ph < 0.46 else down
+        down = 0.8 * down + 0.2           # the beat goes from high above the back to a little below the body
+        for L, s_ in (('l', 1), ('r', -1)):
+            p['w%s1' % L] = (4 * down, s_ * 8 * fold, s_ * a * down)
+            p['w%s2' % L] = (0, s_ * -32 * fold, s_ * a * 0.22 * lag)
+            p['w%s3' % L] = (-8 * fold, s_ * 42 * fold, s_ * a * 0.3 * lag)
+        return p
+    acts['fly'] = (fr, fly)
+    return acts
 
 # species → leg type (+ tweaks); applied by build_hd
 ANAT = {
@@ -744,7 +849,7 @@ def body_plan(spec, fam):
                 u = (t - a[0]) / (b[0] - a[0]); u = u * u * (3 - 2 * u)
                 return tuple(a[j] + (b[j] - a[j]) * u for j in (1, 2, 3))
         return prof[-1][1:]
-    n = 17; t0, t1 = prof[0][0], prof[-1][0]
+    n = 29; t0, t1 = prof[0][0], prof[-1][0]   # many, deeply overlapping: one smooth trunk, no rings
     for i in range(n):
         t = t0 + (t1 - t0) * i / (n - 1); ry, rx, dy = at(t)
         z = z0 + span * t
@@ -753,7 +858,7 @@ def body_plan(spec, fam):
         H = rear['r'][1] + (front['r'][1] - rear['r'][1]) * ks; W = rear['r'][0] + (front['r'][0] - rear['r'][0]) * ks
         y = rear['c'][1] + (front['c'][1] - rear['c'][1]) * k + dy * H
         end = i in (0, n - 1)
-        rz = span * (0.12 if end else 0.1)
+        rz = span * (0.12 if end else 0.11)
         spec['blobs'].append(dict(t='ell', c=(0, y, z), r=(W * rx, H * ry, rz), bone='hips' if t < 0.5 else 'chest'))
     spec['noSpine'] = True
     return spec

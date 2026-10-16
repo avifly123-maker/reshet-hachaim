@@ -53,7 +53,7 @@ def paint(P, N, tag):
         d, rid = worley(P, 13, 5)
         return mix(c, BLACK, smooth(0.3, 0.2, d) * (rid > 0.25))
     # rosettes: broken dark rings, a slightly darker centre, sometimes a dot
-    d, rid = worley(P, 6.0, 2)
+    d, rid = worley(P, 8.5, 2)          # rosettes about the size of a palm, many of them
     ring = smooth(0.24, 0.3, d) * smooth(0.48, 0.4, d)
     gap = 0.5 + 0.5 * noise.noise(Vector((x * 60, y * 60, z * 60)))
     c = mix(c, TAN, smooth(0.32, 0.18, d) * 0.6)

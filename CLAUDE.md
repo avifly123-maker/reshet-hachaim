@@ -39,15 +39,14 @@ Headless notes: SwiftShader is slow and makes the game start on the 'min' tier; 
 
 ## Blender
 
-Blender runs on the owner's PC and is reached through the Blender MCP bridge. `tools/blender/animal_kit.py` is the toolkit; `tools/blender/animals/<id>.py` is one spec per animal (31 animals). Exports come back as JSON in the tool result and are written to `art/rigged/<zone>/<id>.json` (`tools/blender/bridge/pulltxt.py`), then packed by `tools/build-rigged.py` into `src/data/rigged-*.js`. Each upload of a changed script must use a new staged file name (`tools/blender/bridge/push.sh`), or the cached old content arrives. Panoramas, ground textures, props and the card pack also come from Blender (`tools/build-*.py`).
+Blender runs on the owner's PC and is reached through the Blender MCP bridge. After Blender starts, run `animals\session.py` there once (see `tools/blender/bridge/session.py`); it loads the kits and sets up a gentle one-at-a-time job queue. The owner's PC is also his work computer: one job at a time, never call Blender while a job runs, check progress by listing `animals\pv` and `animals\out` with the device tools. How we work, decisions and dilemmas: `docs/WORKFLOW.md` (Hebrew). `tools/blender/animal_kit.py` is the toolkit; `tools/blender/animals/<id>.py` is one spec per animal (33: 31 animals and two bees). Exports are written by Blender to `animals\out\<id>.json`, staged back with the device tools and copied to `art/rigged/<zone>/<id>.json`, then packed by `tools/build-rigged.py` into `src/data/rigged-*.js`. Each upload of a changed script must use a new staged file name (`tools/blender/bridge/push.sh`), or the cached old content arrives. Panoramas, ground textures, props and the card pack also come from Blender (`tools/build-*.py`).
 
 ## Where things stand (1.2.3, and 1.3.0 in development)
 
 1.2.3 is built (branch `claude/1.2.3`, installers on the owner's PC in `Documents\reshet-hachaim-blender\installer`):
-- Animals v2 to v3 (`tools/blender/animal_kit_hd.py`, see `tools/blender/README.md`): SDF bodies, baked textures, eyes with lids, three-joint legs with hooves and paws, body plans by family (`BODY`), mouths (`MOUTH`), LOD.
+- Animals v2 to v4 (`tools/blender/animal_kit_hd.py`, see `tools/blender/README.md`): SDF bodies, baked textures with a natural tone layer, eyes with lids, three-joint legs with hooves and paws and a stance / swing gait, wing beat with a folding upstroke, body plans by family (`BODY`), mouths (`MOUTH`), LOD.
 - Two Blender bees (`honeybee.py`, `orchidbee.py`, one model in two colours).
 - "Where?" beacons for a species, mission how-to hints, done-by-itself notes and the completed-missions list, zone names instead of "the island" (`src/core/place.js`), game controller support (`src/ui/gamepad.js`).
-- The spiny mouse still needs one re-export after the spines fix (`seatSpines` runs after the body plan); Blender closed before it ran.
 
 `claude/research-1.3` (version 1.3.0, the research world "חוקרי היער") has everything from 1.2.3 merged in; merge each 1.2.x fix into it as well. It installs over 1.2 and keeps all data (see the upgrade rule above).
 
