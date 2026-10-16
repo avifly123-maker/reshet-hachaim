@@ -35,7 +35,7 @@ def paint(P, N, tag):
     x, y, z = P
     n = noise.noise(Vector((x * 20, y * 20, z * 20)))
     c = mix(GOLD, GOLD2, 0.3 + 0.3 * n)
-    belly = smooth(0.48, 0.4, y) * smooth(-0.1, -0.5, N.y) if z > -0.55 else 0
+    belly = smooth(0.56, 0.47, y) * smooth(-0.25, -0.65, N.y) if z > -0.5 else 0   # white underside, chest to groin
     c = mix(c, WHITE, belly * 0.9)
     head = z > 0.45; tail = z < -0.55
     if head:   # small solid spots on the head; white muzzle and chin
