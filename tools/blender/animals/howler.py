@@ -30,7 +30,10 @@ def paint(P, N, tag):
     x, y, z = P
     n = noise.noise(Vector((x * 60, y * 60, z * 60)))
     c = mix(BLACK, BLACK2, 0.3 + 0.4 * n)
-    if -0.18 < z < 0.12 and abs(x) > 0.07 and 0.24 < y < 0.38: c = mix(c, GOLD, 0.75 * smooth(0.07, 0.095, abs(x)))   # golden mantle fringe
+    # golden mantle: long hair on the flanks, soft-edged and streaky, fading toward the back, the belly and the ends
+    m = smooth(0.055, 0.09, abs(x)) * smooth(-0.24, -0.12, z) * smooth(0.17, 0.07, z) * smooth(0.21, 0.27, y) * smooth(0.41, 0.35, y)
+    streak = 0.75 + 0.25 * noise.noise(Vector((x * 30, y * 90, z * 30)))
+    c = mix(c, GOLD, 0.72 * m * streak)
     if z > 0.27: c = mix(c, FACE, 0.6)
     return c
 
