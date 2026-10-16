@@ -611,7 +611,7 @@ def anat_legs(spec, kind, scale=1.0, keep_feet=True, **over):
 
 # species → leg type (+ tweaks); applied by build_hd
 ANAT = {
-    'gazelle': ('ungulate', {}), 'tapir': ('heavy', dict(wrist_t=0.7, hock_t=0.55)), 'jaguar': ('cat', {}), 'fox': ('canid', {}),
+    'gazelle': ('ungulate', {}), 'tapir': ('heavy', dict(wrist_t=0.7, hock_t=0.55)), 'jaguar': ('cat', dict(fa1=0.068, wr=0.074, can=0.06, mt=0.056, gas1=0.06)), 'fox': ('canid', {}),
     'coati': ('canid', dict(arm=0.13, fa0=0.1, fa1=0.07, paw=(0.07, 0.04, 0.11))), 'agouti': ('rodent', dict(fa0=0.08, fa1=0.05, can=0.04, wr=0.05, gas1=0.05, mt=0.04, paw=(0.06, 0.035, 0.09))),
     'capybara': ('heavy', {}), 'hyrax': ('rodent', {}), 'spinymouse': ('rodent', {}), 'porcupine': ('heavy', {}), 'anteater': ('heavy', dict(paw=(0.1, 0.06, 0.16))),
     'kinkajou': ('canid', dict(arm=0.13, fa0=0.1, fa1=0.07)),
@@ -632,9 +632,28 @@ def _bird_fold(spec):
     return spec
 
 
+def _lid(C, r, g, col, bone, wide=1.12, tall=0.82, tube=0.2, seg=18, ring=6):
+    """an almond eyelid ring around the visible part of an eyeball (gaze g)"""
+    up = Vector((0, 1, 0)); side = g.cross(up); side = side.normalized() if side.length > 1e-6 else Vector((1, 0, 0)); upv = side.cross(g).normalized()
+    h = 0.42; R = r * math.sqrt(1 - h * h) * 1.02; c0 = C + g * r * h
+    V = []; F = []
+    for i in range(seg):
+        a = TAU * i / seg; rad = side * math.cos(a) * R * wide + upv * math.sin(a) * R * tall; rn = rad.normalized()
+        for j in range(ring):
+            b = TAU * j / ring; V.append(tuple(c0 + rad + (rn * math.cos(b) + g * math.sin(b)) * r * tube))
+    for i in range(seg):
+        for j in range(ring):
+            i2 = (i + 1) % seg; j2 = (j + 1) % ring; F.append((i * ring + j, i * ring + j2, i2 * ring + j2, i2 * ring + j))
+    p = Part('lid', bone=bone, mat=0, color=col); p.add(V, F); return p
+
 def _set_eyes(spec, depth=0.38):
-    """eyes sit IN the skull: each eyeball (and its catch-light) moves back along its gaze, so only its front shows"""
-    parts = spec.get('parts', [])
+    """eyes sit IN the skull at a set depth: the gaze ray finds the skin over each eye (the blob union), the eyeball's
+    centre goes eyeSink·r under it (so only a dome shows, never a buried eye or a bead on the skin); then an almond lid
+    ring hides the seam, and the catch-light is put back onto the eyeball surface"""
+    from mathutils.bvhtree import BVHTree
+    parts = spec.get('parts', []); lids = []
+    lidcol = srgb(spec.get('lidCol', '#24180f')); sink = spec.get('eyeSink', 0.3)
+    V, F = _blob_mesh(spec['blobs'], False); tree = BVHTree.FromPolygons([Vector(v) for v in V], F)
     for i, part in enumerate(parts):
         if part.tag != 'eye' or getattr(part, '_set', False): continue
         C = sum((Vector(v) for v in part.v), Vector()) / len(part.v); r = max((Vector(v) - C).length for v in part.v)
@@ -643,10 +662,37 @@ def _set_eyes(spec, depth=0.38):
         if hl:
             H = sum((Vector(v) for v in hl.v), Vector()) / len(hl.v); g = (H - C) - Vector((0, 0.45, 0.25)) * r * 0.5
         if g is None or g.length < 1e-6: g = Vector((1 if C.x >= 0 else -1, 0, 0.6))
-        g.normalize(); off = -g * r * depth * spec.get('eyeDepth', 1.0)
+        g.normalize()
+        hit = tree.ray_cast(C + g * r * 4, -g, r * 8)
+        if hit[0] is not None and (hit[0] - C).length < r * 3.5:
+            off = (hit[0] - g * r * sink) - C
+        else:
+            off = -g * r * depth * spec.get('eyeDepth', 1.0)
         part.v = [tuple(Vector(v) + off) for v in part.v]; part._set = True
-        if hl: hl.v = [tuple(Vector(v) + off) for v in hl.v]; hl._set = True
+        Cn = C + off
+        if hl:
+            d = (H - C).normalized(); Hn = Cn + d * r * 0.9
+            hl.v = [tuple(Hn + (Vector(v) - H) * 0.7) for v in hl.v]; hl._set = True
+        if skin_of(spec) in ('fur', 'scale') and not spec.get('noLids'):
+            lids.append(_lid(Cn, r, g, lidcol, part.bone, **spec.get('lidShape', {})))
+    parts += lids; spec['parts'] = parts
+    # paired nostrils: flat dark openings, not beads
+    for p in parts:
+        if p.tag == 'nose' and getattr(p, '_set', False) is False:
+            C = sum((Vector(v) for v in p.v), Vector()) / len(p.v)
+            if abs(C.x) > 0.004: p.v = [tuple(C + Vector(((Vector(v) - C).x, (Vector(v) - C).y * 0.7, (Vector(v) - C).z * 0.45))) for v in p.v]
+            p._set = True
     return spec
+
+def _part(sp, tag, scale=None, move=None, color=None, bone=None):
+    """scale (about its centre) / move / recolour the parts with this tag (or bone prefix)"""
+    for p in sp.get('parts', []):
+        if (tag and p.tag != tag) or (bone and not str(p.bone).startswith(bone)): continue
+        C = sum((Vector(v) for v in p.v), Vector()) / len(p.v)
+        if scale: p.v = [tuple(C + Vector([(Vector(v) - C)[k] * scale[k] for k in range(3)])) for v in p.v]
+        if move: p.v = [tuple(Vector(v) + Vector(move)) for v in p.v]
+        if color: p.color = srgb(color); p.c = [None] * len(p.v)
+    return sp
 
 def _smooth_tail(spec, radii, bone_prefix='tail'):
     """replace a tail made of separate blobs with one continuous tapered tube along the tail bones"""
@@ -685,14 +731,39 @@ def _fox_head(sp):
 def _add(sp, blobs):
     sp['blobs'] = sp['blobs'] + blobs; return sp
 
-TWEAK = {
-    'fox': lambda sp: _fox_head(_smooth_tail(sp, [0.035, 0.06, 0.082, 0.078, 0.06, 0.035])),
-    'jaguar': lambda sp: _add(_head_scale(sp, 1.14), [
+def _capy_head(sp):
+    """a capybara's head: long, deep and flat-topped with a blunt square snout (not a ball)"""
+    sp['blobs'] = [b for b in sp['blobs'] if b.get('bone') != 'head']
+    sp['blobs'] += [
+        dict(t='ell', c=(0, 0.6, 0.52), r=(0.11, 0.1, 0.14), bone='head'),                       # cranium
+        dict(t='ell', c=(0, 0.555, 0.69), r=(0.098, 0.085, 0.125), bone='head'),                 # deep blunt snout
+        dict(t='ell', c=(0, 0.6, 0.66), r=(0.07, 0.04, 0.13), bone='head'),                      # flat nose bridge
+        dict(t='ell', c=(0, 0.52, 0.56), r=(0.122, 0.08, 0.09), bone='head'),                    # cheeks
+        dict(t='ell', c=(0, 0.48, 0.63), r=(0.08, 0.055, 0.12), bone='head'),                    # lower jaw
+    ]
+    return _part(sp, None, move=(0, -0.01, 0), bone='ear')
+
+def _jaguar_head(sp):
+    """jaguar: bigger head with a nose bridge and a small nose; a cat's body line instead of a box: deep chest, high
+    shoulder blades, the belly tucked up at the waist, a rounded rump; leaner lower legs (ANAT over below)"""
+    _head_scale(sp, 1.14)
+    sp['blobs'] = [b for b in sp['blobs'] if not (b.get('bone') == 'hips' and b['t'] == 'ell')]
+    sp['noSpine'] = True
+    sp = _add(sp, [
+        dict(t='ell', c=(0, 0.62, -0.36), r=(0.155, 0.175, 0.19), bone='hips'),                # rounded rump
+        dict(t='cap', a=(0, 0.63, -0.26), b2=(0, 0.62, 0.02), r=(0.14, 0.155), bone='hips'),   # waist, belly tucked up
         dict(t='ell', c=(0, 0.5, 0.12), r=(0.15, 0.17, 0.26), bone='chest'),                  # deep chest, belly line
         dict(t='ell', c=(0.075, 0.74, 0.24), r=(0.07, 0.05, 0.12), rot=(-15, 0, 0), bone='chest'),    # shoulder blades
         dict(t='ell', c=(-0.075, 0.74, 0.24), r=(0.07, 0.05, 0.12), rot=(-15, 0, 0), bone='chest'),
-        dict(t='ell', c=(0, 0.62, 0.62), r=(0.12, 0.085, 0.085), bone='head'),               # broad cheeks
-    ]),
+        dict(t='ell', c=(0, 0.64, 0.62), r=(0.11, 0.07, 0.08), bone='head'),                 # broad cheeks
+        dict(t='cap', a=(0, 0.76, 0.64), b2=(0, 0.715, 0.765), r=(0.05, 0.03), bone='head'), # nose bridge
+    ])
+    return _part(sp, 'nose', scale=(0.72, 0.75, 0.7), move=(0, 0.004, -0.004), color='#6e4034')
+
+TWEAK = {
+    'fox': lambda sp: _part(_fox_head(_smooth_tail(sp, [0.035, 0.06, 0.082, 0.078, 0.06, 0.035])), 'nose', scale=(1.0, 1.0, 1.1), move=(0, 0.003, 0.01)),
+    'jaguar': _jaguar_head,
+    'capybara': _capy_head,
 }
 
 def build_hd(spec, place=None, bake=True):

@@ -27,6 +27,11 @@ into the same namespace and upgrades the pipeline without changing any bone or c
   clumps, overlapping feather shingles, scales) and is painted vertex by vertex; Cycles bakes it onto the game mesh:
   a 512 px colour texture (with soft ambient occlusion) and a tangent-space normal map. Wings and tails of birds get
   long flight-feather relief.
+- **Eyes:** `_set_eyes` casts the gaze ray against the blob union and puts each eyeball's centre `eyeSink`·r (0.3)
+  under the skin, so every species shows a dome instead of a buried eye or a bead; an almond lid ring (`_lid`, colour
+  `lidCol`) hides the seam on furred and scaly animals, the catch-light goes back onto the eyeball, and paired
+  nostrils are flattened. `EYE` gives each species an iris colour and a pupil shape (round, slit, bar), painted
+  onto the subdivided eyeball; eye UV islands are enlarged ×3 so the iris survives the 512 px texture.
 - **Game mesh and LOD:** the dense body decimated with left/right symmetry (≈1.8× the v1 budget), plus a far version
   (≈34 %) that shares UVs, skin weights and textures. `src/models/rigged.js` switches between them with THREE.LOD.
 - **Export v2:** `export_hd(id)` → JSON with positions, UVs, normals, skin, two LODs, two WebP textures, bones and
