@@ -24,7 +24,7 @@ bones += [('quill', 'hips', (0, 0.42, -0.2), (0, 0.46, 0.05))]     # raises the 
 
 BLACK, WHITE, DARK, BROWN = srgb('#141210'), srgb('#efeae0'), srgb('#24201c'), srgb('#3a2f26')
 def quills():
-    p = Part('quill', bones=['quill', 'hips'])
+    p = q = Part('quill', bones=['quill', 'hips'])
     rnd = random.Random(11); n = 230; ga = math.pi * (3 - math.sqrt(5)); placed = 0
     for i in range(n * 3):
         if placed >= n: break
@@ -51,13 +51,14 @@ def quills():
         b = (len(bands) - 1) * 3
         for j in range(3): F.append((b + j, b + (j + 1) % 3, b + 3))
         p.add(V, F, C); placed += 1
-    # head crest: long thin bristles swept back
+    # head crest: long thin bristles swept back (their own part: they ride on the head and the neck, not on the coat)
+    p = Part('crest', bones=['head', 'chest'])
     for k in range(40):
         a = rnd.uniform(-0.6, 0.6); P = Vector((math.sin(a) * 0.05, 0.34 + math.cos(a) * 0.03, 0.27 + rnd.uniform(-0.06, 0.04)))
         dirn = Vector((math.sin(a) * 0.3, 0.6, -1)).normalized(); L = 0.12 + rnd.uniform(0, 0.06)
         V = [tuple(P + Vector((0.004, 0, 0))), tuple(P - Vector((0.004, 0, 0))), tuple(P + dirn * L)]
         p.add(V, [(0, 1, 2), (1, 0, 2)], [DARK, DARK, srgb('#bdb3a3')])
-    return p
+    return q, p
 
 def paint(P, N, tag):
     x, y, z = P
@@ -65,10 +66,12 @@ def paint(P, N, tag):
     c = mix(DARK, BLACK, 0.4 + 0.3 * n)
     if z > 0.35: c = mix(c, BROWN, 0.5)
     # the white collar band across the throat
-    if 0.17 < z < 0.25 and 0.16 < y < 0.36 and abs(x) < 0.13: c = mix(c, srgb('#d8d0c2'), smooth(0.17, 0.195, z) * smooth(0.25, 0.225, z) * smooth(0.16, 0.2, y) * 0.85)
+    # (soft on every side, and only under the throat: hard edges baked as white squares on the flanks)
+    band = smooth(0.15, 0.19, z) * smooth(0.27, 0.23, z) * smooth(0.3, 0.2, y) * smooth(0.12, 0.06, abs(x))
+    if band > 0: c = mix(c, srgb('#d8d0c2'), band * 0.8)
     return c
 
-parts = [quills()]
+parts = list(quills())
 for sx in (1, -1):
     parts += eye_parts((sx * 0.055, 0.31, 0.38), 0.012, 'head', '#050403', (sx, 0.2, 0.6))
     parts.append(ear_part((sx * 0.06, 0.33, 0.31), (sx * 0.7, 1, -0.4), 0.02, 0.025, 'head', DARK, srgb('#5a4a40'), thick=0.004, cup=0.3))

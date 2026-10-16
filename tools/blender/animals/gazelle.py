@@ -31,10 +31,14 @@ def paint(P, N, tag):
     # dark flank band dividing the fawn back from the white belly
     if -0.38 < z < 0.32 and y < 1.02:
         band = 0.86 + 0.03 * math.cos(z * 6)
-        c = mix(c, CHOC, smooth(band + 0.035, band + 0.015, y) * smooth(band - 0.04, band - 0.02, y) * 0.9)
-        c = mix(c, WHITE, smooth(band - 0.03, band - 0.06, y))
+        band += 0.012 * noise.noise(Vector((x * 8, 0.3, z * 8)))
+        c = mix(c, CHOC, smooth(band + 0.05, band + 0.02, y) * smooth(band - 0.045, band - 0.02, y) * 0.85)
+        c = mix(c, WHITE, smooth(band - 0.035, band - 0.075, y))
     if z < -0.36 and y < 1.0 and abs(x) < 0.08: c = mix(c, WHITE, 0.9)                        # white rump
-    if y < 0.55: c = mix(c, FAWN2, 0.3)
+    if y < 0.72 and abs(x) > 0.035:   # legs: fawn outside and in front, white on the inner side and behind
+        out_ = max(0.0, N.x * (1 if x > 0 else -1)) + max(0.0, N.z) * 0.7
+        c = mix(WHITE, mix(FAWN, FAWN2, 0.4), smooth(0.15, 0.55, out_) * smooth(0.74, 0.6, y) + 0.15)
+        if y < 0.3: c = mix(c, FAWN2, 0.35)
     if y < 0.08: c = mix(c, DARK, 0.6)
     if z > 0.46 and y > 1.2:     # face: white stripe from eye to nose, dark stripe below, white chin
         e = abs(abs(x) - 0.04)

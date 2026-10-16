@@ -10,6 +10,7 @@ An offline 3D educational biodiversity game in Hebrew for Baba Da (בבא דע),
 
 - **Content:** no human figures at all, no women or girls depicted or named, no dinosaurs, no "millions of years" (say "בעבר הרחוק"), no evolution language, no pigs. Gentle, simple Hebrew for grades 3 to 5, correct grammatical gender, fully right-to-left. Facts must be checked against a source (`docs/sources.md`). `node tools/validate-content.mjs` enforces the text rules, including UI and torah text.
 - **Talking with the owner:** always in Hebrew, plain everyday language (not a literary style). Documents and printouts fully RTL. Written content for others should not read as machine-written (no em dashes, no hype words).
+- **Upgrades keep the data:** every version (1.2.x and the future 1.3) installs over the previous one and keeps all saves, players and cards. Never change the desktop `appId` / `productName` (both editions), the `app://game` origin or the `web-of-life*` storage keys; `tests/fixtures/saves-<version>.json` holds a save from each released version and `tools/check-old-saves.py` must load all of them.
 - **Look:** polished and colourful but "not a circus". Trees stay procedural (no Blender trees: mixing would look unnatural); animals are Blender-rigged.
 
 ## Build and test
@@ -31,20 +32,27 @@ Headless notes: SwiftShader is slow and makes the game start on the 'min' tier; 
 
 1. Bump `desktop/package.json` version; update `CHANGELOG.md`.
 2. Validators, integration on html / torah / desktop, old saves.
-3. Windows: `cd desktop && WINEDEBUG=-all npx electron-builder --win nsis --x64` (torah: `--config builder-torah.json`).
-4. macOS (from Linux): `npx electron-builder --mac` (torah: `--config builder-torah.json --mac`), then ad-hoc sign each `.app` with `rcodesign sign` (cargo install apple-codesign; required on Apple Silicon), then zip with `python3 tools/zip-mac-app.py <app> <zip> "<Hebrew name>.app"` (electron-builder's Linux zip breaks symlinks and the signature). Never tested on a real Mac yet.
-5. GitHub (`avifly123-maker/reshet-hachaim`, public): sessions can push only to `claude/*` branches; the owner merges the pull request. The release API is blocked for sessions, and browser uploads are limited to 10 MB, so the owner attaches installers to the release himself (create the release text, he drags the files).
-6. Getting big files to the owner's PC: split into 24 MB parts, send with the device file tool into the `installer\parts` folder under `Documents\reshet-hachaim-blender`, join and sha256-check them with Python run inside Blender, delete the parts.
+3. `tools/pack-release.sh` builds the seven release files into `release-files/<version>/` (torah first, general last, then the one-file html) with `SHA256SUMS.txt`. Names: `reshet-hachaim[-torah]-setup-<v>.exe`, `reshet-hachaim[-torah]-mac-apple-silicon-<v>.zip`, `reshet-hachaim[-torah]-mac-intel-<v>.zip`, `reshet-hachaim-<v>.html`; README.md and docs/RELEASE.md list the same names, keep the three in step. Inside, per edition: `node build.mjs --desktop [--edition=torah]`, `cd desktop && WINEDEBUG=-all npx electron-builder --win nsis --x64` and `--mac` (torah: `--config builder-torah.json`; NSIS needs wine32:i386), ad-hoc sign each `.app` with `rcodesign sign` (cargo install apple-codesign; required on Apple Silicon), zip with `python3 tools/zip-mac-app.py <app> <zip> "<Hebrew name>.app"` (electron-builder's Linux zip breaks symlinks and the signature). Never tested on a real Mac yet.
+4. Update the download section of README.md (version and file names) and docs/RELEASE.md (the release link with `?tag=v<v>&target=main&title=...` and the release text, which covers every version since the last published release).
+5. GitHub (`avifly123-maker/reshet-hachaim`, public): sessions can push only to `claude/*` branches; the owner merges the pull request. The release API is blocked for sessions, and browser uploads are limited to 10 MB, so the owner attaches installers to the release himself: open the pull request to `main` (REST: `gh api repos/avifly123-maker/reshet-hachaim/pulls -f head=... -f base=main`; GraphQL is blocked), give him the release link and text from docs/RELEASE.md, he merges, publishes and drags the files. Published so far: v1.2.1; 1.2.2 was never published, so the 1.2.3 release text covers it.
+6. Getting big files to the owner's PC: ask once for access to `Documents\reshet-hachaim-blender` (device folder access), split into 24 MB parts (bigger parts are refused), send them with the device file tool into `installer\<new folder>`, then join and sha256-check them with `device_bash` (the folder is mounted at `$HOME/mnt/reshet-hachaim-blender`) and delete the parts. If there is no folder access, Python inside Blender can join them.
 
 ## Blender
 
-Blender runs on the owner's PC and is reached through the Blender MCP bridge. `tools/blender/animal_kit.py` is the toolkit; `tools/blender/animals/<id>.py` is one spec per animal (31 animals). Exports come back as JSON in the tool result and are written to `art/rigged/<zone>/<id>.json` (`tools/blender/bridge/pulltxt.py`), then packed by `tools/build-rigged.py` into `src/data/rigged-*.js`. Each upload of a changed script must use a new staged file name (`tools/blender/bridge/push.sh`), or the cached old content arrives. Panoramas, ground textures, props and the card pack also come from Blender (`tools/build-*.py`).
+Blender runs on the owner's PC and is reached through the Blender MCP bridge. After Blender starts, run `animals\session.py` there once (see `tools/blender/bridge/session.py`); it loads the kits and sets up a gentle one-at-a-time job queue. The owner's PC is also his work computer: one job at a time, never call Blender while a job runs, check progress by listing `animals\pv` and `animals\out` with the device tools. How we work, decisions and dilemmas: `docs/WORKFLOW.md` (Hebrew). `tools/blender/animal_kit.py` is the toolkit; `tools/blender/animals/<id>.py` is one spec per animal (33: 31 animals and two bees). Exports are written by Blender to `animals\out\<id>.json`, staged back with the device tools and copied to `art/rigged/<zone>/<id>.json`, then packed by `tools/build-rigged.py` into `src/data/rigged-*.js`. Each upload of a changed script must use a new staged file name (`tools/blender/bridge/push.sh`), or the cached old content arrives. Panoramas, ground textures, props and the card pack also come from Blender (`tools/build-*.py`).
 
-## Where things stand (1.2.1)
+## Where things stand (1.2.3, and 1.3.0 in development)
 
-Done: river crossing logs, more flowers and insects, richer ambient sound, tree and flower graphics, performance work for weak PCs, a full code review with fixes, Mac builds, the public repo with README, CHANGELOG and dev log.
+1.2.3 is built (branch `claude/1.2.3`, installers on the owner's PC in `Documents\reshet-hachaim-blender\installer`):
+- Animals v2 to v5 (`tools/blender/animal_kit_hd.py`, see `tools/blender/README.md`): SDF bodies, baked textures with a natural tone layer, eyes with lids, three-joint legs with hooves and paws and a stance / swing gait, wing beat with a folding upstroke, body plans by family (`BODY`), mouths (`MOUTH`), a neck so the head stands out and turns on its own (`NECK`, `NECK_FIX`), LOD. All 33 were exported with v5 on 16.10; `art/rigged` holds them.
+- Two Blender bees (`honeybee.py`, `orchidbee.py`, one model in two colours).
+- "Where?" beacons for a species, mission how-to hints, done-by-itself notes and the completed-missions list, zone names instead of "the island" (`src/core/place.js`), game controller support (`src/ui/gamepad.js`).
 
-1.2.2 in progress: the rain sound on the start screen and the unclear injured-animal alert are fixed in the code; installers not built yet (bump the version and follow the release checklist).
+`claude/research-1.3` (version 1.3.0, the research world "חוקרי היער") has everything from 1.2.3 merged in; merge each 1.2.x fix into it as well. It installs over 1.2 and keeps all data (see the upgrade rule above).
+
+At the end of a Blender session: stop the queue and keep-awake timers, save the scene to `blend\` and quit Blender (the owner asked that nothing keeps running on his PC). The scripts are the source; the saved `.blend` is only a convenience.
+
+The Blender kit master copy is the repo file; the PC copy at `Documents\reshet-hachaim-blender\animals\animal_kit_hd.py` is updated with the device file tool and exec'd into the Blender session namespace.
 
 Open, in rough priority order:
 - Real-world testing: children playing (watch where they get stuck), a weak school PC, a real Mac.

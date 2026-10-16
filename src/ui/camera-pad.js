@@ -58,7 +58,7 @@ const ICONS = {
 };
 // visual order left → right (spatial controls stay spatial even in an RTL page)
 const GROUPS = [
-  [{ id: 'home', tip: 'חזרה לכל האי', cls: 'cp-home' }],
+  [{ id: 'home', tip: 'מבט על כל היער', cls: 'cp-home' }],
   [{ id: 'rotL', tip: 'סובב שמאלה', kind: 'rot', dir: 1 }, { id: 'rotR', tip: 'סובב ימינה', kind: 'rot', dir: -1 }],
   [{ id: 'up', tip: 'מבט מלמעלה', kind: 'tilt', dir: 1 }, { id: 'side', tip: 'מבט מהצד', kind: 'tilt', dir: -1 }],
   [{ id: 'minus', tip: 'התרחק', kind: 'zoom', dir: -1 }, { id: 'plus', tip: 'התקרב', kind: 'zoom', dir: 1 }],

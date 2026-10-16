@@ -76,6 +76,36 @@ export function createMissions(W) {
     }
   }
 
+  // "how do I do it?" – one plain line per kind of goal, shown under the mission's own hint
+  const nm = (id) => (W.reg && W.reg.byId.get(id)?.name) || '';
+  function howTo(m) {
+    const g = m.goal || {};
+    const find = (id) => id ? ` כדי לראות איפה ${nm(id)} ביער, פתחו את הקלף שלו במגש ולחצו "איפה?".` : '';
+    switch (g.type) {
+      case 'link': return `איך עושים: לחצו על ${nm(g.from)} ביער או על הקלף שלו במגש. בכרטיס שנפתח, ברשימה "קשרים ברשת", מצאו את ${nm(g.to)} ולחצו "גלה את הקשר". שניהם צריכים להיות ביער.`;
+      case 'chain': return 'איך עושים: הביאו ליער צמח, בעל חיים שאוכל אותו, ובעל חיים שאוכל את בעל החיים הזה. בכרטיס של כל אחד, ב"קשרים ברשת", רואים מי אוכל את מי.';
+      case 'discover': return 'איך עושים: לחצו על צמח או על בעל חיים, ובכרטיס שלו לחצו "גלה את הקשר" ליד קשר שעוד לא גיליתם.';
+      case 'place': case 'grow': case 'growTo': case 'bloom': return `איך עושים: גררו ${nm(g.species)} מהמגש אל היער.` + find(g.species);
+      case 'pollinate': return 'איך עושים: מאביקים צריכים להיות קרובים לפרחים.' + find(g.species);
+      case 'experiment': return 'איך עושים: לחצו על צמח או על בעל חיים, ובכרטיס שלו לחצו "מה יקרה אם ייעלם?".';
+      case 'tool': case 'photos': case 'rescue': case 'seeded': return 'איך עושים: הכלים נמצאים בלשונית "טכנולוגיה" במגש. גוררים אותם אל היער כמו צמח.';
+      default: return '';
+    }
+  }
+  // a mission that is already true the moment it starts (the link was found before, the chain already lives in the
+  // forest) – say so plainly instead of a silent tick
+  function autoReason(m) {
+    const g = m.goal || {};
+    switch (g.type) {
+      case 'link': return `הקשר בין ${nm(g.from)} ל${nm(g.to)} כבר התגלה קודם.`;
+      case 'chain': return `כבר יש ביער שרשרת מזון של ${g.length} חוליות לפחות.`;
+      case 'discover': return 'כבר גיליתם מספיק קשרים.';
+      case 'place': case 'grow': return `כבר היו ביער מספיק פרטים של ${nm(g.species)}.`;
+      case 'speciesAlive': return `כבר חיים ביער ${g.count} מינים לפחות.`;
+      default: return 'מה שהמשימה ביקשה כבר קיים ביער.';
+    }
+  }
+
   let nextAt = 0;
   function tick() {
     const m = W.simT >= nextAt ? current() : null;
@@ -84,6 +114,7 @@ export function createMissions(W) {
       m.progress = evalGoal(m);
       if (m.progress >= 0.999) {
         m.done = true;
+        if (W.simT - m.t0 < 3) m.autoNote = autoReason(m);
         W.missionCompleted(m);
         nextAt = W.simT + 10;
       }
@@ -125,9 +156,9 @@ export function createMissions(W) {
     const out = [];
     const doneList = missions.filter(m => m.done);
     const last = doneList[doneList.length - 1];
-    if (last) out.push({ id: last.id, title: last.title, text: last.text, hint: last.hint, progress: 1, done: true });
+    if (last) out.push({ id: last.id, title: last.title, text: last.text, hint: last.hint, progress: 1, done: true, note: last.autoNote || '' });
     const c = current();
-    if (c) out.push({ id: c.id, title: c.title, text: c.text, hint: c.hint, progress: c.progress, done: false });
+    if (c) out.push({ id: c.id, title: c.title, text: c.text, hint: c.hint, how: howTo(c), progress: c.progress, done: false });
     const next = c && missions.find(m => m.after === c.id);
     if (next) out.push({ id: next.id, title: next.title, text: 'המשימה הבאה תיפתח אחרי שתסיימו את הנוכחית.', hint: '', progress: 0, done: false, locked: true });
     return out;
@@ -152,5 +183,7 @@ export function createMissions(W) {
     }
   }
 
-  return { missions, events, tick, list, current, fire, serializeProgress, restoreProgress, resolve(e) { e.resolved = true; e.resolvedAt = W.simT; }, get doneCount() { return missions.filter(m => m.done).length; } };
+  function doneList() { return missions.filter(m => m.done).map(m => ({ id: m.id, title: m.title, text: m.text, note: m.autoNote || '' })); }
+
+  return { missions, events, tick, list, doneList, current, fire, serializeProgress, restoreProgress, resolve(e) { e.resolved = true; e.resolvedAt = W.simT; }, get doneCount() { return missions.filter(m => m.done).length; } };
 }

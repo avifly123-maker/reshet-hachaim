@@ -7,6 +7,7 @@ import * as THREE from 'three';
 import { CAM } from './tools.js';
 import { defName } from '../data/common.js';
 import { ARROW, holdButton } from './immersive.js';
+import { zoneWord } from '../core/place.js';
 
 const CSS_ID = 'fieldcam-css';
 const CSS = `
@@ -80,7 +81,7 @@ export function createFieldCam({ W, env, tools, camera, canvas, ui, audio, imv }
   el.className = 'imv fc-view'; el.lang = 'he';
   el.innerHTML = `<div class="fc-frame"></div><i class="fc-corner tl"></i><i class="fc-corner tr"></i><i class="fc-corner bl"></i><i class="fc-corner br"></i><i class="fc-cross"></i>
     <div class="fc-flash"></div>
-    <button type="button" class="imv-exit" data-a="exit">${ARROW.close}<span>חזרה לאי</span><kbd>Esc</kbd></button>
+    <button type="button" class="imv-exit" data-a="exit">${ARROW.close}<span>חזרה ${zoneWord('lamed')}</span><kbd>Esc</kbd></button>
     <button type="button" class="fc-next" data-a="next">המצלמה הבאה</button>
     <div class="fc-label"><span class="fc-rec"></span><b class="fc-name">מצלמת שטח</b></div><span class="fc-night">🌙 מצלמת לילה – רואה בחושך</span>
     <button type="button" class="imv-round fc-turn l" aria-label="סובבו שמאלה">${ARROW.left}<small>שמאלה</small></button>
@@ -118,7 +119,7 @@ export function createFieldCam({ W, env, tools, camera, canvas, ui, audio, imv }
   function manual() { if (cur && cur.auto) setAuto(false); helpEl.classList.add('gone'); }
 
   function open(p) {
-    const list = cams(); if (!list.length) { ui.toast('אין עדיין מצלמות שטח באי. גררו מצלמה מהלשונית "טכנולוגיה".', 'info'); return; }
+    const list = cams(); if (!list.length) { ui.toast(`אין עדיין מצלמות שטח ${zoneWord('in')}. גררו מצלמה מהלשונית "טכנולוגיה".`, 'info'); return; }
     cur = p && list.includes(p) ? p : list[0];
     resetInput();
     imv.enter('fieldcam', { driver, onExit, onKey, onBlur: resetInput });

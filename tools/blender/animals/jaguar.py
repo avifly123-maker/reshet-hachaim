@@ -35,7 +35,7 @@ def paint(P, N, tag):
     x, y, z = P
     n = noise.noise(Vector((x * 20, y * 20, z * 20)))
     c = mix(GOLD, GOLD2, 0.3 + 0.3 * n)
-    belly = smooth(0.48, 0.4, y) * smooth(-0.1, -0.5, N.y) if z > -0.55 else 0
+    belly = smooth(0.56, 0.47, y) * smooth(-0.25, -0.65, N.y) if z > -0.5 else 0   # white underside, chest to groin
     c = mix(c, WHITE, belly * 0.9)
     head = z > 0.45; tail = z < -0.55
     if head:   # small solid spots on the head; white muzzle and chin
@@ -53,7 +53,7 @@ def paint(P, N, tag):
         d, rid = worley(P, 13, 5)
         return mix(c, BLACK, smooth(0.3, 0.2, d) * (rid > 0.25))
     # rosettes: broken dark rings, a slightly darker centre, sometimes a dot
-    d, rid = worley(P, 6.0, 2)
+    d, rid = worley(P, 8.5, 2)          # rosettes about the size of a palm, many of them
     ring = smooth(0.24, 0.3, d) * smooth(0.48, 0.4, d)
     gap = 0.5 + 0.5 * noise.noise(Vector((x * 60, y * 60, z * 60)))
     c = mix(c, TAN, smooth(0.32, 0.18, d) * 0.6)
