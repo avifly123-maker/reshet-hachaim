@@ -48,7 +48,7 @@ Blender runs on the owner's PC and is reached through the Blender MCP bridge. Af
 
 ## חוקרי היער (research world, 1.3.0 in progress)
 
-Design: `docs/RESEARCH.md` (Hebrew). Code: `src/research/`.
+Design: `docs/RESEARCH.md` (Hebrew). Proposed 1.3 development map (mysteries, the Eilat reef, the lab, dubbed scenes, cards, infrastructure): `docs/PLAN-1.3.md`, awaiting the owner's decisions (section 8). Code: `src/research/`.
 
 - A mystery (תעלומה) is one case file in `src/research/cases/` (data only: model, board, tools, ideas, hints, guesses, texts, scene, tests). `cases/index.js` lists them; `hub.js` shows them by level (מתחילים / בינוני / מתקדמים) next to the "בקרוב" ones.
 - `model.js` is a population model in plain numbers (no three.js): vars (animals, plants, stocks) and flows (produce, consume, prey with a refuge, germinate, mature, decay); animals grow by how fed they are, leave when hungry or crowded (caps can be tied to a stock, e.g. owls per nest box), arrive from outside when there is food and room. No hard limit on numbers.
