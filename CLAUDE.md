@@ -55,7 +55,8 @@ At the end of a Blender session: stop the queue and keep-awake timers, save the 
 The Blender kit master copy is the repo file; the PC copy at `Documents\reshet-hachaim-blender\animals\animal_kit_hd.py` is updated with the device file tool and exec'd into the Blender session namespace.
 
 Open, in rough priority order:
-- Real-world testing: children playing (watch where they get stuck), a weak school PC, a real Mac.
+- Real-world testing is under way (October 2026): children and adults of different ages and levels of tech literacy play 1.2.3. Reviews are very good, they compare it to "real" games rather than school software, and only cosmetic fixes have come up. Still untested: a weak school PC, a real Mac.
+- The owner's vision for 1.3 (the big release: reef, research lab, design thinking, one opening film plus in-engine scenes, many new cards) and 1.4 (desert, weather, changing the environment, "מתכנתים בטבע" with programmable drones and a modular robot) is in `docs/ROADMAP.md`. One new environment per big release; new cards, card games and quizzes are split between releases; a release that grows too big is split in three instead of two, depending on demand. Decided: no internet or AI connection.
 - Lower-detail models for far-away animals (biggest remaining performance win).
 - Click targets of 24 to 32 px in the album and web puzzle at 1024x600.
 - Auto quality still reacts slowly on very weak machines.
