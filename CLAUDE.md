@@ -76,7 +76,7 @@ The Blender kit master copy is the repo file; the PC copy at `Documents\reshet-h
 
 Open, in rough priority order:
 - Real-world testing is under way (October 2026): children and adults of different ages and levels of tech literacy play 1.2.3. Reviews are very good, they compare it to "real" games rather than school software, and only cosmetic fixes have come up. Still untested: a weak school PC, a real Mac.
-- The owner's vision for 1.3 (the big release: reef, research lab, design thinking, one opening film plus in-engine scenes, many new cards) and 1.4 (desert, weather, changing the environment, "מתכנתים בטבע" with programmable drones and a modular robot) is in `docs/ROADMAP.md`. Decided: no internet or AI connection.
+- The owner's vision for 1.3 (the big release: reef, research lab, design thinking, one opening film plus in-engine scenes, many new cards) and 1.4 (desert, weather, changing the environment, "מתכנתים בטבע" with programmable drones and a modular robot) is in `docs/ROADMAP.md`. One new environment per big release; new cards, card games and quizzes are split between releases; a release that grows too big is split in three instead of two, depending on demand. Decided: no internet or AI connection.
 - Lower-detail models for far-away animals (biggest remaining performance win).
 - Click targets of 24 to 32 px in the album and web puzzle at 1024x600.
 - Auto quality still reacts slowly on very weak machines.
