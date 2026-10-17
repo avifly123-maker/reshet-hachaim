@@ -14,7 +14,7 @@ import { createCameraRig } from '../world/camera.js';
 import { THUMBS } from '../data/thumbs.js';
 import { CARD_ART } from '../data/card-art.js';
 import { createMissions } from './missions.js';
-import { createTools, TOOL_DEFS, disposeObject } from './tools.js';
+import { createTools, TOOL_DEFS, toolDef, disposeObject } from './tools.js';
 import { createCameraPad } from '../ui/camera-pad.js';
 import { setGamepadRig } from '../ui/gamepad.js';
 import { createImmersive } from './immersive.js';
@@ -631,7 +631,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     if (dragState) { const old = dragState; dragState = null; markers.showGhost(null); disposeDragModel(old); }
     if (id.startsWith('tool:')) {
       const tid = id.slice(5); audio.play('pickup');
-      dragState = { tool: tid, sp: { id, name: TOOL_DEFS.find(d => d.id === tid)?.name, isPlant: false }, model: tools.model(tid) };
+      dragState = { tool: tid, sp: { id, name: toolDef(tid, W.biomeId)?.name, isPlant: false }, model: tools.model(tid, W.biomeId) };
       dragMove({ id, x, y }); return;
     }
     const sp = reg.byId.get(id); if (!sp) return;
@@ -686,6 +686,11 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   // ─────────────────────────────────────────── events (decisions)
   let pendingEvent = null;
   W.runEvent = (e) => {
+    if (W.buoy && (e.start || []).some(fx => fx.type === 'anchor')) {
+      missions.resolve(e); W.points += 10; audio.play('mission'); report?.event(e.id, 'buoy');
+      ui.showOutcome({ title: 'הסירה נקשרה למצוף!', text: 'הסירה הגיעה לשונית, אבל במקום להטיל עוגן היא נקשרה למצוף העגינה. אף אלמוג לא נשבר. (+10)\n\nבמפרץ אילת יש מצופי עגינה כאלה באמת, כדי לשמור על השונית.' });
+      return;
+    }
     if (W.listener && (e.start || []).some(fx => fx.type === 'logging')) {
       missions.resolve(e); W.points += 10; audio.play('mission'); report?.event(e.id, 'listener');
       ui.showOutcome({ title: 'מאזין היער עצר כריתה!', text: 'מאזין היער שמע רעש של מסור חשמלי ושלח התרעה לשומרי היער. הם הגיעו בזמן, והעצים לא נכרתו. (+10)\n\nיש היום חיישנים כאלה באמת: טלפונים ישנים עם לוח סולארי, שנתלים גבוה על עצים ומקשיבים ליער כל היום וכל הלילה.' });
@@ -724,7 +729,8 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
       case 'rain': W.rainTarget = 1; W.rainT = Math.max(W.rainT, fx.seconds || 30); W.drought = Math.max(0, W.drought - 0.5); W.droughtT = 0; break;
       case 'drought': if (W.weatherStation) { fx = { ...fx, strength: (fx.strength ?? 0.6) * 0.55 }; ui.toast('תחנת מזג האוויר התריעה מראש – היער התכונן, והבצורת פחות קשה', 'info'); }
         W.drought = fx.strength ?? 0.6; W.droughtT = fx.seconds || 60; W.rainT = 0; W.rainTarget = 0; break;
-      case 'heat': W.heat = 1; W.heatT = fx.seconds || 40; W.drought = Math.max(W.drought, 0.35); W.droughtT = Math.max(W.droughtT, fx.seconds || 40); break;
+      case 'heat': if (W.weatherStation && W.biomeId === 'reef') { fx = { ...fx, seconds: (fx.seconds || 40) * 0.6 }; ui.toast('מצוף החיישנים התריע על מים חמים – השונית נערכה, והנזק קטן יותר', 'info'); }
+        W.heat = W.weatherStation && W.biomeId === 'reef' ? 0.6 : 1; W.heatT = fx.seconds || 40; W.drought = Math.max(W.drought, 0.35); W.droughtT = Math.max(W.droughtT, fx.seconds || 40); break;
       case 'flood': W.flood = W.weatherStation ? 0.5 : 1; W.floodT = (fx.seconds || 40) * (W.weatherStation ? 0.6 : 1); break;
       case 'fire': {
         const s = (fx.strength ?? 0.5) * (W.weatherStation ? 0.5 : 1);
@@ -752,6 +758,11 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
         const n = fx.count === 'all' ? ents.length : Math.min(ents.length, fx.count || 1);
         for (let i = 0; i < n; i++) { const e = ents[i]; if (e.isPlant) e.die('event'); else e.leave(); }
       } break;
+      case 'anchor': {   // a boat's anchor drops onto the reef and breaks a coral or two
+        const cor = W.plants.filter(p => alive(p) && p.sp.kind === 'coral');
+        for (let i = 0; i < Math.min(fx.count || 1, cor.length); i++) { const p = cor[(Math.random() * cor.length) | 0]; if (alive(p)) p.die('event'); }
+        break;
+      }
       case 'logging': {
         if (W.protected) break;
         const trees = W.plants.filter(p => alive(p) && p.isTree && !p.falling && p.growth > 0.5).sort((a, b) => Math.hypot(b.x, b.z) - Math.hypot(a.x, a.z));
@@ -920,8 +931,8 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   const offs = [];
   const on = (n, f) => offs.push(bus.on(n, f));
   on('drag:start', dragStart); on('drag:move', dragMove); on('drag:end', dragEnd);
-  on('drag:denied', ({ id, reason }) => { audio.play('invalid'); const sp = reg.byId.get(id) || { name: TOOL_DEFS.find(d => 'tool:' + d.id === id)?.name, cost: TOOL_DEFS.find(d => 'tool:' + d.id === id)?.cost }; ui.toast(reason === 'locked' ? `${sp?.name} עוד נעול – השלימו משימות כדי לפתוח` : reason === 'cost' ? `צריך ${sp?.cost} נקודות חיים` : 'אי אפשר עכשיו', 'warn'); });
-  on('card:click', ({ id }) => { if (id.startsWith('tool:')) { const d = TOOL_DEFS.find(t => 'tool:' + t.id === id); if (d) ui.showDialog({ title: d.name, text: d.fact + '\n\n' + d.hint + `\nמחיר: ${d.cost} נקודות חיים.`, buttons: [{ id: 'ok', label: 'הבנתי' }] }); return; } W.seenNew.add(id); showPanel(id, true); audio.play('click'); refreshTray(); });
+  on('drag:denied', ({ id, reason }) => { audio.play('invalid'); const sp = reg.byId.get(id) || toolDef(String(id).replace(/^tool:/, ''), W.biomeId); ui.toast(reason === 'locked' ? `${sp?.name} עוד נעול – השלימו משימות כדי לפתוח` : reason === 'cost' ? `צריך ${sp?.cost} נקודות חיים` : 'אי אפשר עכשיו', 'warn'); });
+  on('card:click', ({ id }) => { if (id.startsWith('tool:')) { const d = toolDef(id.slice(5), W.biomeId); if (d) ui.showDialog({ title: d.name, text: d.fact + '\n\n' + d.hint + `\nמחיר: ${d.cost} נקודות חיים.`, buttons: [{ id: 'ok', label: 'הבנתי' }] }); return; } W.seenNew.add(id); showPanel(id, true); audio.play('click'); refreshTray(); });
   on('time:speed', ({ speed }) => { if (!W.experiment) W.speed = speed; });
   on('species:select', ({ id }) => { const e = nearestOf(id, rig.controls.target); if (e) { select(e); rig.focusOn(e.focusPoint(new THREE.Vector3()), e.isPlant && e.isTree ? 30 : 12); } else showPanel(id, true); });
   on('species:close', () => { select(null); panelId = null; });
@@ -1441,9 +1452,10 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
       if (arr.length < 2 && !sp.isInsect) continue;
       if (!arr.some(a => a.isActive())) continue;
       const avg = arr.reduce((s, a) => s + a.energy, 0) / arr.length;
-      const bird = sp.locomotion === 'flying' && !sp.isInsect && id !== 'fruitbat';
+      const bird = sp.locomotion === 'flying' && !sp.isInsect && !sp.swims && id !== 'fruitbat';
       const nearHotel = sp.isInsect && (W.insectHotels || []).some(h => arr.some(a => Math.hypot(a.pos.x - h.x, a.pos.z - h.z) < 14));
-      const bonus = (bird && W.nestboxes ? 0.18 : 0) + (nearHotel ? 0.2 : 0);
+      const nearReefBall = sp.swims && (W.reefBalls || []).some(h => arr.some(a => Math.hypot(a.pos.x - h.x, a.pos.z - h.z) < 12));
+      const bonus = (bird && W.nestboxes ? 0.18 : 0) + (nearHotel ? 0.2 : 0) + (nearReefBall ? 0.2 : 0);
       if (avg < 0.66 - bonus * 0.5 || Math.random() > 0.22 + bonus) continue;
       const parent = arr.find(a => a.energy > 0.7) || arr[0];
       const p = parent.pos.clone(); if (parent.loco !== 'flying') { p.x += (Math.random() - 0.5) * 2; p.z += (Math.random() - 0.5) * 2; }

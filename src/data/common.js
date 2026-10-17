@@ -159,7 +159,7 @@ export const GENDER = {
   terebinth: 'f', mastic: 'f', sage: 'f', cyclamen: 'f', anemone: 'f', mushroom: 'fp',
   honeybee: 'f', harvesterant: 'f', firefly: 'f', chameleon: 'f', owl: 'f', hoopoe: 'f', chukar: 'f',
   // reef
-  seaanemone: 'f', clam: 'f', algae: 'fp', seafan: 'f', moray: 'f',
+  seaanemone: 'f', clam: 'f', algae: 'fp', seafan: 'f', moray: 'f', jellyfish: 'f',
 };
 export const genderOf = (id) => GENDER[id] || 'm';
 
@@ -227,6 +227,7 @@ export const DEF = {
   plankton: 'הפלנקטון', clownfish: 'השושנון', parrotfish: 'התוכינון', surgeonfish: 'המנתחן', cleaner: 'השפרנון המנקה',
   butterflyfish: 'הפרפרון', lionfish: 'הזהרון', moray: 'המורנה', grouper: 'הדקר', goby: 'הגובי', shrimp: 'שרימפס האקדח',
   turtle: 'צב הים הירוק', octopus: 'התמנון', urchin: 'קיפוד הים', starfish: 'הקוצנון', stingray: 'חתול הים', hermit: 'סרטן הנזיר',
+  jellyfish: 'המדוזה', reefshark: 'כריש השונית',
 };
 /** definite name of a species ("הקפוק"); falls back to ה + name */
 export const defName = (id, name) => DEF[id] || (name ? 'ה' + name : String(id || ''));

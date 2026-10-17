@@ -282,7 +282,7 @@ export const BIOME = {
     {
       id: 'turtle', name: 'צב ים ירוק', nameEn: 'Green sea turtle (Chelonia mydas)', kind: 'animal',
       layer: 'sand', locomotion: 'swim', active: 'day',
-      diet: [{ id: 'seagrass', part: 'leaves' }, { id: 'algae', part: 'algae' }],
+      diet: [{ id: 'seagrass', part: 'leaves' }, { id: 'algae', part: 'algae' }, { id: 'jellyfish', part: 'animals' }],
       relations: [],
       cost: 30, groupSize: [1, 1], maxCount: 2, unlock: 'r3',
       fact: 'צב הים הירוק נושם אוויר! הוא עולה לפני המים כדי לנשום, ויכול להישאר מתחת למים זמן רב.',
@@ -351,6 +351,30 @@ export const BIOME = {
       question: { q: 'מה סרטן הנזיר עושה כשהוא גדל?', options: ['עובר לקונכייה גדולה יותר', 'בונה קונכייה', 'מפסיק לאכול'], answer: 0 },
       color: '#d9803a', sources: [W + 'Hermit_crab'],
     },
+    {
+      id: 'jellyfish', name: 'מדוזה', nameEn: 'Moon jellyfish (Aurelia aurita)', kind: 'animal',
+      layer: 'open', locomotion: 'swim', active: 'day',
+      diet: [{ id: 'plankton', part: 'plankton' }],
+      relations: [],
+      cost: 8, groupSize: [1, 3], maxCount: 6, unlock: 'r8',
+      fact: 'המדוזה בנויה כמעט כולה ממים. אין לה מוח, אין לה לב ואין לה עצמות!',
+      more: 'המדוזה שוחה כשהיא מכווצת את הפעמון שלה ומשחררת אותו, אבל בעיקר היא נסחפת עם הזרם. ' +
+        'היא אוכלת פלנקטון שנדבק לשוליים ולזרועות שלה. צבי ים אוכלים מדוזות.',
+      question: { q: 'ממה בנויה המדוזה ברובה?', options: ['ממים', 'מעצמות', 'מאבן'], answer: 0 },
+      color: '#c8b8e8', sources: [W + 'Aurelia_aurita'],
+    },
+    {
+      id: 'reefshark', name: 'כריש שונית', nameEn: 'Blacktip reef shark (Carcharhinus melanopterus)', kind: 'animal',
+      layer: 'open', locomotion: 'swim', active: 'day',
+      diet: [{ id: 'surgeonfish', part: 'animals' }, { id: 'octopus', part: 'animals' }],
+      relations: [],
+      cost: 35, groupSize: [1, 1], maxCount: 1, unlock: 'r11',
+      fact: 'כריש השונית מכירים לפי הקצוות השחורים של הסנפירים. הוא שוחה בשקט לאורך שפת השונית.',
+      more: 'כריש השונית הוא טורף שנמצא בראש שרשרת המזון. הוא תופס בעיקר דגים חלשים או חולים, ' +
+        'וכך עוזר לשמור על להקות דגים בריאות. בשונית שיש בה כרישים, יש בדרך כלל גם הרבה דגים אחרים.',
+      question: { q: 'איך מזהים את כריש השונית?', options: ['לפי הקצוות השחורים של הסנפירים', 'לפי הפסים הכחולים', 'לפי הקוצים על הגב'], answer: 0 },
+      color: '#7a7a6a', sources: [W + 'Blacktip_reef_shark'],
+    },
   ],
 
   // ───────────────────────── MISSIONS ─────────────────────────
@@ -362,10 +386,10 @@ export const BIOME = {
     { id: 'r5', title: 'תחנת ניקוי', text: 'השפרנון המנקה פותח תחנת ניקוי לדגים גדולים. הביאו שפרנון ודקר, וגלו את השותפות ביניהם.', hint: 'הציבו את השפרנון ליד המקום שבו הדקר שוחה.', after: 'r4', goal: { type: 'link', from: 'cleaner', to: 'grouper' }, reward: { points: 35, unlock: ['brain', 'moray'] } },
     { id: 'r6', title: 'צדים ביחד', text: 'בים סוף גילו חוקרים שהדקר והמורנה צדים ביחד. שתלו אלמוג מוח שתהיה בו מחבוא למורנה, וגלו את הקשר בין הדקר למורנה.', hint: 'המורנה גרה בחורים של אלמוג המוח. הציבו אותה לידו.', after: 'r5', goal: { type: 'link', from: 'grouper', to: 'moray' }, reward: { points: 40, unlock: ['goby', 'shrimp'] } },
     { id: 'r7', title: 'שומר ובונה', text: 'הגובי והשרימפס גרים באותה מחילה. הביאו את שניהם אל החול, וגלו את השותפות ביניהם.', hint: 'הציבו אותם על החול, קרוב זה לזה.', after: 'r6', goal: { type: 'link', from: 'goby', to: 'shrimp' }, reward: { points: 40, unlock: ['plankton', 'lionfish', 'firecoral'] } },
-    { id: 'r8', title: 'השונית בלילה', text: 'בלילה השונית מתעוררת: הפלנקטון עולה, והאלמוגים פותחים את הפוליפים. הביאו פלנקטון וחכו ללילה.', hint: 'בלילה חפשו את האור הכחול של הפלנקטון.', after: 'r7', goal: { type: 'observeNight' }, reward: { points: 40, unlock: ['octopus', 'hermit', 'stingray', 'seafan'] } },
+    { id: 'r8', title: 'השונית בלילה', text: 'בלילה השונית מתעוררת: הפלנקטון עולה, והאלמוגים פותחים את הפוליפים. הביאו פלנקטון וחכו ללילה.', hint: 'בלילה חפשו את האור הכחול של הפלנקטון.', after: 'r7', goal: { type: 'observeNight' }, reward: { points: 40, unlock: ['octopus', 'hermit', 'stingray', 'seafan', 'jellyfish'] } },
     { id: 'r9', title: 'שרשרת מזון בים', text: 'פלנקטון מאכיל שרימפס, ושרימפס מאכיל טורף. בנו שרשרת מזון של 3 חוליות.', hint: 'למשל: פלנקטון ← שרימפס אקדח ← תמנון.', after: 'r8', goal: { type: 'chain', length: 3 }, reward: { points: 45, unlock: ['table', 'butterflyfish', 'starfish'] } },
     { id: 'r10', title: 'שונית בריאה', text: 'שמרו על שונית בריאה, עם הרבה מינים וקשרים, במשך דקה אחת.', hint: 'בדקו שיש מי שאוכל את האצות, ושלאלמוגים יש אור.', after: 'r9', goal: { type: 'health', min: 0.7, seconds: 60 }, reward: { points: 80, unlock: ['clam'] } },
-    { id: 'r11', title: 'עין מעל המים', text: 'שלחו רחפן ניטור לסרוק את השונית ולמצוא מה צריך תיקון.', hint: 'פתחו את לשונית "טכנולוגיה" במגש וגררו את רחפן הניטור אל השונית.', after: 'r10', goal: { type: 'tool', tool: 'drone', count: 1 }, reward: { points: 30, unlock: [] } },
+    { id: 'r11', title: 'עין מעל המים', text: 'שלחו רחפן ניטור לסרוק את השונית ולמצוא מה צריך תיקון.', hint: 'פתחו את לשונית "טכנולוגיה" במגש וגררו את רחפן הניטור אל השונית.', after: 'r10', goal: { type: 'tool', tool: 'drone', count: 1 }, reward: { points: 30, unlock: ['reefshark'] } },
     { id: 'r12', title: 'צלמים מתחת למים', text: 'הציבו מצלמות שטח ליד השונית. צלמו 4 מינים שונים.', hint: 'מצלמה ליד שושנת ים או ליד אלמוג גדול תצלם יותר דגים.', after: 'r11', goal: { type: 'photos', count: 4 }, reward: { points: 35, unlock: [] } },
     { id: 'r13', title: 'שונית מלאה חיים', text: 'האתגר הגדול: הגיעו ל-20 מינים שחיים ביחד בשונית אחת.', hint: 'בדקו בדוח של רחפן הניטור מי חסר למי.', after: 'r12', goal: { type: 'speciesAlive', count: 20 }, reward: { points: 120, unlock: [] } },
   ],
@@ -402,6 +426,36 @@ export const BIOME = {
         { id: 'wait', label: 'לחכות ולראות', outcome: 'הקוצנונים אכלו חלק מהאלמוגים. אחרי זמן מה רובם המשיכו הלאה, והשונית התחילה לגדול שוב, לאט.', effects: [{ type: 'points', amount: 5 }] },
       ],
     },
+    {
+      id: 'r_anchor', title: 'עוגן על השונית',
+      text: 'סירה של מבקרים הגיעה לשונית והטילה עוגן כבד. העוגן נפל על האלמוגים ושבר כמה מהם. אלמוג גדל לאט מאוד, ושבר כזה לוקח שנים לתקן. מה עושים?',
+      trigger: { type: 'day', day: 5 },
+      start: [{ type: 'anchor', count: 2 }],
+      choices: [
+        { id: 'replant', label: 'להדביק את שברי האלמוג חזרה לסלע', outcome: 'צוללנים אספו את השברים והדביקו אותם לסלע בדבק מיוחד לשוניות. רוב השברים נאחזו והמשיכו לגדול.', effects: [{ type: 'plant', species: 'branching', count: 2, where: 'any' }] },
+        { id: 'buoys', label: 'להציב מצופי עגינה, שהסירות ייקשרו אליהם', outcome: 'מעכשיו הסירות נקשרות למצופים ולא מטילות עוגן. מצוף עגינה נמצא בלשונית "טכנולוגיה".', effects: [{ type: 'points', amount: 10 }] },
+      ],
+    },
+    {
+      id: 'r_spawn', title: 'לילה של ביצים',
+      text: 'בלילות של הקיץ, כמה ימים אחרי הירח המלא, האלמוגים משחררים יחד מיליוני ביצים קטנטנות. הן עולות למים כמו שלג הפוך! רוצים לראות מה יקרה להן?',
+      trigger: { type: 'mission', id: 'r9' },
+      start: [],
+      choices: [
+        { id: 'watch', label: 'להסתכל ולחכות', outcome: 'רוב הביצים נאכלו בידי דגים או נסחפו. אבל כמה מהן הפכו לאלמוגים זעירים, שנאחזו בסלע והתחילו לגדול.', effects: [{ type: 'plant', species: 'branching', count: 1, where: 'any' }, { type: 'points', amount: 10 }] },
+        { id: 'collect', label: 'לאסוף כמה ביצים למשתלה', outcome: 'חוקרים באמת אוספים ביצי אלמוגים בלילות כאלה, מגדלים אותם במשתלה, ושותלים אחר כך בשונית. האלמוגים הצעירים נשתלו!', effects: [{ type: 'plant', species: 'branching', count: 2, where: 'any' }] },
+      ],
+    },
+    {
+      id: 'r_algae', title: 'האצות משתלטות',
+      text: 'האצות על השונית גדלות מהר מאוד, ומתחילות לכסות את האלמוגים. מי יכול לעזור?',
+      trigger: { type: 'mission', id: 'r4' },
+      start: [{ type: 'plant', species: 'algae', count: 3, where: 'any' }],
+      choices: [
+        { id: 'grazers', label: 'להביא דגים שרועים אצות', outcome: 'תוכינונים ומנתחנים רעו את האצות, והאלמוגים קיבלו שוב אור. דגים רועים שומרים על השונית נקייה.', effects: [{ type: 'add', species: 'parrotfish', count: 1 }, { type: 'add', species: 'surgeonfish', count: 1 }] },
+        { id: 'urchins', label: 'להביא קיפודי ים', outcome: 'קיפודי הים גרדו את האצות מהסלעים בלילה, ופינו מקום לאלמוגים צעירים.', effects: [{ type: 'add', species: 'urchin', count: 2 }] },
+      ],
+    },
   ],
 
   tips: [
@@ -417,5 +471,7 @@ export const BIOME = {
     'האלמוגים של מפרץ אילת עמידים לחום יותר מרוב האלמוגים בעולם.',
     'צב הים נושם אוויר, ועולה לפני המים כדי לנשום.',
     'אלמוג אש הוא בכלל לא אלמוג אמיתי, אבל הוא צורב כמו אש.',
+    'במשתלת אלמוגים מגדלים שברי אלמוג קטנים, ושותלים אותם אחר כך בשונית.',
+    'סירות שנקשרות למצוף עגינה לא מטילות עוגן על האלמוגים.',
   ],
 };

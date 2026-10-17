@@ -60,6 +60,7 @@ export function toolProp(id, { tint = null } = {}) {
   const g = new THREE.Group();
   g.userData.rotors = [];
   for (const [name, d] of Object.entries(parts)) {
+    if (name === 'cross') continue;   // no cross shapes in the game (Avi's rule): the rescue robot shows a red light instead
     const isRotor = name.startsWith('rotor');
     const { g: geo, c } = build(decode('t:' + id + ':' + name, d), isRotor);
     const glow = GLOW[name];

@@ -19,7 +19,7 @@ const SPECIES = {
   reef: [
     'branching', 'brain', 'table', 'firecoral', 'softcoral', 'seafan', 'sponge', 'seaanemone', 'clam', 'seagrass', 'algae', 'plankton',
     'clownfish', 'parrotfish', 'surgeonfish', 'cleaner', 'butterflyfish', 'lionfish', 'moray', 'grouper', 'goby', 'shrimp', 'turtle',
-    'octopus', 'urchin', 'starfish', 'stingray', 'hermit',
+    'octopus', 'urchin', 'starfish', 'stingray', 'hermit', 'jellyfish', 'reefshark',
   ],
 };
 const LAYER_IDS = {
@@ -45,7 +45,7 @@ const EFFECTS = {
   treeFall: ['target'], rain: ['seconds'], drought: ['seconds', 'strength'], fire: ['strength'], heat: ['seconds'],
   flood: ['seconds'], points: ['amount'], add: ['species', 'count'], remove: ['species', 'count'], unlock: ['species'],
   boost: ['species', 'amount'], plant: ['species', 'count', 'where'],
-  logging: ['count'], protect: [], road: [], ecoBridge: [], removeRoad: [],
+  logging: ['count'], anchor: ['count'], protect: [], road: [], ecoBridge: [], removeRoad: [],
 };
 // Forbidden content (hard content rules). Matched as substrings on all Hebrew/English text.
 const FORBIDDEN = [

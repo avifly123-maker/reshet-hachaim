@@ -1,16 +1,21 @@
 // Reef "plants" (1.3): corals, sponges, anemones, giant clams, seagrass, algae and drifting plankton – everything on
-// the reef that stays in place and grows. Built in code like the trees of the other zones (the rule: what does not
-// walk or swim is procedural; animals come from Blender). Contract: CONTRACT.md §3 (PlantVisual).
+// the reef that stays in place. Unlike trees, corals barely change shape as they grow, so they are modelled in Blender
+// (tools/blender/reef_flora.py → src/data/reef-flora.js: real branches, maze ridges, polyps, tentacles, baked ambient
+// occlusion) and appear at full size (Avi's decision, October 2026). The procedural shapes below remain as a fallback
+// for any species without a Blender model. Contract: CONTRACT.md §3 (PlantVisual).
 //   - a vertex-coloured mesh per species (3 cached variants), one material per instance with a few uniforms:
 //     uHealth (bleaching: a sick coral goes pale and white), uSway (soft parts bend in the current, by height),
 //     uGlow (polyps open and shine softly at night), uTime
 //   - crown(): how much light it blocks (a table coral shades what is under it), perchPoints(): where fish rest
 import * as THREE from 'three';
 import { makeRng, clamp, lerp, smoothstep, mergeGeometries } from '../core/util.js';
+import { REEF_FLORA } from '../data/reef-flora.js';
 
 const TAU = Math.PI * 2;
 // diorama scale: like the animals, the reef's corals are drawn larger than life so they read from the camera
 const SIZE = { branching: 3.0, brain: 2.8, table: 2.7, firecoral: 2.9, softcoral: 3.1, seafan: 2.8, sponge: 2.8, seaanemone: 3.0, clam: 2.6, seagrass: 2.2, algae: 2.2 };
+// the Blender models are fuller and wider than the stand-ins, so they need less enlarging
+const SIZE_B = { branching: 2.3, brain: 2.1, table: 1.5, firecoral: 2.1, softcoral: 2.4, seafan: 2.0, sponge: 2.0, seaanemone: 2.5, clam: 2.1, seagrass: 1.9, algae: 2.0 };
 const V3 = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
 const col = (h) => new THREE.Color(h);
 
@@ -187,8 +192,37 @@ function algae(rng) {
 }
 const SHAPES = { branching, brain, table, firecoral, softcoral, seafan, sponge, seaanemone, clam, seagrass, algae };
 
+// ───────────────────────────── Blender models (src/data/reef-flora.js)
+function bytes(s) { const bin = atob(s); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; }
+// sway and night glow per species (the shapes come from Blender, the behaviour stays here)
+const LOOK = {
+  branching: { sway: 0, glow: '#ffd6e0' }, brain: { sway: 0, glow: '#e8f0a0' }, table: { sway: 0, glow: '#d8ffb0' }, firecoral: { sway: 0, glow: '#fff3b0' },
+  softcoral: { sway: 0.12, glow: '#e6d0ff' }, seafan: { sway: 0.08, glow: '#ffb090' }, sponge: { sway: 0, glow: null }, seaanemone: { sway: 0.16, glow: '#e8ffb0' },
+  clam: { sway: 0, glow: null }, seagrass: { sway: 0.25, glow: null }, algae: { sway: 0.12, glow: null }, reefrock: { sway: 0, glow: null },
+};
+function blenderShape(id, k) {
+  const vs = REEF_FLORA[id]; const e = vs[k % vs.length];
+  const q = bytes(e.p), qi = new Int16Array(q.buffer, 0, q.length >> 1), n = qi.length / 3, pos = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) for (let c = 0; c < 3; c++) pos[i * 3 + c] = e.o[c] + (qi[i * 3 + c] + 32767) * e.s[c];
+  const nb = bytes(e.n), nrm = new Float32Array(n * 3);
+  for (let i = 0; i < n * 3; i++) nrm[i] = (nb[i] << 24 >> 24) / 127;
+  const cb = bytes(e.c), colA = new Float32Array(n * 3);
+  for (let i = 0; i < n * 3; i++) { const v = cb[i] / 255; colA[i] = v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }
+  const ib = bytes(e.i), idx = e.w === 4 ? new Uint32Array(ib.buffer, 0, ib.length >> 2) : new Uint16Array(ib.buffer, 0, ib.length >> 1);
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.setAttribute('normal', new THREE.BufferAttribute(nrm, 3));
+  g.setAttribute('color', new THREE.BufferAttribute(colA, 3)); g.setIndex(new THREE.BufferAttribute(idx, 1));
+  g.computeBoundingSphere();
+  const L = LOOK[id] || { sway: 0, glow: null };
+  const c = e.crown || { top: e.h, bottom: 0, radius: 1, density: 0.2 };
+  return { geo: g, H: e.h, crown: c, perch: (e.perch || []).map((p) => V3(p[0], p[1], p[2])), sway: L.sway, soft: e.soft, double: e.double, glow: L.glow, blender: true };
+}
 const CACHE = new Map();
-function shapeOf(id, seed) { const k = id + ':' + (seed % 3); if (!CACHE.has(k)) CACHE.set(k, SHAPES[id](makeRng(1000 + (seed % 3) * 17 + id.length))); return CACHE.get(k); }
+function shapeOf(id, seed) {
+  const k = id + ':' + (seed % 3);
+  if (!CACHE.has(k)) CACHE.set(k, REEF_FLORA[id] ? blenderShape(id, seed % 3) : SHAPES[id](makeRng(1000 + (seed % 3) * 17 + id.length)));
+  return CACHE.get(k);
+}
 
 // one material per instance: bleaching (health), sway in the current, night glow
 function coralMaterial(shape) {
@@ -218,10 +252,12 @@ function makeCoral(id, opts) {
   const object = new THREE.Group(); object.name = id;
   const body = new THREE.Group(); object.add(body);
   const mesh = new THREE.Mesh(shape.geo, m); mesh.castShadow = mesh.receiveShadow = true; body.add(mesh);
-  const yaw = rng() * TAU, jit = (0.85 + rng() * 0.3) * (SIZE[id] || 2); body.rotation.y = yaw;
+  const yaw = rng() * TAU, jit = (0.85 + rng() * 0.3) * ((shape.blender ? SIZE_B[id] : SIZE[id]) || 2); body.rotation.y = yaw;
   const st = { g: 1, h: 1, s: 1 };
   const rot = new THREE.Quaternion().setFromAxisAngle(V3(0, 1, 0), yaw);
-  function setGrowth(g) { st.g = clamp(g); st.s = lerp(0.22, 1, smoothstep(0, 1, st.g)) * jit; body.scale.setScalar(st.s); }
+  // Blender corals do not grow in size: a young colony is nearly as big as an old one (only a gentle settle-in)
+  const g0 = shape.blender ? 0.82 : 0.22;
+  function setGrowth(g) { st.g = clamp(g); st.s = lerp(g0, 1, smoothstep(0, 1, st.g)) * jit; body.scale.setScalar(st.s); }
   setGrowth(1);
   return {
     object, trunkRadius: 0.2 * jit,
@@ -231,7 +267,7 @@ function makeCoral(id, opts) {
     update(dt, t) { u.uTime.value = t; },
     crown() { const c = shape.crown; return { top: c.top * st.s, bottom: c.bottom * st.s, radius: c.radius * st.s, density: c.density }; },
     attachPoints() { return []; },
-    perchPoints() { return st.g < 0.4 ? [] : shape.perch.map((p) => p.clone().multiplyScalar(st.s).applyQuaternion(rot)); },
+    perchPoints() { return st.g < 0.4 && !shape.blender ? [] : shape.perch.map((p) => p.clone().multiplyScalar(st.s).applyQuaternion(rot)); },
     fall() { }, dispose() { m.dispose(); object.removeFromParent(); },
   };
 }
@@ -270,7 +306,8 @@ function makePlankton(opts) {
   };
 }
 
-export const PLANTS = Object.fromEntries([...Object.keys(SHAPES).map((id) => [id, (opts) => makeCoral(id, opts)]), ['plankton', makePlankton]]);
+export const PLANTS = Object.fromEntries([...new Set([...Object.keys(SHAPES), ...Object.keys(REEF_FLORA)])].map((id) => [id, (opts) => makeCoral(id, opts)]).concat([['plankton', makePlankton]]));
+export const REEF_ROCKS = () => (REEF_FLORA.reefrock ? [0, 1, 2].map((k) => blenderShape('reefrock', k)) : []);
 export function releaseCaches() {
   for (const s of CACHE.values()) s.geo.dispose();
   CACHE.clear();

@@ -8,6 +8,7 @@
 //   - below: the island's base of sandstone and reef rock, floating over a sea of mist like the other zones
 //   - events: drought / heat → warm, paler water; flood → murky water (mud from a desert flood); rain → a rougher surface
 import * as THREE from 'three';
+import { REEF_ROCKS } from '../models/reef-plants.js';
 import { makeRng, makeNoise2D, clamp, lerp, smoothstep, damp } from '../core/util.js';
 
 const R = 38;            // placeable radius (contract)
@@ -72,7 +73,7 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
   function buildFloor() {
     const segs = qual.seg, rings = qual.rings;
     const pos = [], col = [], idx = [];
-    const sand = new THREE.Color('#dcc896'), sand2 = new THREE.Color('#c4ad7c'), rock = new THREE.Color('#9a8270'),
+    const sand = new THREE.Color('#f2dfb4'), sand2 = new THREE.Color('#e2c898'), rock = new THREE.Color('#9a8270'),
       rock2 = new THREE.Color('#b8706c'), algae = new THREE.Color('#6f8446'), c = new THREE.Color();
     pos.push(0, heightAt(0, 0), 0); c.copy(sand); col.push(c.r, c.g, c.b);
     for (let i = 1; i <= rings; i++) {
@@ -107,14 +108,15 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
     Object.assign(sh.uniforms, { uTime: U.uTime, uCaust: U.uCaust, uMurk: U.uMurk, uOverlay: U.uOverlay, uOverlayOn: U.uOverlayOn, uR: U.uR });
     sh.vertexShader = 'varying vec3 vWPos;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n vWPos = (modelMatrix * vec4(transformed, 1.0)).xyz;');
     sh.fragmentShader = `varying vec3 vWPos; uniform float uTime, uCaust, uMurk, uOverlayOn, uR; uniform sampler2D uOverlay;
+      // caustics: the bright net of light that waves focus onto the sea floor – the edges of moving Voronoi cells
+      vec2 h2(vec2 p) { p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3))); return fract(sin(p) * 43758.5453); }
       float caust(vec2 p, float t) {
-        vec2 q = p * 0.42; float c = 0.0;
-        for (int i = 0; i < 3; i++) {
-          float fi = float(i);
-          q += vec2(sin(q.y * 1.3 + t * 0.55 + fi * 1.7), cos(q.x * 1.1 - t * 0.47 + fi * 2.3));
-          c += abs(sin(q.x * 0.9 + q.y * 0.8));
+        p *= 1.05; p += 0.35 * sin(p.yx * 1.3 + t * 0.4); vec2 i = floor(p), f = fract(p); float d1 = 8.0, d2 = 8.0;
+        for (int y = -1; y <= 1; y++) for (int x = -1; x <= 1; x++) {
+          vec2 g = vec2(float(x), float(y)); vec2 o = h2(i + g); o = 0.5 + 0.45 * sin(t * 0.9 + 6.2831 * o);
+          float d = length(g + o - f); if (d < d1) { d2 = d1; d1 = d; } else if (d < d2) d2 = d;
         }
-        return pow(clamp(1.0 - c / 3.0, 0.0, 1.0), 7.0);
+        return pow(1.0 - smoothstep(0.0, 0.12, d2 - d1), 3.0);
       }\n` + sh.fragmentShader
       .replace('#include <color_fragment>', `#include <color_fragment>
         if (uOverlayOn > 0.5) {
@@ -124,16 +126,33 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
           diffuseColor.rgb = mix(diffuseColor.rgb, o.rgb * 0.9, o.a * inside * 0.6);
         }`)
       .replace('#include <dithering_fragment>', `
-        float cs = caust(vWPos.xz, uTime) * 0.65 + caust(vWPos.xz * 1.37 + 7.0, uTime * 1.2) * 0.45;
-        gl_FragColor.rgb += vec3(0.55, 0.85, 1.0) * cs * uCaust * 0.3 * (1.0 - uMurk * 0.85);
+        float cs = caust(vWPos.xz, uTime) * 0.6 + caust(vWPos.xz * 1.45 + 3.1, uTime * 1.21) * 0.45;
+        gl_FragColor.rgb += vec3(0.8, 0.97, 1.0) * cs * uCaust * 0.4 * (1.0 - uMurk * 0.85);
         // sea water takes the red out of the light: the floor reads blue-green, deeper spots more so
         float dep = clamp((${REEF_SURFACE.toFixed(1)} - vWPos.y) / 18.0, 0.0, 1.0);
-        gl_FragColor.rgb *= mix(vec3(1.0), vec3(0.78, 0.9, 0.97), 0.35 + 0.35 * dep);
+        gl_FragColor.rgb *= mix(vec3(1.0), vec3(0.82, 0.92, 1.0), 0.3 + 0.3 * dep);
         #include <dithering_fragment>`);
   };
   const floor = new THREE.Mesh(buildFloor(), floorMat);
   floor.receiveShadow = true; floor.name = 'reef-floor';
   root.add(floor);
+
+  // ───────────────────────────── reef-rock boulders on the mounds (Blender, tools/blender/reef_flora.py 'reefrock')
+  const rockShapes = REEF_ROCKS();
+  const rockMeshes = [];
+  if (rockShapes.length) {
+    const rmat = track(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.95, metalness: 0 }));
+    mounds.forEach((m, i) => {
+      const sh = rockShapes[i % rockShapes.length];
+      const o = new THREE.Mesh(sh.geo, rmat);
+      const k = m.r / 1.35;   // the model is about 1.3 m across
+      o.scale.set(k * (0.9 + 0.2 * rng()), Math.max(0.6, m.h * 0.9), k * (0.9 + 0.2 * rng()));
+      o.rotation.y = rng() * TAU;
+      o.position.set(m.x, heightAt(m.x, m.z) - m.h * 0.55, m.z);
+      o.castShadow = true; o.receiveShadow = true; o.name = 'reef-rock';
+      root.add(o); rockMeshes.push(o);
+    });
+  }
 
   // ───────────────────────────── the island's base (sandstone and reef rock under the sea floor)
   {
@@ -312,7 +331,7 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
   const cTmp = new THREE.Color(), cTmp2 = new THREE.Color();
   const COL = { zenDay: new THREE.Color('#4f9fe6'), horDay: new THREE.Color('#d6eef6'), zenNight: new THREE.Color('#0a1530'), horNight: new THREE.Color('#1c2d52'),
     zenDusk: new THREE.Color('#3d5fa8'), horDusk: new THREE.Color('#ffb98a'), sunNoon: new THREE.Color('#fff4dc'), sunLow: new THREE.Color('#ffb070'), moon: new THREE.Color('#8fb0ff'),
-    fogDay: new THREE.Color('#a9d9ea'), fogNight: new THREE.Color('#122440'), fogMurk: new THREE.Color('#9a9270'),
+    fogDay: new THREE.Color('#8fcfe8'), fogNight: new THREE.Color('#122440'), fogMurk: new THREE.Color('#9a9270'),
     shallowDay: new THREE.Color('#3fc3d6'), deepDay: new THREE.Color('#0d5a86') };
 
   function update(dt, ctx = {}) {
@@ -343,7 +362,7 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
     sunLight.position.copy(useSun ? sunDir : moonDir).multiplyScalar(130);
     if (useSun) { sunLight.color.copy(sCol).lerp(cTmp2.set('#bfefff'), 0.35); sunLight.intensity = 2.1 * dayAmt * (1 - 0.6 * state.rain) * (1 - 0.5 * state.murk); }
     else { sunLight.color.copy(COL.moon); sunLight.intensity = 1.2 * night.v; }
-    hemi.color.set('#8fd8ec').lerp(cTmp2.set('#3a5fb0'), night.v * 0.85);
+    hemi.color.set('#b4d6f2').lerp(cTmp2.set('#3a5fb0'), night.v * 0.85);
     hemi.groundColor.set('#d8c8a0').multiplyScalar(0.3 + 0.7 * dayAmt).lerp(cTmp2.set('#1a2a48'), night.v * 0.7);
     hemi.intensity = lerp(1.05, 1.6, night.v) * (1 - 0.2 * state.murk);
     // water colours
@@ -400,7 +419,7 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
     biome: 'reef', radius: R, root, underwater: true, surfaceY: REEF_SURFACE,
     heightAt, isWater: () => false, isPlaceable, waterLevel: null, water: { pools: [] },
     bridges: [], bridgeAt: () => null, walkRoute: () => [],
-    rocks, groundMeshes: [floor], waterMeshes: [], rockMeshes: [], sun,
+    rocks, groundMeshes: [floor], waterMeshes: [], rockMeshes, sun,
     update, setLightOverlay, setGap() { }, setQuality, dispose, setTreeShadows() { }, setFallenFruit() { },
     get night() { return night.v; },
   };
