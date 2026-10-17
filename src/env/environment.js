@@ -7,6 +7,7 @@ import { GROUND_TEX } from '../data/ground-textures.js';
 import { TREE_SHADOW } from '../data/tree-shadow.js';
 import { bakeImpostors, patchImpostorMaterial, impostorQuad } from './impostors.js';
 import { propGeometry } from '../world/props.js';
+import { createReefEnvironment } from './reef.js';
 
 const R = 38;
 const MAX_SHAFTS = 20;
@@ -171,6 +172,7 @@ function patchMaterial(mat, key, uniforms, { vertexPre = '', vertexBegin = '', f
 // forest's tree impostors (roles: amazon 'emergent' | 'canopy' | 'palm', grove 'tree' | 'bush'). Without them (or if the
 // bake fails) the far forest uses simple faceted crowns.
 export function createEnvironment(pipeline, biomeId = 'amazon', { quality = 'medium', seed = 1, impostorTrees = null } = {}) {
+  if (biomeId === 'reef') return createReefEnvironment(pipeline, { quality, seed });   // the reef has its own diorama (src/env/reef.js)
   const isAmazon = biomeId !== 'grove';
   const biome = isAmazon ? 'amazon' : 'grove';
   const scene = pipeline.scene;

@@ -22,6 +22,7 @@ const zoneOf = (id) => { const m = loadedPack(id); return m ? m.zone : null; };
 // Beginners (ages 6–8): a small set of species, short missions, no events, two tools.
 function kidsBiome(base) {
   const K = KIDS[base.id];
+  if (!K) return base;   // a zone without a beginners' set opens in full
   const keep = new Set(K.species);
   const species = base.species.filter(s => keep.has(s.id)).map(s => ({ ...s, unlock: K.start.includes(s.id) ? 'start' : (K.missions.find(m => (m.reward?.unlock || []).includes(s.id))?.id || 'start') }));
   return { ...base, mode: 'kids', species, missions: K.missions, events: [], tips: K.tips || base.tips, intro: K.intro || base.intro };
@@ -107,7 +108,7 @@ async function boot() {
     pendingBiome = null;
     ui.hideLoading();
     root.classList.remove('kids');
-    ui.showStart(Object.values(ZONES).map((z) => ({ id: z.id, name: z.name, subtitle: z.subtitle, intro: z.intro, kidsIntro: KIDS[z.id]?.intro, palette: z.palette })));
+    ui.showStart(Object.values(ZONES).map((z) => ({ id: z.id, name: z.name, subtitle: z.subtitle, intro: z.intro, kidsIntro: KIDS[z.id]?.intro, palette: z.palette, dev: !!z.dev })));
   }
 
   let gameZone = null;   // the zone whose pack the running (or last) game uses

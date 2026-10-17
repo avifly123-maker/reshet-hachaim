@@ -162,6 +162,16 @@ function biomeArt(b) {
     let flowers = '';
     for (let i = 0; i < 26; i++) flowers += `<circle cx="${(rnd() * W).toFixed(0)}" cy="${(204 + rnd() * 24).toFixed(0)}" r="${(1.6 + rnd() * 1.6).toFixed(1)}" fill="${i % 3 ? '#e4473b' : '#f6e9f0'}"/>`;
     art += `<g class="ba-near">${ridge(198, 14, 70, near)}${rocks}${crown(40, 196, 20, near, 7)}${crown(372, 190, 24, near, 7)}${flowers}</g>` + birds();
+  } else if (/reef/.test(b.id)) {
+    // the reef: a band of sea surface, the blue water below with light rays, coral heads and a few fish
+    art += `<rect y="96" width="${W}" height="${H - 96}" fill="${mix('#1f86b0', c1, 0.25)}"/><rect y="96" width="${W}" height="10" fill="#bfeaf5" opacity=".7"/>`;
+    for (let i = 0; i < 5; i++) { const x = 30 + i * 85 + rnd() * 20; art += `<path d="M${x} 106 L${x + 26} 106 L${x + 60} ${H} L${x + 10} ${H} Z" fill="#e8fbff" opacity=".12"/>`; }
+    let reef = '';
+    for (let i = 0; i < 7; i++) { const x = 20 + i * 60 + rnd() * 20, y = 200 + rnd() * 16, r = 16 + rnd() * 14; reef += `<ellipse cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" rx="${r.toFixed(0)}" ry="${(r * 0.7).toFixed(0)}" fill="${['#e8a0b4', '#c9b46a', '#9fc27a', '#c7a3d9'][i % 4]}"/>`; }
+    for (let i = 0; i < 4; i++) { const x = 50 + rnd() * 300; reef += `<path d="M${x} 214 l0 -28 m0 10 l-10 -14 m10 6 l12 -16" stroke="#d9603a" stroke-width="3" fill="none" stroke-linecap="round"/>`; }
+    let fish = '';
+    for (let i = 0; i < 6; i++) { const x = 40 + rnd() * 320, y = 130 + rnd() * 60, sz = 6 + rnd() * 5; fish += `<g transform="translate(${x.toFixed(0)} ${y.toFixed(0)})"><ellipse rx="${sz.toFixed(1)}" ry="${(sz * 0.55).toFixed(1)}" fill="${i % 2 ? '#f08a24' : '#f2d04a'}"/><path d="M${sz.toFixed(1)} 0 l${(sz * 0.7).toFixed(1)} -${(sz * 0.5).toFixed(1)} l0 ${sz.toFixed(1)} z" fill="${i % 2 ? '#f08a24' : '#f2d04a'}"/></g>`; }
+    art += `<path d="M0 ${H} L0 212 C80 204 160 214 240 208 S360 204 400 210 L400 ${H} Z" fill="#efe2bf"/>` + `<g class="ba-near">${reef}</g>` + `<g class="ba-mid">${fish}</g>`;
   } else {
     art += `<g class="ba-far">${ridge(140, 26, 60, far)}${umbrella(90, 150, 64, 34, far)}${umbrella(250, 150, 52, 40, far)}</g>`;
     let canopy = ''; for (let i = 0; i < 12; i++) canopy += crown(i * 36 + rnd() * 10, 150 + rnd() * 14, 18 + rnd() * 6, mid, 5);
@@ -348,7 +358,7 @@ export function createUI(root, bus) {
       // a Blender render of the island when there is one (src/data/island-art.js), else the drawn landscape
       const art = ISLAND_ART[b.id] ? `<img class="bc-render" src="${ISLAND_ART[b.id]}" alt="" draggable="false">` : biomeArt(b);
       const c = h('button', 'biome-card', `<div class="bc-art">${art}</div>
-        <div class="bc-body"><h2>${esc(b.name)}</h2><p class="bc-sub">${esc(b.subtitle)}</p><p class="bc-intro">${esc(b.intro)}</p>
+        <div class="bc-body"><h2>${esc(b.name)}</h2><p class="bc-sub">${esc(b.subtitle)}${b.dev ? ' · <span class="bc-dev">בבנייה</span>' : ''}</p><p class="bc-intro">${esc(b.intro)}</p>
         <span class="bc-go">יוצאים לדרך${icon('arrowL')}</span></div>`, wrap);
       c.dataset.id = b.id || '';
       c.style.setProperty('--bc', (b.palette && b.palette[0]) || '#2d5a35');

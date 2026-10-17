@@ -3,9 +3,10 @@
 import { KIDS } from '../src/data/kids.js';
 import { BIOME as AMAZON } from '../src/data/amazon.js';
 import { BIOME as GROVE } from '../src/data/grove.js';
+import { BIOME as REEF } from '../src/data/reef.js';
 
-const BIOMES = { amazon: AMAZON, grove: GROVE };
-const PLANT_KINDS = new Set(['tree', 'palm', 'shrub', 'herb', 'epiphyte', 'vine', 'fungus', 'water-plant']);
+const BIOMES = { amazon: AMAZON, grove: GROVE, reef: REEF };
+const PLANT_KINDS = new Set(['tree', 'palm', 'shrub', 'herb', 'epiphyte', 'vine', 'fungus', 'water-plant', 'coral', 'sessile', 'seaplant']);
 const GOAL_FIELDS = {
   place: ['species', 'count'], pollinate: ['species', 'count'], link: ['from', 'to'], disperse: ['count'],
   grow: ['species', 'count'], tool: ['tool', 'count'], photos: ['count'], speciesAlive: ['count'],
@@ -44,7 +45,7 @@ for (const [bid, K] of Object.entries(KIDS)) {
   for (const id of set) if (!byId.has(id)) err(bid, `species "${id}" not in ${bid}.js`);
   const plants = [...set].filter(isPlant), animals = [...set].filter((id) => byId.has(id) && !isPlant(id));
   if (plants.length < 3 || plants.length > 4) err(bid, `plants ${plants.length} (want 3–4)`);
-  if (!plants.some((id) => byId.get(id).kind === 'tree')) err(bid, 'no tree in the set');
+  if (!plants.some((id) => ['tree', 'coral'].includes(byId.get(id).kind))) err(bid, 'no tree (reef: no coral) in the set');
 
   // edges from diet + relations, restricted to the set
   const edges = [];
@@ -65,8 +66,12 @@ for (const [bid, K] of Object.entries(KIDS)) {
   // no hunting inside the set; every animal has food in the set
   for (const e of edges) if (e.type === 'eats' && (e.part === 'animals' || e.part === 'insects')) err(bid, `${e.from} hunts ${e.to}`);
   for (const a of animals) if (!edges.some((e) => e.from === a && e.type === 'eats' && isPlant(e.to))) err(bid, `animal ${a} has no food in the set`);
-  if (!plants.some((p) => pollinatorsOf(p).length)) err(bid, 'no working pollination relation in the set');
-  if (!dispersals.length) err(bid, 'no dispersal relation in the set');
+  // the reef has no flowers and no seeds to carry: its story is partnership, so it needs a home / partner relation instead
+  if (bid === 'reef') { if (!edges.some((e) => e.type === 'partner' || e.type === 'home')) err(bid, 'no partnership in the set'); }
+  else {
+    if (!plants.some((p) => pollinatorsOf(p).length)) err(bid, 'no working pollination relation in the set');
+    if (!dispersals.length) err(bid, 'no dispersal relation in the set');
+  }
 
   // ── start
   const start = new Set(K.start || []);

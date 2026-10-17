@@ -41,6 +41,10 @@ export const DIET_PARTS = {
   fungus: 'פטרייה',
   dead: 'חומר מת',
   roots: 'שורשים ופקעות',
+  // the reef
+  algae: 'אצות',
+  plankton: 'פלנקטון',
+  polyps: 'פוליפים של אלמוגים',
 };
 
 // Short verb phrases for food links: "<eater> <verb> <food>"
@@ -54,6 +58,9 @@ export const DIET_VERBS = {
   fungus: 'אוכל',
   dead: 'מפרק',
   roots: 'חופר ואוכל פקעות של',
+  algae: 'מגרד אצות מ',
+  plankton: 'מסנן',
+  polyps: 'אוכל פוליפים של',
 };
 
 export const KINDS = {
@@ -67,7 +74,12 @@ export const KINDS = {
   'water-plant': 'צמח מים',
   animal: 'בעל חיים',
   colony: 'מושבה',
-  swarm: 'חרק', // only the firefly uses 'swarm' – the card reads "גחלילית · חרק"
+  swarm: 'חרק', // the firefly; the reef's plankton has its own kindLabel
+  // the reef: corals, sponges, anemones and giant clams are animals that stay in place – in the game they are placed and
+  // grow like plants (src/sim/species.js PLANT_KINDS); a species' kindLabel says what it really is on its card
+  coral: 'אלמוג',
+  sessile: 'בעל חיים שלא זז',
+  seaplant: 'צמח ים',
 };
 
 export const SEASON_NAMES = {
@@ -88,6 +100,7 @@ export const LOCOMOTION_NAMES = {
   arboreal: 'חי על העצים',
   flying: 'עף',
   water: 'שוחה',
+  swim: 'שוחה',
 };
 
 export const GROWTH_NAMES = {
@@ -145,6 +158,8 @@ export const GENDER = {
   // grove
   terebinth: 'f', mastic: 'f', sage: 'f', cyclamen: 'f', anemone: 'f', mushroom: 'fp',
   honeybee: 'f', harvesterant: 'f', firefly: 'f', chameleon: 'f', owl: 'f', hoopoe: 'f', chukar: 'f',
+  // reef
+  seaanemone: 'f', clam: 'f', algae: 'fp', seafan: 'f', moray: 'f',
 };
 export const genderOf = (id) => GENDER[id] || 'm';
 
@@ -169,6 +184,9 @@ const DF = {
   fungus: ['אוכל', 'אוכלת', 'אוכלים', 'אוכלות'],
   dead: ['מפרק', 'מפרקת', 'מפרקים', 'מפרקות'],
   roots: ['חופר ואוכל פקעות של', 'חופרת ואוכלת פקעות של', 'חופרים ואוכלים פקעות של', 'חופרות ואוכלות פקעות של'],
+  algae: ['מגרד אצות מ', 'מגרדת אצות מ', 'מגרדים אצות מ', 'מגרדות אצות מ'],
+  plankton: ['מסנן', 'מסננת', 'מסננים', 'מסננות'],
+  polyps: ['אוכל פוליפים של', 'אוכלת פוליפים של', 'אוכלים פוליפים של', 'אוכלות פוליפים של'],
 };
 const GI = { m: 0, f: 1, mp: 2, fp: 3 };
 /** relation verb agreeing with the acting species (by species id) */
@@ -203,6 +221,12 @@ export const DEF = {
   firefly: 'הגחלילית', jay: 'העורבני', blackbird: 'השחרור', chameleon: 'הזיקית המצויה', agama: 'החרדון המצוי',
   spinymouse: 'הקוצן המצוי', porcupine: 'הדורבן', hedgehog: 'הקיפוד', hyrax: 'שפן הסלע', gazelle: 'הצבי הארץ-ישראלי',
   fox: 'השועל המצוי', owl: 'התנשמת', hoopoe: 'הדוכיפת', tortoise: 'צב היבשה המצוי', chukar: 'חוגלת הסלעים',
+  // reef
+  branching: 'אלמוג השיח', brain: 'אלמוג המוח', table: 'אלמוג השולחן', firecoral: 'אלמוג האש', softcoral: 'האלמוג הרך',
+  seafan: 'מניפת הים', sponge: 'הספוג', seaanemone: 'שושנת הים', clam: 'צדפת הענק', seagrass: 'עשב הים', algae: 'האצות',
+  plankton: 'הפלנקטון', clownfish: 'השושנון', parrotfish: 'התוכינון', surgeonfish: 'המנתחן', cleaner: 'השפרנון המנקה',
+  butterflyfish: 'הפרפרון', lionfish: 'הזהרון', moray: 'המורנה', grouper: 'הדקר', goby: 'הגובי', shrimp: 'שרימפס האקדח',
+  turtle: 'צב הים הירוק', octopus: 'התמנון', urchin: 'קיפוד הים', starfish: 'הקוצנון', stingray: 'חתול הים', hermit: 'סרטן הנזיר',
 };
 /** definite name of a species ("הקפוק"); falls back to ה + name */
 export const defName = (id, name) => DEF[id] || (name ? 'ה' + name : String(id || ''));

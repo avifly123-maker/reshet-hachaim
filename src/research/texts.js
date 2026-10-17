@@ -7,7 +7,7 @@ export const RESEARCH_NAME = 'חוקרי היער';     // the whole world of my
 export const CASE_WORD = 'תעלומה';              // one mystery
 
 const KIDS = {
-  zone_grove: 'הַחֹרֶשׁ', zone_amazon: 'הַיַּעַר',
+  zone_grove: 'הַחֹרֶשׁ', zone_amazon: 'הַיַּעַר', zone_reef: 'הַשּׁוּנִית',
   board: 'מָה מָדַדְנוּ',
   unknown: 'צָרִיךְ לִמְדֹּד',
   tools: 'כְּלֵי מֶחְקָר',
@@ -58,7 +58,7 @@ const KIDS = {
   count: 'כַּמּוּת',
 };
 const PLAIN = {
-  zone_grove: 'החורש', zone_amazon: 'היער',
+  zone_grove: 'החורש', zone_amazon: 'היער', zone_reef: 'השונית',
   board: 'מה מדדנו', unknown: 'צריך למדוד', tools: 'כלי מחקר', ideas: 'רעיונות על השולחן', budget: 'תקציב',
   noBudget: 'אין מספיק תקציב', noRoom: 'אין מקום לעוד', see: 'לראות מה קורה', seeing: 'מחכים לתוצאה...',
   toNight: 'קדימה עד הלילה', camWaits: 'המצלמה תספור בלילה.', camCounted: 'המצלמה ספרה בלילה:', dayCamCounted: 'המצלמה ספרה:', droneCounted: 'הרחפן ספר:',

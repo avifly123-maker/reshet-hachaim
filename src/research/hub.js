@@ -17,7 +17,7 @@ const LEVELS = [
   { id: 'middle', name: 'בינוני', sub: 'שתי סיבות ומלכודת', ic: 'binoc' },
   { id: 'advanced', name: 'מתקדמים', sub: 'רשת שלמה, איזון לאורך זמן', ic: 'web' },
 ];
-const ZONE_NAME = { grove: 'החורש', amazon: 'האמזונס' };
+const ZONE_NAME = { grove: 'החורש', amazon: 'האמזונס', reef: 'השונית' };
 
 export function createResearchHub(root, { onPick, onClose }) {
   const el = document.createElement('div');

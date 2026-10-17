@@ -36,12 +36,14 @@ export class Animal {
     this.range = this.loco === 'flying' ? 34 : this.loco === 'arboreal' ? 20 : this.len > 1.4 ? 22 : 12;
     this.perch = null; this.path = null; this.goal = null; this.food = null; this.carrying = null; this.prey = null;
     this.eatCD = 0; this.hungryT = 0; this.trailT = 0; this.flee = 0;
-    const [w, r] = SPEED[sp.id] || [Math.min(1.4, 0.5 + this.len * 0.5), Math.min(5, 1.5 + this.len * 1.8)];
-    this.walkSpeed = w; this.runSpeed = r; this.flySpeed = FLY[sp.id] || 4;
+    const vs = this.vis.speeds || {};   // a model may say how fast its species moves (the reef's urchins and starfish crawl)
+    const [w, r] = SPEED[sp.id] || (vs.walk ? [vs.walk, vs.run || vs.walk * 2] : [Math.min(1.4, 0.5 + this.len * 0.5), Math.min(5, 1.5 + this.len * 1.8)]);
+    this.walkSpeed = w; this.runSpeed = r; this.flySpeed = FLY[sp.id] || vs.fly || 4;
     if (this.loco === 'colony') { this.pos.y = world.env.heightAt(pos.x, pos.z); this.obj.position.copy(this.pos); this.retargetColony(); }
     if (this.loco === 'swarm') { this.pos.y = world.env.heightAt(pos.x, pos.z) + 0.8; this.obj.position.copy(this.pos); }
     if (this.loco === 'arboreal') this.tryPerchNearest();
     if (this.loco === 'flying') { this.pos.y = Math.max(this.pos.y, world.env.heightAt(pos.x, pos.z) + 3); this.state = 'idle'; this.action = 'hover'; this.timer = 0.2; }
+    if (sp.swims && world.env.surfaceY != null) this.pos.y = Math.min(this.pos.y, world.env.surfaceY - 1.5);   // a fish starts under the surface
     if (this.loco === 'ground' || this.loco === 'water') this.pos.y = this.groundY(pos.x, pos.z);
     this.obj.position.copy(this.pos); this.obj.scale.setScalar(0.001);
   }
@@ -99,6 +101,11 @@ export class Animal {
     const p0 = this.pos.clone(), p1 = to.clone();
     const d = p0.distanceTo(p1);
     const c = p0.clone().lerp(p1, 0.5); c.y = Math.max(p0.y, p1.y) + (arc ?? Math.min(10, 1.5 + d * 0.3));
+    if (this.sp.swims) {   // a fish swims under the surface and above the sea floor, in gentle curves
+      const env = this.world.env, top = (env.surfaceY ?? 1e9) - 1.2;
+      p1.y = Math.min(top, Math.max(env.heightAt(p1.x, p1.z) + 0.5, p1.y));
+      c.y = Math.min(top, Math.max(p0.y, p1.y) + Math.min(2.5, 0.4 + d * 0.08));
+    }
     this.path = { p0, p1, c, t: 0, dur: Math.max(0.6, (d * 1.15) / (speed || this.flySpeed)), onArrive };
     this.perch = null; this.state = 'fly';
   }

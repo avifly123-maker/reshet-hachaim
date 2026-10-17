@@ -1,7 +1,7 @@
 // Species registry: wraps the BIOME content with derived lookups used by the simulation.
 import { RELATION_TYPES, DIET_VERBS, KINDS, ACTIVE_NAMES, SEASON_NAMES, dietVerb } from '../data/common.js';
 
-export const PLANT_KINDS = new Set(['tree', 'palm', 'shrub', 'herb', 'epiphyte', 'vine', 'fungus', 'water-plant']);
+export const PLANT_KINDS = new Set(['tree', 'palm', 'shrub', 'herb', 'epiphyte', 'vine', 'fungus', 'water-plant', 'coral', 'sessile', 'seaplant']);
 export const INSECTS = new Set(['leafcutter', 'orchidbee', 'morpho', 'honeybee', 'butterfly', 'harvesterant', 'firefly']);
 // Grove plants that resprout from the base after fire (well documented for Quercus calliprinos, Pistacia, Cistus, Ceratonia)
 export const RESPROUTERS = new Set(['oak', 'terebinth', 'carob', 'mastic', 'buckthorn', 'rockrose', 'sage']);
@@ -53,10 +53,13 @@ export function buildRegistry(biome) {
   }
 
   for (const s of biome.species) {
+    // the reef: fish swim through the water like flyers move through the air (3D paths, hovering, resting by a coral),
+    // so 'swim' runs on the flying code; s.swims tells the models and the texts that it is a fish, not a bird
+    if (s.locomotion === 'swim') { s.swims = true; s.locomotion = 'flying'; }
     s.isPlant = isPlant(s.id);
     s.isAnimal = !s.isPlant;
     s.isInsect = INSECTS.has(s.id);
-    s.kindName = KINDS[s.kind] || '';
+    s.kindName = s.kindLabel || KINDS[s.kind] || '';
     s.activeName = ACTIVE_NAMES[s.active || 'day'] || '';
     s.layerName = (biome.layers.find(l => l.id === s.layer) || {}).name || '';
     s.pollinators = pollinatorsOf(s.id);

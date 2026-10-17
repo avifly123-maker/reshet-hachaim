@@ -1000,7 +1000,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
 
   // tutorial
   const COACH = [
-    { text: `ברוכים הבאים ל${biome.name}! ${biome.id === 'amazon' ? 'כאן כל צמח נאבק כדי להגיע אל האור.' : 'כאן העונות מחליטות מתי פורחים, מתי אוכלים ומתי חוסכים מים.'}`, target: null },
+    { text: `ברוכים הבאים ל${biome.name}! ${biome.id === 'amazon' ? 'כאן כל צמח נאבק כדי להגיע אל האור.' : biome.id === 'reef' ? 'כאן כמעט כולם חיים בשותפות: האלמוג והאצות שבתוכו, השושנון ושושנת הים.' : 'כאן העונות מחליטות מתי פורחים, מתי אוכלים ומתי חוסכים מים.'}`, target: null },
     { text: `גררו צמח מהמגש ${zoneWord('to')}. הטבעת הירוקה אומרת שאפשר לשתול, ואחוז האור מראה כמה שמש מגיעה לשם.`, target: 'tray' },
     { text: 'כל צמח ובעל חיים עולה נקודות חיים. הנקודות מצטברות לבד כשהיער חי ובריא, ועוד יותר כשמשלימים משימות ומגלים קשרים. לחיצה על המונה מסבירה הכול.', target: 'hud' },
     { text: 'כאן המשימות שלכם. כל משימה פותחת צמחים, בעלי חיים וכלים חדשים.', target: 'missions' },
@@ -1277,8 +1277,9 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   function seedStartingNature() {
     const sp = (id) => reg.byId.get(id);
     const put = (id, growth, n = 1) => { const s = sp(id); if (!s) return; for (let i = 0; i < n; i++) { const p = randomPlaceSpot(s); if (p) { const e = spawnPlant(s, p.x, p.z, { growth: Math.min(1, growth * (0.85 + Math.random() * 0.3)) }); if (e) { e.wild = true; e.pop = 1; } } } W.everPlaced.add(id); };
-    if (W.kids) { for (const s2 of biome.species) { if (s2.kind === 'tree' || s2.kind === 'palm') put(s2.id, 0.95, 3); else if (s2.kind === 'shrub') put(s2.id, 1, 3); } return; }
+    if (W.kids) { for (const s2 of biome.species) { if (s2.kind === 'tree' || s2.kind === 'palm') put(s2.id, 0.95, 3); else if (s2.kind === 'shrub' || s2.kind === 'coral') put(s2.id, 1, 3); } return; }
     if (biome.id === 'amazon') { put('kapok', 1, 1); put('fig', 1, 5); put('cecropia', 0.9, 2); put('acai', 0.9, 4); put('fern', 1, 8); }
+    else if (biome.id === 'reef') { put('branching', 1, 4); put('softcoral', 1, 3); put('sponge', 1, 3); put('seagrass', 1, 6); put('seaanemone', 1, 1); put('brain', 1, 2); }
     else { put('oak', 0.95, 4); put('carob', 1, 2); put('pine', 1, 1); put('mastic', 1, 5); put('sage', 1, 3); put('buckthorn', 1, 2); }
   }
 
@@ -1323,7 +1324,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     const summerDry = biome.id === 'grove' ? (W.season === 'summer' ? 0.45 + W.seasonFrac * 0.2 : W.season === 'autumn' ? 0.35 * (1 - W.seasonFrac) : 0) : 0;
     env.update(rdt, {
       t, dayFrac: W.dayFrac, season: W.season, seasonFrac: W.seasonFrac, rain: W.rain, wind: W.wind, nightGlow: night, camera,
-      vitality: W.vitality, drought: Math.max(W.drought, summerDry), fire: W.fires.filter(f => f.intensity > 0).map(f => ({ x: f.x, z: f.z, r: f.r, intensity: f.intensity })),
+      vitality: W.vitality, drought: Math.max(W.drought, summerDry), flood: W.flood || 0, heat: W.heat || 0, fire: W.fires.filter(f => f.intensity > 0).map(f => ({ x: f.x, z: f.z, r: f.r, intensity: f.intensity })),
       lightning: W._flash ? (W._flash = false, true) : false, shafts: W.experiment ? shafts : shafts,
     });
     // light (expensive) ~ every 0.6 s or when dirty
@@ -1403,6 +1404,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
       if (W.rainT <= 0 && W.droughtT <= 0) {
         let chance = 0;
         if (biome.id === 'amazon') chance = W.dayFrac > 0.5 && W.dayFrac < 0.72 ? 0.35 : 0.06;
+        else if (biome.id === 'reef') chance = 0.04;   // a passing shower only ruffles the surface
         else chance = W.season === 'winter' ? 0.35 : W.season === 'autumn' ? 0.12 : W.season === 'spring' ? 0.1 : 0;
         if (Math.random() < chance) { W.rainTarget = 0.6 + Math.random() * 0.35; W.rainT = 25 + Math.random() * 35; }
       }

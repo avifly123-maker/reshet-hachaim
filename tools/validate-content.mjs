@@ -2,6 +2,7 @@
 // Usage: node tools/validate-content.mjs   (exit code 1 on errors)
 import { BIOME as AMAZON } from '../src/data/amazon.js';
 import { BIOME as GROVE } from '../src/data/grove.js';
+import { BIOME as REEF } from '../src/data/reef.js';
 import * as COMMON from '../src/data/common.js';
 
 const SPECIES = {
@@ -15,17 +16,23 @@ const SPECIES = {
     'honeybee', 'butterfly', 'harvesterant', 'firefly', 'jay', 'blackbird', 'chameleon', 'agama', 'spinymouse', 'porcupine',
     'hedgehog', 'hyrax', 'gazelle', 'fox', 'owl', 'hoopoe', 'tortoise', 'chukar',
   ],
+  reef: [
+    'branching', 'brain', 'table', 'firecoral', 'softcoral', 'seafan', 'sponge', 'seaanemone', 'clam', 'seagrass', 'algae', 'plankton',
+    'clownfish', 'parrotfish', 'surgeonfish', 'cleaner', 'butterflyfish', 'lionfish', 'moray', 'grouper', 'goby', 'shrimp', 'turtle',
+    'octopus', 'urchin', 'starfish', 'stingray', 'hermit',
+  ],
 };
 const LAYER_IDS = {
   amazon: ['emergent', 'canopy', 'understory', 'floor', 'water'],
   grove: ['canopy', 'understory', 'floor'],
+  reef: ['shallow', 'slope', 'sand', 'open'],
 };
-const KINDS = ['tree', 'palm', 'shrub', 'herb', 'epiphyte', 'vine', 'fungus', 'water-plant', 'animal', 'colony', 'swarm'];
+const KINDS = ['tree', 'palm', 'shrub', 'herb', 'epiphyte', 'vine', 'fungus', 'water-plant', 'animal', 'colony', 'swarm', 'coral', 'sessile', 'seaplant'];
 const ANIMAL_KINDS = ['animal', 'colony', 'swarm'];
-const LOCOMOTION = ['ground', 'arboreal', 'flying', 'water'];
+const LOCOMOTION = ['ground', 'arboreal', 'flying', 'water', 'swim'];
 const ACTIVE = ['day', 'night', 'both'];
 const GROWTH = ['fast', 'medium', 'slow'];
-const PARTS = ['leaves', 'fruit', 'nectar', 'seeds', 'insects', 'animals', 'fungus', 'dead', 'roots'];
+const PARTS = ['leaves', 'fruit', 'nectar', 'seeds', 'insects', 'animals', 'fungus', 'dead', 'roots', 'algae', 'plankton', 'polyps'];
 const REL_TYPES = ['pollinates', 'disperses', 'home', 'shelter', 'decomposes', 'partner', 'climbs', 'eats'];
 const SEASONS = ['winter', 'spring', 'summer', 'autumn'];
 const GOALS = {
@@ -308,6 +315,7 @@ function validateBiome(B, id) {
 
 validateBiome(AMAZON, 'amazon');
 validateBiome(GROVE, 'grove');
+validateBiome(REEF, 'reef');
 
 // common.js
 for (const t of REL_TYPES) if (!COMMON.RELATION_TYPES?.[t]?.name) err('common', `RELATION_TYPES.${t} missing`);
