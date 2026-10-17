@@ -31,7 +31,8 @@ export function simulate(C, script = [], { until = 900, every = 30, quiet = true
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const C = CASES[0], only = process.argv[2];
+  // node tests/research/sim.mjs [case id] [scenario]
+  const C = CASES.find((c) => c.id === process.argv[2]) || CASES[0], only = CASES.some((c) => c.id === process.argv[2]) ? process.argv[3] : process.argv[2];
   const all = { nothing: [], ...C.tests.traps, ...C.tests.fixes };
   for (const [k, s] of Object.entries(all)) {
     if (only && k !== only) continue;

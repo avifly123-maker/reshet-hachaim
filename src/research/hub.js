@@ -8,7 +8,7 @@ import { RESEARCH_NAME } from './texts.js';
 
 // what comes next (design: the research centre plan, 2026-10-15): shown greyed, so the child sees the world is bigger
 const SOON = {
-  kids: [{ title: 'הַפְּרָחִים שֶׁלֹּא נוֹתְנִים זְרָעִים', zone: 'grove' }, { title: 'אֵיפֹה הַצְּפַרְדְּעִים?', zone: 'amazon' }],
+  kids: [{ title: 'אֵיפֹה הַצְּפַרְדְּעִים?', zone: 'amazon' }],
   middle: [{ title: 'המלכודת', zone: 'grove' }, { title: 'החורש שלא מתחדש', zone: 'grove' }, { title: 'הנמלים שאכלו את היער', zone: 'amazon' }],
   advanced: [{ title: 'היער שנשאר בלי טורפים', zone: 'amazon' }, { title: 'אש בקיץ', zone: 'grove' }, { title: 'הצבאים נעלמים', zone: 'grove' }],
 };

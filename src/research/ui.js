@@ -10,7 +10,7 @@ export const R_ICONS = {
   seed: svgURL('<g fill="#7a5530"><ellipse cx="24" cy="30" rx="5" ry="7" transform="rotate(-25 24 30)"/><ellipse cx="38" cy="26" rx="5" ry="7" transform="rotate(20 38 26)"/><ellipse cx="33" cy="41" rx="5" ry="7" transform="rotate(-5 33 41)"/></g><path d="M12 50h40" stroke="#a37a4c" stroke-width="3"/>', '#f1e5cf'),
   sprout: svgURL('<path d="M32 50V30" stroke="#3f8f2e" stroke-width="3.5"/><path d="M32 34c-2-8-9-11-16-10 0 7 7 11 16 10zM32 30c2-8 9-11 16-10 0 7-7 11-16 10z" fill="#6fbf4a"/><path d="M18 51h28" stroke="#8a5a32" stroke-width="3.5"/>', '#e6f2da'),
   rain: svgURL('<path d="M18 30a10 10 0 0 1 19-5 8 8 0 1 1 6 14H21a7 7 0 0 1-3-9z" fill="#b7c9d6"/><g stroke="#3a8fd0" stroke-width="3"><path d="M24 44l-3 7M33 44l-3 7M42 44l-3 7"/></g>', '#e6f1f8'),
-  nightcam: TOOL_ICONS.camera, camera: TOOL_ICONS.camera, drone: TOOL_ICONS.drone, nestbox: TOOL_ICONS.nestbox, seeddrone: TOOL_ICONS.seeddrone,
+  nightcam: TOOL_ICONS.camera, camera: TOOL_ICONS.camera, drone: TOOL_ICONS.drone, nestbox: TOOL_ICONS.nestbox, seeddrone: TOOL_ICONS.seeddrone, insecthotel: TOOL_ICONS.insecthotel,
 };
 const SERIES_COLORS = ['#c8473a', '#3a7fc8', '#4f9a3c', '#d99a2b', '#8a5ab8', '#2f9a95'];
 const LIGHT_ICONS = { life: 'paw', regen: 'sprout', env: 'drop' };

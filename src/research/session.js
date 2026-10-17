@@ -43,7 +43,7 @@ export function createResearchSession(ctx) {
   const zoneWord = T('zone_' + C.zone);
 
   // game.js and tools.js only ask whether a mystery is running, and call these two hooks
-  W.research = { case: C, onSurvey: () => reveal('drone'), onSeeds: () => { } };
+  W.research = { case: C, onSurvey: () => C.tools.filter((t) => (t.kind || t.id) === 'drone').forEach((t) => reveal(t.id)), onSeeds: () => { } };
   W.points = 1e9;   // the game's own life points are not used here; the mystery has its budget
   W.allToolsUnlocked = true;   // the game's devices (nest box, seed drone) are the research table's to use
   const offSpeed = ctx.bus ? ctx.bus.on('time:speed', ({ speed }) => { if (speed > 0) baseSpeed = speed; }) : null;   // the child's own choice wins after a fast run
@@ -125,9 +125,12 @@ export function createResearchSession(ctx) {
       let n = instant ? 99 : 2;
       // young ones that grew up become adults
       while (n > 0 && young.length > yT && adults.length < aT) { const p = young.shift(); p._adult = true; adults.push(p); n--; }
+      const epi = sp.kind === 'epiphyte';
+      const hosts = epi ? W.plants.filter((p) => alive(p) && p.isTree && p.growth > 0.5) : null;
       while (n > 0 && adults.length < aT) {
-        const anchor = adults[(Math.random() * adults.length) | 0];
-        const s = anchor && !instant ? findSpotNear(sp, anchor.x, anchor.z, 6) : randomPlaceSpot(sp);
+        const anchor = epi ? hosts[(Math.random() * hosts.length) | 0] : adults[(Math.random() * adults.length) | 0];
+        if (epi && !anchor) break;
+        const s = epi ? { x: anchor.x + 0.6, z: anchor.z } : anchor && !instant ? findSpotNear(sp, anchor.x, anchor.z, 6) : randomPlaceSpot(sp);
         if (!s) break;
         const p = spawnPlant(sp, s.x, s.z, { growth: instant ? 1 : 0.55 }); if (!p) break;
         p._adult = true; if (instant) p.pop = 1; adults.push(p); n--;
@@ -147,28 +150,40 @@ export function createResearchSession(ctx) {
   }
 
   // ─────────────────────────────────────── research tools
+  // a tool's kind says how it measures: 'nightcam' counts at night, 'daycam' (a field camera by a plant, `near`) counts
+  // right away by day, 'drone' flies over and counts, 'quadrat' counts what is on the ground. The kind defaults to the id.
+  const kindOf = (def) => def.kind || def.id;
   function useTool(id) {
     const def = C.tools.find((t) => t.id === id); if (!def) return;
     if (placedTools.has(id)) { R.note(def.tell, { icon: def.icon }); return; }
     placedTools.add(id);
     audio.play('place');
-    if (id === 'nightcam') {
+    const kind = kindOf(def);
+    if (kind === 'daycam') {
+      const host = W.plants.find((p) => alive(p) && p.sp.id === def.near && !p._decor) || W.plants.find((p) => alive(p) && p.sp.id === def.near) || W.plants.find(alive);
+      const s = host ? findSpotNear({ kind: 'herb', needs: {} }, host.x, host.z, 4) || { x: host.x + 2, z: host.z } : { x: 4, z: 4 };
+      const hit = { x: s.x, z: s.z, y: 0 };
+      const chk = tools.check('camera', hit); if (chk.ok) tools.use('camera', hit, chk);
+      rig.focusOn(_v.set(s.x, env.heightAt(s.x, s.z) + 1, s.z), 18);
+      measuring[id] = R.note(T('measuring'), { icon: def.icon });
+      later(() => reveal(id), 1800);
+    } else if (kind === 'nightcam') {
       const rock = env.rocks && env.rocks.length ? env.rocks[(env.rocks.length / 2) | 0] : { x: 6, z: 6, r: 2 };
       const hit = { x: rock.x + rock.r + 1.5, z: rock.z + 1, y: 0 };
       const chk = tools.check('camera', hit); if (chk.ok) tools.use('camera', hit, chk);
       rig.focusOn(_v.set(hit.x, env.heightAt(hit.x, hit.z) + 1, hit.z), 18);
-      if (W.nightGlow > 0.6) later(() => reveal('nightcam'), 1500);
-      else { pendingNight.push('nightcam'); measuring.nightcam = R.note(T('camWaits'), { icon: def.icon, action: { label: T('toNight'), id: 'tonight' } }); }
-    } else if (id === 'drone') {
+      if (W.nightGlow > 0.6) later(() => reveal(id), 1500);
+      else { pendingNight.push(id); measuring[id] = R.note(T('camWaits'), { icon: def.icon, action: { label: T('toNight'), id: 'tonight' } }); }
+    } else if (kind === 'drone') {
       const chk = tools.check('drone', { x: 0, z: 0, y: 0 }); if (chk.ok) tools.use('drone', { x: 0, z: 0, y: 0 }, chk);
-      measuring.drone = R.note(T('measuring'), { icon: def.icon });
-    } else if (id === 'quadrat') {
+      measuring[id] = R.note(T('measuring'), { icon: def.icon });
+    } else if (kind === 'quadrat') {
       const sage = W.plants.find((p) => alive(p) && p._adult) || W.plants.find(alive);
       const s = sage ? findSpotNear({ kind: 'herb', needs: {} }, sage.x, sage.z, 4) || { x: sage.x + 2, z: sage.z } : { x: 4, z: 4 };
       placeQuadrat(s.x, s.z);
       rig.focusOn(_v.set(s.x, env.heightAt(s.x, s.z) + 0.5, s.z), 12);
-      measuring.quadrat = R.note(T('measuring'), { icon: def.icon });
-      later(() => reveal('quadrat'), 1800);
+      measuring[id] = R.note(T('measuring'), { icon: def.icon });
+      later(() => reveal(id), 1800);
     }
     R.setTable(tableState());
   }
@@ -194,7 +209,8 @@ export function createResearchSession(ctx) {
     for (const b of rows) if (!known.has(b.id)) known.set(b.id, model.state.t);
     if (measuring[toolId]) { R.dropNote(measuring[toolId]); measuring[toolId] = null; }
     const def = C.tools.find((t) => t.id === toolId);
-    const head = toolId === 'nightcam' ? T('camCounted') : toolId === 'drone' ? T('droneCounted') : T('quadratCounted');
+    const kind = def ? kindOf(def) : toolId;
+    const head = kind === 'nightcam' ? T('camCounted') : kind === 'daycam' ? T('dayCamCounted') : kind === 'drone' ? T('droneCounted') : T('quadratCounted');
     R.note(head, { icon: def && def.icon, counts: rows.map((b) => ({ name: b.name, value: shown(b), thumb: b.species ? thumbs[b.species] : null, icon: b.icon })) });
     audio.play('discover');
     R.setBoard(boardState());
@@ -209,6 +225,8 @@ export function createResearchSession(ctx) {
     if (why) { if (why !== 'unknown') { R.note(T(why === 'budget' ? 'noBudget' : 'noRoom'), { kind: 'warn' }); audio.play('invalid'); } return; }
     // what it looks like on the island
     if (id === 'nestbox' && !hangNestBox()) { R.note(T('noRoom'), { kind: 'warn' }); audio.play('invalid'); return; }
+    const want = runner.ideaOf(id);
+    if (want && want.place && want.place !== 'nestbox' && !placeDevice(want.place)) { R.note(T('noRoom'), { kind: 'warn' }); audio.play('invalid'); return; }
     if (id === 'seed-drone') { const a = W.plants.find((p) => alive(p) && p._adult); const hit = a ? { x: a.x, z: a.z, y: 0 } : { x: 0, z: 0, y: 0 }; const chk = tools.check('seeddrone', hit); if (chk.ok) tools.use('seeddrone', hit, chk); }
     runner.apply(id, n);
     const idea = runner.ideaOf(id);
@@ -232,6 +250,20 @@ export function createResearchSession(ctx) {
     return true;
   }
 
+  // a device the game already knows (an insect hotel), set down near the case's plants
+  function placeDevice(devId) {
+    const plantSp = (C.visual || []).find((v) => v.plant === 'adult');
+    const near = plantSp ? W.plants.filter((p) => alive(p) && p.sp.id === plantSp.species) : [];
+    const anchor = near.length ? near[(Math.random() * near.length) | 0] : null;
+    const s = anchor ? findSpotNear({ kind: 'herb', needs: {} }, anchor.x, anchor.z, 4) : randomPlaceSpot({ kind: 'herb', needs: {} });
+    if (!s) return false;
+    const hit = { x: s.x, z: s.z, y: 0 };
+    const chk = tools.check(devId, hit); if (!chk.ok) return false;
+    tools.use(devId, hit, chk);
+    rig.focusOn(_v.set(s.x, env.heightAt(s.x, s.z) + 1, s.z), 16);
+    return true;
+  }
+
   // ─────────────────────────────────────── "see what happens": a fast run after an experiment
   function startFF() {
     if (ff) return;
@@ -246,7 +278,8 @@ export function createResearchSession(ctx) {
     R.setFF({ on: false });
     const a = f.act; if (!a) return;
     let line = C.after && C.after[a.id];
-    if (line && typeof line === 'object') line = model.get('nests') < 0.5 ? line.noNest : line.ok;
+    // a line that depends on the numbers: { test, below, no, ok } (or the first case's { noNest, ok })
+    if (line && typeof line === 'object') line = line.test ? (model.get(line.test) < (line.below ?? 0.5) ? line.no : line.ok) : (model.get('nests') < 0.5 ? line.noNest : line.ok);
     if (line) R.note(line, { action: { label: T('lab'), id: 'lab' } });
     lastAct = null;
   }

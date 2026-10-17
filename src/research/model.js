@@ -4,8 +4,10 @@
 // so a child can bring 20 owls without the computer slowing down.
 //
 // A case describes its model as data: variables and flows. The flows are the verbs of the web:
-//   produce   adults make something every second (shrubs → seeds)
-//   consume   an animal eats from a stock (mice ← seeds), with a saturating appetite
+//   produce   adults make something every second (shrubs → seeds); with `help: { id, half }` only as much as a
+//             helper allows (flowers give seeds only when pollinators visit: H / (H + half))
+//   consume   an animal eats from a stock (mice ← seeds), with a saturating appetite; with `cache: { to, share }`
+//             part of what it takes is hidden and forgotten (an agouti buries nuts → seeds in the ground)
 //   prey      a hunter eats another animal (owls ← mice), Holling type II (a hunter cannot eat without end)
 //   germinate seeds become seedlings (more in rainy seasons)
 //   mature    seedlings become adults, while there is room
@@ -40,11 +42,16 @@ export function createModel(def) {
     const eaten = {}; for (const id in s.v) eaten[id] = 0;
     for (const f of def.flows) {
       switch (f.type) {
-        case 'produce': { d[f.to] += f.rate * s.v[f.from] * sf(f.season) * (f.byCap ? clamp(1 - s.v[f.to] / f.byCap, 0, 1) : 1); break; }
+        case 'produce': {
+          const H = f.help ? Math.max(0, s.v[f.help.id]) : 0;
+          const help = f.help ? H / (H + f.help.half) : 1;
+          d[f.to] += f.rate * s.v[f.from] * sf(f.season) * help * (f.byCap ? clamp(1 - s.v[f.to] / f.byCap, 0, 1) : 1); break;
+        }
         case 'consume': {
           const N = s.v[f.eater], F = Math.max(0, s.v[f.food]);
           const got = f.need * N * F / (F + f.half);           // what the eaters get per second
           d[f.food] -= got * (f.cost ?? 1);
+          if (f.cache) d[f.cache.to] += got * f.cache.share;
           eaten[f.eater] += got; break;
         }
         case 'prey': {

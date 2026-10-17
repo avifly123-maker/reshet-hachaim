@@ -38,6 +38,8 @@ for (const C of CASES) {
   for (const f of C.model.flows) for (const k of ['from', 'to', 'eater', 'food', 'pred', 'prey', 'of']) if (f[k] && !vars.has(f[k])) err(C.id, `flow ${f.type}.${k} → unknown var ${f[k]}`);
   for (const f of C.model.flows) for (const k of ['half', 'need', 'rate', 'attack', 'handling']) if (k in f && !(f[k] > 0)) err(C.id, `flow ${f.type}: ${k} must be a positive number`);
   for (const f of C.model.flows) if ('byCap' in f && !(f.byCap > 0)) err(C.id, `flow ${f.type}: byCap must be positive`);
+  for (const f of C.model.flows) { if (f.help && (!vars.has(f.help.id) || !(f.help.half > 0))) err(C.id, `flow ${f.type}: help needs a var and a positive half`); if (f.cache && (!vars.has(f.cache.to) || !(f.cache.share > 0))) err(C.id, `flow ${f.type}: cache needs a var and a positive share`); }
+  for (const t of C.tools) if (t.near && !sp.has(t.near)) err(C.id, `tool ${t.id}: near species ${t.near} not in ${C.zone}`);
   for (const v of C.model.vars) if (v.kind === 'animal' && !(v.need > 0)) err(C.id, `animal ${v.id}: need must be positive`);
   for (const l of C.lights) if (!vars.has(l.id)) err(C.id, `light on unknown var ${l.id}`);
   for (const b of C.board) { if (!vars.has(b.id)) err(C.id, `board row ${b.id} is not a model var`); if (b.species && !sp.has(b.species)) err(C.id, `board species ${b.species} not in ${C.zone}`); if (!C.tools.some((t) => t.id === b.tool)) err(C.id, `board ${b.id}: tool ${b.tool} missing`); }
