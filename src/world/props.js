@@ -51,6 +51,41 @@ export function propGeometry(name) {
   return build(decode('g:' + name, d)).g;
 }
 
+// a red "!" (a rounded bar and a dot) on each plate where the model had a first-aid cross
+function bangMark(r) {
+  // the part may hold several crosses (one per side): split it into connected pieces
+  const n = r.pos.length / 3, par = new Int32Array(n).map((_, i) => i);
+  const find = (a) => { while (par[a] !== a) a = par[a] = par[par[a]]; return a; };
+  for (let k = 0; k < r.idx.length; k += 3) { const a = find(r.idx[k]); par[find(r.idx[k + 1])] = a; par[find(r.idx[k + 2])] = a; }
+  // vertices at the same spot (split normals) belong together as well
+  const key = new Map();
+  for (let v = 0; v < n; v++) { const q = `${Math.round(r.pos[v * 3] * 500)},${Math.round(r.pos[v * 3 + 1] * 500)},${Math.round(r.pos[v * 3 + 2] * 500)}`; if (key.has(q)) par[find(v)] = find(key.get(q)); else key.set(q, v); }
+  const boxes = new Map();
+  for (let v = 0; v < n; v++) { const root = find(v); if (!boxes.has(root)) boxes.set(root, new THREE.Box3()); boxes.get(root).expandByPoint(new THREE.Vector3(r.pos[v * 3], r.pos[v * 3 + 1], r.pos[v * 3 + 2])); }
+  const all = new THREE.Group(); all.name = 'bang';
+  const mat = new THREE.MeshStandardMaterial({ color: '#e5483b', roughness: 0.4, emissive: '#a01a10', emissiveIntensity: 0.35 });
+  // the two bars of one cross share a centre: one mark each
+  const merged = [];
+  for (const bx of boxes.values()) { const cc = bx.getCenter(new THREE.Vector3()); const m = merged.find((o) => o.getCenter(new THREE.Vector3()).distanceTo(cc) < 0.05); if (m) m.union(bx); else merged.push(bx.clone()); }
+  for (const box of merged) {
+    const c = box.getCenter(new THREE.Vector3()), s = box.getSize(new THREE.Vector3());
+    const ax = s.x <= s.y && s.x <= s.z ? 'x' : s.y <= s.z ? 'y' : 'z';   // the thin axis is the plate's normal
+    const h = Math.max(...['x', 'y', 'z'].filter((k) => k !== ax).map((k) => s[k]));
+    if (h < 0.02) continue;
+    const t = Math.max(s[ax], h * 0.08);
+    const grp = new THREE.Group();
+    const bar = new THREE.Mesh(new THREE.CapsuleGeometry(h * 0.1, h * 0.46, 4, 10), mat); bar.position.y = h * 0.14; bar.scale.z = t / (h * 0.2);
+    const dot = new THREE.Mesh(new THREE.SphereGeometry(h * 0.11, 12, 8), mat); dot.position.y = -h * 0.36; dot.scale.z = t / (h * 0.22);
+    grp.add(bar, dot);
+    if (ax === 'y') grp.rotation.x = -Math.PI / 2;   // lying on top: the dot toward the front
+    else if (ax === 'x') grp.rotation.y = Math.PI / 2;
+    grp.position.copy(c);
+    grp.traverse((o) => { if (o.isMesh) o.castShadow = true; });
+    all.add(grp);
+  }
+  return all;
+}
+
 // glowing parts keep their colour at night (emissive), the rest is lit normally
 const GLOW = { eye: '#2a8fd0', led: '#3fbf27', beacon: '#ff2010' };
 // tool model as a Group of parts; userData: rotors[], eye, led, beacon (whatever the model has)
@@ -60,7 +95,7 @@ export function toolProp(id, { tint = null } = {}) {
   const g = new THREE.Group();
   g.userData.rotors = [];
   for (const [name, d] of Object.entries(parts)) {
-    if (name === 'cross') continue;   // no cross shapes in the game (Avi's rule): the rescue robot shows a red light instead
+    if (name === 'cross') { g.add(bangMark(decode('t:' + id + ':' + name, d))); continue; }   // no cross shapes in the game (Avi's rule): a red "!" takes its place
     const isRotor = name.startsWith('rotor');
     const { g: geo, c } = build(decode('t:' + id + ':' + name, d), isRotor);
     const glow = GLOW[name];
