@@ -156,7 +156,7 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit }) {
   const fallback = (() => { const cv = document.createElement('canvas'); cv.width = 16; cv.height = 9; const c = cv.getContext('2d'); const g = c.createLinearGradient(0, 0, 0, 9); g.addColorStop(0, '#3a5a4a'); g.addColorStop(1, '#1a2a20'); c.fillStyle = g; c.fillRect(0, 0, 16, 9); const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; return t; })();
   function texOf(id) {
     if (tex[id]) return tex[id];
-    if (!art[id]) return fallback;
+    if (!art[id]) return id !== 'home' && art.home ? texOf('home') : fallback;
     const t = loader.load(art[id]); t.colorSpace = THREE.SRGBColorSpace; t.generateMipmaps = false; t.minFilter = THREE.LinearFilter; t.magFilter = THREE.LinearFilter;
     return (tex[id] = t);
   }
@@ -258,15 +258,18 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit }) {
   const _fromP = new THREE.Vector3(), _toP = new THREE.Vector3();
   let robotMove = 0;
   // where the robot hovers: by his charging pad in the room view; at a station, in the near corner of the picture
-  const SIDE = { scope: -1, aquarium: 1, greenhouse: -1, cabinet: 1, atlas: 1 };   // table: behind the table (cams 'robot')
+  const SIDE = { aquarium: 1 };   // table: behind the table (ROBOT_SPOT); the close views (microscope, cabinet, greenhouse, atlas) leave him out: his words sit in the corner with his face
+  const robotShown = () => viewOf(station) === 'home' || station === 'table' || !!SIDE[station];
   function placeRobot(fly) {
-    const c = cams[station]; if (!c) return;
+    robot.root.visible = robotShown();
+    const c = cams[viewOf(station)]; if (!c) return;
     const cp = new THREE.Vector3().fromArray(c.pos);
-    if (!SIDE[station]) { _toP.fromArray(ROBOT_SPOT[station] || c.robot); _toP.y = 0; }
+    if (!SIDE[station] || viewOf(station) !== station) { _toP.fromArray(viewOf(station) === station ? (ROBOT_SPOT[station] || c.robot) : c.robot); _toP.y = 0; }
     else {
-      const fwd = new THREE.Vector3().fromArray(c.at).sub(cp); fwd.y = 0; fwd.normalize();
+      const fwd = new THREE.Vector3().fromArray(c.at).sub(cp); fwd.y = 0; const d = fwd.length(); fwd.normalize();
       const right = new THREE.Vector3().crossVectors(fwd, new THREE.Vector3(0, 1, 0));
-      _toP.copy(cp).addScaledVector(fwd, 2.3).addScaledVector(right, SIDE[station] * 1.0); _toP.y = 0;
+      // well in front of the station's furniture, in the near corner of the picture
+      _toP.copy(cp).addScaledVector(fwd, Math.min(2.3, d * 0.62)).addScaledVector(right, SIDE[station] * Math.min(1.0, d * 0.4)); _toP.y = 0;
     }
     if (fly) { _fromP.copy(_toP).add(new THREE.Vector3(cp.x - _toP.x, 0, cp.z - _toP.z).normalize().cross(new THREE.Vector3(0, 1, 0)).multiplyScalar(1.6)); robotMove = 1; }
     else { _fromP.copy(_toP); robotMove = 0; robot.root.position.copy(_toP); }
@@ -274,8 +277,10 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit }) {
   }
   // camera = the Blender camera of the station; the picture is cropped to fill the screen (cover), the camera with it
   const crop = { x: 0, y: 0, w: 1, h: 1 }; const _at = new THREE.Vector3();
+  // a station whose picture is not rendered yet shows the room (its picture and its camera)
+  const viewOf = (id) => (art[id] && cams[id] ? id : 'home');
   function setCamera(id) {
-    const c = cams[id]; if (!c) return;
+    const c = cams[viewOf(id)]; if (!c) return;
     camera.position.fromArray(c.pos); camera.up.set(0, 1, 0); camera.lookAt(_at.fromArray(c.at));   // Blender aims its cameras with no roll, like lookAt
     const W = renderer.domElement.clientWidth || innerWidth, H = renderer.domElement.clientHeight || innerHeight; const A = W / H;
     const FW = 1600, FH = FW / IMG_ASPECT;
@@ -294,7 +299,7 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit }) {
     if (move > 0) {
       move = Math.max(0, move - dt / 0.75); const k = 1 - move; const e = k * k * (3 - 2 * k);
       bgU.uMix.value = e; bgU.uZoomA.value = 1 + e * 0.12; bgU.uZoomB.value = 1.08 - e * 0.08;
-      robot.root.visible = e > 0.6;
+      robot.root.visible = e > 0.6 && robotShown();
       if (move === 0) { bgU.tA.value = bgU.tB.value; bgU.uMix.value = 0; bgU.uZoomA.value = 1; arrive(); }
     }
     if (robotMove > 0) { robotMove = Math.max(0, robotMove - dt / 1.1); const k = 1 - robotMove; const e = 1 - (1 - k) * (1 - k); robot.root.position.lerpVectors(_fromP, _toP, e); }

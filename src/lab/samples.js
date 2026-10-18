@@ -70,16 +70,18 @@ const OWL = {
       let b = ''; for (let k = 0; k < 60; k++) { const y = -40 + k * 8; b += `<path d="M120 ${y} Q250 ${y + 40} 420 ${y + 30 + r() * 10}" stroke="${r() < 0.5 ? '#c99a5a' : '#e2c08a'}" stroke-width="2.2" fill="none"/>`; }
       return `<rect width="400" height="400" fill="#3a2a1a"/><rect x="100" y="0" width="22" height="400" fill="#8a6a42"/>${b}`;
     }
-    // the leading edge: barbs end in free, curved tips (the "comb")
+    // the leading edge: each barb ends in a free, hooked tip; side by side they make a soft comb
     let b = '', tips = [];
-    for (let k = 0; k < 30; k++) {
-      const y = -10 + k * 14;
-      b += `<path d="M0 ${y + 40} Q180 ${y + 18} 300 ${y}" stroke="#d8b680" stroke-width="5" fill="none"/>`;
-      b += `<path d="M300 ${y} Q338 ${y - 6} 352 ${y - 26}" stroke="#ecd3a2" stroke-width="3.2" stroke-linecap="round" fill="none"/>`;
-      if (k % 6 === 3) tips.push({ x: 336, y: y - 14, r: 34 });
+    for (let k = 0; k < 24; k++) {
+      const y = -6 + k * 18;
+      b += `<path d="M-10 ${y + 46} Q170 ${y + 24} 286 ${y + 2}" stroke="url(#bb)" stroke-width="9" stroke-linecap="round" fill="none"/>`;
+      for (let j = 0; j < 9; j++) { const x = 20 + j * 30, yy = y + 42 - j * 4.6; b += `<path d="M${x} ${yy} q8 6 16 4" stroke="#b88a52" stroke-width="1.6" fill="none" opacity=".7"/>`; }
+      b += `<path d="M284 ${y + 2} C312 ${y - 4} 334 ${y - 14} 346 ${y - 34} q4 -8 -2 -10" stroke="#f3dcaa" stroke-width="5" stroke-linecap="round" fill="none"/>`;
+      if (k % 5 === 2) tips.push({ x: 334, y: y - 18, r: 36 });
     }
     OWL.targets = tips;
-    return `<defs>${grain('g2', 0.06, 0.18)}</defs><rect width="400" height="400" fill="#2e2216"/>${b}<rect width="400" height="400" fill="#000" filter="url(#g2)"/>`;
+    return `<defs><linearGradient id="bb" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8a6438"/><stop offset=".7" stop-color="#d9b47c"/><stop offset="1" stop-color="#f0d8a8"/></linearGradient>${grain('g2', 0.06, 0.16)}</defs>
+      <rect width="400" height="400" fill="#241a10"/><rect x="330" width="70" height="400" fill="#3a3024" opacity=".5"/>${b}<rect width="400" height="400" fill="#000" filter="url(#g2)"/>`;
   },
 };
 

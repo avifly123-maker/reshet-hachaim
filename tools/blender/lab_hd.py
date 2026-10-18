@@ -358,7 +358,9 @@ def aquarium():
     for z, hh in ((base + 0.03, 0.06), (zt - 0.03, 0.06)):
         for s in (-1, 1):
             trim.box((W_ + 0.02, 0.03, hh), M0 @ T(0, s * Dp / 2, z)); trim.box((0.03, Dp + 0.02, hh), M0 @ T(s * W_ / 2, 0, z))
-    O('aqglass', 'glass_pane', smooth=False).box((W_, Dp, Ht - 0.02), M0 @ T(0, 0, base + Ht / 2))
+    ag = O('aqglass', 'glass_pane', smooth=False)   # front and both ends: a back pane would mirror the room inside the water
+    ag.plane(W_, Ht - 0.02, M0 @ T(0, -Dp / 2, base + Ht / 2) @ RX(90), uv=False)
+    for sx in (-1, 1): ag.plane(Dp, Ht - 0.02, M0 @ T(sx * W_ / 2, 0, base + Ht / 2) @ RZ(90) @ RX(90), uv=False)
     O('aqwater', 'water_aq', smooth=False).box((W_ - 0.02, Dp - 0.02, Ht - 0.2), M0 @ T(0, 0, base + 0.01 + (Ht - 0.2) / 2))
     O('aqback', 'aq_back', smooth=False).plane(W_ - 0.04, Ht - 0.1, M0 @ T(0, Dp / 2 - 0.015, base + Ht / 2) @ RX(90), uv=True)
     O('aqlid', 'black', bevel=0.006).box((W_ + 0.08, Dp + 0.08, 0.07), M0 @ T(0, 0, zt + 0.035))
@@ -538,15 +540,11 @@ def greenhouse():
     for s in (-1, 1):
         fr.box((Wg + 0.03, 0.03, 0.03), M0 @ T(0, s * Dg / 2, z1)); fr.box((0.03, Dg, 0.03), M0 @ T(s * Wg / 2, 0, z1))
         fr.box((Wg + 0.03, 0.03, 0.03), M0 @ T(0, s * Dg / 2, z0 + 0.015))
-        Lr = math.hypot(Dg / 2, zr - z1); ang = math.degrees(math.atan2(zr - z1, Dg / 2))
-        for sx in (-1, 1): fr.box((0.03, Lr, 0.03), M0 @ T(sx * Wg / 2, s * Dg / 4, (z1 + zr) / 2) @ RX(s * ang))
-    fr.box((Wg + 0.03, 0.035, 0.035), M0 @ T(0, 0, zr))
+    # a flat glass lid (a gable roof's rafters would cross each other in the picture)
     g = O('ghglass', 'glass_pane', smooth=False)
     g.plane(Wg, z1 - z0, M0 @ T(0, -Dg / 2, (z0 + z1) / 2) @ RX(90), uv=False); g.plane(Wg, z1 - z0, M0 @ T(0, Dg / 2, (z0 + z1) / 2) @ RX(90), uv=False)
     for sx in (-1, 1): g.plane(Dg, z1 - z0, M0 @ T(sx * Wg / 2, 0, (z0 + z1) / 2) @ RZ(90) @ RX(90), uv=False)
-    Lr = math.hypot(Dg / 2, zr - z1); ang = math.degrees(math.atan2(zr - z1, Dg / 2))
-    for s in (-1, 1): g.plane(Wg, Lr, M0 @ T(0, s * Dg / 4, (z1 + zr) / 2) @ RX(s * -ang if s > 0 else -ang * s), uv=False)
-    for sx in (-1, 1): g.grid(lambda u, v, sx=sx: (sx * Wg / 2, -Dg / 2 + Dg * u, z1 + (zr - z1) * (1 - abs(2 * u - 1)) * v), 2, 1, M0)
+    g.plane(Wg, Dg, M0 @ T(0, 0, z1), uv=False)
     # pots with seedlings of every age (seeds that grow in fast time)
     rng = random.Random(21)
     sd = O('ghseedlings', 'leaf_light', smooth=True); stm = O('ghstems', 'stem_light', smooth=True)
@@ -718,8 +716,11 @@ def glass(name, tint='#ffffff', rough=0.0, ior=1.45, window=False):
     L.new(mx.outputs[0], out.inputs['Surface'])
     return m
 
-def water(name, absorb='#5ec2c8', density=0.9, scatter=0.04):
+def water(name, absorb='#5ec2c8', density=0.9, scatter=0.04, clear=False):
     m = glass(name, '#ffffff', 0.0, 1.33); nt = m.node_tree; N, L = nt.nodes, nt.links
+    if clear:   # only the water's colour, no surface of its own (the tank's glass is the surface)
+        out0 = next(n for n in N if n.bl_idname == 'ShaderNodeOutputMaterial'); tr = N.new('ShaderNodeBsdfTransparent')
+        L.new(tr.outputs[0], out0.inputs['Surface'])
     out = next(n for n in N if n.bl_idname == 'ShaderNodeOutputMaterial')
     ab = N.new('ShaderNodeVolumeAbsorption'); ab.inputs['Color'].default_value = (*lin(absorb), 1); ab.inputs['Density'].default_value = density
     sc = N.new('ShaderNodeVolumeScatter'); sc.inputs['Color'].default_value = (*lin('#bfe8ee'), 1); sc.inputs['Density'].default_value = scatter
@@ -877,7 +878,7 @@ def make_materials():
     Mt['glass_clear'] = glass('glass_clear', '#f4fbfa', 0.0)
     Mt['glass_pane'] = glass_soft('glass_pane', 0.3)
     Mt['water_tank'] = water('water_tank', '#7ccad8', 1.2, 0.02)
-    Mt['water_aq'] = water('water_aq', '#5ab8c8', 0.55, 0.035)
+    Mt['water_aq'] = water('water_aq', '#5ab8c8', 0.55, 0.035, clear=True)
     Mt['brass'] = plain('brass', '#d0a24a', 0.25, metal=1.0)
     Mt['chrome'] = plain('chrome', '#dfe3e8', 0.12, metal=1.0)
     Mt['metal'] = plain('metal', '#b8bec6', 0.3, metal=1.0)
