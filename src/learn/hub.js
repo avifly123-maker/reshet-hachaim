@@ -884,6 +884,9 @@ const CSS = `
 .wol-learn .wl-scard.art{justify-content:flex-start;padding:.55em .55em .9em;gap:.25em}
 .wol-learn .wl-sart{position:relative;display:block;width:100%;aspect-ratio:1.45;border-radius:.65em;overflow:hidden;flex:none;box-shadow:inset 0 0 0 .12em rgba(80,50,10,.35)}
 .wol-learn .wl-sart img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.wol-learn .wl-sart.none{display:grid;place-items:center;background:radial-gradient(circle at 28% 22%,rgba(255,248,230,.5),rgba(255,248,230,0) 58%),radial-gradient(circle at 80% 90%,rgba(40,25,5,.25),rgba(40,25,5,0) 55%),var(--sc)}
+.wol-learn .wl-sart.none i{display:grid;place-items:center;width:42%;aspect-ratio:1;border-radius:50%;background:rgba(255,248,230,.16);box-shadow:0 0 0 .35em rgba(255,248,230,.1)}
+.wol-learn .wl-sart.none .wl-ic{width:62%;height:62%;color:rgba(255,248,230,.85)}
 .wol-learn .wl-scard.art .wl-sci{width:2.8em;height:2.8em;margin-top:-1.6em;position:relative;box-shadow:inset 0 0 0 .2em rgba(255,255,255,.35),0 0 0 .2em #fbf3dc}
 .wol-learn .wl-scard.art .wl-sci .wl-ic{width:1.5em;height:1.5em}
 .wol-learn .wl-scard.art b{font-size:1.15em;line-height:1.35}
@@ -1578,10 +1581,12 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   // torah edition: the album page of source cards ("מן המקורות")
   // where the subject of each painting sits (0 = top, 1 = bottom): the album card shows a wide strip of it
   const SRC_FOCUS = { lion: 0.42, tzvi: 0.42, small4: 0.55, ant: 0.6, rashbi: 0.45, choni: 0.42, spider: 0.5 };
+  // a card that has no painting yet: a strip in the card's colour with its sign, so it sits well among the painted ones
+  const srcNoArt = (c, own) => `<span class="wl-sart none"><i>${own ? (IC[c.icon] || IC_SCROLL) : IC_SCROLL}</i></span>`;
   function sourceCardHTML(c, own, i) {
     const art = TORAH ? SOURCE_ART[c.id] : '';
-    return `<button class="wl-scard${own ? '' : ' locked'}${art ? ' art' : ''}" data-wl="szoom" data-s="${c.id}" style="--sc:${c.col};--d:${i}">
-      ${art ? `<span class="wl-sart"><img src="${art}" alt="" draggable="false" style="object-position:50% ${((SRC_FOCUS[c.id] ?? 0.5) * 100).toFixed(0)}%"></span>` : ''}
+    return `<button class="wl-scard${own ? '' : ' locked'}${art || TORAH ? ' art' : ''}" data-wl="szoom" data-s="${c.id}" style="--sc:${c.col};--d:${i}">
+      ${art ? `<span class="wl-sart"><img src="${art}" alt="" draggable="false" style="object-position:50% ${((SRC_FOCUS[c.id] ?? 0.5) * 100).toFixed(0)}%"></span>` : TORAH ? srcNoArt(c, own) : ''}
       <span class="wl-sci">${own ? (IC[c.icon] || IC_SCROLL) : IC_SCROLL}</span>
       <b>${own ? esc(c.title) : 'קלף מקור'}</b><small>${own ? esc(c.ref) : esc(EARN_TEXT[c.earn] || '')}</small></button>`;
   }
@@ -1596,7 +1601,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     sfx('select');
     const paras = (t) => String(t || '').split('\n').map((x) => `<p>${esc(x)}</p>`).join('');
     const art = TORAH ? SOURCE_ART[c.id] : '';
-    modal.innerHTML = `<div class="wl-scard big${art ? ' art' : ''}" style="--sc:${c.col}">${art ? `<span class="wl-sart"><img src="${art}" alt="" draggable="false"></span>` : ''}<span class="wl-sci">${IC[c.icon] || IC_SCROLL}</span><b>${esc(c.title)}</b><small>${esc(c.ref)}</small></div>
+    modal.innerHTML = `<div class="wl-scard big${art || TORAH ? ' art' : ''}" style="--sc:${c.col}">${art ? `<span class="wl-sart"><img src="${art}" alt="" draggable="false"></span>` : TORAH ? srcNoArt(c, true) : ''}<span class="wl-sci">${IC[c.icon] || IC_SCROLL}</span><b>${esc(c.title)}</b><small>${esc(c.ref)}</small></div>
       <div class="wl-mtext paper wl-smtext"><h3>${esc(c.title)}</h3>
         ${c.story ? `<div class="wl-sstory">${paras(c.story)}</div>` : ''}
         ${c.quote ? `<div class="wl-src"><p class="t">${esc(c.quote)}</p><small>${esc(c.ref)}</small></div>` : `<div class="wl-src"><small>${esc(c.ref)}</small></div>`}

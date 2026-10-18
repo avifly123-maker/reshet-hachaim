@@ -3,6 +3,7 @@
 // Plain DOM inside #ui, styled by src/research/research.css (same field-kit look as the rest of the game).
 import { icon, esc } from '../ui/ui.js';
 import { TOOL_ICONS } from '../game/tools.js';
+import { CASE_ICONS } from './case-icons.js';
 
 const svgURL = (body, bg) => 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="${bg}"/>${body}</svg>`);
 export const R_ICONS = {
@@ -44,6 +45,7 @@ export const R_ICONS = {
   piles: svgURL('<g fill="#8a6038" stroke="#5a3a1a" stroke-width="1.5"><rect x="12" y="40" width="40" height="7" rx="3.5"/><rect x="16" y="33" width="32" height="7" rx="3.5"/><rect x="22" y="26" width="20" height="7" rx="3.5"/></g><g fill="#6f9a4a"><circle cx="50" cy="31" r="3.5"/><circle cx="14" cy="35" r="3"/></g><path d="M8 50h48" stroke="#8a5a32" stroke-width="3"/>', '#f1e9d6'),
   parasites: svgURL('<ellipse cx="30" cy="32" rx="18" ry="11" fill="#e8a03a"/><path d="M46 32l10-7v14z" fill="#e8a03a"/><circle cx="20" cy="29" r="2.4" fill="#2a2420"/><g fill="#7a3a5a"><circle cx="30" cy="30" r="2.2"/><circle cx="36" cy="36" r="2"/><circle cx="27" cy="38" r="1.8"/><circle cx="40" cy="28" r="1.6"/></g>', '#f6e6d0'),
 };
+for (const k in CASE_ICONS) if (!R_ICONS[k]) R_ICONS[k] = CASE_ICONS[k];   // pictures of the frogs, young oaks and leaf-cutters mysteries
 const SERIES_COLORS = ['#c8473a', '#3a7fc8', '#4f9a3c', '#d99a2b', '#8a5ab8', '#2f9a95'];
 const LIGHT_ICONS = { life: 'paw', regen: 'sprout', env: 'drop' };
 
