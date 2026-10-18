@@ -445,7 +445,7 @@ export function createTools(ctx) {
     let cause;
     const g = (m, f, mp, fp) => gw(a.sp.id, m, f, mp, fp);
     if (W.road && !W.road.bridge && a.loco === 'ground') cause = g('נפגע כשניסה', 'נפגעה כשניסתה', 'נפגעו כשניסו', 'נפגעו כשניסו') + ' לחצות את הכביש';
-    else if (a.loco === 'flying') cause = g('נתקע', 'נתקעה', 'נתקעו', 'נתקעו') + ' ברשת ישנה שמישהו השאיר ביער';
+    else if (a.loco === 'flying') cause = g('נתקע', 'נתקעה', 'נתקעו', 'נתקעו') + ` ברשת ישנה שמישהו השאיר ${zoneWord('in')}`;
     else cause = [g('נפצע', 'נפצעה', 'נפצעו', 'נפצעו') + ' ברגל מחתיכת זכוכית שנזרקה', g('נתקע', 'נתקעה', 'נתקעו', 'נתקעו') + ' בשקית ניילון'][(Math.random() * 2) | 0];
     if (a.loco === 'flying') { a.path = null; a.perch = null; a.pos.y = env.heightAt(a.pos.x, a.pos.z) + 0.3; }
     a.injured = { t: 0, max: 80, cause };
@@ -595,7 +595,7 @@ export function createTools(ctx) {
         if (r.t > 3) {
           a.injured = null; removeBadge(a); a.energy = 1; a.state = 'idle'; a.timer = 0.5;
           W.points += 8; W.stats.rescues = (W.stats.rescues || 0) + 1;
-          ui.toast(`ה${a.sp.name} ${gw(a.sp.id,'טופל וחזר','טופלה וחזרה','טופלו וחזרו','טופלו וחזרו')} לחיות ביער! (+8)`, 'good'); audio.play('mission');
+          ui.toast(`ה${a.sp.name} ${gw(a.sp.id,'טופל וחזר','טופלה וחזרה','טופלו וחזרו','טופלו וחזרו')} לחיות ${zoneWord('in')}! (+8)`, 'good'); audio.play('mission');
           r.phase = 'leave'; r.t = 0;
         }
       } else {

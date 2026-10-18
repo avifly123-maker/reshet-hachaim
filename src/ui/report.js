@@ -3,6 +3,7 @@
 // createReportUI(root, { describe(day) → model, onNote(day, text), onClose(), onExport(model) }) →
 //   { open(day), close(), isOpen(), prompt(text, onOpen), dispose() }
 // The model comes from src/game/report.js (describe). This module owns its own CSS (injected once).
+import { zoneWord } from '../core/place.js';
 
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pct = (v) => Math.round((+v || 0) * 100);
@@ -266,7 +267,7 @@ export function createReportUI(root, { describe, onNote, onClose, onExport }) {
     const P = (n) => `<bdi dir="ltr">${n}%</bdi>`;
     const vitWords = v1 > v0 + 2 ? `עלתה מ־${P(v0)} ל־<b>${P(v1)}</b>` : v1 < v0 - 2 ? `ירדה מ־${P(v0)} ל־<b>${P(v1)}</b>` : `נשארה בערך <b>${P(v1)}</b>`;
     const sections = [];
-    sections.push(`<section class="rep-sec rep-who"><h3>${icon('who')}מי גר ביער</h3>
+    sections.push(`<section class="rep-sec rep-who"><h3>${icon('who')}מי גר ${zoneWord('in')}</h3>
       <div class="rep-counts"><div><b>${m.counts.plants}</b><span>צמחים</span></div><div><b>${m.counts.animals}</b><span>בעלי חיים</span></div>
       <div><b>${m.counts.species}<small>מתוך ${m.counts.total}</small></b><span>מינים</span></div></div>
       <div class="rep-chips">${chipsHTML(m)}</div></section>`);
@@ -276,7 +277,7 @@ export function createReportUI(root, { describe, onNote, onClose, onExport }) {
     if (m.source) sections.push(`<section class="rep-sec rep-src"><h3>${icon('fact')}מקור היום</h3><div class="rep-srcbox"><p class="t">${esc(m.source.text)}</p><small>${esc(m.source.ref)}</small>${m.source.q ? `<p class="q"><b>שאלה לשיחה בבית:</b> ${esc(m.source.q)}</p>` : ''}</div></section>`);
     if (!kids) sections.push(`<section class="rep-sec rep-vit"><h3>${icon('vit')}חיוניות היער</h3><div class="rep-vitline">${m.live ? 'מתחילת היום החיוניות ' : 'במשך היום החיוניות '}${vitWords}</div>${sparkSVG(m.vit.spark)}</section>`);
     sections.push(`<section class="rep-sec rep-notes"><h3>${icon('pencil')}${kids ? 'מה ראיתי היום' : 'הערות החוקר'}</h3>
-      <textarea rows="${kids ? 4 : 3}" maxlength="800" dir="rtl" spellcheck="false" placeholder="${kids ? 'מה ראיתם היום ביער? כתבו כאן…' : 'מה ראיתם היום ביער? מה הפתיע אתכם? איזו שאלה הייתם רוצים לבדוק מחר? כתבו כאן…'}">${esc(m.note)}</textarea>
+      <textarea rows="${kids ? 4 : 3}" maxlength="800" dir="rtl" spellcheck="false" placeholder="${kids ? `מה ראיתם היום ${zoneWord('in')}? כתבו כאן…` : `מה ראיתם היום ${zoneWord('in')}? מה הפתיע אתכם? איזו שאלה הייתם רוצים לבדוק מחר? כתבו כאן…`}">${esc(m.note)}</textarea>
       <div class="rep-note-print${m.note ? '' : ' empty'}">${esc(m.note)}</div></section>`);
     const isDesk = !!(window.wolDesktop && window.wolDesktop.saveReportPDF);
     layer.innerHTML = `<div class="rep-backdrop"></div>
@@ -289,7 +290,7 @@ export function createReportUI(root, { describe, onNote, onClose, onExport }) {
           ${m.player ? `<div class="rep-by">החוקרים: ${esc(m.player)}</div>` : '<div class="rep-by"></div>'}
           <div class="rep-date">
             <div class="rep-nav"><button data-r="prev" title="יום קודם" aria-label="יום קודם" ${m.prev == null ? 'disabled' : ''}>${icon('prev')}</button>
-              <span class="rep-dayno">יום ${m.day} ביער</span>
+              <span class="rep-dayno">יום ${m.day} ${zoneWord('in')}</span>
               <button data-r="next" title="יום הבא" aria-label="יום הבא" ${m.next == null ? 'disabled' : ''}>${icon('next')}</button></div>
             <div class="rep-meta">${m.season ? `<span class="rep-tag season">${icon('season')}עונת ה${esc(m.season)}</span>` : ''}${wx}${m.live ? '<span class="rep-tag live">היום עדיין נמשך</span>' : ''}</div>
           </div>

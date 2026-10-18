@@ -1,4 +1,5 @@
 // Missions (goals + rewards) and events (decisions with ecological consequences).
+import { zoneWord } from '../core/place.js';
 import { TORAH, sourcesOn } from '../core/edition.js';
 import { TORAH_MISSIONS } from '../data/torah.js';
 
@@ -80,10 +81,10 @@ export function createMissions(W) {
   const nm = (id) => (W.reg && W.reg.byId.get(id)?.name) || '';
   function howTo(m) {
     const g = m.goal || {};
-    const find = (id) => id ? ` כדי לראות איפה ${nm(id)} ביער, פתחו את הקלף שלו במגש ולחצו "איפה?".` : '';
+    const find = (id) => id ? ` כדי לראות איפה ${nm(id)} ${zoneWord('in')}, פתחו את הקלף שלו במגש ולחצו "איפה?".` : '';
     switch (g.type) {
-      case 'link': return `איך עושים: לחצו על ${nm(g.from)} ביער או על הקלף שלו במגש. בכרטיס שנפתח, ברשימה "קשרים ברשת", מצאו את ${nm(g.to)} ולחצו "גלה את הקשר". שניהם צריכים להיות ביער.`;
-      case 'chain': return 'איך עושים: הביאו ליער צמח, בעל חיים שאוכל אותו, ובעל חיים שאוכל את בעל החיים הזה. בכרטיס של כל אחד, ב"קשרים ברשת", רואים מי אוכל את מי.';
+      case 'link': return `איך עושים: לחצו על ${nm(g.from)} ${zoneWord('in')} או על הקלף שלו במגש. בכרטיס שנפתח, ברשימה "קשרים ברשת", מצאו את ${nm(g.to)} ולחצו "גלה את הקשר". שניהם צריכים להיות ${zoneWord('in')}.`;
+      case 'chain': return `איך עושים: הביאו ${zoneWord('to')} צמח, בעל חיים שאוכל אותו, ובעל חיים שאוכל את בעל החיים הזה. בכרטיס של כל אחד, ב"קשרים ברשת", רואים מי אוכל את מי.`;
       case 'discover': return 'איך עושים: לחצו על צמח או על בעל חיים, ובכרטיס שלו לחצו "גלה את הקשר" ליד קשר שעוד לא גיליתם.';
       case 'place': case 'grow': case 'growTo': case 'bloom': return `איך עושים: גררו ${nm(g.species)} מהמגש אל היער.` + find(g.species);
       case 'pollinate': return 'איך עושים: מאביקים צריכים להיות קרובים לפרחים.' + find(g.species);
@@ -98,11 +99,11 @@ export function createMissions(W) {
     const g = m.goal || {};
     switch (g.type) {
       case 'link': return `הקשר בין ${nm(g.from)} ל${nm(g.to)} כבר התגלה קודם.`;
-      case 'chain': return `כבר יש ביער שרשרת מזון של ${g.length} חוליות לפחות.`;
+      case 'chain': return `כבר יש ${zoneWord('in')} שרשרת מזון של ${g.length} חוליות לפחות.`;
       case 'discover': return 'כבר גיליתם מספיק קשרים.';
-      case 'place': case 'grow': return `כבר היו ביער מספיק פרטים של ${nm(g.species)}.`;
-      case 'speciesAlive': return `כבר חיים ביער ${g.count} מינים לפחות.`;
-      default: return 'מה שהמשימה ביקשה כבר קיים ביער.';
+      case 'place': case 'grow': return `כבר היו ${zoneWord('in')} מספיק פרטים של ${nm(g.species)}.`;
+      case 'speciesAlive': return `כבר חיים ${zoneWord('in')} ${g.count} מינים לפחות.`;
+      default: return `מה שהמשימה ביקשה כבר קיים ${zoneWord('in')}.`;
     }
   }
 

@@ -10,6 +10,7 @@
 //           wx: { r: rain, st: storm, dr: drought 0..1, ht: heat, fl: flood, fi: fire }, bl: [species that bloomed],
 //           ac: [species that were active: ate / pollinated / carried seeds], ch: { k, a, b, n } biggest problem,
 //           fx: species of the day's fact, n: the child's own note }
+import { zoneWord } from '../core/place.js';
 import { createReportUI } from '../ui/report.js';
 import { SEASON_NAMES, gw, defName } from '../data/common.js';
 import { CARD_ART } from '../data/card-art.js';
@@ -201,7 +202,7 @@ export function createFieldReport({ W, reg, biome, light, missions, thumbs, ui, 
       out.push({ ic: 'event', t: e.title, sub: c ? (kids ? `בחרתם: ${c.label}.` : `בחרתם: ${c.label}. ${firstSentence(c.outcome)}`) : '' });
     }
     for (const mid of d.ms || []) { const m = missions.missions.find(x => x.id === mid); if (m) out.push({ ic: 'mission', t: `השלמתם משימה: ${m.title}` }); }
-    if (d.nw && d.nw.length) out.push({ ic: 'new', t: pick(`חדשים ביער: ${names(d.nw)}`, `מינים חדשים ביער: ${names(d.nw)}.`) });
+    if (d.nw && d.nw.length) out.push({ ic: 'new', t: pick(`חדשים ${zoneWord('in')}: ${names(d.nw)}`, `מינים חדשים ${zoneWord('in')}: ${names(d.nw)}.`) });
     if (d.nd) {
       const ed = (d.dc || []).map(k => reg.edges.find(e => e.key === k)).filter(Boolean);
       if (ed.length && !kids) out.push({ ic: 'link', t: d.nd === 1 ? 'גיליתם קשר חדש ברשת החיים:' : `גיליתם ${d.nd} קשרים חדשים ברשת החיים. למשל:`, sub: ed[0].text });
@@ -213,11 +214,11 @@ export function createFieldReport({ W, reg, biome, light, missions, thumbs, ui, 
     }
     if (d.po) out.push({ ic: 'bloom', t: pick(d.po === 1 ? 'פרח אחד קיבל אבקה.' : `${d.po} פרחים קיבלו אבקה.`, d.po === 1 ? 'פעם אחת הועברה אבקה מפרח לפרח.' : `${d.po} פעמים הועברה אבקה מפרח לפרח.`) });
     if (d.di) out.push({ ic: 'seed', t: d.di === 1 ? 'בעל חיים אחד הפיץ זרע למקום חדש.' : `בעלי החיים הפיצו ${d.di} זרעים למקומות חדשים.` });
-    if (d.bi) out.push({ ic: 'paw', t: d.bi === 1 ? 'נולד ביער צאצא חדש.' : `נולדו ביער ${d.bi} צאצאים חדשים.` });
+    if (d.bi) out.push({ ic: 'paw', t: d.bi === 1 ? `נולד ${zoneWord('in')} צאצא חדש.` : `נולדו ${zoneWord('in')} ${d.bi} צאצאים חדשים.` });
     if (d.gr) out.push({ ic: 'tree', t: d.gr === 1 ? 'צמח אחד גדל עד הסוף.' : `${d.gr} צמחים גדלו עד הסוף.` });
-    if (d.lo && d.lo.length) out.push({ ic: 'gone', t: pick(`כבר לא ביער: ${names(d.lo)}`, `כבר לא נמצאים ביער: ${names(d.lo)}.`) });
+    if (d.lo && d.lo.length) out.push({ ic: 'gone', t: pick(`כבר לא ${zoneWord('in')}: ${names(d.lo)}`, `כבר לא נמצאים ${zoneWord('in')}: ${names(d.lo)}.`) });
     else if (d.de >= 2 && !kids) out.push({ ic: 'gone', t: `${d.de} צמחים נחלשו ונבלו.` });
-    if (!out.length) out.push({ ic: 'calm', t: pick('יום שקט ביער.', 'יום שקט ביער. זה זמן טוב להתבונן ולגלות קשרים.') });
+    if (!out.length) out.push({ ic: 'calm', t: pick(`יום שקט ${zoneWord('in')}.`, `יום שקט ${zoneWord('in')}. זה זמן טוב להתבונן ולגלות קשרים.`) });
     return kids ? out.slice(0, 4) : out.slice(0, 7);
   }
 
@@ -233,8 +234,8 @@ export function createFieldReport({ W, reg, biome, light, missions, thumbs, ui, 
       case 'pollinators': return { t: 'פרחים בלי מאביקים', p: `${names(a, 3)} ${a.length === 1 ? gw(a[0], 'פרח', 'פרחה', 'פרחו', 'פרחו') : 'פרחו'}, אבל אף אחד לא מעביר אבקה בין הפרחים, ולכן כמעט לא יהיו פירות.`, tip: b.length ? `אפשר להביא ${b.length === 1 ? 'את ' + defName(b[0], nm(b[0])) : names(b, 2)}.` : 'חפשו במגש מי שותה צוף.' };
       case 'hungry': return { t: 'בעלי חיים רעבים', p: `${names(a, 3)} ${a.length === 1 ? gw(a[0], 'רעב', 'רעבה', 'רעבים', 'רעבות') : 'רעבים'} ולא ${a.length === 1 ? gw(a[0], 'מוצא', 'מוצאת', 'מוצאים', 'מוצאות') : 'מוצאים'} מספיק אוכל.`, tip: b.length ? `${a.length === 1 ? gw(a[0], 'הוא אוכל', 'היא אוכלת', 'הם אוכלים', 'הן אוכלות') : 'הם אוכלים'}: ${names(b, 3)}. שתלו או הביאו עוד.` : 'הביאו עוד אוכל ליער.' };
       case 'dispersers': return { t: 'פירות שאף אחד לא מפזר', p: `ל${names(a, 2)} יש פירות, אבל אין ביער מי שיאכל אותם ויפזר את הזרעים רחוק.`, tip: b.length ? `אפשר להביא: ${names(b, 2)}.` : '' };
-      case 'noanimals': return { t: 'אין עדיין בעלי חיים', p: 'ביער יש צמחים, אבל אין מי שיאכל, יאביק ויפזר זרעים.', tip: 'גררו בעל חיים ראשון מהמגש.' };
-      case 'few': return { t: 'מעט מינים', p: `ביער חיים רק ${ch.n} מינים. יער עם הרבה מינים שונים חזק יותר.`, tip: 'הוסיפו מין חדש שקשור לאחד המינים שכבר ביער.' };
+      case 'noanimals': return { t: 'אין עדיין בעלי חיים', p: `${zoneWord('in')} יש צמחים, אבל אין מי שיאכל, יאביק ויפזר זרעים.`, tip: 'גררו בעל חיים ראשון מהמגש.' };
+      case 'few': return { t: 'מעט מינים', p: `${zoneWord('in')} חיים רק ${ch.n} מינים. מקום עם הרבה מינים שונים חזק יותר.`, tip: 'הוסיפו מין חדש שקשור לאחד המינים שכבר ביער.' };
       case 'weak': return { t: 'היער חלש', p: 'החיוניות של היער נמוכה: חלק מהצמחים חלשים ובעלי החיים לא שבעים.', tip: 'בדקו בכרטיס של כל מין מה חסר לו.' };
       default: return { t: 'היער מאוזן', p: 'לא מצאנו היום בעיה גדולה. כל הכבוד, חוקרים!', tip: 'נסו לגלות עוד קשר אחד ברשת החיים.', good: true };
     }

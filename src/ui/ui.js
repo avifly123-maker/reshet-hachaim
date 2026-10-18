@@ -91,7 +91,7 @@ const LAYER_TINT = {
   floor: '#7a5636', ground: '#7a5636', water: '#3f86a8', air: '#9ccbe6', sky: '#9ccbe6',
 };
 const DEFAULT_TIPS = [
-  'כל צמח וכל בעל חיים ביער קשורים זה לזה – זאת רשת החיים.',
+  'כל צמח וכל בעל חיים בטבע קשורים זה לזה – זאת רשת החיים.',
   'עצים גבוהים מסתירים את האור. צמחים קטנים צריכים פתח של שמש.',
   'דבורים ופרפרים עוברים מפרח לפרח, וכך הפרחים יכולים להפוך לפירות.',
   'ציפורים שאוכלות פירות מפזרות את הזרעים למקומות חדשים.',
@@ -482,7 +482,7 @@ export function createUI(root, bus) {
   hud.innerHTML = `
     <div class="h-item h-pts" title="נקודות חיים"><span class="coin">${icon('leaf')}</span><b class="pts-num">0</b><small>נקודות</small></div>
     <div class="h-item h-vit" title="חיוניות היער"><span class="vit-ic">${icon('sprout')}</span><div class="vit-bar"><i></i></div><small class="vit-pc"></small></div>
-    <div class="h-item h-bio" title="מינים חיים ביער"><span>${icon('web')}</span><b class="bio-num">0</b><small class="bio-lab"></small></div>
+    <div class="h-item h-bio" title="מינים חיים ${zoneWord('in')}"><span>${icon('web')}</span><b class="bio-num">0</b><small class="bio-lab"></small></div>
     <div class="h-item h-day" title="שעה ביום"><svg class="dial" viewBox="0 0 48 48" aria-hidden="true">
       <defs><clipPath id="dialclip"><circle cx="24" cy="24" r="21"/></clipPath></defs>
       <circle class="d-sky" cx="24" cy="24" r="21" fill="#86c6ee"/>
@@ -617,7 +617,7 @@ export function createUI(root, bus) {
       <div class="tr-filter"></div>
       <button class="tr-info" title="מה רואים בקלף?" aria-label="מה רואים בקלף?" aria-expanded="false">${icon('info')}</button>
       <button class="tr-fold" title="הסתר/הצג" aria-label="הסתר או הצג את הקלפים">${icon('chevron')}</button></div>
-    <div class="tr-help" role="note"><p><span class="lg-dot">3</span>כמה יש ביער עכשיו</p><p><span class="lg-cost">${icon('leaf')}20</span>המחיר בנקודות חיים</p><p><span class="lg-drag">${icon('arrowL')}</span>גוררים את הקלף ${zoneWord('to')}</p></div>
+    <div class="tr-help" role="note"><p><span class="lg-dot">3</span>כמה יש ${zoneWord('in')} עכשיו</p><p><span class="lg-cost">${icon('leaf')}20</span>המחיר בנקודות חיים</p><p><span class="lg-drag">${icon('arrowL')}</span>גוררים את הקלף ${zoneWord('to')}</p></div>
     <div class="tr-scroll"><div class="tr-cards"></div></div>
     <div class="tr-cancel">${icon('close')}שחררו כאן כדי לבטל</div>`;
   const trTabs = [...tray.querySelectorAll('[data-tab]')], trFilter = tray.querySelector('.tr-filter');
@@ -638,11 +638,11 @@ export function createUI(root, bus) {
       <span class="c-name">${esc(c.name)}</span>
       <span class="c-meta">${c.locked ? `<span class="c-lock">${icon('lock')}<span>${esc(lockShort(c))}</span></span>` :
         `<span class="c-cost" title="מחיר: ${fmt(c.cost || 0)} נקודות חיים">${icon('leaf')}${fmt(c.cost || 0)}</span>${c.layerName ? `<span class="c-layer" title="${esc(c.layerName)}" style="--lt:${LAYER_TINT[c.layer] || '#7a9a5a'}"></span>` : ''}`}</span>
-      ${c.alive ? `<span class="c-alive" title="יש ${fmt(c.alive)} כאלה ביער עכשיו">${fmt(c.alive)}</span>` : ''}
+      ${c.alive ? `<span class="c-alive" title="יש ${fmt(c.alive)} כאלה ${zoneWord('in')} עכשיו">${fmt(c.alive)}</span>` : ''}
       ${c.isNew ? `<span class="c-new">${icon('sparkle')}חדש</span>` : ''}
       ${c.locked ? `<span class="c-lockbig">${icon('lock')}</span>` : ''}`;
     el.title = c.locked ? lockMsg(c) : '';
-    el.setAttribute('aria-label', c.name + (c.locked ? '. ' + lockMsg(c) : `. מחיר ${fmt(c.cost || 0)} נקודות חיים` + (c.alive ? `. יש ${fmt(c.alive)} ביער` : '')));
+    el.setAttribute('aria-label', c.name + (c.locked ? '. ' + lockMsg(c) : `. מחיר ${fmt(c.cost || 0)} נקודות חיים` + (c.alive ? `. יש ${fmt(c.alive)} ${zoneWord('in')}` : '')));
   }
   function renderTray(force) {
     const isTech = (c) => c.kind === 'tool';
@@ -764,7 +764,7 @@ export function createUI(root, bus) {
     }
     return `<li class="rel${r.present ? ' present' : ' absent'}" style="--rc:${col}"><span class="rel-type">${esc(r.typeName || '')}</span>
       <div class="rel-main"><button class="rel-target" data-act="select" data-id="${esc(r.targetId)}">${esc(r.targetName)}</button>
-      ${r.present ? '' : '<span class="rel-away">לא נמצא ביער</span>'}<p>${esc(r.text)}</p></div></li>`;
+      ${r.present ? '' : `<span class="rel-away">לא נמצא ${zoneWord('in')}</span>`}<p>${esc(r.text)}</p></div></li>`;
   }
   function renderSpecies(force) {
     const s = S.species; if (!s) return;
@@ -793,7 +793,7 @@ export function createUI(root, bus) {
         <div><h2>${esc(s.name)}</h2>${s.nameEn ? `<p class="en" dir="ltr">${esc(s.nameEn)}</p>` : ''}
         <div class="chips">${s.kindName ? `<span>${esc(s.kindName)}</span>` : ''}${s.layerName ? `<span>${esc(s.layerName)}</span>` : ''}${s.activeName ? `<span>${icon(/לילה/.test(s.activeName) ? 'moon' : 'sun')}${esc(s.activeName)}</span>` : ''}</div></div></header>
       <div class="sp-status">
-        <div class="st-alive"><b>${fmt(s.alive != null ? s.alive : s.count || 0)}</b><small>ביער עכשיו</small></div>
+        <div class="st-alive"><b>${fmt(s.alive != null ? s.alive : s.count || 0)}</b><small>${zoneWord('in')} עכשיו</small></div>
         ${health != null ? `<div class="st-health"><div class="hb"><i style="width:${(health * 100).toFixed(0)}%;background:hsl(${(health * 110).toFixed(0)} 60% 45%)"></i></div><small>${esc(s.status || 'בריאות')}</small></div>` : (s.status ? `<div class="st-health"><small>${esc(s.status)}</small></div>` : '')}
       </div>
       ${s.fact ? `<blockquote class="sp-fact">${esc(s.fact)}</blockquote>` : ''}
@@ -804,7 +804,7 @@ export function createUI(root, bus) {
       </div>
       <footer class="sp-actions">
         ${s.tour ? `<button class="btn sp-tour" data-act="tour">${icon('binoc')}${esc(s.tour)}</button>` : ''}
-        <button class="btn ghosty sp-locate" data-act="locate" title="סמנו את כולם ביער">${icon('target')}איפה?</button>
+        <button class="btn ghosty sp-locate" data-act="locate" title="סמנו את כולם ${zoneWord('in')}">${icon('target')}איפה?</button>
         <button class="btn ghosty" data-act="follow">${icon('binoc')}עקוב</button>
         <button class="btn amber" data-act="exp" ${s.canRemove === false ? 'disabled title="אין עכשיו מה לבדוק"' : ''}>${icon('flask')}מה יקרה אם ייעלם?</button>
       </footer>`;
@@ -1024,7 +1024,7 @@ export function createUI(root, bus) {
       if (d.speciesAlive != null && (d.speciesAlive !== o.speciesAlive || d.speciesTotal !== o.speciesTotal)) {
         if (o.speciesAlive != null && d.speciesAlive > o.speciesAlive) { const bx = bioNum.parentElement.parentElement; bx.classList.remove('up'); void bx.offsetWidth; bx.classList.add('up'); }
         o.speciesAlive = d.speciesAlive; o.speciesTotal = d.speciesTotal;
-        bioNum.textContent = fmt(d.speciesAlive); bioLab.textContent = d.speciesTotal ? `מתוך ${fmt(d.speciesTotal)}` : ''; bioLab.parentElement.title = d.speciesTotal ? `${fmt(d.speciesAlive)} מינים חיים ביער, מתוך ${fmt(d.speciesTotal)}` : 'מינים חיים ביער';
+        bioNum.textContent = fmt(d.speciesAlive); bioLab.textContent = d.speciesTotal ? `מתוך ${fmt(d.speciesTotal)}` : ''; bioLab.parentElement.title = d.speciesTotal ? `${fmt(d.speciesAlive)} מינים חיים ${zoneWord('in')}, מתוך ${fmt(d.speciesTotal)}` : `מינים חיים ${zoneWord('in')}`;
       }
       if (d.dayFrac != null && (o.dayFrac == null || Math.abs(d.dayFrac - o.dayFrac) > 0.0015)) {
         if (o.dayFrac != null && d.dayFrac + 0.5 < o.dayFrac) o.day = (o.day || 1) + 1;
@@ -1083,7 +1083,7 @@ export function createUI(root, bus) {
 
     showEvent(ev) {
       if (!ev) return;
-      const w = makeModal('event', `<div class="ev-badge">${icon('bang')}</div><small class="ev-kicker">קורה ביער</small><h2>${esc(ev.title)}</h2><p class="ev-text">${esc(ev.text)}</p>
+      const w = makeModal('event', `<div class="ev-badge">${icon('bang')}</div><small class="ev-kicker">קורה ${zoneWord('in')}</small><h2>${esc(ev.title)}</h2><p class="ev-text">${esc(ev.text)}</p>
         <div class="ev-choices">${(ev.choices || []).map((c, i) => `<button class="btn ${i === 0 ? 'primary' : 'soft'}" data-id="${esc(c.id)}">${esc(c.label)}</button>`).join('')}</div>`, 'ev');
       w.querySelector('.ev-choices').addEventListener('click', (e) => {
         const b = e.target.closest('button[data-id]'); if (!b) return;
