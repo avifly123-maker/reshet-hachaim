@@ -29,11 +29,16 @@ export function createModel(def) {
   const seasonOf = typeof def.season === 'function' ? def.season : () => null;
 
   // capacity of an animal: a fixed number, or tied to a stock ("2 owls per nest site")
+  // `also: [{ of, per }]` adds room from more stocks (orchid bees: orchids here, or a corridor to a big forest)
   function capOf(v) {
     if (v.cap == null) return Infinity;
     if (typeof v.cap === 'number') return v.cap;
-    return (s.v[v.cap.of] || 0) * (v.cap.per ?? 1) + (v.cap.plus ?? 0);
+    let c = (s.v[v.cap.of] || 0) * (v.cap.per ?? 1) + (v.cap.plus ?? 0);
+    for (const a of v.cap.also || []) c += (s.v[a.of] || 0) * (a.per ?? 1);
+    return c;
   }
+  // a refuge can grow with a stock too (piles of branches hide more mice): `refugeOf: { of, per }`
+  const refugeOf = (f) => (f.refuge || 0) + (f.refugeOf ? (s.v[f.refugeOf.of] || 0) * (f.refugeOf.per ?? 1) : 0);
 
   function step(dt, ctx = {}) {
     const season = ctx.season ?? seasonOf(s.t);
@@ -55,7 +60,7 @@ export function createModel(def) {
           eaten[f.eater] += got; break;
         }
         case 'prey': {
-          const P = s.v[f.pred], N = Math.max(0, s.v[f.prey] - (f.refuge || 0));   // a refuge (rocks, burrows) keeps a few out of reach
+          const P = s.v[f.pred], N = Math.max(0, s.v[f.prey] - refugeOf(f));   // a refuge (rocks, burrows) keeps a few out of reach
           const kills = f.attack * P * N / (1 + f.attack * f.handling * N);
           d[f.prey] -= kills; eaten[f.pred] += kills; break;
         }
@@ -93,7 +98,7 @@ export function createModel(def) {
     let best = 0;
     for (const f of def.flows) {
       if (f.type === 'consume' && f.eater === v.id) { const F = Math.max(0, s.v[f.food]); best = Math.max(best, F / (F + f.half)); }
-      if (f.type === 'prey' && f.pred === v.id) { const N = Math.max(0, s.v[f.prey] - (f.refuge || 0)); best = Math.max(best, N / (N + (v.preyHalf ?? 20))); }
+      if (f.type === 'prey' && f.pred === v.id) { const N = Math.max(0, s.v[f.prey] - refugeOf(f)); best = Math.max(best, N / (N + (v.preyHalf ?? 20))); }
     }
     return best;
   }

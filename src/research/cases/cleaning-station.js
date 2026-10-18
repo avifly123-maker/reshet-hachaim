@@ -27,18 +27,23 @@ export const CLEANING_STATION = {
       { id: 'fish', kind: 'animal', init: 30, need: 0.3, birth: 0.012, death: 0.004, hungry: 0.3, leaveHungry: 0.05,
         cap: 90, leaveCrowded: 0.1, arrive: 0.35, arriveIf: 0.4, food: true },
       { id: 'cleaners', kind: 'animal', init: 0.6, need: 0.4, birth: 0.015, death: 0.005, hungry: 0.3, leaveHungry: 0.06,
-        cap: { of: 'corals', per: 0.45 }, leaveCrowded: 0.15, arrive: 0.1, arriveIf: 0.3, food: true },
+        cap: { of: 'corals', per: 0.45, also: [{ of: 'reefballs', per: 1.6 }] }, leaveCrowded: 0.15, arrive: 0.1, arriveIf: 0.3, food: true },
       { id: 'parasites', kind: 'stock', init: 900 },
       { id: 'corals', kind: 'plant', init: 4 },
       { id: 'young', kind: 'plant', init: 0 },
       { id: 'anchors', kind: 'stock', init: 1 },
       { id: 'sea', kind: 'stock', init: 1 },
       { id: 'plankton', kind: 'stock', init: 400 },
+      { id: 'reefballs', kind: 'stock', init: 0 },     // artificial reef domes: a place for a cleaning station that anchors cannot break
+      { id: 'bread', kind: 'stock', init: 0 },         // food thrown to the fish from the boats
     ],
     flows: [
       // the open sea brings plankton: food for the fish
       { type: 'produce', from: 'sea', to: 'plankton', rate: 40, byCap: 600 },
       { type: 'consume', eater: 'fish', food: 'plankton', need: 0.3, half: 60 },
+      // bread thrown from the boats: crowds of fish come for it (and every fish brings its parasites)
+      { type: 'consume', eater: 'fish', food: 'bread', need: 0.3, half: 40 },
+      { type: 'decay', of: 'bread', rate: 0.01 },
       // fish carry tiny parasites; the cleaners pick them off and eat them
       { type: 'produce', from: 'fish', to: 'parasites', rate: 0.6, byCap: 3000 },
       { type: 'consume', eater: 'cleaners', food: 'parasites', need: 0.4, half: 150, cost: 45 },
@@ -88,6 +93,9 @@ export const CLEANING_STATION = {
     { id: 'cleaners', title: 'להביא נקאים', icon: 'species:cleaner', amounts: [3], cost: 5, effect: { add: { cleaners: 1 } } },
     { id: 'nursery', title: 'לשתול אלמוגים מהמשתלה', icon: 'nursery', amounts: [3], cost: 9, max: 2, effect: { add: { young: 1 } }, place: 'nursery' },
     { id: 'fish', title: 'להביא דגים', icon: 'species:butterflyfish', amounts: [10], cost: 5, effect: { add: { fish: 1 } } },
+    { id: 'reefball', title: 'שונית מלאכותית לתחנת ניקוי', icon: 'reefball', amounts: [1], cost: 8, max: 2, effect: { add: { reefballs: 1 } }, tech: true, place: 'reefball' },
+    { id: 'bread', title: 'לזרוק לחם לדגים מהסירות', icon: 'bread', amounts: [1], cost: 3, max: 3, effect: { add: { bread: 900, fish: 20 } } },
+    { id: 'medicine', title: 'חומר נגד טפילים במים', icon: 'medicine', amounts: [1], cost: 10, max: 2, effect: { add: { parasites: -850 } } },
   ],
   after: {
     buoys: { test: 'anchors', below: 0.05, no: 'הסירות נקשרות למצוף. אבל עדיין יש סירות שמטילות עוגן על השונית.', ok: 'עכשיו כל הסירות נקשרות למצופים. אף עוגן לא נופל על האלמוגים.' },
@@ -95,7 +103,18 @@ export const CLEANING_STATION = {
     cleaners: { test: 'corals', below: 6, no: 'הנקאים לא מצאו אלמוג גדול לפתוח בו תחנה, ועזבו.', ok: 'הנקאים מצאו אלמוג ופתחו תחנת ניקוי.' },
     nursery: { test: 'anchors', below: 0.05, no: 'שתלנו אלמוגים צעירים, אבל העוגנים שוברים גם אותם.', ok: 'האלמוגים הצעירים נשתלו, ואין עוגנים שישברו אותם.' },
     fish: 'דגים חדשים הגיעו, אבל גם עליהם עולים טפילים.',
+    reefball: { test: 'anchors', below: 0.3, no: 'הנקאים פתחו תחנה בשונית המלאכותית! אבל העוגנים ממשיכים לשבור את האלמוגים הצעירים.', ok: 'הנקאים פתחו תחנה בשונית המלאכותית, והעוגנים כמעט לא נופלים.' },
+    bread: { test: 'parasites', below: 500, no: 'המון דגים הגיעו ללחם... וכל דג הביא איתו טפילים. עכשיו יש יותר טפילים מאי פעם.', ok: 'הדגים התאספו סביב הלחם. משהו כאן עוד ישתנה.' },
+    medicine: { test: 'cleaners', below: 2, no: 'הטפילים נעלמו לכמה ימים. אבל הנקאים אוכלים טפילים, ובלי אוכל הם עזבו. ובלי נקאים, הטפילים חוזרים.', ok: 'הטפילים ירדו, והנקאים עדיין מוצאים מה לאכול.' },
   },
+  surprises: [
+    { id: 'bread-crowd', idea: 'bread', test: 'fish', above: 80, text: 'הפתעה: סביב הסירות התאספו המוני דגים, ודחפו זה את זה כדי לקבל עוד פירור.' },
+    { id: 'bread-gone', idea: 'bread', test: 'fish', below: 46, text: 'הלחם נגמר, וההמון שחה משם. הטפילים שעברו מדג לדג נשארו עם הדגים שלנו.' },
+    { id: 'medicine-back', idea: 'medicine', test: 'parasites', above: 700, text: 'הטפילים חזרו, ואין מי שיאכל אותם. התרופה עבדה רק לכמה ימים.' },
+    { id: 'ball-station', idea: 'reefball', test: 'cleaners', above: 3, text: 'נקאי פתח תחנה בשונית המלאכותית, ודגים כבר עומדים בתור לניקוי.' },
+    { id: 'young-up', test: 'young', above: 4, text: 'על הסלע מופיעים אלמוגים צעירים. הם יגדלו לראשי אלמוג חדשים.' },
+  ],
+  mainFix: ['buoys', 'buoys', 'buoys'],   // the usual route: three mooring buoys
   hints: [
     'מי מנקה את הדגים? הציבו מצלמה תת־ימית ליד אלמוג המוח.',
     'הנקאי פותח תחנה ליד ראש אלמוג גדול. כמה ראשי אלמוג נשארו?',
@@ -132,12 +151,18 @@ export const CLEANING_STATION = {
       'bringing fish': [{ t: 30, idea: 'fish' }, { t: 40, idea: 'fish' }],
       'one buoy only': [{ t: 30, idea: 'buoys' }],
       'cleaners and corals, anchors still falling': [{ t: 30, idea: 'nursery' }, { t: 35, idea: 'cleaners' }, { t: 45, idea: 'cleaners' }],
+      'bread for the fish': [{ t: 30, idea: 'bread' }, { t: 60, idea: 'bread' }, { t: 90, idea: 'bread' }],
+      'medicine against parasites': [{ t: 30, idea: 'medicine' }, { t: 120, idea: 'medicine' }],
+      'reef balls, anchors still falling': [{ t: 30, idea: 'reefball' }, { t: 35, idea: 'reefball' }],
+      'medicine and cleaners': [{ t: 30, idea: 'medicine' }, { t: 35, idea: 'cleaners' }],
     },
     fixes: {
       'three buoys': [{ t: 30, idea: 'buoys' }, { t: 35, idea: 'buoys' }, { t: 40, idea: 'buoys' }],
       'closing the bay': [{ t: 30, idea: 'close' }],
       'three buoys and the nursery': [{ t: 30, idea: 'buoys' }, { t: 35, idea: 'buoys' }, { t: 40, idea: 'buoys' }, { t: 45, idea: 'nursery' }],
       'cleaners first, then buoys': [{ t: 30, idea: 'cleaners' }, { t: 100, idea: 'buoys' }, { t: 105, idea: 'buoys' }, { t: 110, idea: 'buoys' }],
+      'reef balls and two buoys': [{ t: 30, idea: 'reefball' }, { t: 35, idea: 'reefball' }, { t: 40, idea: 'buoys' }, { t: 45, idea: 'buoys' }],
+      'bread first, then closing the bay': [{ t: 30, idea: 'bread' }, { t: 100, idea: 'close' }],
     },
   },
   scene: {

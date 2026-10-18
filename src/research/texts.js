@@ -71,6 +71,12 @@ const PLAIN = {
   starGuess: 'השערה נכונה', starThrift: 'בלי לבזבז', realWorld: 'גם בעולם:', learned: 'למדנו:', more: 'עוד תעלומות',
   stay: 'להישאר ולראות', packWon: 'קיבלתם חבילת קלפים!', sourceWon: 'וגם קלף מקור:', exit: 'יציאה', timeLine: 'זמן', tStart: 'ההתחלה', tNow: 'עכשיו',
   newCase: 'תעלומה חדשה', count: 'כמות',
+  // middle and advanced: the experiment log, trying again, surprises
+  log: 'יומן ניסויים', logSub: 'כל מה שניסינו נרשם כאן, גם מה שלא עבד. חוקרים לומדים גם מניסיון שנכשל.',
+  logEmpty: 'עוד לא ניסינו כלום. בחרו רעיון מהשולחן ולחצו "לראות מה קורה".', logTried: 'ניסינו', logSaw: 'ראינו', surprise: 'הפתעה!',
+  attempt: 'ניסיון {n}', retry: 'לנסות מחדש', retrySure: 'בטוח? לחצו שוב', retryTip: 'המקום חוזר להתחלה. המדידות והיומן נשארים.',
+  retryNote: 'מתחילים מחדש: המקום חזר להיות כמו בהתחלה, והתקציב מלא. המדידות והיומן נשארו.',
+  otherWay: 'מצאתם דרך משלכם לפתור את התעלומה!', triesLine: 'ניסיתם {n} רעיונות ב־{a} ניסיונות. ככה עובדים חוקרים.',
 };
 export function textsFor(level, zone) {
   const T = level === 'kids' ? KIDS : PLAIN;

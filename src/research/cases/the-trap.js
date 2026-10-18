@@ -34,7 +34,7 @@ export const THE_TRAP = {
       { id: 'owl', kind: 'animal', init: 0, need: 0.15, birth: 0.008, death: 0.002, hungry: 0.5, leaveHungry: 0.06,
         cap: { of: 'nests', per: 3 }, leaveCrowded: 0.07, arrive: 0.035, arriveIf: 0.3, food: true, preyHalf: 15 },
       { id: 'fox', kind: 'animal', init: 0.3, need: 0.15, birth: 0.006, death: 0.002, hungry: 0.5, leaveHungry: 0.05,
-        cap: { of: 'cover', per: 1.6 }, leaveCrowded: 0.07, arrive: 0.02, arriveIf: 0.3, food: true, preyHalf: 20 },
+        cap: { of: 'cover', per: 1.6, also: [{ of: 'piles', per: 1.3 }] }, leaveCrowded: 0.07, arrive: 0.02, arriveIf: 0.3, food: true, preyHalf: 20 },
       { id: 'nests', kind: 'stock', init: 0 },
       { id: 'cover', kind: 'stock', init: 0.3 },      // bushes along the field edge
       { id: 'bait', kind: 'stock', init: 1 },         // poison bait boxes
@@ -43,12 +43,20 @@ export const THE_TRAP = {
       { id: 'young', kind: 'plant', init: 0 },
       { id: 'seeds', kind: 'stock', init: 80 },
       { id: 'fruit', kind: 'stock', init: 5 },        // berries on the field-edge bushes: the fox eats them too
+      { id: 'snags', kind: 'stock', init: 0 },        // old hollow trees left standing: in time a hollow opens wide enough for an owl
+      { id: 'piles', kind: 'stock', init: 0 },        // piles of branches at the field edge: cover for the fox, and for the mice too
+      { id: 'feeder', kind: 'stock', init: 0 },       // a feeder that pours grain for the mice every day, so they leave the seeds alone
+      { id: 'grain', kind: 'stock', init: 0 },
     ],
     flows: [
       { type: 'produce', from: 'sage', to: 'seeds', rate: 3.2, byCap: 2500, season: { winter: 0.6, spring: 1.5, summer: 1.1, autumn: 0.7 } },
       { type: 'consume', eater: 'mice', food: 'seeds', need: 0.25, half: 140 },
-      { type: 'prey', pred: 'owl', prey: 'mice', attack: 0.02, handling: 2.2, refuge: 12 },
-      { type: 'prey', pred: 'fox', prey: 'mice', attack: 0.014, handling: 2.6, refuge: 12 },
+      { type: 'prey', pred: 'owl', prey: 'mice', attack: 0.02, handling: 2.2, refuge: 12, refugeOf: { of: 'piles', per: 40 } },
+      { type: 'prey', pred: 'fox', prey: 'mice', attack: 0.014, handling: 2.6, refuge: 12, refugeOf: { of: 'piles', per: 40 } },
+      { type: 'produce', from: 'feeder', to: 'grain', rate: 70, byCap: 2000 },
+      { type: 'consume', eater: 'mice', food: 'grain', need: 0.25, half: 140 },
+      { type: 'decay', of: 'grain', rate: 0.003 },
+      { type: 'mature', from: 'snags', to: 'nests', rate: 1 / 120, cap: 6 },
       { type: 'produce', from: 'cover', to: 'fruit', rate: 2.5, byCap: 120 },
       { type: 'consume', eater: 'fox', food: 'fruit', need: 0.1, half: 20 },
       { type: 'decay', of: 'fruit', rate: 0.01 },
@@ -106,6 +114,9 @@ export const THE_TRAP = {
     { id: 'hedge', title: 'לשתול שיחים בשולי השדה', icon: 'hedge', amounts: [1], cost: 7, max: 2, effect: { add: { cover: 1 } } },
     { id: 'owl', title: 'להביא תנשמות', icon: 'species:owl', amounts: [2], cost: 3, perUnit: true, effect: { add: { owl: 1 } } },
     { id: 'move-mice', title: 'להעביר קוצנים למקום אחר', icon: 'species:spinymouse', amounts: [40], cost: 6, effect: { add: { mice: -1 } } },
+    { id: 'hollow', title: 'להשאיר עצים זקנים וחלולים', icon: 'hollow', amounts: [1], cost: 3, max: 2, effect: { add: { snags: 1 } } },
+    { id: 'piles', title: 'ערימות ענפים בשולי השדה', icon: 'piles', amounts: [1], cost: 3, max: 2, effect: { add: { piles: 1 } } },
+    { id: 'grain', title: 'מתקן גרעינים לקוצנים, שיעזבו את הזרעים', icon: 'seed', amounts: [1], cost: 5, max: 1, effect: { add: { feeder: 1, grain: 300 } } },
   ],
   after: {
     remove: { test: 'toxin', below: 4, no: 'התיבות יצאו מהחורש. אבל רעל עוד נשאר בקוצנים, וייקח זמן עד שייעלם.', ok: 'התיבות יצאו, והרעל כבר כמעט נעלם.' },
@@ -114,7 +125,18 @@ export const THE_TRAP = {
     hedge: 'השיחים בשולי השדה ייתנו לשועל מחסה.',
     owl: { test: 'toxin', below: 4, no: 'התנשמות אכלו קוצנים מורעלים, חלו ועזבו.', ok: 'התנשמות צדות, ואין רעל בקוצנים.' },
     'move-mice': 'קוצנים חדשים הגיעו מהשדות.',
+    hollow: { test: 'nests', below: 1, no: 'העצים הזקנים נשארו לעמוד. חור גדול מספיק לתנשמת נפתח לאט, בעוד זמן.', ok: 'בעץ הזקן נפתח חור גדול. תנשמת יכולה לקנן בו.' },
+    piles: { test: 'piles', below: 1.5, no: 'השועל מצא מחסה בין הענפים.', ok: 'הרבה ערימות ענפים... גם השועל וגם הקוצנים מסתתרים בהן.' },
+    grain: { test: 'mice', below: 80, no: 'הקוצנים אכלו גרעינים.', ok: 'הקוצנים אכלו גרעינים, שבעו... והמליטו עוד ועוד גורים.' },
   },
+  surprises: [
+    { id: 'grain-boom', idea: 'grain', test: 'mice', above: 230, text: 'הפתעה: עם כל כך הרבה אוכל, נולדו המון קוצנים. כשהגרעינים ייגמרו, כולם יחפשו זרעים.' },
+    { id: 'piles-hide', idea: 'piles', test: 'piles', above: 1.5, text: 'בתוך הענפים מסתתרים קוצנים. התנשמת והשועל מתקשים לתפוס אותם שם.' },
+    { id: 'hollow-nest', idea: 'hollow', test: 'nests', above: 0.9, text: 'בעץ הזקן נפתח חור רחב. תנשמת כבר בודקת אותו.' },
+    { id: 'owl-back', idea: 'remove', test: 'owl', above: 1.5, text: 'שמעתם? תנשמת צורחת בלילה. היא חזרה לחורש.' },
+    { id: 'fox-back', test: 'fox', above: 1, text: 'שועל עבר בשולי השדה ונעלם בין השיחים.' },
+  ],
+  mainFix: ['remove', 'nestbox', 'hedge'],
   hints: [
     'כמה רעל יש בקוצנים? בדיקת המעבדה תראה.',
     'מי צד קוצנים בחורש? צריך לספור בלילה.',
@@ -153,11 +175,17 @@ export const THE_TRAP = {
       'only removing the bait': [{ t: 30, idea: 'remove' }],
       'remove and nest boxes, no hedge': [{ t: 30, idea: 'remove' }, { t: 35, idea: 'nestbox' }, { t: 40, idea: 'nestbox' }],
       'nest boxes and a hedge, poison still out': [{ t: 30, idea: 'nestbox' }, { t: 35, idea: 'nestbox' }, { t: 40, idea: 'hedge' }],
+      'grain for the mice': [{ t: 30, idea: 'grain' }],
+      'too many branch piles': [{ t: 30, idea: 'remove' }, { t: 35, idea: 'nestbox' }, { t: 40, idea: 'nestbox' }, { t: 45, idea: 'piles' }, { t: 50, idea: 'piles' }],
+      'hollow trees, poison still out': [{ t: 30, idea: 'hollow' }, { t: 35, idea: 'hollow' }, { t: 40, idea: 'hedge' }],
     },
     fixes: {
       'remove, nest boxes, a hedge': [{ t: 30, idea: 'remove' }, { t: 35, idea: 'nestbox' }, { t: 40, idea: 'nestbox' }, { t: 45, idea: 'hedge' }],
       'hedge first, remove later': [{ t: 30, idea: 'hedge' }, { t: 35, idea: 'nestbox' }, { t: 40, idea: 'nestbox' }, { t: 120, idea: 'remove' }],
       'more poison first, then the right way': [{ t: 30, idea: 'more' }, { t: 90, idea: 'remove' }, { t: 95, idea: 'nestbox' }, { t: 100, idea: 'nestbox' }, { t: 105, idea: 'hedge' }],
+      'hollow trees instead of nest boxes': [{ t: 30, idea: 'remove' }, { t: 35, idea: 'hollow' }, { t: 40, idea: 'hollow' }, { t: 45, idea: 'hedge' }],
+      'one branch pile instead of a hedge': [{ t: 30, idea: 'remove' }, { t: 35, idea: 'nestbox' }, { t: 40, idea: 'nestbox' }, { t: 45, idea: 'piles' }],
+      'the cheap way: hollow trees and a pile': [{ t: 30, idea: 'remove' }, { t: 35, idea: 'hollow' }, { t: 40, idea: 'hollow' }, { t: 45, idea: 'piles' }],
     },
   },
   scene: {
