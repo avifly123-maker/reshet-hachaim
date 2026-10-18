@@ -17,7 +17,9 @@ import { artPos } from '../data/art-focus.js';
 import { PACK_ART } from '../data/pack-art.js';
 import { SOURCE_ART } from '../data/source-art.js';
 import { TORAH, sourcesOn, setSourcesOn } from '../core/edition.js';
-import { SHIRA, SHIRA_SET, TZVI_SET, SOURCE_CARDS, EARN_TEXT, TQUIZ } from '../data/torah.js';
+import { SHIRA, SHIRA_SET, TZVI_SET, SOURCE_CARDS, EARN_TEXT } from '../data/torah.js';
+import { TQUIZ_ALL } from '../data/torah-quiz.js';   // torah.js TQUIZ + the larger bank of "מן המקורות" questions
+import { QBANK } from '../data/quiz-bank.js';        // hand-written quiz questions, mixed into every round
 import { ownedSources, grantSource } from '../core/sources-store.js';
 import { grant as grantBadge, tally as badgeTally, hasBadge, ownedBadges, openFrames, chosenFrame, chooseFrame, groupCount } from '../core/badges-store.js';
 import { BADGES, BADGE_GROUPS, FRAMES } from '../data/badges.js';
@@ -310,17 +312,65 @@ function loadState() {
   } catch (e) { return fresh; }
 }
 
+/* ───────────────────────────────────────────── variety across visits
+   Each player keeps a list of the questions asked lately (S.seen in the hub's own store, oldest first; old saves have
+   none). A round prefers questions that are not on it; when a bank is used up, it starts again from the oldest ones. */
+const SEEN_MAX = 700;
+let SEEN = new Map();   // question id → its place in S.seen (bigger = asked more recently); set when a round is built
+const seenRank = (id) => (SEEN.has(id) ? SEEN.get(id) : -1);
+function seenMap(list) { const m = new Map(); (Array.isArray(list) ? list : []).forEach((id, i) => { if (typeof id === 'string') m.set(id, i); }); return m; }
+// n items of list: the unseen ones first (in random order), then the ones asked longest ago.
+// `forget` lists the whole bank when it ran out, so the next rounds go through it again.
+function freshest(list, n, idOf) {
+  const un = shuffle(list.filter((x) => !SEEN.has(idOf(x))));
+  if (un.length >= n) return { pick: un.slice(0, n), forget: null };
+  const old = list.filter((x) => SEEN.has(idOf(x))).sort((a, b) => seenRank(idOf(a)) - seenRank(idOf(b)));
+  const k = n - un.length;
+  return { pick: [...un, ...shuffle(old.slice(0, Math.max(k, Math.ceil(old.length / 3)))).slice(0, k)], forget: list.map(idOf) };
+}
+function hashId(s) { let h = 5381; for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
+
 /* ───────────────────────────────────────────── torah edition: the "מן המקורות" corner of the quiz */
+const tqId = (t) => t.id || 'tq-' + hashId(t.q);
+// a round: 6 easier questions first, then 4 harder ones (lvl 2)
 function buildTorahRound() {
-  return sample(TQUIZ, Math.min(ROUND, TQUIZ.length)).map((t) => {
+  const easy = TQUIZ_ALL.filter((t) => (t.lvl || 1) === 1), hard = TQUIZ_ALL.filter((t) => (t.lvl || 1) !== 1);
+  const nh = Math.min(hard.length, 4), ne = Math.min(easy.length, ROUND - nh);
+  const a = freshest(easy, ne, tqId), b = freshest(hard, nh, tqId);
+  const qs = [...a.pick, ...b.pick].map((t) => {
     const sp = t.art ? SPK.get(t.art) : null;
-    return { tag: 'מן המקורות', q: t.q, art: sp || null, options: shuffle(t.o.map((label, i) => opt(label, i === 0))), fact: t.e, src: t.src, ref: t.ref };
+    return { tag: 'מן המקורות', q: t.q, art: sp || null, options: shuffle(t.o.map((label, i) => opt(label, i === 0))), fact: t.e, src: t.src, ref: t.ref, qid: tqId(t) };
   });
+  qs.forget = [...(a.forget || []), ...(b.forget || [])];
+  return qs;
+}
+
+/* ───────────────────────────────────────────── the hand-written bank (src/data/quiz-bank.js) */
+const BANK_TAG = { amazon: 'יער הגשם', grove: 'החורש', reef: 'השונית', all: 'הידעת?' };
+function bankQ(b) {
+  let art = null;
+  if (b.art && b.art.startsWith('tool:')) { const c = CARD.get(b.art); if (c) art = { id: c.id.slice(5), img: c.img, color: c.color, name: c.name, tool: true }; }
+  else if (b.art) art = SPK.get(b.art) || null;
+  const tf = typeof b.tf === 'boolean';
+  const options = tf ? [opt('נכון', b.tf, { icon: IC.check, tone: 'yes' }), opt('לא נכון', !b.tf, { icon: IC.cross, tone: 'no' })]
+    : b.o.map((label, i) => opt(label, i === 0));
+  return { tag: b.tag || BANK_TAG[b.z] || 'הידעת?', q: b.q, art, hideName: !!b.hideName, options, fact: b.e, keepOrder: tf, qid: 'qb-' + b.id };
 }
 
 /* ───────────────────────────────────────────── quiz generators */
 function opt(label, ok, extra = {}) { return { label, ok: !!ok, ...extra }; }
-function freshFrom(list, used) { const c = list.filter((x) => !used.has(x.key || x.id)); return c.length ? pick(c) : null; }
+// GKEY: the generator now running; GPICK: the id of the question it built (generator + species), for S.seen
+let GKEY = '', GPICK = '';
+function freshFrom(list, used) {
+  const c = list.filter((x) => !used.has(x.key || x.id)); if (!c.length) return null;
+  // prefer a species this player was not asked about lately with this kind of question
+  const id = (x) => GKEY + ':' + (x.key || x.id);
+  const un = c.filter((x) => !SEEN.has(id(x)));
+  let s;
+  if (un.length) s = pick(un);
+  else { const o = c.slice().sort((a, b) => seenRank(id(a)) - seenRank(id(b))); s = pick(o.slice(0, Math.max(1, Math.ceil(o.length / 3)))); }
+  GPICK = id(s); return s;
+}
 // quiz pictures: the painted card art when there is one, else the model thumbnail
 const nameOpt = (s, ok, withImg) => opt(s.name, ok, withImg ? (CARD_ART[s.id] ? { img: CARD_ART[s.id], paint: true } : { img: s.img }) : {});
 const toolImg = (id) => (CARD_ART[id] ? { img: CARD_ART[id], paint: true } : { img: TOOL_ICONS[id] });
@@ -403,7 +453,9 @@ const GEN = {
       const t = spOf(s.biome, r.target); if (t && !used.has(t.key)) pairs.push({ s, r, t });
     }
     if (!pairs.length) return null;
-    const { s, r, t } = pick(pairs);
+    const freshPairs = pairs.filter((p) => !SEEN.has('rel:' + p.t.key + ':' + p.s.key));
+    const { s, r, t } = pick(freshPairs.length ? freshPairs : pairs);
+    GPICK = 'rel:' + t.key + ':' + s.key;
     const doers = new Set(SP.filter((o) => o.biome === s.biome && (o.relations || []).some((x) => x.type === r.type && x.target === t.id)).map((o) => o.key));
     // never offer as "wrong" an animal that may really do it: flower visitors for pollination, fruit/seed eaters for seed spreading
     const maybe = (o) => r.type === 'pollinates'
@@ -435,7 +487,9 @@ const GEN = {
       .map((r) => (spOf(s.biome, r.target) || {}).layer).filter(Boolean));
     const wrong = sample(layers.filter((l) => l !== L && !near.has(l.id)), 2); if (!wrong.length) return null;
     used.add(s.key);
-    return { tag: 'קומות היער', q: `באיזו קומה ביער אפשר למצוא את ${defName(s.id, s.name)}?`, art: s, options: [opt(L.name, true), ...wrong.map((l) => opt(l.name, false))], fact: L.desc };
+    const reef = s.biome === 'reef';
+    return { tag: reef ? 'אזורי השונית' : 'קומות היער', q: reef ? `באיזה אזור בשונית אפשר למצוא את ${defName(s.id, s.name)}?` : `באיזו קומה ביער אפשר למצוא את ${defName(s.id, s.name)}?`,
+      art: s, options: [opt(L.name, true), ...wrong.map((l) => opt(l.name, false))], fact: L.desc };
   },
   fact(pool, used) {
     const s = freshFrom(pool.filter((x) => x.fact && x.img), used); if (!s) return null;
@@ -486,17 +540,24 @@ function dietSentence(s) {
 }
 function buildRound(level, biomeSel) {
   const pool = SP.filter((s) => biomeSel === 'both' || s.biome === biomeSel);
+  // about half a round comes from the generators, the rest from the hand-written bank (4 for beginners, 5 for advanced)
+  const bank = QBANK.filter((b) => b.lvl === level && (biomeSel === 'both' || b.z === biomeSel || b.z === 'all'));
   const plan = level === 'easy'
-    ? (biomeSel === 'both' ? ['who', 'who', 'who', 'who', 'eat', 'eat', 'when', 'when', 'where', 'where'] : ['who', 'who', 'who', 'who', 'who', 'eat', 'eat', 'eat', 'when', 'when'])
-    : ['rel', 'rel', 'menu', 'layer', 'fact', 'tf', 'own', 'own', 'tool', 'tool'];
+    ? (biomeSel === 'both' ? ['who', 'who', 'eat', 'when', 'where', 'where'] : ['who', 'who', 'who', 'eat', 'eat', 'when'])
+    : shuffle(['rel', 'menu', 'layer', 'fact', 'tf', 'own', 'own', 'tool']).slice(0, 5);
   const fallback = level === 'easy' ? ['who', 'eat', 'when'] : ['own', 'fact', 'layer', 'tf'];
   const used = new Set(); const out = [];
   for (const k of plan) {
     let q = null;
-    for (let t = 0; t < 12 && !q; t++) q = GEN[k](pool, used);
-    for (const f of fallback) { if (q) break; for (let t = 0; t < 8 && !q; t++) q = GEN[f](pool, used); }
-    if (q) out.push(q);
+    GKEY = k; for (let t = 0; t < 12 && !q; t++) { GPICK = ''; q = GEN[k](pool, used); }
+    for (const f of fallback) { if (q) break; GKEY = f; for (let t = 0; t < 8 && !q; t++) { GPICK = ''; q = GEN[f](pool, used); } }
+    if (q) { q.qid = q.qid || GPICK; out.push(q); }
   }
+  // fill the round from the bank (more of it when a generator found nothing, e.g. in a small pool)
+  const nb = Math.min(bank.length, Math.max(0, ROUND - out.length));
+  const fromBank = freshest(bank, nb, (b) => 'qb-' + b.id);
+  for (const b of fromBank.pick) out.push(bankQ(b));
+  for (const k of fallback) { while (out.length < ROUND) { GKEY = k; GPICK = ''; const q = GEN[k](pool, used); if (!q) break; q.qid = q.qid || GPICK; out.push(q); } }
   // shuffle question order, then answer positions (balanced so the right answer is not biased to any slot)
   const qs = shuffle(out).slice(0, ROUND);
   let bag = [];
@@ -508,6 +569,7 @@ function buildRound(level, biomeSel) {
     const right = q.options.find((o) => o.ok); const rest = shuffle(q.options.filter((o) => !o.ok));
     rest.splice(pos, 0, right); q.options = rest;
   }
+  qs.forget = fromBank.forget || [];
   return qs;
 }
 
@@ -1417,10 +1479,11 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
         ${ch('level', 'hard', IC.tree, 'מתקדמים', 'קשרים ברשת, קומות היער וטכנולוגיה')}
         ${torahQuiz ? ch('level', 'torah', IC_SCROLL, 'מן המקורות', 'פסוקים, מדרשים ופרק שירה') : ''}
       </div></div>
-      ${QS.level === 'torah' ? '' : `<div class="wl-step"><h3>2. בחרו מקום</h3><div class="wl-choices" style="--n:3">
+      ${QS.level === 'torah' ? '' : `<div class="wl-step"><h3>2. בחרו מקום</h3><div class="wl-choices wl-places" style="--n:4">
         ${ch('biome', 'amazon', CARD_ART.toucan ? `<img class="paint" src="${CARD_ART.toucan}" alt="" style="transform-origin:58% 36%">` : `<img src="${th('amazon', 'toucan')}" alt="">`, 'אמזונס', 'יער הגשם')}
         ${ch('biome', 'grove', CARD_ART.gazelle ? `<img class="paint" src="${CARD_ART.gazelle}" alt="" style="transform-origin:52% 32%">` : `<img src="${th('grove', 'jay')}" alt="">`, 'חורש', 'החורש הארץ-ישראלי')}
-        ${ch('biome', 'both', IC.globe, 'שניהם', 'גם וגם')}
+        ${ch('biome', 'reef', CARD_ART.clownfish ? `<img class="paint" src="${CARD_ART.clownfish}" alt="" style="transform-origin:50% 45%">` : IC.drop, 'שונית', 'שונית האלמוגים')}
+        ${ch('biome', 'both', IC.globe, 'הכול', 'כל המקומות')}
       </div></div>`}
       <button class="wl-btn go" data-wl="start">יוצאים לדרך! ${IC.next}</button>
     </div></section>`;
@@ -1431,8 +1494,18 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   function startQuiz(opts = {}) {
     let level = opts.level || QS.level; const biome = opts.biome || QS.biome;
     if (level === 'torah' && !(TORAH && sourcesOn())) level = 'easy';
-    Q = { level, biome, qs: level === 'torah' ? buildTorahRound() : buildRound(level, biome), i: 0, res: [], packs: 0, answered: false };
+    SEEN = seenMap(S.seen);
+    const qs = level === 'torah' ? buildTorahRound() : buildRound(level, biome);
+    if (qs.forget && qs.forget.length) { const f = new Set(qs.forget); S.seen = (Array.isArray(S.seen) ? S.seen : []).filter((id) => !f.has(id)); save(); }
+    Q = { level, biome, qs, i: 0, res: [], packs: 0, answered: false };
     renderQuestion();
+  }
+  // a question counts as asked once it is on the screen (a round left in the middle does not use up the rest)
+  function markSeen(id) {
+    if (!id) return;
+    const l = (Array.isArray(S.seen) ? S.seen : []).filter((x) => x !== id); l.push(id);
+    S.seen = l.length > SEEN_MAX ? l.slice(l.length - SEEN_MAX) : l;
+    save();
   }
   function progHTML() {
     return `<div class="wl-prog" aria-label="התקדמות">${Q.qs.map((_, k) => `<span class="wl-pl ${k < Q.res.length ? (Q.res[k] ? 'ok' : 'no') : k === Q.i ? 'cur' : ''}">${IC.leaf}</span>`).join('')}
@@ -1440,6 +1513,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   }
   function renderQuestion() {
     const q = Q.qs[Q.i]; Q.answered = false;
+    markSeen(q.qid);
     const longOpts = q.options.some((o) => o.label.length > (Q.level === 'easy' ? 14 : 18)) || (q.options.length > 3);
     let art = '';
     if (q.art) {
