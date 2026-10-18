@@ -4,7 +4,7 @@ import base64, io, json, os
 from PIL import Image
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 out = {}
-for b in ('amazon', 'grove'):
+for b in ('amazon', 'grove', 'reef'):
     p = os.path.join(ROOT, 'art', 'islands', b + '.png')
     if not os.path.exists(p): continue
     im = Image.open(p).convert('RGB')

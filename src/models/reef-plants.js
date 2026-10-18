@@ -308,6 +308,8 @@ function makePlankton(opts) {
 
 export const PLANTS = Object.fromEntries([...new Set([...Object.keys(SHAPES), ...Object.keys(REEF_FLORA)])].map((id) => [id, (opts) => makeCoral(id, opts)]).concat([['plankton', makePlankton]]));
 export const REEF_ROCKS = () => (REEF_FLORA.reefrock ? [0, 1, 2].map((k) => blenderShape('reefrock', k)) : []);
+// scenery: coral heads that decorate the reef crest from the start (not species – the player's corals are separate)
+export const REEF_DECOR = (ids) => ids.filter((id) => REEF_FLORA[id]).flatMap((id) => [0, 1, 2].map((k) => ({ id, ...blenderShape(id, k) })));
 export function releaseCaches() {
   for (const s of CACHE.values()) s.geo.dispose();
   CACHE.clear();

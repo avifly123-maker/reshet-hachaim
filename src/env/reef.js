@@ -8,7 +8,7 @@
 //   - below: the island's base of sandstone and reef rock, floating over a sea of mist like the other zones
 //   - events: drought / heat → warm, paler water; flood → murky water (mud from a desert flood); rain → a rougher surface
 import * as THREE from 'three';
-import { REEF_ROCKS } from '../models/reef-plants.js';
+import { REEF_ROCKS, REEF_DECOR } from '../models/reef-plants.js';
 import { GROUND_TEX } from '../data/ground-textures.js';
 import { makeRng, makeNoise2D, clamp, lerp, smoothstep, damp } from '../core/util.js';
 
@@ -74,7 +74,7 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
   function buildFloor() {
     const segs = qual.seg, rings = qual.rings;
     const pos = [], col = [], idx = [];
-    const sand = new THREE.Color('#f2dfb4'), sand2 = new THREE.Color('#e2c898'), rock = new THREE.Color('#9a8270'),
+    const sand = new THREE.Color('#f6e4bc'), sand2 = new THREE.Color('#ead0a0'), rock = new THREE.Color('#9a8270'),
       rock2 = new THREE.Color('#b8706c'), algae = new THREE.Color('#6f8446'), c = new THREE.Color();
     const rk = [];
     pos.push(0, heightAt(0, 0), 0); c.copy(sand); col.push(c.r, c.g, c.b); rk.push(0);
@@ -158,7 +158,7 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
         }`)
       .replace('#include <dithering_fragment>', `
         float cs = caust(vWPos.xz, uTime) * 0.6 + caust(vWPos.xz * 1.45 + 3.1, uTime * 1.21) * 0.45;
-        gl_FragColor.rgb += vec3(0.8, 0.97, 1.0) * cs * uCaust * 0.22 * (1.0 - uMurk * 0.85);
+        gl_FragColor.rgb += vec3(0.8, 0.97, 1.0) * cs * uCaust * 0.15 * (1.0 - uMurk * 0.85);
         // sea water takes the red out of the light: the floor reads blue-green, deeper spots more so
         float dep = clamp((${REEF_SURFACE.toFixed(1)} - vWPos.y) / 18.0, 0.0, 1.0);
         gl_FragColor.rgb *= mix(vec3(1.0), vec3(0.82, 0.92, 1.0), 0.3 + 0.3 * dep);
@@ -183,6 +183,33 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
       o.castShadow = true; o.receiveShadow = true; o.name = 'reef-rock';
       root.add(o); rockMeshes.push(o);
     });
+  }
+
+  // ───────────────────────────── coral heads on the reef crest and around the rocks (scenery, from the Blender models):
+  // the diorama looks like a living reef from the first moment; the player's own corals grow on the open sand
+  const decor = [];
+  {
+    const shapes = REEF_DECOR(['branching', 'brain', 'table', 'softcoral', 'seafan', 'sponge', 'firecoral', 'branching', 'brain']);
+    if (shapes.length) {
+      const dmat = track(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.8, metalness: 0 }));
+      const dmatD = track(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.8, metalness: 0, side: THREE.DoubleSide }));
+      const SZ = { branching: 3.0, brain: 2.6, table: 1.7, softcoral: 3.0, seafan: 2.4, sponge: 2.6, firecoral: 2.8 };
+      let tries = 0;
+      while (decor.length < 64 && tries++ < 900) {
+        const a = rng() * TAU, rr = 12 + rng() * 29, x = Math.cos(a) * rr, z = Math.sin(a) * rr;
+        // mostly on the crest (north) and next to the rock mounds; keep the middle open for the player
+        const nearMound = mounds.some((m) => { const d = Math.hypot(x - m.x, z - m.z); return d > m.r * 0.6 && d < m.r * 1.5; });
+        if (!(z < -10 && rng() < 0.85) && !(nearMound && rng() < 0.6)) continue;
+        if (decor.some((q) => Math.hypot(q.x - x, q.z - z) < q.r + 1.4)) continue;
+        const sh = shapes[(rng() * shapes.length) | 0];
+        const k = (SZ[sh.id] || 1.6) * (0.75 + rng() * 0.5);
+        const o = new THREE.Mesh(sh.geo, sh.double ? dmatD : dmat);
+        o.scale.setScalar(k); o.rotation.y = rng() * TAU;
+        o.position.set(x, heightAt(x, z) - 0.08 * k, z);
+        o.castShadow = true; o.receiveShadow = true; o.name = 'reef-decor';
+        root.add(o); decor.push({ x, z, r: (sh.crown?.radius || 0.6) * k * 0.8 });
+      }
+    }
   }
 
   // ───────────────────────────── the island's base (sandstone and reef rock under the sea floor)
@@ -260,11 +287,11 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
         float fr = 0.25 + 0.75 * pow(1.0 - max(dot(N, V), 0.0), 3.0);
         vec3 H = normalize(V + uSunDir);
         float spec = pow(max(dot(N, H), 0.0), 140.0) * smoothstep(-0.05, 0.2, uSunDir.y);
-        vec3 c = mix(uShallow * 1.05, vec3(0.85, 0.95, 1.0), fr * 0.5);
+        vec3 c = mix(uShallow * 0.95, vec3(0.62, 0.9, 0.96), fr * 0.25);   // clear tropical water: turquoise, never milky
         c = mix(c, vec3(0.45, 0.4, 0.25), uMurk * 0.5);
         c *= mix(1.0, 0.25, uNight);
         float edge = 1.0 - smoothstep(${(EDGE - 0.6).toFixed(1)}, ${(EDGE + 0.2).toFixed(1)}, length(vW.xz));
-        gl_FragColor = vec4(c + uSunCol * spec * 2.2, (0.04 + fr * 0.3 + spec * 0.5 + uMurk * 0.3) * edge);
+        gl_FragColor = vec4(c + uSunCol * spec * 2.2, (0.15 + fr * 0.2 + spec * 0.45 + uMurk * 0.3) * edge);
       }`,
   }));
   const surface = new THREE.Mesh(surfGeo, surfMat); surface.renderOrder = 3; surface.name = 'reef-surface';
@@ -429,6 +456,7 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
   function isPlaceable(x, z) {
     if (Math.hypot(x, z) > R) return false;
     if (onRock(x, z)) return false;
+    if (decor.some((q) => Math.hypot(q.x - x, q.z - z) < q.r)) return false;
     const ee = 0.6;
     const gx = (heightAt(x + ee, z) - heightAt(x - ee, z)) / (2 * ee), gz = (heightAt(x, z + ee) - heightAt(x, z - ee)) / (2 * ee);
     return Math.hypot(gx, gz) < 0.75;
