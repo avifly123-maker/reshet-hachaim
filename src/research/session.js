@@ -7,7 +7,9 @@ import * as THREE from 'three';
 import { createRunner } from './runner.js';
 import { textsFor } from './texts.js';
 import { createResearchUI } from './ui.js';
-import { saveCaseResult } from './progress.js';
+import { saveCaseResult, researchProgress } from './progress.js';
+import { CASES } from './cases/index.js';
+import { grant as grantBadge } from '../core/badges-store.js';
 import { TORAH } from '../core/edition.js';
 import { grantSource } from '../core/sources-store.js';
 import { SOURCE_CARDS } from '../data/torah.js';
@@ -22,15 +24,20 @@ const _v = new THREE.Vector3();
 export function createResearchSession(ctx) {
   const { W, C, env, reg, scene, markers, rig, ui, audio, tools, thumbs, spawnPlant, spawnAnimal, randomPlaceSpot, findSpotNear, addStump, select, exit } = ctx;
   const T = textsFor(C.level, C.zone);
-  const runner = createRunner(C);   // the rules (costs, budget, limits, the balance clock), shared with the tests
-  const model = runner.model;
+  let runner = createRunner(C);   // the rules (costs, budget, limits, the balance clock), shared with the tests
+  let model = runner.model;      // both are new after "try again" (retry)
   const known = new Map();      // board id → model time it was first measured
-  const hist = [];              // [{ t, v: { id: value } }]
-  const acts = runner.acts;     // [{ t, id, n }] what the child did, for the graph flags and the report
+  let hist = [];                // [{ t, v: { id: value } }]
+  let acts = runner.acts;       // [{ t, id, n }] what the child did, for the graph flags and the report
+  // the experiment log (יומן ניסויים): every try, result and surprise, across "try again" (middle and advanced)
+  const logs = [];
+  let attempt = 1;
+  const sandbox = C.level !== 'kids';
+  const log = (kind, text, extra = {}) => { logs.push({ attempt, t: Math.round(model.state.t), kind, text, ...extra }); R.setLogCount && R.setLogCount(logs.length); };
   const placedTools = new Set();
   const pendingNight = [];      // tool ids that will count at night
   const alive = (e) => e.alive && !e.removed && !e.dying && !e.leaving;
-  let finished = false, disposed = false, guess = null, histT = 0, syncT = 0, plantSyncT = 0;
+  let finished = false, disposed = false, guess = null, histT = 0, syncT = 0, plantSyncT = 0, surpriseT = 0;
   const timers = new Set();
   const later = (fn, ms) => { const id = setTimeout(() => { timers.delete(id); if (!disposed) fn(); }, ms); timers.add(id); };
   let ff = null;                // { left, act } "see what happens"
@@ -61,6 +68,8 @@ export function createResearchSession(ctx) {
     onExit: () => exit(),
     onStay: () => R.closeSolved(),
     onMore: () => exit(),
+    onLog: () => R.openLog(logs, attempt),
+    onRetry: () => retry(),
   });
 
   // ─────────────────────────────────────── the island at the start
@@ -244,6 +253,7 @@ export function createResearchSession(ctx) {
     runner.apply(id, n);
     const idea = runner.ideaOf(id);
     lastAct = { id, n };
+    log('idea', idea.title + (n > 1 && idea.amounts.length > 1 ? ' (פי ' + n + ')' : ''), { icon: idea.icon, thumb: idea.icon.startsWith('species:') ? thumbs[idea.icon.slice(8)] : null });
     audio.play('place');
     R.setTable(tableState());
     R.offerSee(idea);
@@ -293,7 +303,7 @@ export function createResearchSession(ctx) {
     let line = C.after && C.after[a.id];
     // a line that depends on the numbers: { test, below, no, ok } (or the first case's { noNest, ok })
     if (line && typeof line === 'object') line = line.test ? (model.get(line.test) < (line.below ?? 0.5) ? line.no : line.ok) : (model.get('nests') < 0.5 ? line.noNest : line.ok);
-    if (line) R.note(line, { action: { label: T('lab'), id: 'lab' } });
+    if (line) { R.note(line, { action: { label: T('lab'), id: 'lab' } }); log('result', line); }
     lastAct = null;
   }
   function startToNight() {
@@ -351,6 +361,9 @@ export function createResearchSession(ctx) {
       R.setLights(L, runner.held, C.holdSeconds);
       if (ff) { ff.left -= mdt; R.setFF({ on: true, p: 1 - Math.max(0, ff.left) / FF_SECONDS }); if (ff.left <= 0) endFF(); }
     }
+    // surprises: the numbers turned after something the child tried
+    surpriseT -= rdt;
+    if (surpriseT <= 0) { surpriseT = 0.5; for (const S of runner.surprises()) { R.note(S.text, { kind: 'surprise', action: { label: T('lab'), id: 'lab' } }); log('surprise', S.text); audio.play('discover'); } }
     // night for the camera
     if (pendingNight.length && W.nightGlow > 0.6) { const ids = pendingNight.splice(0); later(() => ids.forEach(reveal), 400); }
     if (toNight && W.nightGlow > 0.6) { toNight = null; if (!ff) W.speed = baseSpeed; }
@@ -376,11 +389,44 @@ export function createResearchSession(ctx) {
     const stars = [true, right, thrift];
     const first = saveCaseResult(C.id, stars, { spent, acts: acts.length });
     if (first) { try { window.__wolLearn && window.__wolLearn.grantPack && window.__wolLearn.grantPack(1); } catch (e) { /* the hub is optional */ } }
+    // badges (תגים): the first mystery, three stars, every mystery, and a way of one's own
+    const other = runner.otherWay();
+    grantBadge('research:first');
+    if (stars.every(Boolean)) grantBadge('research:stars');
+    if (other) grantBadge('research:other');
+    const done = researchProgress().cases;
+    if (CASES.every((c) => done[c.id])) grantBadge('research:all');
+    log('solved', other ? T('otherWay') : T('solvedTitle'));
     let source = null;
     if (TORAH && C.source) { const card = SOURCE_CARDS.find((c) => c.id === C.source); if (card) { grantSource(card.id); source = card; } }
     audio.play('mission');
     R.setSolved(T('solvedTitle'));
-    R.showSolved({ stars, pack: first, source, solvedText: C.solved, learned: C.learned, real: C.realStory });
+    R.showSolved({ stars, pack: first, source, solvedText: C.solved, learned: C.learned, real: C.realStory, other, attempt, tries: logs.filter((l) => l.kind === 'idea').length });
+  }
+
+  // ─────────────────────────────────────── try again: the place goes back to how it was; the measurements, the guess
+  // and the experiment log stay (middle and advanced levels)
+  function retry() {
+    if (!sandbox) return;
+    if (ff) { ff = null; R.setFF({ on: false }); }
+    W.speed = baseSpeed;
+    runner = createRunner(C); model = runner.model; acts = runner.acts;
+    hist = []; histT = 0; record();
+    for (const k of known.keys()) known.set(k, 0);
+    finished = false; lastAct = null;
+    // the devices the ideas put up come off the island (the measuring tools stay)
+    const placedByIdeas = new Set(C.ideas.map((i) => (i.id === 'nestbox' ? 'nestbox' : i.place)).filter((d) => d && d !== 'sensor'));
+    if (tools.removeDevices) tools.removeDevices((p) => placedByIdeas.has(p.id));
+    if (W.research._boxTrees) W.research._boxTrees.length = 0;
+    attempt++;
+    log('retry', T('retryNote'));
+    for (const v of C.visual || []) syncOne(v, true);
+    syncPlants(true);
+    R.setSolved('');
+    R.setTable(tableState()); R.setBoard(boardState());
+    R.setLights({ life: false, regen: false, env: false }, 0, C.holdSeconds);
+    R.note(T('retryNote'), { kind: 'good' });
+    audio.play('select');
   }
 
   function dispose() {
@@ -392,6 +438,7 @@ export function createResearchSession(ctx) {
   }
 
   // test hooks
-  W.research.dbg = { model, runner, known, reveal, applyIdea, useTool, startFF, finish, openLab, get held() { return runner.held; }, get spent() { return runner.spent; }, get solved() { return finished; } };
-  return { start, update, dispose, model, paused: () => R.isOpen() };
+  W.research.dbg = { get model() { return model; }, get runner() { return runner; }, known, reveal, applyIdea, useTool, startFF, finish, openLab, retry, logs,
+    openLog: () => R.openLog(logs, attempt), get held() { return runner.held; }, get spent() { return runner.spent; }, get solved() { return finished; } };
+  return { start, update, dispose, get model() { return model; }, paused: () => R.isOpen() };
 }

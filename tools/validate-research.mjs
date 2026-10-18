@@ -49,6 +49,22 @@ for (const C of CASES) {
   for (const i of C.ideas) { for (const k of Object.keys(i.effect.add || {})) if (!vars.has(k)) err(C.id, `idea ${i.id} changes unknown var ${k}`); if (i.icon.startsWith('species:') && !sp.has(i.icon.slice(8))) err(C.id, `idea ${i.id} icon species missing`); }
   for (const [d] of C.scene?.decor || []) if (!sp.has(d)) err(C.id, `decor ${d} not in ${C.zone}`);
   if (C.dilemma) for (const o of C.dilemma.options) { if (!C.ideas.some((i) => i.id === o.idea)) err(C.id, `dilemma option ${o.idea} is not an idea`); if (!o.plus || !o.minus) err(C.id, `dilemma option ${o.idea} needs what it gives (plus) and what it costs (minus)`); }
+  for (const v of C.model.vars) { const c = v.cap; if (c && typeof c === 'object') { if (c.of && !vars.has(c.of)) err(C.id, `${v.id}: cap of unknown var ${c.of}`); for (const a of c.also || []) if (!vars.has(a.of)) err(C.id, `${v.id}: cap.also of unknown var ${a.of}`); } }
+  for (const f of C.model.flows) if (f.refugeOf && !vars.has(f.refugeOf.of)) err(C.id, `flow ${f.type}: refugeOf unknown var ${f.refugeOf.of}`);
+  for (const S of C.surprises || []) {
+    if (!S.id || !S.text) err(C.id, 'a surprise needs an id and a text');
+    if (!vars.has(S.test)) err(C.id, `surprise ${S.id}: test on unknown var ${S.test}`);
+    if (S.idea && !C.ideas.some((i) => i.id === S.idea)) err(C.id, `surprise ${S.id}: unknown idea ${S.idea}`);
+    if (S.above == null && S.below == null) err(C.id, `surprise ${S.id}: needs above or below`);
+  }
+  for (const id of C.mainFix || []) if (!C.ideas.some((i) => i.id === id)) err(C.id, `mainFix: unknown idea ${id}`);
+  // the sandbox levels: several ways in, several ways to go wrong, surprises along the way
+  if (C.level !== 'kids') {
+    if (!C.mainFix || !C.mainFix.length) err(C.id, 'middle / advanced case needs mainFix (the usual route)');
+    if (Object.keys(C.tests?.traps || {}).length < 5) err(C.id, 'middle / advanced case needs at least 5 traps in its tests');
+    if ((C.surprises || []).length < 3) err(C.id, 'middle / advanced case needs at least 3 surprises');
+    if (C.ideas.length < 8) err(C.id, `middle / advanced case needs at least 8 ideas (has ${C.ideas.length})`);
+  }
   if (!C.guesses.some((g) => g.right)) err(C.id, 'no right guess');
   if (!C.tests) err(C.id, 'no solvability tests');
   if (C.level === 'kids') for (const [k, s] of kidStrings(C)) if (!vocalised(s)) err(C.id, `beginner text without full nikud: ${k} "${s}"`);

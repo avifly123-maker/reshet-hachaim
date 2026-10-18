@@ -3,6 +3,7 @@
 // Plain DOM inside #ui, styled by src/research/research.css (same field-kit look as the rest of the game).
 import { icon, esc } from '../ui/ui.js';
 import { TOOL_ICONS } from '../game/tools.js';
+import { CASE_ICONS } from './case-icons.js';
 
 const svgURL = (body, bg) => 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="${bg}"/>${body}</svg>`);
 export const R_ICONS = {
@@ -26,8 +27,25 @@ export const R_ICONS = {
   poison: svgURL('<rect x="13" y="24" width="38" height="24" rx="4" fill="#5a6470"/><rect x="13" y="20" width="38" height="8" rx="3" fill="#6e7a86"/><path d="M28 48v-6h8v6" fill="#2a3038"/><path d="M32 30v8" stroke="#e8433a" stroke-width="4" stroke-linecap="round"/><circle cx="32" cy="42.5" r="2.2" fill="#e8433a"/>', '#f6e6d0'),
   // a hedge of bushes along a field edge
   hedge: svgURL('<path d="M8 50h48" stroke="#8a5a32" stroke-width="3"/><g fill="#4f8a3f"><circle cx="17" cy="38" r="9"/><circle cx="31" cy="34" r="11"/><circle cx="46" cy="38" r="9"/></g><g fill="#6fbf4a"><circle cx="14" cy="35" r="4"/><circle cx="29" cy="29" r="5"/><circle cx="44" cy="34" r="4"/></g><g fill="#c8473a"><circle cx="22" cy="40" r="1.8"/><circle cx="36" cy="38" r="1.8"/><circle cx="49" cy="41" r="1.8"/></g>', '#f1e9d6'),
+  // a strip of forest joining a small patch to the big forest
+  corridor: svgURL('<path d="M6 44c10-2 14-10 26-10s18 8 26 6" stroke="#8fbf5a" stroke-width="9" fill="none" stroke-linecap="round"/><g fill="#3f7a3a"><circle cx="11" cy="30" r="8"/><circle cx="20" cy="24" r="7"/><circle cx="46" cy="22" r="9"/><circle cx="55" cy="30" r="7"/></g><g fill="#5f9a4a"><circle cx="28" cy="36" r="4"/><circle cx="36" cy="33" r="4"/></g>', '#e6f2da'),
+  // a box hive of honeybees
+  hive: svgURL('<rect x="16" y="22" width="32" height="10" rx="2" fill="#e8b84a"/><rect x="16" y="33" width="32" height="10" rx="2" fill="#d9a43a"/><rect x="14" y="17" width="36" height="5" rx="2" fill="#a8742a"/><rect x="28" y="40" width="8" height="3" fill="#5a3a1a"/><g fill="#2a2420"><circle cx="50" cy="20" r="2"/><circle cx="12" cy="40" r="2"/></g><path d="M16 46h32" stroke="#8a5a32" stroke-width="3"/>', '#fbf1d6'),
+  // corn spread on the ground
+  corn: svgURL('<path d="M32 50V22" stroke="#7a9a3a" stroke-width="3"/><ellipse cx="32" cy="28" rx="7" ry="13" fill="#f2c23a"/><g fill="#e0a82a"><circle cx="29" cy="22" r="1.6"/><circle cx="35" cy="22" r="1.6"/><circle cx="29" cy="28" r="1.6"/><circle cx="35" cy="28" r="1.6"/><circle cx="29" cy="34" r="1.6"/><circle cx="35" cy="34" r="1.6"/></g><path d="M25 38c-6-2-9-8-9-14 6 2 9 7 9 14zM39 38c6-2 9-8 9-14-6 2-9 7-9 14z" fill="#8fbf5a"/>', '#fbf1d6'),
+  // bread crumbs on the water
+  bread: svgURL('<path d="M8 40c6-4 10-4 16 0s10 4 16 0 10-4 16 0" stroke="#3a8fd0" stroke-width="3" fill="none"/><path d="M18 30c0-6 6-10 14-10s14 4 14 10v4H18z" fill="#d9a45a"/><path d="M22 26c3-2 6-2 9 0M33 26c3-2 6-2 9 0" stroke="#b07a3a" stroke-width="2" fill="none"/><g fill="#d9a45a"><circle cx="16" cy="44" r="2"/><circle cx="44" cy="46" r="2"/><circle cx="30" cy="47" r="1.6"/></g>', '#dbe9f0'),
+  // a bottle of medicine poured into the sea (no cross: a drop on the label)
+  medicine: svgURL('<rect x="24" y="18" width="16" height="6" rx="2" fill="#6e7a86"/><rect x="21" y="24" width="22" height="24" rx="5" fill="#b8d8e8"/><path d="M32 30c-3 4-4 6-4 8a4 4 0 0 0 8 0c0-2-1-4-4-8z" fill="#3a8fd0"/><path d="M10 52c6-3 10-3 16 0s10 3 16 0 10-3 16 0" stroke="#3a8fd0" stroke-width="3" fill="none"/>', '#e6f1f8'),
+  // edible seaweed grown on ropes beside the fish cages
+  seaweed: svgURL('<path d="M8 22h48" stroke="#8a5a32" stroke-width="2.5"/><g fill="#4f9a3c"><path d="M16 22c-4 8 4 12 0 20 6-6 2-12 4-20z"/><path d="M30 22c-4 9 4 14 0 24 6-7 2-14 4-24z"/><path d="M44 22c-4 8 4 12 0 20 6-6 2-12 4-20z"/></g><path d="M8 50c6-3 10-3 16 0s10 3 16 0 10-3 16 0" stroke="#3a8fd0" stroke-width="3" fill="none"/>', '#e6f1f8'),
+  // an old hollow tree (two bare limbs going up and apart, no crossing)
+  hollow: svgURL('<path d="M27 32c-2-6-7-9-11-12M37 30c2-5 6-8 10-10" stroke="#7a5530" stroke-width="5" fill="none" stroke-linecap="round"/><rect x="24" y="26" width="16" height="28" rx="5" fill="#8a6038"/><ellipse cx="32" cy="38" rx="4" ry="5.5" fill="#2a1a10"/><path d="M14 56h36" stroke="#8a5a32" stroke-width="3"/>', '#f1e9d6'),
+  // a pile of branches at the field edge: logs stacked side by side (no crossing sticks)
+  piles: svgURL('<g fill="#8a6038" stroke="#5a3a1a" stroke-width="1.5"><rect x="12" y="40" width="40" height="7" rx="3.5"/><rect x="16" y="33" width="32" height="7" rx="3.5"/><rect x="22" y="26" width="20" height="7" rx="3.5"/></g><g fill="#6f9a4a"><circle cx="50" cy="31" r="3.5"/><circle cx="14" cy="35" r="3"/></g><path d="M8 50h48" stroke="#8a5a32" stroke-width="3"/>', '#f1e9d6'),
   parasites: svgURL('<ellipse cx="30" cy="32" rx="18" ry="11" fill="#e8a03a"/><path d="M46 32l10-7v14z" fill="#e8a03a"/><circle cx="20" cy="29" r="2.4" fill="#2a2420"/><g fill="#7a3a5a"><circle cx="30" cy="30" r="2.2"/><circle cx="36" cy="36" r="2"/><circle cx="27" cy="38" r="1.8"/><circle cx="40" cy="28" r="1.6"/></g>', '#f6e6d0'),
 };
+for (const k in CASE_ICONS) if (!R_ICONS[k]) R_ICONS[k] = CASE_ICONS[k];   // pictures of the frogs, young oaks and leaf-cutters mysteries
 const SERIES_COLORS = ['#c8473a', '#3a7fc8', '#4f9a3c', '#d99a2b', '#8a5ab8', '#2f9a95'];
 const LIGHT_ICONS = { life: 'paw', regen: 'sprout', env: 'drop' };
 
@@ -52,6 +70,8 @@ export function createResearchUI(root, o) {
     ffEl = mk('rs-ff', '');
     ffEl.addEventListener('click', (e) => { if (e.target.closest('[data-see]')) o.onSee(); });
     table.addEventListener('click', onTableClick);
+    // a long row of ideas: the mouse wheel scrolls it sideways
+    table.addEventListener('wheel', (e) => { const r = e.target.closest('.rs-ideas'); if (!r || r.scrollWidth <= r.clientWidth || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return; r.scrollBy({ left: -e.deltaY }); e.preventDefault(); }, { passive: false });
     if (typeof ResizeObserver !== 'undefined') { ro = new ResizeObserver(() => window.dispatchEvent(new Event('resize'))); ro.observe(table); }
     notes.addEventListener('click', onNoteClick);
   }
@@ -59,7 +79,7 @@ export function createResearchUI(root, o) {
   // ───────────── balance meter
   let lastSig = '';
   let solvedLine = '';
-  function setSolved(text) { solvedLine = text; lastSig = ''; if (meter) meter.classList.add('solved'); }
+  function setSolved(text) { solvedLine = text; lastSig = ''; if (meter) meter.classList.toggle('solved', !!text); }
   function setLights(L, held, hold) {
     if (!meter) return;
     const sig = `${L.life}${L.regen}${L.env}|${Math.floor(held)}|${solvedLine}`;
@@ -88,13 +108,15 @@ export function createResearchUI(root, o) {
     if (!table) return;
     table.innerHTML = `<div class="rs-desk">
       <section class="rs-sec rs-sec-tools"><h4>${esc(T('tools'))}</h4><div class="rs-tools">${st.tools.map((t) => `<button class="rs-tool${t.placed ? ' placed' : ''}" data-tool="${t.id}">${pic(null, t.icon)}<span>${esc(t.name)}</span>${t.placed ? `<i class="rs-ok">${icon('check')}</i>` : ''}</button>`).join('')}</div></section>
-      <section class="rs-sec rs-sec-ideas"><h4>${esc(T('ideas'))}</h4><div class="rs-ideas">${st.ideas.map((i) => `<div class="rs-idea${i.full ? ' full' : ''}${i.tech ? ' tech' : ''}" data-idea="${i.id}">${ideaPic(i)}<span class="rs-i-title">${esc(i.title)}</span>
+      <section class="rs-sec rs-sec-ideas"><h4>${esc(T('ideas'))}</h4><div class="rs-ideas${st.ideas.length > 6 ? ' many' : ''}">${st.ideas.map((i) => `<div class="rs-idea${i.full ? ' full' : ''}${i.tech ? ' tech' : ''}" data-idea="${i.id}">${ideaPic(i)}<span class="rs-i-title">${esc(i.title)}</span>
         <span class="rs-i-amts">${i.amounts.map((n) => `<button data-n="${n}" ${i.full ? 'disabled' : ''}>${i.amounts.length > 1 || n > 1 ? ('פי ' + n) : `${icon('plus')}`}<small>${i.perUnit ? i.cost * n : i.cost}</small></button>`).join('')}</span>
         ${i.used ? `<i class="rs-used">${i.used}</i>` : ''}</div>`).join('')}</div></section>
       <section class="rs-sec rs-sec-side">
         <div class="rs-budget" title="${esc(T('budget'))}"><span>${esc(T('budget'))}</span><b>${st.budget}</b><div class="rs-b-bar"><i style="width:${st.budgetMax ? (100 * st.budget / st.budgetMax).toFixed(0) : 0}%"></i></div></div>
         <button class="rs-hint" data-hint="1">${icon('bulb')}<span>${esc(T('hint'))}</span><span class="rs-bulbs"></span></button>
         <button class="rs-lab" data-lab="1">${icon('flask')}<span>${esc(T('lab'))}</span></button>
+        ${kids ? '' : `<div class="rs-sbx"><button class="rs-log" data-log="1">${icon('book')}<span>${esc(T('log'))}</span><i class="rs-log-n">${logN || ''}</i></button>
+        <button class="rs-retry" data-retry="1" title="${esc(T('retryTip'))}">${icon('undo')}<span>${esc(T('retry'))}</span></button></div>`}
       </section></div>`;
     setBulbs(bulbsN, bulbsMax);
   }
@@ -103,8 +125,16 @@ export function createResearchUI(root, o) {
     const amt = e.target.closest('.rs-idea [data-n]');
     if (amt) { const card = amt.closest('.rs-idea'); card.classList.remove('pulse'); void card.offsetWidth; card.classList.add('pulse'); o.onIdea(card.dataset.idea, +amt.dataset.n); return; }
     if (e.target.closest('[data-hint]')) { o.onHint(); return; }
-    if (e.target.closest('[data-lab]')) { o.onLab(); }
+    if (e.target.closest('[data-lab]')) { o.onLab(); return; }
+    if (e.target.closest('[data-log]')) { o.onLog && o.onLog(); return; }
+    const rt = e.target.closest('[data-retry]');
+    if (rt) {   // two steps, so a stray click does not start over
+      if (!rt.classList.contains('sure')) { rt.classList.add('sure'); rt.querySelector('span').textContent = T('retrySure'); clearTimeout(rt._t); rt._t = setTimeout(() => { rt.classList.remove('sure'); rt.querySelector('span').textContent = T('retry'); }, 3500); return; }
+      clearTimeout(rt._t); o.onRetry && o.onRetry();
+    }
   }
+  let logN = 0;
+  function setLogCount(n) { logN = n; const i = table && table.querySelector('.rs-log-n'); if (i) { i.textContent = n || ''; i.classList.remove('bump'); void i.offsetWidth; i.classList.add('bump'); } }
   let bulbsN = 1, bulbsMax = 3;
   function setBulbs(n, max) {
     bulbsN = n; bulbsMax = max;
@@ -121,7 +151,7 @@ export function createResearchUI(root, o) {
       ${opts.action ? `<button class="rs-n-act" data-act="${opts.action.id}">${esc(opts.action.label)}</button>` : ''}</div>
       <button class="rs-n-x" aria-label="${esc(T('close'))}">${icon('close')}</button>`, notes);
     requestAnimationFrame(() => n.classList.add('on'));
-    const ttl = opts.counts || opts.action ? 14000 : opts.kind === 'hint' ? 12000 : 6500;
+    const ttl = opts.kind === 'surprise' ? 16000 : opts.counts || opts.action ? 14000 : opts.kind === 'hint' ? 12000 : 6500;
     n._t = setTimeout(() => dropNote(n), ttl);
     const live = [...notes.children].filter((x) => !x._gone);
     for (let i = 0; i < live.length - 3; i++) dropNote(live[i]);   // at most three notes at a time: the oldest go
@@ -224,12 +254,35 @@ export function createResearchUI(root, o) {
     }));
   }
 
+  // the experiment log: everything that was tried, what came of it, the surprises; across every "try again"
+  const LOG_IC = { idea: 'flask', result: 'binoc', surprise: 'sparkle', retry: 'undo', solved: 'check' };
+  function openLog(entries) {
+    const rows = [];
+    let at = 0;
+    for (const e of entries) {
+      if (e.attempt !== at) { at = e.attempt; rows.push(`<li class="rs-lg-head">${esc(T('attempt', { n: at }))}</li>`); }
+      if (e.kind === 'retry') continue;
+      const ic = e.kind === 'idea' ? (e.thumb ? `<img class="rs-lg-pic" src="${e.thumb}" alt="">` : pic(null, e.icon, 'rs-lg-pic')) : `<span class="rs-lg-ic">${icon(LOG_IC[e.kind] || 'leaf')}</span>`;
+      const tag = e.kind === 'idea' ? T('logTried') : e.kind === 'surprise' ? T('surprise') : e.kind === 'solved' ? '' : T('logSaw');
+      rows.push(`<li class="rs-lg-${e.kind}">${ic}<div>${tag ? `<small>${esc(tag)}</small>` : ''}<p>${esc(e.text)}</p></div></li>`);
+    }
+    const m = openModal('rs-logm', `<div class="rs-lab-desk rs-log-desk">
+      <header><h2>${icon('book')}${esc(T('log'))}</h2><button class="rs-x" aria-label="${esc(T('close'))}">${icon('close')}</button></header>
+      <div class="paper rs-log-paper"><p class="rs-log-sub">${esc(T('logSub'))}</p>
+      ${rows.length ? `<ol class="rs-lg">${rows.join('')}</ol>` : `<p class="rs-log-empty">${esc(T('logEmpty'))}</p>`}</div></div>`);
+    m.querySelector('.rs-x').addEventListener('click', closeModal);
+    m.querySelector('.rs-scrim').addEventListener('click', closeModal);
+    const list = m.querySelector('.rs-lg'); if (list) list.scrollTop = list.scrollHeight;
+  }
+
   function showSolved(d) {
     const starNames = [T('starHealed'), T('starGuess'), T('starThrift')];
     const stars = d.stars.map((s, i) => `<div class="rs-star${s ? ' on' : ''}" style="--i:${i}"><svg viewBox="0 0 24 24"><path d="M12 2.6l2.8 6 6.5.7-4.9 4.4 1.4 6.4L12 16.9l-5.8 3.2 1.4-6.4-4.9-4.4 6.5-.7z"/></svg><span>${esc(starNames[i])}</span></div>`).join('');
     const src = d.source ? `<div class="rs-src" style="--c:${d.source.col}"><small>${esc(T('sourceWon'))}</small><b>${esc(d.source.title)}</b><p>${esc(d.source.quote || '')}</p><i>${esc(d.source.ref)}</i>${d.source.lesson ? `<p class="rs-src-l">${esc(d.source.lesson)}</p>` : ''}</div>` : '';
     const m = openModal('rs-solved', `<div class="rs-burst"></div><h2>${esc(T('solvedTitle'))}</h2><div class="rs-stars">${stars}</div>
+      ${d.other ? `<div class="rs-other">${icon('sparkle')}<b>${esc(T('otherWay'))}</b></div>` : ''}
       <p class="rs-solved-t">${esc(d.solvedText)}</p>
+      ${!kids && d.tries ? `<p class="rs-tries">${esc(T('triesLine', { n: d.tries, a: d.attempt }))}</p>` : ''}
       <div class="rs-learn"><b>${esc(T('learned'))}</b> ${esc(d.learned)}</div>
       <div class="rs-real"><b>${esc(T('realWorld'))}</b> ${esc(d.real)}</div>
       ${d.pack ? `<div class="rs-pack">${icon('satchel')}<span>${esc(T('packWon'))}</span></div>` : ''}${src}
@@ -244,5 +297,5 @@ export function createResearchUI(root, o) {
     els.length = 0; modal = null;
     root.classList.remove('research', 'rs-kids');
   }
-  return { mount, setLights, setSolved, setBoard, setTable, setBulbs, note, dropNote, offerSee, setFF, showIntro, showDilemma, openLab, showSolved, closeSolved: closeModal, isOpen, dispose };
+  return { mount, setLights, setSolved, setBoard, setTable, setBulbs, note, dropNote, offerSee, setFF, showIntro, showDilemma, openLab, openLog, setLogCount, showSolved, closeSolved: closeModal, isOpen, dispose };
 }

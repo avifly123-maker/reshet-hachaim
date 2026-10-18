@@ -38,8 +38,23 @@ export function createRunner(C) {
     }
     return L;
   }
+  // surprises: lines the case shows once when the numbers turn ({ id, idea?, test, above? | below?, text }); an idea
+  // in `idea` must have been tried first, so a surprise follows from what the child did
+  const fired = new Set();
+  function surprises() {
+    const out = [];
+    for (const S of C.surprises || []) {
+      if (fired.has(S.id)) continue;
+      if (S.idea && !used(S.idea)) continue;
+      const v = model.get(S.test);
+      if ((S.above != null && v > S.above) || (S.below != null && v < S.below)) { fired.add(S.id); out.push(S); }
+    }
+    return out;
+  }
+  // was it healed some other way than the case's main fix (C.mainFix: the ideas of the usual route)?
+  const otherWay = () => !!(C.mainFix && C.mainFix.length && !C.mainFix.every((id) => used(id) >= C.mainFix.filter((x) => x === id).length));
   return {
-    model, acts, apply, blocked, step, used, costOf, budgetLeft, ideaOf,
+    model, acts, apply, blocked, step, used, costOf, budgetLeft, ideaOf, surprises, fired, otherWay,
     get spent() { return spent; }, get held() { return held; }, get solved() { return solved; },
   };
 }
