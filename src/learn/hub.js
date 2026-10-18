@@ -36,8 +36,10 @@ const todayKey = () => { const d = new Date(); return d.getFullYear() + '-' + (d
 const BIOMES = { amazon: AMAZON, grove: GROVE, reef: REEF };
 const BIOME_SHORT = { amazon: 'אמזונס', grove: 'חורש', reef: 'שונית' };
 const BIOME_IN = { amazon: 'ביער הגשם של האמזונס', grove: 'בחורש הארץ-ישראלי', reef: 'בשונית האלמוגים של אילת' };
-const STAT_NAMES = { light: 'אור', water: 'מים', links: 'קשרים' };
-const STAT_HELP = { light: 'כמה אור צריך', water: 'כמה מים ולחות', links: 'עם כמה יצורים יש קשר' };
+// reef cards show מחסה instead of מים: in the sea there is always water (Avi, 18.10), but a reef is a city of homes
+const STAT_NAMES = { light: 'אור', water: 'מים', shelter: 'מחסה', links: 'קשרים' };
+const STAT_HELP = { light: 'כמה אור צריך', water: 'כמה מים ולחות', shelter: 'כמה בית ומחסה נותן לאחרים', links: 'עם כמה יצורים יש קשר' };
+const KEYS_LAND = ['light', 'water', 'links'], KEYS_REEF = ['light', 'shelter', 'links'];
 const RARITY_NAMES = { common: 'נפוץ', rare: 'נדיר', epic: 'נדיר מאוד', tech: 'טכנולוגיה' };
 const RARITY_GEMS = { common: 1, rare: 2, epic: 3 };
 // what the rarity means, in a child's words (tooltips, zoom, the "מה רואים על הקלף?" legend)
@@ -134,7 +136,8 @@ const IC = {
 const PART_ICON = { leaves: IC.leaf, fruit: IC.fruit, nectar: IC.flower, seeds: IC.seed, insects: IC.bug, animals: IC.paw, roots: IC.root, fungus: IC.mush, dead: IC.leaf };
 const EASY_PARTS = ['leaves', 'fruit', 'nectar', 'seeds', 'insects', 'animals'];
 const EASY_PART_LABEL = { leaves: 'עלים', fruit: 'פירות', nectar: 'צוף מפרחים', seeds: 'זרעים', insects: 'חרקים', animals: 'בעלי חיים', roots: 'פקעות', fungus: 'פטריות', dead: 'חומר מת' };
-const STAT_ICON = { light: IC.sun, water: IC.drop, links: IC.web };
+const STAT_ICON = { light: IC.sun, water: IC.drop, links: IC.web,
+  shelter: sv('<path d="M3.2 11.6L12 4l8.8 7.6" stroke="currentColor" stroke-width="2.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.6 10.4V20h12.8v-9.6" fill="currentColor"/><path d="M10 20v-5.2a2 2 0 0 1 4 0V20" fill="#fff" fill-opacity=".75"/>') };
 
 /* ───────────────────────────────────────────── data → species + cards */
 const isAnimalKind = (k) => k === 'animal' || k === 'colony' || k === 'swarm';
@@ -164,10 +167,14 @@ const KEYSTONE = new Set(['amazon:kapok', 'amazon:fig', 'amazon:brazilnut', 'ama
 const LAYER_LIGHT = { emergent: 5, canopy: 4, water: 4, understory: 3, floor: 2, shallow: 5, slope: 3, sand: 4, open: 4 };
 const WATER_OVR = { 'amazon:dartfrog': 5, 'amazon:capybara': 5, 'amazon:waterlily': 5, 'amazon:bromeliad': 5, 'amazon:tapir': 5,
   'grove:hyrax': 1, 'grove:agama': 1, 'grove:sage': 1, 'grove:rockrose': 1, 'grove:gazelle': 1, 'grove:carob': 1, 'grove:pine': 1, 'grove:cyclamen': 3, 'grove:firefly': 3, 'grove:mushroom': 4 };
+// מחסה for the reef: how much home a species gives others (anemone for the clownfish, table and brain corals for the fish that hide
+// under them, a seagrass meadow for young fish, the shrimp's burrow for the goby, fish that hide among urchin spines); 1 when it gives none
+const SHELTER = { branching: 5, table: 5, seaanemone: 5, brain: 4, seagrass: 4, shrimp: 4, softcoral: 3, firecoral: 3, sponge: 3,
+  seafan: 2, algae: 2, urchin: 2, jellyfish: 2, reefball: 5, nursery: 4, buoy: 2 };
 const TOOL_STATS = {
   drone: [4, 2, 5], camera: [2, 2, 4], rescue: [3, 3, 3], watergen: [3, 5, 2], seeddrone: [4, 3, 4],
   listener: [5, 2, 3], nestbox: [3, 1, 4], insecthotel: [4, 1, 5], weather: [4, 4, 3],
-  nursery: [4, 5, 4], reefball: [3, 5, 5], buoy: [3, 5, 3], rov: [3, 5, 5], uwcam: [2, 5, 4], sensor: [4, 5, 3],
+  nursery: [4, 4, 4], reefball: [3, 5, 5], buoy: [3, 2, 3], rov: [3, 1, 5], uwcam: [2, 1, 4], sensor: [4, 1, 3],
 };
 const TOOL_SHORT = {
   drone: 'טס מעל היער וסופר צמחים ובעלי חיים', camera: 'מצלמת בעלי חיים שעוברים לידה, גם בלילה',
@@ -193,6 +200,7 @@ function speciesStats(s) {
   }
   const n = LINKS.get(s.key) || 0;
   const links = clamp(1 + Math.floor(n / 2), 1, 5);
+  if (s.biome === 'reef') return { light, shelter: SHELTER[s.id] || 1, links, n };
   return { light, water, links, n };
 }
 function rarityOf(s, st) {
@@ -204,19 +212,24 @@ const CARDS = [];
 for (const s of SP) {
   const st = speciesStats(s);
   CARDS.push({ id: s.key, type: 'species', sp: s, biome: s.biome, name: s.name, img: s.img, art: CARD_ART[s.id] || '', color: s.color || '#7fae4f',
-    kind: KINDS[s.kind] || '', rarity: rarityOf(s, st), stats: { light: st.light, water: st.water, links: st.links },
+    kind: KINDS[s.kind] || '', rarity: rarityOf(s, st), stats: s.biome === 'reef' ? { light: st.light, shelter: st.shelter, links: st.links } : { light: st.light, water: st.water, links: st.links }, sk: s.biome === 'reef' ? KEYS_REEF : KEYS_LAND,
     short: firstSentence(s.fact), fact: s.fact });
+}
+// a device that lives only in the reef gets מחסה too
+function toolStats(t, st) {
+  const reef = t.zones && t.zones.length === 1 && t.zones[0] === 'reef';
+  return reef ? { stats: { light: st[0], shelter: st[1], links: st[2] }, sk: KEYS_REEF } : { stats: { light: st[0], water: st[1], links: st[2] }, sk: KEYS_LAND };
 }
 for (const t of TOOL_DEFS) {
   const st = TOOL_STATS[t.id] || [3, 3, 3];
   CARDS.push({ id: 'tool:' + t.id, type: 'tool', tool: t, biome: null, name: t.name, img: TOOL_ICONS[t.id] || '', art: CARD_ART[t.id] || '', color: t.color || '#4aa3d6',
-    kind: 'כלי טכנולוגי', rarity: 'tech', stats: { light: st[0], water: st[1], links: st[2] }, short: firstSentence(t.fact), fact: t.fact });
+    kind: 'כלי טכנולוגי', rarity: 'tech', ...toolStats(t, st), short: firstSentence(t.fact), fact: t.fact });
 }
 // the reef's own versions of the shared devices get cards of their own
 for (const t of REEF_TOOL_CARDS) {
   const st = TOOL_STATS[t.id] || [3, 3, 3];
   CARDS.push({ id: 'tool:' + t.id, type: 'tool', tool: t, biome: null, name: t.name, img: TOOL_ICONS[t.id] || '', art: CARD_ART[t.id] || '', color: t.color || '#2a8ac0',
-    kind: 'כלי טכנולוגי', rarity: 'tech', stats: { light: st[0], water: st[1], links: st[2] }, short: firstSentence(t.fact), fact: t.fact });
+    kind: 'כלי טכנולוגי', rarity: 'tech', ...toolStats(t, st), short: firstSentence(t.fact), fact: t.fact });
 }
 const CARD = new Map(CARDS.map((c) => [c.id, c]));
 
@@ -510,7 +523,7 @@ function cardHTML(c, o = {}) {
       <span class="wl-lockb">${c.type === 'tool' ? 'טכנולוגיה' : BIOME_SHORT[c.biome]}</span></div></div>`;
   }
   const badge = c.type === 'tool' ? `<span class="wl-badge b-tech" title="${esc(badgeTip(c))}">טכנולוגיה</span>` : `<span class="wl-badge b-${c.biome}" title="${esc(badgeTip(c))}">${BIOME_SHORT[c.biome]}</span>`;
-  const stats = ['light', 'water', 'links'].map((k) => `<span class="wl-st s-${k}${o.hl === k ? ' hl' : ''}" title="${STAT_NAMES[k]} – ${STAT_HELP[k]}"><i>${STAT_ICON[k]}</i><b>${c.stats[k]}</b><small>${STAT_NAMES[k]}</small></span>`).join('');
+  const stats = (c.sk || KEYS_LAND).map((k) => `<span class="wl-st s-${k}${o.hl === k ? ' hl' : ''}" title="${STAT_NAMES[k]} – ${STAT_HELP[k]}"><i>${STAT_ICON[k]}</i><b>${c.stats[k]}</b><small>${STAT_NAMES[k]}</small></span>`).join('');
   return `<div class="wl-card r-${c.rarity} ${o.cls || ''}" data-cid="${esc(c.id)}" style="${o.style || ''}">
     <div class="wl-cin">
       <div class="wl-ctop"><span class="wl-cname${c.name.length > 12 ? ' xl' : c.name.length > 9 ? ' l' : ''}">${esc(c.name)}</span>${badge}</div>
@@ -729,7 +742,7 @@ const CSS = `
 .wol-learn .wl-st i{display:flex;align-items:center;gap:.15em;font-size:.75em;line-height:1}
 .wol-learn .wl-st b{font-size:.9em;line-height:1;color:#1f2c1a;margin-top:.08em}
 .wol-learn .wl-st small{font-size:.46em;line-height:1.3;font-weight:700;color:var(--ink2)}
-.wol-learn .s-light i{color:#e09a2c}.wol-learn .s-water i{color:#2d8fd0}.wol-learn .s-links i{color:#4d8a3a}
+.wol-learn .s-light i{color:#e09a2c}.wol-learn .s-water i{color:#2d8fd0}.wol-learn .s-shelter i{color:#c0703a}.wol-learn .s-links i{color:#4d8a3a}
 .wol-learn .wl-st.hl{background:rgba(240,180,76,.4);box-shadow:0 0 0 .1em #e09a2c;transform:scale(1.08)}
 .wol-learn .wl-cfact{flex:1 1 auto;min-height:0;margin:.1em .5em 0;font-family:var(--serif);font-size:.48em;line-height:1.24;color:#2c3524;overflow:hidden}
 .wol-learn .wl-crar{margin-top:auto;font-size:.5em;font-weight:800;letter-spacing:.04em;text-align:center;padding:0 0 .4em;color:var(--ink2);cursor:help}
@@ -1527,7 +1540,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
         <div class="wl-mrar r-${c.rarity}"><span class="wl-gems">${gems(c.rarity)}</span><span><b>${c.type === 'tool' ? 'כלי טכנולוגי' : RARITY_NAMES[c.rarity]}</b> – ${c.type === 'tool' ? RARITY_MORE.tech : `${c.rarity === 'common' ? 'יהלום נדירות אחד מתוך 3' : RARITY_GEMS[c.rarity] + ' מתוך 3 יהלומי נדירות'}. ${RARITY_MORE[c.rarity]}`}</span></div>
         ${powerHTML(c)}
         ${TORAH && sourcesOn() && SHIRA[id] ? `<div class="wl-src shira"><small>בפרק שירה</small><p class="t"><b>${esc(SHIRA[id].who)}:</b> ${esc(SHIRA[id].text)}</p><small>${esc(SHIRA[id].ref)}</small>${SHIRA[id].note ? `<p class="n">${esc(SHIRA[id].note)}</p>` : ''}</div>` : ''}
-        <div class="wl-mstats">${['light', 'water', 'links'].map((k) => `<span class="s-${k}">${STAT_ICON[k]} <b>${STAT_NAMES[k]}</b> – ${STAT_HELP[k]} ${pips(c.stats[k])}</span>`).join('')}</div>
+        <div class="wl-mstats">${(c.sk || KEYS_LAND).map((k) => `<span class="s-${k}">${STAT_ICON[k]} <b>${STAT_NAMES[k]}</b> – ${STAT_HELP[k]} ${pips(c.stats[k])}</span>`).join('')}</div>
         ${setsOf(id).length ? `<div class="wl-msets"><small>בסדרה:</small>${setsOf(id).map((st) => { const p = setProg(st); return `<button class="wl-mset${p.done ? ' done' : ''}" data-wl="set" data-v="${st.id}" style="--sc:${st.col}">${st.ic}<span>${esc(st.name)}</span><b>${p.done ? IC.check : p.have + '/' + p.n}</b></button>`; }).join('')}</div>` : ''}
         <button class="wl-btn" data-wl="close">סגירה</button></div>`;
     modal.hidden = false;
@@ -1552,7 +1565,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
       ['kind', 'מה הוא', 'עץ, שיח, פרח, בעל חיים, פטרייה...'],
       ['gems', 'יהלומי נדירות', `כמה קשה למצוא את הקלף בחבילות: <span class="wl-lr c">${dia(1)} נפוץ</span><span class="wl-lr r">${dia(2)} נדיר</span><span class="wl-lr e">${dia(3)} נדיר מאוד</span><span class="wl-lr t"><span class="wl-gems">${gems('tech')}</span> כלי טכנולוגי</span>`],
       ['x-power', 'נדירות במשחק', `<span class="wl-lp e"><b>נדיר מאוד = מין מפתח.</b> כוח מיוחד במשחק "מחזיקים את היער": שומר על היער פעם אחת.</span><span class="wl-lp r"><b>נדיר:</b> בונוס קטן – עוד <bdi dir="ltr">+1</bdi> חִיּוּת.</span>`],
-      ['stats', 'שלושה מספרים', `${STAT_ICON.light} <b>אור</b> – כמה אור הוא צריך. ${STAT_ICON.water} <b>מים</b> – כמה מים ולחות. ${STAT_ICON.links} <b>קשרים</b> – עם כמה יצורים יש לו קשר ברשת. מ-1 עד 5.`],
+      ['stats', 'שלושה מספרים', `${STAT_ICON.light} <b>אור</b> – כמה אור הוא צריך. ${STAT_ICON.water} <b>מים</b> – כמה מים ולחות (בקלפי השונית במקומם ${STAT_ICON.shelter} <b>מחסה</b> – כמה בית הוא נותן לאחרים). ${STAT_ICON.links} <b>קשרים</b> – עם כמה יצורים יש לו קשר ברשת. מ-1 עד 5.`],
       ['fact', 'הידעת?', 'משפט קצר ומעניין על היצור.'],
       ['rar', 'נדירות במילים', 'גם צבע המסגרת מספר: ירוק – נפוץ, זהב – נדיר, אדום-סגול – נדיר מאוד, כחול – טכנולוגיה.'],
     ];
@@ -1705,12 +1718,27 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
 
   /* ── duel: מי חזק ברשת? */
   let D = null;
-  const STATS = ['light', 'water', 'links'];
+  const STATS = ['light', 'water', 'shelter', 'links'];
+  const hasStat = (c, k) => c.stats[k] != null;
+  // a round asks about a number both sides can play: מים only for land cards, מחסה only for reef cards
+  function pickStat(avoid) {
+    const ok = (k) => D.hand.some((h) => !h.used && hasStat(h.c, k)) && D.cpu.some((h) => !h.used && hasStat(h.c, k));
+    let list = STATS.filter(ok);
+    if (!list.length) { D.hand.forEach((h) => { h.used = false; }); list = STATS.filter(ok); }
+    if (!list.length) list = ['light', 'links'];   // every card has these two
+    if (avoid && list.length > 1 && Math.random() < 0.6) list = list.filter((k) => k !== avoid);
+    // מים and מחסה share one turn of the wheel, so אור and קשרים come up as often as before
+    const w = list.map((k) => (k === 'water' || k === 'shelter' ? 0.5 : 1));
+    let r = Math.random() * w.reduce((a, b) => a + b, 0);
+    for (let i = 0; i < list.length; i++) { r -= w[i]; if (r <= 0) return list[i]; }
+    return list[list.length - 1];
+  }
   function startDuel() {
     const owned = CARDS.filter((c) => S.owned[c.id]);
     if (owned.length < 3) { go('album'); return; }
     D = { hand: sample(owned, Math.min(5, owned.length)).map((c) => ({ c, used: false })), cpu: sample(CARDS, 5).map((c) => ({ c, used: false })),
-      round: 0, me: 0, him: 0, res: [], stat: pick(STATS), phase: 'pick', mine: null, his: null };
+      round: 0, me: 0, him: 0, res: [], stat: 'light', phase: 'pick', mine: null, his: null };
+    D.stat = pickStat();
     renderDuel();
   }
   function renderDuel() {
@@ -1723,22 +1751,23 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
         <div class="wl-rounds">${[0, 1, 2, 3, 4].map((k) => `<i class="${D.res[k] || (k === D.round && !D.done ? 'c' : '')}"></i>`).join('')}</div>
         <span class="wl-dstat">${statLine}</span>
       </div>
-      <p class="wl-dhelp">${IC.sun} אור – כמה אור צריך · ${IC.drop} מים – כמה מים ולחות · ${IC.web} קשרים – עם כמה יצורים יש קשר. המספר הגבוה מנצח!</p>
+      <p class="wl-dhelp">${IC.sun} אור – כמה אור צריך · ${IC.drop} מים – כמה מים ולחות · ${STAT_ICON.shelter} מחסה – כמה בית נותן (בשונית) · ${IC.web} קשרים. המספר הגבוה מנצח!</p>
       <div class="wl-arena">
         <div class="wl-slot me${winMe ? ' win' : ''}"><small>הקלף שלכם</small>${slot('me', D.mine, true)}</div>
         <span class="wl-vs">מול</span>
         <div class="wl-slot cpu${winHim ? ' win' : ''}"><small>הקלף של המחשב</small>${slot('cpu', D.his, D.phase === 'show')}</div>
       </div>
       <div class="wl-dbar">${D.msg ? `<div class="wl-dmsg paper">${D.msg}</div>` : D.phase === 'pick' ? `<span class="wl-dhint">${IC.cards} בחרו קלף מהיד שלכם – מי חזק יותר ב${STAT_NAMES[D.stat]}?</span>` : ''}</div>
-      <div class="wl-hand${D.phase !== 'pick' ? ' locked' : ''}">${D.hand.map((h, i) => cardHTML(h.c, { cls: h.used ? 'used' : '', style: `--d:${i}` }).replace('class="wl-card', `data-wl="play" data-k="${i}" class="wl-card`)).join('')}</div>
+      <div class="wl-hand${D.phase !== 'pick' ? ' locked' : ''}">${D.hand.map((h, i) => cardHTML(h.c, { cls: h.used ? 'used' : !hasStat(h.c, D.stat) ? 'used off' : '', style: `--d:${i}` }).replace('class="wl-card', `data-wl="play" data-k="${i}" class="wl-card`)).join('')}</div>
     </section>`;
   }
   function playCard(k) {
     if (!D || D.phase !== 'pick') return;
-    const h = D.hand[k]; if (!h || h.used) return;
+    const h = D.hand[k]; if (!h || h.used || !hasStat(h.c, D.stat)) return;
     sfx('place');
     h.used = true; D.mine = h.c; D.phase = 'wait';
-    const left = D.cpu.filter((x) => !x.used);
+    let left = D.cpu.filter((x) => !x.used && hasStat(x.c, D.stat));
+    if (!left.length) left = D.cpu.filter((x) => hasStat(x.c, D.stat));
     const choice = Math.random() < 0.5 ? left.slice().sort((a, b) => b.c.stats[D.stat] - a.c.stats[D.stat])[0] : pick(left);
     choice.used = true; D.his = choice.c; D.msg = '';
     renderDuel();
@@ -1764,7 +1793,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     if (D.done) return duelEnd();
     D.round++; D.phase = 'pick'; D.mine = D.his = null; D.msg = '';
     if (D.hand.every((h) => h.used)) D.hand.forEach((h) => { h.used = false; });
-    let s = pick(STATS); if (s === D.stat && Math.random() < 0.6) s = pick(STATS.filter((x) => x !== D.stat)); D.stat = s;
+    D.stat = pickStat(D.stat);
     renderDuel();
   }
   function duelEnd() {

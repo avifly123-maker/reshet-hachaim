@@ -83,6 +83,8 @@ const rnd = (n) => Math.floor(Math.random() * n);
 function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = rnd(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 const dn = (c) => defName(c.sp ? c.sp.id : c.id, c.name); // definite name of a card / species: "הקפוק"
 const pk = (a, b) => (a < b ? a + '|' + b : b + '|' + a);
+// the middle number of a card: מים on land, מחסה at the reef (in the sea there is always water)
+const mid = (c) => c.stats.water ?? c.stats.shelter ?? 0;
 
 // every real relation between two species of a biome (both directions), one sentence per pair
 const LINKS = new Map();
@@ -117,6 +119,9 @@ const EV = {
   drought: { ic: 'sun', kind: 'water', name: { amazon: 'שנה יבשה', grove: 'בצורת' },
     story: { amazon: 'הגשם מתעכב והנהר יורד.', grove: 'קיץ ארוך בלי טיפת גשם.' }, need: (n) => `מים ${n} ומעלה`,
     tip: 'כדאי לשים משהו שאוהב מים – בצורת בדרך!' },
+  hunters: { ic: 'eye', kind: 'shelter', name: { amazon: '', grove: '', reef: 'להקת ציידים' },
+    story: { amazon: '', grove: '', reef: 'דקרים וזהרונים יצאו לצוד. דגים קטנים מסתתרים בין ענפי האלמוגים ובשושנות הים.' },
+    need: (n) => `מחסה ${n} ומעלה`, tip: '', rtip: 'ציידים מתקרבים! אלמוגים ושושנות ים נותנים מחסה לדגים הקטנים.' },
   clouds: { ic: 'cloud', kind: 'light', name: { amazon: 'עננים כבדים', grove: 'חורף קר ומעונן', reef: 'מים עכורים' },
     story: { amazon: 'שבועות של עננים מסתירים את השמש.', grove: 'ימים קרים ואפורים, מעט שמש.', reef: 'רוח חזקה העלתה חול מהקרקעית, והמים נעשו עכורים. מעט אור מגיע לשונית.' }, need: (n) => `אור ${n} ומעלה`,
     rtip: 'בקרוב המים יהיו עכורים. יצורים שאוהבים אור יעזרו!', tip: 'בקרוב יהיו עננים. צמחים ויצורים שאוהבים אור יעזרו!' },
@@ -145,7 +150,7 @@ const EV = {
 };
 const CHALLENGES = ['drought', 'clouds', 'heat', 'storm', 'flood', 'logging', 'road', 'treefall'];
 // in the sea there is always water: no drought at the reef
-const challengesFor = (b) => (b === 'reef' ? CHALLENGES.filter((id) => id !== 'drought') : CHALLENGES);
+const challengesFor = (b) => (b === 'reef' ? CHALLENGES.map((id) => (id === 'drought' ? 'hunters' : id)) : CHALLENGES);
 
 /* ───────────────────────────── tools */
 const TOOL_FX = {
@@ -513,13 +518,13 @@ export function mountKeepForest(root, ctx, opts = {}) {
     const N = kids ? 5 : 8;
     const nGood = kids ? 1 : 2;
     let ch = shuffle(challengesFor(b)).slice(0, N - nGood);
-    const firstI = ch.findIndex((id) => ['drought', 'clouds', 'heat'].includes(id));
+    const firstI = ch.findIndex((id) => ['drought', 'hunters', 'clouds', 'heat'].includes(id));
     if (firstI > 0) { const [f] = ch.splice(firstI, 1); ch.unshift(f); }
     const goods = shuffle(['rain', 'bloom']).slice(0, nGood);
     const list = ch.slice();
     if (kids) list.splice(2, 0, goods[0]); else { list.splice(2, 0, goods[0]); list.splice(5, 0, goods[1]); }
     const sp = ctx.CARDS.filter((c) => c.biome === b && c.type === 'species');
-    const avgW = sp.reduce((s, c) => s + c.stats.water, 0) / sp.length;
+    const avgW = sp.reduce((s, c) => s + mid(c), 0) / sp.length;
     const avgL = sp.reduce((s, c) => s + c.stats.light, 0) / sp.length;
     return list.map((id, i) => ({ id, i, need: reqOf(id, i, avgW, avgL) }));
   }
@@ -528,6 +533,7 @@ export function mountKeepForest(root, ctx, opts = {}) {
     const k = kids ? 0.6 : 1;
     switch (id) {
       case 'drought': return Math.max(2, Math.round(E * avgW * 0.7 * k));
+      case 'hunters': return Math.max(2, Math.round(E * avgW * 0.7 * k));
       case 'clouds': return Math.max(2, Math.round(E * avgL * 0.7 * k));
       case 'heat': return kids ? 1 : (i < 3 ? 1 : 2);
       case 'flood': return kids ? 1 : (i < 4 ? 1 : 2);
@@ -593,7 +599,7 @@ export function mountKeepForest(root, ctx, opts = {}) {
   }
   function totals(board = S.board) {
     let light = 0, water = 0;
-    board.forEach((b) => { if (b && !b.wilted) { const c = C(b.ref); light += c.stats.light; water += c.stats.water; } });
+    board.forEach((b) => { if (b && !b.wilted) { const c = C(b.ref); light += c.stats.light; water += mid(c); } });
     const th = threadsOf(board);
     const tw = th.reduce((s, t) => s + t.w, 0);
     return { light, water, threads: th.length, tw, life: Math.max(0, tw + S.bonus), th };
@@ -625,6 +631,7 @@ export function mountKeepForest(root, ctx, opts = {}) {
     switch (EV[ev.id].kind) {
       case 'water': { const have = T.water + S.waterBoost; return { ok: have >= n, have: `מים: ${have}` }; }
       case 'light': return { ok: T.light >= n, have: `אור: ${T.light}` };
+      case 'shelter': return { ok: T.water >= n, have: `מחסה: ${T.water}` };
       case 'canopy': { const h = canopyIn(); return { ok: h >= n, have: `${Y('צמחים בחופה', 'אלמוגים במים הרדודים')}: ${h}` }; }
       case 'floor': { const h = plantsIn(2); return { ok: h >= n, have: `${Y('צמחים בקרקע', 'בקרקעית')}: ${h}` }; }
       case 'mid': { const h = cardsIn(1); return { ok: h >= n, have: `${Y('קלפים בביניים', 'קלפים במדרון')}: ${h}` }; }
@@ -638,7 +645,7 @@ export function mountKeepForest(root, ctx, opts = {}) {
     let best = -1, bs = Infinity;
     for (let k = 0; k < 9; k++) {
       if (!healthy(k) || (rows && !rows.includes(slotRow(k)))) continue;
-      const c = C(S.board[k].ref); const s = c.stats.light + c.stats.water + c.stats.links + Math.random() * 0.1;
+      const c = C(S.board[k].ref); const s = c.stats.light + mid(c) + c.stats.links + Math.random() * 0.1;
       if (s < bs) { bs = s; best = k; }
     }
     return best;
@@ -837,8 +844,8 @@ export function mountKeepForest(root, ctx, opts = {}) {
         const nb = S.board.slice(); nb[k] = { ref, wilted: false };
         const T = totals(nb);
         const rb = rareGain(ref, T.th.filter((t) => t.i === k || t.j === k));
-        let sc = (T.tw - base.tw + rb) * 3 + (c.stats.light + c.stats.water + c.stats.links) * 0.15;
-        if (kind === 'water') sc += c.stats.water * 0.5;
+        let sc = (T.tw - base.tw + rb) * 3 + (c.stats.light + mid(c) + c.stats.links) * 0.15;
+        if (kind === 'water' || kind === 'shelter') sc += mid(c) * 0.5;
         if (kind === 'light') sc += c.stats.light * 0.5;
         if (kind === 'canopy' && canopyCard(c) && slotRow(k) === 0 && !healthy(k)) sc += 3;
         if (kind === 'floor' && !c.sp.animal && slotRow(k) === 2 && !healthy(k)) sc += 3;
@@ -923,7 +930,7 @@ export function mountKeepForest(root, ctx, opts = {}) {
     const held = S.results.filter((r) => r === 'ok').length, hard = S.results.filter((r) => r !== 'gd').length;
     const nextT = stars === 1 ? t2 : stars === 2 ? t3 : 0;
     const d = $('.kf-done'); if (!d) return;
-    const sum = `<div class="kf-sum"><span>${I.life} חִיּוּת ${T.life}</span><span>${I.thread} ${T.threads} חוטי זהב</span><span>${ctx.STAT_ICON.light} אור ${T.light}</span><span>${ctx.STAT_ICON.water} מים ${T.water}</span>${S.keySaves ? `<span class="kf-skey">${I.key} מין מפתח שמר ${S.keySaves === 1 ? 'פעם אחת' : S.keySaves + ' פעמים'}</span>` : ''}</div>`;
+    const sum = `<div class="kf-sum"><span>${I.life} חִיּוּת ${T.life}</span><span>${I.thread} ${T.threads} חוטי זהב</span><span>${ctx.STAT_ICON.light} אור ${T.light}</span><span>${Y(ctx.STAT_ICON.water, ctx.STAT_ICON.shelter)} ${Y('מים', 'מחסה')} ${T.water}</span>${S.keySaves ? `<span class="kf-skey">${I.key} מין מפתח שמר ${S.keySaves === 1 ? 'פעם אחת' : S.keySaves + ' פעמים'}</span>` : ''}</div>`;
     d.innerHTML = lost ? `<div class="kf-dbox paper lost">
       <div class="kf-stars">${[0, 1, 2].map(() => `<span>${I.star}</span>`).join('')}</div>
       <h2>${Y('היער נחלש', 'השונית נחלשה')} מדי – נסו שוב!</h2>
@@ -968,7 +975,7 @@ export function mountKeepForest(root, ctx, opts = {}) {
     const pics = {
       place: `<div class="kf-hp kf-hp-rows">${ROWSH().map((w) => `<i>${w}</i>`).join('')}<div class="kf-hcard">${ctx.cardHTML(plant)}</div></div>`,
       thread: `<div class="kf-hp kf-hp-pair">${ctx.cardHTML(pair[0])}<svg viewBox="0 0 60 30" aria-hidden="true"><path d="M2 20Q30 -4 58 20" stroke="#f0b44c" stroke-width="4" fill="none" stroke-linecap="round"/></svg>${ctx.cardHTML(pair[1])}<b dir="ltr">+1</b></div>`,
-      event: `<div class="kf-hp kf-hp-ev"><div class="kf-hev">${Y(I.sun, I.cloud)}<small>${Y('בצורת', 'מים עכורים')}</small></div><div class="kf-hneed"><span>${I.drop}מים</span><span>${I.sun}אור</span><span>${I.thread}קשרים</span></div></div>`,
+      event: `<div class="kf-hp kf-hp-ev"><div class="kf-hev">${Y(I.sun, I.cloud)}<small>${Y('בצורת', 'מים עכורים')}</small></div><div class="kf-hneed"><span>${Y(I.drop + 'מים', ctx.STAT_ICON.shelter + 'מחסה')}</span><span>${I.sun}אור</span><span>${I.thread}קשרים</span></div></div>`,
       tool: `<div class="kf-hp kf-hp-tool">${tool ? ctx.cardHTML(tool) : ''}<b dir="ltr">×1</b></div>`,
       stars: `<div class="kf-hp kf-hp-stars"><span>${st(1)}<b>${t1}</b></span><span>${st(2)}<b>${t2}</b></span><span>${st(3)}<b>${t3}</b></span></div>`,
     };
@@ -1079,7 +1086,7 @@ export function mountKeepForest(root, ctx, opts = {}) {
     if (S.fish) flags.push(`<span class="kf-flag">דגים ×2</span>`);
     $('.kf-bar').innerHTML = `
       <span class="kf-stat s-light" title="סכום האור של ${Y('היער', 'השונית')}">${ctx.STAT_ICON.light}<small>אור</small><b>${T.light}</b></span>
-      <span class="kf-stat s-water" title="סכום המים של ${Y('היער', 'השונית')}">${ctx.STAT_ICON.water}<small>מים</small><b>${T.water}</b>${S.waterBoost ? `<span class="kf-boost">+${S.waterBoost}</span>` : ''}</span>
+      <span class="kf-stat s-water" title="${Y('סכום המים של היער', 'סכום המחסה של השונית')}">${Y(ctx.STAT_ICON.water, ctx.STAT_ICON.shelter)}<small>${Y('מים', 'מחסה')}</small><b>${T.water}</b>${S.waterBoost ? `<span class="kf-boost">+${S.waterBoost}</span>` : ''}</span>
       <span class="kf-stat s-thr" title="חוטי זהב בין יצורים קשורים">${I.thread}<small>קשרים</small><b>${T.threads}</b></span>
       <span class="kf-goal${T.life < thresholds()[0] && S.events.length - S.evIdx <= 2 ? ' low' : ''}" title="המטרה: לעבור ${S.events.length} אירועים עם ${Y('יער חי', 'שונית חיה')}. הכוכבים נקבעים לפי החִיּוּת בסוף.">
         <span class="kf-gev">אירוע ${Math.min(S.evIdx + 1, S.events.length)} מתוך ${S.events.length}</span>
