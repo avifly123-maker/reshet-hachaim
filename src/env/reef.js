@@ -353,7 +353,11 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
     vertexShader: /* glsl */`varying vec3 vD; void main(){ vD = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
     fragmentShader: /* glsl */`uniform vec3 uZen, uHor, uGnd, uSunDir, uSunCol; uniform float uSunAmt, uNight; varying vec3 vD;
       float h(vec3 p){ return fract(sin(dot(p, vec3(12.9898, 78.233, 37.719))) * 43758.5453); }
-      void main(){ float y = vD.y; vec3 c = y > 0.0 ? mix(uHor, uZen, pow(y, 0.55)) : mix(uHor, uGnd, smoothstep(0.0, -0.25, y));
+      // far away: the reddish granite mountains around the Gulf of Eilat, and the gulf's deep blue water below the horizon
+      float ridge(float a){ return 0.012 + 0.05 * (0.55 + 0.45 * sin(a * 2.0 + 0.7)) * (0.6 + 0.25 * sin(a * 7.0 + 1.3) + 0.15 * sin(a * 17.0 + 0.4) + 0.08 * sin(a * 41.0)); }
+      void main(){ float y = vD.y; vec3 c = y > 0.0 ? mix(uHor, uZen, pow(y, 0.55)) : mix(uHor, vec3(0.16, 0.42, 0.58) * mix(1.0, 0.3, uNight), smoothstep(0.0, -0.12, y));
+        float az = atan(vD.z, vD.x), rg = ridge(az);
+        if (y > -0.002 && y < rg) { float k = y / rg; vec3 m = mix(vec3(0.55, 0.32, 0.24), vec3(0.72, 0.5, 0.38), k) * mix(1.0, 0.25, uNight); c = mix(m, uHor, 0.35 + 0.35 * (1.0 - k) * 0.6); }
         float sd = max(dot(vD, normalize(uSunDir)), 0.0); c += uSunCol * (pow(sd, 900.0) * 3.0 + pow(sd, 12.0) * 0.25) * uSunAmt;
         vec3 q = floor(vD * 300.0); float st = step(0.997, h(q)) * uNight * smoothstep(0.05, 0.3, y);
         gl_FragColor = vec4(c + st, 1.0); }`,
@@ -430,7 +434,7 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
     fog.color.copy(COL.fogDay).lerp(COL.fogNight, night.v).lerp(COL.fogMurk, state.murk * 0.6);
     const camDist = Math.max(cam.position.length(), 55);
     fog.near = lerp(camDist + 40, camDist * 0.5, state.murk); fog.far = lerp(camDist + 520, camDist + 140, state.murk);
-    mistMat.color.copy(skyU.uHor.value).lerp(cTmp2.set('#ffffff'), 0.3 * dayAmt);
+    mistMat.color.copy(skyU.uHor.value).lerp(cTmp2.set('#ffffff'), 0.25 * dayAmt);
     // caustics: strong at midday in clear water, none at night
     U.uCaust.value = smoothstep(0.0, 0.5, e) * (1 - state.rain * 0.6) * (1 - state.murk);
     // light rays
