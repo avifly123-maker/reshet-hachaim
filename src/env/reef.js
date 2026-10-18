@@ -27,6 +27,38 @@ const Q = {
   high: { seg: 220, rings: 70, bubbles: 280, motes: 800 },
 };
 
+// a cheap copy of a model for far views: positions snapped to a grid of `cells` steps across the model, vertices that fall in
+// one cell merged (position, normal and colour averaged), triangles that collapse dropped
+function lowPoly(geo, cells) {
+  geo.computeBoundingBox(); const bb = geo.boundingBox, size = new THREE.Vector3(); bb.getSize(size);
+  const step = Math.max(size.x, size.y, size.z) / cells || 1;
+  const P = geo.attributes.position, N = geo.attributes.normal, C = geo.attributes.color, I = geo.index;
+  const map = new Map(), rep = new Int32Array(P.count), acc = [];
+  for (let i = 0; i < P.count; i++) {
+    const k = Math.round((P.getX(i) - bb.min.x) / step) + ',' + Math.round((P.getY(i) - bb.min.y) / step) + ',' + Math.round((P.getZ(i) - bb.min.z) / step);
+    let j = map.get(k); if (j === undefined) { j = acc.length; map.set(k, j); acc.push([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]); }
+    const a = acc[j]; a[0] += P.getX(i); a[1] += P.getY(i); a[2] += P.getZ(i);
+    if (N) { a[3] += N.getX(i); a[4] += N.getY(i); a[5] += N.getZ(i); }
+    if (C) { a[6] += C.getX(i); a[7] += C.getY(i); a[8] += C.getZ(i); }
+    a[9]++; rep[i] = j;
+  }
+  const n = acc.length, pos = new Float32Array(n * 3), nrm = new Float32Array(n * 3), col = new Float32Array(n * 3);
+  acc.forEach((a, j) => { const c = a[9]; pos.set([a[0] / c, a[1] / c, a[2] / c], j * 3); const l = Math.hypot(a[3], a[4], a[5]) || 1; nrm.set([a[3] / l, a[4] / l, a[5] / l], j * 3); col.set([a[6] / c, a[7] / c, a[8] / c], j * 3); });
+  const tris = [], seen = new Set();
+  const src = I ? I.array : null, m = I ? I.count : P.count;
+  for (let t = 0; t < m; t += 3) {
+    const a = rep[src ? src[t] : t], b = rep[src ? src[t + 1] : t + 1], c = rep[src ? src[t + 2] : t + 2];
+    if (a === b || b === c || a === c) continue;
+    const key = [a, b, c].sort((x, y) => x - y).join(','); if (seen.has(key)) continue; seen.add(key);
+    tris.push(a, b, c);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.setAttribute('normal', new THREE.BufferAttribute(nrm, 3));
+  if (C) g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  g.setIndex(n > 65535 ? new THREE.Uint32BufferAttribute(tris, 1) : new THREE.Uint16BufferAttribute(tris, 1));
+  g.computeBoundingSphere(); return g;
+}
+
 export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 } = {}) {
   const scene = pipeline.scene;
   const qual = Q[quality] || Q.medium;
@@ -191,7 +223,8 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
   // the diorama looks like a living reef from the first moment; the player's own corals grow on the open sand
   const decor = [];
   {
-    const shapes = REEF_DECOR(['branching', 'brain', 'table', 'softcoral', 'seafan', 'sponge', 'firecoral', 'branching', 'brain']);
+    // scenery, not the player's corals: a lighter copy of each model (the full ones are kept for what the child plants)
+    const shapes = REEF_DECOR(['branching', 'brain', 'table', 'softcoral', 'seafan', 'sponge', 'firecoral', 'branching', 'brain']).map((sh) => ({ ...sh, geo: track(lowPoly(sh.geo, 20)) }));
     if (shapes.length) {
       const dmat = track(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.8, metalness: 0 }));
       const dmatD = track(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.8, metalness: 0, side: THREE.DoubleSide }));
@@ -208,7 +241,7 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
         const o = new THREE.Mesh(sh.geo, sh.double ? dmatD : dmat);
         o.scale.setScalar(k); o.rotation.y = rng() * TAU;
         o.position.set(x, heightAt(x, z) - 0.08 * k, z);
-        o.castShadow = true; o.receiveShadow = true; o.name = 'reef-decor';
+        o.castShadow = quality !== 'min'; o.receiveShadow = true; o.name = 'reef-decor';
         root.add(o); decor.push({ x, z, r: (sh.crown?.radius || 0.6) * k * 0.8 });
       }
     }
@@ -246,9 +279,10 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
 
     // a reef wall: corals, sea fans and sponges grow out of the island's sides (Avi, 18.10: the bare rock layers looked
     // plain next to the other islands). The reef's own Blender models, instanced; deeper ones are darker.
-    const shapes = REEF_DECOR(['branching', 'brain', 'softcoral', 'seafan', 'sponge', 'firecoral', 'branching', 'softcoral']);
+    // the wall is seen from afar: each model is simplified (vertex clustering) to a few hundred triangles first
+    const shapes = REEF_DECOR(['branching', 'brain', 'softcoral', 'seafan', 'sponge', 'firecoral', 'branching', 'softcoral']).map((sh) => ({ ...sh, geo: track(lowPoly(sh.geo, 9)) }));
     if (shapes.length) {
-      const N = quality === 'min' ? 130 : quality === 'medium' ? 400 : 560;
+      const N = quality === 'min' ? 80 : quality === 'medium' ? 220 : 340;
       const SZW = { branching: 3.4, brain: 1.6, softcoral: 3.8, seafan: 3.0, sponge: 3.2, firecoral: 3.2 };
       const wmat = track(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.8, metalness: 0, side: THREE.DoubleSide }));
       const per = shapes.map(() => []);
@@ -274,7 +308,7 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
           im.setColorAt(j, col.setRGB(1, 1, 1).lerp(deepW, smoothstep(0.15, 0.75, w.t) * 0.8));
         });
         im.instanceMatrix.needsUpdate = true; if (im.instanceColor) im.instanceColor.needsUpdate = true;
-        im.name = 'reef-wall'; im.frustumCulled = false; root.add(im);
+        im.name = 'reef-wall'; im.computeBoundingSphere(); root.add(im);
       });
     }
   }

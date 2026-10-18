@@ -102,6 +102,12 @@
   background: linear-gradient(180deg, #fbf5df, #efe5c4); box-shadow: 0 6px 14px rgba(4, 12, 7, .35), inset 3px 0 0 #c9a55a, inset 0 0 0 1px rgba(150, 120, 70, .35);
   opacity: 0; transition: opacity .3s; }
 #ui.wol .rs-note.on { opacity: 1; }
+/* a note never takes the clicks meant for the buttons under it (only its own button is clickable); on small screens only the newest shows */
+#ui.wol .rs-note { pointer-events: none; } #ui.wol .rs-note button, #ui.wol .rs-note a { pointer-events: auto; }
+@media (max-width: 900px), (max-height: 520px) {
+  #ui.wol .rs-notes { width: min(300px, 44vw); left: 8px; }
+  #ui.wol .rs-notes .rs-note:nth-last-child(n+2) { display: none; }
+}
 #ui.wol .rs-note.hint { background: linear-gradient(180deg, #fff6cf, #f6e6a6); box-shadow: 0 6px 14px rgba(4, 12, 7, .35), inset 3px 0 0 #e6a93c, inset 0 0 0 1px rgba(170, 130, 40, .4); }
 #ui.wol .rs-note.hint .rs-n-body p { color: #5a3e08; }
 #ui.wol .rs-note.warn .rs-n-body p { color: #8a2a1a; }

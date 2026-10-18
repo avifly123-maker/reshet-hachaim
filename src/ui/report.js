@@ -237,7 +237,7 @@ function sparkSVG(pts) {
   const line = pts.map((p, i) => `${x(i).toFixed(1)},${y(p.v).toFixed(1)}`).join(' ');
   const area = n > 1 ? `<path class="area" d="M${x(0).toFixed(1)},${(H - bot).toFixed(1)} L${line.replace(/ /g, ' L')} L${x(n - 1).toFixed(1)},${(H - bot).toFixed(1)}Z"/>` : '';
   const sel = pts.findIndex((p) => p.sel);
-  return `<svg class="rep-spark" viewBox="0 0 ${W} ${H}" role="img" aria-label="חיוניות היער בימים האחרונים">
+  return `<svg class="rep-spark" viewBox="0 0 ${W} ${H}" role="img" aria-label="החיוניות בימים האחרונים">
     <line class="grid" x1="0" x2="${W}" y1="${y(0.5)}" y2="${y(0.5)}"/><line class="grid" x1="0" x2="${W}" y1="${y(1)}" y2="${y(1)}"/>
     ${area}${n > 1 ? `<polyline class="line" points="${line}"/>` : ''}
     ${pts.map((p, i) => `<g><title>יום ${p.d}: ${pct(p.v)}%</title><circle class="hit" cx="${x(i)}" cy="${y(p.v)}" r="11"/><circle class="dot${i === sel ? ' sel' : ''}" cx="${x(i)}" cy="${y(p.v)}" r="${i === sel ? 5.5 : 4}"/>
@@ -276,7 +276,7 @@ export function createReportUI(root, { describe, onNote, onClose, onExport }) {
     if (!kids) sections.push(`<section class="rep-sec rep-chal${ch.good ? ' good' : ''}"><h3>${icon(ch.good ? 'ok' : 'chal')}האתגר המרכזי</h3><h4>${esc(ch.t)}</h4><p>${esc(ch.p)}</p>${ch.tip ? `<div class="rep-tip">${icon('fact')}<span>${esc(ch.tip)}</span></div>` : ''}</section>`);
     if (m.fact) sections.push(`<section class="rep-sec rep-fact"><h3>${icon('fact')}${kids ? 'הידעתם?' : 'תגלית'}</h3><div class="rep-factbox"><span class="art" style="--c:${esc(m.fact.color || '#8a6')}">${m.fact.art || m.fact.thumb ? `<img src="${esc(m.fact.art || m.fact.thumb)}" alt="">` : ''}</span><div><b>${esc(m.fact.name)}</b><p>${esc(m.fact.text)}</p></div></div></section>`);
     if (m.source) sections.push(`<section class="rep-sec rep-src"><h3>${icon('fact')}מקור היום</h3><div class="rep-srcbox"><p class="t">${esc(m.source.text)}</p><small>${esc(m.source.ref)}</small>${m.source.q ? `<p class="q"><b>שאלה לשיחה בבית:</b> ${esc(m.source.q)}</p>` : ''}</div></section>`);
-    if (!kids) sections.push(`<section class="rep-sec rep-vit"><h3>${icon('vit')}חיוניות היער</h3><div class="rep-vitline">${m.live ? 'מתחילת היום החיוניות ' : 'במשך היום החיוניות '}${vitWords}</div>${sparkSVG(m.vit.spark)}</section>`);
+    if (!kids) sections.push(`<section class="rep-sec rep-vit"><h3>${icon('vit')}חיוניות ${zoneWord('the')}</h3><div class="rep-vitline">${m.live ? 'מתחילת היום החיוניות ' : 'במשך היום החיוניות '}${vitWords}</div>${sparkSVG(m.vit.spark)}</section>`);
     sections.push(`<section class="rep-sec rep-notes"><h3>${icon('pencil')}${kids ? 'מה ראיתי היום' : 'הערות החוקר'}</h3>
       <textarea rows="${kids ? 4 : 3}" maxlength="800" dir="rtl" spellcheck="false" placeholder="${kids ? `מה ראיתם היום ${zoneWord('in')}? כתבו כאן…` : `מה ראיתם היום ${zoneWord('in')}? מה הפתיע אתכם? איזו שאלה הייתם רוצים לבדוק מחר? כתבו כאן…`}">${esc(m.note)}</textarea>
       <div class="rep-note-print${m.note ? '' : ' empty'}">${esc(m.note)}</div></section>`);

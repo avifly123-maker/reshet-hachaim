@@ -23,7 +23,7 @@ const ICONS = {
   // the reef (1.3)
   rov: svg('<rect x="17" y="24" width="30" height="18" rx="3" fill="#f2c21a"/><rect x="19" y="20" width="26" height="6" rx="2" fill="#f4f4f0"/><circle cx="32" cy="33" r="5" fill="#a8d8f0"/><g fill="#e8f6ff"><circle cx="22" cy="36" r="2.5"/><circle cx="42" cy="36" r="2.5"/></g><path d="M32 20c0-6 6-10 12-12" stroke="#f08a1a" stroke-width="2" fill="none"/>', '#cfeaf2'),
   uwcam: svg('<path d="M32 40l-9 14M32 40l9 14M32 40v14" stroke="#5a6a72" stroke-width="2.5"/><rect x="18" y="22" width="28" height="18" rx="8" fill="#2a3038"/><circle cx="44" cy="31" r="6" fill="#7ac8e8"/><circle cx="24" cy="26" r="1.8" fill="#ff3a2a"/>', '#cfeaf2'),
-  nursery: svg('<path d="M32 12v42" stroke="#f2f2ee" stroke-width="3"/><path d="M20 24h24M18 34h28M20 44h24" stroke="#f2f2ee" stroke-width="2.5"/><g fill="#e889a8"><circle cx="22" cy="28" r="2.2"/><circle cx="42" cy="38" r="2.2"/><circle cx="24" cy="48" r="2.2"/></g><g fill="#88c0e0"><circle cx="40" cy="28" r="2.2"/><circle cx="20" cy="38" r="2.2"/></g><circle cx="32" cy="11" r="4" fill="#f08a1a"/><rect x="27" y="52" width="10" height="4" fill="#9a9a94"/>', '#d8f0f4'),
+  nursery: svg('<path d="M32 12v42" stroke="#f2f2ee" stroke-width="3"/><path d="M32 30l-11-8M32 30l11-8M32 40l-13-8M32 40l13-8M32 50l-11-8M32 50l11-8" stroke="#f2f2ee" stroke-width="2.5" stroke-linecap="round"/><g fill="#e889a8"><circle cx="21" cy="26" r="2.2"/><circle cx="45" cy="36" r="2.2"/><circle cx="21" cy="46" r="2.2"/></g><g fill="#88c0e0"><circle cx="43" cy="26" r="2.2"/><circle cx="19" cy="36" r="2.2"/><circle cx="43" cy="46" r="2.2"/></g><circle cx="32" cy="11" r="4" fill="#f08a1a"/><rect x="27" y="52" width="10" height="4" fill="#9a9a94"/>', '#d8f0f4'),
   reefball: svg('<path d="M10 50a22 22 0 0 1 44 0z" fill="#a8a29a"/><g fill="#4a4a48"><circle cx="22" cy="42" r="4"/><circle cx="36" cy="38" r="4"/><circle cx="46" cy="46" r="3"/><circle cx="30" cy="31" r="3"/></g><path d="M14 46l3-5M48 36l3-3" stroke="#e889a8" stroke-width="2.5"/><path d="M8 50h48" stroke="#d8c8a0" stroke-width="3"/>', '#d8f0f4'),
   buoy: svg('<path d="M8 22h48" stroke="#5ab0d8" stroke-width="2"/><circle cx="32" cy="20" r="9" fill="#f4f4f0"/><rect x="23" y="18" width="18" height="4" fill="#2a6ad8"/><path d="M32 29v22" stroke="#e8d8a8" stroke-width="2"/><rect x="26" y="50" width="12" height="5" rx="1" fill="#8a8a84"/><path d="M14 50l6 4" stroke="#e889a8" stroke-width="3"/>', '#cfeaf2'),
   sensor: svg('<path d="M8 34h48" stroke="#5ab0d8" stroke-width="2"/><rect x="24" y="28" width="16" height="10" rx="3" fill="#f2c21a"/><path d="M32 28V12" stroke="#f2c21a" stroke-width="3"/><rect x="22" y="18" width="14" height="7" fill="#1c3a6a" transform="rotate(-15 29 21)"/><circle cx="32" cy="11" r="2" fill="#ffb020"/><path d="M32 38v12" stroke="#c0c0b8" stroke-width="3"/><rect x="29" y="49" width="6" height="4" fill="#3a4048"/>', '#cfeaf2'),
@@ -64,7 +64,7 @@ export const TOOL_DEFS = [
   { id: 'reefball', zones: ['reef'], name: 'שונית מלאכותית', cost: 20, max: 4, needs: 5, color: '#a8a29a',
     fact: 'שונית מלאכותית היא כיפה של בטון מיוחד עם הרבה חורים. דגים מתחבאים בחורים, ואלמוגים צעירים נאחזים בבטון וגדלים עליו.',
     hint: 'שימו על החול – דגים קטנים שליד השונית המלאכותית יתרבו יותר' },
-  { id: 'buoy', zones: ['reef'], name: 'מצוף עגינה', cost: 15, max: 2, needs: 4, color: '#2a6ad8',
+  { id: 'buoy', zones: ['reef'], name: 'מצוף עגינה', cost: 15, max: 3, needs: 4, color: '#2a6ad8',
     fact: 'סירה שמטילה עוגן על השונית שוברת אלמוגים. מצוף עגינה קשור לטבעת שקבועה בחול, והסירות נקשרות אליו במקום להטיל עוגן.',
     hint: 'שימו על החול ליד השונית – סירות ייקשרו אליו ולא יטילו עוגן על האלמוגים' },
 ];
@@ -206,6 +206,31 @@ function makeWeather() {
 }
 // the reef's devices (Blender, tools/blender/reef_props.py)
 function reefProp(id, scale) { const g = toolProp(id); if (!g) return null; g.traverse(o => { if (o.isMesh) o.castShadow = true; }); g.scale.setScalar(scale); return g; }
+// a coral nursery "tree": a white pipe held up by a float, its branches rise at a slant (never across the pipe, so it never
+// looks like a cross from any side), with coral fragments hanging on lines (the Blender model had level arms: replaced)
+function makeNursery() {
+  const g = new THREE.Group(), P = M('#f2f2ee', { roughness: 0.6 }), line = M('#d8d8d0');
+  const trunk = cyl(0.045, 0.045, 2.3, P); trunk.position.y = 1.15; g.add(trunk);
+  const block = cyl(0.16, 0.2, 0.18, M('#9a9a94')); block.position.y = 0.09; g.add(block);
+  const fl = new THREE.Mesh(new THREE.SphereGeometry(0.22, 14, 10), M('#f08a1a', { roughness: 0.5 })); fl.position.y = 2.45; g.add(fl);
+  const cols = ['#c890d8', '#e89aa8', '#88c0e0', '#d8c070', '#9ad07a'].map((c) => M(c, { roughness: 0.8 }));
+  const frag = new THREE.IcosahedronGeometry(0.05, 0);
+  let n = 0;
+  [0.7, 1.25, 1.8].forEach((h, k) => {
+    for (let j = 0; j < 3; j++) {
+      const a = (j / 3) * Math.PI * 2 + k * 1.05, L = 0.6 - 0.1 * k, up = 0.75;   // branches climb at about 37°
+      const arm = cyl(0.03, 0.03, L, P); const dir = new THREE.Vector3(Math.cos(a), up, Math.sin(a)).normalize();
+      arm.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir); arm.position.set(0, h, 0).addScaledVector(dir, L / 2); g.add(arm);
+      for (const t of [0.45, 0.8]) {
+        const q = new THREE.Vector3(0, h, 0).addScaledVector(dir, L * t);
+        const ln = cyl(0.005, 0.005, 0.14, line); ln.position.copy(q).add(new THREE.Vector3(0, -0.07, 0)); g.add(ln);
+        const f = new THREE.Mesh(frag, cols[n++ % cols.length]); f.position.copy(q).add(new THREE.Vector3(0, -0.17, 0)); f.scale.set(1, 1.4, 1); g.add(f);
+      }
+    }
+  });
+  g.traverse((o) => { if (o.isMesh) o.castShadow = true; });
+  g.scale.setScalar(1.25); return g;
+}
 function makeROV() {
   const g = reefProp('rov', 1.5); if (!g) return makeDrone();
   const w = new THREE.Group(); g.position.y = -0.6; w.add(g); w.userData.rotors = g.userData.rotors; return w;
@@ -229,7 +254,7 @@ export function toolModel(id, biome) {
     if (id === 'camera') return makeUWCam();
     if (id === 'weather') return makeFloating('sensor');
   }
-  if (id === 'nursery') return reefProp('nursery', 1.25) || makeInsectHotel();
+  if (id === 'nursery') return makeNursery();
   if (id === 'reefball') return reefProp('reefball', 1.5) || makeNestboxSimple();
   if (id === 'buoy') return makeFloating('buoy');
   if (id === 'nestbox') return makeNestbox();

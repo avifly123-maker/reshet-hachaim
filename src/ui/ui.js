@@ -413,7 +413,10 @@ export function createUI(root, bus) {
     const car = startEl.querySelector('.st-car'); let sx = null;
     car.addEventListener('pointerdown', (e) => { sx = e.clientX; });
     car.addEventListener('pointerup', (e) => { if (sx == null) return; const dx = e.clientX - sx; sx = null; if (Math.abs(dx) > 50) turn(dx > 0 ? 1 : -1); });
-    startEl.addEventListener('keydown', (e) => { if (S.stTab !== 'env' || e.target.closest('input,textarea')) return; if (e.key === 'ArrowLeft') turn(1); else if (e.key === 'ArrowRight') turn(-1); });
+    // the start screen is drawn again after every visit: one listener at a time, or the arrows would jump several islands
+    if (startEl._kd) startEl.removeEventListener('keydown', startEl._kd);
+    startEl._kd = (e) => { if (S.stTab !== 'env' || e.target.closest('input,textarea')) return; if (e.key === 'ArrowLeft') turn(1); else if (e.key === 'ArrowRight') turn(-1); };
+    startEl.addEventListener('keydown', startEl._kd);
     paintModes(); paintTab(); paintCar();
     const renderStartIntros = () => paintInfo();
     S.repaintStartMode = () => { paintModes(); renderStartIntros(); };   // another player was chosen: show their level
@@ -546,7 +549,7 @@ export function createUI(root, bus) {
   /* ================================================================ HUD */
   hud.innerHTML = `
     <div class="h-item h-pts" title="נקודות חיים"><span class="coin">${icon('leaf')}</span><b class="pts-num">0</b><small>נקודות</small></div>
-    <div class="h-item h-vit" title="חיוניות היער"><span class="vit-ic">${icon('sprout')}</span><div class="vit-bar"><i></i></div><small class="vit-pc"></small></div>
+    <div class="h-item h-vit" title="חיוניות"><span class="vit-ic">${icon('sprout')}</span><div class="vit-bar"><i></i></div><small class="vit-pc"></small></div>
     <div class="h-item h-bio" title="מינים חיים ${zoneWord('in')}"><span>${icon('web')}</span><b class="bio-num">0</b><small class="bio-lab"></small></div>
     <div class="h-item h-day" title="שעה ביום"><svg class="dial" viewBox="0 0 48 48" aria-hidden="true">
       <defs><clipPath id="dialclip"><circle cx="24" cy="24" r="21"/></clipPath></defs>
@@ -867,7 +870,7 @@ export function createUI(root, bus) {
         <div><h2>${esc(s.name)}</h2>${s.nameEn ? `<p class="en" dir="ltr">${esc(s.nameEn)}</p>` : ''}
         <div class="chips">${s.kindName ? `<span>${esc(s.kindName)}</span>` : ''}${s.layerName ? `<span>${esc(s.layerName)}</span>` : ''}${s.activeName ? `<span>${icon(/לילה/.test(s.activeName) ? 'moon' : 'sun')}${esc(s.activeName)}</span>` : ''}</div></div></header>
       <div class="sp-status">
-        <div class="st-alive"><b>${fmt(s.alive != null ? s.alive : s.count || 0)}</b><small>${zoneWord('in')} עכשיו</small></div>
+        <div class="st-alive"><b>${fmt(s.count || 0)}</b><small>${zoneWord('in')} עכשיו</small></div>
         ${health != null ? `<div class="st-health"><div class="hb"><i style="width:${(health * 100).toFixed(0)}%;background:hsl(${(health * 110).toFixed(0)} 60% 45%)"></i></div><small>${esc(s.status || 'בריאות')}</small></div>` : (s.status ? `<div class="st-health"><small>${esc(s.status)}</small></div>` : '')}
       </div>
       ${s.fact ? `<blockquote class="sp-fact">${esc(s.fact)}</blockquote>` : ''}
@@ -890,6 +893,12 @@ export function createUI(root, bus) {
   // the one plant or animal that was clicked: take it out, move it, let it go
   function oneHTML(s) {
     const o = s.one, back = o.refund ? ` <small>+${o.refund}</small>` : '';
+    if (o.kind === 'plant' && /בעל חיים/.test(s.kindName || '')) {   // a coral, a sponge, an anemone: an animal that stays in place
+      const lb = 'להוציא אותו מהשונית';
+      return `<section class="sp-one"><h4>${icon('sprout')}מה שבחרתם</h4><p>יותר מדי ממנו, או שהוא במקום לא טוב? אפשר להעביר אותו למקום אחר או להוציא אותו ולפנות מקום.</p>
+        <div class="sp-one-btns">${o.canMove ? `<button class="btn ghosty" data-act="move">${icon('target')}<span>להעביר למקום אחר</span></button>` : ''}
+        ${upBtn(lb, 'leaf', back)}</div></section>`;
+    }
     if (o.kind === 'plant') {
       const lb = 'לעקור את הצמח הזה';
       return `<section class="sp-one"><h4>${icon('sprout')}הצמח שבחרתם</h4><p>מוצל מדי, או שיש יותר מדי ממנו? אפשר להעביר אותו למקום אחר או לעקור אותו ולפנות מקום.</p>
@@ -1084,6 +1093,12 @@ export function createUI(root, bus) {
       root.dataset.biome = S.biome.id || '';
       root.classList.add('ingame');
       seasonBox.hidden = !S.biome.hasSeasons;
+      // words that depend on the zone (the menu and the tray help were written once, before the zone was known)
+      const reef = S.biome.id === 'reef';
+      const pt = tray.querySelector('[data-tab="plants"]');
+      if (pt) for (const n of pt.childNodes) if (n.nodeType === 3 && n.textContent.trim()) n.textContent = reef ? 'אלמוגים וצמחים' : 'צמחים';   // corals are animals
+      const kr = root.querySelector('.km-row[data-a="reset"] span'); if (kr) kr.textContent = `מבט על ${zoneWord('all')}`;
+      const th = tray.querySelector('.tr-help'); if (th) th.innerHTML = `<p><span class="lg-dot">3</span>כמה יש ${zoneWord('in')} עכשיו</p><p><span class="lg-cost">${icon('leaf')}20</span>המחיר בנקודות חיים</p><p><span class="lg-drag">${icon('arrowL')}</span>גוררים את הקלף ${zoneWord('to')}</p>`;
       S.layerFilter = 'all';
       syncTrayH();
     },
@@ -1111,7 +1126,7 @@ export function createUI(root, bus) {
           o.vitality = v;
           const col = `hsl(${(v * 112).toFixed(0)} 62% 48%)`;
           vitBar.style.width = (v * 100).toFixed(1) + '%'; vitBar.style.background = col; vitIc.style.color = `hsl(${(v * 112).toFixed(0)} 65% 62%)`;
-          vitPc.textContent = Math.round(v * 100) + '%'; vitPc.parentElement.title = `חיוניות היער: ${Math.round(v * 100)}%`;
+          vitPc.textContent = Math.round(v * 100) + '%'; vitPc.parentElement.title = `החיוניות של ${zoneWord('the')}: ${Math.round(v * 100)}%`;
           hud.classList.toggle('vit-low', v < 0.3);
         }
       }
@@ -1159,6 +1174,8 @@ export function createUI(root, bus) {
           <div class="m-detail">${xp}<p>${esc(m.text || '')}</p>${ck}${m.done && m.note ? `<p class="m-note">${icon('check')}בוצע: ${esc(m.note)}</p>` : ''}${(m.hint || m.how) && !m.done ? `<button class="m-hint-btn">${icon('bulb')}רמז</button><div class="m-hint">${m.hint ? `<p>${esc(m.hint)}</p>` : ''}${m.how ? `<p class="m-how">${esc(m.how)}</p>` : ''}</div>` : ''}</div></li>`;
       }).join('');
       const d = list.filter((m) => m.done).length;
+      // the current mission is always in view (on a low screen the list shows only a line or two)
+      const cur = mList.querySelector('li:not(.done)'); if (cur && (cur.offsetTop < mList.scrollTop || cur.offsetTop + 24 > mList.scrollTop + mList.clientHeight)) mList.scrollTop = Math.max(0, cur.offsetTop - mList.offsetTop - 2);
       mCount.textContent = list.length ? `${d}/${list.length}` : '';
       missions.hidden = !list.length;
     },
@@ -1231,7 +1248,7 @@ export function createUI(root, bus) {
       S.layers = Array.isArray(layers) ? layers.filter((l) => l.id !== 'all') : [];
       S.activeLayer = activeId || 'all';
       const n = S.layers.length;
-      layersEl.innerHTML = `<button class="ly-all" data-id="all" title="כל היער" aria-label="כל היער">${icon('tree')}<span>כל היער</span></button><div class="strata">` +
+      layersEl.innerHTML = `<button class="ly-all" data-id="all" title="${zoneWord('all')}" aria-label="${zoneWord('all')}">${icon('tree')}<span>${zoneWord('all')}</span></button><div class="strata">` +
         S.layers.map((l, i) => `<button data-id="${esc(l.id)}" aria-label="${esc(l.name)}" style="--lt:${LAYER_TINT[l.id] || mix('#a8cf7a', '#7a5636', n > 1 ? i / (n - 1) : 0)}"><span>${esc(l.name)}</span></button>`).join('') + `</div>`;
       layersEl.setAttribute('aria-label', 'קומות היער');
       layersEl.hidden = !n;

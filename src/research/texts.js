@@ -7,6 +7,9 @@ export const RESEARCH_NAME = 'חוקרי הטבע';     // the whole world of my
 export const CASE_WORD = 'תעלומה';              // one mystery
 
 const KIDS = {
+  // "try again" shows for beginners only when the budget is used up
+  retry: 'לְנַסּוֹת מֵחָדָשׁ', retrySure: 'בְּטוּחִים? לַחֲצוּ שׁוּב', retryTip: 'הַמָּקוֹם חוֹזֵר לְהַתְחָלָה.',
+  retryNote: 'מַתְחִילִים מֵחָדָשׁ: הַמָּקוֹם חָזַר לִהְיוֹת כְּמוֹ בַּהַתְחָלָה, וְהַתַּקְצִיב מָלֵא.',
   zone_grove: 'הַחֹרֶשׁ', zone_amazon: 'הַיַּעַר', zone_reef: 'הַשּׁוּנִית',
   board: 'מָה מָדַדְנוּ',
   unknown: 'צָרִיךְ לִמְדֹּד',
@@ -29,7 +32,7 @@ const KIDS = {
   hintWait: 'הָרֶמֶז הַבָּא יִהְיֶה מוּכָן בְּעוֹד רֶגַע.',
   noMoreHints: 'זֶה הָיָה הָרֶמֶז הָאַחֲרוֹן. אַתֶּם יְכוֹלִים!',
   meter: 'מַד הָאִזּוּן',
-  balanced: '{zone} מְאֻזָּן! עוֹד {n} שְׁנִיּוֹת',
+  balanced: '{zone} {bal}! עוֹד {n} שְׁנִיּוֹת',
   notYet: 'כְּשֶׁשָּׁלֹשׁ הַנּוּרוֹת יְרֻקּוֹת, הַשָּׁעוֹן מַתְחִיל.',
   clockWaits: 'הַשָּׁעוֹן מְחַכֶּה: נוּרָה אַחַת לֹא יְרֻקָּה.',
   lab: 'מַעְבָּדָה',
@@ -64,7 +67,7 @@ const PLAIN = {
   noBudget: 'אין מספיק תקציב', noRoom: 'אין מקום לעוד', see: 'לראות מה קורה', seeing: 'מחכים לתוצאה...',
   toNight: 'קדימה עד הלילה', camWaits: 'המצלמה תספור בלילה.', camCounted: 'המצלמה ספרה בלילה:', dayCamCounted: 'המצלמה ספרה:', droneCounted: 'הרחפן ספר:',
   quadratCounted: 'בריבוע מצאנו:', probeCounted: 'המדידה הראתה:', measuring: 'מודדים...', hint: 'רמז', hintWait: 'הרמז הבא יהיה מוכן בעוד רגע.',
-  noMoreHints: 'זה היה הרמז האחרון.', meter: 'מד האיזון', balanced: '{zone} מאוזן! עוד {n} שניות',
+  noMoreHints: 'זה היה הרמז האחרון.', meter: 'מד האיזון', balanced: '{zone} {bal}! עוד {n} שניות',
   notYet: 'כששלוש הנורות ירוקות, השעון מתחיל.', clockWaits: 'השעון מחכה: נורה אחת לא ירוקה.', lab: 'מעבדה', labTitle: 'המעבדה', graphs: 'מדידות',
   noData: 'עוד לא מדדנו. הציבו כלי מחקר.', myGuess: 'ההשערה שלי: מה קרה כאן?', guessSaved: 'רשמנו במחברת. עכשיו נבדוק!',
   close: 'סגירה', back: 'חזרה', start: 'יוצאים לחקור', solvedTitle: 'התעלומה נפתרה!', starHealed: 'החזרנו את האיזון',
@@ -74,13 +77,18 @@ const PLAIN = {
   // middle and advanced: the experiment log, trying again, surprises
   log: 'יומן ניסויים', logSub: 'כל מה שניסינו נרשם כאן, גם מה שלא עבד. חוקרים לומדים גם מניסיון שנכשל.',
   logEmpty: 'עוד לא ניסינו כלום. בחרו רעיון מהשולחן ולחצו "לראות מה קורה".', logTried: 'ניסינו', logSaw: 'ראינו', surprise: 'הפתעה!',
-  attempt: 'ניסיון {n}', retry: 'לנסות מחדש', retrySure: 'בטוח? לחצו שוב', retryTip: 'המקום חוזר להתחלה. המדידות והיומן נשארים.',
+  attempt: 'ניסיון {n}', retry: 'לנסות מחדש', retrySure: 'בטוחים? לחצו שוב', retryTip: 'המקום חוזר להתחלה. המדידות והיומן נשארים.',
   retryNote: 'מתחילים מחדש: המקום חזר להיות כמו בהתחלה, והתקציב מלא. המדידות והיומן נשארו.',
   otherWay: 'מצאתם דרך משלכם לפתור את התעלומה!', triesLine: 'ניסיתם {n} רעיונות ב־{a} ניסיונות. ככה עובדים חוקרים.',
 };
 export function textsFor(level, zone) {
   const T = level === 'kids' ? KIDS : PLAIN;
   const z = T['zone_' + zone] || T.zone_grove;
-  return (key, vars = {}) => String(T[key] ?? PLAIN[key] ?? key).replace(/\{(\w+)\}/g, (_, k) => (k === 'zone' ? z : vars[k] ?? ''));
+  const kids = level === 'kids', fem = zone === 'reef';   // השונית is feminine
+  const bal = kids ? (fem ? 'מְאֻזֶּנֶת' : 'מְאֻזָּן') : (fem ? 'מאוזנת' : 'מאוזן');
+  // one of something reads as one ("עוד שנייה אחת", "רעיון אחד"), not "1 שניות"
+  const one = (t) => t.replace(/עוד 1 שניות/g, 'עוד שנייה אחת').replace(/עוֹד 1 שְׁנִיּוֹת/g, 'עוֹד שְׁנִיָּה אַחַת')
+    .replace(/ניסיתם 1 רעיונות/g, 'ניסיתם רעיון אחד').replace(/ב־1 ניסיונות/g, 'בניסיון אחד');
+  return (key, vars = {}) => one(String(T[key] ?? PLAIN[key] ?? key).replace(/\{(\w+)\}/g, (_, k) => (k === 'zone' ? z : k === 'bal' ? bal : vars[k] ?? '')));
 }
 export const KIDS_TEXTS = KIDS;

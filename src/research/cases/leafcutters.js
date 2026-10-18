@@ -108,7 +108,7 @@ export const LEAFCUTTERS = {
     { id: 'anteater', title: 'להביא נמלנים', icon: 'species:anteater', amounts: [2], cost: 6, max: 2, effect: { add: { anteater: 1 } } },
     { id: 'move', title: 'להעביר קני נמלים למקום אחר', icon: 'species:leafcutter', amounts: [5], cost: 6, effect: { add: { ants: -1 } } },
     { id: 'cut', title: 'לקצוץ את הצמחים הרכים בשוליים', icon: 'cutplants', amounts: [1], cost: 4, max: 3, effect: { add: { soft: -55 } } },
-    { id: 'leaves', title: 'לפזר עלים ליד הקנים, שלא יגעו בעצים', icon: 'leafpile', amounts: [1], cost: 3, max: 3, effect: { add: { leaves: 300 } } },
+    { id: 'leaves', title: 'לפזר עלים ליד הקנים, שלא ייגעו בעצים', icon: 'leafpile', amounts: [1], cost: 3, max: 3, effect: { add: { leaves: 300 } } },
     { id: 'fence', title: 'גדר רשת סביב העצים הצעירים', icon: 'fence', amounts: [1], cost: 8, max: 1, effect: { add: { fence: 1 } } },
     { id: 'seed-drone', title: 'רחפן זריעה (זרעי עצי יער)', icon: 'seeddrone', amounts: [1], cost: 8, effect: { add: { seedlings: 12 } }, tech: true },
   ],

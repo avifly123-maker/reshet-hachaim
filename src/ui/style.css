@@ -308,6 +308,7 @@
 #ui.wol .m-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; overflow: auto; scrollbar-width: thin; }
 #ui.wol .m-list li { padding: 5px 6px; border-radius: 3px; cursor: pointer; border-top: 1px dashed rgba(180, 203, 102, .16); }
 #ui.wol .m-list li:hover { background: rgba(233, 230, 204, .06); }
+@media (max-height: 520px) { #ui.wol .m-list li.done:not(.open) { display: none; } #ui.wol .missions { min-height: 96px; } }   /* low screens: only what is still to do (the done ones are under "בוצעו") */
 #ui.wol .m-list li.open { background: var(--paper); color: var(--ink); border-top-color: transparent; padding: 7px 8px 9px; }
 #ui.wol .m-row { display: flex; align-items: center; gap: 8px; }
 #ui.wol .m-row b { flex: 1; font-size: .95em; font-weight: 700; line-height: 1.2; }

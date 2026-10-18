@@ -41,13 +41,18 @@ export function createRunner(C) {
   // surprises: lines the case shows once when the numbers turn ({ id, idea?, test, above? | below?, text }); an idea
   // in `idea` must have been tried first, so a surprise follows from what the child did
   const fired = new Set();
+  // A surprise fires only when the number really turns: it must first be seen on the other side of its line (after its idea
+  // was tried), so a value that was already past the line never claims a cause that is not true.
+  const armed = new Set();
   function surprises() {
     const out = [];
     for (const S of C.surprises || []) {
       if (fired.has(S.id)) continue;
       if (S.idea && !used(S.idea)) continue;
       const v = model.get(S.test);
-      if ((S.above != null && v > S.above) || (S.below != null && v < S.below)) { fired.add(S.id); out.push(S); }
+      const past = (S.above != null && v > S.above) || (S.below != null && v < S.below);
+      if (!past) { armed.add(S.id); continue; }
+      if (armed.has(S.id)) { fired.add(S.id); out.push(S); }
     }
     return out;
   }

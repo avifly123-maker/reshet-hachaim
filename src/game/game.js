@@ -212,6 +212,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     if (!quiet || !W.discovered.has(e.key)) tmpLinks.push({ from: fromE, to: toE, type, until: W.simT + 3.5 });
     if (W.discovered.has(e.key)) return;
     W.discovered.add(e.key);
+    if (W.research) return;   // a mystery has its own notes: no "new link" cards over the table
     W.points += 5;
     const a = reg.byId.get(e.from), b = reg.byId.get(e.to);
     ui.discovery({ fromName: a.name, toName: b.name, typeName: RELATION_TYPES[type]?.name || '', text: e.text, color: RELATION_TYPES[type]?.color });
@@ -549,7 +550,9 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
       for (const q of W.plants.slice()) if (q.host === e && alive(q)) { W.onPlantDied(q, 'uproot'); q.alive = false; W.removeEntity(q); }   // what grew on it comes out with it
       markers.burst(_v.set(e.x, e.y + 0.6, e.z), '#c8a878', 26, { size: 0.45, speed: 2.5 });
       W.onPlantDied(e, 'uproot'); e.alive = false; W.removeEntity(e); W.stats.uprooted = (W.stats.uprooted || 0) + 1;
-      ui.toast(`${sp.name} ${gw(sp.id, 'נעקר', 'נעקרה', 'נעקרו', 'נעקרו')} מ${zoneWord()}. יש עכשיו מקום לצמח אחר.${back ? ` (+${back} נקודות)` : ''}`, 'info');
+      const still = /בעל חיים/.test(sp.kindName || '');   // a coral or a sponge is an animal that stays in place
+      ui.toast(still ? `${sp.name} ${gw(sp.id, 'הוצא', 'הוצאה', 'הוצאו', 'הוצאו')} מ${zoneWord()}. יש עכשיו מקום פנוי.${back ? ` (+${back} נקודות)` : ''}`
+        : `${sp.name} ${gw(sp.id, 'נעקר', 'נעקרה', 'נעקרו', 'נעקרו')} מ${zoneWord()}. יש עכשיו מקום לצמח אחר.${back ? ` (+${back} נקודות)` : ''}`, 'info');
     } else {
       e.leave(); W.stats.letGo = (W.stats.letGo || 0) + 1;
       ui.toast(`${sp.name} ${gw(sp.id, 'יצא', 'יצאה', 'יצאו', 'יצאו')} מ${zoneWord()} לחפש בית אחר.${back ? ` (+${back} נקודות)` : ''}`, 'info');

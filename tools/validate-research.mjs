@@ -33,6 +33,9 @@ function kidStrings(C) {
   if (C.dilemma) { out.push(['dilemma.title', C.dilemma.title], ['dilemma.text', C.dilemma.text]); if (C.dilemma.later) out.push(['dilemma.later', C.dilemma.later]); for (const o of C.dilemma.options) { out.push(['dilemma.' + o.idea + '.plus', o.plus], ['dilemma.' + o.idea + '.minus', o.minus]); if (o.title) out.push(['dilemma.' + o.idea, o.title]); } }
   return out;
 }
+// every device a mystery places must exist in the game (tools.js TOOL_DEFS), or using it throws
+const TOOL_IDS = new Set([...(await import('node:fs')).readFileSync(new URL('../src/game/tools.js', import.meta.url), 'utf8').matchAll(/^\s*\{ id: '([a-z]+)'/gm)].map((m) => m[1]));
+for (const C of CASES) for (const x of [...(C.tools || []), ...(C.ideas || [])]) if (x.place && !TOOL_IDS.has(x.place)) err(C.id, `"${x.id}" places "${x.place}", which is not a device of the game`);
 for (const C of CASES) {
   const B = zones[C.zone]; if (!B) { err(C.id, `unknown zone ${C.zone}`); continue; }
   const sp = new Set(B.species.map((s) => s.id));

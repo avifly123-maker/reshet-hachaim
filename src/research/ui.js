@@ -108,19 +108,21 @@ export function createResearchUI(root, o) {
   // ───────────── the research table
   function setTable(st) {
     if (!table) return;
+    const oldRow = table.querySelector('.rs-ideas'), keepX = oldRow ? oldRow.scrollLeft : 0;   // the row of ideas keeps its place
     table.innerHTML = `<div class="rs-desk">
       <section class="rs-sec rs-sec-tools"><h4>${esc(T('tools'))}</h4><div class="rs-tools">${st.tools.map((t) => `<button class="rs-tool${t.placed ? ' placed' : ''}" data-tool="${t.id}">${pic(null, t.icon)}<span>${esc(t.name)}</span>${t.placed ? `<i class="rs-ok">${icon('check')}</i>` : ''}</button>`).join('')}</div></section>
       <section class="rs-sec rs-sec-ideas"><h4>${esc(T('ideas'))}</h4><div class="rs-ideas${st.ideas.length > 6 ? ' many' : ''}">${st.ideas.map((i) => `<div class="rs-idea${i.full ? ' full' : ''}${i.tech ? ' tech' : ''}" data-idea="${i.id}">${ideaPic(i)}<span class="rs-i-title">${esc(i.title)}</span>
-        <span class="rs-i-amts">${i.amounts.map((n) => `<button data-n="${n}" ${i.full ? 'disabled' : ''}>${i.amounts.length > 1 || n > 1 ? ('פי ' + n) : `${icon('plus')}`}<small>${i.perUnit ? i.cost * n : i.cost}</small></button>`).join('')}</span>
+        <span class="rs-i-amts">${i.amounts.map((n) => `<button data-n="${n}" ${i.full ? 'disabled' : ''}>${i.amounts.length > 1 || n > 1 ? ((kids ? 'פִּי ' : 'פי ') + n) : `${icon('plus')}`}<small>${i.perUnit ? i.cost * n : i.cost}</small></button>`).join('')}</span>
         ${i.used ? `<i class="rs-used">${i.used}</i>` : ''}</div>`).join('')}</div></section>
       <section class="rs-sec rs-sec-side">
         <div class="rs-budget" title="${esc(T('budget'))}"><span>${esc(T('budget'))}</span><b>${st.budget}</b><div class="rs-b-bar"><i style="width:${st.budgetMax ? (100 * st.budget / st.budgetMax).toFixed(0) : 0}%"></i></div></div>
         <button class="rs-hint" data-hint="1">${icon('bulb')}<span>${esc(T('hint'))}</span><span class="rs-bulbs"></span></button>
         <button class="rs-lab" data-lab="1">${icon('flask')}<span>${esc(T('lab'))}</span></button>
-        ${kids ? '' : `<div class="rs-sbx"><button class="rs-log" data-log="1">${icon('book')}<span>${esc(T('log'))}</span><i class="rs-log-n">${logN || ''}</i></button>
+        ${kids ? (st.stuck ? `<div class="rs-sbx"><button class="rs-retry" data-retry="1" title="${esc(T('retryTip'))}">${icon('undo')}<span>${esc(T('retry'))}</span></button></div>` : '') : `<div class="rs-sbx"><button class="rs-log" data-log="1">${icon('book')}<span>${esc(T('log'))}</span><i class="rs-log-n">${logN || ''}</i></button>
         <button class="rs-retry" data-retry="1" title="${esc(T('retryTip'))}">${icon('undo')}<span>${esc(T('retry'))}</span></button></div>`}
       </section></div>`;
     setBulbs(bulbsN, bulbsMax);
+    if (keepX) { const r = table.querySelector(".rs-ideas"); if (r) r.scrollLeft = keepX; }
   }
   function onTableClick(e) {
     const t = e.target.closest('[data-tool]'); if (t) { o.onTool(t.dataset.tool); return; }
@@ -207,7 +209,7 @@ export function createResearchUI(root, o) {
     const m = openModal('rs-intro rs-dilemma', `<div class="rs-tape"></div><div class="rs-case-tag">${icon('bulb')}<span>${esc(kids ? 'דִּילֶמָּה' : 'דילמה')}</span></div>
       <h2>${esc(D.title)}</h2><p class="rs-call">${esc(D.text)}</p>
       <div class="rs-dl-opts">${D.options.map((op) => { const i = C.ideas.find((x) => x.id === op.idea) || {}; return `<button class="rs-dl-opt" data-idea="${esc(op.idea)}">${ideaPic({ thumb: i.icon && i.icon.startsWith('species:') ? thumbs[i.icon.slice(8)] : null, icon: i.icon })}
-        <b>${esc(op.title || i.title || '')}</b><span class="rs-dl-plus">${esc(op.plus)}</span><span class="rs-dl-minus">${esc(op.minus)}</span><small>${esc(T('budget'))}: ${i.cost ?? ''}</small></button>`; }).join('')}</div>
+        <b>${esc(op.title || i.title || '')}</b><span class="rs-dl-plus">${esc(op.plus)}</span><span class="rs-dl-minus">${esc(op.minus)}</span><small>${esc(T('budget'))}: ${i.perUnit ? i.cost * ((i.amounts && i.amounts[0]) || 1) : i.cost ?? ''}</small></button>`; }).join('')}</div>
       <button class="rs-dl-later">${esc(D.later || T('close'))}</button>`);
     m.querySelectorAll('.rs-dl-opt').forEach((b) => b.addEventListener('click', () => { closeModal(); onChoose(b.dataset.idea); }));
     m.querySelector('.rs-dl-later').addEventListener('click', closeModal);
@@ -266,7 +268,8 @@ export function createResearchUI(root, o) {
       if (e.kind === 'retry') continue;
       const ic = e.kind === 'idea' ? (e.thumb ? `<img class="rs-lg-pic" src="${e.thumb}" alt="">` : pic(null, e.icon, 'rs-lg-pic')) : `<span class="rs-lg-ic">${icon(LOG_IC[e.kind] || 'leaf')}</span>`;
       const tag = e.kind === 'idea' ? T('logTried') : e.kind === 'surprise' ? T('surprise') : e.kind === 'solved' ? '' : T('logSaw');
-      rows.push(`<li class="rs-lg-${e.kind}">${ic}<div>${tag ? `<small>${esc(tag)}</small>` : ''}<p>${esc(e.text)}</p></div></li>`);
+      const txt = e.kind === 'surprise' ? String(e.text).replace(/^הפתעה[:!]\s*/, '') : e.text;   // the tag already says it
+      rows.push(`<li class="rs-lg-${e.kind}">${ic}<div>${tag ? `<small>${esc(tag)}</small>` : ''}<p>${esc(txt)}</p></div></li>`);
     }
     const m = openModal('rs-logm', `<div class="rs-lab-desk rs-log-desk">
       <header><h2>${icon('book')}${esc(T('log'))}</h2><button class="rs-x" aria-label="${esc(T('close'))}">${icon('close')}</button></header>

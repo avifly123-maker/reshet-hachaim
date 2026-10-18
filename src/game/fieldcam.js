@@ -19,9 +19,9 @@ const CSS = `
 #ui.wol .fc-view .fc-corner.bl { bottom: 18px; left: 18px; border-right: 0; border-top: 0; border-radius: 0 0 0 14px; }
 #ui.wol .fc-view .fc-corner.br { bottom: 18px; right: 18px; border-left: 0; border-top: 0; border-radius: 0 0 14px 0; }
 #ui.wol .fc-view .fc-cross { position: absolute; left: 50%; top: 50%; width: 30px; height: 30px; transform: translate(-50%, -50%); opacity: .55; pointer-events: none; }
-#ui.wol .fc-view .fc-cross::before, #ui.wol .fc-view .fc-cross::after { content: ""; position: absolute; background: var(--chalk); border-radius: 2px; }
-#ui.wol .fc-view .fc-cross::before { left: 14px; top: 0; width: 2px; height: 30px; }
-#ui.wol .fc-view .fc-cross::after { top: 14px; left: 0; height: 2px; width: 30px; }
+/* the aiming mark: a ring with a dot (no crossing lines) */
+#ui.wol .fc-view .fc-cross { border: 2px solid var(--chalk); border-radius: 50%; box-sizing: border-box; }
+#ui.wol .fc-view .fc-cross::after { content: ""; position: absolute; left: 50%; top: 50%; width: 4px; height: 4px; margin: -2px 0 0 -2px; border-radius: 50%; background: var(--chalk); }
 #ui.wol .fc-label { position: absolute; top: 12px; right: 12px; display: flex; align-items: center; gap: 10px; padding: 6px 16px 6px 12px; border-radius: 999px;
   background: rgba(17, 36, 26, .9); box-shadow: 0 0 0 1.5px rgba(180, 203, 102, .45), 0 6px 14px rgba(0, 0, 0, .35); font-weight: 700; min-height: 48px; }
 #ui.wol .fc-label b { font-family: var(--serif); font-weight: 400; font-size: 1.15em; }

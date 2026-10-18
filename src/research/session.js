@@ -346,6 +346,8 @@ export function createResearchSession(ctx) {
       tools: C.tools.map((t) => ({ ...t, placed: placedTools.has(t.id) })),
       ideas: C.ideas.map((i) => ({ ...i, thumb: i.icon.startsWith('species:') ? thumbs[i.icon.slice(8)] : null, used: ideaCount(i.id), full: !!(i.max && ideaCount(i.id) >= i.max), cost: i.cost })),
       budget: budgetLeft(), budgetMax: C.budget ?? 0,
+      // nothing left to try with what is left of the budget: even beginners get "try again" then
+      stuck: !finished && !C.ideas.some((i) => !(i.max && ideaCount(i.id) >= i.max) && runner.costOf(i, (i.amounts && i.amounts[0]) || 1) <= budgetLeft()),
     };
   }
 
@@ -411,7 +413,7 @@ export function createResearchSession(ctx) {
   // ─────────────────────────────────────── try again: the place goes back to how it was; the measurements, the guess
   // and the experiment log stay (middle and advanced levels)
   function retry() {
-    if (!sandbox) return;
+    if (!sandbox && !tableState().stuck) return;
     if (ff) { ff = null; R.setFF({ on: false }); }
     W.speed = baseSpeed;
     runner = createRunner(C); model = runner.model; acts = runner.acts;
