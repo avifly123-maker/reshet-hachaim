@@ -1,9 +1,9 @@
-// חוקרי היער – the words of the research screens.
+// חוקרי הטבע – the words of the research screens.
 // Beginners (ages 6 to 8) read everything fully vocalised (ניקוד מלא); the other levels read plain Hebrew like the
 // rest of the game. tools/validate-research.mjs checks that every beginner string carries nikud.
 // {zone} is the place: "הַחֹרֶשׁ" / "הַיַּעַר".
 
-export const RESEARCH_NAME = 'חוקרי היער';     // the whole world of mysteries (start screen, picker)
+export const RESEARCH_NAME = 'חוקרי הטבע';     // the whole world of mysteries (start screen, picker)
 export const CASE_WORD = 'תעלומה';              // one mystery
 
 const KIDS = {

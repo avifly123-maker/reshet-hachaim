@@ -1,4 +1,4 @@
-// All mysteries (תעלומות) of חוקרי היער, in the order the picker shows them within each level.
+// All mysteries (תעלומות) of חוקרי הטבע, in the order the picker shows them within each level.
 import { MICE_OWL } from './mice-owl.js';
 import { FLOWERS_BEES } from './flowers-bees.js';
 import { BRAZIL_NUT } from './brazil-nut.js';

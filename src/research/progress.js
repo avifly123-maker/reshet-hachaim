@@ -1,4 +1,4 @@
-// חוקרי היער – what each player solved (per player, like everything a child keeps; see core/profiles.js).
+// חוקרי הטבע – what each player solved (per player, like everything a child keeps; see core/profiles.js).
 // { cases: { <caseId>: { stars: [healed, guess, thrift], at, spent, tries } } }
 import { key as profileKey } from '../core/profiles.js';
 

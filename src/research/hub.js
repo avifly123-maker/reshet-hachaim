@@ -1,4 +1,4 @@
-// חוקרי היער – the research centre: the mysteries (תעלומות) by level, with the stars each player earned.
+// חוקרי הטבע – the research centre: the mysteries (תעלומות) by level, with the stars each player earned.
 // Opened from the start screen; picking a mystery calls onPick(caseId) and main.js builds its island.
 import { icon, esc } from '../ui/ui.js';
 import { ISLAND_ART } from '../data/island-art.js';

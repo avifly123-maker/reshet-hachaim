@@ -1,4 +1,4 @@
-// חוקרי היער – the screens of a mystery in progress: the balance meter, the board of measurements, the research table
+// חוקרי הטבע – the screens of a mystery in progress: the balance meter, the board of measurements, the research table
 // (tools, ideas, budget, hints, lab), notes from the field notebook, "see what happens", the lab and the end.
 // Plain DOM inside #ui, styled by src/research/research.css (same field-kit look as the rest of the game).
 import { icon, esc } from '../ui/ui.js';

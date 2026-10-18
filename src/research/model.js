@@ -1,4 +1,4 @@
-// חוקרי היער – the population model under a mystery ("תעלומה").
+// חוקרי הטבע – the population model under a mystery ("תעלומה").
 // Plain numbers, no three.js: every species is a count ("140 spiny mice") and every non-living part of the place is a
 // stock ("seeds in the soil", "nest sites"). The 3D island only shows a sample of these numbers (research/sync.js),
 // so a child can bring 20 owls without the computer slowing down.

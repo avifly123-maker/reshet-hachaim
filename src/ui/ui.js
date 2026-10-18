@@ -315,7 +315,7 @@ export function createUI(root, bus) {
 
   /* ================================================================ START */
   // the start screen (1.3): three tabs – the game's environments (a carousel of the three islands, with the level),
-  // the science centre (חוקרי היער and the lab of רובו־דע) and the learning hub
+  // the science centre (חוקרי הטבע and the lab of רובו־דע) and the learning hub
   function renderStart(biomes) {
     biomes = biomes || [];
     S.stTab = S.stTab || 'env';
@@ -331,7 +331,7 @@ export function createUI(root, bus) {
         <div class="st-titles"><h1 class="st-title">רשת החיים</h1>${EDITION_NAME ? `<span class="st-edition">${EDITION_NAME}</span>` : ''}${VINE}<p class="st-sub">בונים יער חי, מגלים מי צריך את מי</p></div></header>
       <nav class="st-tabs" role="tablist">
         <button role="tab" data-tab="env">${icon('leaf')}<span><b>סביבות משחק</b><small>אמזונס, חורש ושונית</small></span></button>
-        <button role="tab" data-tab="sci" data-research-tab="1">${icon('flask')}<span><b>המרכז המדעי</b><small>חוקרי היער ומעבדת רובו־דע</small></span></button>
+        <button role="tab" data-tab="sci" data-research-tab="1">${icon('flask')}<span><b>המרכז המדעי</b><small>חוקרי הטבע ומעבדת רובו־דע</small></span></button>
         <button role="tab" data-tab="learn">${icon('book')}<span><b>מרכז הלמידה</b><small>חידון, אלבום ומשחקי קלפים</small></span></button>
       </nav>
       <section class="st-pane" data-pane="env">
@@ -351,7 +351,7 @@ export function createUI(root, bus) {
       <section class="st-pane" data-pane="sci">
         <div class="st-big2">
           <button class="st-panel" data-research="1"><span class="st-pimg rs">${biomes.slice(0, 3).map((b) => `<img src="${isl(b.id)}" alt="" draggable="false">`).join('')}<i class="st-lens">${icon('search')}</i></span>
-            <span class="st-ptext"><b>חוקרי היער</b><small>תעלומות בטבע: מודדים, משערים, מנסים ומאזנים. שלוש רמות, משלוש הסביבות.</small><em>${icon('arrowL')}לתעלומות</em></span></button>
+            <span class="st-ptext"><b>חוקרי הטבע</b><small>תעלומות בטבע: מודדים, משערים, מנסים ומאזנים. שלוש רמות, משלוש הסביבות.</small><em>${icon('arrowL')}לתעלומות</em></span></button>
           <button class="st-panel" data-lab="1"><span class="st-pimg lab">${ISLAND_ART.lab ? `<img src="${ISLAND_ART.lab}" alt="" draggable="false">` : ''}</span>
             <span class="st-ptext"><b>המעבדה של רובו־דע</b><small>מיקרוסקופ, שולחן ממציאים ואטלס. ממציאים בעזרת הטבע ומשדרגים את הכלים.</small><em>${icon('arrowL')}למעבדה</em></span></button>
         </div>
@@ -1026,7 +1026,7 @@ export function createUI(root, bus) {
 
   /* tray height → CSS var so side panels end above it */
   function syncTrayH() {
-    // a mystery (חוקרי היער) has its research desk where the tray was: the island frames itself above it
+    // a mystery (חוקרי הטבע) has its research desk where the tray was: the island frames itself above it
     const desk = root.classList.contains('research') && root.querySelector('.rs-desk');
     if (desk) { root.style.setProperty('--trayH', Math.round(innerHeight - desk.getBoundingClientRect().top) + 'px'); layoutCoach(); return; }
     const r = tray.getBoundingClientRect(), t = tray.querySelector('.tr-top').getBoundingClientRect(); root.style.setProperty('--trayH', (tray.offsetParent ? Math.round(innerHeight - Math.min(r.top, t.top || r.top)) : 0) + 'px'); layoutCoach(); }

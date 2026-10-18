@@ -120,7 +120,7 @@ async function boot() {
     if (gameZone) { releasePack(gameZone); gameZone = null; }
     audio.setBiome(null);   // every way out of an island silences its ambience (rain and river included)
   }
-  // research = a mystery of חוקרי היער (src/research/): the zone's full content, the case's own island, no save
+  // research = a mystery of חוקרי הטבע (src/research/): the zone's full content, the case's own island, no save
   async function loadBiome(id, save = null, research = null) {
     if (loading) return; loading = true;
     ui.hideStart();
@@ -199,7 +199,7 @@ async function boot() {
   bus.on('ui:learn', (o) => { audio.start(); const scr = o && o.screen; getHub().then((h) => { if (scr && scr !== 'home' && h.go) h.go(scr); else h.open(); }, (e) => console.error(e)); });
   bus.on('ui:lab', () => { audio.start(); openLab('start'); });
   bus.on('ui:click', () => { try { audio.play('click'); } catch (e) { /* */ } });
-  // חוקרי היער: the research centre and its mysteries
+  // חוקרי הטבע: the research centre and its mysteries
   const researchHub = createResearchHub(root, { onPick: (id) => { const C = caseById(id); if (!C) return; loadPack(C.zone).catch(() => { /* reported by loadBiome */ }); loadBiome(C.zone, null, C); }, onLab: () => openLab() });
   // מעבדת רובו־דע: its own pack; while it is open the frame loop draws it (there is no forest then)
   let lab = null, labP = null, labFrom = 'hub';

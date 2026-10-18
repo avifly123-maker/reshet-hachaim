@@ -70,7 +70,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     stats: { pollinations: {}, dispersals: 0, experiments: 0, births: 0, missionStart: {}, uprooted: 0, moved: 0, letGo: 0, lossT: -1e9 },
     treeFallen: false, experiment: null, selected: null, selectedSpecies: null, kids: biome.mode === 'kids',
     maxPlants: MAX_ALL_PLANTS, maxAnimals: MAX_ANIMALS,
-    // חוקרי היער: a mystery case. Its population model owns births, hunger and numbers; the entities only show them
+    // חוקרי הטבע: a mystery case. Its population model owns births, hunger and numbers; the entities only show them
     research: research || null,
   };
   let report = null;   // "דוח החוקר" daily log (created once the forest is restored or seeded)

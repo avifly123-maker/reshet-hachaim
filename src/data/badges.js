@@ -1,7 +1,7 @@
 // תגים: the prizes of the expert missions, the inventors game, the deep expedition, the lab and the mysteries
 // (no card packs: the album already gets plenty). Each badge is drawn as a medallion around a card painting.
 // earn: 'mission:<id>' (an expert mission in a zone) | 'inv:<key>' (הממציאים) | 'deep:<key>' (משלחת לעומק)
-//       | 'lab:<key>' (the lab of רובו־דע) | 'research:<key>' (חוקרי היער)
+//       | 'lab:<key>' (the lab of רובו־דע) | 'research:<key>' (חוקרי הטבע)
 // art: a CARD_ART key (the card painting inside the medallion)
 // Frames for the album cards open when a player has enough badges of a group (FRAMES).
 
@@ -11,7 +11,7 @@ export const BADGE_GROUPS = [
   { id: 'reef', name: 'שונית האלמוגים של אילת', short: 'שונית', col: '#1f7a9a', col2: '#f08a24' },
   { id: 'lab', name: 'הממציאים והמעבדה', short: 'מעבדה', col: '#5a4a8a', col2: '#f6cf72' },
   { id: 'deep', name: 'משלחת לעומק', short: 'משלחת', col: '#163a5a', col2: '#6fd0ff' },
-  { id: 'research', name: 'חוקרי היער', short: 'חוקרים', col: '#3a5a2a', col2: '#f6cf72' },
+  { id: 'research', name: 'חוקרי הטבע', short: 'חוקרים', col: '#3a5a2a', col2: '#f6cf72' },
 ];
 
 export const BADGES = [
@@ -41,7 +41,7 @@ export const BADGES = [
   { id: 'b_deepfull', group: 'deep', art: 'grouper', name: 'כולם חזרו', how: 'חוזרים מהעומק בלי לאבד אף קלף מהצוות', earn: 'deep:full' },
   { id: 'b_deep20', group: 'deep', art: 'jellyfish', name: 'אספן דגימות', how: 'מביאים למעבדה 20 דגימות בסך הכול', earn: 'deep:samples' },
   { id: 'b_deeprare', group: 'deep', art: 'stingray', name: 'גילוי נדיר', how: 'מוצאים בעומק את הממצא הנדיר', earn: 'deep:rare' },
-  // ── חוקרי היער
+  // ── חוקרי הטבע
   { id: 'b_rs1', group: 'research', art: 'spinymouse', name: 'חוקר צעיר', how: 'פותרים תעלומה ראשונה', earn: 'research:first' },
   { id: 'b_rs3', group: 'research', art: 'butterflyfish', name: 'שלושה כוכבים', how: 'תעלומה עם שלושה כוכבים', earn: 'research:stars' },
   { id: 'b_rsall', group: 'research', art: 'hoopoe', name: 'בלש הטבע', how: 'כל התעלומות נפתרו', earn: 'research:all' },

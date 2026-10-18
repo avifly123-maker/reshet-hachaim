@@ -1,4 +1,4 @@
-// חוקרי היער – one mystery in progress, inside a running game world (game.js creates it when `research` is set).
+// חוקרי הטבע – one mystery in progress, inside a running game world (game.js creates it when `research` is set).
 // It owns the population model and keeps the island showing it: the model decides how many mice, owls and shrubs
 // there are; this file brings animals in, sends them away, plants seedlings and lets old shrubs wither, so the island
 // always looks like the numbers. It also runs the research table (tools, ideas, hints), the balance meter, the

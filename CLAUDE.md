@@ -46,7 +46,7 @@ Blender runs on the owner's PC and is reached through the Blender MCP bridge. Af
 - **1.2.x** (branch `main`): the finished product. Only bug fixes and small improvements (1.2.2, 1.2.3, ...).
 - **1.3.0** (branch `claude/research-1.3`): **חוקרי היער**, the research world. Built on its own branch; merge `main` into it now and then so fixes reach it. Released as 1.3.0 when it is ready.
 
-## חוקרי היער (research world, 1.3.0 in progress)
+## חוקרי היער (research world, renamed חוקרי הטבע on 19.10; 1.3.0 in progress)
 
 Design: `docs/RESEARCH.md` (Hebrew). Proposed 1.3 development map (mysteries, the Eilat reef, the lab, dubbed scenes, cards, infrastructure): `docs/PLAN-1.3.md`, awaiting the owner's decisions (section 8). Code: `src/research/`.
 

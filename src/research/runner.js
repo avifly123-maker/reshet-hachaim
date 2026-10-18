@@ -1,4 +1,4 @@
-// חוקרי היער – the rules of a mystery, shared by the game (session.js) and the solvability tests (tests/research/):
+// חוקרי הטבע – the rules of a mystery, shared by the game (session.js) and the solvability tests (tests/research/):
 // what an idea costs, the budget and the per-idea limits, how the balance clock counts. One place, so a test that
 // passes means the same thing on screen.
 import { createModel, lightsOf, allGreen } from './model.js';
