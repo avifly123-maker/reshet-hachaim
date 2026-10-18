@@ -35,6 +35,13 @@ export const BADGES = [
   { id: 'b_invwild', group: 'lab', art: 'octopus', name: 'רעיון מטורף', how: 'שילוב מפתיע שרובו־דע לא האמין שיעבוד', earn: 'inv:wild' },
   { id: 'b_invall', group: 'lab', art: 'hummingbird', name: 'מעבדה מלאה', how: 'כל הבעיות ב"הממציאים" נפתרו', earn: 'inv:all' },
   { id: 'b_scope', group: 'lab', art: 'honeybee', name: 'עין חדה', how: 'מוצאים את כל מה שמסתתר במיקרוסקופ', earn: 'lab:scope' },
+  // ── חושבים כמו חוקרים (src/lab/thinking.js): one habit of scientific thinking each
+  { id: 'b_fair', group: 'lab', art: 'sage', name: 'ניסוי הוגן', how: 'בחממה: מגלים מה עושים האור, המים והאדמה, כל אחד בניסוי הוגן', earn: 'lab:fair' },
+  { id: 'b_float', group: 'lab', art: 'plankton', name: 'הופתעתי!', how: 'באקווריום: מנחשים לפני שבודקים, עד שלוש הפתעות', earn: 'lab:float' },
+  { id: 'b_measure', group: 'lab', art: 'pine', name: 'מודדים שוב', how: 'בארון האוסף: שלוש פעמים קרוב בעזרת המדידה האמצעית', earn: 'lab:measure' },
+  { id: 'b_observe', group: 'lab', art: 'gazelle', name: 'עין של חוקר', how: 'בארון האוסף: מפרידים בין מה שראינו למה שחשבנו, ובודקים', earn: 'lab:observe' },
+  { id: 'b_cause', group: 'lab', art: 'mushroom', name: 'ביחד או בגלל', how: 'בחדר: מגלים בניסוי מה גורם למה', earn: 'lab:cause' },
+  { id: 'b_thinker', group: 'lab', art: 'firefly', name: 'חושבים כמו חוקרים', how: 'כל חמשת הניסויים של רובו־דע', earn: 'lab:thinker' },
   // ── משלחת לעומק (src/learn/games/expedition.js)
   { id: 'b_deep1', group: 'deep', art: 'clownfish', name: 'צוללן מתחיל', how: 'חוזרים בשלום ממשלחת ראשונה', earn: 'deep:first' },
   { id: 'b_deepcave', group: 'deep', art: 'moray', name: 'אל המערה', how: 'מגיעים עם הצוות עד המערה', earn: 'deep:cave' },
