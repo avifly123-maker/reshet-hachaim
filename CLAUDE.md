@@ -77,7 +77,7 @@ Stage 1 done: engine, research centre, mystery 1 "יותר מדי קוצנים" 
 - Card paintings: Gemini in Avi's Chrome (prompt style in docs/DEVLOG.md); Chrome blocks a second automatic download from a tab, so collect images as data URLs in the page and download one JSON from a fresh same-origin tab.
 - Card games: "מחזיקים את היער" has a reef board (rows מים רדודים / מדרון השונית / קרקעית, `KF_ROW` moves brain coral and anemone to the slope and sponge and algae to the floor; reef events: murky water, warm water, storm, a flood from the wadi, an anchor, a new pier, a broken table coral, a calm sea, a spawning night; no drought; reef devices only). "חוט הקשר" has a reef tab. The daily report has reef wording.
 - The rescue robot shows a red "!" on each plate where the Blender model had a cross (`bangMark` in src/world/props.js).
-- Not done yet: a Blender panorama of the Eilat mountains (the sky dome paints them for now), Hebrew names still to confirm (מנתחן, דקר, גובי, שרימפס אקדח).
+- Not done yet: a Blender panorama of the Eilat mountains (the sky dome paints them for now), Hebrew names still to confirm (מנתחן, דקר, גובי); the pistol shrimp is חסילון (Avi, 18.10).
 
 ## Where things stand (1.2.3, and 1.3.0 in development)
 
