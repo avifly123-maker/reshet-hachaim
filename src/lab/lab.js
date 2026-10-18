@@ -264,7 +264,7 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit }) {
   const _fromP = new THREE.Vector3(), _toP = new THREE.Vector3();
   let robotMove = 0;
   // where the robot hovers: by his charging pad in the room view; at a station, in the near corner of the picture
-  const SIDE = { aquarium: 1 };   // table: behind the table (ROBOT_SPOT); the close views (microscope, cabinet, greenhouse, atlas) leave him out: his words sit in the corner with his face
+  const SIDE = {};   // table: behind the table (ROBOT_SPOT); the close views (microscope, aquarium, cabinet, greenhouse, atlas) leave him out: his words sit in the corner with his face
   const robotShown = () => viewOf(station) === 'home' || station === 'table' || !!SIDE[station];
   function placeRobot(fly) {
     robot.root.visible = robotShown();
