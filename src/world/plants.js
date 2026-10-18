@@ -150,7 +150,7 @@ export class Plant {
 
   // visual update every frame (dt real seconds, simDt)
   frame(dt, t, W) {
-    if (this.pop < 1) { this.pop = Math.min(1, this.pop + dt * 2.2); const p = this.pop; const s = 1 + Math.sin(p * Math.PI) * 0.25; this.obj.scale.setScalar(this.dying ? this.obj.scale.x : Math.max(0.001, s * Math.min(1, p * 3))); }
+    if (this.pop < 1) { this.pop = Math.min(1, this.pop + dt * 2.2); const p = this.pop; const s = 1 + Math.sin(p * Math.PI) * 0.25; this.obj.scale.setScalar(this.dying ? this.obj.scale.x : Math.max(0.001, s * Math.min(1, p * 3)) * (this.baseScale ?? 1)); }
     if (this.dying) {
       this.dying += dt;
       const s = Math.max(0.001, 1 - this.dying / 1.6);

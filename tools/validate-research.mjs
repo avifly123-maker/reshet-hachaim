@@ -8,10 +8,11 @@ import { CASES } from '../src/research/cases/index.js';
 import { KIDS_TEXTS } from '../src/research/texts.js';
 import { BIOME as AMAZON } from '../src/data/amazon.js';
 import { BIOME as GROVE } from '../src/data/grove.js';
+import { BIOME as REEF } from '../src/data/reef.js';
 
 const errors = [];
 const err = (w, m) => errors.push(`${w}: ${m}`);
-const zones = { amazon: AMAZON, grove: GROVE };
+const zones = { amazon: AMAZON, grove: GROVE, reef: REEF };
 const HEB = /[א-ת]/g, NIK = /[ְ-ׇּׁׂ]/g;
 function vocalised(s) {
   const letters = (String(s).match(HEB) || []).length; if (!letters) return true;
@@ -29,6 +30,7 @@ function kidStrings(C) {
   for (const [k, v] of Object.entries(C.after || {})) { if (typeof v === 'string') out.push(['after.' + k, v]); else for (const [k2, v2] of Object.entries(v)) out.push([`after.${k}.${k2}`, v2]); }
   (C.hints || []).forEach((h, i) => out.push(['hints.' + i, h]));
   for (const g of C.guesses || []) out.push(['guesses.' + g.id, g.text]);
+  if (C.dilemma) { out.push(['dilemma.title', C.dilemma.title], ['dilemma.text', C.dilemma.text]); if (C.dilemma.later) out.push(['dilemma.later', C.dilemma.later]); for (const o of C.dilemma.options) { out.push(['dilemma.' + o.idea + '.plus', o.plus], ['dilemma.' + o.idea + '.minus', o.minus]); if (o.title) out.push(['dilemma.' + o.idea, o.title]); } }
   return out;
 }
 for (const C of CASES) {
@@ -46,6 +48,7 @@ for (const C of CASES) {
   for (const v of C.visual || []) { if (!vars.has(v.id)) err(C.id, `visual ${v.id} is not a model var`); if (!sp.has(v.species)) err(C.id, `visual species ${v.species} not in ${C.zone}`); }
   for (const i of C.ideas) { for (const k of Object.keys(i.effect.add || {})) if (!vars.has(k)) err(C.id, `idea ${i.id} changes unknown var ${k}`); if (i.icon.startsWith('species:') && !sp.has(i.icon.slice(8))) err(C.id, `idea ${i.id} icon species missing`); }
   for (const [d] of C.scene?.decor || []) if (!sp.has(d)) err(C.id, `decor ${d} not in ${C.zone}`);
+  if (C.dilemma) for (const o of C.dilemma.options) { if (!C.ideas.some((i) => i.id === o.idea)) err(C.id, `dilemma option ${o.idea} is not an idea`); if (!o.plus || !o.minus) err(C.id, `dilemma option ${o.idea} needs what it gives (plus) and what it costs (minus)`); }
   if (!C.guesses.some((g) => g.right)) err(C.id, 'no right guess');
   if (!C.tests) err(C.id, 'no solvability tests');
   if (C.level === 'kids') for (const [k, s] of kidStrings(C)) if (!vocalised(s)) err(C.id, `beginner text without full nikud: ${k} "${s}"`);

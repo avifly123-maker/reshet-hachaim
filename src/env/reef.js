@@ -10,6 +10,7 @@
 import * as THREE from 'three';
 import { REEF_ROCKS, REEF_DECOR } from '../models/reef-plants.js';
 import { GROUND_TEX } from '../data/ground-textures.js';
+import { PANO } from '../data/panorama.js';
 import { makeRng, makeNoise2D, clamp, lerp, smoothstep, damp } from '../core/util.js';
 
 const R = 38;            // placeable radius (contract)
@@ -346,18 +347,43 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
 
   // ───────────────────────────── sky, mist below, lights, fog
   const skyU = { uZen: { value: new THREE.Color('#5aa6e8') }, uHor: { value: new THREE.Color('#cfe8f4') }, uGnd: { value: new THREE.Color('#e6eef2') },
-    uSunDir: U.uSunDir, uSunCol: { value: new THREE.Color('#fff6e0') }, uSunAmt: { value: 1 }, uNight: U.uNight };
+    uSunDir: U.uSunDir, uSunCol: { value: new THREE.Color('#fff6e0') }, uSunAmt: { value: 1 }, uNight: U.uNight,
+    // the Eilat mountains and the gulf, painted in Blender (tools/blender/reef_pano.py); until it loads the shader draws a simple ridge
+    uPano: { value: null }, uPanoMist: { value: null }, uPanoOn: { value: 0 }, uPanoLat: { value: new THREE.Vector2(-0.2, 0.28) },
+    uPanoHazeSrc: { value: new THREE.Color('#fff') }, uPanoRot: { value: 0 } };
+  const pano = PANO && PANO.reef;
+  if (pano && pano.img && pano.mist) {
+    const ld = new THREE.TextureLoader();
+    const cfg = (t, srgb) => { t.colorSpace = srgb ? THREE.SRGBColorSpace : THREE.NoColorSpace; t.wrapS = THREE.RepeatWrapping; t.wrapT = THREE.ClampToEdgeWrapping;
+      t.generateMipmaps = false; t.minFilter = THREE.LinearFilter; t.magFilter = THREE.LinearFilter; return track(t); };
+    let n = 0; const done = () => { if (++n === 2) skyU.uPanoOn.value = 1; };
+    skyU.uPano.value = cfg(ld.load(pano.img, done), true);
+    skyU.uPanoMist.value = cfg(ld.load(pano.mist, done), false);
+    skyU.uPanoLat.value.set(pano.lat[0] * Math.PI / 180, pano.lat[1] * Math.PI / 180);
+    skyU.uPanoHazeSrc.value.setRGB(pano.haze[0], pano.haze[1], pano.haze[2]);
+    skyU.uPanoRot.value = pano.rot || 0;
+  }
   const skyGeo = track(new THREE.SphereGeometry(480, 32, 16));
   const skyMat = track(new THREE.ShaderMaterial({
     uniforms: skyU, side: THREE.BackSide, depthWrite: false, fog: false,
     vertexShader: /* glsl */`varying vec3 vD; void main(){ vD = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
     fragmentShader: /* glsl */`uniform vec3 uZen, uHor, uGnd, uSunDir, uSunCol; uniform float uSunAmt, uNight; varying vec3 vD;
+      uniform sampler2D uPano, uPanoMist; uniform float uPanoOn, uPanoRot; uniform vec2 uPanoLat; uniform vec3 uPanoHazeSrc;
       float h(vec3 p){ return fract(sin(dot(p, vec3(12.9898, 78.233, 37.719))) * 43758.5453); }
       // far away: the reddish granite mountains around the Gulf of Eilat, and the gulf's deep blue water below the horizon
       float ridge(float a){ return 0.012 + 0.05 * (0.55 + 0.45 * sin(a * 2.0 + 0.7)) * (0.6 + 0.25 * sin(a * 7.0 + 1.3) + 0.15 * sin(a * 17.0 + 0.4) + 0.08 * sin(a * 41.0)); }
       void main(){ float y = vD.y; vec3 c = y > 0.0 ? mix(uHor, uZen, pow(y, 0.55)) : mix(uHor, vec3(0.16, 0.42, 0.58) * mix(1.0, 0.3, uNight), smoothstep(0.0, -0.12, y));
         float az = atan(vD.z, vD.x), rg = ridge(az);
-        if (y > -0.002 && y < rg) { float k = y / rg; vec3 m = mix(vec3(0.55, 0.32, 0.24), vec3(0.72, 0.5, 0.38), k) * mix(1.0, 0.25, uNight); c = mix(m, uHor, 0.35 + 0.35 * (1.0 - k) * 0.6); }
+        if (uPanoOn < 0.5 && y > -0.002 && y < rg) { float k = y / rg; vec3 m = mix(vec3(0.55, 0.32, 0.24), vec3(0.72, 0.5, 0.38), k) * mix(1.0, 0.25, uNight); c = mix(m, uHor, 0.35 + 0.35 * (1.0 - k) * 0.6); }
+        if (uPanoOn > 0.5) {   // the Blender landscape, re-hazed toward the live horizon colour (time of day)
+          float pv = (asin(clamp(y, -1.0, 1.0)) - uPanoLat.x) / (uPanoLat.y - uPanoLat.x);
+          if (pv > 0.0 && pv < 1.0) {
+            vec2 puv = vec2(fract(atan(vD.z, vD.x) / 6.2831853 + 0.5 + uPanoRot), pv);
+            vec4 pc = texture2D(uPano, puv); float m = texture2D(uPanoMist, puv).r * 0.85;
+            vec3 land = (max(pc.rgb - uPanoHazeSrc * m, 0.0) + uHor * m) * mix(1.0, 0.22, uNight);
+            c = mix(c, land, pc.a * smoothstep(0.0, 0.06, pv));
+          }
+        }
         float sd = max(dot(vD, normalize(uSunDir)), 0.0); c += uSunCol * (pow(sd, 900.0) * 3.0 + pow(sd, 12.0) * 0.25) * uSunAmt;
         vec3 q = floor(vD * 300.0); float st = step(0.997, h(q)) * uNight * smoothstep(0.05, 0.3, y);
         gl_FragColor = vec4(c + st, 1.0); }`,

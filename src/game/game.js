@@ -84,7 +84,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   const rig = createCameraRig(camera, canvas, env);
   setGamepadRig(rig);
   camera.position.set(70, 62, 86); rig.controls.target.set(0, 5, 0);
-  const thumbs = THUMBS[biome.id] || {};
+  const thumbs = THUMBS[biome.id] || (biome.id === 'reef' ? CARD_ART : {});   // the reef has no rendered thumbnails: its card paintings stand in
   // compile every shader up front (while the loading screen is showing) so the game never freezes mid-play
   ui.setLoading(0.4, 'מכינים את הצמחים ובעלי החיים...');
   await tick0();

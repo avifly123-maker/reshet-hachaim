@@ -149,6 +149,19 @@
 #ui.wol .rs-cast img:nth-child(2) { --r: 4deg; } #ui.wol .rs-cast img:nth-child(3) { --r: -1deg; }
 #ui.wol .rs-go { display: inline-flex; align-items: center; gap: 10px; padding: 10px 28px; border-radius: 26px; font-family: var(--serif); font-size: 1.2em; color: #f1f6e2; background: linear-gradient(180deg, #4f8a3f, #2c5a24); box-shadow: 0 4px 0 #173512; cursor: pointer; }
 #ui.wol .rs-go .ic { width: 20px; height: 20px; }
+/* a dilemma: two ways side by side, what each gives (green) and what it costs (red) */
+#ui.wol .rs-dilemma .rs-sheet { width: min(640px, 94vw); }
+#ui.wol .rs-dilemma .rs-case-tag { background: #b07a1a; }
+#ui.wol .rs-dilemma h2 { font-size: 1.7em; }
+#ui.wol .rs-dl-opts { display: flex; gap: 14px; justify-content: center; margin: 10px 0 12px; }
+#ui.wol .rs-dl-opt { flex: 1 1 0; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 12px 10px; border-radius: 12px; background: #fffaf0; border: 2px solid #d8c79a; box-shadow: 0 3px 0 #c9b98a; cursor: pointer; color: var(--ink); font-size: .95em; transition: transform .15s, border-color .15s; }
+#ui.wol .rs-dl-opt:hover { transform: translateY(-3px); border-color: #4f8a3f; }
+#ui.wol .rs-dl-opt .rs-pic { width: 58px; height: 58px; }
+#ui.wol .rs-dl-opt b { font-family: var(--serif); font-size: 1.15em; color: #2c4f26; }
+#ui.wol .rs-dl-plus { color: #2f6a26; } #ui.wol .rs-dl-plus::before { content: "+ "; font-weight: 700; }
+#ui.wol .rs-dl-minus { color: #a0402a; } #ui.wol .rs-dl-minus::before { content: "− "; font-weight: 700; }
+#ui.wol .rs-dl-opt small { color: #6a5a40; }
+#ui.wol .rs-dl-later { padding: 6px 18px; border-radius: 18px; background: transparent; border: 1px solid #b9a77a; color: #5a4a30; cursor: pointer; }
 
 /* the lab: a desk with two papers, the graph and the notebook */
 #ui.wol .rs-labm .rs-sheet { width: min(1000px, 96vw); max-width: none; }

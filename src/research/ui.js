@@ -11,6 +11,12 @@ export const R_ICONS = {
   sprout: svgURL('<path d="M32 50V30" stroke="#3f8f2e" stroke-width="3.5"/><path d="M32 34c-2-8-9-11-16-10 0 7 7 11 16 10zM32 30c2-8 9-11 16-10 0 7-7 11-16 10z" fill="#6fbf4a"/><path d="M18 51h28" stroke="#8a5a32" stroke-width="3.5"/>', '#e6f2da'),
   rain: svgURL('<path d="M18 30a10 10 0 0 1 19-5 8 8 0 1 1 6 14H21a7 7 0 0 1-3-9z" fill="#b7c9d6"/><g stroke="#3a8fd0" stroke-width="3"><path d="M24 44l-3 7M33 44l-3 7M42 44l-3 7"/></g>', '#e6f1f8'),
   nightcam: TOOL_ICONS.camera, camera: TOOL_ICONS.camera, drone: TOOL_ICONS.drone, nestbox: TOOL_ICONS.nestbox, seeddrone: TOOL_ICONS.seeddrone, insecthotel: TOOL_ICONS.insecthotel,
+  // the reef
+  rov: TOOL_ICONS.rov, uwcam: TOOL_ICONS.uwcam, nursery: TOOL_ICONS.nursery, reefball: TOOL_ICONS.reefball, buoy: TOOL_ICONS.buoy, sensor: TOOL_ICONS.sensor,
+  holes: svgURL('<path d="M10 46c2-12 9-20 22-21s20 9 22 21z" fill="#b9a68a"/><g fill="#3d3328"><ellipse cx="24" cy="38" rx="4.5" ry="3.6"/><ellipse cx="37" cy="34" rx="4" ry="3.2"/><ellipse cx="44" cy="42" rx="3.4" ry="2.8"/><ellipse cx="31" cy="43" rx="3" ry="2.4"/></g><path d="M14 30c3-3 6-3 8 0M44 22c3-3 6-3 8 0" stroke="#e889a8" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M8 47h48" stroke="#e2cf9e" stroke-width="3"/>', '#d8eef4'),
+  // an anchor without a stock: no cross shapes (Avi's rule)
+  anchor: svgURL('<circle cx="32" cy="16" r="5" fill="none" stroke="#4a5a68" stroke-width="3.5"/><path d="M32 21v28" stroke="#4a5a68" stroke-width="4" stroke-linecap="round"/><path d="M16 36c1 9 7 14 16 14s15-5 16-14" stroke="#4a5a68" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M12 40l4-5 5 3M52 40l-4-5-5 3" stroke="#4a5a68" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>', '#d8eaf2'),
+  parasites: svgURL('<ellipse cx="30" cy="32" rx="18" ry="11" fill="#e8a03a"/><path d="M46 32l10-7v14z" fill="#e8a03a"/><circle cx="20" cy="29" r="2.4" fill="#2a2420"/><g fill="#7a3a5a"><circle cx="30" cy="30" r="2.2"/><circle cx="36" cy="36" r="2"/><circle cx="27" cy="38" r="1.8"/><circle cx="40" cy="28" r="1.6"/></g>', '#f6e6d0'),
 };
 const SERIES_COLORS = ['#c8473a', '#3a7fc8', '#4f9a3c', '#d99a2b', '#8a5ab8', '#2f9a95'];
 const LIGHT_ICONS = { life: 'paw', regen: 'sprout', env: 'drop' };
@@ -154,6 +160,17 @@ export function createResearchUI(root, o) {
     m.querySelector('.rs-scrim').addEventListener('click', closeModal);
   }
 
+  // a dilemma: two (or three) ways, each with what it gives and what it costs; choosing one applies that idea
+  function showDilemma(D, onChoose) {
+    const m = openModal('rs-intro rs-dilemma', `<div class="rs-tape"></div><div class="rs-case-tag">${icon('bulb')}<span>${esc(kids ? 'דִּילֶמָּה' : 'דילמה')}</span></div>
+      <h2>${esc(D.title)}</h2><p class="rs-call">${esc(D.text)}</p>
+      <div class="rs-dl-opts">${D.options.map((op) => { const i = C.ideas.find((x) => x.id === op.idea) || {}; return `<button class="rs-dl-opt" data-idea="${esc(op.idea)}">${ideaPic({ thumb: i.icon && i.icon.startsWith('species:') ? thumbs[i.icon.slice(8)] : null, icon: i.icon })}
+        <b>${esc(op.title || i.title || '')}</b><span class="rs-dl-plus">${esc(op.plus)}</span><span class="rs-dl-minus">${esc(op.minus)}</span><small>${esc(T('budget'))}: ${i.cost ?? ''}</small></button>`; }).join('')}</div>
+      <button class="rs-dl-later">${esc(D.later || T('close'))}</button>`);
+    m.querySelectorAll('.rs-dl-opt').forEach((b) => b.addEventListener('click', () => { closeModal(); onChoose(b.dataset.idea); }));
+    m.querySelector('.rs-dl-later').addEventListener('click', closeModal);
+  }
+
   function openLab(d) {
     const W0 = 640, H0 = 300, P = { l: 70, r: 22, t: 18, b: 34 };
     const now = d.now, t0 = Math.min(...d.series.map((s) => s.from), now);
@@ -217,5 +234,5 @@ export function createResearchUI(root, o) {
     els.length = 0; modal = null;
     root.classList.remove('research', 'rs-kids');
   }
-  return { mount, setLights, setSolved, setBoard, setTable, setBulbs, note, dropNote, offerSee, setFF, showIntro, openLab, showSolved, closeSolved: closeModal, isOpen, dispose };
+  return { mount, setLights, setSolved, setBoard, setTable, setBulbs, note, dropNote, offerSee, setFF, showIntro, showDilemma, openLab, showSolved, closeSolved: closeModal, isOpen, dispose };
 }

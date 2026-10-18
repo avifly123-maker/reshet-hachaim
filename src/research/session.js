@@ -39,6 +39,7 @@ export function createResearchSession(ctx) {
   let lastAct = null;
   const bulbs = { n: 1, max: 3, t: 0 }; let hintI = 0;
   let quadratMesh = null;
+  let dilemmaShown = !C.dilemma;   // a case may bring one dilemma, once
   const measuring = {};   // the "measuring..." note of each tool, closed when its count arrives
   const zoneWord = T('zone_' + C.zone);
 
@@ -86,6 +87,7 @@ export function createResearchSession(ctx) {
   // ─────────────────────────────────────── model ↔ island
   const showCount = (v, n) => {
     if (n < 0.5) return 0;
+    if (v.per) return Math.max(1, Math.min(v.max, Math.round(n / v.per)));   // a big stock shown one per `per` (algae)
     if (v.scale === 'sqrt') return Math.max(1, Math.min(v.max, Math.round(1 + Math.sqrt(n) * 1.15)));
     return Math.max(0, Math.min(v.max, Math.round(n)));
   };
@@ -124,7 +126,7 @@ export function createResearchSession(ctx) {
       const yT = g.young ? showCount(g.young, model.get(g.young.id)) : 0;
       let n = instant ? 99 : 2;
       // young ones that grew up become adults
-      while (n > 0 && young.length > yT && adults.length < aT) { const p = young.shift(); p._adult = true; adults.push(p); n--; }
+      while (n > 0 && young.length > yT && adults.length < aT) { const p = young.shift(); p._adult = true; if (p.baseScale) { p.baseScale = 1; p.pop = 0.5; } adults.push(p); n--; }
       const epi = sp.kind === 'epiphyte';
       const hosts = epi ? W.plants.filter((p) => alive(p) && p.isTree && p.growth > 0.5) : null;
       while (n > 0 && adults.length < aT) {
@@ -141,7 +143,7 @@ export function createResearchSession(ctx) {
         const s = anchor ? findSpotNear(sp, anchor.x, anchor.z, 5) : randomPlaceSpot(sp);
         if (!s) break;
         const p = spawnPlant(sp, s.x, s.z, { growth: 0.05 }); if (!p) break;
-        p._adult = false; young.push(p); n--;
+        p._adult = false; if (env.underwater) { p.baseScale = 0.42; p.obj.scale.setScalar(0.42); } young.push(p); n--;
         if (!instant && Math.random() < 0.5) markers.burst(_v.set(s.x, env.heightAt(s.x, s.z) + 0.3, s.z), '#b6ffb0', 8, { size: 0.25, speed: 0.8 });
       }
       while (n > 0 && young.length > yT) { const p = young.pop(); p.die('old'); n--; }
@@ -342,6 +344,12 @@ export function createResearchSession(ctx) {
     if (pendingNight.length && W.nightGlow > 0.6) { const ids = pendingNight.splice(0); later(() => ids.forEach(reveal), 400); }
     if (toNight && W.nightGlow > 0.6) { toNight = null; if (!ff) W.speed = baseSpeed; }
     // hint bulbs fill up again
+    // the dilemma comes once the child has looked around (model seconds), and never over another window
+    if (!dilemmaShown && !ff && model.state.t >= (C.dilemma.at ?? 30) && !R.isOpen()) {
+      dilemmaShown = true;
+      R.showDilemma(C.dilemma, (id) => { const i = runner.ideaOf(id); if (i) applyIdea(id, i.amounts[0]); });
+      audio.play('select');
+    }
     if (bulbs.n < bulbs.max && hintI < C.hints.length && !R.isOpen()) { bulbs.t += rdt; if (bulbs.t >= BULB_REFILL) { bulbs.t = 0; bulbs.n++; R.setBulbs(bulbs.n, bulbs.max); } }
     // keep the island showing the numbers
     syncT -= rdt; if (syncT <= 0) { syncT = ff ? 0.25 : 0.5; for (const v of C.visual || []) syncOne(v, false); R.setBoard(boardState()); }

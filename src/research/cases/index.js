@@ -2,5 +2,7 @@
 import { MICE_OWL } from './mice-owl.js';
 import { FLOWERS_BEES } from './flowers-bees.js';
 import { BRAZIL_NUT } from './brazil-nut.js';
-export const CASES = [MICE_OWL, FLOWERS_BEES, BRAZIL_NUT];
+import { GREEN_REEF } from './green-reef.js';
+import { CLEANING_STATION } from './cleaning-station.js';
+export const CASES = [MICE_OWL, FLOWERS_BEES, BRAZIL_NUT, GREEN_REEF, CLEANING_STATION];
 export const caseById = (id) => CASES.find((c) => c.id === id) || null;

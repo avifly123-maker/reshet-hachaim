@@ -10,7 +10,7 @@ import { RESEARCH_NAME } from './texts.js';
 const SOON = {
   kids: [{ title: 'אֵיפֹה הַצְּפַרְדְּעִים?', zone: 'amazon' }],
   middle: [{ title: 'המלכודת', zone: 'grove' }, { title: 'החורש שלא מתחדש', zone: 'grove' }, { title: 'הנמלים שאכלו את היער', zone: 'amazon' }],
-  advanced: [{ title: 'היער שנשאר בלי טורפים', zone: 'amazon' }, { title: 'אש בקיץ', zone: 'grove' }, { title: 'הצבאים נעלמים', zone: 'grove' }],
+  advanced: [{ title: 'האלמוג הלבן', zone: 'reef' }, { title: 'היער שנשאר בלי טורפים', zone: 'amazon' }, { title: 'אש בקיץ', zone: 'grove' }, { title: 'הצבאים נעלמים', zone: 'grove' }],
 };
 const LEVELS = [
   { id: 'kids', name: 'מתחילים', sub: 'סיבה אחת, רמזים, מנוקד', ic: 'sprout' },

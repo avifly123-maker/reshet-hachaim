@@ -23,7 +23,7 @@ def data_url(im, **kw):
     return 'data:image/webp;base64,' + base64.b64encode(b.getvalue()).decode(), len(b.getvalue())
 
 pano = {}
-for biome in ('amazon', 'grove'):
+for biome in ('amazon', 'grove', 'reef'):
     qs = [os.path.join(ART, f'{biome}_q{i}.png') for i in range(4)]
     if not all(os.path.exists(q) for q in qs):
         continue
