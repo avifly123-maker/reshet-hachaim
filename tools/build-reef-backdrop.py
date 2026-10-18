@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """The reef's surroundings, rendered in Blender (tools/blender/reef_seabed.py) → src/data/reef-backdrop.js
   art/reef/seabed_top.png   the sea floor from straight above, 300 m across (laid under the island)
-  (art/reef/coralwall.png, the wall picture, is not used: a picture smeared on the cone; the game grows 3D corals there)
+  (the wall picture from wall_render is not used: on the cone it smeared; the game grows 3D corals on the sides instead)
 An asset module (build.mjs ASSET_MODULES): the desktop build serves the pictures as files."""
 import base64, io, json, os
 from PIL import Image
