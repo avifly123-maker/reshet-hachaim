@@ -15,6 +15,22 @@ const SPEED = {
 };
 const FLY = { hummingbird: 5.5, orchidbee: 2.6, honeybee: 2.4, morpho: 2.2, butterfly: 2, toucan: 6, macaw: 7, harpy: 7.5, fruitbat: 5.5, jay: 6, blackbird: 6, owl: 6.5 };
 
+// trunks and shrubs are solid: walking animals steer around them (a short list, rebuilt twice a second per world)
+function trunksOf(W) {
+  const now = performance.now();
+  if (W._trunks && now - W._trunksT < 500) return W._trunks;
+  const out = [];
+  for (const p of W.plants) {
+    if (!p.alive || p.removed || p.falling || p.fallen || p.dying || p.host) continue;
+    const k = p.sp.kind;
+    let r = 0;
+    if (k === 'tree' || k === 'palm') r = Math.min(1.2, Math.max(0.14, (p.vis.trunkRadius || 0.4) * (0.35 + 0.65 * p.growth)));
+    else if (k === 'shrub' && p.growth > 0.35) r = 0.18 + 0.32 * p.growth;
+    if (r) out.push({ x: p.x, z: p.z, r, p });
+  }
+  W._trunks = out; W._trunksT = now; return out;
+}
+
 export function visScale(len) { return 1.35 * Math.pow(Math.max(1, 0.9 / Math.max(0.05, len || 1)), 0.6); }
 
 export class Animal {
@@ -63,6 +79,37 @@ export class Animal {
     const env = this.world.env, h = env.heightAt(x, z);
     const b = env.bridgeAt ? env.bridgeAt(x, z) : null;
     return b !== null && b > h ? b : h;
+  }
+  // the tree it is heading for (to climb it or eat from it) is not in its way
+  ownTree() { const g = this.food?.entity || this.perch?.plant || this.goal?.plant; return g && g.isPlant ? g : null; }
+  bodyR() { return Math.min(0.45, Math.max(0.08, this.len * (this.obj.scale.x || 1) * 0.22)); }
+  // the heading toward the target, turned aside when a trunk stands in the way (whichever side is shorter)
+  steerAround(h, dist) {
+    if (this.loco === 'flying' || this.type !== 'animal') return h;
+    const T = trunksOf(this.world), own = this.ownTree(), br = this.bodyR();
+    const fx = Math.sin(h), fz = Math.cos(h), px = this.pos.x, pz = this.pos.z;
+    let best = null, bd = Math.min(dist, 2.6);
+    for (const t of T) {
+      if (t.p === own) continue;
+      const rx = t.x - px, rz = t.z - pz, along = rx * fx + rz * fz;
+      if (along < -0.1 || along > bd) continue;
+      const lat = rx * fz - rz * fx, R = t.r + br + 0.12;
+      if (Math.abs(lat) < R) { bd = along; best = { t, lat, R }; }
+    }
+    if (!best) return h;
+    const dc = Math.hypot(best.t.x - px, best.t.z - pz);
+    const turn = Math.asin(Math.min(1, best.R / Math.max(best.R, dc))) + 0.12;   // just enough to pass beside it
+    return h + (best.lat > 0 ? -turn : turn);
+  }
+  // never inside a trunk: a step that ended inside one is pushed back to its edge
+  pushOutOfTrunks() {
+    if (this.loco === 'flying' || this.type !== 'animal') return;
+    const own = this.ownTree(), br = this.bodyR();
+    for (const t of trunksOf(this.world)) {
+      if (t.p === own) continue;
+      const rx = this.pos.x - t.x, rz = this.pos.z - t.z, d = Math.hypot(rx, rz), R = t.r + br;
+      if (d < R) { if (d < 1e-4) { this.pos.x += R; continue; } this.pos.x = t.x + rx / d * R; this.pos.z = t.z + rz / d * R; }
+    }
   }
   canStand(x, z) {
     const env = this.world.env;
@@ -380,11 +427,11 @@ export class Animal {
           if (d < 0.35 && st === 'walk' && this.goal?.via?.length) { this.goal.p = this.goal.via.shift(); }
           else if (d < 0.35) { if (st === 'walk') { const cb = this.goal?.onArrive; this.goal = null; this.state = 'idle'; this.timer = 1 + this.rng() * 2; if (cb) cb(); } }
           else {
-            const h = Math.atan2(dx, dz); const dh = wrapA(h - this.heading);
+            const h = this.steerAround(Math.atan2(dx, dz), d); const dh = wrapA(h - this.heading);
             this.heading += dh * Math.min(1, dt * 4);
             const sp = (run ? this.runSpeed : this.walkSpeed) * (Math.abs(dh) > 1.2 ? 0.35 : 1);
             const nx = this.pos.x + Math.sin(this.heading) * sp * dt, nz = this.pos.z + Math.cos(this.heading) * sp * dt;
-            if (this.canStand(nx, nz)) { this.pos.x = nx; this.pos.z = nz; speed = sp; }
+            if (this.canStand(nx, nz)) { this.pos.x = nx; this.pos.z = nz; speed = sp; this.pushOutOfTrunks(); }
             else {
               // still turning (e.g. onto a log): step straight at the target instead of along the current heading
               const s2 = Math.min(d, this.walkSpeed * dt), qx = this.pos.x + dx / d * s2, qz = this.pos.z + dz / d * s2;

@@ -25,7 +25,7 @@ export const ZONES = {
       'וכולם קשורים זה לזה. בנו חורש עשיר ועקבו אחרי רשת החיים לאורך העונות.',
     palette: ['#5a3a22', '#7a9a4a', '#e8202a'],
   },
-  // 1.3 (in development): the coral reef of the Gulf of Eilat (src/data/reef.js, docs/PLAN-1.3.md)
+  // 1.3: the coral reef of the Gulf of Eilat (src/data/reef.js, docs/PLAN-1.3.md)
   reef: {
     id: 'reef',
     name: 'שונית האלמוגים של אילת',
@@ -35,7 +35,6 @@ export const ZONES = {
       'האלמוג והאצות הזעירות שבתוכו, השושנון ושושנת הים, הגובי והחסילון, הדקר והמורנה. ' +
       'בנו שונית בריאה, שמרו על האיזון בין האצות לאלמוגים – וגלו את השותפויות של הים.',
     palette: ['#0b4a6e', '#2fa3b8', '#f08a24'],
-    dev: true,   // still being built: the start screen marks it
   },
 };
 

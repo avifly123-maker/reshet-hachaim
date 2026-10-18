@@ -13,6 +13,8 @@ import { loadPack } from '../core/packs.js';
 import { makeRng } from '../core/util.js';
 import { openMicroscope, openInventors } from './stations.js';
 import { labProgress } from './progress.js';
+import { TORAH } from '../core/edition.js';
+import { grantSource } from '../core/sources-store.js';
 import { SAMPLES } from './samples.js';
 
 const STATION_INFO = {
@@ -249,7 +251,11 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit }) {
   function arrive() {
     const info = STATION_INFO[station];
     if (info.open === 'scope') panel = openMicroscope(panels, { say, thumbs, audio, onDone: () => robot.wave(), onClose: () => { panel = null; } });
-    else if (info.open === 'inventors') panel = openInventors(panels, { say, thumbs, audio, onInvented: (id, first) => { robot.wave(); if (first) say('הרובוט הצולל קיבל ציפוי עור כריש! בפעם הבאה שתשלחו אותו בשונית, הוא ישחה מהר יותר.', 'wow'); }, onClose: () => { panel = null; }, goScope: () => setTimeout(() => go('scope'), 900) });
+    else if (info.open === 'inventors') panel = openInventors(panels, { say, thumbs, audio, onInvented: (id, first) => {
+      robot.wave(); if (!first) return;
+      const src = TORAH && id === 'sharkskin' && grantSource('sheal');   // torah edition: the source card "שאל נא בהמות ותרך"
+      say('הרובוט הצולל קיבל ציפוי עור כריש! בפעם הבאה שתשלחו אותו בשונית, הוא ישחה מהר יותר.' + (src ? ' וקיבלתם קלף מקור חדש: "שאל נא בהמות ותורך". הוא מחכה לכם באלבום, בדף "מן המקורות".' : ''), 'wow');
+    }, onClose: () => { panel = null; }, goScope: () => setTimeout(() => go('scope'), 900) });
     else if (info.open === 'atlas') panel = openAtlas(panels, { say, thumbs, onClose: () => { panel = null; } });
     else if (station === 'cabinet') { const n = Object.keys(labProgress().seen).length; say(n ? `בארון האוסף שומרים את מה שמצאנו. כבר יש כאן ${n} ${n === 1 ? 'גילוי' : 'גילויים'} מהמיקרוסקופ.` : 'בארון האוסף שומרים את מה שמצאנו: קונכיות, נוצות, זרעים ושברי אלמוג. כל גילוי במיקרוסקופ יוסיף כאן עוד משהו.', 'happy'); }
     else if (info.say) say(info.say, 'happy');

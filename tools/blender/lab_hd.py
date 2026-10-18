@@ -346,7 +346,7 @@ def coral(name, cid, var, L, height):
     o = O(name, 'vcol', smooth=True); o.json = (cid, var, height); o.M = L; return o
 
 def aquarium():
-    M0 = place(185, 4.5)
+    M0 = place(185, 4.3)   # back corners stay inside the round wall (R 5)
     W_, Dp, Ht, base = 2.8, 0.8, 1.35, 0.8
     O('aqcab', 'wood_dark', bevel=0.008, seg=3).box((W_ + 0.08, Dp + 0.08, base - 0.02), M0 @ T(0, 0, (base - 0.02) / 2))
     pan = O('aqpanels', 'wood_warm', bevel=0.012, seg=3)
@@ -363,6 +363,8 @@ def aquarium():
     for sx in (-1, 1): ag.plane(Dp, Ht - 0.02, M0 @ T(sx * W_ / 2, 0, base + Ht / 2) @ RZ(90) @ RX(90), uv=False)
     O('aqwater', 'water_aq', smooth=False).box((W_ - 0.02, Dp - 0.02, Ht - 0.2), M0 @ T(0, 0, base + 0.01 + (Ht - 0.2) / 2))
     O('aqback', 'aq_back', smooth=False).plane(W_ - 0.04, Ht - 0.1, M0 @ T(0, Dp / 2 - 0.015, base + Ht / 2) @ RX(90), uv=True)
+    ends = O('aqends', 'aq_back', smooth=False)   # the backdrop goes round the ends too: the close camera looks out through them
+    for sx in (-1, 1): ends.plane(Dp - 0.04, Ht - 0.1, M0 @ T(sx * (W_ / 2 - 0.015), 0, base + Ht / 2) @ RZ(90) @ RX(90), uv=True)
     O('aqlid', 'black', bevel=0.006).box((W_ + 0.08, Dp + 0.08, 0.07), M0 @ T(0, 0, zt + 0.035))
     O('aqlight', 'lightstrip', smooth=False).box((W_ - 0.3, 0.03, 0.006), M0 @ T(0, 0.05, zt - 0.004))
     # the sand bed
@@ -596,7 +598,7 @@ STATIONS = {
     'table': (V(0.0, -1.55, 1.62), V(0.05, 0.15, 0.86), 26, V(-1.25, -0.45, 0.0)),
     'scope': (polar(58, 2.55, 1.55), polar(58, 4.18, 1.08), 30, polar(72, 3.3, 0.0)),
     'atlas': (polar(130, 2.6, 1.5), polar(127, 4.1, 1.05), 28, polar(110, 3.15, 0.0)),
-    'aquarium': (polar(185, 2.2, 1.35), polar(185, 4.5, 1.35), 24, polar(205, 3.2, 0.0)),
+    'aquarium': (polar(185, 2.0, 1.35), polar(185, 4.3, 1.35), 24, polar(205, 3.2, 0.0)),
     'cabinet': (polar(318, 2.75, 1.45), polar(318, R - 0.3, 1.15), 26, polar(302, 3.55, 0.0)),
     'greenhouse': (polar(2, 2.2, 1.62), polar(0, 4.15, 1.22), 26, polar(20, 3.1, 0.0)),
 }
@@ -1012,7 +1014,7 @@ def lights(sc):
     d = Vector((-0.3, -0.82, -0.5)).normalized()
     add('lh_sun', 'SUN', (0, 0, 20), 3.2, (1.0, 0.9, 0.76), d.to_track_quat('-Z', 'Y').to_euler(), angle=math.radians(2.5))
     for x in (-0.75, 0.0, 0.75): add('lh_pend%g' % x, 'POINT', (x, 0.3, 2.41), 45, (1.0, 0.78, 0.55), shadow_soft_size=0.04)
-    aq = place(185, 4.5) @ Vector((0, -0.1, 2.12))
+    aq = place(185, 4.3) @ Vector((0, -0.1, 2.12))
     a = add('lh_aq', 'AREA', aq, 70, (0.78, 0.94, 1.0), size=2.5, size_y=0.5, shape='RECTANGLE'); a.rotation_euler = (0, 0, math.radians(185 - 90))
     add('lh_desk', 'SPOT', tuple(T(0, 0.3, 0) @ Vector((0.81, 0.28, 1.25))), 25, (1.0, 0.85, 0.62), (Vector((0.9, 0.3, 0.85)) - Vector((0.8, 0.3, 1.3))).to_track_quat('-Z', 'Y').to_euler(), spot_size=math.radians(70), shadow_soft_size=0.03)
     add('lh_sky', 'AREA', (0, 0, 4.6), 320, (0.8, 0.9, 1.0), size=2.2)
@@ -1130,7 +1132,7 @@ def lab_hd_cams():
         out['stations'][k] = {'pos': [round(cam.x, 4), round(cam.z, 4), round(-cam.y, 4)],   # aimed at 'at' with no roll (three: lookAt)
                               'fov': round(math.degrees(fovv), 4), 'robot': [round(rob.x, 3), round(rob.z, 3), round(-rob.y, 3)],
                               'at': [round(at.x, 3), round(at.z, 3), round(-at.y, 3)]}
-    aq = place(185, 4.5)
+    aq = place(185, 4.3)
     c = aq @ Vector((0, 0, 1.47)); out['aquarium'] = {'centre': [round(c.x, 3), round(c.z, 3), round(-c.y, 3)], 'size': [2.5, 0.8, 0.55], 'yaw': 185 - 90}
     with open(os.path.join(LD, 'lab_cams.json'), 'w') as fh: json.dump(out, fh, indent=1)
     return {'cams': len(out['stations'])}

@@ -279,7 +279,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     if (p.sp.layer === 'emergent' && !W._emNoted) { W._emNoted = true; ui.toast(`ה${p.sp.name} ${gw(p.sp.id,'הגיע','הגיעה','הגיעו','הגיעו')} לקומת הענקים – עכשיו ${gw(p.sp.id,'הוא מקבל','היא מקבלת','הם מקבלים','הן מקבלות')} את כל אור השמש!`, 'good'); }
   };
   W.onPlantDied = (p, reason) => {
-    report?.plantDied(reason);
+    if (reason !== 'uproot') report?.plantDied(reason);   // a plant the player took out did not die
     for (const a of W.animals) if (a.perch && a.perch.plant === p) { a.perch = null; a.state = 'idle'; a.timer = 0; }
     if (reason === 'weak' && W.simT - (W._lastDeathToast || -99) > 25) {
       W._lastDeathToast = W.simT;
@@ -378,10 +378,10 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     const { x, z } = hit;
     if (!W.unlocked.has(sp.id)) return { ok: false, reason: 'עוד נעול' };
     if (W.points < sp.cost) return { ok: false, reason: 'אין מספיק נקודות חיים' };
-    if (W.countPlaced(sp.id) >= sp.maxCount) return { ok: false, reason: `הגעתם למספר המרבי של ${sp.name} (${sp.maxCount}) – נסו מין אחר` };
+    if (W.countPlaced(sp.id) >= sp.maxCount) return { ok: false, reason: `הגעתם למספר המרבי של ${sp.name} (${sp.maxCount}). אפשר ללחוץ על אחד מהם ולעקור או להוציא אותו` };
     if (Math.hypot(x, z) > env.radius + 0.5) return { ok: false, reason: 'קרוב מדי לקצה' };
-    if (sp.isPlant && !W.plantRoom(sp)) return { ok: false, reason: 'היער מלא – אין מקום לעוד צמחים כרגע' };
-    if (!sp.isPlant && W.animals.length >= animalCap(sp)) return { ok: false, reason: 'היער מלא – אין מקום לעוד בעלי חיים כרגע' };
+    if (sp.isPlant && !W.plantRoom(sp)) return { ok: false, reason: 'אין מקום לעוד צמחים. לחצו על צמח ועקרו אותו כדי לפנות מקום' };
+    if (!sp.isPlant && W.animals.length >= animalCap(sp)) return { ok: false, reason: 'אין מקום לעוד בעלי חיים. לחצו על בעל חיים כדי להוציא אותו' };
     if (sp.isPlant) {
       if (sp.kind === 'water-plant') return env.isWater(x, z) ? { ok: true, text: 'צמח מים – על הנהר' } : { ok: false, reason: 'צריך מים – גררו אל הנהר' };
       if (sp.needs?.host) { const h = hostAt(x, z, sp); return h ? { ok: true, host: h, text: `על ${h.sp.name}` } : { ok: false, reason: sp.id === 'liana' ? 'גררו אל עץ גבוה ובוגר' : 'גררו אל ענפים של עץ בוגר' }; }
@@ -389,7 +389,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
       if (W.onRoad(x, z, 0.8)) return { ok: false, reason: 'אי אפשר לשתול על הכביש' };
       if (sp.needs?.rocks && !W.nearRock(x, z, 3)) return { ok: false, reason: 'צריך סלעים – גררו ליד הסלעים' };
       if (sp.needs?.water && !W.nearWater(x, z, 6)) return { ok: false, reason: 'צריך מים קרובים' };
-      if (!spacingOK(sp, x, z)) return { ok: false, reason: 'צפוף מדי – אין מקום לשורשים' };
+      if (!spacingOK(sp, x, z)) return { ok: false, reason: 'צפוף מדי. אפשר להעביר או לעקור צמח שעומד קרוב' };
       const lv = light.transmission(x, env.heightAt(x, z) + 1, z, crowns, light.noonSun);
       const need = sp.lightNeed ?? 0.5;
       if (need > 0.55 && lv < 0.35) return { ok: true, warn: true, text: `מוצל כאן (${Math.round(lv * 100)}% אור) – יגדל לאט` };
@@ -524,9 +524,66 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     return {
       id, name: sp.name, nameEn: sp.nameEn, color: sp.color, thumb: thumbs[id] || null, art: CARD_ART[id] || null, kindName: sp.kindName, layerName: sp.layerName, activeName: sp.isAnimal ? activeNameFor(sp.id, sp.active) : '',
       fact: sp.fact, more: sp.more, alive: ents.length > 0, count: ents.length, health, status: ents.length ? status : (W.unlocked.has(id) ? `עדיין לא ${zoneWord('in')} – גררו אותו מהמגש` : 'נעול – השלימו משימות כדי לפתוח'),
-      relations: rels, canRemove: ents.length > 0, tour: tour ? tour.labelFor(id) : '', question: shuffledQuestion(sp), questionDone: W.quizDone.has(id),
+      relations: rels, canRemove: ents.length > 0, one: oneInfo(id), tour: tour ? tour.labelFor(id) : '', question: shuffledQuestion(sp), questionDone: W.quizDone.has(id),
       shira: TORAH && sourcesOn() ? SHIRA[biome.id + ':' + id] || null : null,   // torah edition: its line in פרק שירה
     };
+  }
+  // the one plant or animal the player clicked: it can be taken out, moved (a plant on the ground) or let go (an animal)
+  function oneInfo(id) {
+    const e = W.selected;
+    if (W.research || !e || e.sp.id !== id || !alive(e) || e.removed || W.experiment) return null;
+    if (e.isPlant) return { kind: 'plant', canMove: !e.host && !e.falling && !e.fallen && e.sp.kind !== 'water-plant', refund: refundOf(e.sp) };
+    if (e.leaving || e.type !== 'animal') return null;
+    return { kind: 'animal', refund: refundOf(e.sp) };
+  }
+  const refundOf = (sp) => Math.floor((sp.cost || 0) / 2);
+  function uproot(e) {
+    if (!e || !alive(e) || W.research) return;
+    const sp = e.sp, back = refundOf(sp);
+    if (e.isPlant) {
+      for (const q of W.plants.slice()) if (q.host === e && alive(q)) { W.onPlantDied(q, 'uproot'); q.alive = false; W.removeEntity(q); }   // what grew on it comes out with it
+      markers.burst(_v.set(e.x, e.y + 0.6, e.z), '#c8a878', 26, { size: 0.45, speed: 2.5 });
+      W.onPlantDied(e, 'uproot'); e.alive = false; W.removeEntity(e);
+      ui.toast(`${sp.name} ${gw(sp.id, 'נעקר', 'נעקרה', 'נעקרו', 'נעקרו')} מ${zoneWord()}. יש עכשיו מקום לצמח אחר.${back ? ` (+${back} נקודות)` : ''}`, 'info');
+    } else {
+      e.leave();
+      ui.toast(`${sp.name} ${gw(sp.id, 'יצא', 'יצאה', 'יצאו', 'יצאו')} מ${zoneWord()} לחפש בית אחר.${back ? ` (+${back} נקודות)` : ''}`, 'info');
+    }
+    W.points += back; audio.play('remove'); select(null); ui.hideSpecies(); panelId = null; refreshTray(); lightDirty = true;
+  }
+  // moving a plant: the next click on the ground is its new place (Escape or a click on it again cancels)
+  let moving = null;
+  function checkMove(e, hit) {
+    if (!hit) return { ok: false, reason: `לחצו על מקום ${zoneWord('in')}` };
+    const sp = e.sp, { x, z } = hit;
+    if (Math.hypot(x, z) > env.radius + 0.5) return { ok: false, reason: 'קרוב מדי לקצה' };
+    if (!env.isPlaceable(x, z)) return { ok: false, reason: env.isWater(x, z) ? 'זה מים' : 'אי אפשר לשתול כאן' };
+    if (W.onRoad(x, z, 0.8)) return { ok: false, reason: 'אי אפשר לשתול על הכביש' };
+    if (sp.needs?.rocks && !W.nearRock(x, z, 3)) return { ok: false, reason: 'צריך סלעים – בחרו מקום ליד הסלעים' };
+    if (sp.needs?.water && !W.nearWater(x, z, 6)) return { ok: false, reason: 'צריך מים קרובים' };
+    if (!spacingOK(sp, x, z, e)) return { ok: false, reason: 'צפוף מדי – אין מקום לשורשים' };
+    const lv = light.transmission(x, env.heightAt(x, z) + 1, z, crowns, light.noonSun, e);
+    return { ok: true, warn: (sp.lightNeed ?? 0.5) > 0.55 && lv < 0.35, text: `אור כאן: ${Math.round(lv * 100)}% · לחצו כדי להעביר` };
+  }
+  function startMove(e) {
+    if (!e || !alive(e) || !e.isPlant || e.host || W.research) return;
+    moving = { e }; ui.hideSpecies(); panelId = null; markers.select(null);
+    ui.toast(`בחרו מקום חדש ל${e.sp.name} ולחצו עליו. Esc לביטול.`, 'info');
+  }
+  function endMove(hit) {
+    const m = moving; moving = null; markers.showGhost(null); ui.hideHover(); canvas.style.cursor = '';
+    if (!m || !hit) return;
+    const e = m.e, chk = checkMove(e, hit);
+    if (!chk.ok) { audio.play('invalid'); ui.toast(chk.reason, 'warn'); return; }
+    if (!alive(e)) return;
+    markers.burst(_v.set(e.x, e.y + 0.5, e.z), '#c8a878', 16, { size: 0.4, speed: 2 });
+    e.x = hit.x; e.z = hit.z; e.y = env.heightAt(hit.x, hit.z) - 0.05; e.obj.position.set(e.x, e.y, e.z);
+    e.health = Math.min(e.health, 0.85);   // moving shakes the roots a little
+    for (const q of W.plants) if (q.host === e && alive(q)) { if (q.sp.id === 'liana') { q.x = e.x; q.z = e.z; q.y = e.y; q.obj.position.set(q.x, q.y, q.z); } else q.placeOnHost(); }
+    for (const a of W.animals) if (a.perch && a.perch.plant === e) { a.perch = null; a.state = 'idle'; a.timer = 0; }
+    e._crownT = -1; lightDirty = true;
+    markers.burst(_v.set(e.x, e.y + 0.5, e.z), '#b8f08a', 18, { size: 0.4, speed: 2 });
+    audio.play('place'); ui.toast(`${e.sp.name} ${gw(e.sp.id, 'הועבר', 'הועברה', 'הועברו', 'הועברו')} למקום החדש.`, 'good');
   }
   let panelId = null;
   function showPanel(id, fresh) { panelId = id; const info = speciesInfo(id); if (fresh) ui.showSpecies(info); else ui.updateSpecies(info); }
@@ -958,6 +1015,8 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   });
   on('missions:history', () => ui.showDoneMissions(missions.doneList()));
   on('species:experiment', ({ id }) => startExperiment(id));
+  on('species:uproot', () => uproot(W.selected));
+  on('species:move', () => startMove(W.selected));
   on('species:tour', ({ id }) => { if (tour) tour.start(id); });
   on('experiment:end', () => endExperiment());
   on('relation:reveal', ({ from, to, type }) => {
@@ -1051,6 +1110,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   const onUp = (e) => {
     if (!down) return; const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y); const dt = performance.now() - down.t; down = null;
     if (moved > 6 || dt > 600 || dragState || W.viewMode) return;
+    if (moving) { endMove(groundHit(e.clientX, e.clientY)); return; }
     const cam = fieldcam && fieldcam.pickAt(e.clientX, e.clientY);   // a placed field camera: look through it
     if (cam) { fieldcam.open(cam); return; }
     const hit = pick(e.clientX, e.clientY);
@@ -1061,7 +1121,16 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
       if (g && W.onRoad(g.x, g.z, 1)) offerRoadFix();
     }
   };
-  const onMove = (e) => { lastMove = { x: e.clientX, y: e.clientY }; };
+  const onMove = (e) => {
+    lastMove = { x: e.clientX, y: e.clientY };
+    if (moving) {
+      const hit = groundHit(e.clientX, e.clientY), chk = checkMove(moving.e, hit);
+      markers.showGhost(hit ? new THREE.Vector3(hit.x, env.heightAt(hit.x, hit.z), hit.z) : null, chk.ok, moving.e.isTree ? 2.4 : 1.1, null, 3, chk.warn);
+      ui.showHover({ x: e.clientX, y: e.clientY, name: (chk.ok ? '✓ ' : '') + moving.e.sp.name, sub: chk.ok ? chk.text : chk.reason }); canvas.style.cursor = chk.ok ? 'copy' : 'not-allowed';
+    }
+  };
+  const onMoveKey = (e) => { if (moving && e.key === 'Escape') { moving = null; markers.showGhost(null); ui.hideHover(); canvas.style.cursor = ''; ui.toast('ההעברה בוטלה', 'info'); } };
+  addEventListener('keydown', onMoveKey);
   canvas.addEventListener('pointerdown', onDown); canvas.addEventListener('pointerup', onUp); canvas.addEventListener('pointermove', onMove);
   const onLeave = () => { lastMove = null; ui.hideHover(); };
   canvas.addEventListener('pointerleave', onLeave);
@@ -1391,7 +1460,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     markers.update(rdt, t, camera, px);
     // hover label
     hoverT -= rdt;
-    if (hoverT <= 0 && lastMove && !dragState && !down && !W.viewMode) {
+    if (hoverT <= 0 && lastMove && !dragState && !moving && !down && !W.viewMode) {
       hoverT = 0.12;
       const fc = fieldcam && fieldcam.pickAt(lastMove.x, lastMove.y);
       const h = fc ? null : pick(lastMove.x, lastMove.y);
@@ -1487,6 +1556,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     pendingEvent = null;
     for (const o of offs) o();
     if (ptsEl) ptsEl.removeEventListener('click', explainPoints);
+    removeEventListener('keydown', onMoveKey);
     canvas.removeEventListener('pointerdown', onDown); canvas.removeEventListener('pointerup', onUp); canvas.removeEventListener('pointermove', onMove); canvas.removeEventListener('pointerleave', onLeave);
     for (const e of [...W.plants, ...W.animals]) { if (e.obj.parent) e.obj.parent.remove(e.obj); try { e.vis.dispose(); } catch (err) { } }
     W.plants = []; W.animals = [];

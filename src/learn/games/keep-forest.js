@@ -976,7 +976,7 @@ export function mountKeepForest(root, ctx, opts = {}) {
       place: `<div class="kf-hp kf-hp-rows">${ROWSH().map((w) => `<i>${w}</i>`).join('')}<div class="kf-hcard">${ctx.cardHTML(plant)}</div></div>`,
       thread: `<div class="kf-hp kf-hp-pair">${ctx.cardHTML(pair[0])}<svg viewBox="0 0 60 30" aria-hidden="true"><path d="M2 20Q30 -4 58 20" stroke="#f0b44c" stroke-width="4" fill="none" stroke-linecap="round"/></svg>${ctx.cardHTML(pair[1])}<b dir="ltr">+1</b></div>`,
       event: `<div class="kf-hp kf-hp-ev"><div class="kf-hev">${Y(I.sun, I.cloud)}<small>${Y('בצורת', 'מים עכורים')}</small></div><div class="kf-hneed"><span>${Y(I.drop + 'מים', ctx.STAT_ICON.shelter + 'מחסה')}</span><span>${I.sun}אור</span><span>${I.thread}קשרים</span></div></div>`,
-      tool: `<div class="kf-hp kf-hp-tool">${tool ? ctx.cardHTML(tool) : ''}<b dir="ltr">×1</b></div>`,
+      tool: `<div class="kf-hp kf-hp-tool">${tool ? ctx.cardHTML(tool) : ''}<b>1</b></div>`,
       stars: `<div class="kf-hp kf-hp-stars"><span>${st(1)}<b>${t1}</b></span><span>${st(2)}<b>${t2}</b></span><span>${st(3)}<b>${t3}</b></span></div>`,
     };
     const steps = kids ? [
@@ -1081,9 +1081,9 @@ export function mountKeepForest(root, ctx, opts = {}) {
     // top bar
     const flags = [];
     if (S.watch) flags.push(`<span class="kf-flag">${I.eye} שומרים על ${Y('היער', 'השונית')}</span>`);
-    if (S.nest) flags.push(`<span class="kf-flag">ציפורים ×2</span>`);
-    if (S.insect) flags.push(`<span class="kf-flag">חרקים ×2</span>`);
-    if (S.fish) flags.push(`<span class="kf-flag">דגים ×2</span>`);
+    if (S.nest) flags.push(`<span class="kf-flag">ציפורים פי 2</span>`);
+    if (S.insect) flags.push(`<span class="kf-flag">חרקים פי 2</span>`);
+    if (S.fish) flags.push(`<span class="kf-flag">דגים פי 2</span>`);
     $('.kf-bar').innerHTML = `
       <span class="kf-stat s-light" title="סכום האור של ${Y('היער', 'השונית')}">${ctx.STAT_ICON.light}<small>אור</small><b>${T.light}</b></span>
       <span class="kf-stat s-water" title="${Y('סכום המים של היער', 'סכום המחסה של השונית')}">${Y(ctx.STAT_ICON.water, ctx.STAT_ICON.shelter)}<small>${Y('מים', 'מחסה')}</small><b>${T.water}</b>${S.waterBoost ? `<span class="kf-boost">+${S.waterBoost}</span>` : ''}</span>

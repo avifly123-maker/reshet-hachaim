@@ -194,16 +194,19 @@ async function boot() {
   bus.on('profile:edit', ({ id, name, animal }) => { if (name != null) profiles.rename(id, name); if (animal) profiles.setAnimal(id, animal); ui.setProfiles(profiles.state()); });
   bus.on('profile:reset', ({ id }) => { if (game || loading) return; if (profiles.reset(id)) { playerChanged(); ui.toast('השחקן אופס – מתחילים מההתחלה', 'good'); } });
   bus.on('profile:remove', ({ id }) => { if (game || loading) return; if (profiles.remove(id)) playerChanged(); });
-  bus.on('ui:learn', () => { audio.start(); getHub().then((h) => h.open(), (e) => console.error(e)); });
+  bus.on('ui:learn', (o) => { audio.start(); const scr = o && o.screen; getHub().then((h) => { if (scr && scr !== 'home' && h.go) h.go(scr); else h.open(); }, (e) => console.error(e)); });
+  bus.on('ui:lab', () => { audio.start(); openLab('start'); });
+  bus.on('ui:click', () => { try { audio.play('click'); } catch (e) { /* */ } });
   // חוקרי היער: the research centre and its mysteries
   const researchHub = createResearchHub(root, { onPick: (id) => { const C = caseById(id); if (!C) return; loadPack(C.zone).catch(() => { /* reported by loadBiome */ }); loadBiome(C.zone, null, C); }, onLab: () => openLab() });
   // מעבדת רובו־דע: its own pack; while it is open the frame loop draws it (there is no forest then)
-  let lab = null, labP = null;
-  function openLab() {
+  let lab = null, labP = null, labFrom = 'hub';
+  function openLab(from = 'hub') {
+    labFrom = from;
     audio.start(); ui.hideStart();
     ui.setLoading && ui.setLoading(0.3, 'פותחים את המעבדה...');
     labP = labP || loadPack('lab').then((m) => {
-      lab = m.createLab({ root, pipe, audio, onExit: () => { startDrawn = false; showStart(); researchHub.open(); } });
+      lab = m.createLab({ root, pipe, audio, onExit: () => { startDrawn = false; showStart(); if (labFrom === 'hub') researchHub.open(); } });
       return lab;
     });
     labP.then((L) => { ui.hideLoading(); L.open(); }, (e) => { labP = null; ui.hideLoading(); console.error(e); showStart(); });

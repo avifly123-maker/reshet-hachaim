@@ -165,7 +165,7 @@
 #ui.wol .st-learn b { display: block; font-family: var(--serif); font-size: 1.2em; line-height: 1.1; }
 #ui.wol .st-learn small { display: block; font-size: .84em; color: #dcc9a8; }
 
-#ui.wol .st-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: clamp(18px, 3vw, 44px); width: 100%; padding-top: 8px; }
+#ui.wol .st-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 232px), 1fr)); gap: clamp(18px, 3vw, 44px); width: 100%; padding-top: 8px; }
 /* each forest is a pressed specimen sheet, taped at the top */
 #ui.wol .biome-card {
   position: relative; display: flex; flex-direction: column; text-align: right; padding: 4px; color: var(--ink);
@@ -181,7 +181,7 @@
 #ui.wol .biome-card:hover .ba-far { transform: translateX(-6px); }
 #ui.wol .biome-card:hover .ba-near { transform: translateX(8px) translateY(2px); }
 #ui.wol .bc-body { padding: 16px 12px 6px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
-#ui.wol .bc-body h2 { font-family: var(--serif); font-size: 2.05em; line-height: 1.05; color: color-mix(in srgb, var(--bc) 80%, #000); }
+#ui.wol .bc-body h2 { font-family: var(--serif); font-size: clamp(1.45em, 2.4vw, 2.05em); line-height: 1.05; color: color-mix(in srgb, var(--bc) 80%, #000); }
 #ui.wol .bc-sub { font-weight: 700; color: var(--ink2); font-size: 1.02em; }
 #ui.wol .bc-intro { color: #3a4433; font-size: .98em; line-height: 1.5; max-width: 36em; flex: 1; }
 #ui.wol .bc-go { align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; padding: .5em 1.1em .5em 1.6em; font-weight: 700; color: #f3f0d8;
@@ -1088,7 +1088,7 @@
 #ui.wol .srcm .src-box { margin: 0; padding: 12px 18px 12px 44px; position: relative; box-shadow: 0 10px 30px rgba(0, 0, 0, .35), inset 0 0 0 3px rgba(255, 255, 255, .5); cursor: pointer; text-align: center; }
 #ui.wol .srcm .src-text { font-size: 1.22em; }
 #ui.wol .srcm .src-line { margin: 4px 0 0; font-size: .92em; color: #5a4a2a; }
-#ui.wol .srcm .x { position: absolute; top: 8px; left: 10px; width: 26px; height: 26px; border-radius: 50%; border: 0; background: rgba(138, 90, 28, .14); color: #6b4512; font-size: 16px; line-height: 26px; cursor: pointer; }
+#ui.wol .srcm .x { position: absolute; top: 8px; left: 10px; height: 26px; padding: 0 10px; border-radius: 13px; border: 0; background: rgba(138, 90, 28, .14); color: #6b4512; font-size: 13px; font-weight: 700; line-height: 26px; cursor: pointer; }
 #ui.wol.imv-on .srcm { display: none; }
 
 /* the way back to the start screen: its own clear button at the head of the toolbar */
@@ -1123,3 +1123,107 @@
 
 /* a zone still being built (1.3 development): a small tag next to its subtitle */
 .bc-dev { display: inline-block; padding: 0 .45em; border-radius: .6em; background: #f0b44c; color: #2a1d05; font-weight: 700; font-size: .85em; }
+
+/* the one plant or animal that was clicked (species panel): move / uproot / let go */
+#ui.wol .sp-one { margin: 10px 0 4px; padding: 10px 12px; border-radius: 6px; background: rgba(90, 70, 40, .08); box-shadow: inset 0 0 0 1px rgba(90, 70, 40, .18); }
+#ui.wol .sp-one h4 { display: flex; align-items: center; gap: 6px; margin: 0 0 4px; }
+#ui.wol .sp-one h4 .ic { width: 18px; height: 18px; }
+#ui.wol .sp-one p { margin: 0 0 8px; font-size: .9em; color: #4a4a3a; line-height: 1.4; }
+#ui.wol .sp-one-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+#ui.wol .sp-one-btns .btn { flex: 1 1 auto; min-height: 34px; justify-content: center; }
+#ui.wol .sp-one-btns small { opacity: .7; font-weight: 700; }
+#ui.wol .sp-uproot.sure { background: #b8442e; color: #fff8ee; }
+
+/* ===================================================== start screen 1.3: tabs, the island carousel, science and learning */
+#ui.wol .st-tint { position: absolute; inset: 0; background: radial-gradient(ellipse 60% 50% at 50% 58%, color-mix(in srgb, var(--zc, #2d5a35) 34%, transparent), transparent 70%); transition: background .8s; }
+#ui.wol .st-inner.v13 { padding: 3.2vh 24px 2vh; gap: clamp(8px, 1.8vh, 22px); width: min(1180px, 100%); }
+#ui.wol .v13 .st-title { font-size: clamp(2.8em, min(6vw, 9vh), 5.4em); }
+#ui.wol .v13 .wax { width: clamp(70px, min(8vw, 12vh), 108px); }
+#ui.wol .st-tabs { display: flex; gap: 10px; padding: 6px; border-radius: 14px; background: rgba(8, 20, 13, .55); box-shadow: inset 0 2px 8px rgba(0, 0, 0, .5), 0 0 0 1px rgba(180, 203, 102, .16); animation: wol-rise .9s .2s both; flex-wrap: wrap; justify-content: center; }
+#ui.wol .st-tabs button { display: flex; align-items: center; gap: 10px; padding: 9px 20px 9px 18px; border-radius: 10px; color: #d8d6bb; text-align: right; transition: background .25s, color .25s, transform .25s; }
+#ui.wol .st-tabs button .ic { width: 30px; height: 30px; color: var(--lichen); flex: none; }
+#ui.wol .st-tabs button b { display: block; font-family: var(--serif); font-size: 1.25em; line-height: 1.1; color: var(--chalk); }
+#ui.wol .st-tabs button small { display: block; font-size: .82em; color: #b7b99b; }
+#ui.wol .st-tabs button:hover { background: rgba(233, 230, 204, .08); }
+#ui.wol .st-tabs button.on { background: linear-gradient(180deg, #f4ecd0, #e3d6ad); color: var(--ink); box-shadow: 0 3px 0 rgba(0, 0, 0, .35), 0 0 22px rgba(246, 207, 114, .25); }
+#ui.wol .st-tabs button.on b { color: var(--moss); }
+#ui.wol .st-tabs button.on small { color: #5a604a; }
+#ui.wol .st-tabs button.on .ic { color: var(--leaf2); }
+#ui.wol .st-pane { display: none; width: 100%; flex-direction: column; align-items: center; gap: clamp(6px, 1.4vh, 16px); }
+#ui.wol .st-pane.on { display: flex; animation: wol-pop .45s both; }
+/* the carousel: three islands on a ring, the chosen one in front */
+#ui.wol .st-car { position: relative; width: 100%; height: clamp(190px, 35vh, 440px); perspective: 1400px; touch-action: pan-y; }
+#ui.wol .st-ring { position: absolute; inset: 0; transform-style: preserve-3d; }
+#ui.wol .st-isl { position: absolute; left: 50%; top: 50%; width: min(56%, 66vh); aspect-ratio: 3 / 2; margin: 0; padding: 0; background: none; transform-style: preserve-3d;
+  transition: transform .75s cubic-bezier(.3, .9, .3, 1.05), opacity .6s, filter .6s; cursor: pointer; }
+#ui.wol .st-isl img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 26px 30px rgba(0, 0, 0, .55)); animation: st-bob 6s ease-in-out infinite; pointer-events: none; }
+#ui.wol .st-isl[data-k="1"] img { animation-delay: -2s; } #ui.wol .st-isl[data-k="-1"] img { animation-delay: -4s; }
+#ui.wol .st-glow { position: absolute; left: 12%; right: 12%; bottom: -2%; height: 22%; border-radius: 50%; background: radial-gradient(ellipse at center, color-mix(in srgb, var(--zc) 70%, #fff 10%), transparent 70%); opacity: .55; filter: blur(8px); transition: opacity .6s; }
+#ui.wol .st-isl[data-k="0"] { transform: translate(-50%, -50%) translateZ(0) scale(1); z-index: 3; }
+#ui.wol .st-isl[data-k="0"] .st-glow { opacity: .9; }
+#ui.wol .st-isl[data-k="1"] { transform: translate(calc(-50% - 86%), -56%) translateZ(-420px) rotateY(26deg) scale(.8); z-index: 1; opacity: .62; filter: saturate(.55) brightness(.62); }
+#ui.wol .st-isl[data-k="-1"] { transform: translate(calc(-50% + 86%), -56%) translateZ(-420px) rotateY(-26deg) scale(.8); z-index: 1; opacity: .62; filter: saturate(.55) brightness(.62); }
+#ui.wol .st-isl[data-k="1"]:hover, #ui.wol .st-isl[data-k="-1"]:hover { opacity: .85; filter: saturate(.8) brightness(.85); }
+#ui.wol .st-isl[data-k="0"]:hover img { filter: drop-shadow(0 30px 34px rgba(0, 0, 0, .6)) brightness(1.06); }
+#ui.wol .st-arrow { position: absolute; top: 50%; z-index: 5; width: 54px; height: 54px; margin-top: -27px; border-radius: 50%; display: grid; place-items: center; color: #2a1d0c;
+  background: linear-gradient(180deg, #f8d98a, #e8a43a); box-shadow: 0 4px 0 #9c6519, 0 10px 18px rgba(0, 0, 0, .45); transition: transform .2s; }
+#ui.wol .st-arrow .ic { width: 28px; height: 28px; }
+#ui.wol .st-arrow:hover { transform: scale(1.08); }
+#ui.wol .st-arrow:active { transform: translateY(3px); box-shadow: 0 1px 0 #9c6519, 0 6px 12px rgba(0, 0, 0, .45); }
+#ui.wol .st-arrow.prev { right: 2%; } #ui.wol .st-arrow.next { left: 2%; }
+#ui.wol .st-info { width: min(720px, 100%); text-align: center; }
+#ui.wol .st-info-in { display: flex; flex-direction: column; align-items: center; gap: 4px; animation: wol-pop .5s both; }
+#ui.wol .st-info h2 { font-family: var(--serif); font-size: clamp(1.9em, 4.2vh, 2.7em); line-height: 1.05; color: var(--chalk); text-shadow: 0 3px 12px rgba(0, 0, 0, .5); }
+#ui.wol .st-info .bc-sub { color: color-mix(in srgb, var(--zc2) 70%, #fff); font-weight: 700; letter-spacing: .02em; }
+#ui.wol .st-info .bc-intro { color: #cfd6b8; max-width: 44em; font-size: .98em; line-height: 1.5; }
+#ui.wol .st-go { display: inline-flex; align-items: center; gap: 10px; margin-top: 8px; padding: .62em 1.9em .62em 2.2em; font-weight: 800; font-size: 1.15em; color: #fff8e6;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--zc) 80%, #fff 10%), var(--zc)); border-radius: 999px; box-shadow: 0 4px 0 rgba(0, 0, 0, .35), 0 0 26px color-mix(in srgb, var(--zc2) 40%, transparent); transition: transform .2s, padding .25s; }
+#ui.wol .st-go .ic { width: 20px; height: 20px; }
+#ui.wol .st-go:hover { transform: translateY(-2px); padding-left: 2.6em; }
+#ui.wol .st-dots { display: flex; gap: 8px; }
+#ui.wol .st-dots button { width: 11px; height: 11px; border-radius: 50%; background: rgba(233, 230, 204, .3); transition: background .3s, transform .3s; }
+#ui.wol .st-dots button.on { background: var(--honey); transform: scale(1.3); }
+@keyframes st-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
+/* science centre and learning hub tabs */
+#ui.wol .st-big2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: clamp(14px, 2.4vw, 30px); width: 100%; }
+#ui.wol .st-panel { position: relative; display: flex; flex-direction: column; text-align: right; border-radius: 16px; overflow: hidden; color: var(--ink);
+  background: linear-gradient(180deg, #f6efd6, #e9dcb6); box-shadow: 0 14px 28px rgba(0, 0, 0, .45), 0 0 0 1px rgba(255, 255, 255, .25) inset; transition: transform .3s; }
+#ui.wol .st-panel:hover { transform: translateY(-4px) rotate(-.4deg); }
+#ui.wol .st-pimg { position: relative; display: block; height: clamp(150px, 30vh, 300px); overflow: hidden; }
+#ui.wol .st-pimg.lab img { width: 100%; height: 100%; object-fit: cover; display: block; }
+#ui.wol .st-pimg.rs { background: radial-gradient(ellipse at 50% 70%, #2f5a3a, #102419); }
+#ui.wol .st-pimg.rs img { position: absolute; width: 46%; bottom: 8%; object-fit: contain; filter: drop-shadow(0 12px 14px rgba(0, 0, 0, .5)); }
+#ui.wol .st-pimg.rs img:nth-child(1) { right: 2%; bottom: 20%; transform: scale(.8); }
+#ui.wol .st-pimg.rs img:nth-child(2) { right: 27%; z-index: 2; }
+#ui.wol .st-pimg.rs img:nth-child(3) { left: 2%; bottom: 20%; transform: scale(.8); }
+#ui.wol .st-lens { position: absolute; top: 12%; left: 10%; z-index: 3; width: 74px; height: 74px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(180deg, #f8d98a, #e8a43a); color: #3a2608; box-shadow: 0 6px 16px rgba(0, 0, 0, .45); transform: rotate(-12deg); }
+#ui.wol .st-lens .ic { width: 42px; height: 42px; }
+#ui.wol .st-ptext { display: flex; flex-direction: column; gap: 4px; padding: 14px 18px 16px; }
+#ui.wol .st-ptext b { font-family: var(--serif); font-size: 1.7em; line-height: 1.05; color: var(--moss); }
+#ui.wol .st-ptext small { font-size: .98em; color: #4a4a3a; line-height: 1.45; }
+#ui.wol .st-ptext em { font-style: normal; align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; padding: .4em 1.2em; border-radius: 999px; background: var(--leaf2); color: #fbf7e6; font-weight: 800; }
+#ui.wol .st-ptext em .ic { width: 17px; height: 17px; }
+#ui.wol .st-learnwrap { display: grid; grid-template-columns: minmax(220px, 1fr) 2fr; gap: clamp(14px, 3vw, 40px); align-items: center; width: 100%; }
+#ui.wol .st-fan { position: relative; height: clamp(170px, 32vh, 300px); }
+#ui.wol .st-fan img { position: absolute; left: 50%; top: 50%; width: clamp(100px, 16vh, 150px); aspect-ratio: 1; object-fit: cover; border-radius: 12px; border: 6px solid #f4ecd0;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, .5); transform: translate(-50%, -50%) translateX(calc(var(--k) * 46%)) rotate(calc(var(--k) * 9deg)) translateY(calc(var(--k) * var(--k) * 8px)); }
+#ui.wol .st-lgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
+#ui.wol .st-lgrid button { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 12px; text-align: right; color: var(--chalk);
+  background: linear-gradient(180deg, rgba(64, 44, 22, .92), rgba(44, 30, 14, .92)); box-shadow: 0 6px 14px rgba(0, 0, 0, .4), inset 0 0 0 1px rgba(246, 207, 114, .18); transition: transform .2s, background .2s; }
+#ui.wol .st-lgrid button:hover { transform: translateY(-2px); background: linear-gradient(180deg, rgba(84, 58, 28, .95), rgba(54, 36, 16, .95)); }
+#ui.wol .st-lgrid button .ic { width: 32px; height: 32px; color: var(--honey); flex: none; }
+#ui.wol .st-lgrid button b { display: block; font-family: var(--serif); font-size: 1.2em; }
+#ui.wol .st-lgrid button small { display: block; font-size: .84em; color: #dcc9a8; }
+@media (max-width: 760px) { #ui.wol .st-learnwrap { grid-template-columns: 1fr; } #ui.wol .st-fan { height: 150px; } #ui.wol .st-tabs button small { display: none; } }
+@media (max-height: 720px) {
+  #ui.wol .v13 .st-sub, #ui.wol .v13 .st-vine { display: none; }
+  #ui.wol .st-inner.v13 { padding-top: 1.6vh; gap: 6px; }
+  #ui.wol .v13 .st-title { font-size: clamp(2.2em, 8vh, 3.6em); }
+  #ui.wol .v13 .wax { width: clamp(56px, 10vh, 80px); }
+  #ui.wol .st-tabs button { padding: 5px 14px; } #ui.wol .st-tabs button .ic { width: 24px; height: 24px; }
+  #ui.wol .st-pane .st-modes button { padding: 4px 14px; } #ui.wol .st-pane .st-modes small { display: none; }
+  #ui.wol .st-car { height: clamp(170px, 33vh, 300px); }
+  #ui.wol .st-info .bc-intro { font-size: .88em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  #ui.wol .st-info h2 { font-size: 1.7em; } #ui.wol .st-go { margin-top: 4px; padding-block: .45em; }
+}
+@media (prefers-reduced-motion: reduce) { #ui.wol .st-isl img { animation: none; } }

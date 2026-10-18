@@ -25,7 +25,7 @@ export function createSourceMoments({ W, ui, audio }) {
   }
   function show(m) {
     shown.add(m.id); count++; lastAt = t; hideT = SHOW;
-    el.innerHTML = `<div class="src-box"><button class="x" aria-label="סגירה">×</button><p class="src-text">${esc(m.text)}</p><small class="src-ref">${esc(m.ref)}</small>${m.line ? `<p class="src-line">${esc(m.line)}</p>` : ''}</div>`;
+    el.innerHTML = `<div class="src-box"><button class="x" aria-label="סגירה">סגור</button><p class="src-text">${esc(m.text)}</p><small class="src-ref">${esc(m.ref)}</small>${m.line ? `<p class="src-line">${esc(m.line)}</p>` : ''}</div>`;
     el.classList.add('on');
     try { audio && audio.play('select'); } catch (e) { /* */ }
   }

@@ -83,6 +83,10 @@ export const SOURCE_CARDS = [
   { id: 'nefesh', title: 'יוֹדֵעַ נֶפֶשׁ בְּהֶמְתּוֹ', ref: 'משלי יב, י', icon: 'paw', col: '#7a5a3a', earn: 'research:the-trap',
     quote: 'יוֹדֵעַ צַדִּיק נֶפֶשׁ בְּהֶמְתּוֹ.',
     lesson: 'לפני שעושים משהו בטבע, בודקים מה כל יצור צריך. רעל לקוצנים פוגע גם בתנשמת ששומרת על השדה.' },
+  // the lab of רובו־דע (1.3): earned the first time the shark-skin coat is invented (src/lab/stations.js)
+  { id: 'sheal', title: 'שְׁאַל נָא בְהֵמוֹת וְתֹרֶךָּ', ref: 'איוב יב, ז–ח', icon: 'drop', col: '#4a6a8a', earn: 'lab:sharkskin',
+    quote: 'וְאוּלָם שְׁאַל נָא בְהֵמוֹת וְתֹרֶךָּ, וְעוֹף הַשָּׁמַיִם וְיַגֶּד לָךְ. אוֹ שִׂיחַ לָאָרֶץ וְתֹרֶךָּ, וִיסַפְּרוּ לְךָ דְּגֵי הַיָּם.',
+    lesson: 'הכריש לימד אותנו איך להחליק במים מהר יותר. מי שמסתכל טוב על הבריאה לומד ממנה רעיונות חדשים.' },
   // the reef (1.3): earned in the reef mission "שם רמש ואין מספר"
   { id: 'yam', title: 'זֶה הַיָּם גָּדוֹל', ref: 'תהלים קד, כה', icon: 'drop', col: '#1f7a9a', earn: 'mission:rt1',
     quote: 'זֶה הַיָּם גָּדוֹל וּרְחַב יָדָיִם, שָׁם רֶמֶשׂ וְאֵין מִסְפָּר, חַיּוֹת קְטַנּוֹת עִם גְּדֹלוֹת.',
@@ -97,7 +101,8 @@ export const EARN_TEXT = { quiz: 'מקבלים בחידון "מן המקורות
   'research:cleaning-station': 'מקבלים כשפותרים את התעלומה "תחנת הניקוי נסגרה" בחוקרי היער',
   'research:white-coral': 'מקבלים כשפותרים את התעלומה "האלמוג הלבן" בחוקרי היער',
   'research:the-trap': 'מקבלים כשפותרים את התעלומה "המלכודת" בחוקרי היער',
-  'mission:rt1': 'מקבלים במשימה "שם רמש ואין מספר" בשונית' };
+  'mission:rt1': 'מקבלים במשימה "שם רמש ואין מספר" בשונית',
+  'lab:sharkskin': 'מקבלים כשממציאים את מעיל עור הכריש במעבדה של רובו־דע' };
 
 // ───────────────────────────────────────── missions in the grove (inserted into the chain after g3 and g4)
 export const TORAH_MISSIONS = {

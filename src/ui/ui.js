@@ -3,6 +3,7 @@
 import { artPos } from '../data/art-focus.js';
 import { TORAH, sourcesOn, setSourcesOn, EDITION_NAME } from '../core/edition.js';
 import { ISLAND_ART } from '../data/island-art.js';
+import { CARD_ART } from '../data/card-art.js';
 import { avatarHTML, avatarName, AVATAR_IDS } from './avatars.js';
 import { zoneWord } from '../core/place.js';
 
@@ -52,7 +53,7 @@ const I = {
   mute: '<path class="f" d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/>',
   lightmap: '<circle class="f" cx="12" cy="7" r="2.6"/><circle cx="12" cy="7" r="2.6"/><path d="M12 1.8v1.3M7.4 3.4l.9.9M16.6 3.4l-.9.9M6 7h1.2M16.8 7H18"/><path class="f" d="M2.5 15.5L12 12l9.5 3.5L12 19z"/><path d="M2.5 15.5L12 12l9.5 3.5L12 19z"/><path d="M7.2 13.8l9.5 3.4M16.8 13.8l-9.5 3.4"/>',
   sliders: '<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/>',
-  close: '<path d="M6 6l12 12M18 6L6 18"/>',
+  close: '<circle cx="12" cy="12" r="8"/><path d="M8.2 12h7.6"/>',   // no X anywhere: a circle with a bar
   binoc: '<circle class="f" cx="6.5" cy="15.5" r="3.8"/><circle class="f" cx="17.5" cy="15.5" r="3.8"/><circle cx="6.5" cy="15.5" r="3.8"/><circle cx="17.5" cy="15.5" r="3.8"/><path d="M4 12.5L6.2 5h3l.8 7M20 12.5L17.8 5h-3l-.8 7M10.3 15h3.4"/>',
   flask: '<path class="f" d="M7.2 15h9.6l2.6 3.4A1.8 1.8 0 0 1 17.8 21H6.2a1.8 1.8 0 0 1-1.6-2.6z"/><path d="M9 3h6M10 3v6.2L4.6 18.4A1.8 1.8 0 0 0 6.2 21h11.6a1.8 1.8 0 0 0 1.6-2.6L14 9.2V3"/><path d="M7.2 15h9.6"/>',
   sparkle: '<path d="M12 2.5l2 7.5 7.5 2-7.5 2-2 7.5-2-7.5L2.5 12 10 10z" fill="currentColor" stroke="none"/>',
@@ -66,11 +67,15 @@ const I = {
   chevron: '<path d="M8 10l4 4 4-4"/>',
   bulb: '<path class="f" d="M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1 2V16h5.2v-.2c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1 2V16h5.2v-.2c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/>',
   arrowL: '<path d="M19 12H5M11 6l-6 6 6 6"/>',
+  arrowR: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+  search: '<circle class="f" cx="10.5" cy="10.5" r="6"/><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5.5 5.5"/>',
+  cards: '<rect class="f" x="8" y="4" width="11" height="15" rx="2"/><rect x="8" y="4" width="11" height="15" rx="2"/><path d="M5.5 7.5v11a2 2 0 0 0 2 2h8"/>',
+  versus: '<rect class="f" x="3" y="5" width="8" height="12" rx="1.6" transform="rotate(-8 7 11)"/><rect x="3" y="5" width="8" height="12" rx="1.6" transform="rotate(-8 7 11)"/><rect x="13" y="7" width="8" height="12" rx="1.6" transform="rotate(8 17 13)"/>',
   undo: '<path d="M9 7L4 12l5 5"/><path d="M4 12h10a6 6 0 0 1 0 12h-2" transform="translate(0 -6)"/>',
   bang: '<path d="M12 6v8" stroke-width="2.6"/><circle cx="12" cy="18" r="1.3" fill="currentColor" stroke="none"/>',
   hourglass: '<path d="M6 3h12M6 21h12M7 3c0 5 10 6 10 9s-10 4-10 9M17 3c0 5-10 6-10 9s10 4 10 9"/>',
   pencil: '<path class="f" d="M5 16.5L15.8 5.7l2.5 2.5L7.5 19H5z"/><path d="M5 16.5L15.8 5.7l2.5 2.5L7.5 19H5z"/><path d="M13.8 7.7l2.5 2.5"/>',
-  plus: '<path d="M12 5v14M5 12h14" stroke-width="2.4"/>',
+  plus: '<path d="M12 5v7.5M5 12.5h14" stroke-width="2.4"/>',   // the plus of the children's schools: the stem stops at the bar
   trash: '<path d="M5 7h14"/><path d="M9.5 7V5h5v2"/><path class="f" d="M6.5 7l1 12.5h9l1-12.5"/><path d="M6.5 7l1 12.5h9l1-12.5"/><path d="M10.3 10.5v6M13.7 10.5v6"/>',
   // the naturalist's satchel: the game menu
   satchel: '<path class="f" d="M4 9h16v10.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19.5z"/><path d="M4 9h16v10.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19.5z"/><path d="M4 9l2-4h12l2 4"/><path d="M9.5 9v4.2a2.5 2.5 0 0 0 5 0V9"/><circle cx="12" cy="13.3" r=".8" fill="currentColor"/>',
@@ -307,66 +312,112 @@ export function createUI(root, bus) {
   }
 
   /* ================================================================ START */
+  // the start screen (1.3): three tabs – the game's environments (a carousel of the three islands, with the level),
+  // the science centre (חוקרי היער and the lab of רובו־דע) and the learning hub
   function renderStart(biomes) {
-    startEl.innerHTML = `<div class="st-bg">${canopySVG('top')}${canopySVG('bottom')}<i class="st-shaft s1"></i><i class="st-shaft s2"></i></div>
+    biomes = biomes || [];
+    S.stTab = S.stTab || 'env';
+    if (S.stCur == null || S.stCur >= biomes.length) S.stCur = 0;
+    const isl = (id) => ISLAND_ART['c_' + id] || ISLAND_ART[id] || '';
+    const fan = ['amazon:jaguar', 'grove:owl', 'reef:clownfish', 'amazon:toucan', 'reef:turtle'].map((k) => CARD_ART[k.split(':')[1]]).filter(Boolean).slice(0, 4);
+    startEl.innerHTML = `<div class="st-bg">${canopySVG('top')}${canopySVG('bottom')}<i class="st-shaft s1"></i><i class="st-shaft s2"></i><i class="st-tint"></i></div>
       ${S.logo ? `<div class="st-logo"><img src="${S.logo}" alt="בבא דע"></div>` : ''}
       <button class="st-who" aria-haspopup="dialog" aria-expanded="false" hidden></button>
       <div class="st-pp-layer" hidden><div class="st-pp-scrim"></div><div class="st-pp paper" role="dialog" aria-modal="true" aria-label="מי משחק?"></div></div>
-      <div class="st-inner">
+      <div class="st-inner v13">
       <header class="st-head"><div class="st-seal">${waxSeal(124)}</div>
         <div class="st-titles"><h1 class="st-title">רשת החיים</h1>${EDITION_NAME ? `<span class="st-edition">${EDITION_NAME}</span>` : ''}${VINE}<p class="st-sub">בונים יער חי, מגלים מי צריך את מי</p></div></header>
-      <div class="st-row">
+      <nav class="st-tabs" role="tablist">
+        <button role="tab" data-tab="env">${icon('leaf')}<span><b>סביבות משחק</b><small>אמזונס, חורש ושונית</small></span></button>
+        <button role="tab" data-tab="sci" data-research-tab="1">${icon('flask')}<span><b>המרכז המדעי</b><small>חוקרי היער ומעבדת רובו־דע</small></span></button>
+        <button role="tab" data-tab="learn">${icon('book')}<span><b>מרכז הלמידה</b><small>חידון, אלבום ומשחקי קלפים</small></span></button>
+      </nav>
+      <section class="st-pane" data-pane="env">
         <div class="st-modes" role="radiogroup" aria-label="רמת משחק">
           <button data-mode="kids" role="radio">${icon('sprout')}<span><b>מתחילים</b><small>מעט מינים, משימות קצרות</small></span></button>
           <button data-mode="full" role="radio">${icon('web')}<span><b>מתקדמים</b><small>כל המינים, אירועים וטכנולוגיה</small></span></button>
         </div>
-        <button class="st-learn" data-learn="1"><span class="st-book">${icon('book')}</span><span><b>מרכז הלמידה</b><small>חידון ואלבום קלפים</small></span></button>
-        <button class="st-learn st-research" data-research="1"><span class="st-book">${icon('flask')}</span><span><b>המרכז המדעי</b><small>חוקרי היער ומעבדת רובו־דע</small></span></button>
-      </div>
-      <div class="st-cards"></div>
-      <ol class="st-how">
-        <li><span class="st-n">1</span><span><b>גוררים</b> צמח או בעל חיים אל היער</span></li>
-        <li><span class="st-n">2</span><span><b>מגלים</b> את הקשרים שביניהם</span></li>
-        <li><span class="st-n">3</span><span><b>שומרים</b> על יער מלא חיים ואור</span></li>
-      </ol></div>`;
+        <div class="st-car" aria-roledescription="קרוסלה">
+          <button class="st-arrow prev" data-car="-1" aria-label="הסביבה הקודמת">${icon('arrowR')}</button>
+          <div class="st-ring">${biomes.map((b, i) => `<button class="st-isl" data-i="${i}" data-id="${esc(b.id)}" style="--zc:${(b.palette && b.palette[1]) || '#6a9'};--zc2:${(b.palette && b.palette[2]) || '#f0b44c'}" aria-label="${esc(b.name)}">
+            <i class="st-glow"></i><img src="${isl(b.id)}" alt="" draggable="false"></button>`).join('')}</div>
+          <button class="st-arrow next" data-car="1" aria-label="הסביבה הבאה">${icon('arrowL')}</button>
+        </div>
+        <div class="st-info"></div>
+        <div class="st-dots">${biomes.map((b, i) => `<button data-dot="${i}" aria-label="${esc(b.name)}"></button>`).join('')}</div>
+      </section>
+      <section class="st-pane" data-pane="sci">
+        <div class="st-big2">
+          <button class="st-panel" data-research="1"><span class="st-pimg rs">${biomes.slice(0, 3).map((b) => `<img src="${isl(b.id)}" alt="" draggable="false">`).join('')}<i class="st-lens">${icon('search')}</i></span>
+            <span class="st-ptext"><b>חוקרי היער</b><small>תעלומות בטבע: מודדים, משערים, מנסים ומאזנים. שלוש רמות, משלוש הסביבות.</small><em>${icon('arrowL')}לתעלומות</em></span></button>
+          <button class="st-panel" data-lab="1"><span class="st-pimg lab">${ISLAND_ART.lab ? `<img src="${ISLAND_ART.lab}" alt="" draggable="false">` : ''}</span>
+            <span class="st-ptext"><b>המעבדה של רובו־דע</b><small>מיקרוסקופ, שולחן ממציאים ואטלס. ממציאים בעזרת הטבע ומשדרגים את הכלים.</small><em>${icon('arrowL')}למעבדה</em></span></button>
+        </div>
+      </section>
+      <section class="st-pane" data-pane="learn">
+        <div class="st-learnwrap">
+          <div class="st-fan">${fan.map((src, i) => `<img src="${src}" alt="" draggable="false" style="--k:${i - (fan.length - 1) / 2}">`).join('')}</div>
+          <div class="st-lgrid">
+            <button data-learn="home">${icon('book')}<span><b>מרכז הלמידה</b><small>כל המשחקים במקום אחד</small></span></button>
+            <button data-learn="setup">${icon('help')}<span><b>חידון</b><small>שאלות על היער והשונית</small></span></button>
+            <button data-learn="album">${icon('cards')}<span><b>אלבום הקלפים</b><small>חבילות, סדרות ואוסף</small></span></button>
+            <button data-learn="duel">${icon('versus')}<span><b>מי חזק ברשת?</b><small>קלף מול קלף</small></span></button>
+            <button data-learn="keepforest">${icon('tree')}<span><b>מחזיקים את היער</b><small>משחק קלפים ואירועים</small></span></button>
+            <button data-learn="webpuzzle">${icon('web')}<span><b>חוט הקשר</b><small>מחברים את הרשת</small></span></button>
+          </div>
+        </div>
+      </section>
+      </div>`;
     const paintModes = () => startEl.querySelectorAll('[data-mode]').forEach(b => b.setAttribute('aria-checked', String(b.dataset.mode === S.mode)));
     S.mode = S.mode || 'full';
-    startEl.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => { S.mode = b.dataset.mode; paintModes(); emit('start:mode', { mode: S.mode }); renderStartIntros(); }));
-    startEl.querySelector('[data-learn]').addEventListener('click', () => emit('ui:learn'));
+    startEl.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => { S.mode = b.dataset.mode; paintModes(); emit('start:mode', { mode: S.mode }); paintInfo(); }));
+    startEl.querySelectorAll('[data-learn]').forEach((b) => b.addEventListener('click', () => emit('ui:learn', { screen: b.dataset.learn })));
     startEl.querySelector('[data-research]').addEventListener('click', () => emit('ui:research'));
-    paintModes();
-    const renderStartIntros = () => (biomes || []).forEach((b, i) => { const el = startEl.querySelectorAll('.bc-intro')[i]; if (el) el.textContent = (S.mode === 'kids' && b.kidsIntro) ? b.kidsIntro : b.intro; });
-    setTimeout(renderStartIntros, 0);
+    startEl.querySelector('[data-lab]').addEventListener('click', () => emit('ui:lab'));
+    // tabs
+    const paintTab = () => {
+      startEl.querySelectorAll('[data-tab]').forEach((b) => { const on = b.dataset.tab === S.stTab; b.classList.toggle('on', on); b.setAttribute('aria-selected', String(on)); });
+      startEl.querySelectorAll('[data-pane]').forEach((p) => p.classList.toggle('on', p.dataset.pane === S.stTab));
+      startEl.dataset.tab = S.stTab;
+    };
+    startEl.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', () => { if (S.stTab !== b.dataset.tab) { S.stTab = b.dataset.tab; paintTab(); emit('ui:click'); } }));
+    // the carousel: the chosen island in front, the other two behind it on a slow ring
+    const isls = [...startEl.querySelectorAll('.st-isl')], n = isls.length, info = startEl.querySelector('.st-info');
+    const paintInfo = () => {
+      const b = biomes[S.stCur]; if (!b) return;
+      info.style.setProperty('--zc', (b.palette && b.palette[0]) || '#2d5a35'); info.style.setProperty('--zc2', (b.palette && b.palette[2]) || '#f0b44c');
+      info.innerHTML = `<div class="st-info-in" key="${S.stCur}"><h2>${esc(b.name)}</h2><p class="bc-sub">${esc(b.subtitle)}</p>
+        <p class="bc-intro">${esc((S.mode === 'kids' && b.kidsIntro) ? b.kidsIntro : b.intro)}</p>
+        <button class="st-go" data-id="${esc(b.id)}">${S.mode === 'kids' ? 'יוצאים לדרך · מתחילים' : 'יוצאים לדרך'}${icon('arrowL')}</button></div>`;
+      info.querySelector('.st-go').addEventListener('click', () => emit('start:biome', { id: b.id }));
+      startEl.style.setProperty('--zc', (b.palette && b.palette[1]) || '#2d5a35');
+    };
+    const paintCar = () => {
+      isls.forEach((el, i) => {
+        let k = ((i - S.stCur) % n + n) % n; if (k > n / 2) k -= n;   // -1 left, 0 front, 1 right
+        el.dataset.k = String(k); el.tabIndex = k === 0 ? 0 : -1;
+      });
+      startEl.querySelectorAll('[data-dot]').forEach((d, i) => d.classList.toggle('on', i === S.stCur));
+      paintInfo();
+    };
+    const turn = (d) => { S.stCur = ((S.stCur + d) % n + n) % n; paintCar(); emit('ui:click'); };
+    startEl.querySelectorAll('[data-car]').forEach((b) => b.addEventListener('click', () => turn(+b.dataset.car)));
+    startEl.querySelectorAll('[data-dot]').forEach((b) => b.addEventListener('click', () => { S.stCur = +b.dataset.dot; paintCar(); }));
+    isls.forEach((el) => el.addEventListener('click', () => { const i = +el.dataset.i; if (i === S.stCur) emit('start:biome', { id: biomes[i].id }); else { S.stCur = i; paintCar(); emit('ui:click'); } }));
+    // swipe / drag the ring
+    const car = startEl.querySelector('.st-car'); let sx = null;
+    car.addEventListener('pointerdown', (e) => { sx = e.clientX; });
+    car.addEventListener('pointerup', (e) => { if (sx == null) return; const dx = e.clientX - sx; sx = null; if (Math.abs(dx) > 50) turn(dx > 0 ? 1 : -1); });
+    startEl.addEventListener('keydown', (e) => { if (S.stTab !== 'env' || e.target.closest('input,textarea')) return; if (e.key === 'ArrowLeft') turn(1); else if (e.key === 'ArrowRight') turn(-1); });
+    paintModes(); paintTab(); paintCar();
+    const renderStartIntros = () => paintInfo();
     S.repaintStartMode = () => { paintModes(); renderStartIntros(); };   // another player was chosen: show their level
     PP.open = false;
     startEl.querySelector('.st-who').addEventListener('click', () => (PP.open ? ppClose() : ppOpen()));
     const layer = startEl.querySelector('.st-pp-layer');
     layer.querySelector('.st-pp-scrim').addEventListener('click', () => ppClose());
     layer.querySelector('.st-pp').addEventListener('click', ppClick);
-    layer.querySelector('.st-pp').addEventListener('input', (e) => { if (e.target.matches('.pp-input') && PP.draft) PP.draft.name = e.target.value; });
-    layer.querySelector('.st-pp').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && e.target.matches('.pp-input')) { e.preventDefault(); ppSave(); return; }
-      if (e.key !== 'Tab') return;
-      // keep Tab inside the open sheet
-      const f = [...ppBox().querySelectorAll('button, input')]; if (!f.length) return;
-      const i = f.indexOf(document.activeElement);
-      if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); } else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); }
-    });
     paintWho();
-    const wrap = startEl.querySelector('.st-cards');
-    (biomes || []).forEach((b, i) => {
-      // a Blender render of the island when there is one (src/data/island-art.js), else the drawn landscape
-      const art = ISLAND_ART[b.id] ? `<img class="bc-render" src="${ISLAND_ART[b.id]}" alt="" draggable="false">` : biomeArt(b);
-      const c = h('button', 'biome-card', `<div class="bc-art">${art}</div>
-        <div class="bc-body"><h2>${esc(b.name)}</h2><p class="bc-sub">${esc(b.subtitle)}${b.dev ? ' · <span class="bc-dev">בבנייה</span>' : ''}</p><p class="bc-intro">${esc(b.intro)}</p>
-        <span class="bc-go">יוצאים לדרך${icon('arrowL')}</span></div>`, wrap);
-      c.dataset.id = b.id || '';
-      c.style.setProperty('--bc', (b.palette && b.palette[0]) || '#2d5a35');
-      c.style.setProperty('--bc2', (b.palette && b.palette[2]) || '#f0b44c');
-      c.style.setProperty('--tilt', (i % 2 ? 0.6 : -0.6) + 'deg');
-      c.style.animationDelay = 0.15 + i * 0.12 + 's';
-      c.addEventListener('click', () => emit('start:biome', { id: b.id }));
-    });
   }
 
   /* ================================================================ PLAYERS ("מי משחק?") */
@@ -742,6 +793,15 @@ export function createUI(root, bus) {
     else if (act === 'locate') emit('species:locate', { id });
     else if (act === 'exp') { if (!t.disabled) emit('species:experiment', { id }); }
     else if (act === 'tour') emit('species:tour', { id });
+    else if (act === 'uproot') {   // two steps: the first click asks, the second takes it out
+      if (!(S.sureUntil > performance.now())) {
+        S.sureUntil = performance.now() + 3500; t.classList.add('sure'); t.querySelector('span').textContent = 'בטוח? לחצו שוב';
+        setTimeout(() => { const b = panel.querySelector('.sp-uproot'); if (b && !(S.sureUntil > performance.now())) { b.classList.remove('sure'); b.querySelector('span').textContent = b.dataset.label; } }, 3600);
+        return;
+      }
+      S.sureUntil = 0; emit('species:uproot', { id });
+    }
+    else if (act === 'move') emit('species:move', { id });
     else if (act === 'select') emit('species:select', { id: t.dataset.id });
     else if (act === 'reveal') { t.classList.add('busy'); emit('relation:reveal', { from: id, to: t.dataset.to, type: t.dataset.type }); }
     else if (act === 'more') { S.moreOpen = !S.moreOpen; panel.classList.toggle('more-open', S.moreOpen); }
@@ -801,6 +861,7 @@ export function createUI(root, bus) {
       ${s.more ? `<div class="sp-more"><p>${esc(s.more)}</p></div><button class="sp-more-btn" data-act="more"><span class="m1">עוד עליו</span><span class="m2">פחות</span></button>` : ''}
       ${rels.length ? `<section class="sp-rels"><h4>${icon('web')}קשרים ברשת <small>${found}/${rels.length}</small></h4><ul>${rels.map(relRow).join('')}</ul></section>` : ''}
       ${quiz}
+      ${s.one ? oneHTML(s) : ''}
       </div>
       <footer class="sp-actions">
         ${s.tour ? `<button class="btn sp-tour" data-act="tour">${icon('binoc')}${esc(s.tour)}</button>` : ''}
@@ -810,6 +871,24 @@ export function createUI(root, bus) {
       </footer>`;
     panel.classList.toggle('more-open', S.moreOpen);
     const sc = panel.querySelector('.sp-scroll'); if (sc) sc.scrollTop = top;
+  }
+
+  // the one plant or animal that was clicked: take it out, move it, let it go
+  function oneHTML(s) {
+    const o = s.one, back = o.refund ? ` <small>+${o.refund}</small>` : '';
+    if (o.kind === 'plant') {
+      const lb = 'לעקור את הצמח הזה';
+      return `<section class="sp-one"><h4>${icon('sprout')}הצמח שבחרתם</h4><p>מוצל מדי, או שיש יותר מדי ממנו? אפשר להעביר אותו למקום אחר או לעקור אותו ולפנות מקום.</p>
+        <div class="sp-one-btns">${o.canMove ? `<button class="btn ghosty" data-act="move">${icon('target')}<span>להעביר למקום אחר</span></button>` : ''}
+        ${upBtn(lb, 'leaf', back)}</div></section>`;
+    }
+    const lb = 'להוציא אותו מהמקום';
+    return `<section class="sp-one"><h4>${icon('paw')}בעל החיים שבחרתם</h4><p>יותר מדי מהם? אפשר לתת לו לצאת ולחפש בית אחר.</p>
+      <div class="sp-one-btns">${upBtn(lb, 'arrowL', back)}</div></section>`;
+  }
+  function upBtn(lb, ic, back) {
+    const sure = S.sureUntil > performance.now();
+    return `<button class="btn ghosty sp-uproot${sure ? ' sure' : ''}" data-act="uproot" data-label="${lb}">${icon(ic)}<span>${sure ? 'בטוח? לחצו שוב' : lb}</span>${back}</button>`;
   }
 
   /* ================================================================ MODALS */
@@ -1069,7 +1148,7 @@ export function createUI(root, bus) {
     showSpecies(info) {
       if (!info) return;
       if (!S.species || S.species.id !== info.id) { S.moreOpen = false; if (!S.quiz || S.quiz.id !== info.id) S.quiz = null; const sc = panel.querySelector('.sp-scroll'); if (sc) sc.scrollTop = 0; S.speciesSig = ''; }
-      S.species = info; renderSpecies(true);
+      S.sureUntil = 0; S.species = info; renderSpecies(true);
       const sc = panel.querySelector('.sp-scroll'); if (sc && S.speciesSig && panel.dataset.id !== info.id) sc.scrollTop = 0;
       panel.dataset.id = info.id;
       root.classList.add('sp-open'); panel.classList.add('on'); setKit(false);

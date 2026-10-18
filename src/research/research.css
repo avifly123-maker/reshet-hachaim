@@ -227,7 +227,7 @@
 #ui.wol .rs-stay-b { color: var(--ink); background: #efe2bf; box-shadow: 0 3px 0 #8a7a5a; }
 
 /* ───────────── the research centre (picker) */
-#ui.wol .rs-hub { position: absolute; inset: 0; z-index: 52; overflow: auto; opacity: 0; visibility: hidden; transition: opacity .35s, visibility .35s; }
+#ui.wol .rs-hub { position: absolute; inset: 0; z-index: 52; overflow: auto; pointer-events: auto; opacity: 0; visibility: hidden; transition: opacity .35s, visibility .35s; }
 #ui.wol .rs-hub.on { opacity: 1; visibility: visible; }
 #ui.wol .rs-h-bg { position: fixed; inset: 0; background: radial-gradient(ellipse at 50% 0, #2a4a30, #10231a 60%, #0a160f); }
 #ui.wol .rs-h-bg::after { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgba(180, 203, 102, .05) 1px, transparent 1px), linear-gradient(90deg, rgba(180, 203, 102, .05) 1px, transparent 1px); background-size: 28px 28px; }

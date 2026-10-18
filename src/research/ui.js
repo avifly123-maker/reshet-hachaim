@@ -89,7 +89,7 @@ export function createResearchUI(root, o) {
     table.innerHTML = `<div class="rs-desk">
       <section class="rs-sec rs-sec-tools"><h4>${esc(T('tools'))}</h4><div class="rs-tools">${st.tools.map((t) => `<button class="rs-tool${t.placed ? ' placed' : ''}" data-tool="${t.id}">${pic(null, t.icon)}<span>${esc(t.name)}</span>${t.placed ? `<i class="rs-ok">${icon('check')}</i>` : ''}</button>`).join('')}</div></section>
       <section class="rs-sec rs-sec-ideas"><h4>${esc(T('ideas'))}</h4><div class="rs-ideas">${st.ideas.map((i) => `<div class="rs-idea${i.full ? ' full' : ''}${i.tech ? ' tech' : ''}" data-idea="${i.id}">${ideaPic(i)}<span class="rs-i-title">${esc(i.title)}</span>
-        <span class="rs-i-amts">${i.amounts.map((n) => `<button data-n="${n}" ${i.full ? 'disabled' : ''}>${i.amounts.length > 1 || n > 1 ? (n > 1 ? '×' + n : '×1') : `${icon('plus')}`}<small>${i.perUnit ? i.cost * n : i.cost}</small></button>`).join('')}</span>
+        <span class="rs-i-amts">${i.amounts.map((n) => `<button data-n="${n}" ${i.full ? 'disabled' : ''}>${i.amounts.length > 1 || n > 1 ? ('פי ' + n) : `${icon('plus')}`}<small>${i.perUnit ? i.cost * n : i.cost}</small></button>`).join('')}</span>
         ${i.used ? `<i class="rs-used">${i.used}</i>` : ''}</div>`).join('')}</div></section>
       <section class="rs-sec rs-sec-side">
         <div class="rs-budget" title="${esc(T('budget'))}"><span>${esc(T('budget'))}</span><b>${st.budget}</b><div class="rs-b-bar"><i style="width:${st.budgetMax ? (100 * st.budget / st.budgetMax).toFixed(0) : 0}%"></i></div></div>

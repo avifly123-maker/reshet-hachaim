@@ -255,7 +255,7 @@ export function createReportUI(root, { describe, onNote, onClose, onExport }) {
   function chipsHTML(m) {
     const max = m.kids ? 10 : 18;
     const list = m.chips.slice(0, max);
-    const html = list.map((c) => `<span class="rep-chip ${c.plant ? 'pl' : 'an'}${c.isNew ? ' nw' : ''}" style="--c:${esc(c.color || '#8a6')}"><i>${c.thumb ? `<img src="${esc(c.thumb)}" alt="" draggable="false">` : ''}</i>${esc(c.name)}${c.count > 1 ? ` <em dir="ltr">×${c.count}</em>` : ''}</span>`).join('');
+    const html = list.map((c) => `<span class="rep-chip ${c.plant ? 'pl' : 'an'}${c.isNew ? ' nw' : ''}" style="--c:${esc(c.color || '#8a6')}"><i>${c.thumb ? `<img src="${esc(c.thumb)}" alt="" draggable="false">` : ''}</i>${esc(c.name)}${c.count > 1 ? ` <em>(${c.count})</em>` : ''}</span>`).join('');
     return html + (m.chips.length > max ? `<span class="rep-more">ועוד ${m.chips.length - max}</span>` : '');
   }
 
