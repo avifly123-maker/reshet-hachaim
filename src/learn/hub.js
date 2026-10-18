@@ -1952,7 +1952,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     sfx('click');
     try { onClose && onClose(); } catch (e) { console.warn(e); }
   }
-  const api = { open, close, isOpen: () => open_, grantPack, go: (name) => { if (!open_) open(); go(name); } };
+  const api = { open, close, isOpen: () => open_, grantPack, go: (name, opts) => { if (!open_) open(); go(name, opts); } };
   try {
     window.__wolLearn = {
       ...api,

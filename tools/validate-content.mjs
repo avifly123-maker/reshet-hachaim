@@ -365,7 +365,7 @@ checkForbidden('common', COMMON);
   const files = [];
   const walk = (d) => { for (const f of fs.readdirSync(d)) { const q = path.join(d, f); if (fs.statSync(q).isDirectory()) walk(q); else if (/\.js$/.test(f)) files.push(q); } };
   for (const d of ['src/learn', 'src/ui', 'src/research', 'src/lab']) if (fs.existsSync(d)) walk(d);
-  for (const f of fs.readdirSync('src/data')) if (/torah|source|invention|expedition|badge|quiz/i.test(f)) files.push(path.join('src/data', f));
+  for (const f of fs.readdirSync('src/data')) if (/torah|source|invention|expedition|badge|quiz|lab-questions/i.test(f)) files.push(path.join('src/data', f));
   const W = ['אישה', 'אשה', 'נשים', 'ילדה', 'ילדות', 'נערה', 'דינוזאור', 'דינוזאורים', 'אבולוציה'];
   const re = new RegExp(`(^|[^\u05d0-\u05ea])[והבלכמש]{0,2}(${W.join('|')})(?=$|[^\u05d0-\u05ea])`);
   const en = /\b(girls?|wom[ae]n|dinosaurs?|millions of years)\b/i;

@@ -209,7 +209,7 @@ async function boot() {
     ui.setLoading && ui.setLoading(0.3, 'פותחים את המעבדה...');
     labP = labP || loadPack('lab').then((m) => {
       lab = m.createLab({ root, pipe, audio, onExit: () => { startDrawn = false; showStart(); if (labFrom === 'hub') researchHub.open(); },
-        openGame: (name) => getHub().then((h) => (h.go ? h.go(name) : h.open()), (e) => console.error(e)) });
+        openGame: (name, opts) => getHub().then((h) => (h.go ? h.go(name, opts) : h.open()), (e) => console.error(e)) });
       return lab;
     });
     labP.then((L) => { ui.hideLoading(); L.open(); }, (e) => { labP = null; ui.hideLoading(); console.error(e); showStart(); });
