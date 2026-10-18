@@ -196,7 +196,18 @@ async function boot() {
   bus.on('profile:remove', ({ id }) => { if (game || loading) return; if (profiles.remove(id)) playerChanged(); });
   bus.on('ui:learn', () => { audio.start(); getHub().then((h) => h.open(), (e) => console.error(e)); });
   // חוקרי היער: the research centre and its mysteries
-  const researchHub = createResearchHub(root, { onPick: (id) => { const C = caseById(id); if (!C) return; loadPack(C.zone).catch(() => { /* reported by loadBiome */ }); loadBiome(C.zone, null, C); } });
+  const researchHub = createResearchHub(root, { onPick: (id) => { const C = caseById(id); if (!C) return; loadPack(C.zone).catch(() => { /* reported by loadBiome */ }); loadBiome(C.zone, null, C); }, onLab: () => openLab() });
+  // מעבדת רובו־דע: its own pack; while it is open the frame loop draws it (there is no forest then)
+  let lab = null, labP = null;
+  function openLab() {
+    audio.start(); ui.hideStart();
+    ui.setLoading && ui.setLoading(0.3, 'פותחים את המעבדה...');
+    labP = labP || loadPack('lab').then((m) => {
+      lab = m.createLab({ root, pipe, audio, onExit: () => { startDrawn = false; showStart(); researchHub.open(); } });
+      return lab;
+    });
+    labP.then((L) => { ui.hideLoading(); L.open(); }, (e) => { labP = null; ui.hideLoading(); console.error(e); showStart(); });
+  }
   bus.on('ui:research', () => { audio.start(); researchHub.open(); });
   bus.on('audio:mute', ({ muted }) => audio.setMuted(muted));
   // Compile every shader the current island can need – including species not placed yet – right now, in one go.
@@ -298,16 +309,17 @@ async function boot() {
     const dt = Math.min(clock.getDelta() * ts, 0.1 * ts);
     window.__frames = (window.__frames || 0) + 1;
     t += dt;
-    if (game) { game.update(dt, t); autoQuality(); }
+    if (lab && lab.isOpen()) { lab.update(dt); pipe.render(dt); startDrawn = false; }
+    else if (game) { game.update(dt, t); autoQuality(); }
     else {
       // start screen: draw a dark backdrop only
       pipe.renderer.setClearColor('#0d1a14');
     }
-    if (!window.__noRender && (game || !startDrawn)) { pipe.render(dt); if (!game) startDrawn = true; else startDrawn = false; }
+    if (!window.__noRender && !(lab && lab.isOpen()) && (game || !startDrawn)) { pipe.render(dt); if (!game) startDrawn = true; else startDrawn = false; }
     if (fpsEl) { fpsN++; const now = performance.now(); if (now - fpsT > 1000) { const i = pipe.renderer.info.render; fpsEl.textContent = `${Math.round(fpsN * 1000 / (now - fpsT))} fps · ${quality} · x${pipe.resScale.toFixed(2)} · ${i.calls} calls · ${Math.round(i.triangles / 1000)}k tris`; fpsN = 0; fpsT = now; } }
   }
   frame();
-  window.__app = { bus, ui, audio, pipe, loadBiome, researchHub, openCase: (id) => { const C = caseById(id); if (C) loadBiome(C.zone, null, C); }, get game() { return game; } };
+  window.__app = { bus, ui, audio, pipe, loadBiome, researchHub, openLab: () => openLab(), openCase: (id) => { const C = caseById(id); if (C) loadBiome(C.zone, null, C); }, get game() { return game; } };
 }
 
 boot();

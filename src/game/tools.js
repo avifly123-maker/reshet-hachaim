@@ -2,6 +2,7 @@
 // monitoring drone, camera trap, rescue robot, water-from-air generator, seed-ball drone, forest listener.
 // Each tool teaches something real that people use today to watch over and repair nature.
 import * as THREE from 'three';
+import { hasInvention } from '../lab/progress.js';
 import { clamp, makeRng } from '../core/util.js';
 import { gw } from '../data/common.js';
 import { toolProp } from '../world/props.js';
@@ -368,8 +369,10 @@ export function createTools(ctx) {
   function launchSurvey(hit) {
     const mesh = W.biomeId === 'reef' ? makeROV() : makeDrone(); group.add(mesh);
     const start = new THREE.Vector3(hit.x, env.heightAt(hit.x, hit.z) + 1.5, hit.z);
-    flights.push({ kind: 'survey', mesh, t: 0, dur: 11, start, a0: Math.atan2(hit.z, hit.x) });
-    ui.toast(W.biomeId === 'reef' ? 'הרובוט הצולל יצא לדרך – סורק את השונית...' : 'רחפן הניטור המריא – סורק את היער...', 'info');
+    // invented in רובו־דע's lab: a shark-skin coat lets the underwater robot glide through the water faster
+    const skin = W.biomeId === 'reef' && hasInvention('sharkskin');
+    flights.push({ kind: 'survey', mesh, t: 0, dur: skin ? 7 : 11, start, a0: Math.atan2(hit.z, hit.x) });
+    ui.toast(W.biomeId === 'reef' ? (skin ? 'הרובוט הצולל עם ציפוי עור הכריש יצא לדרך, וסורק את השונית מהר...' : 'הרובוט הצולל יצא לדרך – סורק את השונית...') : 'רחפן הניטור המריא – סורק את היער...', 'info');
   }
   function surveyReport() {
     const lines = [], marks = [];

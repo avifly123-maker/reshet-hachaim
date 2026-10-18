@@ -105,6 +105,7 @@ export class Plant {
     if (W.fireAt(this.x, this.z) > 0) { this.burnFire(W); return; }
     const rate = target < this.health ? 0.018 : 0.03;
     this.health = damp(this.health, target, rate * 3, dt);
+    if (this.healthCap != null && this.health > this.healthCap) this.health = damp(this.health, this.healthCap, 0.6, dt);   // a mystery shows this one sick (a bleached coral)
     if (this.health < 0.05) { this.die('weak'); return; }
     if (!dormant) {
       const g = dt / this.growTime * (0.15 + 0.85 * lightOK) * (0.3 + 0.7 * this.health) * W.growBoost;

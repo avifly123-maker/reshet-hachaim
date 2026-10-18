@@ -122,7 +122,8 @@ export function createResearchSession(ctx) {
       const sp = reg.byId.get(sid); if (!sp) continue;
       const ents = W.plants.filter((p) => p.sp.id === sid && alive(p) && !p._decor);
       const adults = ents.filter((p) => p._adult), young = ents.filter((p) => !p._adult);
-      const aT = g.adult ? showCount(g.adult, model.get(g.adult.id)) : 0;
+      const wT = g.white ? showCount(g.white, model.get(g.white.id)) : 0;   // sick ones (bleached corals): grown, but pale
+      const aT = (g.adult ? showCount(g.adult, model.get(g.adult.id)) : 0) + wT;
       const yT = g.young ? showCount(g.young, model.get(g.young.id)) : 0;
       let n = instant ? 99 : 2;
       // young ones that grew up become adults
@@ -148,12 +149,17 @@ export function createResearchSession(ctx) {
       }
       while (n > 0 && young.length > yT) { const p = young.pop(); p.die('old'); n--; }
       for (const p of young) if (p.growth > 0.5) p.growth = 0.5;   // a seedling stays small until it grows up in the model
+      if (g.white) {
+        // the first wT adults (in a stable order) are the sick ones: when the model says they recovered, they colour up again
+        adults.sort((a, b) => a.uid - b.uid).forEach((p, i) => { p.healthCap = i < wT ? 0.2 : null; });
+      }
     }
   }
 
   // ─────────────────────────────────────── research tools
   // a tool's kind says how it measures: 'nightcam' counts at night, 'daycam' (a field camera by a plant, `near`) counts
-  // right away by day, 'drone' flies over and counts, 'quadrat' counts what is on the ground. The kind defaults to the id.
+  // right away by day, 'drone' flies over and counts, 'quadrat' counts what is on the ground, 'probe' measures at once
+  // (a lab test, or a device such as the sensor buoy, `place`). The kind defaults to the id.
   const kindOf = (def) => def.kind || def.id;
   function useTool(id) {
     const def = C.tools.find((t) => t.id === id); if (!def) return;
@@ -179,6 +185,11 @@ export function createResearchSession(ctx) {
     } else if (kind === 'drone') {
       const chk = tools.check('drone', { x: 0, z: 0, y: 0 }); if (chk.ok) tools.use('drone', { x: 0, z: 0, y: 0 }, chk);
       measuring[id] = R.note(T('measuring'), { icon: def.icon });
+    } else if (kind === 'probe') {
+      // a measurement with no figure on the ground (a lab test), or a device placed by the plants (the sensor buoy)
+      if (def.place) placeDevice(def.place);
+      measuring[id] = R.note(T('measuring'), { icon: def.icon });
+      later(() => reveal(id), 1600);
     } else if (kind === 'quadrat') {
       const sage = W.plants.find((p) => alive(p) && p._adult) || W.plants.find(alive);
       const s = sage ? findSpotNear({ kind: 'herb', needs: {} }, sage.x, sage.z, 4) || { x: sage.x + 2, z: sage.z } : { x: 4, z: 4 };
@@ -212,7 +223,7 @@ export function createResearchSession(ctx) {
     if (measuring[toolId]) { R.dropNote(measuring[toolId]); measuring[toolId] = null; }
     const def = C.tools.find((t) => t.id === toolId);
     const kind = def ? kindOf(def) : toolId;
-    const head = kind === 'nightcam' ? T('camCounted') : kind === 'daycam' ? T('dayCamCounted') : kind === 'drone' ? T('droneCounted') : T('quadratCounted');
+    const head = kind === 'nightcam' ? T('camCounted') : kind === 'daycam' ? T('dayCamCounted') : kind === 'drone' ? T('droneCounted') : kind === 'probe' ? T('probeCounted') : T('quadratCounted');
     R.note(head, { icon: def && def.icon, counts: rows.map((b) => ({ name: b.name, value: shown(b), thumb: b.species ? thumbs[b.species] : null, icon: b.icon })) });
     audio.play('discover');
     R.setBoard(boardState());

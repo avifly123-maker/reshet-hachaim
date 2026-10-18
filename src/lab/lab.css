@@ -1,0 +1,137 @@
+/* ===================================================== מעבדת רובו־דע
+   The room is a Cycles render that fills the screen; the controls sit on it like labels in a museum: dark glass plates,
+   herbarium paper for the working panels (the microscope, the inventors table, the atlas), honey accents. */
+#ui.wol .lb { position: absolute; inset: 0; z-index: 40; display: none; pointer-events: none; }
+#ui.wol .lb.on { display: block; }
+#ui.wol .lb > * { pointer-events: auto; }
+#ui.wol .lb .lb-btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border: 0; border-radius: 22px; background: #fbf6e4; color: #2a1a0e; font: inherit; font-weight: 700; cursor: pointer; box-shadow: 0 3px 0 #c9b98a, 0 6px 16px rgba(0, 0, 0, .25); transition: transform .15s; }
+#ui.wol .lb .lb-btn:hover { transform: translateY(-2px); }
+#ui.wol .lb .lb-btn .ic { width: 18px; height: 18px; }
+#ui.wol .lb-top { position: absolute; top: 14px; right: 18px; left: 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; pointer-events: none; }
+#ui.wol .lb-top > * { pointer-events: auto; }
+#ui.wol .lb-title { padding: 8px 18px 10px; border-radius: 14px; background: rgba(14, 26, 20, .62); color: var(--chalk); text-align: center; backdrop-filter: blur(2px); }
+#ui.wol .lb-title small { color: var(--honey); font-size: .82em; letter-spacing: .03em; }
+#ui.wol .lb-title h1 { margin: 0; font-family: var(--serif); font-size: 1.55em; line-height: 1.05; }
+/* hotspots over the stations (home view) */
+#ui.wol .lb-hots { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .4s; }
+#ui.wol .lb-hots.on { opacity: 1; }
+#ui.wol .lb-hots.on .lb-hot { pointer-events: auto; }
+#ui.wol .lb-hot { position: absolute; transform: translate(-50%, -50%); display: flex; align-items: center; gap: 6px; padding: 6px 12px 6px 10px; border: 2px solid rgba(255, 236, 190, .85); border-radius: 20px; background: rgba(20, 34, 26, .72); color: #fff6dc; font: inherit; font-weight: 700; font-size: .92em; cursor: pointer; white-space: nowrap; box-shadow: 0 0 0 4px rgba(255, 214, 120, .18), 0 6px 18px rgba(0, 0, 0, .35); animation: lbPulse 2.8s ease-in-out infinite; }
+#ui.wol .lb-hot .ic { width: 18px; height: 18px; color: #ffd978; }
+#ui.wol .lb-hot:hover { background: rgba(40, 70, 50, .9); animation: none; transform: translate(-50%, -50%) scale(1.06); }
+@keyframes lbPulse { 0%, 100% { box-shadow: 0 0 0 4px rgba(255, 214, 120, .18), 0 6px 18px rgba(0, 0, 0, .35); } 50% { box-shadow: 0 0 0 9px rgba(255, 214, 120, .08), 0 6px 18px rgba(0, 0, 0, .35); } }
+/* the station bar */
+#ui.wol .lb-bar { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; padding: 6px; border-radius: 18px; background: rgba(14, 26, 20, .7); max-width: calc(100% - 24px); overflow-x: auto; }
+#ui.wol .lb-bar button { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 76px; padding: 6px 8px; border: 0; border-radius: 12px; background: transparent; color: #e8e2c8; font: inherit; font-size: .8em; cursor: pointer; }
+#ui.wol .lb-bar button .ic { width: 22px; height: 22px; }
+#ui.wol .lb-bar button.on { background: #fbf6e4; color: #2a1a0e; }
+#ui.wol .lb-bar button:hover:not(.on) { background: rgba(255, 255, 255, .1); }
+/* Robo-Da speaks: a bubble above his head */
+#ui.wol .lb-say { position: absolute; transform: translate(-50%, -100%); max-width: min(420px, 60vw); padding: 12px 16px; border-radius: 16px; background: #263440; color: #eaf6fa; font-size: 1.02em; line-height: 1.45; box-shadow: 0 8px 22px rgba(0, 0, 0, .35); pointer-events: none; }
+#ui.wol .lb-say::after { content: ''; position: absolute; bottom: -9px; left: 50%; margin-left: -9px; border: 9px solid transparent; border-bottom: 0; border-top-color: #263440; }
+#ui.wol .lb-say p { margin: 0; }
+#ui.wol .lb-say.pop { animation: lbPop .3s ease-out; }
+@keyframes lbPop { from { opacity: 0; transform: translate(-50%, -90%) scale(.92); } to { opacity: 1; transform: translate(-50%, -100%); } }
+/* panels */
+#ui.wol .lb-panels { position: absolute; inset: 0; pointer-events: none; }
+#ui.wol .lb-panel { position: absolute; inset: 72px 18px 86px; pointer-events: auto; border-radius: 18px; padding: 18px 22px; color: #2a1a0e; animation: lbIn .35s ease-out; overflow: auto; }
+@keyframes lbIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+#ui.wol .lb-panel h2 { margin: 0; font-family: var(--serif); font-weight: 900; font-size: 1.9em; }
+#ui.wol .lb-panel h3 { margin: 0 0 4px; font-family: var(--serif); font-size: 1.3em; }
+#ui.wol .lb-card { padding: 12px 14px; border-radius: 14px; background: #fbf6e4; box-shadow: 0 4px 0 #c9b98a; color: #2a1a0e; }
+#ui.wol .lb-card small { font-weight: 700; color: #1d6680; }
+#ui.wol .lb-card p { margin: 4px 0 6px; font-size: 1.05em; line-height: 1.45; }
+#ui.wol .lb-card.lb-found { background: #eaf6dc; box-shadow: 0 4px 0 #a8c48a; }
+#ui.wol .lb-card.lb-found small { color: #3a6a2a; }
+/* the microscope */
+#ui.wol .lb-scope { display: grid; grid-template-columns: minmax(220px, 300px) minmax(0, 1fr) minmax(220px, 280px); gap: 22px; align-items: center; background: radial-gradient(circle at 55% 50%, rgba(35, 64, 44, .96), rgba(12, 26, 18, .97) 72%); color: #f6eed0; }
+#ui.wol .lb-scope .lb-side { display: flex; flex-direction: column; gap: 12px; }
+#ui.wol .lb-scope h2 { color: #f6eed0; }
+#ui.wol .lb-scope h3 { color: #f6eed0; font-size: 1.15em; margin: 6px 0 0; }
+#ui.wol .lb-dots { display: flex; align-items: center; gap: 7px; }
+#ui.wol .lb-dots i { width: 22px; height: 22px; border-radius: 50%; border: 3px dashed #8a7a50; box-sizing: border-box; }
+#ui.wol .lb-dots i.on { border: 0; background: #4f8a3f; box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .2); }
+#ui.wol .lb-dots b { margin-inline-start: 6px; }
+#ui.wol .lb-eye-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; min-width: 0; }
+#ui.wol .lb-eye { position: relative; width: min(52vh, 100%); aspect-ratio: 1; border-radius: 50%; overflow: hidden; cursor: crosshair; background: #c9d6c0;
+  box-shadow: 0 0 0 14px #1c2328, 0 0 0 17px #4a5560, 0 22px 50px rgba(0, 0, 0, .6); }
+#ui.wol .lb-eye svg { position: absolute; inset: 0; width: 100%; height: 100%; transition: filter .15s; }
+#ui.wol .lb-eye-marks { pointer-events: none; }
+#ui.wol .lb-eye-vig { position: absolute; inset: 0; border-radius: 50%; box-shadow: inset 0 0 70px rgba(0, 0, 0, .7); pointer-events: none; }
+#ui.wol .lb-mark { animation: lbMark .45s ease-out; transform-box: fill-box; transform-origin: center; }
+@keyframes lbMark { from { transform: scale(1.6); opacity: 0; } to { transform: none; opacity: 1; } }
+#ui.wol .lb-zooms { display: flex; gap: 10px; }
+#ui.wol .lb-zooms button, #ui.wol .lb-tray button, #ui.wol .lb-choices button { border-radius: 20px; border: 2px solid #8a9aa6; background: transparent; color: #f6eed0; font: inherit; font-weight: 700; padding: 8px 18px; cursor: pointer; }
+#ui.wol .lb-zooms button.on { background: #e0a43a; border-color: #e0a43a; color: #2a1a0e; }
+#ui.wol .lb-focus { display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 1.05em; }
+#ui.wol .lb-focus input { width: 100%; accent-color: #e0a43a; height: 26px; }
+#ui.wol .lb-tray { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+#ui.wol .lb-tray button { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px; border-radius: 12px; background: #fbf6e4; color: #2a1a0e; border: 2px solid #c9b98a; font-weight: 600; font-size: .88em; }
+#ui.wol .lb-tray button img { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; }
+#ui.wol .lb-tray button.on { border: 3px solid #e0a43a; }
+#ui.wol .lb-tray button.done { background: #eaf6dc; }
+#ui.wol .lb-locked { grid-column: span 2; padding: 8px; border-radius: 12px; border: 2px dashed #8a7a50; color: #d8cfa8; font-size: .85em; text-align: center; }
+/* the inventors table */
+#ui.wol .lb-inv { background: linear-gradient(180deg, rgba(138, 90, 50, .97), rgba(107, 68, 34, .97)); display: flex; flex-direction: column; gap: 14px; }
+#ui.wol .lb-inv header { display: flex; align-items: center; gap: 16px; color: #fbf6e4; }
+#ui.wol .lb-inv header h2 { color: #fbf6e4; }
+#ui.wol .lb-inv header p { flex: 1; margin: 0; color: #f0dfb8; }
+#ui.wol .lb-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+#ui.wol .lb-steps li { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 12px; background: rgba(251, 246, 228, .5); }
+#ui.wol .lb-steps li span { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #8a7a50; color: #fbf6e4; font-weight: 700; }
+#ui.wol .lb-steps li.done { background: #fbf6e4; } #ui.wol .lb-steps li.done span { background: #2c4f26; }
+#ui.wol .lb-steps li.on { background: #e0a43a; } #ui.wol .lb-steps li.on span { background: #2a1a0e; }
+#ui.wol .lb-cols { flex: 1; display: grid; grid-template-columns: minmax(200px, 280px) minmax(0, 1fr) minmax(220px, 300px); gap: 16px; min-height: 0; }
+#ui.wol .lb-cols > section { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+#ui.wol .lb-red { color: #a0402a !important; }
+#ui.wol .lb-pick { display: flex; gap: 10px; align-items: center; }
+#ui.wol .lb-pick img { width: 72px; height: 72px; border-radius: 12px; object-fit: cover; }
+#ui.wol .lb-pick b { display: block; font-family: var(--serif); font-size: 1.2em; }
+#ui.wol .lb-board { flex: 1; display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 14px; background: #fbf6e4; box-shadow: 0 4px 0 #c9b98a; }
+#ui.wol .lb-board .lb-big { font-size: 1.15em; line-height: 1.5; margin: 0; }
+#ui.wol .lb-board.lb-blue { background: #e9eef6; background-image: linear-gradient(rgba(60, 110, 170, .14) 1px, transparent 1px); background-size: 100% 22px; box-shadow: 0 4px 0 #9fb0c8; }
+#ui.wol .lb-board.lb-patent { border: 3px dashed #e0a43a; }
+#ui.wol .lb-board.lb-patent small { font-weight: 700; color: #8a5a12; }
+#ui.wol .lb-creatures { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+#ui.wol .lb-creatures button { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px; border-radius: 14px; border: 2px solid #c9b98a; background: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+#ui.wol .lb-creatures button:hover { border-color: #4f8a3f; transform: translateY(-2px); }
+#ui.wol .lb-creatures img { width: 84px; height: 84px; border-radius: 12px; object-fit: cover; }
+#ui.wol .lb-sketch { width: 100%; max-height: 190px; }
+#ui.wol .lb-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+#ui.wol .lb-choices button { color: #1a3a66; border-color: #9fb0c8; background: #fff; font-size: .95em; }
+#ui.wol .lb-choices button.on { border: 3px solid #2f5f9a; background: #dbe8f6; }
+#ui.wol .lb-test-box { padding: 14px; border-radius: 14px; background: #263440; color: #e7f2f8; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 4px 0 #111a20; }
+#ui.wol .lb-test-box b { font-family: var(--serif); font-size: 1.2em; }
+#ui.wol .lb-tank { width: 100%; }
+#ui.wol .lb-tank.run .lb-flow { animation: lbFlow .6s linear infinite; }
+@keyframes lbFlow { to { stroke-dashoffset: -18; } }
+#ui.wol .lb-row { display: flex; justify-content: space-between; gap: 8px; font-size: .92em; }
+#ui.wol .lb-row .good { color: #8fd067; font-weight: 700; } #ui.wol .lb-row .bad { color: #ff9a7a; }
+#ui.wol .lb-meter { height: 10px; border-radius: 6px; background: #3c4f5c; }
+#ui.wol .lb-meter i { display: block; height: 100%; border-radius: 6px; background: #9fb4c4; } #ui.wol .lb-meter i.good { background: #8fd067; } #ui.wol .lb-meter i.bad { background: #e0786a; }
+#ui.wol .lb-test-box small { color: #9fd8ff; }
+/* the atlas */
+#ui.wol .lb-atlas { background: linear-gradient(180deg, rgba(251, 246, 228, .97), rgba(239, 230, 200, .97)); display: flex; flex-direction: column; gap: 14px; }
+#ui.wol .lb-atlas header { display: flex; align-items: center; gap: 16px; } #ui.wol .lb-atlas header p { flex: 1; margin: 0; }
+#ui.wol .lb-a-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+#ui.wol .lb-a-card { display: flex; gap: 12px; padding: 12px; border-radius: 14px; background: #fff; box-shadow: 0 3px 0 #d8c79a; }
+#ui.wol .lb-a-card.dim { opacity: .7; }
+#ui.wol .lb-a-card img { width: 86px; height: 86px; border-radius: 50%; object-fit: cover; border: 4px solid #fff; box-shadow: 0 2px 8px rgba(0, 0, 0, .2); }
+#ui.wol .lb-a-card b { font-family: var(--serif); font-size: 1.2em; color: #2c4f26; }
+#ui.wol .lb-a-card p { margin: 6px 0 0; font-size: .92em; line-height: 1.4; }
+#ui.wol .lb-stamps { display: flex; gap: 6px; margin-top: 4px; }
+#ui.wol .lb-stamps span { padding: 2px 8px; border-radius: 8px; border: 2px dashed #b9a77a; color: #8a7a50; font-size: .8em; font-weight: 700; }
+#ui.wol .lb-stamps span.on.z { border: 2px solid #8a5ab8; background: #f0e8f8; color: #5a3a88; transform: rotate(-3deg); }
+#ui.wol .lb-stamps span.on.i { border: 2px solid #e0a43a; background: #fff3d8; color: #8a5a12; transform: rotate(2deg); }
+@media (max-width: 1100px), (max-height: 680px) {
+  #ui.wol .lb-scope, #ui.wol .lb-cols { grid-template-columns: 1fr; }
+  #ui.wol .lb-panel { inset: 64px 8px 80px; }
+  #ui.wol .lb-eye { width: min(46vh, 80vw); }
+}
+#ui.wol .lb-say .lb-face { display: none; }
+#ui.wol .lb-say.dock { left: auto !important; right: 26px; top: auto !important; bottom: 96px; transform: none; display: flex; align-items: center; gap: 12px; max-width: min(520px, 46vw); z-index: 3; }
+#ui.wol .lb-say.dock::after { display: none; }
+#ui.wol .lb-say.dock.pop { animation: lbPopD .3s ease-out; }
+@keyframes lbPopD { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+#ui.wol .lb-say.dock .lb-face { display: block; flex: 0 0 auto; width: 54px; height: 54px; border-radius: 50%; background: radial-gradient(circle at 50% 40%, #f6f4ee 0 58%, #2c9a92 59% 64%, #f6f4ee 65%); box-shadow: inset 0 -4px 0 rgba(0, 0, 0, .12);
+  background-image: radial-gradient(ellipse 7px 10px at 38% 44%, #8ff2ff 60%, transparent 62%), radial-gradient(ellipse 7px 10px at 62% 44%, #8ff2ff 60%, transparent 62%), radial-gradient(ellipse 22px 16px at 50% 50%, #0a1016 96%, transparent 100%), radial-gradient(circle, #f6f4ee 0 70%, #2c9a92 71%); }

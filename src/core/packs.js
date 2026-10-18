@@ -1,6 +1,7 @@
 // Packs: the parts of the game that only some screens need, loaded on demand.
 //   zone packs  – 'amazon', 'grove', 'reef' (src/packs/<id>.js): a zone's content + species models
 //   'hub'       – the learning hub and its card games (src/packs/hub.js)
+//   'lab'       – the lab of רובו־דע in the science centre (src/packs/lab.js)
 // Desktop build (node build.mjs --desktop): every pack is its own ES module file next to core.js and import() fetches
 // it over the app:// protocol the first time it is asked for. Single-file build (node build.mjs): esbuild inlines the
 // packs into the one HTML file and import() just runs the inlined module – the same code path, resolved at once.
@@ -17,6 +18,7 @@ const LOADERS = {
   grove: () => import('../packs/grove.js'),
   reef: () => import('../packs/reef.js'),
   hub: () => import('../packs/hub.js'),
+  lab: () => import('../packs/lab.js'),
 };
 
 const pending = new Map();   // name → Promise<module>

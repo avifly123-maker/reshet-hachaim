@@ -34,6 +34,7 @@ const readCss = (fontsCss) => {
   if (fs.existsSync('src/ui/fonts.css')) css += fontsCss ? fontsCss(fs.readFileSync('src/ui/fonts.css', 'utf8')) : fs.readFileSync('src/ui/fonts.css', 'utf8');
   if (fs.existsSync('src/ui/style.css')) css += fs.readFileSync('src/ui/style.css', 'utf8');
   if (fs.existsSync('src/research/research.css')) css += fs.readFileSync('src/research/research.css', 'utf8');   // חוקרי היער
+  if (fs.existsSync('src/lab/lab.css')) css += fs.readFileSync('src/lab/lab.css', 'utf8');   // מעבדת רובו־דע
   return css;
 };
 const MB = (n) => (n / 1024 / 1024).toFixed(2) + ' MB';
@@ -87,7 +88,7 @@ async function buildDesktop(outdir) {
   };
   // The generated picture tables (src/data/*.js written by tools/build-*.py) hold base64 data URIs; in the desktop build
   // each module is replaced by the same table with file paths, so a picture costs nothing until something shows it.
-  const ASSET_MODULES = /[\\/]src[\\/]data[\\/](panorama|ground-textures|card-art|thumbs|island-art|tree-shadow|logo|pack-art|source-art)\.js$/;
+  const ASSET_MODULES = /[\\/]src[\\/]data[\\/](panorama|ground-textures|card-art|thumbs|island-art|tree-shadow|logo|pack-art|source-art|lab-art)\.js$/;
   const assetPlugin = {
     name: 'asset-files',
     setup(b) {

@@ -9,8 +9,8 @@ import { RESEARCH_NAME } from './texts.js';
 // what comes next (design: the research centre plan, 2026-10-15): shown greyed, so the child sees the world is bigger
 const SOON = {
   kids: [{ title: 'אֵיפֹה הַצְּפַרְדְּעִים?', zone: 'amazon' }],
-  middle: [{ title: 'המלכודת', zone: 'grove' }, { title: 'החורש שלא מתחדש', zone: 'grove' }, { title: 'הנמלים שאכלו את היער', zone: 'amazon' }],
-  advanced: [{ title: 'האלמוג הלבן', zone: 'reef' }, { title: 'היער שנשאר בלי טורפים', zone: 'amazon' }, { title: 'אש בקיץ', zone: 'grove' }, { title: 'הצבאים נעלמים', zone: 'grove' }],
+  middle: [{ title: 'החורש שלא מתחדש', zone: 'grove' }, { title: 'הנמלים שאכלו את היער', zone: 'amazon' }],
+  advanced: [{ title: 'היער שנשאר בלי טורפים', zone: 'amazon' }, { title: 'אש בקיץ', zone: 'grove' }, { title: 'הצבאים נעלמים', zone: 'grove' }],
 };
 const LEVELS = [
   { id: 'kids', name: 'מתחילים', sub: 'סיבה אחת, רמזים, מנוקד', ic: 'sprout' },
@@ -19,7 +19,7 @@ const LEVELS = [
 ];
 const ZONE_NAME = { grove: 'החורש', amazon: 'האמזונס', reef: 'השונית' };
 
-export function createResearchHub(root, { onPick, onClose }) {
+export function createResearchHub(root, { onPick, onClose, onLab }) {
   const el = document.createElement('div');
   el.className = 'rs-hub';
   root.appendChild(el);
@@ -41,10 +41,11 @@ export function createResearchHub(root, { onPick, onClose }) {
         </div></section>`;
       }).join('')}
       <section class="rs-h-level rs-h-lab"><h2>${icon('flask')}<span>מעבדת החוקרים</span><small>רובו־דע מחכה לכם: מיקרוסקופ, שולחן ממציאים ואטלס</small></h2>
-        <div class="rs-h-cases"><div class="rs-h-case soon"><div class="rs-h-body"><b>המעבדה של רובו־דע</b><p>בקרוב</p></div></div></div></section>
+        <div class="rs-h-cases"><button class="rs-h-case rs-h-labgo"><div class="rs-h-body"><b>המעבדה של רובו־דע</b><p>מגדילים במיקרוסקופ, ממציאים בעזרת הטבע, ומשדרגים את הכלים בסביבות.</p></div></button></div></section>
       </div>`;
     el.querySelector('.rs-h-back').addEventListener('click', close);
     el.querySelectorAll('[data-case]').forEach((b) => b.addEventListener('click', () => { close(); onPick(b.dataset.case); }));
+    const lab = el.querySelector('.rs-h-labgo'); if (lab) lab.addEventListener('click', () => { close(); onLab && onLab(); });
   }
   function open() { render(); el.classList.add('on'); }
   function close() { if (!el.classList.contains('on')) return; el.classList.remove('on'); onClose && onClose(); }
