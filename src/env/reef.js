@@ -11,6 +11,7 @@ import * as THREE from 'three';
 import { REEF_ROCKS, REEF_DECOR } from '../models/reef-plants.js';
 import { GROUND_TEX } from '../data/ground-textures.js';
 import { PANO } from '../data/panorama.js';
+import { REEF_BACKDROP } from '../data/reef-backdrop.js';
 import { makeRng, makeNoise2D, clamp, lerp, smoothstep, damp } from '../core/util.js';
 
 const R = 38;            // placeable radius (contract)
@@ -238,7 +239,19 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
     }
     g.setAttribute('color', new THREE.Float32BufferAttribute(colA, 3));
     g.computeVertexNormals();
-    const base = new THREE.Mesh(g, track(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1, flatShading: true })));
+    // a reef wall picture (Blender, tools/blender/reef_seabed.py) wrapped round the upper part of the base: corals, sea fans
+    // and sponges on the rock instead of plain layers; the vertex colours then only darken it with depth
+    const wallUrl = REEF_BACKDROP && REEF_BACKDROP.wall;
+    let baseMat;
+    if (wallUrl) {
+      const wt = track(new THREE.TextureLoader().load(wallUrl)); wt.colorSpace = THREE.SRGBColorSpace; wt.flipY = false;
+      wt.wrapS = THREE.RepeatWrapping; wt.wrapT = THREE.ClampToEdgeWrapping; wt.repeat.set(6, 1 / 0.72); wt.anisotropy = 4;
+      const ca = g.attributes.color, cc = new THREE.Color(), deepC = new THREE.Color('#2a4a5a');
+      for (let i = 0; i < p.count; i++) { const d = clamp((BOTTOM - p.getY(i)) / 26); cc.setRGB(1, 1, 1).lerp(deepC, smoothstep(0.45, 1.0, d)); ca.setXYZ(i, cc.r, cc.g, cc.b); }
+      ca.needsUpdate = true;
+      baseMat = new THREE.MeshStandardMaterial({ map: wt, vertexColors: true, roughness: 0.95 });
+    } else baseMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1, flatShading: true });
+    const base = new THREE.Mesh(g, track(baseMat));
     base.castShadow = true; base.receiveShadow = true; base.name = 'reef-base';
     root.add(base);
   }
@@ -359,7 +372,10 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
     let n = 0; const done = () => { if (++n === 2) skyU.uPanoOn.value = 1; };
     skyU.uPano.value = cfg(ld.load(pano.img, done), true);
     skyU.uPanoMist.value = cfg(ld.load(pano.mist, done), false);
-    skyU.uPanoLat.value.set(pano.lat[0] * Math.PI / 180, pano.lat[1] * Math.PI / 180);
+    // the mountains drawn lower and flatter than in the render (Avi, 18.10: they rose high above the island and were cut
+    // off at the top of the screen); the shore line stays on the horizon
+    const SQ = 0.45;
+    skyU.uPanoLat.value.set(pano.lat[0] * SQ * Math.PI / 180, pano.lat[1] * SQ * Math.PI / 180);
     skyU.uPanoHazeSrc.value.setRGB(pano.haze[0], pano.haze[1], pano.haze[2]);
     skyU.uPanoRot.value = pano.rot || 0;
   }
@@ -379,7 +395,7 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
           float pv = (asin(clamp(y, -1.0, 1.0)) - uPanoLat.x) / (uPanoLat.y - uPanoLat.x);
           if (pv > 0.0 && pv < 1.0) {
             vec2 puv = vec2(fract(atan(vD.z, vD.x) / 6.2831853 + 0.5 + uPanoRot), pv);
-            vec4 pc = texture2D(uPano, puv); float m = texture2D(uPanoMist, puv).r * 0.85;
+            vec4 pc = texture2D(uPano, puv); float m = texture2D(uPanoMist, puv).r * 0.6;
             vec3 land = (max(pc.rgb - uPanoHazeSrc * m, 0.0) + uHor * m) * mix(1.0, 0.22, uNight);
             c = mix(c, land, pc.a * smoothstep(0.0, 0.06, pv));
           }
@@ -391,7 +407,33 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
   const sky = new THREE.Mesh(skyGeo, skyMat); sky.renderOrder = -10; sky.frustumCulled = false; root.add(sky);
   // the sea of mist the island floats over
   const mistGeo = track(new THREE.CircleGeometry(460, 48)); mistGeo.rotateX(-Math.PI / 2);
-  const mistMat = track(new THREE.MeshBasicMaterial({ color: '#dfeef5', transparent: true, opacity: 0.92, depthWrite: false, fog: true }));
+  // below the island: the sea floor seen through clear water (a Blender render from above), with moving caustics,
+  // fading to deep blue far away; without the picture, the sea of mist of the other zones
+  const seaUrl = REEF_BACKDROP && REEF_BACKDROP.seabed;
+  const mistMat = seaUrl ? (() => {
+    const st = track(new THREE.TextureLoader().load(seaUrl)); st.colorSpace = THREE.SRGBColorSpace; st.anisotropy = 4;
+    return track(new THREE.ShaderMaterial({
+      uniforms: { tSea: { value: st }, uTime: U.uTime, uNight: U.uNight, uMurk: U.uMurk, uDeep: { value: new THREE.Color('#0d4f78') }, uFar: { value: new THREE.Color('#5fb8d0') } },
+      depthWrite: false,
+      vertexShader: /* glsl */`varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position,1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }`,
+      fragmentShader: /* glsl */`uniform sampler2D tSea; uniform float uTime, uNight, uMurk; uniform vec3 uDeep, uFar; varying vec3 vW;
+        void main(){
+          vec2 uv = vW.xz / 300.0 + 0.5; uv.y = 1.0 - uv.y;
+          float r = length(vW.xz);
+          vec3 c = texture2D(tSea, uv).rgb;
+          // light dancing on the sand
+          float k = sin(vW.x * 0.21 + uTime * 0.9) * sin(vW.z * 0.19 - uTime * 0.7) + sin((vW.x + vW.z) * 0.13 + uTime * 0.5);
+          c *= 1.0 + 0.10 * smoothstep(0.6, 1.6, k);
+          c = mix(c, uDeep, 0.28);                                   // seen through some metres of water
+          c *= mix(0.62, 1.0, smoothstep(30.0, 70.0, r));            // the island's shadow right below it
+          c = mix(c, vec3(0.42, 0.38, 0.22), uMurk * 0.45);
+          float far = smoothstep(115.0, 150.0, r);                   // beyond the picture: open water
+          c = mix(c, uFar, far);
+          c *= mix(1.0, 0.22, uNight);
+          gl_FragColor = vec4(c, 1.0);
+        }`,
+    }));
+  })() : track(new THREE.MeshBasicMaterial({ color: '#dfeef5', transparent: true, opacity: 0.92, depthWrite: false, fog: true }));
   const mist = new THREE.Mesh(mistGeo, mistMat); mist.position.y = -34; mist.renderOrder = -5; root.add(mist);
 
   const sunLight = new THREE.DirectionalLight(0xffffff, 3);

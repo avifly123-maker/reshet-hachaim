@@ -25,6 +25,7 @@ import { badgeHTML, BADGE_CSS } from '../ui/badge-art.js';
 import { mountWebPuzzle } from './games/web-puzzle.js';
 import { mountKeepForest } from './games/keep-forest.js';
 import { mountInventors } from './games/inventors.js';
+import { mountExpedition } from './games/expedition.js';
 import { RELATION_TYPES, DIET_VERBS, gw, activeNameFor, ALIASES, defName } from '../data/common.js';
 import { key as profileKey, current as currentPlayer } from '../core/profiles.js';
 import { avatarHTML } from '../ui/avatars.js';
@@ -1283,8 +1284,8 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   }
 
   /* ── navigation */
-  const PARENT = { home: null, setup: 'home', quiz: 'setup', end: 'home', album: 'home', pack: 'album', duel: 'album', webpuzzle: 'home', keepforest: 'home', inventors: 'home', badges: 'home' };
-  const TITLES = { home: '', setup: 'חידון', quiz: 'חידון', end: 'חידון', album: 'אלבום הקלפים', pack: 'פתיחת חבילה', duel: 'מי חזק ברשת?', webpuzzle: 'חוט הקשר', keepforest: 'מחזיקים את היער', inventors: 'הממציאים', badges: 'התגים שלי' };
+  const PARENT = { home: null, setup: 'home', quiz: 'setup', end: 'home', album: 'home', pack: 'album', duel: 'album', webpuzzle: 'home', keepforest: 'home', inventors: 'home', expedition: 'home', badges: 'home' };
+  const TITLES = { home: '', setup: 'חידון', quiz: 'חידון', end: 'חידון', album: 'אלבום הקלפים', pack: 'פתיחת חבילה', duel: 'מי חזק ברשת?', webpuzzle: 'חוט הקשר', keepforest: 'מחזיקים את היער', inventors: 'הממציאים', expedition: 'משלחת לעומק', badges: 'התגים שלי' };
   /* ── card mini-games (each lives in ./games/*.js and gets this context) */
   let MODE = 'full';
   const readMode = () => { try { MODE = window.localStorage.getItem(profileKey('web-of-life-mode')) || 'full'; } catch (e) { MODE = MODE || 'full'; } };
@@ -1307,7 +1308,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     exit: () => go('home'), toAlbum: () => go('album'), root: () => el,
     badge: (earn) => grantBadge(earn), tally: (key, add) => badgeTally(key, add), hasBadge: (id) => hasBadge(id),
   };
-  const GAMES = { webpuzzle: mountWebPuzzle, keepforest: mountKeepForest, inventors: mountInventors };
+  const GAMES = { webpuzzle: mountWebPuzzle, keepforest: mountKeepForest, inventors: mountInventors, expedition: mountExpedition };
   let gameInst = null;
   function go(name, opts = {}) {
     clearTimers(); closeModal();
@@ -1376,6 +1377,10 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
         <button class="wl-tile game paper" data-wl="game" data-g="inventors">
           <div class="wl-tart wl-gart">${['reef:reefshark', 'grove:owl', 'amazon:hummingbird'].map((id) => CARD.get(id)).filter(Boolean).map((c) => cardHTML(c)).join('')}</div>
           <div class="wl-tbody"><h2>הממציאים</h2><p>פותרים בעיות אמיתיות בעזרת היצורים שלכם, ובונים רובוטים מצחיקים. מותר לטעות!</p></div>
+        </button>
+        <button class="wl-tile game paper" data-wl="game" data-g="expedition">
+          <div class="wl-tart wl-gart">${['reef:octopus', 'reef:turtle', 'tool:rov'].map((id) => CARD.get(id)).filter(Boolean).map((c) => cardHTML(c)).join('')}</div>
+          <div class="wl-tbody"><h2>משלחת לעומק</h2><p>צוות של ארבעה קלפים צולל לשונית. בכל אתגר בוחרים מי מתמודד, ומחליטים: לרדת עוד או לחזור עם הדגימות.</p></div>
         </button>
       </div>
       <button class="wl-badgetile paper" data-wl="badges"><span class="wl-bt-row">${BADGES.filter((b) => ownedBadges()[b.id]).slice(-4).map((b) => badgeHTML(b)).join('') || BADGES.slice(0, 3).map((b) => badgeHTML(b, { own: false })).join('')}</span>

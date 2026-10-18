@@ -74,6 +74,18 @@ Stage 1 done: engine, research centre, mystery 1 "יותר מדי קוצנים" 
 - docs/CANDIDATES-1.2.md lists which of these may go to 1.2.x later (not applied there yet).
 - The research hub needs `pointer-events: auto` (#ui is pointer-events none): without it clicks fell through to the start screen below and opened a building game.
 
+## Second 1.3.0 test build (19.10): badges, two new games, open mysteries, the reef's surroundings
+
+- **Badges (תגים)** replace card packs as the prize for new things (Avi, 18.10: packs are not the prize; badges, frames, stickers). `src/data/badges.js` (groups, 27 badges, `earn` keys `mission:<id>` / `inv:` / `deep:` / `lab:` / `research:`, album FRAMES), `src/core/badges-store.js` (per player, `web-of-life-badges`, `grant(earn)` fires a `wol-badge` event), `src/ui/badge-art.js` (the medallion around a card painting), `src/ui/badge-toast.js` (drop-in announcement). Hub: "התגים שלי" screen, frames on album cards (`fr-<frame>`); hub games get `ctx.badge`, `ctx.tally`, `ctx.hasBadge`.
+- **Expert missions:** 4 per zone (`ax1-4`, `gx1-4`, `rx1-4`, `expert: true`, goal type `all`), full level only, after the regular chain; each gives its badge and no pack.
+- **הממציאים** (`src/learn/games/inventors.js`, data `src/data/inventions.js`): 14 real bio-inspired problems, a slot or two of the player's cards, funny flops with gendered lines `{m|f|mp|fp}`, hints after failures, a robot workshop (body + two traits, five trials). The lab's inventors table opens it (`createLab({ openGame })`). Debug `window.__ivDebug`.
+- **משלחת לעומק** (`src/learn/games/expedition.js`, data `src/data/expedition.js`): a push-your-luck dive with a team of four cards; badges only, no packs. Debug `window.__exDebug`.
+- Both games' CSS rewrite `.wol-learn` to `#wol-learn.wol-learn` (the hub's id-weighted rules win otherwise).
+- **Open mysteries** (middle and advanced only): `mainFix` and other ways that heal, surprises (`surprises()`), an experiment log, "לנסות מחדש" that keeps measurements; validate-research requires at least one other way at every season length. See docs/RESEARCH.md (sandbox section).
+- **The lab:** a conversation with רובו־דע (`openTalk`, FACTS, JOKES), nine microscope samples, `lab:scope` badge.
+- **The reef's surroundings:** `tools/blender/reef_seabed.py` (Blender, the reef's own coral models) renders `reef/seabed_top.png` (300 m of sea floor from above: sand, sea grass, a fringing reef, an old wreck without masts) and `reef/coralwall.png` (a tiling reef wall); `tools/build-reef-backdrop.py` packs them into `src/data/reef-backdrop.js`; `src/env/reef.js` lays the floor under the island (a shader with caustics and the island's shadow) and wraps the wall round the island's base. The Eilat panorama is drawn at 45% of its height (`SQ`).
+- Start screen, learn tab: nine buttons including the two games and the badges.
+
 ## The lab of רובו־דע (1.3.0, branch claude/research-1.3)
 
 Plan and Avi's decisions: `docs/LAB.md` (Hebrew). Code: `src/lab/` (pack `lab`, entered from המרכז המדעי in the research hub; main.js draws it while open).

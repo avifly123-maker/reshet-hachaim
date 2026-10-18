@@ -366,6 +366,9 @@ export function createUI(root, bus) {
             <button data-learn="duel">${icon('versus')}<span><b>מי חזק ברשת?</b><small>קלף מול קלף</small></span></button>
             <button data-learn="keepforest">${icon('tree')}<span><b>מחזיקים את היער</b><small>משחק קלפים ואירועים</small></span></button>
             <button data-learn="webpuzzle">${icon('web')}<span><b>חוט הקשר</b><small>מחברים את הרשת</small></span></button>
+            <button data-learn="inventors">${icon('bulb')}<span><b>הממציאים</b><small>פותרים בעיות בעזרת הטבע</small></span></button>
+            <button data-learn="expedition">${icon('drop')}<span><b>משלחת לעומק</b><small>צוללים עם הקלפים לשונית</small></span></button>
+            <button data-learn="badges">${icon('sparkle')}<span><b>התגים שלי</b><small>תגים ומסגרות לקלפים</small></span></button>
           </div>
         </div>
       </section>
