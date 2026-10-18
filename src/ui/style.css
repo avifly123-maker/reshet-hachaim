@@ -1227,3 +1227,6 @@
   #ui.wol .st-info h2 { font-size: 1.7em; } #ui.wol .st-go { margin-top: 4px; padding-block: .45em; }
 }
 @media (prefers-reduced-motion: reduce) { #ui.wol .st-isl img { animation: none; } }
+/* the side islands lean back in 3D and could reach over the level switch: keep the controls on top */
+#ui.wol .st-pane .st-modes, #ui.wol .st-info, #ui.wol .st-dots { position: relative; z-index: 6; }
+#ui.wol .st-car { z-index: 1; }

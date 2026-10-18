@@ -54,7 +54,7 @@ const ICONS = {
   plus: sv('<path d="M12 5v14M5 12h14"/>'),
   minus: sv('<path d="M5 12h14"/>'),
   compass: sv('<circle cx="12" cy="12" r="9" stroke-width="2"/><path d="M12 6.5l2.2 5.5L12 17.5 9.8 12z" fill="currentColor" stroke-width="1.4"/>'),
-  fold: sv('<path d="M7 7l10 10M17 7L7 17" stroke-width="2.2"/>'),
+  fold: sv('<circle cx="12" cy="12" r="7.5" stroke-width="2"/><path d="M8.5 12h7" stroke-width="2.2"/>'),
 };
 // visual order left → right (spatial controls stay spatial even in an RTL page)
 const GROUPS = [

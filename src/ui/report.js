@@ -11,7 +11,7 @@ const pct = (v) => Math.round((+v || 0) * 100);
 // two-tone ink icons, same drawing language as ui.js (soft fill .f under a hand-weight outline)
 const I = {
   notebook: '<path class="f" d="M6 3.5h12a1.5 1.5 0 0 1 1.5 1.5v14a1.5 1.5 0 0 1-1.5 1.5H6z"/><path d="M6 3.5h12a1.5 1.5 0 0 1 1.5 1.5v14a1.5 1.5 0 0 1-1.5 1.5H6z"/><path d="M4 7h4M4 12h4M4 17h4"/><path d="M10.5 8.5h6M10.5 12h6M10.5 15.5h4"/>',
-  close: '<path d="M6 6l12 12M18 6L6 18"/>',
+  close: '<circle cx="12" cy="12" r="8"/><path d="M8.2 12h7.6"/>',
   prev: '<path d="M9 5l7 7-7 7"/>',
   next: '<path d="M15 5l-7 7 7 7"/>',
   print: '<path class="f" d="M5 10h14a2 2 0 0 1 2 2v5h-3v3H6v-3H3v-5a2 2 0 0 1 2-2z"/><path d="M7 10V4h10v6"/><path d="M5 10h14a2 2 0 0 1 2 2v5h-3M6 17H3v-5a2 2 0 0 1 2-2"/><path d="M6 14h12v6H6z"/>',

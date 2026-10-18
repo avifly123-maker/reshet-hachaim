@@ -118,7 +118,7 @@ const IC = {
   back: sv('<path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'),
   next: sv('<path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'),
   check: sv('<path d="M4.5 12.5l4.8 4.8L19.5 7" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'),
-  cross: sv('<path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/>'),
+  cross: sv('<circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2.4" fill="none"/><path d="M8 12h8" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/>'),   // "wrong": no X anywhere
   quest: sv('<circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M9 9.2a3 3 0 1 1 4.4 2.7c-1 .5-1.4 1.1-1.4 2.2v.6" stroke="#fff" stroke-width="2.3" fill="none" stroke-linecap="round"/><circle cx="12" cy="18" r="1.4" fill="#fff"/>'),
   cards: sv('<rect x="3" y="5.5" width="11" height="15" rx="2" fill="currentColor" opacity=".55" transform="rotate(-8 8.5 13)"/><rect x="9.5" y="3.5" width="11" height="15" rx="2" fill="currentColor" transform="rotate(7 15 11)"/>'),
   versus: sv('<rect x="2.5" y="5" width="8.5" height="12" rx="1.8" fill="currentColor" opacity=".6"/><rect x="13" y="7" width="8.5" height="12" rx="1.8" fill="currentColor"/><path d="M12.6 2.5l-2 5h2.4l-1.8 5" stroke="#f0b44c" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'),

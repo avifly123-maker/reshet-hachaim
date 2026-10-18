@@ -65,6 +65,15 @@ Design: `docs/RESEARCH.md` (Hebrew). Proposed 1.3 development map (mysteries, th
 
 Stage 1 done: engine, research centre, mystery 1 "יותר מדי קוצנים" end to end. Built since: two more beginner, two middle (Brazil nut, cleaning station) and two advanced mysteries (white-coral, the-trap; המלכודת moved from middle to advanced). Next: middle (החורש שלא מתחדש, הנמלים שאכלו את היער) and advanced (היער שנשאר בלי טורפים, אש בקיץ, הצבאים נעלמים).
 
+## Start screen and play changes (1.3.0 test build, 18.10)
+
+- The start screen has three tabs (src/ui/ui.js `renderStart`): סביבות משחק (level switch + a carousel of the three islands: `ISLAND_ART.c_<zone>` are transparent stills made by `tools/render-island.py`, the island rendered over black and over white), המרכז המדעי (חוקרי היער, the lab: `ui:lab` opens it straight from the start, and leaving goes back to the start), מרכז הלמידה (`ui:learn` with `{screen}` opens the hub on that screen through `hub.go`).
+- A clicked plant can be moved or uprooted (half the price back, two-step confirm) and a clicked animal let go (game.js `oneInfo`, `uproot`, `startMove`; ui.js `oneHTML`). Walking animals steer round trunks and shrubs (animals.js `steerAround`, `pushOutOfTrunks`).
+- Packs: earned without limit, opened at most `OPEN_PER_DAY` (6) a day (hub.js, `S.opened`). Torah edition: source cards are part of the album's count and of the "הכול" page.
+- No cross shapes: the close icon is a circle with a bar, the plus icon stops at the bar, multiplication signs became "פי".
+- docs/CANDIDATES-1.2.md lists which of these may go to 1.2.x later (not applied there yet).
+- The research hub needs `pointer-events: auto` (#ui is pointer-events none): without it clicks fell through to the start screen below and opened a building game.
+
 ## The lab of רובו־דע (1.3.0, branch claude/research-1.3)
 
 Plan and Avi's decisions: `docs/LAB.md` (Hebrew). Code: `src/lab/` (pack `lab`, entered from המרכז המדעי in the research hub; main.js draws it while open).
@@ -75,11 +84,11 @@ Plan and Avi's decisions: `docs/LAB.md` (Hebrew). Code: `src/lab/` (pack `lab`, 
 - Stations: the microscope (`src/lab/samples.js`: SVG at ×10/×100/×1000, a focus knob, three hidden things to find), the inventors table (`stations.js`: shark-skin coat, 4 steps, the flow tank; goal 5%, facts in docs/sources.md), the atlas. Progress per player in `web-of-life-lab` (`src/lab/progress.js`); `hasInvention('sharkskin')` makes the reef survey robot faster (tools.js).
 - Freshly written files on the PC are sometimes refused by the stager as "hardlinked"; wait a moment or read them with device_bash.
 - A Cycles vertex-colour bake of the whole room crashed Blender once (18.10): don't bake the room; render pictures.
-- Still to render (18.10): the greenhouse (flat glass lid now: the old gable rafters crossed in an X, so that picture is not in the game and the station shows the room) and the aquarium (no back pane, clear water surface: the old picture mirrored the room in the water), and `env.png`. Installers 1.3.0 with the lab were built in the container but not yet sent to the PC.
+- Rendered 18.10 evening: the greenhouse (flat glass lid) and the aquarium (moved in to radius 4.3 so its back corners stay inside the round wall; the blue backdrop goes round the ends) and `env.png`. Station renders take 25 to 35 min each on Avi's laptop at 1920 wide, 64 samples.
 
 ## The reef zone (1.3.0, branch claude/research-1.3)
 
-שונית האלמוגים של אילת, the third environment. Start card marked "בבנייה" (`dev: true` in src/data/zones.js) until Avi signs it off.
+שונית האלמוגים של אילת, the third environment. A full third environment since the 1.3.0 test build (the `dev` mark is gone).
 - Data: src/data/reef.js (30 species: corals, sponge, anemone, clam, seagrass, algae, plankton; 18 animals incl. jellyfish and reef shark; 13 missions, 6 events, tips); kids set in src/data/kids.js; torah mission rt1 and source card `yam` (תהלים קד, כה) in src/data/torah.js.
 - Fish swim: `locomotion: 'swim'` becomes 'flying' with `s.swims = true` in src/sim/species.js; the flight code keeps them under `env.surfaceY`.
 - Environment: src/env/reef.js ("cube of sea" diorama: sea floor with Blender sand / rubble textures and Voronoi caustics, reef-rock boulders on the mounds, coral heads on the crest as scenery, turquoise surface and water wall, light rays, bubbles, sky dome). `env.underwater`, `env.surfaceY`.

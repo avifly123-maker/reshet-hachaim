@@ -36,7 +36,7 @@ const I = {
   leaf: '<path class="f" d="M5 19C5 10 10 5 20 4c0 10-5 15-14 15z"/><path d="M5 19C5 10 10 5 20 4c0 10-5 15-14 15z"/><path d="M5 19c3-5 6-8 10-10"/>',
   sprout: '<path class="f" d="M12 12C12 8 9 6 5 6c0 4 3 6 7 6zM12 10c0-4 3-6 7-6 0 4-3 6-7 6z"/><path d="M12 21v-9"/><path d="M12 12C12 8 9 6 5 6c0 4 3 6 7 6z"/><path d="M12 10c0-4 3-6 7-6 0 4-3 6-7 6z"/><path d="M8 21h8"/>',
   paw: '<circle cx="6.5" cy="10" r="1.9"/><circle cx="10" cy="6" r="1.9"/><circle cx="14.5" cy="6" r="1.9"/><circle cx="18" cy="10" r="1.9"/><path class="f" d="M12.2 11.5c-2.8 0-5.2 3.1-5.2 5.4 0 1.5 1.2 2.3 2.5 2.3 1 0 1.7-.6 2.7-.6s1.7.6 2.7.6c1.3 0 2.5-.8 2.5-2.3 0-2.3-2.4-5.4-5.2-5.4z"/><path d="M12.2 11.5c-2.8 0-5.2 3.1-5.2 5.4 0 1.5 1.2 2.3 2.5 2.3 1 0 1.7-.6 2.7-.6s1.7.6 2.7.6c1.3 0 2.5-.8 2.5-2.3 0-2.3-2.4-5.4-5.2-5.4z"/>',
-  web: '<circle class="f" cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="2.2"/><circle cx="5" cy="6" r="1.6"/><circle cx="19" cy="6" r="1.6"/><circle cx="5" cy="18" r="1.6"/><circle cx="19" cy="18" r="1.6"/><path d="M6.3 7.2l4.1 3.4M17.7 7.2l-4.1 3.4M6.3 16.8l4.1-3.4M17.7 16.8l-4.1-3.4M6.6 6h10.8M5 7.6v8.8"/>',
+  web: '<circle class="f" cx="12" cy="13" r="4.6"/><circle cx="12" cy="13" r="2"/><circle cx="12" cy="3.8" r="1.6"/><circle cx="4" cy="18.6" r="1.6"/><circle cx="20" cy="18.6" r="1.6"/><path d="M12 5.4V11M5.4 17.8l4.9-3.4M18.6 17.8l-4.9-3.4M10.6 4.6L4.8 17.2M13.4 4.6l5.8 12.6M5.6 18.8h12.8"/>',
   lock: '<rect class="f" x="5" y="11" width="14" height="9.5" rx="2.2"/><rect x="5" y="11" width="14" height="9.5" rx="2.2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
   pause: '<path d="M9 6v12M15 6v12" stroke-width="2.8"/>',
   play: '<path d="M8 5.5l11 6.5-11 6.5z" fill="currentColor"/>',
@@ -48,15 +48,15 @@ const I = {
   help: '<circle class="f" cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="9"/><path d="M9.5 9.6a2.6 2.6 0 1 1 3.7 2.3c-.8.4-1.2 1-1.2 1.8v.4"/><circle cx="12" cy="17.2" r=".7" fill="currentColor"/>',
   // a little forest hut instead of a generic house
   home: '<path class="f" d="M6 10.5l6-6 6 6V20H6z"/><path d="M3 12.5L12 4l9 8.5"/><path d="M6 10.5V20h12v-9.5"/><path d="M10 20v-5h4v5"/><path d="M15.5 6.5V4h2v4.3"/>',
-  target: '<circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="2" fill="currentColor"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/>',
+  target: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/>',
   sound: '<path class="f" d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9.2a4 4 0 0 1 0 5.6M18 6.8a7.4 7.4 0 0 1 0 10.4"/>',
-  mute: '<path class="f" d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/>',
-  lightmap: '<circle class="f" cx="12" cy="7" r="2.6"/><circle cx="12" cy="7" r="2.6"/><path d="M12 1.8v1.3M7.4 3.4l.9.9M16.6 3.4l-.9.9M6 7h1.2M16.8 7H18"/><path class="f" d="M2.5 15.5L12 12l9.5 3.5L12 19z"/><path d="M2.5 15.5L12 12l9.5 3.5L12 19z"/><path d="M7.2 13.8l9.5 3.4M16.8 13.8l-9.5 3.4"/>',
+  mute: '<path class="f" d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 12h5"/>',
+  lightmap: '<circle class="f" cx="12" cy="7" r="2.6"/><circle cx="12" cy="7" r="2.6"/><path d="M12 1.8v1.3M7.4 3.4l.9.9M16.6 3.4l-.9.9M6 7h1.2M16.8 7H18"/><path class="f" d="M2.5 15.5L12 12l9.5 3.5L12 19z"/><path d="M2.5 15.5L12 12l9.5 3.5L12 19z"/><path d="M5.5 15.5h13"/>',
   sliders: '<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/>',
   close: '<circle cx="12" cy="12" r="8"/><path d="M8.2 12h7.6"/>',   // no X anywhere: a circle with a bar
   binoc: '<circle class="f" cx="6.5" cy="15.5" r="3.8"/><circle class="f" cx="17.5" cy="15.5" r="3.8"/><circle cx="6.5" cy="15.5" r="3.8"/><circle cx="17.5" cy="15.5" r="3.8"/><path d="M4 12.5L6.2 5h3l.8 7M20 12.5L17.8 5h-3l-.8 7M10.3 15h3.4"/>',
   flask: '<path class="f" d="M7.2 15h9.6l2.6 3.4A1.8 1.8 0 0 1 17.8 21H6.2a1.8 1.8 0 0 1-1.6-2.6z"/><path d="M9 3h6M10 3v6.2L4.6 18.4A1.8 1.8 0 0 0 6.2 21h11.6a1.8 1.8 0 0 0 1.6-2.6L14 9.2V3"/><path d="M7.2 15h9.6"/>',
-  sparkle: '<path d="M12 2.5l2 7.5 7.5 2-7.5 2-2 7.5-2-7.5L2.5 12 10 10z" fill="currentColor" stroke="none"/>',
+  sparkle: '<path d="M12.0 3.1 L14.4 9.3 L21.0 9.7 L15.9 13.9 L17.6 20.3 L12.0 16.7 L6.4 20.3 L8.1 13.9 L3.0 9.7 L9.6 9.3z" fill="currentColor" stroke="none" stroke-linejoin="round"/>',   // a five-point star (a four-point sparkle looks like a cross)
   drop: '<path class="f" d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/><path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/>',
   flower: '<circle cx="12" cy="12" r="2.3" fill="currentColor"/><circle class="f" cx="12" cy="6.3" r="2.6"/><circle class="f" cx="17.4" cy="10.2" r="2.6"/><circle class="f" cx="15.3" cy="16.6" r="2.6"/><circle class="f" cx="8.7" cy="16.6" r="2.6"/><circle class="f" cx="6.6" cy="10.2" r="2.6"/><circle cx="12" cy="6.3" r="2.6"/><circle cx="17.4" cy="10.2" r="2.6"/><circle cx="15.3" cy="16.6" r="2.6"/><circle cx="8.7" cy="16.6" r="2.6"/><circle cx="6.6" cy="10.2" r="2.6"/>',
   autumn: '<path class="f" d="M12 16l-6-2 1.5-2-3-3 3.5-.5L7 5l3.5 1.5L12 3l1.5 3.5L17 5l-1 3.5 3.5.5-3 3 1.5 2z"/><path d="M12 21v-5"/><path d="M12 16l-6-2 1.5-2-3-3 3.5-.5L7 5l3.5 1.5L12 3l1.5 3.5L17 5l-1 3.5 3.5.5-3 3 1.5 2z"/>',
@@ -73,7 +73,7 @@ const I = {
   versus: '<rect class="f" x="3" y="5" width="8" height="12" rx="1.6" transform="rotate(-8 7 11)"/><rect x="3" y="5" width="8" height="12" rx="1.6" transform="rotate(-8 7 11)"/><rect x="13" y="7" width="8" height="12" rx="1.6" transform="rotate(8 17 13)"/>',
   undo: '<path d="M9 7L4 12l5 5"/><path d="M4 12h10a6 6 0 0 1 0 12h-2" transform="translate(0 -6)"/>',
   bang: '<path d="M12 6v8" stroke-width="2.6"/><circle cx="12" cy="18" r="1.3" fill="currentColor" stroke="none"/>',
-  hourglass: '<path d="M6 3h12M6 21h12M7 3c0 5 10 6 10 9s-10 4-10 9M17 3c0 5-10 6-10 9s10 4 10 9"/>',
+  hourglass: '<circle cx="12" cy="13" r="8"/><path d="M12 8.5V13l3 2M9.5 2.5h5"/>',
   pencil: '<path class="f" d="M5 16.5L15.8 5.7l2.5 2.5L7.5 19H5z"/><path d="M5 16.5L15.8 5.7l2.5 2.5L7.5 19H5z"/><path d="M13.8 7.7l2.5 2.5"/>',
   plus: '<path d="M12 5v7.5M5 12.5h14" stroke-width="2.4"/>',   // the plus of the children's schools: the stem stops at the bar
   trash: '<path d="M5 7h14"/><path d="M9.5 7V5h5v2"/><path class="f" d="M6.5 7l1 12.5h9l1-12.5"/><path d="M6.5 7l1 12.5h9l1-12.5"/><path d="M10.3 10.5v6M13.7 10.5v6"/>',
@@ -1059,6 +1059,7 @@ export function createUI(root, bus) {
     showStart(biomes) {
       // nothing from the last forest should linger over the start screen
       toastsEl.innerHTML = ''; bannerQ.length = 0; root.querySelectorAll('.mission-banner').forEach((b) => b.remove()); bannerBusy = false; fxEl.innerHTML = '';
+      for (const k of Object.keys(open)) closeModal(k);   // a journal or list left open must not cover the start screen
       renderStart(biomes); root.classList.remove('ingame');
       startEl.classList.remove('off'); S.startTok = (S.startTok || 0) + 1; const tok = S.startTok; requestAnimationFrame(() => { if (S.startTok === tok) startEl.classList.add('on'); });
     },
