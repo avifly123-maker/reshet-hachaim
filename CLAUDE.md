@@ -59,6 +59,9 @@ Design: `docs/RESEARCH.md` (Hebrew). Proposed 1.3 development map (mysteries, th
 - Relation types of the research engine (competes, harms habitat, limits, changes the environment) live only in the research world; the collectible cards keep their four attributes.
 - Headless: `window.__app.openCase('mice-owl')`; `window.__game.research.dbg` has `useTool`, `applyIdea`, `startFF`, `openLab`, `runner`, `model`.
 
+- A case may bring one `dilemma` ({ at: model seconds, title, text, options: [{ idea, plus, minus }], later }): a card with two ways, each one of the case's ideas, shown once (session.js, ui.js `showDilemma`); validate-research checks it and its nikud at beginner level.
+- Reef cases: `green-reef` (beginners, השונית הירוקה: grazers need hiding places, an artificial reef; dilemma: the algae-scraping robot, fast, or an artificial reef, lasting) and `cleaning-station` (middle, תחנת הניקוי נסגרה: anchors break the coral heads, so the cleaners have no station and parasites drive the fish away; dilemma: close the bay, fast and costly, or mooring buoys). Source cards `leovdah` and `tikun`. Young reef corals in a mystery are drawn at 42% size (`p.baseScale`), and reef thumbnails come from the card paintings.
+
 Stage 1 done: engine, research centre, mystery 1 "יותר מדי קוצנים" end to end. Next (docs/RESEARCH.md): the other two beginner mysteries, then middle (המלכודת, החורש שלא מתחדש, הנמלים שאכלו את היער), then advanced with the goat and jackal models.
 
 ## The reef zone (1.3.0, branch claude/research-1.3)
