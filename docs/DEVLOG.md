@@ -141,3 +141,7 @@
 - **לקח.** מצלמות בלנדר מעודכנות רק אחרי חישוב הסצנה, ולכן הזווית שלהן נקראה כאפס. הקובץ שומר מיקום ונקודת מבט, והמשחק מחשב את הכיוון בעצמו.
 
 </div>
+
+## משלחת לעומק (1.3, 18–19.10.2026)
+
+A push-your-luck card game for the learning hub (src/learn/games/expedition.js, data in src/data/expedition.js). The player picks four album cards and dives through four depths of the Eilat reef (beginners: three). Each depth is a row of face-down tiles: samples, friends (cleaner station, a guiding turtle, dolphins), one rare find per run (a whale shark, coral spawning) and eleven kinds of challenge. A challenge is met by the card the player chooses; the outcome comes from that card's traits: what is read from the card (reef or land, swims or flies, night, coral, plant, fungus, a waterproof tool or not) plus a trait table per species and tool. Rules are ordered lists (first match wins), so many team choices give different stories; a land card under water mostly fails in a funny way and sometimes surprises (a sloth in a current just hangs on). רובו־דע tells it all on the radio; his lines are templates with gender tokens ([[m|f|mp|fp]], {N}, {P}, {O}, {L}, {bN}…) filled from data/common.js (species) and a table for the tools. Going down sends the bag up to the boat in a balloon; if nobody in the team is ready, the bag of the current depth floats away. Prizes are badges ('deep:first', 'deep:cave', 'deep:full', 'deep:samples' at 20, 'deep:rare'), no card packs. A random-play test (300 runs) found no unfilled tokens; 635+ distinct radio lines came up.
