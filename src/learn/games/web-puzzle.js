@@ -9,8 +9,8 @@ import { relVerb, dietVerb, notTogether, defName, joinObj } from '../../data/com
 
 const CSS_ID = 'wl-webpuzzle-css';
 const LEVELS = 12;
-const BIOMES = ['amazon', 'grove'];
-const BNAME = { amazon: 'אמזונס', grove: 'חורש' };
+const BIOMES = ['amazon', 'grove', 'reef'];
+const BNAME = { amazon: 'אמזונס', grove: 'חורש', reef: 'שונית' };
 const HOWTO = 'גררו קלף למקום הריק כך שכל החוטים יהיו נכונים';
 const PACK_EVERY = 4; // one card pack for every 4 levels (per biome) that reach 3 stars
 
@@ -334,6 +334,7 @@ const CSS = `
 /* round 2: gentle colour – Amazon teal, Grove ochre; level tiles carry a soft hue on top */
 .wp-tab.on[data-b="amazon"]{background:#8fcfc0;border-color:#3f8f84!important;color:#10302b;box-shadow:0 4px 0 #2f6f66}
 .wp-tab.on[data-b="grove"]{background:#ecc77e;border-color:#a8741e!important;color:#3a2608;box-shadow:0 4px 0 #8a5a12}
+.wp-tab.on[data-b="reef"]{background:#8ccfe6;border-color:#2a8ac0!important;color:#0e3346;box-shadow:0 4px 0 #1f6f98}
 .wp-lvl{border-top-width:5px!important}
 .wp-lvl:nth-child(6n+1){border-top-color:#8cc3dc!important}.wp-lvl:nth-child(6n+2){border-top-color:#f2cf5b!important}
 .wp-lvl:nth-child(6n+3){border-top-color:#e79aab!important}.wp-lvl:nth-child(6n+4){border-top-color:#b9a8e0!important}
