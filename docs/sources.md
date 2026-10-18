@@ -201,3 +201,29 @@ The game's lines are playful (a land card under water is a joke, not a fact); th
 - **Table corals give shade** to the reef below them — https://en.wikipedia.org/wiki/Acropora .
 - **Land animals that swim** (the jokes are built on true facts): jaguars swim well — https://en.wikipedia.org/wiki/Jaguar ; capybaras are semi-aquatic and can stay under water for minutes — https://en.wikipedia.org/wiki/Capybara ; tapirs swim and use the snout as a snorkel — https://en.wikipedia.org/wiki/Tapir .
 - **Fungi do not need light** (they are not plants) — https://en.wikipedia.org/wiki/Fungus .
+
+## חושבים כמו חוקרים (1.3, the lab's five small experiments: src/lab/thinking.js)
+
+The habits themselves (school science, not facts about creatures):
+- **Fair test:** change only one thing and keep the rest the same, so the result can be trusted — https://www.educationquizzes.com/ks1/science/investigating-whose-plant-will-grow-best/ .
+- **Observation and inference:** an observation is what is actually seen; an inference is how we explain it, and it can change with new evidence (the tracks scene follows the "Tricky tracks" lesson) — https://edu.rsc.org/resources/tricky-tracks-observation-and-inference-in-science-11-14-years/4017168.article .
+- **Repeating a measurement:** several readings are combined to reduce random error (the game takes the middle one, the median, which one odd reading cannot spoil) — https://eurachem.org/index.php/publications/leaflets/pubsilsqrtn .
+- **Correlation and causation:** two things can rise together because a third thing drives both; only a change that we make (an experiment) shows the cause — https://www.innerdrive.co.uk/blog/correlation-and-causation/ .
+
+What the experiments show:
+- **Seedlings in the dark** grow long stems, pale yellow or white, with small leaves (etiolation) — https://en.wikipedia.org/wiki/Etiolation , https://bio.libretexts.org/Courses/Norco_College/BIO_5%3A_General_Botany_(Friedrich_Finnern)/09%3A_Environmental_Responses/9.04%3A_Etiolation_and_Shade_Avoidance .
+- **Too much water:** roots need oxygen as well as water; waterlogged soil leaves them without air — https://swyg.nmsu.edu/2018/052618.html .
+- **Sandy soil** holds little water and few nutrients — https://www.purdue.edu/hla/sites/yardandgarden/what-is-loam/ .
+- (The heights in the greenhouse are a game model, not measured numbers. Two pots given the same come out a little different on purpose: natural variation.)
+- **An egg sinks in fresh water and floats in salt water** — https://www.sfu.ca/physics/about-us/outreach/activities/activity/understanding-buoyancy.html .
+- **Dead Sea water** is about 1.24 kg per litre (salinity about 34%), so things float easily — https://en.wikipedia.org/wiki/Dead_Sea .
+- **Apples float:** about a quarter of an apple's volume is air — https://vidyaenews.most.gov.lk/science-insider/have-you-ever-tried-putting-an-apple-in-water/ .
+- **An orange floats with its peel and sinks peeled:** the peel is full of air pockets — https://melscience.com/GB-en/articles/does-orange-float-or-sink/ . (That a peeled orange and an egg float in Dead Sea water follows from the density above.)
+- **Pumice floats** (full of gas bubbles) — https://en.wikipedia.org/wiki/Pumice .
+- **Ice floats:** it is less dense than water (about 0.917) — https://en.wikipedia.org/wiki/Ice .
+- **Gazelle tracks:** two toes (hooves) make an upside-down heart shape, like deer tracks — https://www.wildernesscollege.com/identify-deer-tracks.html ; the mountain gazelle is a bovid (even-toed ungulates) and cannot go very long without water — https://en.wikipedia.org/wiki/Mountain_gazelle .
+- **Snails** leave a silvery slime trail and eat irregular holes in leaves (caterpillars make similar holes); look for them after dark with a flashlight — https://ipm.ucanr.edu/home-and-landscape/snails-and-slugs/ ; land snails are most active at night and in damp weather — https://en.wikipedia.org/wiki/Snail .
+- **Drops on a cold glass** come from water vapour in the air that condenses on the cold surface — https://fdacourse.iri.columbia.edu/documents/M1U2_Clouds/Clouds_Readings/S3_Clouds_Readings/S3_Condensation_The_Water_Cycle_USGS.pdf , https://en.wikipedia.org/wiki/Condensation .
+- **Mushrooms come up after rain** — https://news.uga.edu/?p=25515 ; **snails become active after rain** — https://pir.sa.gov.au/news/pestfacts/recent-rain-has-snails-and-slugs-moving-what-it-means-for-your-crop .
+- **More flowers bring more bees:** floral abundance raises insect visits — https://sro.sussex.ac.uk/id/eprint/63437/ .
+- (The counts in the graphs and the weights on the wobbly scale are made up for the game.)

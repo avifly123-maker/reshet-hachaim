@@ -17,14 +17,15 @@ import { TORAH } from '../core/edition.js';
 import { grantSource } from '../core/sources-store.js';
 import { grant as grantBadge } from '../core/badges-store.js';
 import { SAMPLES } from './samples.js';
+import { THINK, OPEN as THINK_OPEN, openThinkMenu, thinkById, thinkDone } from './thinking.js';   // חושבים כמו חוקרים
 
 const STATION_INFO = {
   home: { name: 'החדר', ic: 'home' },
   scope: { name: 'המיקרוסקופ', ic: 'binoc', open: 'scope' },
   table: { name: 'שולחן הממציאים', ic: 'bulb', open: 'inventors' },
-  aquarium: { name: 'האקווריום', ic: 'drop', say: 'באקווריום שוחים דגים מהשונית של אילת. בקרוב נעשה כאן ניסוי: מה קורה לאלמוג כשהמים חמים מדי, או מלאים בוץ?' },
-  greenhouse: { name: 'החממה', ic: 'sprout', say: 'בחממה הזרעים גדלים בזמן מהיר. בקרוב נבדוק כאן מה צמח צריך כדי לגדול: אור, מים, או חברים.' },
-  cabinet: { name: 'ארון האוסף', ic: 'leaf', say: null },
+  aquarium: { name: 'האקווריום', ic: 'drop', think: 'float' },
+  greenhouse: { name: 'החממה', ic: 'sprout', think: 'fair' },
+  cabinet: { name: 'ארון האוסף', ic: 'leaf', say: null, think: ['measure', 'observe'] },
   atlas: { name: 'האטלס', ic: 'book', open: 'atlas' },
 };
 const ROBOT_SPOT = { table: [-0.75, 0, -1.05] };   // three's axes: behind the inventors table, on the left
@@ -56,7 +57,9 @@ function makeFace() {
     c.strokeStyle = c.fillStyle = '#8ff2ff'; c.shadowColor = 'rgba(120,240,255,.9)'; c.shadowBlur = 26; c.lineCap = 'round';
     const open = 1 - blink;
     for (const cx of [190, 322]) {
-      if (expr === 'happy' && blink < 0.5) {   // smiling eyes: soft arches
+      if (expr === 'oops' && blink < 0.5) {   // an embarrassed robot: slanted lines
+        c.lineWidth = 16; const t = cx < 256 ? -1 : 1; c.beginPath(); c.moveTo(cx - 20, 112 + 7 * t); c.lineTo(cx + 20, 112 - 7 * t); c.stroke();
+      } else if (expr === 'happy' && blink < 0.5) {   // smiling eyes: soft arches
         c.lineWidth = 20; c.beginPath(); c.arc(cx, 128, 30, Math.PI * 1.12, Math.PI * 1.88); c.stroke();
       } else {
         const w = expr === 'wow' ? 34 : 28, h = Math.max(5, (expr === 'wow' ? 44 : 40) * open);
@@ -68,6 +71,7 @@ function makeFace() {
     c.lineWidth = 9;
     if (expr === 'wow') { c.beginPath(); c.ellipse(256, 196, 14, 12 + talk * 6, 0, 0, Math.PI * 2); c.stroke(); }
     else if (talk > 0.05) { c.beginPath(); c.ellipse(256, 192, 24, 5 + talk * 13, 0, 0, Math.PI * 2); c.fill(); }
+    else if (expr === 'oops') { c.beginPath(); c.moveTo(222, 186); c.quadraticCurveTo(239, 172, 256, 186); c.quadraticCurveTo(273, 200, 290, 186); c.stroke(); }
     else { c.beginPath(); c.arc(256, 168, expr === 'curious' ? 18 : 30, Math.PI * 0.2, Math.PI * 0.8); c.stroke(); }
     tex.needsUpdate = true;
   }
@@ -223,6 +227,7 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
   const prevState = {};
   el.innerHTML = `<div class="lb-top"><button class="lb-btn lb-exit">${icon('arrowL')}<span>למרכז המדעי</span></button>
       <button class="lb-btn lb-talk"><i class="lb-tface"></i><span>לדבר עם רובו־דע</span></button>
+      <button class="lb-btn lb-think">${icon('flask')}<span>חושבים כמו חוקרים</span></button>
       <div class="lb-title"><small>המרכז המדעי</small><h1>המעבדה של רובו־דע</h1></div></div>
     <div class="lb-hots"></div>
     <nav class="lb-bar">${ORDER.map((id) => `<button data-st="${id}" class="${id === 'home' ? 'on' : ''}">${icon(STATION_INFO[id].ic || 'leaf')}<span>${STATION_INFO[id].name}</span></button>`).join('')}</nav>
@@ -230,6 +235,7 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
   const hots = el.querySelector('.lb-hots'), sayEl = el.querySelector('.lb-say'), panels = el.querySelector('.lb-panels');
   el.querySelector('.lb-exit').onclick = () => { close(); onExit && onExit(); };
   el.querySelector('.lb-talk').onclick = () => openTalk();
+  el.querySelector('.lb-think').onclick = () => thinkMenu();
   el.querySelectorAll('[data-st]').forEach((b) => b.onclick = () => go(b.dataset.st));
   hots.innerHTML = ORDER.filter((id) => id !== 'home').map((id) => `<button class="lb-hot" data-hot="${id}">${icon(STATION_INFO[id].ic || 'leaf')}<span>${STATION_INFO[id].name}</span></button>`).join('');
   hots.querySelectorAll('[data-hot]').forEach((b) => b.onclick = () => go(b.dataset.hot));
@@ -261,9 +267,12 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
       else panel = openInventors(panels, { say, thumbs, audio, onInvented: () => robot.wave(), onClose: () => { panel = null; }, goScope: () => setTimeout(() => go('scope'), 900) });
     }
     else if (info.open === 'atlas') panel = openAtlas(panels, { say, thumbs, onClose: () => { panel = null; } });
+    else if (pendingThink) { const id = pendingThink; pendingThink = null; openThink(id); }
+    else if (typeof info.think === 'string') openThink(info.think);
+    else if (station === 'cabinet' && info.think) { hush(); panel = openThinkMenu(panels, { only: info.think, title: 'ארון האוסף', robot, audio, onClose: () => { panel = null; }, onPick: (id) => openThink(id) }); }
     else if (station === 'cabinet') { const n = Object.keys(labProgress().seen).length; say(n ? `בארון האוסף שומרים את מה שמצאנו. כבר יש כאן ${n} ${n === 1 ? 'גילוי' : 'גילויים'} מהמיקרוסקופ.` : 'בארון האוסף שומרים את מה שמצאנו: קונכיות, נוצות, זרעים ושברי אלמוג. כל גילוי במיקרוסקופ יוסיף כאן עוד משהו.', 'happy'); }
     else if (info.say) say(info.say, 'happy');
-    else if (station === 'home') say('לאן הולכים עכשיו? המיקרוסקופ מחכה לכם, וגם שולחן הממציאים.', 'happy');
+    else if (station === 'home') say('לאן הולכים עכשיו? המיקרוסקופ מחכה לכם, וגם שולחן הממציאים. ובחממה ובאקווריום מחכים ניסויים.', 'happy');
   }
   const _fromP = new THREE.Vector3(), _toP = new THREE.Vector3();
   let robotMove = 0;
@@ -363,9 +372,11 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
   // ── talking with רובו־דע: questions the child picks; his answers depend on what was already done
   const TALK = {
     who: { q: 'מי אתה?', a: () => 'אני רובו־דע, הרובוט של המעבדה. אני עוזר לחוקרים צעירים: מראה איפה לחפש, שואל שאלות, ולפעמים גם מתבלבל. אבל אני אף פעם לא מגלה את התשובה. אותה אתם מוצאים!', e: 'happy' },
-    what: { q: 'מה עושים כאן?', a: () => 'במיקרוסקופ מגדילים דגימות ומחפשים סודות קטנים. בשולחן הממציאים פותרים בעיות בעזרת היצורים, ובונים רובוטים. באטלס נרשם כל מה שגיליתם. ובאקווריום ובחממה... עוד מעט יהיו ניסויים!', e: 'curious' },
+    what: { q: 'מה עושים כאן?', a: () => 'במיקרוסקופ מגדילים דגימות ומחפשים סודות קטנים. בשולחן הממציאים פותרים בעיות בעזרת היצורים, ובונים רובוטים. באטלס נרשם כל מה שגיליתם. ובאקווריום, בחממה ובארון האוסף יש ניסויים קטנים: חושבים כמו חוקרים!', e: 'curious' },
     next: { q: 'מה כדאי לי לעשות עכשיו?', a: () => {
       const P = labProgress(); const s = SAMPLES.find((x) => !P.seen[x.id]);
+      const t = THINK.find((a) => !thinkDone(a.id));
+      if (t && (nextN++ % 2 || !s)) return `אולי ננסה את "${t.name}" ${t.where}? שם לומדים ש${t.habit}.`;
       if (s) return `אולי נסתכל במיקרוסקופ על ${s.name}? יש שם משהו שעוד לא מצאתם.`;
       if (!P.inventions.sharkskin) return 'כל הדגימות נבדקו! עכשיו לשולחן הממציאים: אולי תצליחו להמציא בגד שחייה מהיר?';
       return 'גיליתם כל כך הרבה! נסו לבנות בשולחן הממציאים רובוט מטורף, או צאו למשלחת לעומק במרכז הלמידה.';
@@ -384,6 +395,7 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     'קיפוד ים הולך על מאות רגליים זעירות שיוצאות בין הקוצים שלו.',
     'יונק הדבש יכול לעוף גם אחורה!',
     'העלה של הוויקטוריה האמזונית יכול להיות רחב יותר משני מטרים.',
+    'תפוז עם קליפה צף במים, ותפוז קלוף שוקע. הקליפה מלאה כיסי אוויר קטנים.',
   ];
   const JOKES = [
     'למה פחדתי להיכנס לאקווריום? חשבתי שאחליד. מאז שקיבלתי ציפוי עור כריש, אני כבר לא מפחד!',
@@ -391,8 +403,9 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     'שאלתי את הזיקית מה הצבע האהוב עליה. היא אמרה: "תלוי איפה אני עומדת".',
     'בניתי רובוט עם קוצים של קיפוד. עכשיו אף אחד לא רוצה לחבק אותו.',
     'התמנון ניצח אותי בציור. יש לו שמונה מכחולים!',
+    'שקלתי את עצמי שלוש פעמים ולקחתי את האמצעית. עדיין כבד. כנראה המשקל צודק.',
   ];
-  let talkN = 0, jokeN = 0, talkEl = null;
+  let talkN = 0, jokeN = 0, nextN = 0, talkEl = null;
   function openTalk() {
     if (talkEl) { talkEl.remove(); talkEl = null; return; }
     if (panel) { panel.close(); panel = null; }
@@ -406,7 +419,23 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     say('שאלו אותי מה שתרצו. כלומר... מה שכתוב על הכפתורים.', 'happy');
   }
 
-  window.__labDebug = { go, say, openTalk, get station() { return station; }, robot, openPanel: (k) => { station = k; arrive(); } };
+  // ── חושבים כמו חוקרים (src/lab/thinking.js): a panel per activity; the menu lists all five
+  let pendingThink = null;
+  function hush() { sayEl.hidden = true; sayT = 0; }
+  function openThink(id) {
+    if (talkEl) { talkEl.remove(); talkEl = null; }
+    if (panel) { panel.close(); panel = null; }
+    const f = THINK_OPEN[id]; if (!f) return; hush();
+    panel = f(panels, { robot, audio, thumbs, onClose: () => { panel = null; } });
+  }
+  function thinkMenu() {
+    if (talkEl) { talkEl.remove(); talkEl = null; }
+    if (panel) { panel.close(); panel = null; }
+    hush();
+    panel = openThinkMenu(panels, { robot, audio, onClose: () => { panel = null; }, onPick: (id) => { const a = thinkById(id); pendingThink = id; go(a.st); } });
+  }
+
+  window.__labDebug = { go, say, openTalk, think: (id) => (id ? (pendingThink = id, go(thinkById(id).st)) : thinkMenu()), get panel() { return panel; }, get station() { return station; }, robot, openPanel: (k) => { station = k; arrive(); } };
   return { open, close, update, isOpen: () => open_ };
 }
 
