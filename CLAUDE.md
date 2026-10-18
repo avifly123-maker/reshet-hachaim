@@ -63,7 +63,7 @@ Design: `docs/RESEARCH.md` (Hebrew). Proposed 1.3 development map (mysteries, th
 - Advanced cases: `white-coral` (reef: heat that cannot be changed, mud from a bared wadi bank, fish-farm cages; bleached corals shown pale through `plant.healthCap` and a `white` visual group) and `the-trap` (grove: poison bait passes from the mice to owls and foxes; nest boxes, a hedge, patience). Tool kind `probe` measures at once (a lab test, the sensor buoy). Source cards `chamato`, `nefesh`.
 - Reef cases: `green-reef` (beginners, השונית הירוקה: grazers need hiding places, an artificial reef; dilemma: the algae-scraping robot, fast, or an artificial reef, lasting) and `cleaning-station` (middle, תחנת הניקוי נסגרה: anchors break the coral heads, so the cleaners have no station and parasites drive the fish away; dilemma: close the bay, fast and costly, or mooring buoys). Source cards `leovdah` and `tikun`. Young reef corals in a mystery are drawn at 42% size (`p.baseScale`), and reef thumbnails come from the card paintings.
 
-Stage 1 done: engine, research centre, mystery 1 "יותר מדי קוצנים" end to end. Next (docs/RESEARCH.md): the other two beginner mysteries, then middle (המלכודת, החורש שלא מתחדש, הנמלים שאכלו את היער), then advanced with the goat and jackal models.
+Stage 1 done: engine, research centre, mystery 1 "יותר מדי קוצנים" end to end. Built since: two more beginner, two middle (Brazil nut, cleaning station) and two advanced mysteries (white-coral, the-trap; המלכודת moved from middle to advanced). Next: middle (החורש שלא מתחדש, הנמלים שאכלו את היער) and advanced (היער שנשאר בלי טורפים, אש בקיץ, הצבאים נעלמים).
 
 ## The lab of רובו־דע (1.3.0, branch claude/research-1.3)
 
@@ -75,6 +75,7 @@ Plan and Avi's decisions: `docs/LAB.md` (Hebrew). Code: `src/lab/` (pack `lab`, 
 - Stations: the microscope (`src/lab/samples.js`: SVG at ×10/×100/×1000, a focus knob, three hidden things to find), the inventors table (`stations.js`: shark-skin coat, 4 steps, the flow tank; goal 5%, facts in docs/sources.md), the atlas. Progress per player in `web-of-life-lab` (`src/lab/progress.js`); `hasInvention('sharkskin')` makes the reef survey robot faster (tools.js).
 - Freshly written files on the PC are sometimes refused by the stager as "hardlinked"; wait a moment or read them with device_bash.
 - A Cycles vertex-colour bake of the whole room crashed Blender once (18.10): don't bake the room; render pictures.
+- Still to render (18.10): the greenhouse (flat glass lid now: the old gable rafters crossed in an X, so that picture is not in the game and the station shows the room) and the aquarium (no back pane, clear water surface: the old picture mirrored the room in the water), and `env.png`. Installers 1.3.0 with the lab were built in the container but not yet sent to the PC.
 
 ## The reef zone (1.3.0, branch claude/research-1.3)
 
