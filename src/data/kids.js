@@ -179,7 +179,7 @@ export const KIDS = {
       { id: 'k3', title: 'דג אוכל אצות', text: 'התוכינון אוכל אצות ושומר על האלמוגים. שתלו אצות והביאו תוכינון.', hint: 'גררו תוכינון אל השונית, ליד האצות.', after: 'k2', goal: { type: 'link', from: 'parrotfish', to: 'algae' }, reward: { points: 25, unlock: ['turtle'] } },
       { id: 'k4', title: 'הצב רועה בעשב', text: 'צב הים אוכל עשב ים. שתלו עשב ים והביאו צב.', hint: 'גררו צב ים אל השונית, ליד עשב הים.', after: 'k3', goal: { type: 'link', from: 'turtle', to: 'seagrass' }, reward: { points: 30, unlock: ['urchin'] } },
       { id: 'k5', title: 'קיפוד שמגרד אצות', text: 'קיפוד הים מגרד אצות מהסלע. הביאו קיפוד ים אל האצות.', hint: 'גררו קיפוד ים אל השונית, ליד האצות.', after: 'k4', goal: { type: 'link', from: 'urchin', to: 'algae' }, reward: { points: 30, unlock: [] } },
-      { id: 'k6', title: 'רחפן עוזר', text: 'הרחפן עף מעל השונית ובודק שהכול בסדר. שלחו רחפן אחד.', hint: 'גררו רחפן מהלשונית "טכנולוגיה" אל השונית.', after: 'k5', goal: { type: 'tool', tool: 'drone', count: 1 }, reward: { points: 40, unlock: [] } },
+      { id: 'k6', title: 'רובוט צולל עוזר', text: 'הרובוט הצולל שוחה לאורך השונית ובודק שהכול בסדר. שלחו רובוט צולל אחד.', hint: 'גררו רובוט צולל מהלשונית "טכנולוגיה" אל השונית.', after: 'k5', goal: { type: 'tool', tool: 'drone', count: 1 }, reward: { points: 40, unlock: [] } },
     ],
     tips: [
       'האלמוג הוא בעל חיים, לא אבן ולא צמח.',
