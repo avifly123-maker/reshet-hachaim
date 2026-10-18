@@ -417,6 +417,15 @@ export function createUI(root, bus) {
     const layer = startEl.querySelector('.st-pp-layer');
     layer.querySelector('.st-pp-scrim').addEventListener('click', () => ppClose());
     layer.querySelector('.st-pp').addEventListener('click', ppClick);
+    layer.querySelector('.st-pp').addEventListener('input', (e) => { if (e.target.matches('.pp-input') && PP.draft) PP.draft.name = e.target.value; });
+    layer.querySelector('.st-pp').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && e.target.matches('.pp-input')) { e.preventDefault(); ppSave(); return; }
+      if (e.key !== 'Tab') return;
+      // keep Tab inside the open sheet
+      const f = [...ppBox().querySelectorAll('button, input')]; if (!f.length) return;
+      const i = f.indexOf(document.activeElement);
+      if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); } else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); }
+    });
     paintWho();
   }
 
