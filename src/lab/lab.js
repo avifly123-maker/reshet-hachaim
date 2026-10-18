@@ -24,6 +24,7 @@ const STATION_INFO = {
   cabinet: { name: 'ארון האוסף', ic: 'leaf', say: null },
   atlas: { name: 'האטלס', ic: 'book', open: 'atlas' },
 };
+const ROBOT_SPOT = { table: [-0.75, 0, -1.05] };   // three's axes: behind the inventors table, on the left
 const ORDER = ['home', 'scope', 'table', 'aquarium', 'greenhouse', 'cabinet', 'atlas'];
 const IMG_ASPECT = 16 / 9;
 
@@ -172,14 +173,19 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit }) {
   }));
   bg.frustumCulled = false; bg.renderOrder = -1000; group.add(bg);
   // light for the live things, close to the room's (the morning sun through the windows, warm lamps, the room around)
-  const hemi = new THREE.HemisphereLight('#f4eee2', '#8a6a4a', 0.9); group.add(hemi);
+  const hemi = new THREE.HemisphereLight('#f4eee2', '#8a6a4a', 1.25); group.add(hemi);
   const key = new THREE.DirectionalLight('#fff0dc', 1.6); key.position.set(0.3 * 10, 0.5 * 10, -0.82 * 10); group.add(key);
-  const fill = new THREE.DirectionalLight('#ffd8a8', 0.5); fill.position.set(0, 3, 4); group.add(fill);
+  const fill = new THREE.DirectionalLight('#ffe2c0', 1.1); fill.position.set(0, 3, 4); group.add(fill);
   let envTex = null;
   if (LAB_ART && LAB_ART.env) {
     loader.load(LAB_ART.env, (t) => { t.mapping = THREE.EquirectangularReflectionMapping; t.colorSpace = THREE.SRGBColorSpace; const pm = new THREE.PMREMGenerator(renderer); envTex = pm.fromEquirectangular(t).texture; pm.dispose(); t.dispose(); if (open_) scene.environment = envTex; });
   }
   const robot = makeRobot(); group.add(robot.root);
+  // the furniture as invisible depth (tools/lab-proxy.py): the robot and the fish go behind the table like in the picture
+  if (LAB_ROBOT && LAB_ROBOT.proxy) {
+    const pm = new THREE.Mesh(decodePart(LAB_ROBOT.proxy), new THREE.MeshBasicMaterial({ colorWrite: false, side: THREE.DoubleSide }));
+    pm.renderOrder = -500; pm.frustumCulled = false; group.add(pm);
+  }
   // fish in the aquarium: the reef's own rigged fish, small
   const fish = []; let fishLoading = false;
   async function addFish() {
@@ -251,19 +257,26 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit }) {
   }
   const _fromP = new THREE.Vector3(), _toP = new THREE.Vector3();
   let robotMove = 0;
+  // where the robot hovers: by his charging pad in the room view; at a station, in the near corner of the picture
+  const SIDE = { scope: -1, aquarium: 1, greenhouse: -1, cabinet: 1, atlas: 1 };   // table: behind the table (cams 'robot')
   function placeRobot(fly) {
     const c = cams[station]; if (!c) return;
-    _toP.fromArray(c.robot); _toP.y = 0;
     const cp = new THREE.Vector3().fromArray(c.pos);
+    if (!SIDE[station]) { _toP.fromArray(ROBOT_SPOT[station] || c.robot); _toP.y = 0; }
+    else {
+      const fwd = new THREE.Vector3().fromArray(c.at).sub(cp); fwd.y = 0; fwd.normalize();
+      const right = new THREE.Vector3().crossVectors(fwd, new THREE.Vector3(0, 1, 0));
+      _toP.copy(cp).addScaledVector(fwd, 2.3).addScaledVector(right, SIDE[station] * 1.0); _toP.y = 0;
+    }
     if (fly) { _fromP.copy(_toP).add(new THREE.Vector3(cp.x - _toP.x, 0, cp.z - _toP.z).normalize().cross(new THREE.Vector3(0, 1, 0)).multiplyScalar(1.6)); robotMove = 1; }
-    else { _fromP.copy(_toP); robotMove = 0; }
+    else { _fromP.copy(_toP); robotMove = 0; robot.root.position.copy(_toP); }
     robot.root.rotation.y = Math.atan2(cp.x - _toP.x, cp.z - _toP.z);
   }
   // camera = the Blender camera of the station; the picture is cropped to fill the screen (cover), the camera with it
-  const crop = { x: 0, y: 0, w: 1, h: 1 };
+  const crop = { x: 0, y: 0, w: 1, h: 1 }; const _at = new THREE.Vector3();
   function setCamera(id) {
     const c = cams[id]; if (!c) return;
-    camera.position.fromArray(c.pos); camera.quaternion.fromArray(c.quat);
+    camera.position.fromArray(c.pos); camera.up.set(0, 1, 0); camera.lookAt(_at.fromArray(c.at));   // Blender aims its cameras with no roll, like lookAt
     const W = renderer.domElement.clientWidth || innerWidth, H = renderer.domElement.clientHeight || innerHeight; const A = W / H;
     const FW = 1600, FH = FW / IMG_ASPECT;
     if (A > IMG_ASPECT) { crop.w = 1; crop.h = IMG_ASPECT / A; } else { crop.h = 1; crop.w = A / IMG_ASPECT; }
@@ -273,7 +286,7 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit }) {
     camera.updateProjectionMatrix(); camera.updateMatrixWorld();
     bgU.uCrop.value.set(crop.x, 1 - crop.y - crop.h, crop.w, crop.h);
   }
-  const _v = new THREE.Vector3();
+  const _v = new THREE.Vector3(), _up = new THREE.Vector3(0.6, 1.4, 0);
   function project(p) { _v.copy(p).project(camera); return { x: (_v.x * 0.5 + 0.5) * 100, y: (-_v.y * 0.5 + 0.5) * 100, ok: _v.z < 1 }; }
   function update(dt) {
     if (!open_) return;
@@ -285,6 +298,7 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit }) {
       if (move === 0) { bgU.tA.value = bgU.tB.value; bgU.uMix.value = 0; bgU.uZoomA.value = 1; arrive(); }
     }
     if (robotMove > 0) { robotMove = Math.max(0, robotMove - dt / 1.1); const k = 1 - robotMove; const e = 1 - (1 - k) * (1 - k); robot.root.position.lerpVectors(_fromP, _toP, e); }
+    fill.position.copy(camera.position).add(_up); fill.target = robot.root;   // a soft light from the child's side
     robot.update(dt, camera.position);
     for (const f of fish) {
       if (!f.holder.visible) continue;
@@ -302,11 +316,11 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit }) {
     if (sayT > 0) {
       sayT -= dt; if (sayT <= 0) sayEl.hidden = true;
       // over a panel the robot is hidden: his words sit in a corner, with his face
-      sayEl.classList.toggle('dock', !!panel);
-      if (!panel) {
-        const hp = robot.root.position.clone(); hp.y = 1.25; const p = project(hp);
-        sayEl.style.left = Math.min(78, Math.max(4, p.x)) + '%'; sayEl.style.top = Math.max(8, p.y - 2) + '%';
-      } else { sayEl.style.left = ''; sayEl.style.top = ''; }
+      const hp = robot.root.position.clone(); hp.y = 1.22; const p = project(hp);
+      const dock = !!panel || !p.ok || p.x < 12 || p.x > 88 || p.y < 14 || !robot.root.visible;
+      sayEl.classList.toggle('dock', dock);
+      if (!dock) { sayEl.style.left = p.x + '%'; sayEl.style.top = Math.max(16, p.y - 2) + '%'; }
+      else { sayEl.style.left = ''; sayEl.style.top = ''; }
     }
   }
   function open() {

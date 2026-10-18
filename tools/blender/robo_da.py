@@ -87,7 +87,7 @@ def materials():
         visor=mat('rd_visor', lin('#0a1016'), 0.06, coat=1.0),
         seam=mat('rd_seam', lin('#3b434c'), 0.5),
         metal=mat('rd_metal', lin('#c4cad2'), 0.28, metal=1.0),
-        leaf=mat('rd_leaf', lin('#5aa845'), 0.42, coat=0.3, sss=0.25),
+        leaf=mat('rd_leaf', lin('#3f9e2e'), 0.4, coat=0.35, sss=0.2),
         glow=mat('rd_glow', lin('#9ff6ff'), 0.4, emit=lin('#8ff2ff'), estr=6.0),
         amber=mat('rd_amber', lin('#ffd27a'), 0.4, emit=lin('#ffc85a'), estr=4.0),
         badge=mat('rd_badge', lin('#0c1a1c'), 0.08, coat=1.0),
@@ -165,7 +165,7 @@ def head_parts():
     pts = [top + Vector((0.0, 0.0, 0.0)), top + Vector((0.004, 0.006, 0.035)), top + Vector((0.014, 0.01, 0.07)), top + Vector((0.03, 0.012, 0.095))]
     tube_path(stem, pts, 0.0075, 12); P.append(stem)
     P.append(Part('head', 'metal').rows(lathe_rows([(0.0, 0.0), (0.026, 0.0), (0.03, 0.006), (0.022, 0.014), (0.0, 0.016)], 32), M=Matrix.Translation(top - Vector((0, 0, 0.008)))))
-    P.append(leaf_part(pts[-1], Vector((0.62, 0.15, 0.77)).normalized(), 0.13, 0.055))
+    P.append(leaf_part(pts[-1], Vector((0.62, 0.15, 0.77)).normalized(), 0.17, 0.072))
     return P
 
 def leaf_part(base, d, L, W):
@@ -268,8 +268,9 @@ def _coll(name, sc):
 
 def studio():
     sc = bpy.data.scenes.get('robo_studio') or bpy.data.scenes.new('robo_studio')
-    w = bpy.data.worlds.get('rd_world') or bpy.data.worlds.new('rd_world'); w.use_nodes = True
-    bg = w.node_tree.nodes.get('Background'); bg.inputs[0].default_value = (0.42, 0.47, 0.5, 1); bg.inputs[1].default_value = 0.7
+    w = bpy.data.worlds.get('rd_world') or bpy.data.worlds.new('rd_world'); w.use_nodes = True; nt = w.node_tree; nt.nodes.clear()
+    bg = nt.nodes.new('ShaderNodeBackground'); out = nt.nodes.new('ShaderNodeOutputWorld'); nt.links.new(bg.outputs[0], out.inputs[0])
+    bg.inputs[0].default_value = (0.42, 0.47, 0.5, 1); bg.inputs[1].default_value = 0.7
     sc.world = w
     for o in [o for o in sc.collection.objects]: bpy.data.objects.remove(o, do_unlink=True)
     def light(name, loc, energy, size, color=(1, 1, 1)):
@@ -318,7 +319,7 @@ def _uv(o, p):
             q = Mi @ me.vertices[l.vertex_index].co
             uv.data[l.index].uv = (0.5 + q.x / (2 * r), 0.5 + q.y / (2 * r))
 
-VIEWS = {'front': (-28, 6, 3.0), 'side': (-80, 4, 3.0), 'face': (-12, 4, 1.25), 'back': (150, 10, 3.0)}
+VIEWS = {'front': (-28, 6, 2.3), 'side': (-80, 4, 2.3), 'face': (-12, 4, 1.25), 'back': (150, 10, 2.3)}
 def robo_preview(view='front', pct=60):
     sc = bpy.data.scenes['robo_studio']; az, el, dist = VIEWS[view]
     tgt = Vector((0, 0, 0.62 if view != 'face' else 0.84))

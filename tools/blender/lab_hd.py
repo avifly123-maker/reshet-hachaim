@@ -19,7 +19,7 @@ PV = os.path.join(D, 'pv')
 TAU = math.tau
 R = 5.0; H = 3.0; SILL, HEAD = 0.75, 2.65
 WIN = (30.0, 150.0); DOOR = (263.0, 277.0)
-PANO_ROT = 90.0      # degrees: which way of the gulf the windows look at
+PANO_ROT = 180.0      # degrees: which way of the gulf the windows look at
 
 def V(*a): return Vector(a)
 def polar(a, r, z=0.0): a = math.radians(a); return Vector((r * math.cos(a), r * math.sin(a), z))
@@ -358,11 +358,11 @@ def aquarium():
     for z, hh in ((base + 0.03, 0.06), (zt - 0.03, 0.06)):
         for s in (-1, 1):
             trim.box((W_ + 0.02, 0.03, hh), M0 @ T(0, s * Dp / 2, z)); trim.box((0.03, Dp + 0.02, hh), M0 @ T(s * W_ / 2, 0, z))
-    O('aqglass', 'glass_clear', smooth=False).box((W_, Dp, Ht - 0.02), M0 @ T(0, 0, base + Ht / 2))
+    O('aqglass', 'glass_pane', smooth=False).box((W_, Dp, Ht - 0.02), M0 @ T(0, 0, base + Ht / 2))
     O('aqwater', 'water_aq', smooth=False).box((W_ - 0.02, Dp - 0.02, Ht - 0.2), M0 @ T(0, 0, base + 0.01 + (Ht - 0.2) / 2))
     O('aqback', 'aq_back', smooth=False).plane(W_ - 0.04, Ht - 0.1, M0 @ T(0, Dp / 2 - 0.015, base + Ht / 2) @ RX(90), uv=True)
     O('aqlid', 'black', bevel=0.006).box((W_ + 0.08, Dp + 0.08, 0.07), M0 @ T(0, 0, zt + 0.035))
-    O('aqlight', 'lightstrip', smooth=False).box((W_ - 0.2, 0.06, 0.008), M0 @ T(0, -0.1, zt - 0.006))
+    O('aqlight', 'lightstrip', smooth=False).box((W_ - 0.3, 0.03, 0.006), M0 @ T(0, 0.05, zt - 0.004))
     # the sand bed
     def sz(x, y): return 0.1 + 0.05 * math.sin(x * 2.4 + 0.5) * math.cos(y * 3.0) + 0.03 * math.sin(x * 6.1) + 0.04 * (y / Dp + 0.5)
     O('aqsand', 'sand', smooth=True).grid(lambda u, v: (-W_ / 2 + 0.01 + (W_ - 0.02) * u, -Dp / 2 + 0.01 + (Dp - 0.02) * v, sz(-W_ / 2 + W_ * u, -Dp / 2 + Dp * v)), 80, 24, M0 @ T(0, 0, base))
@@ -480,7 +480,7 @@ def cabinet():
     for z in [0.12] + shelves: sh.box((Wc - 0.1, Dc - 0.05, 0.025), M0 @ T(0, 0, z))
     # two glass doors, swung wide open on their side hinges (the collection is open to look at; and no bar in front of the shelves)
     fr = O('cabdoors', 'wood_dark', bevel=0.005)
-    gl = O('cabglass', 'glass_clear', smooth=False)
+    gl = O('cabglass', 'glass_pane', smooth=False)
     dw = Wc / 2 - 0.02
     for s in (-1, 1):
         Mh = M0 @ T(s * (Wc / 2 - 0.01), -Dc / 2 - 0.02, 0) @ RZ(-s * 118)     # the hinge, the door open outward
@@ -541,7 +541,7 @@ def greenhouse():
         Lr = math.hypot(Dg / 2, zr - z1); ang = math.degrees(math.atan2(zr - z1, Dg / 2))
         for sx in (-1, 1): fr.box((0.03, Lr, 0.03), M0 @ T(sx * Wg / 2, s * Dg / 4, (z1 + zr) / 2) @ RX(s * ang))
     fr.box((Wg + 0.03, 0.035, 0.035), M0 @ T(0, 0, zr))
-    g = O('ghglass', 'glass_clear', smooth=False)
+    g = O('ghglass', 'glass_pane', smooth=False)
     g.plane(Wg, z1 - z0, M0 @ T(0, -Dg / 2, (z0 + z1) / 2) @ RX(90), uv=False); g.plane(Wg, z1 - z0, M0 @ T(0, Dg / 2, (z0 + z1) / 2) @ RX(90), uv=False)
     for sx in (-1, 1): g.plane(Dg, z1 - z0, M0 @ T(sx * Wg / 2, 0, (z0 + z1) / 2) @ RZ(90) @ RX(90), uv=False)
     Lr = math.hypot(Dg / 2, zr - z1); ang = math.degrees(math.atan2(zr - z1, Dg / 2))
@@ -560,11 +560,11 @@ def greenhouse():
         top = Vector((0.006 * math.sin(k), 0.0, 0.12 + hh))
         stm.tube([Vector((0, 0, 0.118)), Vector((0.004 * math.sin(k), 0, 0.12 + hh * 0.5)), top], 0.0032, Mp, 6)
         for s in (-1, 1):
-            leaf_blade(sd, top, Vector((s * 0.9, 0.0, 0.4)).normalized(), Vector((0, 0, 1)), 0.03 + 0.004 * k, 0.012 + 0.002 * k, 0.15, 0.2, 6, 8, Mp @ RZ(k * 40))
-        if k >= 4:
-            for j in range(min(4, k - 2)):
+            leaf_blade(sd, top, Vector((s * 0.9, 0.0, 0.4)).normalized(), Vector((0, 0, 1)), 0.045 + 0.006 * k, 0.02 + 0.003 * k, 0.15, 0.2, 6, 8, Mp @ RZ(k * 40))
+        if k >= 2:
+            for j in range(min(6, k)):
                 a = j * 2.4; d = Vector((math.cos(a) * 0.6, math.sin(a) * 0.6, 0.6)).normalized()
-                leaf_blade(sd, top - Vector((0, 0, 0.02 * j)), d, Vector((0, 0, 1)), 0.05 + 0.006 * k, 0.02 + 0.002 * k, 0.2, 0.25, 6, 10, Mp)
+                leaf_blade(sd, top - Vector((0, 0, 0.022 * (j + 1))), d, Vector((0, 0, 1)), 0.06 + 0.008 * k, 0.026 + 0.003 * k, 0.2, 0.25, 6, 10, Mp)
         lab.box((0.012, 0.003, 0.07), Mp @ T(0.05, -0.04, 0.15) @ RY(8))
     # a watering can
     Mw = M0 @ T(-0.66, -0.5, 0.775)
@@ -599,8 +599,8 @@ STATIONS = {
     'scope': (polar(58, 2.55, 1.55), polar(58, 4.18, 1.08), 30, polar(72, 3.3, 0.0)),
     'atlas': (polar(130, 2.6, 1.5), polar(127, 4.1, 1.05), 28, polar(110, 3.15, 0.0)),
     'aquarium': (polar(185, 2.2, 1.35), polar(185, 4.5, 1.35), 24, polar(205, 3.2, 0.0)),
-    'cabinet': (polar(318, 2.4, 1.5), polar(318, R - 0.3, 1.2), 26, polar(300, 3.35, 0.0)),
-    'greenhouse': (polar(2, 2.55, 1.55), polar(0, 4.15, 1.15), 28, polar(18, 3.2, 0.0)),
+    'cabinet': (polar(318, 2.75, 1.45), polar(318, R - 0.3, 1.15), 26, polar(302, 3.55, 0.0)),
+    'greenhouse': (polar(2, 2.2, 1.62), polar(0, 4.15, 1.22), 26, polar(20, 3.1, 0.0)),
 }
 
 # ═══════════════════════════════════════════ materials (Cycles, procedural)
@@ -633,22 +633,22 @@ def _tc(nt, scale=(1, 1, 1), rot=(0, 0, 0), kind='Object'):
     mp.inputs['Scale'].default_value = scale; mp.inputs['Rotation'].default_value = rot
     nt.links.new(tc.outputs[kind], mp.inputs['Vector']); return mp.outputs['Vector']
 
-def wood(name, light, dark, rough=0.42, scale=(1.0, 9.0, 9.0), grain=7.0, coat=0.15, bump=0.12, rings=False):
-    """wood grain: stretched distorted bands (the grain runs along the object's X), a ramp light → dark, a soft bump"""
+def wood(name, light, dark, rough=0.42, scale=None, grain=12.0, coat=0.15, bump=0.012, rings=False):
+    """wood: fine straight grain lines along the object's X (gently wavy), slow tone variation, a soft bump"""
     m, nt, b, _ = _mat(name); N, L = nt.nodes, nt.links
-    vec = _tc(nt, scale)
+    vec = _tc(nt, scale or ((1, 1, 1) if rings else (0.22, 1.0, 1.0)))
     wv = N.new('ShaderNodeTexWave'); wv.wave_type = 'RINGS' if rings else 'BANDS'
-    if not rings: wv.bands_direction = 'X'
-    wv.inputs['Scale'].default_value = grain; wv.inputs['Distortion'].default_value = 6.0; wv.inputs['Detail'].default_value = 3.0
-    wv.inputs['Detail Scale'].default_value = 1.5; L.new(vec, wv.inputs['Vector'])
-    nz = N.new('ShaderNodeTexNoise'); nz.inputs['Scale'].default_value = 3.0; nz.inputs['Detail'].default_value = 6; L.new(vec, nz.inputs['Vector'])
-    mx = N.new('ShaderNodeMath'); mx.operation = 'MULTIPLY_ADD'; mx.inputs[1].default_value = 0.6
+    if not rings: wv.bands_direction = 'Y'
+    wv.inputs['Scale'].default_value = grain; wv.inputs['Distortion'].default_value = 5.0 if not rings else 1.5; wv.inputs['Detail'].default_value = 3.0
+    wv.inputs['Detail Scale'].default_value = 1.0; L.new(vec, wv.inputs['Vector'])
+    nz = N.new('ShaderNodeTexNoise'); nz.inputs['Scale'].default_value = 2.5; nz.inputs['Detail'].default_value = 3; L.new(vec, nz.inputs['Vector'])
+    mx = N.new('ShaderNodeMath'); mx.operation = 'MULTIPLY_ADD'; mx.inputs[1].default_value = 0.45
     L.new(wv.outputs['Fac'], mx.inputs[0]); L.new(nz.outputs['Fac'], mx.inputs[2])
     rp = N.new('ShaderNodeValToRGB'); cr = rp.color_ramp
-    cr.elements[0].position = 0.25; cr.elements[0].color = (*lin(light), 1)
-    cr.elements[1].position = 0.95; cr.elements[1].color = (*lin(dark), 1)
+    cr.elements[0].position = 0.35; cr.elements[0].color = (*lin(light), 1)
+    cr.elements[1].position = 1.0; cr.elements[1].color = (*lin(dark), 1)
     L.new(mx.outputs[0], rp.inputs['Fac']); L.new(rp.outputs['Color'], b.inputs['Base Color'])
-    bp = N.new('ShaderNodeBump'); bp.inputs['Strength'].default_value = bump; bp.inputs['Distance'].default_value = 0.002
+    bp = N.new('ShaderNodeBump'); bp.inputs['Strength'].default_value = bump; bp.inputs['Distance'].default_value = 0.001
     L.new(wv.outputs['Fac'], bp.inputs['Height']); L.new(bp.outputs['Normal'], b.inputs['Normal'])
     _set(b, rough=rough, coat=coat, coat_rough=0.15)
     return m
@@ -689,8 +689,18 @@ def plaster():
     return m
 
 def roof_mat():
-    m = wood('roof', '#e6c48e', '#c49a62', rough=0.55, scale=(1, 1, 1), grain=5.5, coat=0.05, rings=True)
+    m = wood('roof', '#ead0a0', '#d2ac78', rough=0.6, grain=7.0, coat=0.05, bump=0.02, rings=True)
     return m
+
+def glass_soft(name, refl=0.35):
+    """a pane you look through (aquarium front, cabinet doors): see-through with a weak, fresnel-weighted reflection"""
+    m = bpy.data.materials.get('LH_' + name) or bpy.data.materials.new('LH_' + name); m.use_nodes = True
+    nt = m.node_tree; nt.nodes.clear(); N, L = nt.nodes, nt.links
+    out = N.new('ShaderNodeOutputMaterial'); tr = N.new('ShaderNodeBsdfTransparent'); gs = N.new('ShaderNodeBsdfGlossy'); gs.inputs['Roughness'].default_value = 0.03
+    fr = N.new('ShaderNodeFresnel'); fr.inputs['IOR'].default_value = 1.5
+    k = N.new('ShaderNodeMath'); k.operation = 'MULTIPLY'; k.inputs[1].default_value = refl; L.new(fr.outputs[0], k.inputs[0])
+    mx = N.new('ShaderNodeMixShader'); L.new(k.outputs[0], mx.inputs[0]); L.new(tr.outputs[0], mx.inputs[1]); L.new(gs.outputs[0], mx.inputs[2])
+    L.new(mx.outputs[0], out.inputs['Surface']); return m
 
 def glass(name, tint='#ffffff', rough=0.0, ior=1.45, window=False):
     """glass that lets the light through (shadow rays pass), so windows and jars do not darken the room"""
@@ -859,12 +869,13 @@ def make_images():
 def make_materials():
     I = make_images(); Mt = {}
     Mt['floor'] = floor_mat(); Mt['plaster'] = plaster(); Mt['roof'] = roof_mat()
-    Mt['wood_warm'] = wood('wood_warm', '#c79a62', '#8a5a32')
-    Mt['wood_dark'] = wood('wood_dark', '#7a4e2e', '#3e2414', rough=0.38, coat=0.25)
-    Mt['wood_light'] = wood('wood_light', '#e2c08c', '#b88a56', rough=0.45)
-    Mt['wood_wainscot'] = wood('wood_wainscot', '#9a6a40', '#5e3a20', rough=0.4, scale=(9, 9, 1), coat=0.2)
+    Mt['wood_warm'] = wood('wood_warm', '#c69862', '#ab7c4a')
+    Mt['wood_dark'] = wood('wood_dark', '#6e4628', '#55331b', rough=0.38, coat=0.25)
+    Mt['wood_light'] = wood('wood_light', '#dcb882', '#c69e68', rough=0.45)
+    Mt['wood_wainscot'] = wood('wood_wainscot', '#93633a', '#7a5030', rough=0.4, scale=(1.0, 1.0, 0.2), coat=0.2)
     Mt['glass_window'] = glass('glass_window', window=True)
     Mt['glass_clear'] = glass('glass_clear', '#f4fbfa', 0.0)
+    Mt['glass_pane'] = glass_soft('glass_pane', 0.3)
     Mt['water_tank'] = water('water_tank', '#7ccad8', 1.2, 0.02)
     Mt['water_aq'] = water('water_aq', '#5ab8c8', 0.55, 0.035)
     Mt['brass'] = plain('brass', '#d0a24a', 0.25, metal=1.0)
@@ -916,7 +927,7 @@ def make_materials():
     Mt['dock'] = plain('dock', '#2a3138', 0.35, coat=0.5)
     Mt['bulb'] = emission('bulb', '#fff1d0', 12.0)
     Mt['bulb_soft'] = emission('bulb_soft', '#fff6e0', 4.0)
-    Mt['lightstrip'] = emission('lightstrip', '#e8f8ff', 10.0)
+    Mt['lightstrip'] = emission('lightstrip', '#e8f8ff', 3.0)
     Mt['glow_teal'] = emission('glow_teal', '#7fe8e0', 5.0)
     for k in ('blueprint', 'notes', 'page_l', 'page_r', 'leaf0', 'leaf1', 'leaf2', 'wall0', 'wall1', 'wall2'):
         Mt['img_' + k] = image_mat('img_' + k, I[k], 0.75)
@@ -1051,13 +1062,19 @@ def world(sc):
     ob = bpy.data.objects.new('lh_pano', me); sc.collection.objects.link(ob)
     try: ob.visible_shadow = False; ob.visible_diffuse = False; ob.visible_glossy = True
     except Exception: pass
-    me2 = bpy.data.meshes.new('lh_sea'); me2.from_pydata([(-3000, -3000, -60), (3000, -3000, -60), (3000, 3000, -60), (-3000, 3000, -60)], [], [(0, 1, 2, 3)])
-    sea = plain('sea', '#0e4f7a', 0.15); me2.materials.append(sea)
+    zb = eye + Rc * math.tan(lat0)   # the sea meets the bottom of the panorama strip, in the strip's own hazy blue
+    me2 = bpy.data.meshes.new('lh_sea'); me2.from_pydata([(-Rc, -Rc, zb), (Rc, -Rc, zb), (Rc, Rc, zb), (-Rc, Rc, zb)], [], [(0, 1, 2, 3)])
+    sea = emission('sea', '#5d7389', 1.0); me2.materials.append(sea)
     so = bpy.data.objects.new('lh_sea', me2); sc.collection.objects.link(so)
-    try: so.visible_shadow = False
+    try: so.visible_shadow = False; so.visible_diffuse = False
     except Exception: pass
 
 def cameras(sc):
+    # the room seen from its centre, all around: reflections on the live robot in the game
+    cd = bpy.data.cameras.get('lhc_env') or bpy.data.cameras.new('lhc_env'); cd.type = 'PANO'
+    try: cd.panorama_type = 'EQUIRECTANGULAR'
+    except Exception: pass
+    ob = bpy.data.objects.new('lhc_env', cd); sc.collection.objects.link(ob); ob.location = (0, -0.6, 1.3); ob.rotation_euler = (math.radians(90), 0, 0)
     for k, (cam, at, lens, _r) in STATIONS.items():
         cd = bpy.data.cameras.get('lhc_' + k) or bpy.data.cameras.new('lhc_' + k); cd.lens = lens; cd.sensor_width = 36; cd.sensor_fit = 'HORIZONTAL'
         cd.clip_start = 0.05; cd.clip_end = 3000
@@ -1095,8 +1112,10 @@ def lab_hd_build():
 
 def lab_hd_render(station='home', pct=25, samples=48, final=False):
     sc = _scene(); sc.camera = bpy.data.objects['lhc_' + station]
-    sc.render.resolution_percentage = pct; sc.cycles.samples = samples
-    p = os.path.join(LD if final else PV, ('st_%s.png' if final else 'lab_%s.png') % station)
+    sc.render.resolution_x, sc.render.resolution_y = (1024, 512) if station == 'env' else (2560, 1440)
+    sc.render.resolution_percentage = 100 if station == 'env' else pct; sc.cycles.samples = samples
+    name = 'env.png' if (final and station == 'env') else ('st_%s.png' if final else 'lab_%s.png') % station
+    p = os.path.join(LD if final else PV, name)
     sc.render.filepath = p
     if os.path.exists(p): os.remove(p)
     bpy.context.window.scene = sc
@@ -1106,14 +1125,29 @@ def lab_hd_render(station='home', pct=25, samples=48, final=False):
 def lab_hd_cams():
     sc = _scene(); out = {'stations': {}, 'size': [2560, 1440]}
     for k, (cam, at, lens, rob) in STATIONS.items():
-        ob = bpy.data.objects['lhc_' + k]; q = ob.matrix_world.to_quaternion()
-        # Blender (x, y, z) → three (x, z, -y); the rotation the same way
-        qt = [q.x, q.z, -q.y, q.w]
         fovh = 2 * math.atan(18.0 / lens); fovv = 2 * math.atan(math.tan(fovh / 2) * 1440 / 2560)
-        out['stations'][k] = {'pos': [round(cam.x, 4), round(cam.z, 4), round(-cam.y, 4)], 'quat': [round(x, 6) for x in qt],
+        out['stations'][k] = {'pos': [round(cam.x, 4), round(cam.z, 4), round(-cam.y, 4)],   # aimed at 'at' with no roll (three: lookAt)
                               'fov': round(math.degrees(fovv), 4), 'robot': [round(rob.x, 3), round(rob.z, 3), round(-rob.y, 3)],
                               'at': [round(at.x, 3), round(at.z, 3), round(-at.y, 3)]}
     aq = place(185, 4.5)
     c = aq @ Vector((0, 0, 1.47)); out['aquarium'] = {'centre': [round(c.x, 3), round(c.z, 3), round(-c.y, 3)], 'size': [2.5, 0.8, 0.55], 'yaw': 185 - 90}
     with open(os.path.join(LD, 'lab_cams.json'), 'w') as fh: json.dump(out, fh, indent=1)
     return {'cams': len(out['stations'])}
+
+
+# a queue of final renders, one after the other (async renders; a timer starts the next when the last has finished)
+RQ = {'list': [], 'cur': None, 'done': []}
+def _rq_tick():
+    if RQ['cur']:
+        if bpy.app.is_job_running('RENDER') or not os.path.exists(RQ['cur']): return 4.0
+        RQ['done'].append(RQ['cur']); RQ['cur'] = None
+    if not RQ['list']: return None
+    st, pct, samples = RQ['list'].pop(0)
+    try: RQ['cur'] = lab_hd_render(st, pct, samples, True)['file']
+    except Exception as e: RQ['done'].append('error %s: %s' % (st, e)); RQ['cur'] = None
+    return 6.0
+
+def lab_hd_render_all(stations=None, pct=75, samples=64):
+    RQ['list'] = [(s, pct, samples) for s in (stations or list(STATIONS) + ['env'])]; RQ['done'] = []
+    if not bpy.app.timers.is_registered(_rq_tick): bpy.app.timers.register(_rq_tick, first_interval=1.0)
+    return {'queued': len(RQ['list'])}

@@ -135,3 +135,10 @@ Every species in src/data/reef.js carries its own Wikipedia link (`sources`). Th
 - Where a source names only a food category ("seeds", "herbs and annuals", "small insects", "leaves of shrubs"), the in-game diet link points to a representative species of that category in the same biome: harvester ants and spiny mice → seeds of sage / anemone / rockrose; hyrax → sage and anemone leaves; agama → harvester ants and honeybees; fox → spiny mouse and harvester ants.
 - Animal sizes, counts and costs are game values, not facts.
 - Extra pack: hoopoe → harvester ants (ants are documented hoopoe prey); tortoise → anemone leaves ("leaves of low plants") and shelter in mastic ("shrub margins"); chukar → sage / rockrose seeds, anemone leaves ("green leaves and shoots after the rains") and harvester ants (ants documented in chukar diet).
+
+## The lab of רובו־דע (1.3, in development)
+
+- **Shark skin and riblets** (the microscope sample and the first invention, ציפוי עור כריש): shark skin is covered with tiny tooth-like scales (dermal denticles) whose ridges run along the flow; ridged surfaces modelled on them cut skin friction in water and air: up to 9.9% in the lab, 8.2% for practical trapezoidal grooves — Bechert et al. 1997, *Journal of Fluid Mechanics* 338: 59–87. The game uses 8% for "tiny ridges along the flow", a small loss for ridges across it and for big bumps, and no change for a smooth coat.
+- **The barn owl's silent flight** (sample "נוצה של תנשמת"): the leading edge of the owl's flight feathers carries a comb-like fringe (serrations) that helps make its flight quiet — https://www.cam.ac.uk/research/features/the-owl-and-the-wind-turbine-how-stealth-feathers-could-help-reduce-noise-pollution , https://arxiv.org/abs/2008.05998 .
+- **The bee's pollen basket** (sample "רגל של דבורת דבש"): the honeybee carries pollen home in the corbicula, a basket of hairs on the hind leg — https://en.wikipedia.org/wiki/Corbicula_(bee_anatomy) .
+- **Algae inside corals** (sample "פוליפ של אלמוג"): reef-building corals hold tiny algae (zooxanthellae) in their tissue that give them food and colour — https://oceanservice.noaa.gov/facts/zooxanthellae.html .

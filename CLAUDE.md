@@ -60,9 +60,21 @@ Design: `docs/RESEARCH.md` (Hebrew). Proposed 1.3 development map (mysteries, th
 - Headless: `window.__app.openCase('mice-owl')`; `window.__game.research.dbg` has `useTool`, `applyIdea`, `startFF`, `openLab`, `runner`, `model`.
 
 - A case may bring one `dilemma` ({ at: model seconds, title, text, options: [{ idea, plus, minus }], later }): a card with two ways, each one of the case's ideas, shown once (session.js, ui.js `showDilemma`); validate-research checks it and its nikud at beginner level.
+- Advanced cases: `white-coral` (reef: heat that cannot be changed, mud from a bared wadi bank, fish-farm cages; bleached corals shown pale through `plant.healthCap` and a `white` visual group) and `the-trap` (grove: poison bait passes from the mice to owls and foxes; nest boxes, a hedge, patience). Tool kind `probe` measures at once (a lab test, the sensor buoy). Source cards `chamato`, `nefesh`.
 - Reef cases: `green-reef` (beginners, השונית הירוקה: grazers need hiding places, an artificial reef; dilemma: the algae-scraping robot, fast, or an artificial reef, lasting) and `cleaning-station` (middle, תחנת הניקוי נסגרה: anchors break the coral heads, so the cleaners have no station and parasites drive the fish away; dilemma: close the bay, fast and costly, or mooring buoys). Source cards `leovdah` and `tikun`. Young reef corals in a mystery are drawn at 42% size (`p.baseScale`), and reef thumbnails come from the card paintings.
 
 Stage 1 done: engine, research centre, mystery 1 "יותר מדי קוצנים" end to end. Next (docs/RESEARCH.md): the other two beginner mysteries, then middle (המלכודת, החורש שלא מתחדש, הנמלים שאכלו את היער), then advanced with the goat and jackal models.
+
+## The lab of רובו־דע (1.3.0, branch claude/research-1.3)
+
+Plan and Avi's decisions: `docs/LAB.md` (Hebrew). Code: `src/lab/` (pack `lab`, entered from המרכז המדעי in the research hub; main.js draws it while open).
+- The room is **pre-rendered**: `tools/blender/lab_hd.py` models it (procedural Cycles materials, the reef corals from `reef/flora/*.json`, the Gulf of Eilat panorama `lab/lab_pano.png` on a far cylinder outside the windows) and renders one 2560-wide picture per station (`lab_hd_render_all`, a timer queue of async renders, half the cores; ~10–15 min each on Avi's laptop CPU) plus `env.png` (the room from its centre, for reflections). `lab_hd_cams()` writes `lab/lab_cams.json` (positions and look-at points in three's axes; three uses lookAt, the Blender cameras have no roll).
+- In the game (`src/lab/lab.js`) each picture fills the screen as a background quad (cover crop) and the pipeline camera copies the Blender camera with `setViewOffset` for the same crop; tone mapping is off while the lab is open (the pictures are already tone-mapped by AgX). Live on top: רובו־דע and the aquarium fish (the reef pack's rigged fish, small). Depth proxies of the furniture (`tools/lab-proxy.py`, from the same pure-python geometry) hide the robot behind the table.
+- רובו־דע: `tools/blender/robo_da.py` (smooth parametric parts, materials by name; `robo_export` → `lab/robo_da.json`). The visor's face is a canvas drawn live (blink, happy, curious, wow, talking).
+- `tools/build-lab.py` → `src/data/lab-art.js` (pictures, an asset module) and `src/data/lab-robot.js` (robot + proxies).
+- Stations: the microscope (`src/lab/samples.js`: SVG at ×10/×100/×1000, a focus knob, three hidden things to find), the inventors table (`stations.js`: shark-skin coat, 4 steps, the flow tank; goal 5%, facts in docs/sources.md), the atlas. Progress per player in `web-of-life-lab` (`src/lab/progress.js`); `hasInvention('sharkskin')` makes the reef survey robot faster (tools.js).
+- Freshly written files on the PC are sometimes refused by the stager as "hardlinked"; wait a moment or read them with device_bash.
+- A Cycles vertex-colour bake of the whole room crashed Blender once (18.10): don't bake the room; render pictures.
 
 ## The reef zone (1.3.0, branch claude/research-1.3)
 
