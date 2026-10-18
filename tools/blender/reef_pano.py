@@ -16,8 +16,8 @@ LAT = (-12, 16)       # the west mountains are close and steep: the strip reache
 
 def gulf(y):
     """centre line and half-width of the gulf at northing y (metres; the viewer at 0,0, +y north, +x east)"""
-    xc = 3300.0 + 0.06 * y
-    w = 3500.0 + min(9000.0, max(0.0, -y) * 0.22)          # it widens to the south
+    xc = 2600.0 + 0.06 * y      # the viewer floats 800 m off the west shore
+    w = 3400.0 + min(9000.0, max(0.0, -y) * 0.22)          # it widens to the south
     w *= 1.0 - sstep(5200.0, 7600.0, y)                    # and ends in the north at the beach of the Arava
     return xc, w
 
@@ -32,40 +32,25 @@ def height(x, y):
     if d < 0:
         return max(-180.0, d * 0.12) - 2.0    # the sea floor drops steeply (only seen as dark water)
     west = x < xc
-    r = ridged(x, y, 0.00042, 7.0 if west else 17.0)
+    r = max(0.0, ridged(x, y, 0.00042, 7.0 if west else 17.0))
     fine = fbm(x * 0.0022, y * 0.0022, 4, z=3.0) * 38 + fbm(x * 0.009, y * 0.009, 2, z=5.0) * 7
     if west:   # Eilat mountains: steep right behind a narrow coastal strip
-        h = 820.0 * sstep(250.0, 3200.0, d) * (0.45 + 0.75 * r * r)
-    else:      # Edom: higher, farther back from the eastern shore
-        h = 1250.0 * sstep(700.0, 8500.0, d) * (0.4 + 0.8 * r * r)
+        h = 880.0 * sstep(120.0, 2200.0, d) * (0.35 + 0.85 * r ** 1.5)
+    else:      # Edom: higher, a little farther back from the eastern shore
+        h = 1350.0 * sstep(250.0, 5500.0, d) * (0.35 + 0.85 * r ** 1.5)
+    fine *= 1.0 + h / 480.0   # rugged rock up high, smooth sand below
     # the flat sandy Arava north of the gulf (mountains stay on both sides of it)
     arava = sstep(5600.0, 9000.0, y) * (1.0 - sstep(2500.0, 7000.0, abs(x - xc)))
     h = h * (1.0 - 0.92 * arava) + 25.0 * arava
     # alluvial fans: the mountain foot spreads out in a gentle slope down to the shore
-    fan = 30.0 * sstep(0.0, 900.0, d)
-    return max(fan, h) + fine * sstep(0.0, 600.0, d) + 2.0
+    fan = 10.0 * sstep(0.0, 300.0, d)
+    return max(1.5, max(fan, h) + fine * sstep(0.0, 250.0, d) + 1.0)   # land never dips under the sea
 
 
-def water_mesh(sc, NA=720, NR=110, R0=60.0, R1=45000.0):
-    """a polar sheet of water at sea level; vertex colour 'shallow' = 1 by the shore (turquoise over the reef)"""
-    bm = bmesh.new(); rows = []
-    for i in range(NR + 1):
-        r = R0 * (R1 / R0) ** (i / NR); row = []
-        for j in range(NA):
-            th = j / NA * math.tau
-            row.append(bm.verts.new((math.cos(th) * r, math.sin(th) * r, 0.0)))
-        rows.append(row)
-    for i in range(NR):
-        for j in range(NA):
-            j1 = (j + 1) % NA
-            bm.faces.new((rows[i][j], rows[i][j1], rows[i + 1][j1], rows[i + 1][j]))
-    me = bpy.data.meshes.new("r_water"); bm.to_mesh(me); bm.free()
-    ca = me.color_attributes.new("shallow", 'FLOAT_COLOR', 'POINT')
-    for v in me.vertices:
-        xc, w = gulf(v.co.y)
-        d = w - abs(v.co.x - xc)                       # distance from the shore, inside the water
-        s = 1.0 - sstep(0.0, 260.0, d)                 # a turquoise band over the fringing reef
-        ca.data[v.index].color = (s, 0, 0, 1)
+def water_mesh(sc, R=60000.0):
+    """the gulf: one flat sheet at sea level (the shore line is where the terrain crosses it)"""
+    me = bpy.data.meshes.new("r_water")
+    me.from_pydata([(-R, -R, 0), (R, -R, 0), (R, R, 0), (-R, R, 0)], [], [(0, 1, 2, 3)])
     ob = bpy.data.objects.get("r_water")
     if ob: bpy.data.objects.remove(ob, do_unlink=True)
     ob = bpy.data.objects.new("r_water", me); sc.collection.objects.link(ob)
@@ -88,9 +73,9 @@ def terrain_material():
     nz = N.new("ShaderNodeTexNoise"); nz.inputs["Scale"].default_value = 0.0018; nz.inputs["Detail"].default_value = 7
     L.new(tc.outputs["Object"], nz.inputs["Vector"])
     rp = N.new("ShaderNodeValToRGB"); cr = rp.color_ramp
-    cr.elements[0].position = 0.3; cr.elements[0].color = (0.16, 0.055, 0.035, 1)
-    cr.elements[1].position = 0.72; cr.elements[1].color = (0.36, 0.15, 0.08, 1)
-    e = cr.elements.new(0.5); e.color = (0.27, 0.1, 0.06, 1)
+    cr.elements[0].position = 0.3; cr.elements[0].color = (0.09, 0.03, 0.02, 1)
+    cr.elements[1].position = 0.72; cr.elements[1].color = (0.25, 0.09, 0.045, 1)
+    e = cr.elements.new(0.5); e.color = (0.17, 0.055, 0.03, 1)
     L.new(nz.outputs["Fac"], rp.inputs["Fac"])
     # dark dikes: thin bands running across the mountains
     wv = N.new("ShaderNodeTexWave"); wv.wave_type = 'BANDS'; wv.inputs["Scale"].default_value = 0.0009
@@ -109,7 +94,7 @@ def terrain_material():
     low = N.new("ShaderNodeMapRange"); low.inputs["From Min"].default_value = 180.0; low.inputs["From Max"].default_value = 40.0
     L.new(sxyz.outputs["Z"], low.inputs["Value"])
     mx = N.new("ShaderNodeMath"); mx.operation = 'MAXIMUM'; L.new(flat.outputs["Result"], mx.inputs[0]); L.new(low.outputs["Result"], mx.inputs[1])
-    mixs = N.new("ShaderNodeMix"); mixs.data_type = 'RGBA'; mixs.inputs[7].default_value = (0.56, 0.42, 0.28, 1)
+    mixs = N.new("ShaderNodeMix"); mixs.data_type = 'RGBA'; mixs.inputs[7].default_value = (0.4, 0.29, 0.19, 1)
     L.new(mx.outputs[0], mixs.inputs[0]); L.new(mixd.outputs[2], mixs.inputs[6])
     L.new(mixs.outputs[2], b.inputs["Base Color"])
     # rough rock
@@ -121,19 +106,12 @@ def terrain_material():
 
 
 def water_material():
-    m, nt, b = P["principled"]("r_water_mat", rough=0.06)
+    m, nt, b = P["principled"]("r_water_mat", color=(0.008, 0.05, 0.11), rough=0.24)
     N, L = nt.nodes, nt.links
-    if "Specular IOR Level" in b.inputs: b.inputs["Specular IOR Level"].default_value = 0.5
-    at = N.new("ShaderNodeAttribute"); at.attribute_name = "shallow"
-    sep = N.new("ShaderNodeSeparateColor"); L.new(at.outputs["Color"], sep.inputs[0])
-    mix = N.new("ShaderNodeMix"); mix.data_type = 'RGBA'
-    mix.inputs[6].default_value = (0.012, 0.075, 0.16, 1)      # the deep gulf
-    mix.inputs[7].default_value = (0.05, 0.38, 0.42, 1)        # turquoise over the reef
-    L.new(sep.outputs["Red"], mix.inputs[0]); L.new(mix.outputs[2], b.inputs["Base Color"])
-    # small waves
-    tc = N.new("ShaderNodeTexCoord"); wn = N.new("ShaderNodeTexNoise"); wn.inputs["Scale"].default_value = 0.08; wn.inputs["Detail"].default_value = 6
+    if "Specular IOR Level" in b.inputs: b.inputs["Specular IOR Level"].default_value = 0.3
+    tc = N.new("ShaderNodeTexCoord"); wn = N.new("ShaderNodeTexNoise"); wn.inputs["Scale"].default_value = 0.05; wn.inputs["Detail"].default_value = 6
     L.new(tc.outputs["Object"], wn.inputs["Vector"])
-    bp = N.new("ShaderNodeBump"); bp.inputs["Strength"].default_value = 0.12
+    bp = N.new("ShaderNodeBump"); bp.inputs["Strength"].default_value = 0.1
     L.new(wn.outputs["Fac"], bp.inputs["Height"]); L.new(bp.outputs["Normal"], b.inputs["Normal"])
     ob = bpy.data.objects["r_water"]; ob.data.materials.clear(); ob.data.materials.append(m)
 
@@ -142,11 +120,11 @@ def step2():
     sc = P["get_scene"](SC)
     terrain_material(); water_material()
     # bright desert morning: the sun in the south-east, a warm dusty haze
-    P["setup_render"](sc, sun_rot=(math.radians(52), 0, math.radians(35)), sun_energy=3.0, sun_color=(1.0, 0.9, 0.78),
-                      sky_strength=0.14, haze_rgb=(0.66, 0.6, 0.55), mist_start=2500, mist_depth=60000, cam_h=CAM_H, lat=LAT)
+    P["setup_render"](sc, sun_rot=(math.radians(52), 0, math.radians(35)), sun_energy=2.5, sun_color=(1.0, 0.9, 0.78),
+                      sky_strength=0.1, haze_rgb=(0.66, 0.6, 0.55), mist_start=2500, mist_depth=60000, cam_h=CAM_H, lat=LAT)
     sc.render.threads_mode = 'FIXED'
     import os
-    sc.render.threads = max(1, (os.cpu_count() or 4) - 2)   # gentle with the PC
+    sc.render.threads = max(1, (os.cpu_count() or 4) // 2)   # gentle with the PC: half the cores
     return {"ok": 1}
 
 
