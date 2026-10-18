@@ -14,6 +14,7 @@ import * as profiles from './core/profiles.js';
 import { createResearchHub } from './research/hub.js';
 import { caseById } from './research/cases/index.js';
 import { initGamepad } from './ui/gamepad.js';
+import { startBadgeToasts } from './ui/badge-toast.js';
 
 // Zones (biomes): the start screen draws them from the registry (data/zones.js); a zone's content and species models
 // arrive in its pack – { zone: { data, plants, animals }, release() } – loaded when the zone is chosen (core/packs.js).
@@ -80,6 +81,7 @@ async function boot() {
   // createLearningHub replaces it with the real one
   window.__wolLearn = { open: () => getHub().then((h) => h.open()), close: () => hub && hub.close(), isOpen: () => !!hub && hub.isOpen(), grantPack: (n) => getHub().then((h) => h.grantPack(n), (e) => console.error(e)) };
   const audio = createAudio();
+  startBadgeToasts(root, audio);   // a badge (תג) earned anywhere drops in over whatever is open
   let quality = pickQuality();
   let pipe;
   try { pipe = createPipeline(canvas, { quality }); }

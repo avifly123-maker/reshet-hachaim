@@ -2,6 +2,7 @@
 import { TORAH, sourcesOn } from '../core/edition.js';
 import { SOURCE_CARDS, SHIRA } from '../data/torah.js';
 import { grantSource } from '../core/sources-store.js';
+import { grant as grantBadge } from '../core/badges-store.js';
 import { createSourceMoments } from './sources.js';
 import * as THREE from 'three';
 import { createEnvironment } from '../env/environment.js';
@@ -887,11 +888,12 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     for (const id of m.reward?.unlock || []) { unlock(id, false); names.push(reg.byId.get(id)?.name); }
     audio.play('mission');
     // a card pack for two missions out of every three (not every one – packs should stay special)
-    if (missions.doneCount % 3 !== 0) { try { window.__wolLearn?.grantPack(1); } catch (e) { } }
+    if (!m.expert && missions.doneCount % 3 !== 0) { try { window.__wolLearn?.grantPack(1); } catch (e) { } }
+    const badges = W.research ? [] : grantBadge('mission:' + m.id);   // an expert mission gives a badge (תג), not a pack
     // torah edition: a mission from the sources gives its source card for the album ("מן המקורות")
     let srcText = '';
     if (m.reward?.source) { const card = SOURCE_CARDS.find(c => c.id === m.reward.source); if (card && grantSource(card.id)) srcText = ' · קלף מקור חדש באלבום: ' + card.title; }
-    ui.missionDone({ title: m.title, note: m.autoNote || '', rewardText: `+${m.reward?.points || 0} נקודות חיים${names.length ? ' · נפתחו: ' + names.join(', ') : ''}${srcText}` });
+    ui.missionDone({ title: m.title, note: m.autoNote || '', rewardText: `+${m.reward?.points || 0} נקודות חיים${names.length ? ' · נפתחו: ' + names.join(', ') : ''}${srcText}${badges.length ? ' · תג חדש: ' + badges.map(b => b.name).join(', ') : ''}` });
     refreshTray();
     if (W.experiment) W._saveAfterExperiment = true; else saveGame(true);
   };

@@ -19,6 +19,9 @@ import { SOURCE_ART } from '../data/source-art.js';
 import { TORAH, sourcesOn, setSourcesOn } from '../core/edition.js';
 import { SHIRA, SHIRA_SET, TZVI_SET, SOURCE_CARDS, EARN_TEXT, TQUIZ } from '../data/torah.js';
 import { ownedSources, grantSource } from '../core/sources-store.js';
+import { grant as grantBadge, tally as badgeTally, hasBadge, ownedBadges, openFrames, chosenFrame, chooseFrame, groupCount } from '../core/badges-store.js';
+import { BADGES, BADGE_GROUPS, FRAMES } from '../data/badges.js';
+import { badgeHTML, BADGE_CSS } from '../ui/badge-art.js';
 import { mountWebPuzzle } from './games/web-puzzle.js';
 import { mountKeepForest } from './games/keep-forest.js';
 import { RELATION_TYPES, DIET_VERBS, gw, activeNameFor, ALIASES, defName } from '../data/common.js';
@@ -1273,6 +1276,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     grantPack: (n) => grantPack(n), sfx: (n) => sfx(n), toast: (h) => toast(h), confetti: (t, n, p) => confetti(t, n, p),
     later: (fn, ms) => later(fn, ms), reduced, setTitle: (t) => { $('.wl-crumb').textContent = t; },
     exit: () => go('home'), toAlbum: () => go('album'), root: () => el,
+    badge: (earn) => grantBadge(earn), tally: (key, add) => badgeTally(key, add), hasBadge: (id) => hasBadge(id),
   };
   const GAMES = { webpuzzle: mountWebPuzzle, keepforest: mountKeepForest };
   let gameInst = null;
