@@ -1,0 +1,13 @@
+[{"wait":2},
+{"js":"window.__wolLearn.open(); window.__wolLearn._go('setup'); 1"},{"wait":1},
+{"shot":"shots/quiz-setup.png"},
+{"js":"const L=window.__wolLearn; const out=[]; for (const lv of ['easy','hard']) for (const b of ['amazon','grove','reef','both']) { const r=L._round(lv,b); const qs=new Set(r.map(q=>q.q+'|'+(q.sub||'')+'|'+q.opts.join(','))); out.push(lv+'/'+b+':'+r.length+(qs.size<r.length?' DUP':'')+(r.every(q=>q.opts.filter(o=>o[0]==='*').length===1)?'':' BADOPT')); } out.join(' ')"},
+{"js":"(async()=>{ const L=window.__wolLearn, $=(s)=>document.querySelector('#wol-learn '+s), sleep=(ms)=>new Promise(r=>setTimeout(r,ms)); const rounds=[]; for (let k=0;k<4;k++){ L._go('quiz',{level:'hard',biome:'grove'}); await sleep(80); const seen=[]; for (let i=0;i<10;i++){ const q=$('.wl-q'); seen.push(q?q.textContent:'?'); const o=$('.wl-opt'); o&&o.click(); await sleep(30); const n=$('.wl-fb [data-wl=next]'); n&&n.click(); await sleep(30);} rounds.push(seen);} const all=rounds.flat(); const dup=all.length-new Set(all).size; const st=L._state(); return 'rounds '+rounds.length+' asked '+all.length+' repeats '+dup+' seen '+(st.seen||[]).length; })()"},
+{"js":"(async()=>{ const L=window.__wolLearn, $=(s)=>document.querySelector('#wol-learn '+s), sleep=(ms)=>new Promise(r=>setTimeout(r,ms)); L._go('quiz',{level:'easy',biome:'reef'}); await sleep(100); for (let i=0;i<10;i++){ const q=$('.wl-q'); if (q && !$('.wl-qart') ) break; if (q && q.textContent.length>22) break; $('.wl-opt').click(); await sleep(30); $('.wl-fb [data-wl=next]').click(); await sleep(60);} return $('.wl-q').textContent; })()"},{"wait":1},
+{"shot":"shots/quiz-easy.png"},
+{"js":"(async()=>{ const $=(s)=>document.querySelector('#wol-learn '+s), sleep=(ms)=>new Promise(r=>setTimeout(r,ms)); $('.wl-opt').click(); await sleep(400); return $('.wl-fbt p').textContent; })()"},
+{"shot":"shots/quiz-easy-fb.png"},
+{"js":"(async()=>{ const L=window.__wolLearn, $=(s)=>document.querySelector('#wol-learn '+s), sleep=(ms)=>new Promise(r=>setTimeout(r,ms)); let best=''; for (let k=0;k<6 && best.length<60;k++){ L._go('quiz',{level:'hard',biome:'both'}); await sleep(100); for (let i=0;i<10;i++){ const t=$('.wl-q').textContent; const lo=[...document.querySelectorAll('#wol-learn .wl-opt')].map(b=>b.textContent).join('').length; if (t.length>55 || lo>110){ best=t; break;} $('.wl-opt').click(); await sleep(30); $('.wl-fb [data-wl=next]').click(); await sleep(60);} } return best; })()"},{"wait":1},
+{"shot":"shots/quiz-hard-long.png"},
+{"js":"(async()=>{ const $=(s)=>document.querySelector('#wol-learn '+s), sleep=(ms)=>new Promise(r=>setTimeout(r,ms)); $('.wl-opt').click(); await sleep(400); return 'fb'; })()"},
+{"shot":"shots/quiz-hard-long-fb.png"}]

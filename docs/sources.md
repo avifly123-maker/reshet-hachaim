@@ -269,3 +269,137 @@ What the experiments show:
 - **Mushrooms come up after rain** — https://news.uga.edu/?p=25515 ; **snails become active after rain** — https://pir.sa.gov.au/news/pestfacts/recent-rain-has-snails-and-slugs-moving-what-it-means-for-your-crop .
 - **More flowers bring more bees:** floral abundance raises insect visits — https://sro.sussex.ac.uk/id/eprint/63437/ .
 - (The counts in the graphs and the weights on the wobbly scale are made up for the game.)
+
+## Quiz bank (מרכז הלמידה: src/data/quiz-bank.js)
+
+The 158 hand-written questions restate facts that are already sourced above, species by species (Amazon, grove, reef) and in the tools' card texts (src/game/tools.js). New facts used only in the bank:
+- **Eilat's reef is the northernmost coral reef in the world**, in the north of the Red Sea (Gulf of Aqaba / Eilat) — https://en.wikipedia.org/wiki/Eilat%27s_Coral_Beach
+- **Bleaching:** under stress (water too warm) the algae leave the coral or lose their colour; the coral turns white but is not dead and can recover if the algae come back — https://www.whoi.edu/ocean-learning-hub/ocean-facts/why-do-corals-bleach/
+
+## מן המקורות: the torah quiz corner (src/data/torah-quiz.js, 156 new questions; 187 with torah.js TQUIZ)
+
+Every quote was copied from Sefaria (Miqra according to the Masorah; Torat Emet 357 for Mishnah and Perek Shirah; William Davidson vocalised Bavli; vocalised Midrash Rabbah and Rashi) and then compared once more, word by word, against the Sefaria API text (https://www.sefaria.org/api/v3/texts/<ref>?version=hebrew), with cantillation ignored. Two quotes were corrected that way (משלי כד, לא: כׇּסּוּ; ברכות מ ע"ב: וְעַל כְּמֵהִין). Perek Shirah lines whose speaker word is vocalised oddly in Torat Emet (מִדְבַּר, לִוְיָתַן, גַּמַּל) quote only the verse. The explanations also lean on: Devarim 14:5 (the צבי among the clean animals, for 26), Rashi on Shabbat 77b ("כדי שלא ידבקו בה הקוצים", for 126), Rashi on Gittin 68b ("קן של דוכיפת דהוא תרנגולא ברא", for 139), Shemot Rabbah 2:2 ("הִרְכִּיבוֹ עַל כְּתֵפוֹ", for 23), Bikkurim 1:3 (bikkurim from Atzeret, for 21), Jonah 2:11 and 4:6 (for 71, 72), I Kings 19:5 ("קוּם אֱכוֹל", for 58).
+
+| ref | Sefaria | questions (tqb…) |
+|---|---|---|
+| בראשית א, יא | Genesis.1.11 | 01 |
+| בראשית א, יד | Genesis.1.14 | 02 |
+| בראשית א, כ | Genesis.1.20 | 03 |
+| בראשית א, כה | Genesis.1.25 | 04 |
+| בראשית א, ל | Genesis.1.30 | 05 |
+| בראשית ב, טו | Genesis.2.15 | 06 |
+| בראשית ב, כ | Genesis.2.20 | 07 |
+| בראשית ח, ז | Genesis.8.7 | 08 |
+| בראשית ח, יא | Genesis.8.11 | 09 |
+| בראשית רבה לג, ו | Bereshit_Rabbah.33.6 | 10 |
+| בראשית ח, כב | Genesis.8.22 | 11 |
+| בראשית ט, יג | Genesis.9.13 | 12 |
+| ברכות נט ע"א | Berakhot.59a | 13 |
+| בראשית כא, לג | Genesis.21.33 | 14 |
+| בראשית יג, יח | Genesis.13.18 | 15 |
+| סנהדרין קח ע"ב | Sanhedrin.108b | 16 |
+| שמות טו, כז | Exodus.15.27 | 17 |
+| שמות טז, לא | Exodus.16.31 | 18 |
+| רש"י שמות יט, ד | Rashi_on_Exodus.19.4 | 19 |
+| שמות כג, טז | Exodus.23.16 | 20, 21 |
+| פסחים נג ע"ב | Pesachim.53b | 22 |
+| שמות רבה ב, ב | Shemot_Rabbah.2.2 | 23, 24, 25 |
+| ויקרא יא, ג | Leviticus.11.3 | 26 |
+| ויקרא יא, ט | Leviticus.11.9 | 27 |
+| ויקרא יא, יט | Leviticus.11.19 | 28 |
+| רש"י ויקרא יא, יט | Rashi_on_Leviticus.11.19 | 29 |
+| חולין סג ע"א | Chullin.63a | 30 |
+| ויקרא יט, כג | Leviticus.19.23 | 31 |
+| ויקרא כג, מ | Leviticus.23.40 | 32 |
+| ויקרא רבה ל, יב | Vayikra_Rabbah.30.12 | 33, 34 |
+| ויקרא כה, ד | Leviticus.25.4 | 35 |
+| ויקרא כו, ד | Leviticus.26.4 | 36 |
+| במדבר יג, כג | Numbers.13.23 | 37 |
+| במדבר יז, כג | Numbers.17.23 | 38 |
+| דברים ח, ח | Deuteronomy.8.8 | 39 |
+| ביכורים א, ג | Mishnah_Bikkurim.1.3 | 40 |
+| ביכורים ג, ג | Mishnah_Bikkurim.3.3 | 41 |
+| דברים יא, יא | Deuteronomy.11.11 | 42 |
+| דברים יא, יד ורש"י שם | Deuteronomy.11.14 + Rashi | 43 |
+| רש"י דברים יא, יד | Rashi_on_Deuteronomy.11.14 | 44 |
+| ברכות מ ע"א | Berakhot.40a | 45 |
+| דברים כב, ד | Deuteronomy.22.4 | 46 |
+| דברים כב, י | Deuteronomy.22.10 | 47 |
+| דברים כה, ד | Deuteronomy.25.4 | 48 |
+| דברים לב, יא | Deuteronomy.32.11 | 49 |
+| דברים ב, ח | Deuteronomy.2.8 | 50 |
+| מלכים א ט, כו | I_Kings.9.26 | 51 |
+| שופטים ט, יד | Judges.9.14 | 52 |
+| שופטים ט, ט | Judges.9.9 | 53 |
+| שמואל א יז, ב | I_Samuel.17.2 | 54 |
+| מלכים א ה, יג | I_Kings.5.13 | 55, 56 |
+| מלכים א יז, ו | I_Kings.17.6 | 57 |
+| מלכים א יט, ה | I_Kings.19.5 | 58 |
+| ישעיהו א, ג | Isaiah.1.3 | 59 |
+| ישעיהו יא, ו | Isaiah.11.6 | 60 |
+| ישעיהו יא, ז | Isaiah.11.7 | 61 |
+| ישעיהו מ, לא | Isaiah.40.31 | 62 |
+| ישעיהו מא, יט | Isaiah.41.19 | 63 |
+| ירמיהו ה, כב | Jeremiah.5.22 | 64 |
+| ירמיהו ח, ז | Jeremiah.8.7 (qere וְסִיס) | 65 |
+| ירמיהו יז, ח | Jeremiah.17.8 (qere יִרְאֶה) | 66 |
+| אבות ג, יז | Pirkei_Avot.3.17 | 67 |
+| רש"י ירמיהו א, יב | Rashi_on_Jeremiah.1.12 | 68 |
+| הושע יד, ז | Hosea.14.7 | 69 |
+| פרק שירה (הושע יד, ו) | Perek_Shirah.2.10 (טל) | 70 |
+| יונה ב, א | Jonah.2.1 | 71 |
+| יונה ד, ו | Jonah.4.6 | 72 |
+| יונה ד, ז | Jonah.4.7 | 73 |
+| מיכה ד, ד | Micah.4.4 | 74 |
+| תהלים א, ג | Psalms.1.3 | 75 |
+| תהלים ח, ט | Psalms.8.9 | 76 |
+| תהלים מב, ב | Psalms.42.2 | 77 |
+| תהלים פד, ד | Psalms.84.4 | 78 |
+| תהלים קד, יב / יד / יז / יט / כ / כב / כה / כו / כז | Psalms.104.12, 14, 17, 19, 20, 22, 25, 26, 27 | 79–87 |
+| תהלים קכח, ג | Psalms.128.3 | 88 |
+| תהלים קמה, ט / טז | Psalms.145.9, 16 | 89, 90 |
+| בבא מציעא פה ע"א | Bava_Metzia.85a | 91 |
+| תהלים קמז, ט / טז / ח | Psalms.147.9, 16, 8 | 92, 93, 94 |
+| תהלים קמח, ז / ט | Psalms.148.7, 9 | 95, 96 |
+| פרק שירה (תהלים צג, ד) | Perek_Shirah.1.9 (ימים) | 97 |
+| תהלים קז, כג–כד | Psalms.107.23-24 | 98 |
+| משלי יב, י | Proverbs.12.10 | 99 |
+| משלי כד, ל–לא | Proverbs.24.30-31 | 100 |
+| משלי ל, כז | Proverbs.30.27 | 101 |
+| איוב יב, ח | Job.12.8 | 102 |
+| איוב לט, כו / כז | Job.39.26, 27 | 103, 104 |
+| שיר השירים ב, יא–יב / יג / טו | Song_of_Songs.2.11-12, 13, 15 | 105, 106, 107 |
+| קהלת א, ז / ו | Ecclesiastes.1.7, 6 | 108, 109 |
+| קהלת ג, ב | Ecclesiastes.3.2 | 110 |
+| ראש השנה א, א / א, ב | Mishnah_Rosh_Hashanah.1.1, 1.2 | 111, 112, 113 |
+| ראש השנה טז ע"א | Rosh_Hashanah.16a | 114 |
+| ברכות ו, א | Mishnah_Berakhot.6.1 | 115 |
+| ברכות מ ע"ב | Berakhot.40b | 116 |
+| ברכות ט, ב | Mishnah_Berakhot.9.2 | 117, 118, 119, 120 |
+| תענית א, א / א, ג / ג, ח | Mishnah_Taanit.1.1, 1.3, 3.8 | 121, 122, 123 |
+| אבות ה, טו | Pirkei_Avot.5.15 | 124 |
+| בבא בתרא ב, ז | Mishnah_Bava_Batra.2.7 | 125 |
+| שבת עז ע"ב (ורש"י שם) | Shabbat.77b, Rashi_on_Shabbat.77b | 126, 127, 128, 129 |
+| חולין קכז ע"א | Chullin.127a | 130 |
+| עירובין ק ע"ב | Eruvin.100b | 131 |
+| בבא מציעא לב ע"ב | Bava_Metzia.32b | 132 |
+| קידושין פב ע"ב | Kiddushin.82b | 133 |
+| כתובות קיא ע"ב | Ketubot.111b | 134 |
+| מנחות מד ע"א | Menachot.44a | 135 |
+| שבת קז ע"ב | Shabbat.107b | 136 |
+| תענית ז ע"א | Taanit.7a | 137 |
+| תענית כה ע"ב | Taanit.25b | 138 |
+| גיטין סח ע"ב ורש"י שם | Gittin.68b, Rashi_on_Gittin.68b | 139 |
+| בראשית רבה י, ו | Bereshit_Rabbah.10.6 | 140 |
+| פרק שירה (תהלים כט, ג) | Perek_Shirah.4.33 (דגים) | 141 |
+| פרק שירה (תהלים קלו, א) | Perek_Shirah.4.32 (לויתן) | 142 |
+| פרק שירה (תהלים צב, יג) | Perek_Shirah.3.5 (תמר) | 143 |
+| פרק שירה (תהלים צב, ו) | Perek_Shirah.5.12 (פיל) | 144 |
+| פרק שירה | Perek_Shirah.4.11 (יונה), 4.19 (חסידה), 4.15 (סנונית), 4.13 (עגור), 4.9 (תרנגולת) | 145, 146, 147, 154, 155 |
+| פרק שירה (תהלים צה, ו) | Perek_Shirah.6.8 (כלבים) | 148 |
+| פרק שירה (תהלים ל, ב) | Perek_Shirah.5.18 (עכבר) | 149 |
+| פרק שירה (ישעיהו סה, ח) | Perek_Shirah.3.2 (גפן) | 150 |
+| פרק שירה (תהלים קד, לא) | Perek_Shirah.3.11 (דשאים) | 151 |
+| פרק שירה (ישעיהו לה, א) | Perek_Shirah.1.6 (מדבר) | 152 |
+| פרק שירה (תהלים צח, ח) | Perek_Shirah.1.10 (נהרות) | 153 |
+| פרק שירה (ירמיהו כה, ל) | Perek_Shirah.5.5 (גמל) | 156 |
