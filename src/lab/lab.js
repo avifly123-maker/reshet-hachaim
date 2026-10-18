@@ -15,6 +15,7 @@ import { openMicroscope, openInventors } from './stations.js';
 import { labProgress } from './progress.js';
 import { TORAH } from '../core/edition.js';
 import { grantSource } from '../core/sources-store.js';
+import { grant as grantBadge } from '../core/badges-store.js';
 import { SAMPLES } from './samples.js';
 
 const STATION_INFO = {
@@ -147,7 +148,7 @@ function makeRobot() {
 }
 
 // ───────────────────────────────────────── the lab
-export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit }) {
+export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGame }) {
   const el = document.createElement('div'); el.className = 'lb'; root.appendChild(el);
   const scene = pipe.scene, camera = pipe.camera, renderer = pipe.renderer;
   const group = new THREE.Group(); group.name = 'lab';
@@ -221,12 +222,14 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit }) {
   let open_ = false, station = 'home', prevSt = null, move = 0, panel = null, sayT = 0, greeted = false;
   const prevState = {};
   el.innerHTML = `<div class="lb-top"><button class="lb-btn lb-exit">${icon('arrowL')}<span>למרכז המדעי</span></button>
+      <button class="lb-btn lb-talk"><i class="lb-tface"></i><span>לדבר עם רובו־דע</span></button>
       <div class="lb-title"><small>המרכז המדעי</small><h1>המעבדה של רובו־דע</h1></div></div>
     <div class="lb-hots"></div>
     <nav class="lb-bar">${ORDER.map((id) => `<button data-st="${id}" class="${id === 'home' ? 'on' : ''}">${icon(STATION_INFO[id].ic || 'leaf')}<span>${STATION_INFO[id].name}</span></button>`).join('')}</nav>
     <div class="lb-panels"></div><div class="lb-say" hidden><i class="lb-face"></i><p></p></div>`;
   const hots = el.querySelector('.lb-hots'), sayEl = el.querySelector('.lb-say'), panels = el.querySelector('.lb-panels');
   el.querySelector('.lb-exit').onclick = () => { close(); onExit && onExit(); };
+  el.querySelector('.lb-talk').onclick = () => openTalk();
   el.querySelectorAll('[data-st]').forEach((b) => b.onclick = () => go(b.dataset.st));
   hots.innerHTML = ORDER.filter((id) => id !== 'home').map((id) => `<button class="lb-hot" data-hot="${id}">${icon(STATION_INFO[id].ic || 'leaf')}<span>${STATION_INFO[id].name}</span></button>`).join('');
   hots.querySelectorAll('[data-hot]').forEach((b) => b.onclick = () => go(b.dataset.hot));
@@ -250,12 +253,13 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit }) {
   }
   function arrive() {
     const info = STATION_INFO[station];
-    if (info.open === 'scope') panel = openMicroscope(panels, { say, thumbs, audio, onDone: () => robot.wave(), onClose: () => { panel = null; } });
-    else if (info.open === 'inventors') panel = openInventors(panels, { say, thumbs, audio, onInvented: (id, first) => {
-      robot.wave(); if (!first) return;
-      const src = TORAH && id === 'sharkskin' && grantSource('sheal');   // torah edition: the source card "שאל נא בהמות ותרך"
-      say('הרובוט הצולל קיבל ציפוי עור כריש! בפעם הבאה שתשלחו אותו בשונית, הוא ישחה מהר יותר.' + (src ? ' וקיבלתם קלף מקור חדש: "שאל נא בהמות ותורך". הוא מחכה לכם באלבום, בדף "מן המקורות".' : ''), 'wow');
-    }, onClose: () => { panel = null; }, goScope: () => setTimeout(() => go('scope'), 900) });
+    if (info.open === 'scope') panel = openMicroscope(panels, { say, thumbs, audio, onDone: () => { robot.wave(); const P = labProgress(); if (SAMPLES.every((x) => P.seen[x.id])) grantBadge('lab:scope'); }, onClose: () => { panel = null; } });
+    else if (info.open === 'inventors') {
+      // the inventors table is the hub's "הממציאים" (problems and robots, with the child's own cards); the lab stays underneath
+      robot.wave(); say('שולחן הממציאים! כאן פותרים בעיות אמיתיות בעזרת היצורים שלכם, ובונים רובוטים. מותר לטעות, ככה ממציאים.', 'happy');
+      if (openGame) setTimeout(() => openGame('inventors'), 700);
+      else panel = openInventors(panels, { say, thumbs, audio, onInvented: () => robot.wave(), onClose: () => { panel = null; }, goScope: () => setTimeout(() => go('scope'), 900) });
+    }
     else if (info.open === 'atlas') panel = openAtlas(panels, { say, thumbs, onClose: () => { panel = null; } });
     else if (station === 'cabinet') { const n = Object.keys(labProgress().seen).length; say(n ? `בארון האוסף שומרים את מה שמצאנו. כבר יש כאן ${n} ${n === 1 ? 'גילוי' : 'גילויים'} מהמיקרוסקופ.` : 'בארון האוסף שומרים את מה שמצאנו: קונכיות, נוצות, זרעים ושברי אלמוג. כל גילוי במיקרוסקופ יוסיף כאן עוד משהו.', 'happy'); }
     else if (info.say) say(info.say, 'happy');
@@ -356,7 +360,53 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit }) {
     if (pipe.setBloom) pipe.setBloom(0.38);
     pipe.resize();
   }
-  window.__labDebug = { go, say, get station() { return station; }, robot, openPanel: (k) => { station = k; arrive(); } };
+  // ── talking with רובו־דע: questions the child picks; his answers depend on what was already done
+  const TALK = {
+    who: { q: 'מי אתה?', a: () => 'אני רובו־דע, הרובוט של המעבדה. אני עוזר לחוקרים צעירים: מראה איפה לחפש, שואל שאלות, ולפעמים גם מתבלבל. אבל אני אף פעם לא מגלה את התשובה. אותה אתם מוצאים!', e: 'happy' },
+    what: { q: 'מה עושים כאן?', a: () => 'במיקרוסקופ מגדילים דגימות ומחפשים סודות קטנים. בשולחן הממציאים פותרים בעיות בעזרת היצורים, ובונים רובוטים. באטלס נרשם כל מה שגיליתם. ובאקווריום ובחממה... עוד מעט יהיו ניסויים!', e: 'curious' },
+    next: { q: 'מה כדאי לי לעשות עכשיו?', a: () => {
+      const P = labProgress(); const s = SAMPLES.find((x) => !P.seen[x.id]);
+      if (s) return `אולי נסתכל במיקרוסקופ על ${s.name}? יש שם משהו שעוד לא מצאתם.`;
+      if (!P.inventions.sharkskin) return 'כל הדגימות נבדקו! עכשיו לשולחן הממציאים: אולי תצליחו להמציא בגד שחייה מהיר?';
+      return 'גיליתם כל כך הרבה! נסו לבנות בשולחן הממציאים רובוט מטורף, או צאו למשלחת לעומק במרכז הלמידה.';
+    }, e: 'curious' },
+    fact: { q: 'ספר לי משהו מפתיע', a: () => FACTS[(talkN++) % FACTS.length], e: 'wow' },
+    joke: { q: 'בדיחה!', a: () => JOKES[(jokeN++) % JOKES.length], e: 'happy' },
+    feel: { q: 'איך אתה מרגיש?', a: () => { const n = Object.keys(labProgress().seen).length; return n >= 6 ? 'מצוין! מצאתם כבר ' + n + ' דגימות. אני מרגיש כמו רובוט של חוקרים אמיתיים.' : n ? 'שמח! כבר מצאתם ' + n + (n === 1 ? ' דגימה' : ' דגימות') + '. יש עוד הרבה לגלות.' : 'קצת משועמם... עוד לא בדקנו אף דגימה. בואו למיקרוסקופ!'; }, e: 'happy' },
+  };
+  // true facts, gently said (docs/sources.md, the lab)
+  const FACTS = [
+    'לתמנון יש שלושה לבבות, וכל אחת מהזרועות שלו יכולה לטעום את מה שהיא נוגעת בו.',
+    'הזיקית יכולה להזיז כל עין לחוד: אחת מסתכלת קדימה, ואחת אחורה.',
+    'לכריש אין עצמות בכלל. השלד שלו עשוי סחוס, כמו קצה האף.',
+    'התנשמת יכולה לצוד בחושך מוחלט, רק לפי השמיעה.',
+    'הגחלילית מאירה כמעט בלי חום. נורה רגילה מתחממת הרבה יותר.',
+    'קיפוד ים הולך על מאות רגליים זעירות שיוצאות בין הקוצים שלו.',
+    'יונק הדבש יכול לעוף גם אחורה!',
+    'העלה של הוויקטוריה האמזונית יכול להיות רחב יותר משני מטרים.',
+  ];
+  const JOKES = [
+    'למה פחדתי להיכנס לאקווריום? חשבתי שאחליד. מאז שקיבלתי ציפוי עור כריש, אני כבר לא מפחד!',
+    'ניסיתי ללמוד מהעצלן איך לנוח. אבל עד שהתחלתי, כבר נגמר היום.',
+    'שאלתי את הזיקית מה הצבע האהוב עליה. היא אמרה: "תלוי איפה אני עומדת".',
+    'בניתי רובוט עם קוצים של קיפוד. עכשיו אף אחד לא רוצה לחבק אותו.',
+    'התמנון ניצח אותי בציור. יש לו שמונה מכחולים!',
+  ];
+  let talkN = 0, jokeN = 0, talkEl = null;
+  function openTalk() {
+    if (talkEl) { talkEl.remove(); talkEl = null; return; }
+    if (panel) { panel.close(); panel = null; }
+    talkEl = document.createElement('div'); talkEl.className = 'lb-panel lb-chat';
+    talkEl.innerHTML = `<header><h2>מדברים עם רובו־דע</h2><button class="lb-btn lb-back">סגירה</button></header>
+      <p class="lb-chat-sub">בחרו שאלה, ורובו־דע יענה.</p>
+      <div class="lb-qs">${Object.entries(TALK).map(([k, t]) => `<button data-q="${k}">${esc(t.q)}</button>`).join('')}</div>`;
+    panels.appendChild(talkEl);
+    talkEl.querySelector('.lb-back').onclick = () => { talkEl.remove(); talkEl = null; };
+    talkEl.querySelectorAll('[data-q]').forEach((b) => b.onclick = () => { const t = TALK[b.dataset.q]; audio && audio.play('click'); robot.wave(); say(t.a(), t.e); });
+    say('שאלו אותי מה שתרצו. כלומר... מה שכתוב על הכפתורים.', 'happy');
+  }
+
+  window.__labDebug = { go, say, openTalk, get station() { return station; }, robot, openPanel: (k) => { station = k; arrive(); } };
   return { open, close, update, isOpen: () => open_ };
 }
 
@@ -365,13 +415,13 @@ function openAtlas(root, { say, thumbs, onClose }) {
   const el = document.createElement('div'); el.className = 'lb-panel lb-atlas'; root.appendChild(el);
   const P = labProgress();
   const rows = SAMPLES.map((s) => {
-    const zoom = !!P.seen[s.id], idea = s.id === 'sharkskin' && !!P.inventions.sharkskin;
+    const zoom = !!P.seen[s.id], idea = !!P.inventions[s.species] || (s.id === 'sharkskin' && !!P.inventions.sharkskin);
     return `<article class="lb-a-card ${zoom ? '' : 'dim'}">${thumbs[s.species] ? `<img src="${thumbs[s.species]}" alt="">` : ''}
       <div><b>${esc(s.name)}</b><div class="lb-stamps"><span class="${zoom ? 'on z' : ''}">הוגדל</span><span class="${idea ? 'on i' : ''}">השראה</span></div>
       <p>${zoom ? esc(s.found) : 'עוד לא הסתכלנו במיקרוסקופ.'}</p></div></article>`;
   }).join('');
   el.innerHTML = `<header><h2>האטלס</h2><p>כל יצור שחקרתם מקבל דף. כל חותמת פותחת עוד חלק מהסיפור שלו.</p><button class="lb-btn lb-back">חזרה לחדר</button></header><div class="lb-a-grid">${rows}</div>`;
   el.querySelector('.lb-back').onclick = () => { el.remove(); onClose && onClose(); };
-  say('באטלס נרשום את כל היצורים שחקרתם. בינתיים יש כאן את הדגימות מהמיקרוסקופ. בקרוב יהיו כאן כל היצורים מהסביבות.', 'happy');
+  say('באטלס נרשום את כל היצורים שחקרתם. חותמת "הוגדל" מקבלים במיקרוסקופ, וחותמת "השראה" בשולחן הממציאים.', 'happy');
   return { close: () => { el.remove(); onClose && onClose(); } };
 }

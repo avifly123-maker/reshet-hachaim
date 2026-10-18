@@ -24,6 +24,7 @@ import { BADGES, BADGE_GROUPS, FRAMES } from '../data/badges.js';
 import { badgeHTML, BADGE_CSS } from '../ui/badge-art.js';
 import { mountWebPuzzle } from './games/web-puzzle.js';
 import { mountKeepForest } from './games/keep-forest.js';
+import { mountInventors } from './games/inventors.js';
 import { RELATION_TYPES, DIET_VERBS, gw, activeNameFor, ALIASES, defName } from '../data/common.js';
 import { key as profileKey, current as currentPlayer } from '../core/profiles.js';
 import { avatarHTML } from '../ui/avatars.js';
@@ -949,6 +950,34 @@ const CSS = `
 .wol-learn .wl-gart .wl-card{--cw:6.4em;transform:rotate(-4deg)}
 .wol-learn .wl-gart .wl-card:nth-child(odd){transform:rotate(4deg)}
 .wol-learn .wl-gthread{width:2.2em;height:.25em;border-radius:9px;background:linear-gradient(90deg,#f6cf72,#8fd067);box-shadow:0 0 .8em #f6cf72}
+/* badges (תגים) */
+${BADGE_CSS}
+.wol-learn .wl-badgetile{display:flex;align-items:center;gap:1.2em;width:min(60em,100%);margin:0 auto;padding:.8em 1.4em;border-radius:1.2em;text-align:right;cursor:pointer;transition:transform .2s}
+.wol-learn .wl-badgetile:hover{transform:translateY(-.2em)}
+.wol-learn .wl-bt-row{display:flex;gap:.2em}.wol-learn .wl-bt-row .bdg{--bs:4.2em}
+.wol-learn .wl-bt-text b{display:block;font-family:var(--serif);font-size:1.4em;color:#3a2a10}.wol-learn .wl-bt-text small{color:#5a4a30}
+.wol-learn .wl-badges{gap:1em;padding:0 1.6em 1.6em}
+.wol-learn .wl-bhead{display:flex;align-items:center;justify-content:space-between;padding:.7em 1.2em;border-radius:1em;width:min(60em,100%);margin:0 auto}
+.wol-learn .wl-bhead b{font-family:var(--serif);font-size:1.5em}
+.wol-learn .wl-bgroup{width:min(60em,100%);margin:0 auto;padding:.8em 1em 1em;border-radius:1em;background:linear-gradient(180deg,color-mix(in srgb,var(--bg1) 35%,transparent),rgba(0,0,0,.18));box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.wol-learn .wl-bgroup h3{display:flex;align-items:center;justify-content:space-between;margin:0 0 .6em;color:#f6edcf;font-family:var(--serif)}
+.wol-learn .wl-bgroup h3 small{color:var(--bg2);font-family:inherit;font-weight:800}
+.wol-learn .wl-bgrid{display:flex;flex-wrap:wrap;gap:1em .6em}
+.wol-learn .wl-frames{width:min(60em,100%);margin:0 auto;padding:1em 1.2em;border-radius:1em}
+.wol-learn .wl-frames h3{margin:0;font-family:var(--serif)}.wol-learn .wl-frames p{margin:.2em 0 .8em;color:#5a4a30}
+.wol-learn .wl-frow{display:flex;flex-wrap:wrap;gap:.7em}
+.wol-learn .wl-frame{display:flex;flex-direction:column;align-items:center;gap:.25em;width:8.4em;padding:.6em;border-radius:.8em;background:rgba(0,0,0,.06);color:#3a2a10;text-align:center}
+.wol-learn .wl-frame:disabled{opacity:.45;cursor:default}
+.wol-learn .wl-frame.sel{background:#fff4cf;box-shadow:0 0 0 .2em #e2b247}
+.wol-learn .wl-frame small{color:#6a5a40;font-size:.78em}
+.wol-learn .wl-fsw{width:3.4em;height:4.4em;border-radius:.4em;background:#f3ead0}
+/* the frames on the album cards (and their swatches) */
+.wol-learn .fr-leaf.wl-card,.wol-learn .wl-frame.fr-leaf .wl-fsw{box-shadow:0 0 0 .22em #3f8a4a,0 0 0 .42em #a8d878,0 .5em 1em rgba(0,0,0,.35)}
+.wol-learn .fr-oak.wl-card,.wol-learn .wl-frame.fr-oak .wl-fsw{box-shadow:0 0 0 .22em #7a5530,0 0 0 .42em #d6b07a,0 .5em 1em rgba(0,0,0,.35)}
+.wol-learn .fr-coral.wl-card,.wol-learn .wl-frame.fr-coral .wl-fsw{box-shadow:0 0 0 .22em #e0705a,0 0 0 .42em #6fd0d8,0 .5em 1em rgba(0,0,0,.35)}
+.wol-learn .fr-brass.wl-card,.wol-learn .wl-frame.fr-brass .wl-fsw{box-shadow:0 0 0 .22em #b88a2a,0 0 0 .3em #6b4a12,0 0 0 .48em #e8c870,0 .5em 1em rgba(0,0,0,.35)}
+.wol-learn .fr-deep.wl-card,.wol-learn .wl-frame.fr-deep .wl-fsw{box-shadow:0 0 0 .22em #163a5a,0 0 0 .42em #6fd0ff,0 0 1.1em rgba(111,208,255,.55)}
+.wol-learn .fr-gold.wl-card,.wol-learn .wl-frame.fr-gold .wl-fsw{box-shadow:0 0 0 .2em #fff2b0,0 0 0 .44em #d8a640,0 0 0 .52em #8a6214,0 0 1.4em rgba(246,207,114,.6)}
 /* duel */
 .wol-learn .wl-duel{padding:0 1.6em 1em;gap:.7em}
 .wol-learn .wl-dhead{display:flex;align-items:center;gap:1.2em;padding:.55em 1.3em;border-radius:20px;width:min(60em,100%)}
@@ -1254,8 +1283,8 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   }
 
   /* ── navigation */
-  const PARENT = { home: null, setup: 'home', quiz: 'setup', end: 'home', album: 'home', pack: 'album', duel: 'album', webpuzzle: 'home', keepforest: 'home' };
-  const TITLES = { home: '', setup: 'חידון', quiz: 'חידון', end: 'חידון', album: 'אלבום הקלפים', pack: 'פתיחת חבילה', duel: 'מי חזק ברשת?', webpuzzle: 'חוט הקשר', keepforest: 'מחזיקים את היער' };
+  const PARENT = { home: null, setup: 'home', quiz: 'setup', end: 'home', album: 'home', pack: 'album', duel: 'album', webpuzzle: 'home', keepforest: 'home', inventors: 'home', badges: 'home' };
+  const TITLES = { home: '', setup: 'חידון', quiz: 'חידון', end: 'חידון', album: 'אלבום הקלפים', pack: 'פתיחת חבילה', duel: 'מי חזק ברשת?', webpuzzle: 'חוט הקשר', keepforest: 'מחזיקים את היער', inventors: 'הממציאים', badges: 'התגים שלי' };
   /* ── card mini-games (each lives in ./games/*.js and gets this context) */
   let MODE = 'full';
   const readMode = () => { try { MODE = window.localStorage.getItem(profileKey('web-of-life-mode')) || 'full'; } catch (e) { MODE = MODE || 'full'; } };
@@ -1278,7 +1307,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     exit: () => go('home'), toAlbum: () => go('album'), root: () => el,
     badge: (earn) => grantBadge(earn), tally: (key, add) => badgeTally(key, add), hasBadge: (id) => hasBadge(id),
   };
-  const GAMES = { webpuzzle: mountWebPuzzle, keepforest: mountKeepForest };
+  const GAMES = { webpuzzle: mountWebPuzzle, keepforest: mountKeepForest, inventors: mountInventors };
   let gameInst = null;
   function go(name, opts = {}) {
     clearTimers(); closeModal();
@@ -1293,7 +1322,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     $('.wl-crumb').textContent = TITLES[name] || '';
     $('.wl-back span').textContent = name === 'home' ? 'חזרה למשחק' : 'חזרה';
     updateChip(false);
-    ({ home: renderHome, setup: renderSetup, quiz: () => startQuiz(opts), end: renderEnd, album: renderAlbum, pack: renderPack, duel: () => startDuel() })[name]();
+    ({ home: renderHome, setup: renderSetup, quiz: () => startQuiz(opts), end: renderEnd, album: renderAlbum, pack: renderPack, duel: () => startDuel(), badges: renderBadges })[name]();
     main.scrollTop = 0;
   }
   function back() {
@@ -1344,7 +1373,28 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
           <div class="wl-tart wl-gart">${['grove:oak', 'grove:jay', 'tool:watergen'].map((id) => CARD.get(id)).filter(Boolean).map((c) => cardHTML(c)).join('')}</div>
           <div class="wl-tbody"><h2>מחזיקים את היער</h2><p>בונים יער מהקלפים שלכם ושומרים עליו מבצורת, משריפה ומכריתה.</p></div>
         </button>
-      </div></section>`;
+        <button class="wl-tile game paper" data-wl="game" data-g="inventors">
+          <div class="wl-tart wl-gart">${['reef:reefshark', 'grove:owl', 'amazon:hummingbird'].map((id) => CARD.get(id)).filter(Boolean).map((c) => cardHTML(c)).join('')}</div>
+          <div class="wl-tbody"><h2>הממציאים</h2><p>פותרים בעיות אמיתיות בעזרת היצורים שלכם, ובונים רובוטים מצחיקים. מותר לטעות!</p></div>
+        </button>
+      </div>
+      <button class="wl-badgetile paper" data-wl="badges"><span class="wl-bt-row">${BADGES.filter((b) => ownedBadges()[b.id]).slice(-4).map((b) => badgeHTML(b)).join('') || BADGES.slice(0, 3).map((b) => badgeHTML(b, { own: false })).join('')}</span>
+        <span class="wl-bt-text"><b>התגים שלי</b><small>אספתם ${Object.keys(ownedBadges()).filter((id) => BADGES.some((b) => b.id === id)).length} מתוך ${BADGES.length} תגים. תגים מקבלים במשימות מומחים, במשחקים ובמעבדה.</small></span></button>
+      </section>`;
+  }
+
+  /* ── the badges (תגים) and the album frames they open */
+  function renderBadges() {
+    const own = ownedBadges(), cur = chosenFrame(), open = new Set(openFrames().map((f) => f.id));
+    main.innerHTML = `<section class="wl-screen wl-badges">
+      <div class="wl-bhead paper"><b>התגים שלי</b><span>אספתם ${BADGES.filter((b) => own[b.id]).length} מתוך ${BADGES.length}</span></div>
+      ${BADGE_GROUPS.map((g) => { const list = BADGES.filter((b) => b.group === g.id); const have = list.filter((b) => own[b.id]).length;
+        return `<section class="wl-bgroup" style="--bg1:${g.col};--bg2:${g.col2}"><h3><span>${esc(g.name)}</span><small>${have} מתוך ${list.length}</small></h3>
+          <div class="wl-bgrid">${list.map((b) => badgeHTML(b, { own: !!own[b.id], how: true })).join('')}</div></section>`; }).join('')}
+      <section class="wl-frames paper"><h3>מסגרות לקלפים באלבום</h3><p>כל קבוצת תגים פותחת מסגרת. בחרו מסגרת, והיא תופיע על כל הקלפים שלכם באלבום.</p>
+        <div class="wl-frow">${FRAMES.map((f) => { const g = BADGE_GROUPS.find((x) => x.id === f.group);
+          return `<button class="wl-frame fr-${f.id}${cur === f.id ? ' sel' : ''}" data-wl="frame" data-f="${f.id}" ${open.has(f.id) ? '' : 'disabled'}><span class="wl-fsw"></span><b>${esc(f.name)}</b><small>${open.has(f.id) ? (cur === f.id ? 'נבחרה' : 'אפשר לבחור') : f.group === 'all' ? `נפתחת עם ${f.need} תגים` : `נפתחת עם ${f.need} תגים של ${esc(g ? g.short : '')}`}</small></button>`; }).join('')}</div></section>
+    </section>`;
   }
 
   /* ── quiz setup */
@@ -1497,6 +1547,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   function renderAlbum() {
     checkSets(); // also grants sets an older save already had complete (with the celebration)
     const { total, have } = collection();
+    const frameCls = chosenFrame() !== 'none' ? 'fr-' + chosenFrame() : '';   // the frame the player chose with their badges
     if (filter === 'src' && !(TORAH && sourcesOn())) filter = 'all';
     const curSet0 = filter.startsWith('set:') ? SET_BY.get(filter.slice(4)) : null;
     const curSet = curSet0 && (!curSet0.torah || sourcesOn()) ? curSet0 : null;
@@ -1514,7 +1565,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
       </div>
       ${setsHTML()}
       ${curSet ? setInfoHTML(curSet) : ''}
-      ${filter === 'src' ? sourcePageHTML() : `<div class="wl-grid${curSet ? ' inset' : ''}">${list.map((c, i) => { const o = { style: `--d:${i}`, cls: i < 24 ? 'anim' : '' }; return S.owned[c.id] ? cardHTML(c, { ...o, count: S.owned[c.id] }) : cardHTML(c, { ...o, locked: true }); }).join('')}</div>`}
+      ${filter === 'src' ? sourcePageHTML() : `<div class="wl-grid${curSet ? ' inset' : ''}">${list.map((c, i) => { const o = { style: `--d:${i}`, cls: (i < 24 ? 'anim' : '') + (frameCls ? ' ' + frameCls : '') }; return S.owned[c.id] ? cardHTML(c, { ...o, count: S.owned[c.id] }) : cardHTML(c, { ...o, cls: i < 24 ? 'anim' : '', locked: true }); }).join('')}</div>`}
       ${filter === 'all' && srcOn() ? `<div class="wl-srcall">${sourcePageHTML()}</div>` : ''}
     </section>`;
     if (!S.packs && have < 3) toast(`${IC.quest}<span>שחקו בחידון כדי להרוויח חבילות קלפים</span>`);
@@ -1859,6 +1910,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     szoom: (t) => szoom(t.dataset.s),
     srctoggle: () => { setSourcesOn(!sourcesOn()); sfx('click'); if (!sourcesOn() && (filter === 'src' || (filter.startsWith('set:') && SET_BY.get(filter.slice(4))?.torah))) filter = 'all'; go(screen === 'home' ? 'home' : screen); },
     duel: () => { sfx('click'); go('duel'); }, play: (t) => playCard(+t.dataset.k), dnext: duelNext,
+    badges: () => { sfx('click'); go('badges'); }, frame: (t) => { if (chooseFrame(t.dataset.f)) { sfx('select'); renderBadges(); } },
   };
   el.addEventListener('click', (e) => {
     const t = e.target.closest('[data-wl]');
