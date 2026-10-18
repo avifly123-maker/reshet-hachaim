@@ -193,18 +193,18 @@ export const BIOME = {
       color: '#5a6ad6', sources: [W + 'Sohal_surgeonfish'],
     },
     {
-      id: 'cleaner', name: 'שפרנון מנקה', nameEn: 'Bluestreak cleaner wrasse (Labroides dimidiatus)', kind: 'animal',
+      id: 'cleaner', name: 'נקאי אילתי', nameEn: 'Bluestreak cleaner wrasse (Labroides dimidiatus)', kind: 'animal',
       layer: 'shallow', locomotion: 'swim', active: 'day',
       diet: [],
       relations: [
-        { target: 'grouper', type: 'partner', text: 'השפרנון מנקה את הדקר מטפילים, והדקר לא אוכל אותו. כל אחד מרוויח.' },
-        { target: 'parrotfish', type: 'partner', text: 'גם דגי התוכינון באים לתחנת הניקוי של השפרנון.' },
+        { target: 'grouper', type: 'partner', text: 'הנקאי מנקה את הדקר מטפילים, והדקר לא אוכל אותו. כל אחד מרוויח.' },
+        { target: 'parrotfish', type: 'partner', text: 'גם דגי התוכינון באים לתחנת הניקוי של הנקאי.' },
       ],
       cost: 14, groupSize: [1, 2], maxCount: 4, unlock: 'r4',
-      fact: 'השפרנון המנקה פותח "תחנת ניקוי". דגים גדולים באים, פותחים פה, והוא מנקה להם טפילים, אפילו מבפנים!',
-      more: 'דגים עומדים בתור לתחנת הניקוי. השפרנון מסמן בריקוד שהוא מנקה, ואפילו טורפים גדולים לא אוכלים אותו. ' +
+      fact: 'הנקאי פותח "תחנת ניקוי". דגים גדולים באים, פותחים פה, והוא מנקה להם טפילים, אפילו מבפנים!',
+      more: 'דגים עומדים בתור לתחנת הניקוי. הנקאי מסמן בריקוד שהוא מנקה, ואפילו טורפים גדולים לא אוכלים אותו. ' +
         'כשהשפרנונים נעלמים משונית, הדגים שם נעשים חולים יותר.',
-      question: { q: 'למה הדקר לא אוכל את השפרנון המנקה?', options: ['כי השפרנון מנקה אותו מטפילים', 'כי השפרנון מהיר מדי', 'כי הדקר לא רעב'], answer: 0 },
+      question: { q: 'למה הדקר לא אוכל את הנקאי?', options: ['כי הנקאי מנקה אותו מטפילים', 'כי הנקאי מהיר מדי', 'כי הדקר לא רעב'], answer: 0 },
       color: '#3a8ad6', sources: [W + 'Bluestreak_cleaner_wrasse', W + 'Cleaning_station'],
     },
     {
@@ -383,7 +383,7 @@ export const BIOME = {
     { id: 'r2', title: 'בית בתוך שושנה', text: 'השושנון חי בתוך שושנת ים צורבת. שתלו שושנת ים, הביאו שושנונים, וגלו את השותפות ביניהם.', hint: 'הציבו את השושנונים ממש ליד שושנת הים.', after: 'r1', goal: { type: 'link', from: 'clownfish', to: 'seaanemone' }, reward: { points: 30, unlock: ['algae', 'parrotfish', 'urchin'] } },
     { id: 'r3', title: 'רועי האצות', text: 'אצות גדלות מהר, ובלי מי שיאכל אותן הן מכסות את האלמוגים. הביאו תוכינון, וגלו את הקשר בינו לבין האצות.', hint: 'הציבו את התוכינון ליד אצות שגדלות על השונית.', after: 'r2', goal: { type: 'link', from: 'parrotfish', to: 'algae' }, reward: { points: 30, unlock: ['softcoral', 'sponge', 'surgeonfish', 'turtle'] } },
     { id: 'r4', title: 'אחו מתחת למים', text: 'צב הים הירוק רועה בעשב ים. שתלו מרבד של עשב ים על החול, והביאו צב.', hint: 'עשב הים גדל על החול, בין גושי השונית.', after: 'r3', goal: { type: 'link', from: 'turtle', to: 'seagrass' }, reward: { points: 35, unlock: ['cleaner', 'grouper'] } },
-    { id: 'r5', title: 'תחנת ניקוי', text: 'השפרנון המנקה פותח תחנת ניקוי לדגים גדולים. הביאו שפרנון ודקר, וגלו את השותפות ביניהם.', hint: 'הציבו את השפרנון ליד המקום שבו הדקר שוחה.', after: 'r4', goal: { type: 'link', from: 'cleaner', to: 'grouper' }, reward: { points: 35, unlock: ['brain', 'moray'] } },
+    { id: 'r5', title: 'תחנת ניקוי', text: 'הנקאי פותח תחנת ניקוי לדגים גדולים. הביאו נקאי ודקר, וגלו את השותפות ביניהם.', hint: 'הציבו את הנקאי ליד המקום שבו הדקר שוחה.', after: 'r4', goal: { type: 'link', from: 'cleaner', to: 'grouper' }, reward: { points: 35, unlock: ['brain', 'moray'] } },
     { id: 'r6', title: 'צדים ביחד', text: 'בים סוף גילו חוקרים שהדקר והמורנה צדים ביחד. שתלו אלמוג מוח שתהיה בו מחבוא למורנה, וגלו את הקשר בין הדקר למורנה.', hint: 'המורנה גרה בחורים של אלמוג המוח. הציבו אותה לידו.', after: 'r5', goal: { type: 'link', from: 'grouper', to: 'moray' }, reward: { points: 40, unlock: ['goby', 'shrimp'] } },
     { id: 'r7', title: 'שומר ובונה', text: 'הגובי והשרימפס גרים באותה מחילה. הביאו את שניהם אל החול, וגלו את השותפות ביניהם.', hint: 'הציבו אותם על החול, קרוב זה לזה.', after: 'r6', goal: { type: 'link', from: 'goby', to: 'shrimp' }, reward: { points: 40, unlock: ['plankton', 'lionfish', 'firecoral'] } },
     { id: 'r8', title: 'השונית בלילה', text: 'בלילה השונית מתעוררת: הפלנקטון עולה, והאלמוגים פותחים את הפוליפים. הביאו פלנקטון וחכו ללילה.', hint: 'בלילה חפשו את האור הכחול של הפלנקטון.', after: 'r7', goal: { type: 'observeNight' }, reward: { points: 40, unlock: ['octopus', 'hermit', 'stingray', 'seafan', 'jellyfish'] } },
@@ -464,7 +464,7 @@ export const BIOME = {
     'השושנון חי בתוך שושנת ים צורבת. שכבה דקה על העור שלו מגינה עליו.',
     'הרבה מהחול הלבן שליד השוניות נוצר בזכות דגי התוכינון.',
     'עשב הים הוא צמח אמיתי, עם שורשים ופרחים, ולא אצה.',
-    'בתחנת ניקוי דגים גדולים עומדים בתור, והשפרנון מנקה אותם.',
+    'בתחנת ניקוי דגים גדולים עומדים בתור, והנקאי מנקה אותם.',
     'בים סוף ראו דקרים ומורנות צדים ביחד.',
     'בלילה האלמוגים פותחים את הפוליפים ותופסים פלנקטון.',
     'השרימפס חופר, הגובי שומר, ושניהם גרים באותה מחילה.',

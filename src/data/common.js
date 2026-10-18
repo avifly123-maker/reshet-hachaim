@@ -224,7 +224,7 @@ export const DEF = {
   // reef
   branching: 'אלמוג השיח', brain: 'אלמוג המוח', table: 'אלמוג השולחן', firecoral: 'אלמוג האש', softcoral: 'האלמוג הרך',
   seafan: 'מניפת הים', sponge: 'הספוג', seaanemone: 'שושנת הים', clam: 'צדפת הענק', seagrass: 'עשב הים', algae: 'האצות',
-  plankton: 'הפלנקטון', clownfish: 'השושנון', parrotfish: 'התוכינון', surgeonfish: 'המנתחן', cleaner: 'השפרנון המנקה',
+  plankton: 'הפלנקטון', clownfish: 'השושנון', parrotfish: 'התוכינון', surgeonfish: 'המנתחן', cleaner: 'הנקאי',
   butterflyfish: 'הפרפרון', lionfish: 'הזהרון', moray: 'המורנה', grouper: 'הדקר', goby: 'הגובי', shrimp: 'שרימפס האקדח',
   turtle: 'צב הים הירוק', octopus: 'התמנון', urchin: 'קיפוד הים', starfish: 'הקוצנון', stingray: 'חתול הים', hermit: 'סרטן הנזיר',
   jellyfish: 'המדוזה', reefshark: 'כריש השונית',
