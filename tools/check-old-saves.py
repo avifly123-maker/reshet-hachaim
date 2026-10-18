@@ -41,6 +41,7 @@ async def do_check(p):
         await pg.goto(await mount(pg, build)); await pg.wait_for_timeout(1500)
         await pg.evaluate("(k) => { localStorage.clear(); for (const [a, v] of Object.entries(k)) localStorage.setItem(a, v); location.reload(); }", fx['keys'])
         await pg.wait_for_timeout(3000)
+        await pg.wait_for_function("window.__profiles && window.__app", timeout=60000)   # the bigger 1.3 page can take longer to start
         players = await pg.evaluate("window.__profiles.list().length")
         res = {'players': players}
         for biome in ('amazon', 'grove'):
