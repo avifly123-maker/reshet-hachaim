@@ -321,7 +321,7 @@ export function createUI(root, bus) {
           <button data-mode="full" role="radio">${icon('web')}<span><b>מתקדמים</b><small>כל המינים, אירועים וטכנולוגיה</small></span></button>
         </div>
         <button class="st-learn" data-learn="1"><span class="st-book">${icon('book')}</span><span><b>מרכז הלמידה</b><small>חידון ואלבום קלפים</small></span></button>
-        <button class="st-learn st-research" data-research="1"><span class="st-book">${icon('flask')}</span><span><b>חוקרי היער</b><small>תעלומות, מדידות ומעבדה</small></span></button>
+        <button class="st-learn st-research" data-research="1"><span class="st-book">${icon('flask')}</span><span><b>המרכז המדעי</b><small>חוקרי היער ומעבדת רובו־דע</small></span></button>
       </div>
       <div class="st-cards"></div>
       <ol class="st-how">

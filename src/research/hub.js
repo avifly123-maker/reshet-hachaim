@@ -28,7 +28,7 @@ export function createResearchHub(root, { onPick, onClose }) {
     const starRow = (id) => { const s = (prog[id] && prog[id].stars) || []; return `<span class="rs-h-stars">${[0, 1, 2].map((i) => `<i class="${s[i] ? 'on' : ''}">★</i>`).join('')}</span>`; };
     el.innerHTML = `<div class="rs-h-bg"></div><div class="rs-h-inner">
       <header class="rs-h-head"><button class="rs-h-back">${icon('arrowL')}<span>חזרה</span></button>
-        <div><h1>${esc(RESEARCH_NAME)}</h1><p>תעלומות בטבע: מודדים, משערים, מנסים ומאזנים</p></div>
+        <div><small class="rs-h-centre">המרכז המדעי</small><h1>${esc(RESEARCH_NAME)}</h1><p>תעלומות בטבע: מודדים, משערים, מנסים ומאזנים</p></div>
         <div class="rs-h-badge">${icon('flask')}</div></header>
       ${LEVELS.map((L) => {
         const mine = CASES.filter((c) => c.level === L.id).sort((a, b) => a.order - b.order);
@@ -39,7 +39,10 @@ export function createResearchHub(root, { onPick, onClose }) {
           ${soon.map((c) => `<div class="rs-h-case soon"><div class="rs-h-art"><img src="${ISLAND_ART[c.zone] || ''}" alt=""><span class="rs-h-zone">${esc(ZONE_NAME[c.zone] || '')}</span></div>
             <div class="rs-h-body"><b>${esc(c.title)}</b><p>בקרוב</p></div></div>`).join('')}
         </div></section>`;
-      }).join('')}</div>`;
+      }).join('')}
+      <section class="rs-h-level rs-h-lab"><h2>${icon('flask')}<span>מעבדת החוקרים</span><small>רובו־דע מחכה לכם: מיקרוסקופ, שולחן ממציאים ואטלס</small></h2>
+        <div class="rs-h-cases"><div class="rs-h-case soon"><div class="rs-h-body"><b>המעבדה של רובו־דע</b><p>בקרוב</p></div></div></div></section>
+      </div>`;
     el.querySelector('.rs-h-back').addEventListener('click', close);
     el.querySelectorAll('[data-case]').forEach((b) => b.addEventListener('click', () => { close(); onPick(b.dataset.case); }));
   }
