@@ -142,3 +142,10 @@ Every species in src/data/reef.js carries its own Wikipedia link (`sources`). Th
 - **The barn owl's silent flight** (sample "נוצה של תנשמת"): the leading edge of the owl's flight feathers carries a comb-like fringe (serrations) that helps make its flight quiet — https://www.cam.ac.uk/research/features/the-owl-and-the-wind-turbine-how-stealth-feathers-could-help-reduce-noise-pollution , https://arxiv.org/abs/2008.05998 .
 - **The bee's pollen basket** (sample "רגל של דבורת דבש"): the honeybee carries pollen home in the corbicula, a basket of hairs on the hind leg — https://en.wikipedia.org/wiki/Corbicula_(bee_anatomy) .
 - **Algae inside corals** (sample "פוליפ של אלמוג"): reef-building corals hold tiny algae (zooxanthellae) in their tissue that give them food and colour — https://oceanservice.noaa.gov/facts/zooxanthellae.html .
+
+## Expert missions (משימות מומחים, 1.3)
+- "גג היער": harpy eagles nest on emergent trees such as kapok and hunt sloths and howler monkeys (Harpy eagle lines above).
+- "שרשרת האגוז": male orchid bees collect orchid scents; large bees, orchid bees among them, pollinate the Brazil nut; agoutis cache the seeds (Orchid bees, Brazil nut and agouti lines above).
+- "העורבני שותל": jays cache acorns one by one and forget some, which sprout (Eurasian jay line above).
+- "לילה שקט": barn owls hunt rodents at night and use nest boxes (Barn owl line above).
+- "שונית מחדש": coral nurseries and artificial reefs are used to restore reefs, also in the Gulf of Eilat — https://www.iui-eilat.ac.il/ , https://en.wikipedia.org/wiki/Coral_reef_restoration ; "השונית שורדת חום": heat makes corals lose their algae and bleach (Algae inside corals line above), early warning lets a reef be protected.

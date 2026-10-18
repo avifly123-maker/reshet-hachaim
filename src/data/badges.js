@@ -17,7 +17,7 @@ export const BADGE_GROUPS = [
 export const BADGES = [
   // ── expert missions (src/data/<zone>.js, ids ax*, gx*, rx*: open after the regular missions)
   { id: 'b_ax1', group: 'amazon', art: 'harpy', name: 'שומר החופה', how: 'משימת מומחים "גג היער" באמזונס', earn: 'mission:ax1' },
-  { id: 'b_ax2', group: 'amazon', art: 'kapok', name: 'פותח החלונות', how: 'משימת מומחים "חלון של אור" באמזונס', earn: 'mission:ax2' },
+  { id: 'b_ax2', group: 'amazon', art: 'kapok', name: 'פותח החלונות', how: 'משימת מומחים "לפנות מקום לאור" באמזונס', earn: 'mission:ax2' },
   { id: 'b_ax3', group: 'amazon', art: 'agouti', name: 'שותף האגוזים', how: 'משימת מומחים "שרשרת האגוז" באמזונס', earn: 'mission:ax3' },
   { id: 'b_ax4', group: 'amazon', art: 'jaguar', name: 'מאזן הטורפים', how: 'משימת מומחים "יער בלי רעב" באמזונס', earn: 'mission:ax4' },
   { id: 'b_gx1', group: 'grove', art: 'oak', name: 'מחדש החורש', how: 'משימת מומחים "דור חדש של אלונים" בחורש', earn: 'mission:gx1' },

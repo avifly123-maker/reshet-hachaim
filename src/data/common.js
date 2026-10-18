@@ -134,6 +134,7 @@ export const GOAL_LABELS = {
   photos: 'צילומים',
   rescue: 'הצלות',
   seeded: 'שתילים מרחפן',
+  all: 'משימת מומחים',
 };
 
 export const UI_WORDS = {

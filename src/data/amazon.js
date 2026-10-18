@@ -1183,6 +1183,51 @@ export const BIOME = {
     { id: 'a19', title: 'שומרי היער', text: 'כריתה בלתי חוקית פוגעת ביער. תלו מאזין יער על עץ גבוה – הוא ישמע מסורים ויזעיק עזרה.', hint: 'גררו את מאזין היער אל עץ גבוה ובוגר.', after: 'a18', goal: { type: 'tool', tool: 'listener', count: 1 }, reward: { points: 45, unlock: [] } },
     { id: 'a20', title: 'בית לציפורים ולחרקים', text: 'עזרו לבעלי החיים למצוא בית: הציבו תיבת קינון על עץ ומלון חרקים ליד הפרחים.', hint: 'תיבת הקינון נתלית על עץ. מלון החרקים עומד על הקרקע ליד פרחים.', after: 'a19', goal: { type: 'tool', tool: 'nestbox', count: 1 }, reward: { points: 45, unlock: [] } },
     { id: 'a21', title: 'יער מלא חיים', text: 'האתגר הגדול: הגיעו ל-20 מינים שחיים ביחד ביער אחד.', hint: 'בדקו בדוח של רחפן הניטור מי חסר למי.', after: 'a20', goal: { type: 'speciesAlive', count: 20 }, reward: { points: 120, unlock: [] } },
+
+    // ───── משימות מומחים (expert missions): open after every regular mission, full level only; each one gives a badge
+    // (src/data/badges.js), not a card pack. goal 'all': every part at once, `hold` = keep it all for that many seconds.
+    { id: 'ax1', expert: true, after: 'a21', title: 'גג היער',
+      text: 'עיט ההרפיה הוא הטורף הגדול של הצמרות, והוא בונה את הקן שלו בעצים הגבוהים ביותר. בנו לו בית: גדלו 2 עצי קפוק עד קומת הענקים, ודאגו שהעיט יהיה שבע, בלי שקופי היללן ייעלמו.',
+      hint: 'העיט צד קופי יללן ועצלנים. הקופים צריכים תאנים ואסאי, והעצלנים צריכים צקרופיות. בלי מספיק אוכל לקופים, גם העיט יהיה רעב.',
+      how: 'איך עושים: שתלו קפוק במקום מואר, רחוק מעצים גבוהים אחרים. אם עץ אחר מסתיר אותו, לחצו על העץ ובחרו "להעביר למקום אחר".',
+      goal: { type: 'all', hold: 40, holdLabel: 'להחזיק את הכול 40 שניות', parts: [
+        { type: 'growTo', species: 'kapok', min: 0.95, count: 2, label: '2 עצי קפוק בקומת הענקים' },
+        { type: 'alive', species: 'harpy', count: 1, label: 'עיט הרפיה ביער' },
+        { type: 'fed', species: 'harpy', min: 0.5, label: 'העיט שבע' },
+        { type: 'alive', species: 'howler', count: 2, label: 'לפחות 2 קופי יללן' },
+      ] },
+      reward: { points: 120, unlock: [] } },
+    { id: 'ax2', expert: true, after: 'ax1', title: 'לפנות מקום לאור',
+      text: 'ההליקוניות גדלות בקומות הנמוכות, אבל כשהחופה צפופה מדי, לא מגיע אליהן מספיק אור. פנו להן מקום: העבירו או עקרו עצים, כך ש־3 הליקוניות יקבלו לפחות חצי מאור השמש.',
+      hint: 'לחצו על הליקוניה כדי לראות כמה אור היא מקבלת. עץ גבוה שעומד מעליה מסתיר לה. אפשר גם להעביר את ההליקוניות למקום פתוח.',
+      how: 'איך עושים: לחצו על עץ או על צמח ביער. בכרטיס שנפתח, תחת "הצמח שבחרתם", יש "להעביר למקום אחר" ו"לעקור את הצמח הזה".',
+      goal: { type: 'all', hold: 20, holdLabel: 'האור נשאר 20 שניות', parts: [
+        { type: 'did', stat: 'reshaped', count: 1, label: 'העברתם או עקרתם צמח' },
+        { type: 'plantLight', species: 'heliconia', min: 0.5, count: 3, label: '3 הליקוניות עם חצי מאור השמש לפחות' },
+      ] },
+      reward: { points: 100, unlock: [] } },
+    { id: 'ax3', expert: true, after: 'ax2', title: 'שרשרת האגוז',
+      text: 'לעץ אגוז ברזיל יש שרשרת של חברים. הסחלבים מושכים את דבורי הסחלבים, הדבורים מאביקות את הפרחים של האגוז, והאגוטי טומן את האגוזים, ומהם צומחים עצים חדשים. הפעילו את כל השרשרת.',
+      hint: 'לעץ אגוז ברזיל יש מקסימום 3 עצים ביער. אם כבר יש 3, לא יהיה מקום לעץ חדש שהאגוטי שותל. אולי צריך לפנות מקום.',
+      how: 'איך עושים: שתלו סחלבים על עצים בוגרים, הביאו דבורי סחלבים ליד אגוזי ברזיל, והציבו אגוטי על הקרקעית לידם.',
+      goal: { type: 'all', parts: [
+        { type: 'alive', species: 'orchid', count: 2, label: '2 סחלבים על העצים' },
+        { type: 'pollinate', species: 'brazilnut', count: 3, label: '3 האבקות של אגוז ברזיל' },
+        { type: 'sownBy', species: 'brazilnut', by: 'agouti', count: 1, label: 'עץ אגוז ברזיל חדש שהאגוטי שתל' },
+      ] },
+      reward: { points: 120, unlock: [] } },
+    { id: 'ax4', expert: true, after: 'ax3', title: 'יער בלי רעב',
+      text: 'היגואר צריך הרבה טרף. אבל אם הוא צד יותר מדי, הטרף נעלם וגם הוא נשאר רעב. שמרו על יגואר שבע, על לפחות 3 קפיברות ו־2 אגוטי, ושבמשך 90 שניות אף בעל חיים לא יעזוב בגלל רעב.',
+      hint: 'אם בעל חיים רעב, אפשר להביא לו עוד אוכל, או להוציא כמה מבני מינו מהיער כדי שיהיה מספיק לכולם.',
+      how: 'איך עושים: לחצו על בעל חיים ביער. בכרטיס שנפתח, תחת "בעל החיים שבחרתם", יש "להוציא אותו מהמקום".',
+      goal: { type: 'all', parts: [
+        { type: 'alive', species: 'jaguar', count: 1, label: 'יגואר ביער' },
+        { type: 'fed', species: 'jaguar', min: 0.5, label: 'היגואר שבע' },
+        { type: 'alive', species: 'capybara', count: 3, label: 'לפחות 3 קפיברות' },
+        { type: 'alive', species: 'agouti', count: 2, label: 'לפחות 2 אגוטי' },
+        { type: 'calm', seconds: 90, label: '90 שניות בלי שאף אחד עוזב ברעב או נובל' },
+      ] },
+      reward: { points: 150, unlock: [] } },
   ],
 
   // ───────────────────────── EVENTS ─────────────────────────

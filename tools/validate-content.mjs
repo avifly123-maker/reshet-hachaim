@@ -40,7 +40,16 @@ const GOALS = {
   health: ['min', 'seconds'], grow: ['species', 'count'], floorLight: ['min'], pollinate: ['species', 'count'],
   disperse: ['count'], discover: ['count'], observeNight: [], survive: ['event'], bloom: ['species', 'season'], experiment: [],
   tool: ['tool', 'count'], photos: ['count'], rescue: ['count'], seeded: ['count'],
+  all: ['parts'],   // expert missions: every part at once (src/game/missions.js evalPart), optional hold / holdLabel
 };
+// the parts of an expert mission's 'all' goal (each also needs a label for the checklist)
+const GOAL_PARTS = {
+  alive: ['species', 'count'], atMost: ['species', 'max'], fed: ['species', 'min'], did: ['stat', 'count'],
+  toolSince: ['tool', 'count'], tool: ['tool', 'count'], young: ['species', 'min', 'count'], sownBy: ['species', 'by', 'count'],
+  plantLight: ['species', 'min', 'count'], growTo: ['species', 'min', 'count'], pollinate: ['species', 'count'],
+  swimKinds: ['count'], kinds: ['count'], link: ['from', 'to'], calm: ['seconds'], eventDone: ['event'], seasons: ['count', 'kinds'],
+};
+const DID_STATS = ['uprooted', 'moved', 'letGo', 'reshaped'];
 const EFFECTS = {
   treeFall: ['target'], rain: ['seconds'], drought: ['seconds', 'strength'], fire: ['strength'], heat: ['seconds'],
   flood: ['seconds'], points: ['amount'], add: ['species', 'count'], remove: ['species', 'count'], unlock: ['species'],
@@ -204,6 +213,24 @@ function validateBiome(B, id) {
     if (m.after !== null && !missionIds.has(m.after)) err(id, `${p}: after "${m.after}" invalid`);
     const g = m.goal || {};
     if (!GOALS[g.type]) err(id, `${p}: goal type "${g.type}" invalid`);
+    else if (g.type === 'all') {
+      if (!m.expert) err(id, `${p}: an 'all' goal is for expert missions`);
+      if (!Array.isArray(g.parts) || !g.parts.length) err(id, `${p}: goal all needs parts`);
+      for (const k of Object.keys(g)) if (!['type', 'parts', 'hold', 'holdLabel'].includes(k)) err(id, `${p}: goal all unknown param ${k}`);
+      if (g.hold !== undefined && !(Number.isInteger(g.hold) && g.hold > 0)) err(id, `${p}: hold must be positive int`);
+      for (const q of g.parts || []) {
+        const req = GOAL_PARTS[q.type];
+        if (!req) { err(id, `${p}: part type "${q.type}" invalid`); continue; }
+        if (typeof q.label !== 'string' || !q.label) err(id, `${p}: part ${q.type} needs a label`);
+        for (const k of req) if (q[k] === undefined) err(id, `${p}: part ${q.type} missing ${k}`);
+        const opt = q.type === 'eventDone' ? ['after'] : [];
+        for (const k of Object.keys(q)) if (k !== 'type' && k !== 'label' && !req.includes(k) && !opt.includes(k)) err(id, `${p}: part ${q.type} unknown param ${k}`);
+        for (const k of ['species', 'from', 'to', 'by']) if (q[k] !== undefined && !idSet.has(q[k])) err(id, `${p}: part ${k} "${q[k]}" not in biome`);
+        if (q.event !== undefined && !eventIds.has(q.event)) err(id, `${p}: part event "${q.event}" not an event id`);
+        if (q.stat !== undefined && !DID_STATS.includes(q.stat)) err(id, `${p}: part stat "${q.stat}" invalid`);
+        if (q.min !== undefined && !(isNum(q.min) && q.min > 0 && q.min <= 1)) err(id, `${p}: part min must be 0..1`);
+      }
+    }
     else {
       for (const k of GOALS[g.type]) if (g[k] === undefined) err(id, `${p}: goal ${g.type} missing ${k}`);
       for (const k of Object.keys(g)) if (k !== 'type' && !GOALS[g.type].includes(k)) err(id, `${p}: goal ${g.type} unknown param ${k}`);
@@ -252,6 +279,7 @@ function validateBiome(B, id) {
   for (const m of order) {
     const g = m.goal || {};
     for (const k of ['species', 'from', 'to']) if (g[k] && !avail.has(g[k])) err(id, `mission ${m.id}: needs "${g[k]}" which is not unlocked yet`);
+    for (const q of g.parts || []) for (const k of ['species', 'from', 'to', 'by']) if (q[k] && !avail.has(q[k])) err(id, `mission ${m.id}: needs "${q[k]}" which is not unlocked yet`);
     for (const u of m.reward?.unlock || []) avail.add(u);
   }
   if (starters.length < 5 || starters.length > 8) warn(id, `starter set size ${starters.length}`);
@@ -307,7 +335,11 @@ function validateBiome(B, id) {
   if (!Array.isArray(B.tips) || B.tips.length < 10) err(id, `need 10+ tips (have ${B.tips?.length})`);
 
   // counts
-  if ((B.missions || []).length < 10 || B.missions.length > 12) warn(id, `${B.missions.length} missions (want 10–12)`);
+  // the expert missions come after the regular ones and are counted apart
+  const regular = (B.missions || []).filter((m) => !m.expert), expert = (B.missions || []).filter((m) => m.expert);
+  if (regular.length < 10 || regular.length > 21) warn(id, `${regular.length} regular missions (want 10–21)`);
+  if (expert.length && expert.length !== 4) warn(id, `${expert.length} expert missions (want 4)`);
+  if (expert.some((m) => regular.indexOf(B.missions.find((x) => x.id === m.after)) < 0 && !expert.some((x) => x.id === m.after))) err(id, 'expert missions must follow the regular chain');
   if ((B.events || []).length < 6 || B.events.length > 8) warn(id, `${B.events.length} events (want 6–8)`);
 
   checkForbidden(id, B);
