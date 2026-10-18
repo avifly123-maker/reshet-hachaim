@@ -17,6 +17,7 @@ import { TORAH } from '../core/edition.js';
 import { grantSource } from '../core/sources-store.js';
 import { grant as grantBadge } from '../core/badges-store.js';
 import { SAMPLES } from './samples.js';
+import { openQuestions, answeredCount } from './questions.js';
 
 const STATION_INFO = {
   home: { name: 'החדר', ic: 'home' },
@@ -253,14 +254,14 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
   }
   function arrive() {
     const info = STATION_INFO[station];
-    if (info.open === 'scope') panel = openMicroscope(panels, { say, thumbs, audio, onDone: () => { robot.wave(); const P = labProgress(); if (SAMPLES.every((x) => P.seen[x.id])) grantBadge('lab:scope'); }, onClose: () => { panel = null; } });
+    if (info.open === 'scope') panel = openMicroscope(panels, { say, thumbs, audio, start: takeSample(), onDone: () => { robot.wave(); const P = labProgress(); if (SAMPLES.every((x) => P.seen[x.id])) grantBadge('lab:scope'); }, onClose: () => { panel = null; } });
     else if (info.open === 'inventors') {
       // the inventors table is the hub's "הממציאים" (problems and robots, with the child's own cards); the lab stays underneath
       robot.wave(); say('שולחן הממציאים! כאן פותרים בעיות אמיתיות בעזרת היצורים שלכם, ובונים רובוטים. מותר לטעות, ככה ממציאים.', 'happy');
       if (openGame) setTimeout(() => openGame('inventors'), 700);
       else panel = openInventors(panels, { say, thumbs, audio, onInvented: () => robot.wave(), onClose: () => { panel = null; }, goScope: () => setTimeout(() => go('scope'), 900) });
     }
-    else if (info.open === 'atlas') panel = openAtlas(panels, { say, thumbs, onClose: () => { panel = null; } });
+    else if (info.open === 'atlas') panel = openAtlas(panels, { say, thumbs, onClose: () => { panel = null; }, onQuestions: () => openQuest() });
     else if (station === 'cabinet') { const n = Object.keys(labProgress().seen).length; say(n ? `בארון האוסף שומרים את מה שמצאנו. כבר יש כאן ${n} ${n === 1 ? 'גילוי' : 'גילויים'} מהמיקרוסקופ.` : 'בארון האוסף שומרים את מה שמצאנו: קונכיות, נוצות, זרעים ושברי אלמוג. כל גילוי במיקרוסקופ יוסיף כאן עוד משהו.', 'happy'); }
     else if (info.say) say(info.say, 'happy');
     else if (station === 'home') say('לאן הולכים עכשיו? המיקרוסקופ מחכה לכם, וגם שולחן הממציאים.', 'happy');
@@ -406,12 +407,22 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     say('שאלו אותי מה שתרצו. כלומר... מה שכתוב על הכפתורים.', 'happy');
   }
 
-  window.__labDebug = { go, say, openTalk, get station() { return station; }, robot, openPanel: (k) => { station = k; arrive(); } };
+  // שאלות חקר (src/lab/questions.js): opened from the atlas; a question can send the child to the microscope or the inventors game
+  let pendingSample = null;
+  const takeSample = () => { const s = pendingSample; pendingSample = null; return s; };
+  function openQuest(start) {
+    if (panel) { panel.close(); panel = null; }
+    panel = openQuestions(panels, { say, thumbs, audio, start, onClose: () => { panel = null; }, onBack: () => arrive(),
+      goScope: (id) => { pendingSample = id; if (station === 'scope') { if (panel) { panel.close(); panel = null; } arrive(); } else go('scope'); },
+      goInvent: (pid) => { if (openGame) openGame('inventors', { problem: pid }); } });
+  }
+
+  window.__labDebug = { go, say, openTalk, openQuestions: (id) => openQuest(id), get station() { return station; }, robot, openPanel: (k) => { station = k; arrive(); } };
   return { open, close, update, isOpen: () => open_ };
 }
 
 // ───────────────────────────────────────── the atlas: every creature studied, with its stamps
-function openAtlas(root, { say, thumbs, onClose }) {
+function openAtlas(root, { say, thumbs, onClose, onQuestions }) {
   const el = document.createElement('div'); el.className = 'lb-panel lb-atlas'; root.appendChild(el);
   const P = labProgress();
   const rows = SAMPLES.map((s) => {
@@ -420,8 +431,9 @@ function openAtlas(root, { say, thumbs, onClose }) {
       <div><b>${esc(s.name)}</b><div class="lb-stamps"><span class="${zoom ? 'on z' : ''}">הוגדל</span><span class="${idea ? 'on i' : ''}">השראה</span></div>
       <p>${zoom ? esc(s.found) : 'עוד לא הסתכלנו במיקרוסקופ.'}</p></div></article>`;
   }).join('');
-  el.innerHTML = `<header><h2>האטלס</h2><p>כל יצור שחקרתם מקבל דף. כל חותמת פותחת עוד חלק מהסיפור שלו.</p><button class="lb-btn lb-back">חזרה לחדר</button></header><div class="lb-a-grid">${rows}</div>`;
+  el.innerHTML = `<header><h2>האטלס</h2><p>כל יצור שחקרתם מקבל דף. כל חותמת פותחת עוד חלק מהסיפור שלו.</p>${onQuestions ? `<button class="lb-btn lb-qbtn">שאלות חקר · ${answeredCount()}</button>` : ''}<button class="lb-btn lb-back">חזרה לחדר</button></header><div class="lb-a-grid">${rows}</div>`;
   el.querySelector('.lb-back').onclick = () => { el.remove(); onClose && onClose(); };
+  const qb = el.querySelector('.lb-qbtn'); if (qb) qb.onclick = () => onQuestions();
   say('באטלס נרשום את כל היצורים שחקרתם. חותמת "הוגדל" מקבלים במיקרוסקופ, וחותמת "השראה" בשולחן הממציאים.', 'happy');
   return { close: () => { el.remove(); onClose && onClose(); } };
 }

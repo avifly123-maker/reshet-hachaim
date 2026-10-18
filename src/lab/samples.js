@@ -273,6 +273,251 @@ const OCTOPUS = {
   },
 };
 
-export const SAMPLES = [SHARK, OWL, BEE, CORAL, MORPHO, FIREFLY, TOUCAN, CHAMELEON, OCTOPUS];
+// the biomimicry samples (1.3, the big inventors update): each one is the key of a problem in "הממציאים" or of a
+// research question in the atlas. Facts in docs/sources.md (הממציאים).
+const HEDGEHOG = {
+  id: 'hedgehogspine', species: 'hedgehog', name: 'קוץ של קיפוד', zone: 'grove', zoom: 2, focus: 55,
+  task: 'מצאו שלוש מחיצות בתוך הקוץ החלול.',
+  hints: ['כאילו חתכנו את הקוץ לאורכו. הגדילו הכי הרבה.', 'הקוץ חלול, אבל לא ריק לגמרי. מה מחזיק אותו מבפנים?'],
+  found: 'הקוץ הוא צינור דק וחלול. בפנים יש מחיצות קטנות ופסים לאורכו, והם לא נותנים לו להימעך.',
+  idea: 'צינור חלול עם מחיצות יכול לבלום מכה בלי להישבר.',
+  targets: [],
+  view(level) {
+    const r = rnd(101 + level);
+    if (level === 0) {
+      let sp = ''; for (let i = 0; i < 70; i++) { const x = 20 + r() * 360, y = 40 + r() * 340, a = -0.9 + r() * 0.5, L = 70 + r() * 50;
+        sp += `<path d="M${f(x)} ${f(y)} l${f(Math.cos(a) * L)} ${f(Math.sin(a) * L)}" stroke="#f1e2c4" stroke-width="5" stroke-linecap="round"/><path d="M${f(x + Math.cos(a) * L * 0.45)} ${f(y + Math.sin(a) * L * 0.45)} l${f(Math.cos(a) * L * 0.3)} ${f(Math.sin(a) * L * 0.3)}" stroke="#5a3a20" stroke-width="5.4"/>`; }
+      return `<rect width="400" height="400" fill="#3a2a1c"/>${sp}`;
+    }
+    if (level === 1) {
+      let b = ''; for (let k = 0; k < 9; k++) b += `<rect x="${30 + k * 40}" y="150" width="${k % 2 ? 40 : 40}" height="100" fill="${k % 3 === 1 ? '#6a4628' : '#efe0c0'}"/>`;
+      return `<rect width="400" height="400" fill="#20160e"/>${b}<rect x="30" y="150" width="360" height="100" rx="50" fill="none" stroke="#c9b48a" stroke-width="6"/>
+        <path d="M30 200 L0 200" stroke="#efe0c0" stroke-width="40"/>`;
+    }
+    // a lengthwise cut: two thin walls, ridges along the wall, and plates across the hollow
+    const xs = [70, 150, 230, 310];
+    HEDGEHOG.targets = [{ x: 70, y: 200, r: 42 }, { x: 150, y: 200, r: 42 }, { x: 230, y: 200, r: 42 }, { x: 310, y: 200, r: 42 }];
+    let g = `<rect x="0" y="92" width="400" height="216" fill="#2a1e12"/><rect x="0" y="92" width="400" height="22" fill="url(#hw)"/><rect x="0" y="286" width="400" height="22" fill="url(#hw)"/>`;
+    for (let k = 0; k < 7; k++) g += `<path d="M0 ${f(128 + k * 24)} H400" stroke="#8a6a42" stroke-width="2.2" opacity=".55"/>`;
+    for (const x of xs) g += `<path d="M${x} 114 C${x - 9} 160 ${x + 9} 240 ${x} 286" stroke="#f3e4c4" stroke-width="9" fill="none" stroke-linecap="round"/>`;
+    for (let i = 0; i < 30; i++) g += `<circle cx="${f(r() * 400)}" cy="${f(120 + r() * 160)}" r="${f(1 + r() * 2)}" fill="#c9a87a" opacity=".5"/>`;
+    return `<defs><linearGradient id="hw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff4da"/><stop offset="1" stop-color="#c9a87a"/></linearGradient>${grain('g2', 0.05, 0.2)}</defs>
+      <rect width="400" height="400" fill="#120c06"/>${g}<rect width="400" height="400" fill="#000" filter="url(#g2)"/>`;
+  },
+};
+
+const SLOTH = {
+  id: 'slothhair', species: 'sloth', name: 'שערה של עצלן', zone: 'amazon', zoom: 2, focus: 42,
+  task: 'מצאו שלוש קבוצות של אצות ירוקות בסדקים של השערה.',
+  hints: ['השערה לא חלקה. יש בה סדקים לרוחב.', 'בתוך הסדקים מסתתר משהו ירוק.'],
+  found: 'בשערה של העצלן יש סדקים קטנים לרוחב, ובהם גרות אצות ירוקות. לכן הפרווה נראית לפעמים ירקרקה.',
+  idea: 'גם שערה יכולה להיות בית לשותפים קטנים.',
+  targets: [],
+  view(level) {
+    const r = rnd(111 + level);
+    if (level === 0) {
+      let h = ''; for (let i = 0; i < 160; i++) { const x = r() * 420 - 10, y = r() * 400; h += `<path d="M${f(x)} ${f(y)} q${f(20 + r() * 20)} ${f(30 + r() * 20)} ${f(10 + r() * 30)} ${f(70 + r() * 30)}" stroke="hsl(${f(60 + r() * 40)} ${f(20 + r() * 20)}% ${f(30 + r() * 20)}%)" stroke-width="${f(2 + r() * 2)}" fill="none" stroke-linecap="round"/>`; }
+      return `<rect width="400" height="400" fill="#4a4030"/>${h}`;
+    }
+    if (level === 1) {
+      let h = ''; for (let k = 0; k < 6; k++) { const y = 40 + k * 64; h += `<rect x="-10" y="${y}" width="420" height="34" rx="17" fill="#8a7454"/>`;
+        for (let c = 0; c < 9; c++) { const x = 20 + c * 44 + r() * 10; h += `<path d="M${f(x)} ${y + 2} l6 30" stroke="#3a3020" stroke-width="3"/>`; if (r() < 0.5) h += `<circle cx="${f(x + 4)}" cy="${y + 17}" r="4" fill="#6aa04a"/>`; } }
+      return `<rect width="400" height="400" fill="#2a2418"/>${h}`;
+    }
+    const cracks = [70, 140, 210, 280, 340];
+    SLOTH.targets = [[70, 200], [210, 200], [340, 200], [140, 200], [280, 200]].map(([x, y]) => ({ x, y, r: 40 }));
+    let g = `<rect x="-10" y="110" width="420" height="180" rx="80" fill="url(#sh)"/>`;
+    for (const x of cracks) {
+      g += `<path d="M${x - 14} 112 L${x - 4} 200 L${x - 14} 288 L${x + 14} 288 L${x + 4} 200 L${x + 14} 112z" fill="#3a2e1c"/>`;
+      for (let k = 0; k < 7; k++) g += `<circle cx="${f(x - 6 + r() * 12)}" cy="${f(130 + r() * 140)}" r="${f(5 + r() * 3)}" fill="url(#al)"/>`;
+    }
+    return `<defs><linearGradient id="sh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c8ae84"/><stop offset=".5" stop-color="#a68a62"/><stop offset="1" stop-color="#6e5a3e"/></linearGradient>
+      <radialGradient id="al" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#d8f5a0"/><stop offset=".6" stop-color="#5aa03a"/><stop offset="1" stop-color="#2a5a1a"/></radialGradient>${grain('g2', 0.05, 0.2)}</defs>
+      <rect width="400" height="400" fill="#1e1a12"/>${g}<rect width="400" height="400" fill="#000" filter="url(#g2)"/>`;
+  },
+};
+
+const KAPOK = {
+  id: 'kapokfibre', species: 'kapok', name: 'סיב של קפוק', zone: 'amazon', zoom: 2, focus: 60,
+  task: 'מצאו שלושה סיבים חתוכים, וראו מה יש בתוכם.',
+  hints: ['בהגדלה הכי גדולה רואים את הסיבים חתוכים, כמו צינורות.', 'הסתכלו באמצע של כל סיב. מה ממלא אותו?'],
+  found: 'כל סיב של קפוק הוא צינור דק עם דופן דקה, וכמעט כולו מלא באוויר. לכן הוא קל מאוד וצף על המים.',
+  idea: 'חומר מלא באוויר יכול לצוף זמן רב.',
+  targets: [],
+  view(level) {
+    const r = rnd(121 + level);
+    if (level === 0) {
+      let c = ''; for (let i = 0; i < 60; i++) c += `<circle cx="${f(60 + r() * 280)}" cy="${f(60 + r() * 280)}" r="${f(30 + r() * 40)}" fill="#fbf8f0" opacity="${f(0.25 + r() * 0.3)}"/>`;
+      return `<rect width="400" height="400" fill="#5a4a32"/>${c}<ellipse cx="200" cy="370" rx="160" ry="30" fill="#3a2e1c"/>`;
+    }
+    if (level === 1) {
+      let c = ''; for (let i = 0; i < 40; i++) { const y = r() * 400, a = -0.4 + r() * 0.8; c += `<path d="M-20 ${f(y)} Q200 ${f(y + Math.sin(a) * 120)} 420 ${f(y + a * 100)}" stroke="#f6f2e4" stroke-width="${f(4 + r() * 3)}" fill="none" opacity=".75"/>`; }
+      return `<rect width="400" height="400" fill="#2a3a46"/>${c}`;
+    }
+    const pts = [[100, 110], [270, 100], [190, 230], [80, 310], [310, 300]];
+    KAPOK.targets = pts.map(([x, y]) => ({ x, y, r: 50 }));
+    let g = '';
+    for (let i = 0; i < 12; i++) { const y = r() * 400; g += `<path d="M-20 ${f(y)} Q200 ${f(y - 30 + r() * 60)} 420 ${f(y + r() * 40 - 20)}" stroke="#e8e2d0" stroke-width="16" fill="none" opacity=".35"/>`; }
+    for (const [x, y] of pts) g += `<circle cx="${x}" cy="${y}" r="44" fill="#f4efe0" stroke="#b9ae90" stroke-width="2"/><circle cx="${x}" cy="${y}" r="39" fill="url(#ka)"/>
+      <circle cx="${x - 12}" cy="${y - 12}" r="9" fill="#fff" opacity=".55"/>`;
+    return `<defs><radialGradient id="ka" cx=".5" cy=".5" r=".6"><stop offset="0" stop-color="#d8eef8"/><stop offset="1" stop-color="#9ac4dc"/></radialGradient>${grain('g2', 0.05, 0.15)}</defs>
+      <rect width="400" height="400" fill="#24323c"/>${g}<rect width="400" height="400" fill="#000" filter="url(#g2)"/>`;
+  },
+};
+
+const PARROT = {
+  id: 'parrottooth', species: 'parrotfish', name: 'שן של תוכינון', zone: 'reef', zoom: 2, focus: 68,
+  task: 'מצאו שלושה מקומות שבהם צרורות של גבישים נארגים זה בזה.',
+  hints: ['המקור של התוכינון בנוי מהרבה שיניים קטנות וצמודות.', 'בהגדלה הכי גדולה, הגבישים נראים כמו חוטים בקליעה.'],
+  found: 'בתוך השן יש גבישים דקים מאוד, ארוגים זה בזה כמו חוטים בבד. לכן השן קשה מאוד ולא נסדקת בקלות.',
+  idea: 'חוטים דקים ששזורים יחד חזקים יותר מגוש אחד.',
+  targets: [],
+  view(level) {
+    const r = rnd(131 + level);
+    if (level === 0) {
+      let t = ''; for (let row = 0; row < 6; row++) for (let c = 0; c < 9; c++) t += `<ellipse cx="${f(30 + c * 44 + (row % 2) * 22)}" cy="${f(120 + row * 34)}" rx="20" ry="15" fill="hsl(${f(165 + r() * 15)} 45% ${f(62 + r() * 10)}%)" stroke="#1a5a50" stroke-width="2"/>`;
+      return `<rect width="400" height="400" fill="#1a6a8a"/><path d="M0 100 Q200 60 400 100 V340 Q200 380 0 340z" fill="#3aa08a"/>${t}`;
+    }
+    if (level === 1) {
+      let t = ''; for (let row = 0; row < 8; row++) for (let c = 0; c < 8; c++) t += `<path d="${hexPath(c * 54 + (row % 2) * 27, row * 50, 28)}" fill="hsl(${f(170 + r() * 10)} 30% ${f(78 + r() * 10)}%)" stroke="#5a8a80" stroke-width="2.5"/>`;
+      return `<rect width="400" height="400" fill="#4a7a72"/>${t}`;
+    }
+    // a basket weave: bundles that go over and under each other
+    let g = '';
+    const S = 80;
+    for (let i = 0; i < 6; i++) for (let j = 0; j < 6; j++) {
+      const x = i * S - 40, y = j * S - 40, hor = (i + j) % 2 === 0;
+      for (let k = 0; k < 5; k++) g += hor ? `<rect x="${x + 4}" y="${f(y + 8 + k * 13)}" width="${S - 8}" height="10" rx="5" fill="url(#pt)"/>` : `<rect x="${f(x + 8 + k * 13)}" y="${y + 4}" width="10" height="${S - 8}" rx="5" fill="url(#pt2)"/>`;
+    }
+    PARROT.targets = [[120, 120], [280, 120], [200, 200], [120, 280], [280, 280]].map(([x, y]) => ({ x, y, r: 40 }));
+    return `<defs><linearGradient id="pt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6fbf4"/><stop offset="1" stop-color="#9ac4b8"/></linearGradient>
+      <linearGradient id="pt2" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#e8f4ee"/><stop offset="1" stop-color="#7aa89c"/></linearGradient>${grain('g2', 0.06, 0.18)}</defs>
+      <rect width="400" height="400" fill="#2a4a44"/>${g}<rect width="400" height="400" fill="#000" filter="url(#g2)"/>`;
+  },
+};
+
+const URCHIN = {
+  id: 'urchinteeth', species: 'urchin', name: 'הפה של קיפוד ים', zone: 'reef', zoom: 2, focus: 50,
+  task: 'מצאו שלוש מתוך חמש השיניים שבפה של קיפוד הים.',
+  hints: ['הפה נמצא מתחת לגוף, באמצע.', 'השיניים מסודרות כמו כוכב, ונפגשות במרכז.'],
+  found: 'לקיפוד הים יש פה עם חמש שיניים, מסודרות כמו כוכב. הוא פותח אותן, סוגר, ומגרד אצות מהסלע.',
+  idea: 'יד עם חמש "שיניים" שנסגרות יחד יכולה לאסוף אדמה בדיוק מהמקום הנכון.',
+  targets: [],
+  view(level) {
+    const r = rnd(141 + level);
+    if (level === 0) {
+      let s = ''; for (let i = 0; i < 90; i++) { const a = r() * Math.PI * 2, L = 120 + r() * 70; s += `<path d="M200 200 L${f(200 + Math.cos(a) * L)} ${f(200 + Math.sin(a) * L)}" stroke="#151018" stroke-width="${f(2 + r() * 2)}" stroke-linecap="round"/>`; }
+      return `<rect width="400" height="400" fill="#c8b48a"/>${s}<circle cx="200" cy="200" r="70" fill="#241a2a"/><circle cx="185" cy="185" r="16" fill="#4a3a5a" opacity=".6"/>`;
+    }
+    if (level === 1) {
+      let d = ''; for (let i = 0; i < 160; i++) { const a = r() * Math.PI * 2, R0 = 80 + r() * 110; d += `<circle cx="${f(200 + Math.cos(a) * R0)}" cy="${f(200 + Math.sin(a) * R0)}" r="${f(3 + r() * 3)}" fill="#e8a8b8"/>`; }
+      return `<rect width="400" height="400" fill="#3a2a40"/>${d}<circle cx="200" cy="200" r="64" fill="#5a4060"/>${[0, 1, 2, 3, 4].map((k) => { const a = -Math.PI / 2 + k * Math.PI * 2 / 5; return `<path d="M200 200 L${f(200 + Math.cos(a - 0.25) * 52)} ${f(200 + Math.sin(a - 0.25) * 52)} L${f(200 + Math.cos(a + 0.25) * 52)} ${f(200 + Math.sin(a + 0.25) * 52)}z" fill="#f4ecd8"/>`; }).join('')}`;
+    }
+    // five teeth, each a long curved blade, meeting in the middle like a star
+    URCHIN.targets = [0, 1, 2, 3, 4].map((k) => { const a = -Math.PI / 2 + k * Math.PI * 2 / 5; return { x: 200 + Math.cos(a) * 105, y: 200 + Math.sin(a) * 105, r: 50 }; });
+    let g = '<circle cx="200" cy="200" r="185" fill="#4a3050"/>';
+    for (let k = 0; k < 5; k++) {
+      const a = -Math.PI / 2 + k * Math.PI * 2 / 5, c = Math.cos(a), s = Math.sin(a), px = -s, py = c;
+      g += `<path d="M${f(200 + c * 16)} ${f(200 + s * 16)} L${f(200 + c * 160 + px * 34)} ${f(200 + s * 160 + py * 34)} Q${f(200 + c * 178)} ${f(200 + s * 178)} ${f(200 + c * 160 - px * 34)} ${f(200 + s * 160 - py * 34)}z" fill="url(#ut)" stroke="#7a6a50" stroke-width="2"/>`
+        + `<path d="M${f(200 + c * 30)} ${f(200 + s * 30)} L${f(200 + c * 150)} ${f(200 + s * 150)}" stroke="#b8a888" stroke-width="3" opacity=".6"/>`;
+    }
+    return `<defs><radialGradient id="ut" cx=".5" cy=".5" r=".7"><stop offset="0" stop-color="#fffaf0"/><stop offset="1" stop-color="#d8c8a8"/></radialGradient>${grain('g2', 0.05, 0.2)}</defs>
+      <rect width="400" height="400" fill="#2a1a30"/>${g}<circle cx="200" cy="200" r="14" fill="#1a1020"/><rect width="400" height="400" fill="#000" filter="url(#g2)"/>`;
+  },
+};
+
+const MYCEL = {
+  id: 'mycelium', species: 'mushroom', name: 'חוטי פטרייה', zone: 'grove', zoom: 2, focus: 36,
+  task: 'מצאו שלושה מקומות שבהם חוט אחד מתפצל לשניים.',
+  hints: ['מתחת לפטרייה, באדמה, יש רשת לבנה ודקה.', 'חפשו מקום שבו חוט אחד נפרד לשני חוטים.'],
+  found: 'רוב הפטרייה היא רשת של חוטים דקים מאוד באדמה. החוטים מתפצלים ומתחברים, ומחברים יחד חתיכות של עלים ואדמה.',
+  idea: 'מחוטים כאלה אפשר לגדל חומר אריזה.',
+  targets: [],
+  view(level) {
+    const r = rnd(151 + level);
+    if (level === 0) {
+      let c = ''; for (let i = 0; i < 70; i++) c += `<circle cx="${f(r() * 400)}" cy="${f(r() * 400)}" r="${f(6 + r() * 16)}" fill="hsl(${f(20 + r() * 15)} 40% ${f(18 + r() * 14)}%)"/>`;
+      for (let i = 0; i < 40; i++) c += `<circle cx="${f(100 + r() * 200)}" cy="${f(100 + r() * 200)}" r="${f(8 + r() * 20)}" fill="#f4efe4" opacity="${f(0.15 + r() * 0.25)}"/>`;
+      return `<rect width="400" height="400" fill="#3a2a1a"/>${c}`;
+    }
+    if (level === 1) {
+      let w = ''; for (let i = 0; i < 70; i++) { const x = r() * 400, y = r() * 400; w += `<path d="M${f(x)} ${f(y)} q${f(-40 + r() * 80)} ${f(-40 + r() * 80)} ${f(-60 + r() * 120)} ${f(-60 + r() * 120)}" stroke="#f6f0e2" stroke-width="1.6" fill="none" opacity=".8"/>`; }
+      return `<rect width="400" height="400" fill="#4a3420"/>${w}`;
+    }
+    // thick threads (hyphae) that branch in a Y, with little walls inside
+    const forks = [[110, 130], [290, 120], [200, 250], [90, 320], [320, 310]];
+    MYCEL.targets = forks.map(([x, y]) => ({ x, y, r: 46 }));
+    let g = '';
+    for (const [x, y] of forks) {
+      const a = -1.2 + r() * 0.4;
+      g += `<path d="M${x} ${y} L${f(x - 120)} ${f(y + 90)}" stroke="url(#hy)" stroke-width="16" stroke-linecap="round"/>`
+        + `<path d="M${x} ${y} L${f(x + Math.cos(a) * 110)} ${f(y + Math.sin(a) * 110)}" stroke="url(#hy)" stroke-width="13" stroke-linecap="round"/>`
+        + `<path d="M${x} ${y} L${f(x + 120)} ${f(y + 20)}" stroke="url(#hy)" stroke-width="13" stroke-linecap="round"/>`
+        + `<circle cx="${x}" cy="${y}" r="10" fill="#fffaf0"/>`;
+    }
+    for (let i = 0; i < 26; i++) g += `<ellipse cx="${f(r() * 400)}" cy="${f(r() * 400)}" rx="${f(10 + r() * 14)}" ry="${f(6 + r() * 8)}" fill="#6a4a2a" opacity=".5"/>`;
+    return `<defs><linearGradient id="hy" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fffaf0"/><stop offset="1" stop-color="#d8ccb4"/></linearGradient>${grain('g2', 0.05, 0.2)}</defs>
+      <rect width="400" height="400" fill="#2a1c10"/>${g}<rect width="400" height="400" fill="#000" filter="url(#g2)"/>`;
+  },
+};
+
+const CLAM = {
+  id: 'clammantle', species: 'clam', name: 'שפה של צדפת ענק', zone: 'reef', zoom: 2, focus: 62,
+  task: 'מצאו שלוש קבוצות של תאים מנצנצים.',
+  hints: ['השפה הצבעונית של הצדפה מלאה בנקודות.', 'בהגדלה הכי גדולה, חפשו תאים שמחזירים אור כמו מראות קטנות.'],
+  found: 'בשפה של צדפת הענק יש תאים מנצנצים. הם מפזרים את אור השמש, כך שהוא מגיע לאצות הזעירות שגרות בפנים.',
+  idea: 'אולי חומר שמפזר אור יעזור לגדל אצות בבריכות.',
+  targets: [],
+  view(level) {
+    const r = rnd(161 + level);
+    if (level === 0) {
+      let s = ''; for (let i = 0; i < 90; i++) s += `<circle cx="${f(r() * 400)}" cy="${f(130 + r() * 140)}" r="${f(3 + r() * 6)}" fill="hsl(${f(170 + r() * 60)} 80% ${f(60 + r() * 20)}%)"/>`;
+      return `<rect width="400" height="400" fill="#c8c0a8"/><path d="M0 120 Q50 90 100 120 T200 120 T300 120 T400 120 V280 Q350 310 300 280 T200 280 T100 280 T0 280z" fill="#3a2a8a"/>${s}`;
+    }
+    if (level === 1) {
+      let s = ''; for (let i = 0; i < 120; i++) { const x = r() * 400, y = r() * 400; s += `<circle cx="${f(x)}" cy="${f(y)}" r="${f(6 + r() * 4)}" fill="#8a6a2a" opacity=".7"/>`; if (r() < 0.25) s += `<circle cx="${f(x + 8)}" cy="${f(y - 6)}" r="4" fill="#bff6ff"/>`; }
+      return `<rect width="400" height="400" fill="#2a2a6a"/>${s}`;
+    }
+    // columns of brown algae with shiny cells on top that scatter the light down
+    const pts = [[90, 90], [240, 80], [340, 170], [160, 200], [80, 310], [290, 300]];
+    CLAM.targets = pts.map(([x, y]) => ({ x, y, r: 46 }));
+    let g = '';
+    for (let c = 0; c < 9; c++) { const x = 20 + c * 46; for (let k = 0; k < 9; k++) g += `<circle cx="${f(x + r() * 6)}" cy="${f(20 + k * 46)}" r="${f(12 + r() * 4)}" fill="url(#zz)" opacity=".85"/>`; }
+    for (const [x, y] of pts) for (let k = 0; k < 6; k++) { const a = k * 1.05, d = k ? 20 : 0; g += `<ellipse cx="${f(x + Math.cos(a) * d)}" cy="${f(y + Math.sin(a) * d)}" rx="11" ry="8" fill="url(#ir)" stroke="#e8ffff" stroke-width="1.5"/>`; }
+    return `<defs><radialGradient id="zz" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#e8c87a"/><stop offset=".7" stop-color="#8a5a1a"/><stop offset="1" stop-color="#4a2a08"/></radialGradient>
+      <linearGradient id="ir" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#bff6ff"/><stop offset=".5" stop-color="#7a9aff"/><stop offset="1" stop-color="#e0a8ff"/></linearGradient>${grain('g2', 0.04, 0.18)}</defs>
+      <rect width="400" height="400" fill="#1c1a40"/>${g}<rect width="400" height="400" fill="#000" filter="url(#g2)"/>`;
+  },
+};
+
+const LEAFBAC = {
+  id: 'leafbac', species: 'leafcutter', name: 'נמלה גוזרת עלים', zone: 'amazon', zoom: 2, focus: 46,
+  task: 'מצאו שלושה כתמים לבנים של חיידקים טובים על הגוף של הנמלה.',
+  hints: ['הסתכלו על הגוף של הנמלה, מתחת לראש.', 'הכתמים הלבנים הם לא אבק. בהגדלה רואים שהם חוטים זעירים.'],
+  found: 'על הגוף של הנמלה יש שכבה לבנה של חיידקים טובים. הם מייצרים חומרים ששומרים על גינת הפטריות של הנמלים.',
+  idea: 'אולי מהחומרים האלה אפשר יהיה להכין תרופות חדשות.',
+  targets: [],
+  view(level) {
+    const r = rnd(171 + level);
+    if (level === 0) {
+      return `<rect width="400" height="400" fill="#2a3a1a"/><path d="M200 40 L330 120 L300 230 L170 200z" fill="#5aa040" stroke="#3a7a2a" stroke-width="4"/><path d="M200 40 L240 180" stroke="#3a7a2a" stroke-width="3"/>
+        <ellipse cx="150" cy="270" rx="34" ry="28" fill="#8a3a1a"/><ellipse cx="205" cy="280" rx="26" ry="22" fill="#9a4a24"/><ellipse cx="262" cy="292" rx="42" ry="32" fill="#7a3216"/>
+        <path d="M150 250 L190 150 M150 262 L120 200" stroke="#7a3216" stroke-width="6" stroke-linecap="round"/>${[0, 1, 2].map((k) => `<path d="M${190 + k * 22} 296 l-20 50 M${200 + k * 22} 296 l16 50" stroke="#6a2a12" stroke-width="5" stroke-linecap="round"/>`).join('')}
+        <ellipse cx="205" cy="272" rx="18" ry="8" fill="#f6f2e8" opacity=".75"/>`;
+    }
+    if (level === 1) {
+      let s = ''; for (let i = 0; i < 30; i++) s += `<circle cx="${f(120 + r() * 160)}" cy="${f(130 + r() * 140)}" r="${f(6 + r() * 12)}" fill="#f6f2e8" opacity="${f(0.5 + r() * 0.4)}"/>`;
+      return `<rect width="400" height="400" fill="#4a1e0c"/><ellipse cx="200" cy="200" rx="170" ry="120" fill="#8a3a1a"/>${s}${Array.from({ length: 14 }, () => `<path d="M${f(r() * 400)} ${f(r() * 400)} l${f(-10 + r() * 20)} 30" stroke="#5a2410" stroke-width="3"/>`).join('')}`;
+    }
+    const pts = [[110, 120], [280, 110], [200, 240], [90, 300], [310, 300]];
+    LEAFBAC.targets = pts.map(([x, y]) => ({ x, y, r: 48 }));
+    let g = '';
+    for (let i = 0; i < 60; i++) g += `<path d="${hexPath(r() * 400, r() * 400, 16 + r() * 8)}" fill="#7a3216" opacity=".45"/>`;
+    for (const [x, y] of pts) for (let k = 0; k < 26; k++) { const a = r() * Math.PI * 2, L = 12 + r() * 26; g += `<path d="M${x} ${y} q${f(Math.cos(a + 0.6) * L * 0.6)} ${f(Math.sin(a + 0.6) * L * 0.6)} ${f(Math.cos(a) * L)} ${f(Math.sin(a) * L)}" stroke="#fbf8f0" stroke-width="2.6" fill="none" stroke-linecap="round"/>`; }
+    return `<defs>${grain('g2', 0.05, 0.22)}</defs><rect width="400" height="400" fill="#9a4220"/>${g}<rect width="400" height="400" fill="#000" filter="url(#g2)"/>`;
+  },
+};
+
+export const SAMPLES = [SHARK, OWL, BEE, CORAL, MORPHO, FIREFLY, TOUCAN, CHAMELEON, OCTOPUS, HEDGEHOG, SLOTH, KAPOK, PARROT, URCHIN, MYCEL, CLAM, LEAFBAC];
 export const sampleById = (id) => SAMPLES.find((s) => s.id === id) || null;
 export const ZOOMS = ['פי 10', 'פי 100', 'פי 1000'];

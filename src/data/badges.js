@@ -1,6 +1,6 @@
 // תגים: the prizes of the expert missions, the inventors game, the deep expedition, the lab and the mysteries
 // (no card packs: the album already gets plenty). Each badge is drawn as a medallion around a card painting.
-// earn: 'mission:<id>' (an expert mission in a zone) | 'inv:<key>' (הממציאים) | 'deep:<key>' (משלחת לעומק)
+// earn: 'mission:<id>' (an expert mission in a zone) | 'inv:<key>' (הממציאים; 'inv:theme:<shelf>' a whole shelf) | 'deep:<key>' (משלחת לעומק)
 //       | 'lab:<key>' (the lab of רובו־דע) | 'research:<key>' (חוקרי הטבע)
 // art: a CARD_ART key (the card painting inside the medallion)
 // Frames for the album cards open when a player has enough badges of a group (FRAMES).
@@ -35,6 +35,22 @@ export const BADGES = [
   { id: 'b_invwild', group: 'lab', art: 'octopus', name: 'רעיון מטורף', how: 'שילוב מפתיע שרובו־דע לא האמין שיעבוד', earn: 'inv:wild' },
   { id: 'b_invall', group: 'lab', art: 'hummingbird', name: 'מעבדה מלאה', how: 'כל הבעיות ב"הממציאים" נפתרו', earn: 'inv:all' },
   { id: 'b_scope', group: 'lab', art: 'honeybee', name: 'עין חדה', how: 'מוצאים את כל מה שמסתתר במיקרוסקופ', earn: 'lab:scope' },
+  // the big inventors update (1.3): more inventions, combinations, the shelves (THEMES in src/data/inventions.js), research questions
+  { id: 'b_inv10', group: 'lab', art: 'leafcutter', name: 'עשר המצאות', how: 'עשר המצאות שונות ב"הממציאים"', earn: 'inv:ten' },
+  { id: 'b_inv25', group: 'lab', art: 'tortoise', name: 'ממציא ותיק', how: 'עשרים וחמש המצאות שונות ב"הממציאים"', earn: 'inv:many' },
+  { id: 'b_invpair', group: 'lab', art: 'goby', name: 'שניים יחד', how: 'פותרים בעיה ששני קלפים, עם שתי תכונות, פותרים יחד', earn: 'inv:pair' },
+  { id: 'b_thwater', group: 'lab', art: 'shrimp', name: 'ממציא המים', how: 'כל הבעיות במדף "מים וים"', earn: 'inv:theme:water' },
+  { id: 'b_thair', group: 'lab', art: 'fruitbat', name: 'ממציא האוויר', how: 'כל הבעיות במדף "באוויר"', earn: 'inv:theme:air' },
+  { id: 'b_thbuild', group: 'lab', art: 'brazilnut', name: 'בונה מהטבע', how: 'כל הבעיות במדף "בנייה"', earn: 'inv:theme:build' },
+  { id: 'b_thmatter', group: 'lab', art: 'morpho', name: 'מומחה החומרים', how: 'כל הבעיות במדף "חומרים"', earn: 'inv:theme:matter' },
+  { id: 'b_throbots', group: 'lab', art: 'agama', name: 'בונה הרובוטים', how: 'כל הבעיות במדף "רובוטים"', earn: 'inv:theme:robots' },
+  { id: 'b_thenergy', group: 'lab', art: 'firefly', name: 'אור מהטבע', how: 'כל הבעיות במדף "אור ושמש"', earn: 'inv:theme:energy' },
+  { id: 'b_thhealth', group: 'lab', art: 'dartfrog', name: 'מרפא מהטבע', how: 'כל הבעיות במדף "רפואה"', earn: 'inv:theme:health' },
+  { id: 'b_thnets', group: 'lab', art: 'harvesterant', name: 'חכמת הנמלים', how: 'כל הבעיות במדף "רשתות"', earn: 'inv:theme:nets' },
+  { id: 'b_q5', group: 'lab', art: 'toucan', name: 'שואל שאלות', how: 'חמש שאלות חקר באטלס של המעבדה קיבלו תשובה', earn: 'lab:q5' },
+  { id: 'b_q20', group: 'lab', art: 'kinkajou', name: 'חוקר סקרן', how: 'עשרים שאלות חקר קיבלו תשובה', earn: 'lab:q20' },
+  { id: 'b_qall', group: 'lab', art: 'mushroom', name: 'כל השאלות', how: 'כל שאלות החקר באטלס קיבלו תשובה', earn: 'lab:qall' },
+  { id: 'b_qopen', group: 'lab', art: 'coati', name: 'שאלה פתוחה', how: 'חוקרים שאלה שגם המדענים עוד לא פתרו', earn: 'lab:open' },
   // ── משלחת לעומק (src/learn/games/expedition.js)
   { id: 'b_deep1', group: 'deep', art: 'clownfish', name: 'צוללן מתחיל', how: 'חוזרים בשלום ממשלחת ראשונה', earn: 'deep:first' },
   { id: 'b_deepcave', group: 'deep', art: 'moray', name: 'אל המערה', how: 'מגיעים עם הצוות עד המערה', earn: 'deep:cave' },

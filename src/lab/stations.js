@@ -7,9 +7,9 @@ import { SAMPLES, sampleById, ZOOMS } from './samples.js';
 import { labProgress, markFound, addTry, invent } from './progress.js';
 
 // ───────────────────────────────────────────── the microscope
-export function openMicroscope(root, { say, thumbs, audio, onDone, onClose }) {
+export function openMicroscope(root, { say, thumbs, audio, onDone, onClose, start }) {
   const el = document.createElement('div'); el.className = 'lb-panel lb-scope'; root.appendChild(el);
-  let cur = SAMPLES[0], level = 0, focus = 18, hintI = 0;
+  let cur = (start && sampleById(start)) || SAMPLES[0], level = 0, focus = 18, hintI = 0;   // start: a sample asked for by a research question
   const prog = () => labProgress();
   function render() {
     const P = prog(); const found = new Set(P.found[cur.id] || []);
