@@ -12,6 +12,7 @@ export function simulate(C, script = [], { until = 900, every = 30, quiet = true
   const m = r.model;
   const rows = [];
   let solvedAt = null, rate = 1, ffLeft = 0;
+  const surp = [];
   const acts = script.slice().sort((a, b) => a.t - b.t);
   const start = C.scene?.season || 0;
   for (let t = 0; t <= until; t += 0.25) {
@@ -24,10 +25,11 @@ export function simulate(C, script = [], { until = 900, every = 30, quiet = true
     const dt = 0.25 * rate; ffLeft -= dt;
     r.step(dt, C.zone === 'grove' ? SEASONS[(Math.floor(m.state.t / seasonLen) + start) % 4] : null);
     if (r.solved && solvedAt == null) solvedAt = +m.state.t.toFixed(1);
+    if (Math.abs((t * 4) % 4) < 0.01) for (const S of r.surprises()) surp.push(S.id + '@' + Math.round(m.state.t));
     if (!quiet && Math.abs(t % every) < 0.01) rows.push([t, ...Object.keys(m.state.v).map((k) => k + '=' + m.get(k).toFixed(1))].join('  '));
   }
   if (!quiet) rows.forEach((x) => console.log(x));
-  return { solvedAt, spent: r.spent, final: { ...m.state.v } };
+  return { solvedAt, spent: r.spent, final: { ...m.state.v }, surprises: surp, other: r.otherWay() };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
@@ -37,6 +39,6 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   for (const [k, s] of Object.entries(all)) {
     if (only && k !== only) continue;
     const r = simulate(C, s, { quiet: !only });
-    console.log(k.padEnd(30), 'solved', r.solvedAt, 'spent', r.spent);
+    console.log(k.padEnd(34), 'solved', String(r.solvedAt).padEnd(6), 'spent', String(r.spent).padEnd(3), r.other ? 'OTHER' : '     ', r.surprises.join(' '));
   }
 }
