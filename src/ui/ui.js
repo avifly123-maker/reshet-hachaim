@@ -4,6 +4,8 @@ import { artPos } from '../data/art-focus.js';
 import { TORAH, sourcesOn, setSourcesOn, EDITION_NAME } from '../core/edition.js';
 import { ISLAND_ART } from '../data/island-art.js';
 import { CARD_ART } from '../data/card-art.js';
+import { badgesFor } from '../data/badges.js';
+import { badgeHTML } from './badge-art.js';
 import { avatarHTML, avatarName, AVATAR_IDS } from './avatars.js';
 import { zoneWord } from '../core/place.js';
 
@@ -1139,15 +1141,19 @@ export function createUI(root, bus) {
 
     setMissions(list) {
       list = Array.isArray(list) ? list : [];
-      const sig = JSON.stringify(list.map((m) => [m.id, m.title, m.text, m.hint, m.how, m.note, Math.round(clamp01(m.progress) * 100), !!m.done]));
+      const sig = JSON.stringify(list.map((m) => [m.id, m.title, m.text, m.hint, m.how, m.note, Math.round(clamp01(m.progress) * 100), !!m.done, m.checks]));
       if (sig === S.missionsSig) return;
       S.missionsSig = sig;
       const hintsOpen = new Set([...mList.querySelectorAll('li.hint-open')].map((x) => x.dataset.id));
       mList.innerHTML = list.map((m) => {
         const p = m.done ? 1 : clamp01(m.progress);
-        return `<li data-id="${esc(m.id)}" class="${m.done ? 'done' : ''}${S.openMission === m.id ? ' open' : ''}${hintsOpen.has(m.id) ? ' hint-open' : ''}">
+        // an expert mission (משימת מומחים): a gold tag, its badge, and a checklist of its parts
+        const bd = m.expert ? badgesFor('mission:' + m.id)[0] : null;
+        const xp = m.expert ? `<div class="m-expert">${bd ? badgeHTML(bd, { cls: 'mini' }) : ''}<span><b>משימת מומחים</b><small>${bd ? 'הפרס: התג "' + esc(bd.name) + '"' : 'משימה קשה במיוחד'}</small></span></div>` : '';
+        const ck = m.checks && !m.done ? `<ul class="m-checks">${m.checks.map((c) => `<li class="${c.ok ? 'ok' : ''}"><i>${c.ok ? icon('check') : ''}</i><span>${esc(c.label)}${c.hold != null && !c.ok && c.hold > 0 ? ` <em>${c.hold}%</em>` : ''}</span></li>`).join('')}</ul>` : '';
+        return `<li data-id="${esc(m.id)}" class="${m.done ? 'done' : ''}${m.expert ? ' expert' : ''}${S.openMission === m.id ? ' open' : ''}${hintsOpen.has(m.id) ? ' hint-open' : ''}">
           <div class="m-row"><span class="m-check" style="--p:${(p * 100).toFixed(1)}%">${m.done ? icon('check') : ''}</span><b>${esc(m.title)}</b><span class="m-pc">${m.done ? '' : Math.round(p * 100) + '%'}</span></div>
-          <div class="m-detail"><p>${esc(m.text || '')}</p>${m.done && m.note ? `<p class="m-note">${icon('check')}בוצע: ${esc(m.note)}</p>` : ''}${(m.hint || m.how) && !m.done ? `<button class="m-hint-btn">${icon('bulb')}רמז</button><div class="m-hint">${m.hint ? `<p>${esc(m.hint)}</p>` : ''}${m.how ? `<p class="m-how">${esc(m.how)}</p>` : ''}</div>` : ''}</div></li>`;
+          <div class="m-detail">${xp}<p>${esc(m.text || '')}</p>${ck}${m.done && m.note ? `<p class="m-note">${icon('check')}בוצע: ${esc(m.note)}</p>` : ''}${(m.hint || m.how) && !m.done ? `<button class="m-hint-btn">${icon('bulb')}רמז</button><div class="m-hint">${m.hint ? `<p>${esc(m.hint)}</p>` : ''}${m.how ? `<p class="m-how">${esc(m.how)}</p>` : ''}</div>` : ''}</div></li>`;
       }).join('');
       const d = list.filter((m) => m.done).length;
       mCount.textContent = list.length ? `${d}/${list.length}` : '';

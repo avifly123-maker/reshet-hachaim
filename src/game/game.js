@@ -67,7 +67,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     growBoost: 1, points: START_POINTS, vitality: 0.5, speed: 1, lastTickDt: 0,
     unlocked: new Set(biome.species.filter(s => s.unlock === 'start').map(s => s.id)),
     seenNew: new Set(), discovered: new Set(), everPlaced: new Set(), quizDone: new Set(),
-    stats: { pollinations: {}, dispersals: 0, experiments: 0, births: 0, missionStart: {} },
+    stats: { pollinations: {}, dispersals: 0, experiments: 0, births: 0, missionStart: {}, uprooted: 0, moved: 0, letGo: 0, lossT: -1e9 },
     treeFallen: false, experiment: null, selected: null, selectedSpecies: null, kids: biome.mode === 'kids',
     maxPlants: MAX_ALL_PLANTS, maxAnimals: MAX_ANIMALS,
     // חוקרי היער: a mystery case. Its population model owns births, hunger and numbers; the entities only show them
@@ -244,6 +244,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     const room = !W.research && W.plantRoom(sp) && W.countAlive(sp.id) < sp.maxCount;   // in a mystery the model decides where new plants come up
     const pos = room ? findSpotNear(sp, x, z, 5) : null;
     const p = pos ? spawnPlant(sp, pos.x, pos.z, { growth: 0.05 }) : null;
+    if (p) p.sownBy = animal.sp.id;
     const at = pos || { x, z };
     markers.burst(_v.set(at.x, env.heightAt(at.x, at.z) + 0.3, at.z), '#a8e06a', 16, { size: 0.3, speed: 1 });
     const target = p || src || W.plants.find(q => q.sp.id === sp.id && alive(q));
@@ -280,6 +281,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     if (p.sp.layer === 'emergent' && !W._emNoted) { W._emNoted = true; ui.toast(`ה${p.sp.name} ${gw(p.sp.id,'הגיע','הגיעה','הגיעו','הגיעו')} לקומת הענקים – עכשיו ${gw(p.sp.id,'הוא מקבל','היא מקבלת','הם מקבלים','הן מקבלות')} את כל אור השמש!`, 'good'); }
   };
   W.onPlantDied = (p, reason) => {
+    if (reason !== 'uproot' && reason !== 'fall' && reason !== 'event' && !W.research) W.stats.lossT = W.simT;
     if (reason !== 'uproot') report?.plantDied(reason);   // a plant the player took out did not die
     for (const a of W.animals) if (a.perch && a.perch.plant === p) { a.perch = null; a.state = 'idle'; a.timer = 0; }
     if (reason === 'weak' && W.simT - (W._lastDeathToast || -99) > 25) {
@@ -295,6 +297,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     if (a.leaving) return;
     if ((W.kids || W.research || a.touring) && reason === 'hunger') { a.energy = 0.35; return; }
     a.leave(); report?.animalLeft(reason);
+    if (reason === 'hunger') W.stats.lossT = W.simT;
     if (reason === 'hunger' && W.simT - (W._lastLeaveToast || -99) > 15) { W._lastLeaveToast = W.simT; ui.toast(`${a.sp.name} ${gw(a.sp.id,`עזב את ${zoneWord()} – לא מצא`,`עזבה את ${zoneWord()} – לא מצאה`,`עזבו את ${zoneWord()} – לא מצאו`,`עזבו את ${zoneWord()} – לא מצאו`)} מספיק אוכל.`, 'bad'); audio.play('remove'); }
   };
   W.removeEntity = (e) => {
@@ -362,6 +365,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     if (sp.needs?.host && !opts.host) { opts.host = hostAt(x, z, sp); if (!opts.host) return null; }
     if (opts.host && sp.kind === 'epiphyte' && !(opts.attachIdx >= 0)) { const used = new Set(W.plants.filter(q => q.host === opts.host).map(q => q.attachIdx)); const n = opts.host.vis.attachPoints().length; let idx = (Math.random() * n) | 0; for (let i = 0; i < n && used.has(idx); i++) idx = (idx + 1) % n; opts.attachIdx = idx; }
     const p = new Plant(W, sp, x, z, opts);
+    p.bornT = W.simT;
     scene.add(p.obj); W.plants.push(p); lightDirty = true;
     if (opts.light === undefined) p.light = light.transmission(p.x, p.y + 1, p.z, crowns, light.noonSun, p);
     return p;
@@ -544,10 +548,10 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     if (e.isPlant) {
       for (const q of W.plants.slice()) if (q.host === e && alive(q)) { W.onPlantDied(q, 'uproot'); q.alive = false; W.removeEntity(q); }   // what grew on it comes out with it
       markers.burst(_v.set(e.x, e.y + 0.6, e.z), '#c8a878', 26, { size: 0.45, speed: 2.5 });
-      W.onPlantDied(e, 'uproot'); e.alive = false; W.removeEntity(e);
+      W.onPlantDied(e, 'uproot'); e.alive = false; W.removeEntity(e); W.stats.uprooted = (W.stats.uprooted || 0) + 1;
       ui.toast(`${sp.name} ${gw(sp.id, 'נעקר', 'נעקרה', 'נעקרו', 'נעקרו')} מ${zoneWord()}. יש עכשיו מקום לצמח אחר.${back ? ` (+${back} נקודות)` : ''}`, 'info');
     } else {
-      e.leave();
+      e.leave(); W.stats.letGo = (W.stats.letGo || 0) + 1;
       ui.toast(`${sp.name} ${gw(sp.id, 'יצא', 'יצאה', 'יצאו', 'יצאו')} מ${zoneWord()} לחפש בית אחר.${back ? ` (+${back} נקודות)` : ''}`, 'info');
     }
     W.points += back; audio.play('remove'); select(null); ui.hideSpecies(); panelId = null; refreshTray(); lightDirty = true;
@@ -584,6 +588,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     for (const a of W.animals) if (a.perch && a.perch.plant === e) { a.perch = null; a.state = 'idle'; a.timer = 0; }
     e._crownT = -1; lightDirty = true;
     markers.burst(_v.set(e.x, e.y + 0.5, e.z), '#b8f08a', 18, { size: 0.4, speed: 2 });
+    W.stats.moved = (W.stats.moved || 0) + 1;
     audio.play('place'); ui.toast(`${e.sp.name} ${gw(e.sp.id, 'הועבר', 'הועברה', 'הועברו', 'הועברו')} למקום החדש.`, 'good');
   }
   let panelId = null;
@@ -1264,14 +1269,14 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     return {
       v: 1, biome: biome.id, savedAt: Date.now(), points: Math.round(W.points), day: W.day, dayFrac: W.dayFrac, season: W.season, simT: W.simT,
       unlocked: [...W.unlocked], discovered: [...W.discovered], everPlaced: [...W.everPlaced], quizDone: [...W.quizDone], seenNew: [...W.seenNew],
-      stats: { pollinations: W.stats.pollinations, dispersals: W.stats.dispersals, experiments: W.stats.experiments, births: W.stats.births, toolUse: W.stats.toolUse || {}, seeded: W.stats.seeded || 0, rescues: W.stats.rescues || 0, expSpecies: W.stats.expSpecies || [] },
+      stats: { pollinations: W.stats.pollinations, dispersals: W.stats.dispersals, experiments: W.stats.experiments, births: W.stats.births, toolUse: W.stats.toolUse || {}, seeded: W.stats.seeded || 0, rescues: W.stats.rescues || 0, expSpecies: W.stats.expSpecies || [], uprooted: W.stats.uprooted || 0, moved: W.stats.moved || 0, letGo: W.stats.letGo || 0 },
       missions: missions.missions.filter(m => m.done).map(m => m.id),
       missionProgress: missions.serializeProgress(),
       events: missions.events.filter(e => e.fired && e.resolved).map(e => ({ id: e.id, r: 1 })),   // fired-but-unanswered events run again after loading
       treeFallen: W.treeFallen, gapPos: W.gapPos ? { x: +W.gapPos.x.toFixed(2), z: +W.gapPos.z.toFixed(2) } : null, protected: W.protected,
       road: W.road ? { a: W.road.a, b: W.road.b, bridge: W.road.bridge } : null,
       stumps: W.stumps.map(t => ({ x: +t.x.toFixed(2), z: +t.z.toFixed(2), r: +t.r.toFixed(2) })),
-      plants: plants.map(p => ({ id: p.sp.id, x: +p.x.toFixed(2), z: +p.z.toFixed(2), g: +p.growth.toFixed(3), h: +p.health.toFixed(2), w: p.wild ? 1 : 0, host: p.host ? (index.get(p.host) ?? -1) : -1, ai: p.attachIdx || 0, s: p.seed })),   // the seed keeps the same shape (and branch spots) after loading
+      plants: plants.map(p => ({ id: p.sp.id, x: +p.x.toFixed(2), z: +p.z.toFixed(2), g: +p.growth.toFixed(3), h: +p.health.toFixed(2), w: p.wild ? 1 : 0, host: p.host ? (index.get(p.host) ?? -1) : -1, ai: p.attachIdx || 0, s: p.seed, b: Math.round(p.bornT ?? -1), ...(p.sownBy ? { a: p.sownBy } : {}) })),   // the seed keeps the same shape (and branch spots) after loading
       tools: tools ? tools.serialize() : null,
       report: report ? report.serialize() : undefined,
       animals: W.animals.filter(a => keepOnSave(a) && !a.leaving).map(a => ({ id: a.sp.id, x: +a.pos.x.toFixed(2), y: +a.pos.y.toFixed(2), z: +a.pos.z.toFixed(2), e: +a.energy.toFixed(2), g: +a.grow.toFixed(2) })),
@@ -1315,7 +1320,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
       if (p.host >= 0 && !host) continue;
       const opts = { growth: p.g, host, attachIdx: p.ai, restore: true }; if (Number.isFinite(p.s)) opts.seed = p.s;
       const e = spawnPlant(sp, p.x, p.z, opts);
-      if (e) { e.health = p.h ?? 1; e.wild = !!p.w; e.pop = 1; made[i] = e; }
+      if (e) { e.health = p.h ?? 1; e.wild = !!p.w; e.pop = 1; e.bornT = Number.isFinite(p.b) ? p.b : -1; if (p.a) e.sownBy = p.a; made[i] = e; }   // saves before 1.3: born "long ago"
     }
     for (const a of S.animals || []) {
       const sp = reg.byId.get(a.id); if (!sp) continue;
