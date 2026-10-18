@@ -83,8 +83,9 @@ export function createModel(def) {
       if (sat < (v.hungry ?? 0.3)) d[v.id] -= N * (v.leaveHungry ?? 0.05) * ((v.hungry ?? 0.3) - sat) / (v.hungry ?? 0.3);
       const cap = capOf(v);
       if (N > cap) d[v.id] -= (N - cap) * (v.leaveCrowded ?? 0.25);
-      // arrivals from outside: only with food and room
-      if (v.arrive && N < cap && (v.food ? foodHint(v) : 1) > (v.arriveIf ?? 0.5)) d[v.id] += v.arrive * Math.min(1, cap - N);
+      // arrivals from outside: only with food and room; `arriveBy: <stock>` only as far as a way in is open (0 to 1:
+      // gazelles from other herds come only through a passage under the road)
+      if (v.arrive && N < cap && (v.food ? foodHint(v) : 1) > (v.arriveIf ?? 0.5)) d[v.id] += v.arrive * Math.min(1, cap - N) * (v.arriveBy ? clamp(s.v[v.arriveBy] || 0, 0, 1) : 1);
     }
     for (const id in s.v) {
       const lo = vars[id].min ?? 0;

@@ -37,7 +37,7 @@ export function createResearchSession(ctx) {
   const placedTools = new Set();
   const pendingNight = [];      // tool ids that will count at night
   const alive = (e) => e.alive && !e.removed && !e.dying && !e.leaving;
-  let finished = false, disposed = false, guess = null, histT = 0, syncT = 0, plantSyncT = 0, surpriseT = 0;
+  let finished = false, disposed = false, guess = null, histT = 0, syncT = 0, plantSyncT = 0, surpriseT = 0, emberT = 0;
   const timers = new Set();
   const later = (fn, ms) => { const id = setTimeout(() => { timers.delete(id); if (!disposed) fn(); }, ms); timers.add(id); };
   let ff = null;                // { left, act } "see what happens"
@@ -82,6 +82,7 @@ export function createResearchSession(ctx) {
     }
     if (S.stump) { const s = randomPlaceSpot({ kind: 'tree', needs: {} }); if (s) addStump(s.x, s.z, 0.9); }
     if (S.dayFrac != null) W.dayFrac = S.dayFrac;
+    if (S.season != null && W.season) W.season = ['winter', 'spring', 'summer', 'autumn'][S.season % 4];   // the season the case's tests start in
     for (const v of C.visual || []) syncOne(v, true);
     syncPlants(true);
     record();
@@ -364,6 +365,9 @@ export function createResearchSession(ctx) {
     // surprises: the numbers turned after something the child tried
     surpriseT -= rdt;
     if (surpriseT <= 0) { surpriseT = 0.5; for (const S of runner.surprises()) { R.note(S.text, { kind: 'surprise', action: { label: T('lab'), id: 'lab' } }); log('surprise', S.text); audio.play('discover'); } }
+    // a case may show a number on the island as embers by the road (the summer fire): scene.embers = { id, above, angle }
+    const E = C.scene && C.scene.embers;
+    if (E) { emberT -= rdt; const v = model.get(E.id); if (emberT <= 0 && v > E.above) { emberT = 0.4; const a = E.angle ?? 0.6, r = env.radius * 0.8; _v.set(Math.cos(a) * r, 0, Math.sin(a) * r); _v.y = env.heightAt(_v.x, _v.z) + 0.3; markers.burst(_v, '#ff8a3a', Math.min(14, 3 + Math.round(v * 20)), { speed: 0.7, size: 0.5, life: 1.5, up: 1.8 }); } }
     // night for the camera
     if (pendingNight.length && W.nightGlow > 0.6) { const ids = pendingNight.splice(0); later(() => ids.forEach(reveal), 400); }
     if (toNight && W.nightGlow > 0.6) { toNight = null; if (!ff) W.speed = baseSpeed; }
@@ -371,8 +375,8 @@ export function createResearchSession(ctx) {
     // the dilemma comes once the child has looked around (model seconds), and never over another window
     if (!dilemmaShown && !ff && model.state.t >= (C.dilemma.at ?? 30) && !R.isOpen()) {
       dilemmaShown = true;
-      R.showDilemma(C.dilemma, (id) => { const i = runner.ideaOf(id); if (i) applyIdea(id, i.amounts[0]); });
-      audio.play('select');
+      // not when the child already tried one of the two ways
+      if (!C.dilemma.options.some((o) => runner.used(o.idea))) { R.showDilemma(C.dilemma, (id) => { const i = runner.ideaOf(id); if (i) applyIdea(id, i.amounts[0]); }); audio.play('select'); }
     }
     if (bulbs.n < bulbs.max && hintI < C.hints.length && !R.isOpen()) { bulbs.t += rdt; if (bulbs.t >= BULB_REFILL) { bulbs.t = 0; bulbs.n++; R.setBulbs(bulbs.n, bulbs.max); } }
     // keep the island showing the numbers

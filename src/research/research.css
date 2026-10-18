@@ -315,3 +315,7 @@
 #ui.wol .rs-ideas.many .rs-i-amts { flex-direction: column; }
 #ui.wol .rs-ideas.many .rs-i-amts button { padding: 1px 6px; font-size: .82em; }
 #ui.wol .rs-ideas.many .rs-used { top: -6px; right: -5px; width: 18px; height: 18px; font-size: .72em; }
+
+/* a long board (many measurements) scrolls instead of running under the research table */
+#ui.wol .rs-board { max-height: calc(100% - 330px); overflow-y: auto; scrollbar-width: thin; }
+@media (max-height: 640px) { #ui.wol .rs-board { max-height: calc(100% - 270px); } }

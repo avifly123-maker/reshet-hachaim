@@ -8,7 +8,9 @@ import { RESEARCH_NAME } from './texts.js';
 
 // what comes next (design: the research centre plan, 2026-10-15): shown greyed, so the child sees the world is bigger
 const SOON = {
-  advanced: [{ title: 'היער שנשאר בלי טורפים', zone: 'amazon' }, { title: 'אש בקיץ', zone: 'grove' }, { title: 'הצבאים נעלמים', zone: 'grove' }],
+  kids: [],
+  middle: [],
+  advanced: [],
 };
 const LEVELS = [
   { id: 'kids', name: 'מתחילים', sub: 'סיבה אחת, רמזים, מנוקד', ic: 'sprout' },

@@ -51,6 +51,7 @@ for (const C of CASES) {
   if (C.dilemma) for (const o of C.dilemma.options) { if (!C.ideas.some((i) => i.id === o.idea)) err(C.id, `dilemma option ${o.idea} is not an idea`); if (!o.plus || !o.minus) err(C.id, `dilemma option ${o.idea} needs what it gives (plus) and what it costs (minus)`); }
   for (const v of C.model.vars) { const c = v.cap; if (c && typeof c === 'object') { if (c.of && !vars.has(c.of)) err(C.id, `${v.id}: cap of unknown var ${c.of}`); for (const a of c.also || []) if (!vars.has(a.of)) err(C.id, `${v.id}: cap.also of unknown var ${a.of}`); } }
   for (const f of C.model.flows) if (f.refugeOf && !vars.has(f.refugeOf.of)) err(C.id, `flow ${f.type}: refugeOf unknown var ${f.refugeOf.of}`);
+  for (const v of C.model.vars) if (v.arriveBy && !vars.has(v.arriveBy)) err(C.id, `${v.id}: arriveBy unknown var ${v.arriveBy}`);
   for (const S of C.surprises || []) {
     if (!S.id || !S.text) err(C.id, 'a surprise needs an id and a text');
     if (!vars.has(S.test)) err(C.id, `surprise ${S.id}: test on unknown var ${S.test}`);
@@ -63,6 +64,7 @@ for (const C of CASES) {
     if (!C.mainFix || !C.mainFix.length) err(C.id, 'middle / advanced case needs mainFix (the usual route)');
     if (Object.keys(C.tests?.traps || {}).length < 5) err(C.id, 'middle / advanced case needs at least 5 traps in its tests');
     if ((C.surprises || []).length < 3) err(C.id, 'middle / advanced case needs at least 3 surprises');
+    if (C.level === 'advanced' && (C.surprises || []).length < 4) err(C.id, 'an advanced case needs at least 4 surprises');
     if (C.ideas.length < 8) err(C.id, `middle / advanced case needs at least 8 ideas (has ${C.ideas.length})`);
   }
   if (!C.guesses.some((g) => g.right)) err(C.id, 'no right guess');

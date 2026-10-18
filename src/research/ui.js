@@ -4,6 +4,7 @@
 import { icon, esc } from '../ui/ui.js';
 import { TOOL_ICONS } from '../game/tools.js';
 import { CASE_ICONS } from './case-icons.js';
+import { ADV_ICONS } from './icons-adv.js';
 
 const svgURL = (body, bg) => 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="${bg}"/>${body}</svg>`);
 export const R_ICONS = {
@@ -46,6 +47,7 @@ export const R_ICONS = {
   parasites: svgURL('<ellipse cx="30" cy="32" rx="18" ry="11" fill="#e8a03a"/><path d="M46 32l10-7v14z" fill="#e8a03a"/><circle cx="20" cy="29" r="2.4" fill="#2a2420"/><g fill="#7a3a5a"><circle cx="30" cy="30" r="2.2"/><circle cx="36" cy="36" r="2"/><circle cx="27" cy="38" r="1.8"/><circle cx="40" cy="28" r="1.6"/></g>', '#f6e6d0'),
 };
 for (const k in CASE_ICONS) if (!R_ICONS[k]) R_ICONS[k] = CASE_ICONS[k];   // pictures of the frogs, young oaks and leaf-cutters mysteries
+Object.assign(R_ICONS, ADV_ICONS);   // the advanced mysteries' own icons (icons-adv.js)
 const SERIES_COLORS = ['#c8473a', '#3a7fc8', '#4f9a3c', '#d99a2b', '#8a5ab8', '#2f9a95'];
 const LIGHT_ICONS = { life: 'paw', regen: 'sprout', env: 'drop' };
 

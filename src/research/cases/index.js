@@ -9,6 +9,10 @@ import { THE_TRAP } from './the-trap.js';
 import { FROGS } from './frogs.js';
 import { YOUNG_OAKS } from './young-oaks.js';
 import { LEAFCUTTERS } from './leafcutters.js';
+import { NO_PREDATORS } from './no-predators.js';
+import { SUMMER_FIRE } from './summer-fire.js';
+import { GAZELLES } from './gazelles.js';
 export const CASES = [MICE_OWL, FLOWERS_BEES, BRAZIL_NUT, GREEN_REEF, CLEANING_STATION, WHITE_CORAL, THE_TRAP];
 CASES.push(FROGS, YOUNG_OAKS, LEAFCUTTERS);
+CASES.push(NO_PREDATORS, SUMMER_FIRE, GAZELLES);   // advanced: the forest without hunters, summer fire, the vanishing gazelles
 export const caseById = (id) => CASES.find((c) => c.id === id) || null;
