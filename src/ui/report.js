@@ -62,6 +62,7 @@ const CSS = `
   box-shadow: 0 2px 0 #b9b08a, 0 4px 0 #cfc7a2, 0 6px 0 #b0a77f, 0 24px 48px rgba(0, 0, 0, .5);
   animation: rep-in .38s cubic-bezier(.2, .8, .3, 1.15) both; }
 #ui.wol .rep-page[data-biome="grove"] { --acc: #55601f; --acc2: #9a5e16; --tint: #ece0c4; --pin: #b8414a; }
+#ui.wol .rep-page[data-biome="reef"] { --acc: #1d6680; --acc2: #2a8ac0; --tint: #d8eaef; --pin: #e0794a; }
 /* spiral binding on the right edge (the spine side of a Hebrew notebook) */
 #ui.wol .rep-rings { position: absolute; top: 22px; bottom: 22px; right: 0; width: 40px; pointer-events: none;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='36' viewBox='0 0 40 36'%3E%3Ccircle cx='17' cy='18' r='3.6' fill='%233a3426' fill-opacity='.75'/%3E%3Crect x='15.5' y='14.6' width='30' height='6.8' rx='3.4' fill='%23a49d86' stroke='%23615a49' stroke-width='1'/%3E%3Cpath d='M18 16.6h20' stroke='%23e8e3d0' stroke-width='1.3' stroke-linecap='round' stroke-opacity='.8'/%3E%3C/svg%3E") 0 0 / 40px 36px repeat-y; }
