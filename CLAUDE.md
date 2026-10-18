@@ -11,7 +11,7 @@ An offline 3D educational biodiversity game in Hebrew for Baba Da (בבא דע),
 - **Content:** no human figures at all, no women or girls depicted or named, no dinosaurs, no "millions of years" (say "בעבר הרחוק"), no evolution language, no pigs. Gentle, simple Hebrew for grades 3 to 5, correct grammatical gender, fully right-to-left. Facts must be checked against a source (`docs/sources.md`). `node tools/validate-content.mjs` enforces the text rules, including UI and torah text.
 - **Talking with the owner:** always in Hebrew, plain everyday language (not a literary style). Documents and printouts fully RTL. Written content for others should not read as machine-written (no em dashes, no hype words).
 - **Upgrades keep the data:** every version (1.2.x and the future 1.3) installs over the previous one and keeps all saves, players and cards. Never change the desktop `appId` / `productName` (both editions), the `app://game` origin or the `web-of-life*` storage keys; `tests/fixtures/saves-<version>.json` holds a save from each released version and `tools/check-old-saves.py` must load all of them.
-- **Look:** polished and colourful but "not a circus". Trees stay procedural (no Blender trees: mixing would look unnatural); animals are Blender-rigged.
+- **Look:** polished and colourful but "not a circus". Trees stay procedural (no Blender trees: mixing would look unnatural); animals are Blender-rigged. Corals and the reef's other fixed life are Blender models (Avi, 18.10: they barely grow, so they can be fixed models). No cross shapes anywhere, not even a first-aid cross (use a red "!").
 
 ## Build and test
 
@@ -60,6 +60,22 @@ Design: `docs/RESEARCH.md` (Hebrew). Proposed 1.3 development map (mysteries, th
 - Headless: `window.__app.openCase('mice-owl')`; `window.__game.research.dbg` has `useTool`, `applyIdea`, `startFF`, `openLab`, `runner`, `model`.
 
 Stage 1 done: engine, research centre, mystery 1 "יותר מדי קוצנים" end to end. Next (docs/RESEARCH.md): the other two beginner mysteries, then middle (המלכודת, החורש שלא מתחדש, הנמלים שאכלו את היער), then advanced with the goat and jackal models.
+
+## The reef zone (1.3.0, branch claude/research-1.3)
+
+שונית האלמוגים של אילת, the third environment. Start card marked "בבנייה" (`dev: true` in src/data/zones.js) until Avi signs it off.
+- Data: src/data/reef.js (30 species: corals, sponge, anemone, clam, seagrass, algae, plankton; 18 animals incl. jellyfish and reef shark; 13 missions, 6 events, tips); kids set in src/data/kids.js; torah mission rt1 and source card `yam` (תהלים קד, כה) in src/data/torah.js.
+- Fish swim: `locomotion: 'swim'` becomes 'flying' with `s.swims = true` in src/sim/species.js; the flight code keeps them under `env.surfaceY`.
+- Environment: src/env/reef.js ("cube of sea" diorama: sea floor with Blender sand / rubble textures and Voronoi caustics, reef-rock boulders on the mounds, coral heads on the crest as scenery, turquoise surface and water wall, light rays, bubbles, sky dome). `env.underwater`, `env.surfaceY`.
+- Blender, all on Avi's PC through the session queue (one job at a time):
+  - animals: tools/blender/reef_kit.py (`fish_spec`, fish clips fly/hover/glide/perch/eat/sleep, fish scales skin) + tools/blender/animals/<id>.py → art/rigged/reef → src/data/rigged-reef.js. `meta.rough` (wet skin) and `meta.opacity` (jellyfish) are read by src/models/rigged.js.
+  - fixed life: tools/blender/reef_flora.py (`flora_job(id)`, exec into its own namespace, it switches to its own scene so modifiers apply) → art/reef/flora → tools/build-reef-flora.py → src/data/reef-flora.js, drawn by src/models/reef-plants.js (coral material: bleaching, sway, night glow; Blender corals appear at ~82% size and grow only a little; `SIZE_B` scales).
+  - devices: tools/blender/reef_props.py → art/props/reef_props.json, merged by tools/build-props.py.
+  - floor: tools/blender/reef_ground.py (needs pano_common.py and ground_textures.py in the PC folder) → art/ground/reefsand_*, reefrubble_* → tools/build-ground-textures.py.
+- Tools: TOOL_DEFS entries have `zones`; `toolDef(id, biome)` gives the reef look (רובוט צולל, מצלמה תת־ימית, מצוף חיישנים); reef-only nursery / reefball / buoy. Events: `anchor` (prevented by a buoy), heat softened by the sensor buoy.
+- Learning hub: reef tab, cards, sets (בוני השונית, שותפים בשונית, שומרי השונית); reef cards use their painting as thumbnail.
+- Card paintings: Gemini in Avi's Chrome (prompt style in docs/DEVLOG.md); Chrome blocks a second automatic download from a tab, so collect images as data URLs in the page and download one JSON from a fresh same-origin tab.
+- Not done yet: reef panorama (Eilat mountains), keep-forest / web-puzzle reef games, report.js reef lines, Hebrew names still to confirm (מנתחן, שפרנון מנקה, דקר, גובי, שרימפס אקדח), the rescue robot model still lacks a replacement for its removed cross.
 
 ## Where things stand (1.2.3, and 1.3.0 in development)
 
