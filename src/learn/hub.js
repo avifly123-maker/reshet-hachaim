@@ -480,11 +480,15 @@ const GEN = {
     return { tag: 'שרשרת המזון', q: `מה מופיע בתפריט של ${defName(s.id, s.name)}?`, art: s, options: [nameOpt(ok, true, true), ...wrong.map((o) => nameOpt(o, false, true))], fact: dietSentence(s) };
   },
   layer(pool, used) {
-    const s = freshFrom(pool.filter((x) => x.layer && BIOMES[x.biome].layers.some((l) => l.id === x.layer)), used); if (!s) return null;
+    // only what stays in one place (plants, corals, sponges): animals move between layers, so a "wrong" layer may be right
+    const s = freshFrom(pool.filter((x) => !x.animal && x.layer && BIOMES[x.biome].layers.some((l) => l.id === x.layer)), used); if (!s) return null;
     const layers = BIOMES[s.biome].layers; const L = layers.find((l) => l.id === s.layer);
     // a plant that sits on a tree (bromeliad on the kapok) or an animal that lives in one can be met there too – never a "wrong" layer
     const near = new Set((s.relations || []).filter((r) => r.type === 'climbs' || r.type === 'home')
       .map((r) => (spOf(s.biome, r.target) || {}).layer).filter(Boolean));
+    // reef life that grows in two zones (as "מחזיקים את היער" places it): brain coral and anemones also on the slope, sponges and algae also on the sand
+    const ALSO = { 'reef:brain': 'slope', 'reef:seaanemone': 'slope', 'reef:sponge': 'sand', 'reef:algae': 'sand' };
+    if (ALSO[s.key]) near.add(ALSO[s.key]);
     const wrong = sample(layers.filter((l) => l !== L && !near.has(l.id)), 2); if (!wrong.length) return null;
     used.add(s.key);
     const reef = s.biome === 'reef';
@@ -656,7 +660,9 @@ const CSS = `
 .wol-learn .wl-btn:disabled{filter:grayscale(.8) opacity(.55)}
 .wol-learn .wl-btn .wl-badgeN{min-width:1.6em;height:1.6em;border-radius:99px;background:var(--berry);color:#fff;font-size:.85em;display:inline-grid;place-items:center;padding:0 .35em}
 /* home */
-.wol-learn .wl-home{justify-content:center;gap:1.8em;padding:0 2em 2em}
+.wol-learn .wl-home{justify-content:flex-start;gap:1.8em;padding:0 2em 2em;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin}
+.wol-learn .wl-home>:first-child{margin-top:auto}.wol-learn .wl-home>:last-child{margin-bottom:auto}   /* centred when it fits, scrolls (from the top) when it does not */
+@media (max-height:640px){.wol-learn .wl-home{gap:1em;padding-bottom:1em}.wol-learn .wl-hero h1{font-size:2.4em}.wol-learn .wl-hero p{display:none}}
 .wol-learn .wl-hero{text-align:center}
 .wol-learn .wl-hero h1{font-family:var(--serif);font-size:3.4em;line-height:1;color:#f6eed0;text-shadow:0 3px 22px rgba(0,0,0,.45)}
 .wol-learn .wl-hero p{margin-top:.5em;font-family:var(--serif);font-size:1.25em;color:#e2dcbd}
@@ -923,7 +929,9 @@ const CSS = `
 .wol-learn .wl-src.shira{margin:.8em 0}
 .wol-learn .wl-gotpack.src{background:linear-gradient(180deg,#fbf0d0,#efd9a0);color:#5a3a10}
 .wol-learn .wl-gotpack.src .wl-ic{width:1.2em;height:1.2em}
-.wol-learn .wl-srcpage{display:flex;flex-direction:column;gap:1em;padding:0 0 1.5em}
+.wol-learn .wl-srcpage{display:flex;flex-direction:column;gap:1em;padding:0 0 1.5em;flex:1;min-height:0;overflow-y:auto;scrollbar-width:thin}
+.wol-learn .wl-grid>.wl-srcall{grid-column:1/-1;justify-self:stretch}
+.wol-learn .wl-grid>.wl-srcall .wl-srcpage{overflow:visible}
 .wol-learn .wl-pk-wait{display:grid;place-items:center;width:9em;height:12em;border-radius:1em;background:rgba(246,240,220,.08);box-shadow:inset 0 0 0 3px rgba(246,240,220,.2)}
 .wol-learn .wl-pk-wait .wl-ic{width:4.5em;height:4.5em;color:#f6cf72;opacity:.8}
 .wol-learn .wl-srcall{margin-top:1.4em;padding-top:1.2em;border-top:2px dashed rgba(246,240,220,.25)}
@@ -1022,7 +1030,7 @@ ${BADGE_CSS}
 .wol-learn .wl-badgetile:hover{transform:translateY(-.2em)}
 .wol-learn .wl-bt-row{display:flex;gap:.2em}.wol-learn .wl-bt-row .bdg{--bs:4.2em}
 .wol-learn .wl-bt-text b{display:block;font-family:var(--serif);font-size:1.4em;color:#3a2a10}.wol-learn .wl-bt-text small{color:#5a4a30}
-.wol-learn .wl-badges{gap:1em;padding:0 1.6em 1.6em}
+.wol-learn .wl-badges{gap:1em;padding:0 1.6em 1.6em;overflow-y:auto;overflow-x:hidden;min-height:0;scrollbar-width:thin}
 .wol-learn .wl-bhead{display:flex;align-items:center;justify-content:space-between;padding:.7em 1.2em;border-radius:1em;width:min(60em,100%);margin:0 auto}
 .wol-learn .wl-bhead b{font-family:var(--serif);font-size:1.5em}
 .wol-learn .wl-bgroup{width:min(60em,100%);margin:0 auto;padding:.8em 1em 1em;border-radius:1em;background:linear-gradient(180deg,color-mix(in srgb,var(--bg1) 35%,transparent),rgba(0,0,0,.18));box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
@@ -1377,9 +1385,10 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   let gameInst = null;
   function go(name, opts = {}) {
     clearTimers(); closeModal();
+    if (name === 'home') returnTo = null;
     if (gameInst) { try { gameInst.destroy && gameInst.destroy(); } catch (e) { console.warn(e); } gameInst = null; }
     if (GAMES[name]) {
-      screen = name; $('.wl-crumb').textContent = TITLES[name]; $('.wl-back span').textContent = 'חזרה'; updateChip(false);
+      screen = name; $('.wl-crumb').textContent = TITLES[name]; $('.wl-back span').textContent = returnTo === name ? 'חזרה למעבדה' : 'חזרה'; updateChip(false);
       main.innerHTML = '';
       try { gameInst = GAMES[name](main, GAME_CTX, opts) || null; } catch (e) { console.error(e); main.innerHTML = '<p style="padding:2em">אירעה תקלה במשחק.</p>'; }
       main.scrollTop = 0; return;
@@ -1391,8 +1400,11 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     ({ home: renderHome, setup: renderSetup, quiz: () => startQuiz(opts), end: renderEnd, album: renderAlbum, pack: renderPack, duel: () => startDuel(), badges: renderBadges })[name]();
     main.scrollTop = 0;
   }
+  // opened from the lab (the inventors table): "חזרה" on that screen goes straight back to the lab
+  let returnTo = null;
   function back() {
     if (!modal.hidden) return closeModal();
+    if (returnTo && screen === returnTo) { sfx('click'); returnTo = null; return close(); }
     const p = PARENT[screen];
     if (p) { sfx('click'); go(p); } else close();
   }
@@ -1647,8 +1659,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
       </div>
       ${setsHTML()}
       ${curSet ? setInfoHTML(curSet) : ''}
-      ${filter === 'src' ? sourcePageHTML() : `<div class="wl-grid${curSet ? ' inset' : ''}">${list.map((c, i) => { const o = { style: `--d:${i}`, cls: (i < 24 ? 'anim' : '') + (frameCls ? ' ' + frameCls : '') }; return S.owned[c.id] ? cardHTML(c, { ...o, count: S.owned[c.id] }) : cardHTML(c, { ...o, cls: i < 24 ? 'anim' : '', locked: true }); }).join('')}</div>`}
-      ${filter === 'all' && srcOn() ? `<div class="wl-srcall">${sourcePageHTML()}</div>` : ''}
+      ${filter === 'src' ? sourcePageHTML() : `<div class="wl-grid${curSet ? ' inset' : ''}">${list.map((c, i) => { const o = { style: `--d:${i}`, cls: (i < 24 ? 'anim' : '') + (frameCls ? ' ' + frameCls : '') }; return S.owned[c.id] ? cardHTML(c, { ...o, count: S.owned[c.id] }) : cardHTML(c, { ...o, cls: i < 24 ? 'anim' : '', locked: true }); }).join('')}${filter === 'all' && srcOn() ? `<div class="wl-srcall">${sourcePageHTML()}</div>` : ''}</div>`}
     </section>`;
     if (!S.packs && have < 3) toast(`${IC.quest}<span>שחקו בחידון כדי להרוויח חבילות קלפים</span>`);
   }
@@ -2026,7 +2037,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     sfx('click');
     try { onClose && onClose(); } catch (e) { console.warn(e); }
   }
-  const api = { open, close, isOpen: () => open_, grantPack, go: (name, opts) => { if (!open_) open(); go(name, opts); } };
+  const api = { open, close, isOpen: () => open_, grantPack, go: (name, opts) => { if (!open_) open(); returnTo = opts && opts.from === 'lab' ? name : null; go(name, opts); } };
   try {
     window.__wolLearn = {
       ...api,

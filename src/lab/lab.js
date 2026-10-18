@@ -249,6 +249,7 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
   function go(id) {
     if (!STATION_INFO[id]) return;
     if (panel) { panel.close(); panel = null; }
+    if (talkEl) { talkEl.remove(); talkEl = null; }   // the conversation does not stay open under the next station
     if (id === station && move <= 0) { arrive(); return; }
     audio && audio.play('select');
     prevSt = station; station = id; move = 1;
@@ -264,7 +265,7 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     else if (info.open === 'inventors') {
       // the inventors table is the hub's "הממציאים" (problems and robots, with the child's own cards); the lab stays underneath
       robot.wave(); say('שולחן הממציאים! כאן פותרים בעיות אמיתיות בעזרת היצורים שלכם, ובונים רובוטים. מותר לטעות, ככה ממציאים.', 'happy');
-      if (openGame) setTimeout(() => openGame('inventors'), 700);
+      if (openGame) setTimeout(() => { if (open_ && station === 'table') openGame('inventors'); }, 700);
       else panel = openInventors(panels, { say, thumbs, audio, onInvented: () => robot.wave(), onClose: () => { panel = null; }, goScope: () => setTimeout(() => go('scope'), 900) });
     }
     else if (info.open === 'atlas') panel = openAtlas(panels, { say, thumbs, onClose: () => { panel = null; }, onQuestions: () => openQuest() });
@@ -380,7 +381,7 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
       if (t && (nextN++ % 2 || !s)) return `אולי ננסה את "${t.name}" ${t.where}? שם לומדים ש${t.habit}.`;
       if (s) return `אולי נסתכל במיקרוסקופ על ${s.name}? יש שם משהו שעוד לא מצאתם.`;
       if (!P.inventions.sharkskin) return 'כל הדגימות נבדקו! עכשיו לשולחן הממציאים: אולי תצליחו להמציא בגד שחייה מהיר?';
-      return 'גיליתם כל כך הרבה! נסו לבנות בשולחן הממציאים רובוט מטורף, או צאו למשלחת לעומק במרכז הלמידה.';
+      return 'גיליתם כל כך הרבה! נסו לבנות בשולחן הממציאים רובוט משונה ומצחיק, או צאו למשלחת לעומק במרכז הלמידה.';
     }, e: 'curious' },
     fact: { q: 'ספר לי משהו מפתיע', a: () => FACTS[(talkN++) % FACTS.length], e: 'wow' },
     joke: { q: 'בדיחה!', a: () => JOKES[(jokeN++) % JOKES.length], e: 'happy' },

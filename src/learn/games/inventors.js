@@ -177,7 +177,8 @@ function injectCss() {
 .wol-learn .iv-slot.shake{animation:iv-shake .4s 2}
 .wol-learn .iv-main>*,.wol-learn .iv-rmain>*{min-width:0}
 .wol-learn .iv.wl-screen{align-items:stretch}.wol-learn .iv>*{max-width:100%}.wol-learn .iv-bench>*{flex:none}
-@media (max-width:860px){.wol-learn .iv{padding:0 .7em .4em;gap:.4em}.wol-learn .iv-main{grid-template-columns:minmax(9em,11em) minmax(0,1fr);gap:.6em}.wol-learn .iv-rmain{grid-template-columns:1fr}
+@media (max-width:860px){.wol-learn .iv{padding:0 .7em .4em;gap:.4em}.wol-learn .iv-main{grid-template-columns:minmax(9em,11em) minmax(0,1fr);gap:.6em}.wol-learn .iv-rmain{grid-template-columns:minmax(10em,13em) minmax(0,1fr);gap:.6em}
+  .wol-learn .iv-robot{font-size:.74em;padding:.6em}.wol-learn .iv-rbody{flex:none}
   .wol-learn .iv-side{gap:.25em}.wol-learn .iv-th{min-height:0;padding:.3em .1em}.wol-learn .iv-th span{display:none}
   .wol-learn .iv-pbtn{min-height:2.2em;padding:.35em .5em;font-size:.88em}.wol-learn .iv-pbtn .wl-ic{width:1.15em;height:1.15em}
   .wol-learn .iv-hc .wl-card{--cw:min(6em,12vh)}.wol-learn .iv-tr{max-width:min(7em,13vh)}.wol-learn .iv-tr i{font-size:.66em}}
@@ -253,8 +254,9 @@ export function mountInventors(root, ctx, opts = {}) {
     return got.slice(0, 1);
   }
   function evaluate(p, cards) {
-    const need = problemNeeds(p), got = cover(need, cards);
-    const has = (c, t) => traits(c).includes(t);
+    // only living things are a source of inspiration: a device card never solves a problem (it can still be half of a funny pair)
+    const need = problemNeeds(p), got = cover(need, cards.filter((c) => !isTool(c)));
+    const has = (c, t) => !isTool(c) && traits(c).includes(t);
     const reals = [p.real, p.real2].filter(Boolean);
     if (got.length === need.length) {
       const keyCards = cards.filter((c) => need.some((t) => has(c, t)));
@@ -434,7 +436,7 @@ export function mountInventors(root, ctx, opts = {}) {
     const stepName = ['בחרו גוף לרובוט: יצור מהקלפים', 'בחרו תכונה ראשונה: לחצו על קלף ואז על תכונה', 'בחרו תכונה שנייה'];
     const mod = (i) => R.mods[i] ? `<span class="iv-mod" data-iv="unmod" data-i="${i}">${I.gear}${esc(TRAIT[R.mods[i].t])}</span>` : `<span class="iv-mod empty">תכונה ${i + 1}</span>`;
     let trials = '';
-    if (R.run) trials = `<div class="iv-trials">${R.run.map((r) => `<div class="iv-trial">${I[r.tl.icon] || I.flask}<b>${esc(r.tl.title)}</b><span class="bar"><i></i></span><small>${esc(r.line)}</small></div>`).join('')}</div>`
+    if (R.run) trials = `<div class="iv-trials">${R.run.map((r) => `<div class="iv-trial">${I[r.tl.icon] || I.flask}<b>${esc(r.tl.title)}</b><span class="bar"><i${R.done ? ` style="width:${r.sc}%"` : ''}></i></span><small>${esc(r.line)}</small></div>`).join('')}</div>`
       + (R.done ? `<div class="iv-radio">${face(R.done.wins >= 3 ? 'wow' : R.done.wins >= 1 ? 'happy' : 'oops')}<p><b>רובו־דע:</b> ${R.done.wins >= 4 ? 'רובוט אלוף! הוא עבר כמעט הכול.' : R.done.wins >= 2 ? `עבר ${R.done.wins} מתוך 5. לא רע בכלל! אולי תכונה אחרת תעזור בשאר?` : R.done.wins === 1 ? 'עבר ניסוי אחד. מצחיק, אבל עוד לא מוכן לשטח.' : 'הרובוט הלך לנוח... ננסה גוף אחר או תכונות אחרות?'}</p></div>` : '');
     return `<div class="iv-rmain">
       <div class="iv-robot"><div class="iv-rbody">${robotSVG()}<div class="iv-port">${R.body && R.body.art ? `<img src="${R.body.art}" alt="">` : '<b>?</b>'}</div></div>

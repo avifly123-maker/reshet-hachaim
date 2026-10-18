@@ -32,7 +32,7 @@ export const BADGES = [
   { id: 'b_inv1', group: 'lab', art: 'reefshark', name: 'הפטנט הראשון', how: 'ממציאים המצאה ראשונה במשחק "הממציאים"', earn: 'inv:first' },
   { id: 'b_inv5', group: 'lab', art: 'owl', name: 'ממציא חרוץ', how: 'חמש המצאות שונות ב"הממציאים"', earn: 'inv:five' },
   { id: 'b_invfail', group: 'lab', art: 'sloth', name: 'ממציא עקשן', how: 'עשרה ניסיונות שלא הצליחו, ולא ויתרתם', earn: 'inv:stubborn' },
-  { id: 'b_invwild', group: 'lab', art: 'octopus', name: 'רעיון מטורף', how: 'שילוב מפתיע שרובו־דע לא האמין שיעבוד', earn: 'inv:wild' },
+  { id: 'b_invwild', group: 'lab', art: 'octopus', name: 'רעיון מפתיע', how: 'שילוב מפתיע שרובו־דע לא האמין שיעבוד', earn: 'inv:wild' },
   { id: 'b_invall', group: 'lab', art: 'hummingbird', name: 'מעבדה מלאה', how: 'כל הבעיות ב"הממציאים" נפתרו', earn: 'inv:all' },
   { id: 'b_scope', group: 'lab', art: 'honeybee', name: 'עין חדה', how: 'מוצאים את כל מה שמסתתר במיקרוסקופ', earn: 'lab:scope' },
   // ── חושבים כמו חוקרים (src/lab/thinking.js): one habit of scientific thinking each

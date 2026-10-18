@@ -10,13 +10,13 @@
 
 // the four depths of the reef (kids play the first three)
 export const DEPTHS = [
-  { id: 'shallow', name: 'מים רדודים', tiles: 5, kidsTiles: 4, mix: { sample: 2, challenge: 2, friend: 1 },
+  { id: 'shallow', name: 'מים רדודים', into: 'למים הרדודים', tiles: 5, kidsTiles: 4, mix: { sample: 2, challenge: 2, friend: 1 },
     fact: 'במים הרדודים של מפרץ אילת גדל עשב ים. השורשים שלו מחזיקים את החול, ודגים קטנים מתחבאים בין העלים.' },
-  { id: 'slope', name: 'מדרון השונית', tiles: 5, kidsTiles: 4, mix: { sample: 2, challenge: 2, friend: 1 },
+  { id: 'slope', name: 'מדרון השונית', into: 'למדרון השונית', tiles: 5, kidsTiles: 4, mix: { sample: 2, challenge: 2, friend: 1 },
     fact: 'רוב האלמוגים גדלים במים שהשמש מגיעה אליהם, כי האצות הזעירות שחיות בתוכם עושות להם אוכל מאור השמש.' },
-  { id: 'deep', name: 'העמק העמוק', tiles: 6, kidsTiles: 4, mix: { sample: 2, challenge: 3, friend: 1 },
+  { id: 'deep', name: 'העמק העמוק', into: 'לעמק העמוק', tiles: 6, kidsTiles: 4, mix: { sample: 2, challenge: 3, friend: 1 },
     fact: 'במפרץ אילת גם המים העמוקים לא קרים כמו בימים אחרים: הם נשארים חמימים כל השנה.' },
-  { id: 'cave', name: 'המערה', tiles: 4, kidsTiles: 0, mix: { sample: 1, challenge: 2, friend: 1 },
+  { id: 'cave', name: 'המערה', into: 'למערה', tiles: 4, kidsTiles: 0, mix: { sample: 1, challenge: 2, friend: 1 },
     fact: 'ביום מסתתרים במערות דגים של לילה, כמו המורנה והזהרון. בחושך הם יוצאים לצוד.' },
 ];
 

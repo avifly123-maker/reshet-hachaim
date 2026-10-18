@@ -182,7 +182,7 @@ function itemSVG(id) {
     egg: '<ellipse cx="20" cy="22" rx="10" ry="13" fill="#f6efe2" stroke="#c9b898" stroke-width="1.5"/>',
     pumice: '<path d="M7 24q-2-9 8-12q10-4 16 4q5 8-3 13q-11 5-21-5z" fill="#c9c4b8" stroke="#8a8478" stroke-width="1.5"/><circle cx="14" cy="21" r="1.6" fill="#8a8478"/><circle cx="22" cy="17" r="1.3" fill="#8a8478"/><circle cx="25" cy="25" r="1.8" fill="#8a8478"/><circle cx="17" cy="28" r="1.2" fill="#8a8478"/>',
     orange: '<circle cx="20" cy="22" r="13" fill="#f08a1c"/><circle cx="15" cy="18" r="1" fill="#c86a0c"/><circle cx="24" cy="20" r="1" fill="#c86a0c"/><circle cx="19" cy="27" r="1" fill="#c86a0c"/><circle cx="26" cy="27" r="1" fill="#c86a0c"/><path d="M20 9l2-3" stroke="#5aa845" stroke-width="2"/>',
-    peeled: '<circle cx="20" cy="22" r="11.5" fill="#f6b25a"/><path d="M20 10.5v23M9 18.5l22 7M9 25.5l22-7" stroke="#f9d9a6" stroke-width="1.5"/>',
+    peeled: '<circle cx="20" cy="22" r="11.5" fill="#f6b25a"/><path d="M20 10.5q-7 11.5 0 23M20 10.5q7 11.5 0 23M20 10.5q-13 11.5 0 23M20 10.5q13 11.5 0 23" stroke="#f9d9a6" stroke-width="1.4" fill="none"/>',
     ice: '<rect x="8" y="10" width="24" height="24" rx="4" fill="#cdeefc" stroke="#7ab8d8" stroke-width="1.5"/><path d="M12 15h8" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>',
     pebble: '<ellipse cx="20" cy="23" rx="14" ry="10" fill="#8a8f96"/><ellipse cx="16" cy="20" rx="5" ry="2.5" fill="#aab0b6"/>',
   };
@@ -330,9 +330,9 @@ export function openMeasure(root, ctx) {
 // Three small finds. Sort each sentence: did we see it, or do we think it? Then choose a way to check, and see what was true.
 const SCENES = [
   { id: 'tracks', title: 'סימנים בבוץ', intro: 'בבוקר מצאנו בחורש, ליד השלולית, סימנים בבוץ.',
-    cards: [['בבוץ יש סימנים בצורת לב הפוך', 'see'], ['הסימנים הולכים בשורה אל השלולית', 'see'], ['צבי בא לשתות', 'think'], ['זה קרה הבוקר', 'think']],
+    cards: [['בבוץ יש סימנים בצורת לב הפוך', 'see'], ['הסימנים הולכים בשורה אל השלולית', 'see'], ['צבי בא לשתות', 'think'], ['הצבי בא לשתות ביום', 'think']],
     checks: [['להציב מצלמת לילה ליד השלולית', 1], ['לספור כמה סימנים יש', 0, 'ספרנו: שנים־עשר סימנים. נחמד! אבל מי השאיר אותם? הספירה לא אומרת.'], ['לשאול את רובו־דע מה דעתו', 0, 'לדעתי זו הייתה ג׳ירפה. רואים? גם לי יש פרשנויות. ניחוש של רובוט הוא לא בדיקה!']],
-    reveal: 'המצלמה צילמה צבי ששותה מהשלולית, באמצע הלילה! פרשנות אחת הייתה נכונה, והשנייה לא: זה לא קרה בבוקר. בשביל זה בודקים.' },
+    reveal: 'המצלמה צילמה צבי ששותה מהשלולית באמצע הלילה, והסימנים שלו בבוץ נראו בדיוק כמו אלה שמצאנו. אז "צבי בא לשתות" כנראה נכון, ו"ביום" כנראה לא: הצבאים באים לשתות בלילה. בשביל זה בודקים.' },
   { id: 'leaf', title: 'העלה האכול', intro: 'בבוקר מצאנו בחממה עלה אכול.',
     cards: [['בשולי העלה יש חורים', 'see'], ['על העלה יש פס דק ומבריק', 'see'], ['מישהו רעב אכל את העלה', 'think'], ['זחל של פרפר אכל אותו', 'think']],
     checks: [['לבדוק את העלה בלילה, עם פנס', 1], ['לחכות שהעלה יגדל בחזרה', 0, 'חיכינו שבוע. העלה לא גדל בחזרה, ורובו־דע נרדם.'], ['לנחש מה הכי סביר', 0, 'ניחוש הוא עוד פרשנות. כדי לדעת, צריך לראות!']],
@@ -431,7 +431,7 @@ const CASES = [
   { id: 'antenna', title: 'האנטנה של רובו־דע', a: 'צחצוח אנטנה', b: 'גשם', ca: '#2c9a92', cb: '#3a6ab8', weeks: 4,
     story: 'רובו־דע שם לב: בשבועות שהוא מצחצח את האנטנה, יורד גשם! הוא בדק את זה ארבעה שבועות.',
     A: [3, 0, 2, 3], B: [4, 0, 3, 5],
-    tests: [['לצחצח את האנטנה כל יום, שבוע שלם', 1, 0, 'צחצחתי כל יום. האנטנה מבריקה, והשמיים... כחולים לגמרי.'], ['לא לצחצח בכלל, ולחכות', -1, 1, 'לא צחצחתי. ובכל זאת ירד גשם ביום שלישי.']],
+    tests: [['לצחצח את האנטנה כל יום, שבוע שלם', 1, 0, 'צחצחתי כל יום. האנטנה מבריקה, וירד גשם רק כמו בשבוע רגיל.'], ['לא לצחצח בכלל, ולחכות', -1, 0, 'לא צחצחתי בכלל. ובכל זאת ירד גשם, בדיוק כמו בשבוע רגיל.']],
     opts: { ab: 'הצחצוח מביא גשם', ba: 'הגשם גורם לצחצח', third: 'משהו אחר גורם לשניהם', chance: 'סתם במקרה' }, answer: 'chance',
     right: 'אוי. אז זה היה סתם במקרה. ארבעה שבועות זה מעט מדי, ובחורף יורד גשם בכל מקרה. ואני כבר הזמנתי משחת צחצוח מיוחדת לאנטנות...',
     wrong: { ab: 'גם אני קיוויתי! אבל כשצחצחתי כל יום, לא ירד גשם. מה זה אומר?', ba: 'הגשם גורם לי לצחצח? לא, אני מצחצח מתי שבא לי. תסתכלו על הניסויים.', third: 'מה יכול לגרום גם לצחצוח וגם לגשם? אני לא מצחצח לפי מזג האוויר. אולי זה משהו פשוט יותר?' } },
@@ -465,7 +465,9 @@ export function openCause(root, ctx) {
     if (b.dataset.cs != null) { S.sfx('click'); openCase(+b.dataset.cs); return; }
     if (b.dataset.t != null) { const i = +b.dataset.t; if (!done.includes(i)) done.push(i); answered = null; S.sfx('discover'); render(); S.talk(c.tests[i][3], c.id === 'antenna' ? 'oops' : 'wow'); return; }
     if (b.dataset.an) {
-      const k = b.dataset.an; answered = k;
+      const k = b.dataset.an;
+      if (!done.length) { S.sfx('click'); S.talk('רגע! קודם עושים ניסוי, ורק אחר כך מחליטים מה גורם למה.', 'curious'); return; }
+      answered = k;
       if (k === c.answer) {
         const R = thinkUpdate('cause', (r) => { r[c.id] = 1; }); S.sfx('quizRight'); render();
         S.talk(c.right, c.id === 'antenna' ? 'oops' : 'wow');

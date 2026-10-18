@@ -138,7 +138,9 @@
   #ui.wol .lb-scope .lb-tray button img { width: 38px; height: 38px; }
 }
 #ui.wol .lb-say .lb-face { display: none; }
-#ui.wol .lb-say.dock { left: auto !important; right: 26px; top: auto !important; bottom: 96px; transform: none; display: flex; align-items: center; gap: 12px; max-width: min(520px, 46vw); z-index: 3; }
+/* docked while a panel is open: down on the station bar, below the panel, so it never hides the panel's own buttons */
+#ui.wol .lb-say.dock { left: auto !important; right: 18px; top: auto !important; bottom: 6px; transform: none; display: flex; align-items: center; gap: 10px; max-width: min(620px, 62vw); max-height: 72px; overflow: hidden; padding: 6px 14px; font-size: .92em; line-height: 1.35; z-index: 3; }
+#ui.wol .lb-say.dock .lb-face { width: 44px !important; height: 44px !important; }
 #ui.wol .lb-say.dock::after { display: none; }
 #ui.wol .lb-say.dock.pop { animation: lbPopD .3s ease-out; }
 @keyframes lbPopD { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }

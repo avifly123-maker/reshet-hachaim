@@ -260,7 +260,7 @@ export function mountExpedition(root, ctx, opts = {}) {
     S.depth++; S.reached = Math.max(S.reached, S.depth);
     if (!S.tiles[S.depth]) S.tiles[S.depth] = genDepth(S.depth);
     ctx.sfx('pickup');
-    let msg = `יורדים ל${DEPTHS[S.depth].name}. ${sent ? (sent === 1 ? 'את הדגימה שלחתי לסירה בבלון.' : `את ${sent} הדגימות שלחתי לסירה בבלון.`) : ''} כאן המים כהים יותר.`;
+    let msg = `יורדים ${DEPTHS[S.depth].into}. ${sent ? (sent === 1 ? 'את הדגימה שלחתי לסירה בבלון. ' : `את ${sent} הדגימות שלחתי לסירה בבלון. `) : ''}כאן המים כהים יותר.`;
     if (DEPTHS[S.depth].id === 'cave') { msg = 'הגענו למערה! כאן חשוך ושקט, ומסתתרים יצורים של לילה. ' + (sent ? 'הדגימות כבר בסירה.' : ''); ctx.badge('deep:cave'); }
     setRadio(msg, 'wow');
     renderRun();
@@ -337,7 +337,7 @@ export function mountExpedition(root, ctx, opts = {}) {
       <div class="ex-radio live">${ROBO(radio ? radio.mood : 'happy')}<p>${esc(radio ? radio.text : '')}</p></div>
       <div class="ex-actions">${S.phase === 'choose' ? `<span class="ex-hint">${I.team} בחרו קלף מהצוות</span>` : `
         ${sonar ? `<button class="wl-btn" data-ex="peek">${I.eye} הצצה עם ${esc(sonar.c.name)}</button>` : ''}
-        ${canUp ? `<button class="wl-btn go" data-ex="up">${I.down} לרדת ל${esc(DEPTHS[S.depth + 1].name)}</button>` : ''}
+        ${canUp ? `<button class="wl-btn go" data-ex="up">${I.down} לרדת ${esc(DEPTHS[S.depth + 1].into)}</button>` : ''}
         <button class="wl-btn gold" data-ex="back">${I.up} חזרה לסירה${bagV ? ` (+${bagV})` : ''}</button>`}</div>
       <div class="ex-team">${S.team.map(memberHTML).join('')}</div>`;
     root.innerHTML = `<section class="wl-screen ex-run${kids ? ' ex-kids' : ''}${S.phase === 'choose' ? ' choosing' : ''}">

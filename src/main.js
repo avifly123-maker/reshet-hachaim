@@ -209,7 +209,7 @@ async function boot() {
     ui.setLoading && ui.setLoading(0.3, 'פותחים את המעבדה...');
     labP = labP || loadPack('lab').then((m) => {
       lab = m.createLab({ root, pipe, audio, onExit: () => { startDrawn = false; showStart(); if (labFrom === 'hub') researchHub.open(); },
-        openGame: (name, opts) => getHub().then((h) => (h.go ? h.go(name, opts) : h.open()), (e) => console.error(e)) });
+        openGame: (name, opts) => getHub().then((h) => (h.go ? h.go(name, { ...(opts || {}), from: 'lab' }) : h.open()), (e) => console.error(e)) });
       return lab;
     });
     labP.then((L) => { ui.hideLoading(); L.open(); }, (e) => { labP = null; ui.hideLoading(); console.error(e); showStart(); });
@@ -315,7 +315,7 @@ async function boot() {
     const dt = Math.min(clock.getDelta() * ts, 0.1 * ts);
     window.__frames = (window.__frames || 0) + 1;
     t += dt;
-    if (lab && lab.isOpen()) { lab.update(dt); pipe.render(dt); startDrawn = false; }
+    if (lab && lab.isOpen()) { if (!(hub && hub.isOpen())) { lab.update(dt); pipe.render(dt); } startDrawn = false; }   // the learning hub covers the lab: no need to draw the room under it
     else if (game) { game.update(dt, t); autoQuality(); }
     else {
       // start screen: draw a dark backdrop only

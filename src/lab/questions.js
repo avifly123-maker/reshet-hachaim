@@ -83,6 +83,12 @@ function grantFor(P) {
   if (QUESTIONS.some((q) => q.open && answered(q, P))) grantBadge('lab:open');
 }
 
+// the guesses in a mixed order (fixed per question, so it does not jump between visits): the right one is not always first
+function guessOrder(q) {
+  const h = (str) => { let x = 2166136261; for (let i = 0; i < str.length; i++) { x ^= str.charCodeAt(i); x = Math.imul(x, 16777619); } return x >>> 0; };
+  return q.guesses.map((_, i) => i).sort((a, b) => h(q.id + ':' + a) - h(q.id + ':' + b));
+}
+
 export function openQuestions(root, { say, thumbs = {}, audio, onClose, onBack, goScope, goInvent, start }) {
   injectCss();
   const el = document.createElement('div'); el.className = 'lb-panel lb-quest'; root.appendChild(el);
@@ -97,7 +103,7 @@ export function openQuestions(root, { say, thumbs = {}, audio, onClose, onBack, 
     let h = `<div class="lb-q-head">${img}<h3>${esc(q.q)}</h3></div>`;
     // 1 · the guess
     h += `<section class="lb-q-step ${got ? 'ok' : 'on'}"><b><i>1</i>מה הניחוש שלכם?</b>`;
-    if (!got) h += `<div class="lb-q-guess">${q.guesses.map((g, i) => `<button data-g="${i}">${esc(g)}</button>`).join('')}</div>`;
+    if (!got) h += `<div class="lb-q-guess">${guessOrder(q).map((i) => `<button data-g="${i}">${esc(q.guesses[i])}</button>`).join('')}</div>`;
     else h += `<p>הניחוש שלכם: <em>${esc(q.guesses[s.g])}</em></p>`;
     h += `</section>`;
     // 2 · the investigation
@@ -123,12 +129,14 @@ export function openQuestions(root, { say, thumbs = {}, audio, onClose, onBack, 
     if (!force && key === last) return; last = key;
     const list = QUESTIONS.filter((q) => q.zone === zone);
     const n = answeredCount(P);
+    const keep = el.querySelector('.lb-q-list'), scroll = keep ? keep.scrollTop : 0;   // the list keeps its place when a question is picked
     el.innerHTML = `<header><h2>שאלות חקר</h2><p>${n} מתוך ${QUESTIONS.length} שאלות קיבלו תשובה</p><button class="lb-btn lb-back">חזרה לאטלס</button></header>
       <div class="lb-q-cols"><div class="lb-q-side"><nav class="lb-q-zones">${ZONES.map(([z, t]) => `<button data-z="${z}" class="${z === zone ? 'on' : ''}">${t}</button>`).join('')}</nav>
         <div class="lb-q-list">${list.map((q) => { const [k, t] = status(q, P); return `<button data-q="${q.id}" class="${cur === q ? 'on' : ''} ${k}">${thumbs[q.sp] ? `<img src="${thumbs[q.sp]}" alt="">` : ''}<span>${esc(q.q)}</span><small>${t}</small></button>`; }).join('')}</div></div>
         <div class="lb-q-main">${detail(cur, P)}</div></div>`;
+    const lst = el.querySelector('.lb-q-list'); if (lst && scroll) lst.scrollTop = scroll;
     el.querySelector('.lb-back').onclick = () => { close(); onBack && onBack(); };
-    el.querySelectorAll('[data-z]').forEach((b) => b.onclick = () => { zone = b.dataset.z; cur = null; audio && audio.play('click'); render(true); });
+    el.querySelectorAll('[data-z]').forEach((b) => b.onclick = () => { zone = b.dataset.z; cur = null; const l = el.querySelector('.lb-q-list'); if (l) l.scrollTop = 0; audio && audio.play('click'); render(true); });
     el.querySelectorAll('[data-q]').forEach((b) => b.onclick = () => { cur = QUESTIONS.find((q) => q.id === b.dataset.q); audio && audio.play('click'); render(true); const S = labProgress().qs[cur.id]; if (!S || S.g == null) say('מה אתם חושבים? בחרו ניחוש. מותר לטעות!', 'curious'); });
     el.querySelectorAll('[data-g]').forEach((b) => b.onclick = () => {
       setQuestion(cur.id, { g: +b.dataset.g }); audio && audio.play('select');
