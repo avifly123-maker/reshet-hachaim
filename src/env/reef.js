@@ -225,7 +225,7 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
     }
     const g = track(new THREE.LatheGeometry(prof, qual.seg));
     const p = g.attributes.position, colA = [], c = new THREE.Color();
-    const sandC = new THREE.Color('#d7c39a'), stone = new THREE.Color('#9c8268'), deep = new THREE.Color('#5f4c3e'), pink = new THREE.Color('#b47c76');
+    const sandC = new THREE.Color('#d7c39a'), stone = new THREE.Color('#9c8268'), deep = new THREE.Color('#6e5a4a'), pink = new THREE.Color('#b47c76');
     for (let i = 0; i < p.count; i++) {
       const x = p.getX(i), y = p.getY(i), z = p.getZ(i), a = Math.atan2(z, x);
       const jag = 0.9 * noise(a * 3, y * 0.25) + 0.4 * noiseB(a * 9, y * 0.6);
@@ -239,21 +239,44 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
     }
     g.setAttribute('color', new THREE.Float32BufferAttribute(colA, 3));
     g.computeVertexNormals();
-    // a reef wall picture (Blender, tools/blender/reef_seabed.py) wrapped round the upper part of the base: corals, sea fans
-    // and sponges on the rock instead of plain layers; the vertex colours then only darken it with depth
-    const wallUrl = REEF_BACKDROP && REEF_BACKDROP.wall;
-    let baseMat;
-    if (wallUrl) {
-      const wt = track(new THREE.TextureLoader().load(wallUrl)); wt.colorSpace = THREE.SRGBColorSpace; wt.flipY = false;
-      wt.wrapS = THREE.RepeatWrapping; wt.wrapT = THREE.ClampToEdgeWrapping; wt.repeat.set(6, 1 / 0.72); wt.anisotropy = 4;
-      const ca = g.attributes.color, cc = new THREE.Color(), deepC = new THREE.Color('#2a4a5a');
-      for (let i = 0; i < p.count; i++) { const d = clamp((BOTTOM - p.getY(i)) / 26); cc.setRGB(1, 1, 1).lerp(deepC, smoothstep(0.45, 1.0, d)); ca.setXYZ(i, cc.r, cc.g, cc.b); }
-      ca.needsUpdate = true;
-      baseMat = new THREE.MeshStandardMaterial({ map: wt, vertexColors: true, roughness: 0.95 });
-    } else baseMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1, flatShading: true });
+    const baseMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1, flatShading: true });
     const base = new THREE.Mesh(g, track(baseMat));
-    base.castShadow = true; base.receiveShadow = true; base.name = 'reef-base';
+    base.castShadow = true; base.receiveShadow = false; base.name = 'reef-base';   // its own shadow made it a black hole
     root.add(base);
+
+    // a reef wall: corals, sea fans and sponges grow out of the island's sides (Avi, 18.10: the bare rock layers looked
+    // plain next to the other islands). The reef's own Blender models, instanced; deeper ones are darker.
+    const shapes = REEF_DECOR(['branching', 'brain', 'softcoral', 'seafan', 'sponge', 'firecoral', 'branching', 'softcoral']);
+    if (shapes.length) {
+      const N = quality === 'min' ? 130 : quality === 'medium' ? 400 : 560;
+      const SZW = { branching: 3.4, brain: 1.6, softcoral: 3.8, seafan: 3.0, sponge: 3.2, firecoral: 3.2 };
+      const wmat = track(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.8, metalness: 0, side: THREE.DoubleSide }));
+      const per = shapes.map(() => []);
+      for (let i = 0; i < N; i++) {
+        const t = Math.pow(rng(), 1.25) * 0.72, a = rng() * TAU;   // more of them near the top, where the light is
+        const y = lerp(BOTTOM + 0.1, -30, Math.pow(t, 1.15));
+        const rr = EDGE * (1 - Math.pow(t, 1.7)) + 1.2 * t + 0.9 * noise(a * 3, y * 0.25) + 0.4 * noiseB(a * 9, y * 0.6) - 0.15;
+        per[(rng() * shapes.length) | 0].push({ a, y, rr, t, r1: rng(), r2: rng() });
+      }
+      const up = new THREE.Vector3(0, 1, 0), dir = new THREE.Vector3(), q2 = new THREE.Quaternion(), m4 = new THREE.Matrix4(),
+        pos = new THREE.Vector3(), scl = new THREE.Vector3(), col = new THREE.Color(), deepW = new THREE.Color('#4f7584');
+      shapes.forEach((sh, k) => {
+        const list = per[k]; if (!list.length) return;
+        const im = new THREE.InstancedMesh(sh.geo, wmat, list.length);
+        list.forEach((w, j) => {
+          const el = 0.35 + 0.5 * w.r1;   // leaning out of the wall and up towards the light
+          dir.set(Math.cos(w.a) * Math.cos(el), Math.sin(el), Math.sin(w.a) * Math.cos(el));
+          const qq = new THREE.Quaternion().setFromUnitVectors(up, dir);
+          q2.setFromAxisAngle(dir, w.r2 * TAU); qq.premultiply(q2);
+          const sc = (SZW[sh.id] || 2) * (0.6 + 0.55 * w.r2);
+          pos.set(Math.cos(w.a) * w.rr, w.y, Math.sin(w.a) * w.rr); scl.setScalar(sc);
+          im.setMatrixAt(j, m4.compose(pos, qq, scl));
+          im.setColorAt(j, col.setRGB(1, 1, 1).lerp(deepW, smoothstep(0.15, 0.75, w.t) * 0.8));
+        });
+        im.instanceMatrix.needsUpdate = true; if (im.instanceColor) im.instanceColor.needsUpdate = true;
+        im.name = 'reef-wall'; im.frustumCulled = false; root.add(im);
+      });
+    }
   }
 
   // ───────────────────────────── the water column
@@ -374,7 +397,7 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
     skyU.uPanoMist.value = cfg(ld.load(pano.mist, done), false);
     // the mountains drawn lower and flatter than in the render (Avi, 18.10: they rose high above the island and were cut
     // off at the top of the screen); the shore line stays on the horizon
-    const SQ = 0.45;
+    const SQ = 0.3;
     skyU.uPanoLat.value.set(pano.lat[0] * SQ * Math.PI / 180, pano.lat[1] * SQ * Math.PI / 180);
     skyU.uPanoHazeSrc.value.setRGB(pano.haze[0], pano.haze[1], pano.haze[2]);
     skyU.uPanoRot.value = pano.rot || 0;
@@ -424,8 +447,8 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
           // light dancing on the sand
           float k = sin(vW.x * 0.21 + uTime * 0.9) * sin(vW.z * 0.19 - uTime * 0.7) + sin((vW.x + vW.z) * 0.13 + uTime * 0.5);
           c *= 1.0 + 0.10 * smoothstep(0.6, 1.6, k);
-          c = mix(c, uDeep, 0.28);                                   // seen through some metres of water
-          c *= mix(0.62, 1.0, smoothstep(30.0, 70.0, r));            // the island's shadow right below it
+          c = mix(c, vec3(0.30, 0.74, 0.84), 0.30) * 1.12;           // seen through some metres of clear water
+          c *= mix(0.72, 1.0, smoothstep(30.0, 70.0, r));            // the island's shadow right below it
           c = mix(c, vec3(0.42, 0.38, 0.22), uMurk * 0.45);
           float far = smoothstep(115.0, 150.0, r);                   // beyond the picture: open water
           c = mix(c, uFar, far);
@@ -502,7 +525,8 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
     fog.color.copy(COL.fogDay).lerp(COL.fogNight, night.v).lerp(COL.fogMurk, state.murk * 0.6);
     const camDist = Math.max(cam.position.length(), 55);
     fog.near = lerp(camDist + 40, camDist * 0.5, state.murk); fog.far = lerp(camDist + 520, camDist + 140, state.murk);
-    mistMat.color.copy(skyU.uHor.value).lerp(cTmp2.set('#ffffff'), 0.25 * dayAmt);
+    if (mistMat.color) mistMat.color.copy(skyU.uHor.value).lerp(cTmp2.set('#ffffff'), 0.25 * dayAmt);
+    else mistMat.uniforms.uFar.value.copy(fog.color).lerp(cTmp2.set('#174a72'), 0.65);   // open water far away meets the fog
     // caustics: strong at midday in clear water, none at night
     U.uCaust.value = smoothstep(0.0, 0.5, e) * (1 - state.rain * 0.6) * (1 - state.murk);
     // light rays
