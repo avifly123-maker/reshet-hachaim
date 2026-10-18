@@ -7,9 +7,10 @@
 // (core/profiles.js) has their own album; the state is re-read from the current player's key every time the hub opens.
 import { BIOME as AMAZON } from '../data/amazon.js';
 import { BIOME as GROVE } from '../data/grove.js';
+import { BIOME as REEF } from '../data/reef.js';
 import { DIET_PARTS, ACTIVE_NAMES, KINDS } from '../data/common.js';
 import { THUMBS } from '../data/thumbs.js';
-import { TOOL_DEFS, TOOL_ICONS } from '../game/tools.js';
+import { TOOL_DEFS, TOOL_ICONS, REEF_TOOL_CARDS } from '../game/tools.js';
 import { BABA_DA_LOGO } from '../data/logo.js';
 import { CARD_ART } from '../data/card-art.js';
 import { artPos } from '../data/art-focus.js';
@@ -32,9 +33,9 @@ const QUIZ_PACKS_MAX = 2;
 const DUEL_PACKS_PER_DAY = 2;
 const START_PACKS = 3;   // a new player starts with 3 packs as a welcome gift
 const todayKey = () => { const d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); };
-const BIOMES = { amazon: AMAZON, grove: GROVE };
-const BIOME_SHORT = { amazon: 'אמזונס', grove: 'חורש' };
-const BIOME_IN = { amazon: 'ביער הגשם של האמזונס', grove: 'בחורש הארץ-ישראלי' };
+const BIOMES = { amazon: AMAZON, grove: GROVE, reef: REEF };
+const BIOME_SHORT = { amazon: 'אמזונס', grove: 'חורש', reef: 'שונית' };
+const BIOME_IN = { amazon: 'ביער הגשם של האמזונס', grove: 'בחורש הארץ-ישראלי', reef: 'בשונית האלמוגים של אילת' };
 const STAT_NAMES = { light: 'אור', water: 'מים', links: 'קשרים' };
 const STAT_HELP = { light: 'כמה אור צריך', water: 'כמה מים ולחות', links: 'עם כמה יצורים יש קשר' };
 const RARITY_NAMES = { common: 'נפוץ', rare: 'נדיר', epic: 'נדיר מאוד', tech: 'טכנולוגיה' };
@@ -138,9 +139,10 @@ const STAT_ICON = { light: IC.sun, water: IC.drop, links: IC.web };
 /* ───────────────────────────────────────────── data → species + cards */
 const isAnimalKind = (k) => k === 'animal' || k === 'colony' || k === 'swarm';
 const SP = [];
-for (const bid of ['amazon', 'grove']) {
+for (const bid of ['amazon', 'grove', 'reef']) {
   for (const s of BIOMES[bid].species) {
-    SP.push({ ...s, biome: bid, key: bid + ':' + s.id, animal: isAnimalKind(s.kind), img: (THUMBS[bid] || {})[s.id] || '' });
+    // the reef has no rendered thumbnails yet: its card painting stands in for them
+    SP.push({ ...s, biome: bid, key: bid + ':' + s.id, animal: isAnimalKind(s.kind), img: (THUMBS[bid] || {})[s.id] || (bid === 'reef' ? CARD_ART[s.id] || '' : '') });
   }
 }
 const SPK = new Map(SP.map((s) => [s.key, s]));
@@ -157,19 +159,23 @@ for (const s of SP) {
   for (const d of s.diet || []) add(d.id);
 }
 
-const KEYSTONE = new Set(['amazon:kapok', 'amazon:fig', 'amazon:brazilnut', 'amazon:glowfungus', 'grove:oak', 'grove:honeybee', 'grove:firefly']);
-const LAYER_LIGHT = { emergent: 5, canopy: 4, water: 4, understory: 3, floor: 2 };
+const KEYSTONE = new Set(['amazon:kapok', 'amazon:fig', 'amazon:brazilnut', 'amazon:glowfungus', 'grove:oak', 'grove:honeybee', 'grove:firefly',
+  'reef:branching', 'reef:parrotfish', 'reef:seaanemone', 'reef:cleaner']);
+const LAYER_LIGHT = { emergent: 5, canopy: 4, water: 4, understory: 3, floor: 2, shallow: 5, slope: 3, sand: 4, open: 4 };
 const WATER_OVR = { 'amazon:dartfrog': 5, 'amazon:capybara': 5, 'amazon:waterlily': 5, 'amazon:bromeliad': 5, 'amazon:tapir': 5,
   'grove:hyrax': 1, 'grove:agama': 1, 'grove:sage': 1, 'grove:rockrose': 1, 'grove:gazelle': 1, 'grove:carob': 1, 'grove:pine': 1, 'grove:cyclamen': 3, 'grove:firefly': 3, 'grove:mushroom': 4 };
 const TOOL_STATS = {
   drone: [4, 2, 5], camera: [2, 2, 4], rescue: [3, 3, 3], watergen: [3, 5, 2], seeddrone: [4, 3, 4],
   listener: [5, 2, 3], nestbox: [3, 1, 4], insecthotel: [4, 1, 5], weather: [4, 4, 3],
+  nursery: [4, 5, 4], reefball: [3, 5, 5], buoy: [3, 5, 3], rov: [3, 5, 5], uwcam: [2, 5, 4], sensor: [4, 5, 3],
 };
 const TOOL_SHORT = {
   drone: 'טס מעל היער וסופר צמחים ובעלי חיים', camera: 'מצלמת בעלי חיים שעוברים לידה, גם בלילה',
   rescue: 'מטפל בבעל חיים פגוע ומחזיר אותו לטבע', watergen: 'אוסף טיפות מים מתוך האוויר',
   seeddrone: 'מפזר כדורי זרעים על אדמה חשופה', listener: 'שומע מסור חשמלי ושולח התרעה',
   nestbox: 'בית מעץ שבו ציפורים מקננות', insecthotel: 'מחסה לדבורי בר ולפרפרים', weather: 'מודדת רוח, חום ולחות ומזהירה מראש',
+  nursery: 'מגדלת שברי אלמוג ושותלת אותם בשונית', reefball: 'כיפת בטון עם חורים, בית לדגים ולאלמוגים', buoy: 'הסירות נקשרות אליו ולא מטילות עוגן',
+  rov: 'צולל לאורך השונית וסופר דגים ואלמוגים', uwcam: 'מצלמת דגים מתוך קופסה אטומה למים', sensor: 'מודד את חום המים ומזהיר מראש',
 };
 
 function speciesStats(s) {
@@ -178,7 +184,7 @@ function speciesStats(s) {
   else light = clamp((LAYER_LIGHT[s.layer] || 3) - (s.active === 'night' ? 2 : 0) + (s.locomotion === 'flying' && s.active !== 'night' ? 1 : 0), 1, 5);
   let water = WATER_OVR[s.key];
   if (water == null) {
-    water = s.biome === 'amazon' ? 4 : 2;
+    water = s.biome === 'reef' ? 5 : s.biome === 'amazon' ? 4 : 2;
     if (s.kind === 'water-plant' || s.layer === 'water' || (s.needs && s.needs.water)) water = 5;
     if (s.kind === 'fungus' || s.kind === 'epiphyte') water += 1;
     if (s.needs && s.needs.rocks) water -= 1;
@@ -204,6 +210,12 @@ for (const s of SP) {
 for (const t of TOOL_DEFS) {
   const st = TOOL_STATS[t.id] || [3, 3, 3];
   CARDS.push({ id: 'tool:' + t.id, type: 'tool', tool: t, biome: null, name: t.name, img: TOOL_ICONS[t.id] || '', art: CARD_ART[t.id] || '', color: t.color || '#4aa3d6',
+    kind: 'כלי טכנולוגי', rarity: 'tech', stats: { light: st[0], water: st[1], links: st[2] }, short: firstSentence(t.fact), fact: t.fact });
+}
+// the reef's own versions of the shared devices get cards of their own
+for (const t of REEF_TOOL_CARDS) {
+  const st = TOOL_STATS[t.id] || [3, 3, 3];
+  CARDS.push({ id: 'tool:' + t.id, type: 'tool', tool: t, biome: null, name: t.name, img: TOOL_ICONS[t.id] || '', art: CARD_ART[t.id] || '', color: t.color || '#2a8ac0',
     kind: 'כלי טכנולוגי', rarity: 'tech', stats: { light: st[0], water: st[1], links: st[2] }, short: firstSentence(t.fact), fact: t.fact });
 }
 const CARD = new Map(CARDS.map((c) => [c.id, c]));
@@ -235,6 +247,12 @@ const SET_DEFS = [
     sp: (s) => s.biome === 'grove' && !!(s.needs && s.needs.rocks) },
   { id: 'oak', name: 'סביב האלון', where: 'grove', col: '#7a5530', ic: IC.leaf, sub: 'האלון הוא מין מפתח – כל אלה קשורים אליו',
     sp: (s) => s.biome === 'grove' && linkedTo(s, 'oak') },
+  { id: 'reefbuilders', name: 'בוני השונית', where: 'reef', col: '#c85a8a', ic: IC.leaf, sub: 'האלמוגים בונים את השונית, פוליפ אחרי פוליפ',
+    sp: (s) => s.biome === 'reef' && s.kind === 'coral' },
+  { id: 'reefpartners', name: 'שותפים בשונית', where: 'reef', col: '#2a9ab8', ic: SET_IC.heart, sub: 'חיים יחד ועוזרים זה לזה',
+    sp: (s) => s.biome === 'reef' && ['clownfish', 'seaanemone', 'goby', 'shrimp', 'cleaner', 'grouper', 'moray'].includes(s.id) },
+  { id: 'reefguards', name: 'שומרי השונית', where: 'tech', col: '#1f6f9a', ic: SET_IC.eye, sub: 'טכנולוגיה מתחת למים',
+    tools: ['rov', 'uwcam', 'sensor', 'nursery', 'reefball', 'buoy'] },
   { id: 'watchers', name: 'שומרי היער', where: 'tech', col: '#2c5f8f', ic: SET_IC.eye, sub: 'רואים, שומעים ומזהירים בזמן',
     tools: ['drone', 'camera', 'listener', 'weather'] },
   { id: 'helpers', name: 'עוזרים לטבע', where: 'tech', col: '#c8473a', ic: SET_IC.heart, sub: 'מחזירים לטבע חיים, מים ובית',
@@ -248,7 +266,7 @@ if (TORAH) for (const d of [SHIRA_SET, TZVI_SET]) SETS.push({ ...d, torah: true,
 const activeSets = () => SETS.filter((st) => !st.torah || sourcesOn());
 const SET_BY = new Map(SETS.map((st) => [st.id, st]));
 const setsOf = (id) => activeSets().filter((st) => st.cards.some((c) => c.id === id));
-const SET_WHERE = { amazon: 'אמזונס', grove: 'חורש', both: 'שני היערות', tech: 'טכנולוגיה' };
+const SET_WHERE = { amazon: 'אמזונס', grove: 'חורש', reef: 'שונית', both: 'שני היערות', tech: 'טכנולוגיה' };
 // sanity check (dev console): 4–8 cards, and a rare or very rare card in every species set
 for (const st of SETS) {
   if (st.torah) continue;
@@ -353,7 +371,8 @@ const GEN = {
     const s = freshFrom(pool.filter((x) => x.img), used); if (!s) return null;
     used.add(s.key);
     return { tag: s.name, q: s.animal ? gw(s.id, 'איפה הוא גר?', 'איפה היא גרה?', 'איפה הם גרים?', 'איפה הן גרות?') : gw(s.id, 'איפה הוא גדל?', 'איפה היא גדלה?', 'איפה הם גדלים?', 'איפה הן גדלות?'), art: s,
-      options: [opt('באמזונס', s.biome === 'amazon', { icon: IC.rain, tone: 'amazon' }), opt('בחורש', s.biome === 'grove', { icon: IC.tree, tone: 'grove' })],
+      options: [opt('באמזונס', s.biome === 'amazon', { icon: IC.rain, tone: 'amazon' }), opt('בחורש', s.biome === 'grove', { icon: IC.tree, tone: 'grove' }),
+        ...(s.biome === 'reef' || Math.random() < 0.5 ? [opt('בשונית', s.biome === 'reef', { icon: IC.drop, tone: 'reef' })] : [])],
       fact: `את ${defName(s.id, s.name)} פוגשים ${BIOME_IN[s.biome]}.` };
   },
   // ── advanced
@@ -416,7 +435,7 @@ const GEN = {
       const says = Math.random() < 0.5 ? 'day' : 'night';
       stmt = `את ${defName(s.id, s.name)} פוגשים בעיקר ${says === 'day' ? 'ביום' : 'בלילה'}.`; truth = says === s.active; fact = `${s.name} – ${activeNameFor(s.id, s.active)}.`;
     } else {
-      const says = Math.random() < 0.5 ? 'amazon' : 'grove';
+      const says = ['amazon', 'grove', 'reef'][(Math.random() * 3) | 0];
       stmt = `את ${defName(s.id, s.name)} פוגשים ${BIOME_IN[says]}.`; truth = says === s.biome; fact = `את ${defName(s.id, s.name)} פוגשים ${BIOME_IN[s.biome]}. ${firstSentence(s.fact)}`;
     }
     return { tag: 'נכון או לא נכון?', q: stmt, art: s, options: [opt('נכון', truth, { icon: IC.check, tone: 'yes' }), opt('לא נכון', !truth, { icon: IC.cross, tone: 'no' })], fact, keepOrder: true };
@@ -639,7 +658,7 @@ const CSS = `
 .wol-learn .wl-qart.paint .wl-anm{position:relative;z-index:1;box-shadow:0 2px 8px rgba(0,0,0,.3)}
 .wol-learn .wl-opt i{display:grid;place-items:center;width:1.7em;height:1.7em;flex:none;color:var(--moss)}
 .wol-learn .wl-opt i .wl-ic{width:100%;height:100%}
-.wol-learn .wl-opt.t-day i{color:#e09a2c}.wol-learn .wl-opt.t-night i{color:#3c4f8a}.wol-learn .wl-opt.t-amazon i{color:#2f6a8a}.wol-learn .wl-opt.t-grove i{color:#4d7a2e}
+.wol-learn .wl-opt.t-day i{color:#e09a2c}.wol-learn .wl-opt.t-night i{color:#3c4f8a}.wol-learn .wl-opt.t-amazon i{color:#2f6a8a}.wol-learn .wl-opt.t-grove i{color:#4d7a2e}.wol-learn .wl-opt.t-reef i{color:#1f8ab0}
 .wol-learn .wl-opt.t-yes i{color:#3f8a33}.wol-learn .wl-opt.t-no i{color:#b8463a}
 .wol-learn .wl-opt.ok{background:#e3f5d3;border-color:var(--leaf2);box-shadow:0 4px 0 #3f8a33;animation:wl-glow 1.2s ease-out both}
 .wol-learn .wl-opt.no{background:#f7e0d6;border-color:#d39380;box-shadow:0 4px 0 #b9705c;animation:wl-shake .5s both}
@@ -691,7 +710,7 @@ const CSS = `
 .wol-learn .wl-cname{flex:1;min-width:0;font-family:var(--serif);font-weight:700;font-size:1.12em;line-height:1.05;color:#1f2c1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wol-learn .wl-cname.l{font-size:.95em}.wol-learn .wl-cname.xl{font-size:.74em}
 .wol-learn .wl-badge{flex:none;font-size:.58em;font-weight:800;padding:.2em .65em;border-radius:99px;color:#fff}
-.wol-learn .b-amazon{background:#2f7a5a}.wol-learn .b-grove{background:#9a7a2e}.wol-learn .b-tech{background:#2c5f8f}
+.wol-learn .b-amazon{background:#2f7a5a}.wol-learn .b-grove{background:#9a7a2e}.wol-learn .b-reef{background:#1f8ab0}.wol-learn .b-tech{background:#2c5f8f}
 .wol-learn .wl-cart{position:relative;margin:0 .4em;height:4.6em;flex:none;border-radius:.45em;display:grid;place-items:center;overflow:hidden;box-shadow:inset 0 0 0 .08em rgba(150,130,80,.45)}
 .wol-learn .wl-cart img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 .25em .3em rgba(40,30,10,.25))}
 .wol-learn .wl-cart.tool img{width:74%;height:74%}
@@ -1457,7 +1476,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     main.innerHTML = `<section class="wl-screen wl-album">
       <div class="wl-abar paper">
         <div class="wl-count"><b>אספתם ${have} מתוך ${total}</b><div class="wl-meter"><i style="width:${Math.round((have / total) * 100)}%"></i></div></div>
-        <div class="wl-tabs">${tab('all', 'הכול')}${tab('amazon', 'אמזונס')}${tab('grove', 'חורש')}${tab('tech', 'טכנולוגיה')}${TORAH && sourcesOn() ? tab('src', 'מן המקורות') : ''}</div>
+        <div class="wl-tabs">${tab('all', 'הכול')}${tab('amazon', 'אמזונס')}${tab('grove', 'חורש')}${tab('reef', 'שונית')}${tab('tech', 'טכנולוגיה')}${TORAH && sourcesOn() ? tab('src', 'מן המקורות') : ''}</div>
         <button class="wl-btn wl-legbtn" data-wl="legend">${IC.quest}<span>מה רואים על הקלף?</span></button>
         <span class="wl-sp"></span>
         <button class="wl-btn gold" data-wl="pack" ${S.packs ? '' : 'disabled'}>${IC.pack} פתחו חבילה ${S.packs ? `<span class="wl-badgeN">${S.packs}</span>` : ''}</button>
@@ -1529,7 +1548,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     const dia = (n) => `<span class="wl-lgems">${[0, 1, 2].map((k) => `<span class="wl-gem${k < n ? ' on' : ''}">${IC_GEM}</span>`).join('')}</span>`;
     const items = [
       ['name', 'השם', 'איזה יצור זה.'],
-      ['badge', 'איפה הוא גר', '<b class="wl-badge b-amazon">אמזונס</b> <b class="wl-badge b-grove">חורש</b> – יער הגשם או החורש שלנו. <b class="wl-badge b-tech">טכנולוגיה</b> – כלי שעוזר לשמור על הטבע.'],
+      ['badge', 'איפה הוא גר', '<b class="wl-badge b-amazon">אמזונס</b> <b class="wl-badge b-grove">חורש</b> <b class="wl-badge b-reef">שונית</b> – יער הגשם, החורש שלנו או שונית האלמוגים של אילת. <b class="wl-badge b-tech">טכנולוגיה</b> – כלי שעוזר לשמור על הטבע.'],
       ['kind', 'מה הוא', 'עץ, שיח, פרח, בעל חיים, פטרייה...'],
       ['gems', 'יהלומי נדירות', `כמה קשה למצוא את הקלף בחבילות: <span class="wl-lr c">${dia(1)} נפוץ</span><span class="wl-lr r">${dia(2)} נדיר</span><span class="wl-lr e">${dia(3)} נדיר מאוד</span><span class="wl-lr t"><span class="wl-gems">${gems('tech')}</span> כלי טכנולוגי</span>`],
       ['x-power', 'נדירות במשחק', `<span class="wl-lp e"><b>נדיר מאוד = מין מפתח.</b> כוח מיוחד במשחק "מחזיקים את היער": שומר על היער פעם אחת.</span><span class="wl-lp r"><b>נדיר:</b> בונוס קטן – עוד <bdi dir="ltr">+1</bdi> חִיּוּת.</span>`],

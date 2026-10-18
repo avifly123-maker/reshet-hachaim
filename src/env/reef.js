@@ -9,6 +9,7 @@
 //   - events: drought / heat → warm, paler water; flood → murky water (mud from a desert flood); rain → a rougher surface
 import * as THREE from 'three';
 import { REEF_ROCKS } from '../models/reef-plants.js';
+import { GROUND_TEX } from '../data/ground-textures.js';
 import { makeRng, makeNoise2D, clamp, lerp, smoothstep, damp } from '../core/util.js';
 
 const R = 38;            // placeable radius (contract)
@@ -75,7 +76,8 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
     const pos = [], col = [], idx = [];
     const sand = new THREE.Color('#f2dfb4'), sand2 = new THREE.Color('#e2c898'), rock = new THREE.Color('#9a8270'),
       rock2 = new THREE.Color('#b8706c'), algae = new THREE.Color('#6f8446'), c = new THREE.Color();
-    pos.push(0, heightAt(0, 0), 0); c.copy(sand); col.push(c.r, c.g, c.b);
+    const rk = [];
+    pos.push(0, heightAt(0, 0), 0); c.copy(sand); col.push(c.r, c.g, c.b); rk.push(0);
     for (let i = 1; i <= rings; i++) {
       const rr = EDGE * Math.pow(i / rings, 1.15);
       for (let j = 0; j < segs; j++) {
@@ -86,7 +88,7 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
         c.lerp(rock, smoothstep(0.25, 0.6, rockness));
         c.lerp(rock2, smoothstep(0.55, 0.95, rockness) * clamp(0.5 + 0.5 * noiseB(x * 0.5, z * 0.5)) * 0.7);   // pink coralline crust
         c.lerp(algae, smoothstep(0.45, 0.8, rockness) * clamp(noise(x * 0.7 + 3, z * 0.7)) * 0.35);
-        col.push(c.r, c.g, c.b);
+        col.push(c.r, c.g, c.b); rk.push(smoothstep(0.2, 0.55, rockness));
       }
     }
     for (let j = 0; j < segs; j++) idx.push(0, 1 + ((j + 1) % segs), 1 + j);
@@ -100,14 +102,31 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
     g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+    g.setAttribute('aRock', new THREE.Float32BufferAttribute(rk, 1));
     g.setIndex(idx); g.computeVertexNormals();
     return track(g);
   }
+  // the sea-floor textures baked in Blender (tools/blender/reef_ground.py): white rippled sand, and coral rubble on the rock
+  const GT = { uGA: { value: null }, uGAn: { value: null }, uGB: { value: null }, uGBn: { value: null }, uGOn: { value: 0 },
+    uGAvgA: { value: new THREE.Color(0.5, 0.5, 0.5) }, uGAvgB: { value: new THREE.Color(0.5, 0.5, 0.5) }, uGTile: { value: new THREE.Vector2(3, 3) }, uGNk: { value: 1 } };
+  {
+    const gt = GROUND_TEX && GROUND_TEX.reef;
+    if (gt && gt.a && gt.an && gt.b && gt.bn && quality !== 'min') {
+      const ld = new THREE.TextureLoader(); let n = 0; const done = () => { if (++n === 4) GT.uGOn.value = 1; };
+      const mk = (url, srgb) => { const t = ld.load(url, done); t.colorSpace = srgb ? THREE.SRGBColorSpace : THREE.NoColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 4; return track(t); };
+      GT.uGA.value = mk(gt.a, true); GT.uGAn.value = mk(gt.an, false); GT.uGB.value = mk(gt.b, true); GT.uGBn.value = mk(gt.bn, false);
+      GT.uGAvgA.value.setRGB(...gt.avgA); GT.uGAvgB.value.setRGB(...gt.avgB); GT.uGTile.value.set(gt.tile[0], gt.tile[1]); GT.uGNk.value = gt.nk ?? 1;
+    }
+  }
   const floorMat = track(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.95, metalness: 0 }));
   floorMat.onBeforeCompile = (sh) => {
-    Object.assign(sh.uniforms, { uTime: U.uTime, uCaust: U.uCaust, uMurk: U.uMurk, uOverlay: U.uOverlay, uOverlayOn: U.uOverlayOn, uR: U.uR });
-    sh.vertexShader = 'varying vec3 vWPos;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n vWPos = (modelMatrix * vec4(transformed, 1.0)).xyz;');
-    sh.fragmentShader = `varying vec3 vWPos; uniform float uTime, uCaust, uMurk, uOverlayOn, uR; uniform sampler2D uOverlay;
+    Object.assign(sh.uniforms, { uTime: U.uTime, uCaust: U.uCaust, uMurk: U.uMurk, uOverlay: U.uOverlay, uOverlayOn: U.uOverlayOn, uR: U.uR }, GT);
+    sh.vertexShader = 'attribute float aRock; varying float vRock; varying vec3 vWPos; varying vec3 vWNrm;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n vWPos = (modelMatrix * vec4(transformed, 1.0)).xyz; vRock = aRock; vWNrm = normalize(mat3(modelMatrix) * objectNormal);');
+    sh.fragmentShader = `varying vec3 vWPos; varying vec3 vWNrm; varying float vRock; uniform float uTime, uCaust, uMurk, uOverlayOn, uR; uniform sampler2D uOverlay;
+      uniform sampler2D uGA, uGAn, uGB, uGBn; uniform float uGOn, uGNk; uniform vec3 uGAvgA, uGAvgB; uniform vec2 uGTile;
+      const mat2 GROT = mat2(0.8, -0.6, 0.6, 0.8);
+      vec4 gS(sampler2D t, vec2 p) { return mix(texture2D(t, p), texture2D(t, GROT * p * 0.41 + 0.31), 0.38); }
+      vec3 gN(sampler2D t, vec2 p) { vec3 a = texture2D(t, p).xyz * 2.0 - 1.0; vec3 b = texture2D(t, GROT * p * 0.41 + 0.31).xyz * 2.0 - 1.0; b.xy = b.xy * GROT; return normalize(mix(a, b, 0.38)); }
       // caustics: the bright net of light that waves focus onto the sea floor – the edges of moving Voronoi cells
       vec2 h2(vec2 p) { p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3))); return fract(sin(p) * 43758.5453); }
       float caust(vec2 p, float t) {
@@ -116,18 +135,30 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
           vec2 g = vec2(float(x), float(y)); vec2 o = h2(i + g); o = 0.5 + 0.45 * sin(t * 0.9 + 6.2831 * o);
           float d = length(g + o - f); if (d < d1) { d2 = d1; d1 = d; } else if (d < d2) d2 = d;
         }
-        return pow(1.0 - smoothstep(0.0, 0.12, d2 - d1), 3.0);
+        return pow(1.0 - smoothstep(0.0, 0.07, d2 - d1), 3.0);
       }\n` + sh.fragmentShader
       .replace('#include <color_fragment>', `#include <color_fragment>
+        if (uGOn > 0.5) {
+          vec3 ta = gS(uGA, vWPos.xz / uGTile.x).rgb / max(uGAvgA, vec3(0.02)), tb = gS(uGB, vWPos.xz / uGTile.y).rgb / max(uGAvgB, vec3(0.02));
+          diffuseColor.rgb *= mix(ta, tb, vRock);
+        }
         if (uOverlayOn > 0.5) {
           vec2 ouv = (vWPos.xz + uR) / (2.0 * uR);
           float inside = 1.0 - smoothstep(uR - 1.5, uR + 1.0, length(vWPos.xz));
           vec4 o = texture2D(uOverlay, clamp(ouv, 0.0, 1.0));
           diffuseColor.rgb = mix(diffuseColor.rgb, o.rgb * 0.9, o.a * inside * 0.6);
         }`)
+      .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
+        if (uGOn > 0.5) {
+          vec3 nm = normalize(mix(gN(uGAn, vWPos.xz / uGTile.x), gN(uGBn, vWPos.xz / uGTile.y), vRock));
+          nm.xy *= uGNk;
+          vec3 Ng = normalize(vWNrm), T = normalize(cross(vec3(0.0, 0.0, 1.0), Ng)), Bt = cross(Ng, T);
+          vec3 nw = normalize(T * nm.x + Bt * nm.y + Ng * nm.z);
+          normal = normalize((viewMatrix * vec4(nw, 0.0)).xyz);
+        }`)
       .replace('#include <dithering_fragment>', `
         float cs = caust(vWPos.xz, uTime) * 0.6 + caust(vWPos.xz * 1.45 + 3.1, uTime * 1.21) * 0.45;
-        gl_FragColor.rgb += vec3(0.8, 0.97, 1.0) * cs * uCaust * 0.4 * (1.0 - uMurk * 0.85);
+        gl_FragColor.rgb += vec3(0.8, 0.97, 1.0) * cs * uCaust * 0.22 * (1.0 - uMurk * 0.85);
         // sea water takes the red out of the light: the floor reads blue-green, deeper spots more so
         float dep = clamp((${REEF_SURFACE.toFixed(1)} - vWPos.y) / 18.0, 0.0, 1.0);
         gl_FragColor.rgb *= mix(vec3(1.0), vec3(0.82, 0.92, 1.0), 0.3 + 0.3 * dep);

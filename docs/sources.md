@@ -93,6 +93,23 @@ The per-species `sources` arrays in the data files have the same URLs.
 - **Cavity-nesting wild bees and insect hotels** (תעלומה "הפרחים שלא נותנים זרעים"): many solitary bees nest in holes in dead wood and in hollow stems; bee hotels give them such nest sites and support pollination nearby — https://en.wikipedia.org/wiki/Bee_hotel , https://content.ces.ncsu.edu/what-is-a-bee-hotel
 - **Source cards** of these mysteries: תהלים קד, כד ("מה רבו מעשיך ה'") and תהלים פט, ג ("עולם חסד יבנה"), quoted from the verse.
 
+## The reef: שונית האלמוגים של אילת (1.3, in development)
+
+Every species in src/data/reef.js carries its own Wikipedia link (`sources`). The facts the reef texts lean on most:
+- **Eilat's corals tolerate heat better than most** (the "refuge" idea): Fine, Gildor & Genin 2013, *Global Change Biology*, doi:10.1111/gcb.12301 .
+- **Groupers and giant morays hunt together in the Red Sea**: Bshary et al. 2006, *PLoS Biology* 4(12): e431, doi:10.1371/journal.pbio.0040431 .
+- **Coral spawning in the Gulf of Eilat** on summer nights after the full moon: Shlesinger & Loya 2019, *Science* 365: 1002, doi:10.1126/science.aax0110 .
+- **Coral nurseries ("coral gardening") developed in Eilat**: Shafir, Van Rijn & Rinkevich 2006, *Marine Biology* 149: 679–687, doi:10.1007/s00227-005-0236-6 .
+- **Mooring buoys protect reefs from anchors**: https://en.wikipedia.org/wiki/Mooring_buoy ; the Eilat Coral Beach Nature Reserve uses them.
+- **Prawn goby and pistol shrimp share a burrow** (the goby warns, the shrimp digs); Steinitz' prawn goby is named after Heinz Steinitz — https://en.wikipedia.org/wiki/Amblyeleotris_steinitzi , https://en.wikipedia.org/wiki/Alpheidae
+- **Parrotfish make coral sand; grazers keep algae off corals** — https://en.wikipedia.org/wiki/Parrotfish
+- **Giant clams host algae in their mantle** — https://en.wikipedia.org/wiki/Tridacna
+- **Moon jellyfish are mostly water, drift and eat plankton; sea turtles eat jellyfish** — https://en.wikipedia.org/wiki/Aurelia_aurita , https://en.wikipedia.org/wiki/Green_sea_turtle
+- **Blacktip reef shark** (black fin tips, reef edges, eats small fish and octopus) — https://en.wikipedia.org/wiki/Blacktip_reef_shark
+- **Crown-of-thorns sea star (in the game: קוצנון)**: eats coral polyps; outbreaks strip reefs; divers remove them — https://en.wikipedia.org/wiki/Crown-of-thorns_starfish
+- **Artificial reefs (reef balls)**: concrete domes with holes that fish use and corals settle on — https://en.wikipedia.org/wiki/Reef_ball
+- **Underwater robots (ROVs) and underwater cameras for reef monitoring** — https://en.wikipedia.org/wiki/Remotely_operated_underwater_vehicle
+
 ## Checked and left out (could not verify well enough)
 - Capybara eating giant waterlily (no source) — capybara has no diet link in the game.
 - Morpho feeding on figs/açaí specifically (only *Guazuma* fruit and sap documented) — morpho has no diet link.

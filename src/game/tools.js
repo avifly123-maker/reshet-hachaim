@@ -82,6 +82,8 @@ export function toolDef(id, biome) {
   return k ? { ...d, ...k } : d;
 }
 export const toolInZone = (d, biome) => !d.zones || d.zones.includes(biome);
+// cards for the album: the reef versions of the shared devices (their own name, picture and fact)
+export const REEF_TOOL_CARDS = ['drone', 'camera', 'weather'].map((id) => { const d = toolDef(id, 'reef'); return { ...d, id: d.icon, zones: ['reef'] }; });
 // field camera: photo range / cone, scan range for the lock-on, tilt limits, motion (rad/s), lens height above the ground
 export const CAM = { range: 11, half: 0.8, view: 16, pitchMin: -0.4, pitchMax: 0.32, sweep: 0.22, turnMax: 1.3, eyeY: 1.35 * 1.3 + 0.04 };
 
