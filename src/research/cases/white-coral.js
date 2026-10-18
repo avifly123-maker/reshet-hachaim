@@ -42,6 +42,9 @@ export const WHITE_CORAL = {
       { id: 'nutr', kind: 'stock', init: 70 },         // what the fish-farm cages add to the water
       { id: 'cages', kind: 'stock', init: 1 },
       { id: 'heat', kind: 'stock', init: 1 },          // the warm summer sea: nothing in the mystery changes it
+      { id: 'seaweed', kind: 'stock', init: 0 },       // edible seaweed grown beside the cages: it takes up what the fish leave in the water
+      { id: 'urchins', kind: 'animal', init: 0, need: 0.25, birth: 0.03, death: 0.004, hungry: 0.3, leaveHungry: 0.02,
+        cap: 400, food: true },                       // sea urchins: they graze algae, and scrape young corals when the algae run out
     ],
     flows: [
       // mud: the bare bank sends it with every flood, the bank plants catch it, it settles and is carried away slowly
@@ -53,11 +56,17 @@ export const WHITE_CORAL = {
       // the cages feed the water; the water clears slowly once they are gone
       { type: 'produce', from: 'cages', to: 'nutr', rate: 2.2, byCap: 150 },
       { type: 'decay', of: 'nutr', rate: 0.025 },
+      // seaweed beside the cages takes up the nutrients before they reach the reef
+      { type: 'consume', eater: 'seaweed', food: 'nutr', need: 3.2, half: 12 },
       // algae: grow on their own, much faster in fed water; grazing fish eat them
       { type: 'produce', from: 'algae', to: 'algae', rate: 0.022, byCap: 1600, help: { id: 'nutr', half: 40 } },
       { type: 'produce', from: 'algae', to: 'algae', rate: 0.008, byCap: 1600 },
       { type: 'produce', from: 'heat', to: 'algae', rate: 3, byCap: 1600 },
       { type: 'consume', eater: 'grazers', food: 'algae', need: 0.3, half: 30, cost: 0.6 },
+      // urchins graze the algae hard; with the algae gone they scrape the young corals and the coral rock
+      { type: 'consume', eater: 'urchins', food: 'algae', need: 0.25, half: 40, cost: 1.2 },
+      { type: 'consume', eater: 'urchins', food: 'young', need: 0.0012, half: 1 },
+      { type: 'consume', eater: 'urchins', food: 'corals', need: 0.00025, half: 6 },
       { type: 'decay', of: 'algae', rate: 0.004 },
       // bleaching: the heat turns corals white; mud and algae make it much faster (cache moves the coral to 'white')
       { type: 'consume', eater: 'heat', food: 'corals', need: 0.0035, half: 4, cache: { to: 'white', share: 1 } },
@@ -116,6 +125,9 @@ export const WHITE_CORAL = {
     { id: 'robot', title: 'רובוט שמגרד אצות', icon: 'rov', amounts: [1], cost: 8, max: 3, effect: { add: { algae: -350 } }, tech: true },
     { id: 'nursery', title: 'לשתול אלמוגים מהמשתלה', icon: 'nursery', amounts: [3], cost: 9, max: 2, effect: { add: { young: 1 } }, place: 'nursery' },
     { id: 'fish', title: 'להביא מנתחנים', icon: 'species:surgeonfish', amounts: [10], cost: 5, effect: { add: { grazers: 1 } } },
+    { id: 'seaweed', title: 'לגדל אצות מאכל ליד הכלובים', icon: 'seaweed', amounts: [1], cost: 12, max: 2, effect: { add: { seaweed: 1 } } },
+    { id: 'urchins', title: 'להביא קיפודי ים שאוכלים אצות', icon: 'species:urchin', amounts: [30], cost: 6, max: 2, effect: { add: { urchins: 1 } } },
+    { id: 'corner', title: 'להזיז את הכלובים לפינה אחרת במפרץ', icon: 'cage', amounts: [1], cost: 8, max: 1, effect: { add: { cages: -0.1 } } },
   ],
   after: {
     pond: 'הבריכה עוצרת את הבוץ של השיטפון לפני שהוא מגיע לים.',
@@ -124,7 +136,19 @@ export const WHITE_CORAL = {
     robot: { test: 'nutr', below: 30, no: 'הרובוט גירד את האצות, אבל המים עדיין מלאים מזון לאצות, והן צומחות שוב.', ok: 'הרובוט גירד את האצות, והן כבר לא צומחות כל כך מהר.' },
     nursery: { test: 'mud', below: 25, no: 'האלמוגים הצעירים נשתלו, אבל הבוץ והאצות מכסים אותם.', ok: 'האלמוגים הצעירים נשתלו במים נקיים.' },
     fish: 'הגיעו עוד דגים. כשאין מספיק שונית, חלק מהם עוזבים.',
+    seaweed: { test: 'nutr', below: 30, no: 'האצות ליד הכלובים מתחילות לגדול. בינתיים עדיין יש הרבה מזון במים.', ok: 'אצות המאכל ליד הכלובים קולטות את מה שהדגים משאירים. המים במפרץ נקיים יותר, והכלובים נשארו במקום.' },
+    urchins: { test: 'algae', below: 120, no: 'הקיפודים מכרסמים אצות בלי הפסקה. מעניין מה יאכלו כשהאצות ייגמרו.', ok: 'הקיפודים ניקו את הסלע מאצות. מעניין מה יאכלו עכשיו.' },
+    corner: 'הכלובים זזו לפינה אחרת של המפרץ. אבל המים של המפרץ הם אותם מים.',
   },
+  surprises: [
+    { id: 'urchin-boom', idea: 'urchins', test: 'urchins', above: 80, text: 'הפתעה: הקיפודים התרבו מהר מאוד. כל הסלע מלא קוצים שחורים.' },
+    { id: 'urchin-scrape', idea: 'urchins', test: 'algae', below: 60, text: 'האצות נגמרו, והקיפודים התחילו לגרד את האלמוגים הצעירים ואת סלע השונית.' },
+    { id: 'urchin-fish', idea: 'urchins', test: 'grazers', below: 15, text: 'הקיפודים אכלו כמעט את כל האצות, ולמנתחנים לא נשאר מה לאכול. רוב הדגים עזבו את השונית.' },
+    { id: 'corner-algae', idea: 'corner', test: 'algae', above: 700, text: 'הפתעה: האצות פשוט התחילו לגדול חזק בפינה שאליה הזזנו את הכלובים.' },
+    { id: 'colour-back', test: 'corals', above: 12, text: 'אלמוגים שהיו לבנים חוזרים לצבע שלהם. הם לא מתו, הם חיכו למים נקיים.' },
+    { id: 'seaweed-clean', idea: 'seaweed', test: 'nutr', below: 15, text: 'האצות ליד הכלובים גדלות יפה, והמים במפרץ צלולים יותר.' },
+  ],
+  mainFix: ['cages'],
   hints: [
     'לא כל האלמוגים מלבינים באותה מהירות. בדקו את המים במצוף החיישנים.',
     'מאיפה מגיע הבוץ? אחרי שיטפון הוואדי צבע המים משתנה.',
@@ -164,12 +188,19 @@ export const WHITE_CORAL = {
       'nursery in muddy water': [{ t: 30, idea: 'nursery' }, { t: 40, idea: 'nursery' }],
       'more fish': [{ t: 30, idea: 'fish' }, { t: 40, idea: 'fish' }, { t: 50, idea: 'fish' }],
       'robot and nursery': [{ t: 30, idea: 'robot' }, { t: 40, idea: 'nursery' }, { t: 60, idea: 'robot' }],
+      'sea urchins': [{ t: 30, idea: 'urchins' }, { t: 40, idea: 'urchins' }],
+      'moving the cages to a corner': [{ t: 30, idea: 'corner' }, { t: 40, idea: 'replant' }],
+      'only seaweed': [{ t: 30, idea: 'seaweed' }, { t: 35, idea: 'seaweed' }],
+      'urchins with the pond': [{ t: 30, idea: 'urchins' }, { t: 35, idea: 'pond' }],
+      'the right fix, and urchins too': [{ t: 30, idea: 'cages' }, { t: 35, idea: 'replant' }, { t: 40, idea: 'urchins' }],
     },
     fixes: {
       'cages and planting': [{ t: 30, idea: 'cages' }, { t: 40, idea: 'replant' }],
       'cages and the pond': [{ t: 30, idea: 'cages' }, { t: 40, idea: 'pond' }],
       'planting first, cages later': [{ t: 30, idea: 'replant' }, { t: 35, idea: 'replant' }, { t: 160, idea: 'cages' }],
       'cages, planting and a robot': [{ t: 30, idea: 'cages' }, { t: 35, idea: 'replant' }, { t: 45, idea: 'robot' }],
+      'seaweed by the cages and planting': [{ t: 30, idea: 'seaweed' }, { t: 35, idea: 'seaweed' }, { t: 40, idea: 'replant' }],
+      'seaweed and the pond': [{ t: 30, idea: 'seaweed' }, { t: 35, idea: 'seaweed' }, { t: 40, idea: 'pond' }],
     },
   },
   scene: {

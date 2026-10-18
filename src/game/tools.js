@@ -697,8 +697,12 @@ export function createTools(ctx) {
     disposeObject(group);
     placed.length = 0; flights.length = 0; robots.length = 0; badges.length = 0;
   }
+  // a mystery that starts over takes its devices off the island (nest boxes, buoys, reef balls…)
+  function removeDevices(test) {
+    for (let i = placed.length - 1; i >= 0; i--) { const p = placed[i]; if (!test(p)) continue; group.remove(p.mesh); disposeObject(p.mesh); placed.splice(i, 1); }
+  }
   // does a device (nest box, forest listener) hang on this plant?
   function hostsDevice(plant) { return placed.some(p => p.host === plant && !p.dead); }
-  return { cards, hostsDevice, check, use, update, updateInjured, serialize, restore, dispose, model: toolModel, defs: TOOL_DEFS, humidity,
+  return { cards, hostsDevice, check, use, update, updateInjured, serialize, restore, dispose, removeDevices, model: toolModel, defs: TOOL_DEFS, humidity,
     cameras: () => placed.filter(p => p.id === 'camera'), camEye, cameraSees, hooks };
 }
