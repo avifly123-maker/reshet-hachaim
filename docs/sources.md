@@ -149,3 +149,27 @@ Every species in src/data/reef.js carries its own Wikipedia link (`sources`). Th
 - "העורבני שותל": jays cache acorns one by one and forget some, which sprout (Eurasian jay line above).
 - "לילה שקט": barn owls hunt rodents at night and use nest boxes (Barn owl line above).
 - "שונית מחדש": coral nurseries and artificial reefs are used to restore reefs, also in the Gulf of Eilat — https://www.iui-eilat.ac.il/ , https://en.wikipedia.org/wiki/Coral_reef_restoration ; "השונית שורדת חום": heat makes corals lose their algae and bleach (Algae inside corals line above), early warning lets a reef be protected.
+
+## משלחת לעומק (1.3, the deep expedition card game: src/data/expedition.js)
+
+The game's lines are playful (a land card under water is a joke, not a fact); the facts it states as facts:
+- **Octopus through small openings:** an octopus has no skeleton and can pass through any opening larger than its beak — https://en.wikipedia.org/wiki/Octopus .
+- **Sharks and rays sense electric fields** (ampullae of Lorenzini) — https://en.wikipedia.org/wiki/Ampullae_of_Lorenzini .
+- **Moray eels hunt by smell** in crevices, mostly at night — https://en.wikipedia.org/wiki/Moray_eel .
+- **Cleaner stations** (cleaner wrasse *Labroides dimidiatus*, common on Eilat reefs) — https://en.wikipedia.org/wiki/Bluestreak_cleaner_wrasse .
+- **Parrotfish make sand:** they bite coral rock and excrete fine sand — https://en.wikipedia.org/wiki/Parrotfish .
+- **Snapping (pistol) shrimp** make loud clicks by snapping a claw — https://en.wikipedia.org/wiki/Alpheidae .
+- **Feather stars** (crinoids) catch food with feather-like arms; they live on Red Sea reefs — https://en.wikipedia.org/wiki/Crinoid .
+- **Seagrass in Eilat** (*Halophila stipulacea*) holds the sand with its roots and shelters small fish — https://en.wikipedia.org/wiki/Halophila_stipulacea .
+- **Algae inside corals need light**, so most reef corals grow where sunlight reaches — https://oceanservice.noaa.gov/facts/zooxanthellae.html .
+- **The deep Red Sea is warm** (about 21 °C at depth, unlike most seas) — https://en.wikipedia.org/wiki/Red_Sea , https://arabnews.com/node/1505266 .
+- **Coral fragments regrow** and are raised in coral nurseries (coral gardening, developed at Eilat) — https://en.wikipedia.org/wiki/Coral_reef_restoration , Rinkevich B. (2006) "The coral gardening concept and the use of underwater nurseries", in *Coral Reef Restoration Handbook*.
+- **Coral spawning on summer nights in the Gulf of Eilat** — https://www.plymouth.ac.uk/news/coastal-lights-trick-coral-reefs-into-spawning-earlier-than-they-should ; Shlesinger & Loya (2019), *Science* 365: 1002–1007.
+- **Whale sharks** (the largest fish, plankton eaters) are sometimes seen in the Gulf of Eilat — https://www.israel21c.org/?p=99754 , https://www.ynetnews.com/environment/article/h1jhfr7tc .
+- **Bottlenose dolphins** (*Tursiops aduncus*) in the Gulf of Eilat — https://en.wikipedia.org/wiki/Indo-Pacific_bottlenose_dolphin , https://en.wikipedia.org/wiki/Israeli_Marine_Mammal_Research_and_Assistance_Center .
+- **Barracudas** hunt on Red Sea reefs — https://en.wikipedia.org/wiki/Great_barracuda .
+- **Ghost nets** (abandoned fishing nets) trap fish and turtles; divers remove them — https://diveagainstdebris.org/updates/ghost-net-removal .
+- **Mooring buoys instead of anchors** protect corals (also in the reef zone's tools) — see the reef section above.
+- **Table corals give shade** to the reef below them — https://en.wikipedia.org/wiki/Acropora .
+- **Land animals that swim** (the jokes are built on true facts): jaguars swim well — https://en.wikipedia.org/wiki/Jaguar ; capybaras are semi-aquatic and can stay under water for minutes — https://en.wikipedia.org/wiki/Capybara ; tapirs swim and use the snout as a snorkel — https://en.wikipedia.org/wiki/Tapir .
+- **Fungi do not need light** (they are not plants) — https://en.wikipedia.org/wiki/Fungus .
