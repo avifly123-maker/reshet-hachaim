@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { createPipeline } from './env/pipeline.js';
 import { createUI } from './ui/ui.js';
 import { createAudio } from './audio/audio.js';
+import { createMusic } from './audio/music.js';
 import { makeBus, makeRng } from './core/util.js';
 import { createGame } from './game/game.js';
 import { BABA_DA_LOGO } from './data/logo.js';
@@ -81,6 +82,8 @@ async function boot() {
   // createLearningHub replaces it with the real one
   window.__wolLearn = { open: () => getHub().then((h) => h.open()), close: () => hub && hub.close(), isOpen: () => !!hub && hub.isOpen(), grantPack: (n) => getHub().then((h) => h.grantPack(n), (e) => console.error(e)) };
   const audio = createAudio();
+  const music = createMusic(audio);   // soft music on the start screen and in the lab only (see musicWanted below)
+  ui.setToggles({ music: music.enabled });
   startBadgeToasts(root, audio);   // a badge (תג) earned anywhere drops in over whatever is open
   let quality = pickQuality();
   let pipe;
@@ -202,9 +205,9 @@ async function boot() {
   // חוקרי הטבע: the research centre and its mysteries
   const researchHub = createResearchHub(root, { onPick: (id) => { const C = caseById(id); if (!C) return; loadPack(C.zone).catch(() => { /* reported by loadBiome */ }); loadBiome(C.zone, null, C); }, onLab: () => openLab() });
   // מעבדת רובו־דע: its own pack; while it is open the frame loop draws it (there is no forest then)
-  let lab = null, labP = null, labFrom = 'hub';
+  let lab = null, labP = null, labFrom = 'hub', labOpening = false;
   function openLab(from = 'hub') {
-    labFrom = from;
+    labFrom = from; labOpening = true;   // the lab's music may begin while the room loads (a cross-fade from the start screen's)
     audio.start(); ui.hideStart();
     ui.setLoading && ui.setLoading(0.3, 'פותחים את המעבדה...');
     labP = labP || loadPack('lab').then((m) => {
@@ -212,10 +215,19 @@ async function boot() {
         openGame: (name, opts) => getHub().then((h) => (h.go ? h.go(name, { ...(opts || {}), from: 'lab' }) : h.open()), (e) => console.error(e)) });
       return lab;
     });
-    labP.then((L) => { ui.hideLoading(); L.open(); }, (e) => { labP = null; ui.hideLoading(); console.error(e); showStart(); });
+    labP.then((L) => { labOpening = false; ui.hideLoading(); L.open(); }, (e) => { labOpening = false; labP = null; ui.hideLoading(); console.error(e); showStart(); });
   }
   bus.on('ui:research', () => { audio.start(); researchHub.open(); });
   bus.on('audio:mute', ({ muted }) => audio.setMuted(muted));
+  bus.on('music:toggle', ({ on }) => { music.setEnabled(on); ui.setToggles({ music: music.enabled }); });
+  // which piece the screen on top would like: none in a forest, the learning hub, its games or the mysteries' centre
+  const musicWanted = () => {
+    if (game || loading) return null;
+    if (hub && hub.isOpen()) return null;
+    if ((lab && lab.isOpen()) || labOpening) return 'lab';
+    if (researchHub.isOpen()) return null;
+    return ui.isStartShown() ? 'start' : null;
+  };
   // Compile every shader the current island can need – including species not placed yet – right now, in one go.
   // Changing quality makes all materials rebuild their shaders (shadows / tone mapping change), so without this the
   // game would stutter later, the first time each species is dragged onto the island.
@@ -314,6 +326,7 @@ async function boot() {
     const ts = window.__timeScale || 1;   // test hook (headless runs are slow)
     const dt = Math.min(clock.getDelta() * ts, 0.1 * ts);
     window.__frames = (window.__frames || 0) + 1;
+    const mw = musicWanted(); music.want(mw); ui.setMusicPlace(mw);
     t += dt;
     if (lab && lab.isOpen()) { if (!(hub && hub.isOpen())) { lab.update(dt); pipe.render(dt); } startDrawn = false; }   // the learning hub covers the lab: no need to draw the room under it
     else if (game) { game.update(dt, t); autoQuality(); }
@@ -325,7 +338,7 @@ async function boot() {
     if (fpsEl) { fpsN++; const now = performance.now(); if (now - fpsT > 1000) { const i = pipe.renderer.info.render; fpsEl.textContent = `${Math.round(fpsN * 1000 / (now - fpsT))} fps · ${quality} · x${pipe.resScale.toFixed(2)} · ${i.calls} calls · ${Math.round(i.triangles / 1000)}k tris`; fpsN = 0; fpsT = now; } }
   }
   frame();
-  window.__app = { bus, ui, audio, pipe, loadBiome, researchHub, openLab: () => openLab(), openCase: (id) => { const C = caseById(id); if (C) loadBiome(C.zone, null, C); }, get game() { return game; } };
+  window.__app = { bus, ui, audio, music, pipe, loadBiome, researchHub, openLab: () => openLab(), openCase: (id) => { const C = caseById(id); if (C) loadBiome(C.zone, null, C); }, get game() { return game; } };
 }
 
 boot();

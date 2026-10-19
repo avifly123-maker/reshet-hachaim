@@ -6,6 +6,7 @@
 //   audio.update(ctx);                      // every frame (internally throttled)
 //   audio.play(name, { pan, volume });      // UI / game one-shots
 //   audio.setMuted(b); audio.muted; audio.setVolume(v)
+//   audio.musicOut()                        // the bus background music plays into (audio/music.js); null until start()
 //
 // Design notes
 // - Graph: [sfxBus] ─┐
@@ -31,7 +32,7 @@ const MIN_GAP = { hover: 0.05, points: 0.06, click: 0.03, pop: 0.05, grow: 0.12,
 
 export function createAudio(options = {}) {
   let ac = null, offline = false, ready = false;
-  let master, sfxBus, ambBus, duck, globalGain;
+  let master, sfxBus, ambBus, duck, globalGain, musicBus;
   let bufW, bufP, bufB, srcW, srcP, srcB;
   const curves = {};
   let muted = !!options.muted;
@@ -91,6 +92,7 @@ export function createAudio(options = {}) {
     master = ac.createGain(); master.gain.value = muted ? 0 : volume;
     master.connect(comp); comp.connect(ac.destination);
     sfxBus = ac.createGain(); sfxBus.gain.value = 0.8; sfxBus.connect(master);
+    musicBus = ac.createGain(); musicBus.gain.value = 0.9; musicBus.connect(master);   // background music (audio/music.js)
     duck = ac.createGain(); duck.gain.value = 1; duck.connect(master);
     ambBus = ac.createGain(); ambBus.gain.value = 1; ambBus.connect(duck);
     globalGain = ac.createGain(); globalGain.gain.value = 0; globalGain.connect(ambBus);
@@ -882,6 +884,7 @@ export function createAudio(options = {}) {
 
   return {
     start, setBiome, update, play, setMuted, setVolume,
+    musicOut: () => (ready ? musicBus : null),
     get muted() { return muted; },
     get volume() { return volume; },
     get context() { return ac; },

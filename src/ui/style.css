@@ -1320,3 +1320,18 @@
 #ui.wol .m-checks li.ok { color: #3a7a2a; }
 #ui.wol .m-checks li.ok i { background: #6aa84a; box-shadow: none; color: #fff; }
 #ui.wol .m-checks em { font-style: normal; color: #8a5a0a; font-weight: 700; }
+
+/* background music switch (ui.js musicBtn): only where music plays – the start screen and the lab; bottom-left corner,
+   over the start screen (50) and the lab (40), under an open dialog (55) */
+#ui.wol .mus-btn { position: absolute; left: 16px; bottom: 16px; z-index: 52; width: 44px; height: 44px; padding: 0; display: grid; place-items: center;
+  border-radius: 50%; border: 1.5px solid rgba(251, 246, 228, .55); background: rgba(14, 26, 20, .62); color: #fbf6e4; cursor: pointer; pointer-events: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .3); transition: background .2s, opacity .2s, transform .15s; }
+#ui.wol .mus-btn[hidden] { display: none; }
+#ui.wol .mus-btn .ic { width: 24px; height: 24px; }
+#ui.wol .mus-btn .ic .f { fill: rgba(251, 246, 228, .35); }
+#ui.wol .mus-btn:hover { background: rgba(14, 26, 20, .82); transform: scale(1.06); }
+#ui.wol .mus-btn:focus-visible { outline: 3px solid #f0b44c; outline-offset: 2px; }
+#ui.wol .mus-btn.off { opacity: .7; color: #cfc6a8; }
+#ui.wol.has-modal .mus-btn { display: none; }
+#ui.wol .km-row[data-a="music"] .ic { color: #8a5aa8; }
+#ui.wol .km-row[data-a="music"].off .ic { color: #8a6e5c; }

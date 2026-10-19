@@ -54,6 +54,9 @@ const I = {
   target: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/>',
   sound: '<path class="f" d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9.2a4 4 0 0 1 0 5.6M18 6.8a7.4 7.4 0 0 1 0 10.4"/>',
   mute: '<path class="f" d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 12h5"/>',
+  // background music: two beamed notes; off = one note and a bar (like mute: no slash across a stem)
+  music: '<ellipse class="f" cx="7" cy="17.5" rx="2.8" ry="2.2"/><ellipse class="f" cx="17" cy="15.5" rx="2.8" ry="2.2"/><ellipse cx="7" cy="17.5" rx="2.8" ry="2.2"/><ellipse cx="17" cy="15.5" rx="2.8" ry="2.2"/><path d="M9.8 17.3V6.2l10-2.2v11.3"/>',
+  musicOff: '<ellipse class="f" cx="7" cy="17.5" rx="2.8" ry="2.2"/><ellipse cx="7" cy="17.5" rx="2.8" ry="2.2"/><path d="M9.8 17.3V5c1.2 2.4 4.5 3 4.5 6"/><path d="M16 14.5h5"/>',
   lightmap: '<circle class="f" cx="12" cy="7" r="2.6"/><circle cx="12" cy="7" r="2.6"/><path d="M12 1.8v1.3M7.4 3.4l.9.9M16.6 3.4l-.9.9M6 7h1.2M16.8 7H18"/><path class="f" d="M2.5 15.5L12 12l9.5 3.5L12 19z"/><path d="M2.5 15.5L12 12l9.5 3.5L12 19z"/><path d="M5.5 15.5h13"/>',
   sliders: '<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/>',
   close: '<circle cx="12" cy="12" r="8"/><path d="M8.2 12h7.6"/>',   // no X anywhere: a circle with a bar
@@ -608,6 +611,7 @@ export function createUI(root, bus) {
         </div>
         <div class="km-set"><h4>הגדרות</h4>
           <button class="km-row km-switch" data-a="sound" role="menuitemcheckbox">${icon('sound')}<span>צלילים</span><i class="sw"></i></button>
+          <button class="km-row km-switch" data-a="music" role="menuitemcheckbox" title="מוזיקה רכה במסך הפתיחה ובמעבדה">${icon('music')}<span>מוזיקה</span><i class="sw"></i></button>
           ${TORAH ? `<button class="km-row km-switch" data-a="sources" role="menuitemcheckbox">${icon('book')}<span>מקורות ופסוקים</span><i class="sw"></i></button>` : ''}
           <div class="km-q">${icon('quality')}<span>איכות תמונה</span></div>
           <div class="km-seg" role="radiogroup" aria-label="איכות תמונה">
@@ -642,6 +646,7 @@ export function createUI(root, bus) {
     else if (a === 'web') { S.toggles.web = !S.toggles.web; paintToggles(); emit('toggle:web', { on: S.toggles.web }); }
     else if (a === 'sources') { setSourcesOn(!sourcesOn()); paintToggles(); emit('sources:toggle', { on: sourcesOn() }); }
     else if (a === 'sound') { S.toggles.sound = !(S.toggles.sound !== false); paintToggles(); emit('audio:mute', { muted: !S.toggles.sound }); }
+    else if (a === 'music') { S.toggles.music = !(S.toggles.music !== false); paintToggles(); emit('music:toggle', { on: S.toggles.music }); }
   });
   document.addEventListener('pointerdown', (e) => { if (!qWrap.contains(e.target)) setKit(false); }, true);
   function paintToggles() {
@@ -653,7 +658,14 @@ export function createUI(root, bus) {
     toolbar.querySelectorAll('[data-q]').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.q === (t.quality || 'medium'))));
     const srcB = tbBtn('sources'); if (srcB) { const on = sourcesOn(); srcB.setAttribute('aria-checked', String(on)); srcB.classList.toggle('off', !on); }
     root.classList.toggle('q-low', t.quality === 'low');
+    const mOn = t.music !== false;
+    for (const b of [tbBtn('music'), musicBtn]) { b.setAttribute('aria-checked', String(mOn)); b.querySelector('.ic').outerHTML = icon(mOn ? 'music' : 'musicOff'); b.classList.toggle('off', !mOn); }
+    musicBtn.setAttribute('aria-label', mOn ? 'מוזיקה: פועלת' : 'מוזיקה: כבויה'); musicBtn.title = mOn ? 'לכבות את המוזיקה' : 'להדליק את המוזיקה';
   }
+  // the music switch where music plays (the start screen, the lab): a small round button, shown only there
+  const musicBtn = h('button', 'mus-btn', icon('music'), root);
+  musicBtn.setAttribute('role', 'switch'); musicBtn.hidden = true;
+  musicBtn.addEventListener('click', () => { S.toggles.music = !(S.toggles.music !== false); paintToggles(); emit('music:toggle', { on: S.toggles.music }); });
   paintToggles();
 
   /* ================================================================ MISSIONS */
@@ -1258,6 +1270,9 @@ export function createUI(root, bus) {
     },
 
     setToggles(t) { Object.assign(S.toggles, t || {}); paintToggles(); },
+    // where music could play now ('start' | 'lab' | null): shows the music switch there (main.js calls it every frame)
+    setMusicPlace(p) { p = p || ''; if (musicBtn.dataset.place === p) return; musicBtn.dataset.place = p; musicBtn.hidden = !p; },
+    isStartShown() { return startEl.classList.contains('on') && !loadEl.classList.contains('on'); },
 
     showDoneMissions(list) {
       list = Array.isArray(list) ? list : [];
