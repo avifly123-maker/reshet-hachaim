@@ -1,5 +1,6 @@
 import { DEPTHS, DEPTH_LOOK, SAMPLES, FRIENDS, RARE, TRAITS, TRAIT_NAMES, CHALLENGES, STARTER } from '../../data/expedition.js';
 import { genderOf, defName } from '../../data/common.js';
+import { icon } from '../../ui/ui.js';
 // "משלחת לעומק" – a push-your-luck exploration game for the learning hub (single player).
 // The player picks a team of four cards from the album and dives into the reef of the Gulf of Eilat, depth by depth.
 // Each depth is a row of face-down sea tiles: samples (into the bag), friends (help), the rare find, and challenges.
@@ -153,7 +154,8 @@ export function mountExpedition(root, ctx, opts = {}) {
     const pool = starter ? STARTER.map(card).filter(Boolean) : mine;
     if (starter && pickSel.length < TEAM) pickSel = pool.slice(0, TEAM);
     const shown = pool.filter((c) => filter === 'all' || (filter === 'reef' ? c.type === 'species' && c.biome === 'reef' : filter === 'tool' ? c.type === 'tool' : c.type === 'species' && c.biome !== 'reef'));
-    const tab = (v, t) => `<button class="ex-tab${filter === v ? ' sel' : ''}" data-ex="filter" data-v="${v}">${t}</button>`;
+    const T_IC = { all: 'zones', reef: 'reef', tool: 'robot', land: 'leaf' };
+    const tab = (v, t) => `<button class="ex-tab${filter === v ? ' sel' : ''}" data-ex="filter" data-v="${v}">${icon(T_IC[v])}${t}</button>`;
     root.innerHTML = `<section class="wl-screen ex-setup${kids ? ' ex-kids' : ''}">
       <div class="ex-sea" style="--top:${DEPTH_LOOK[0].top};--bot:${DEPTH_LOOK[1].bot}"><i class="ex-rays"></i>${bubbles(10)}
       <div class="ex-shead">
@@ -360,7 +362,7 @@ export function mountExpedition(root, ctx, opts = {}) {
       ${S.lost.length ? `<p class="ex-lost">צפו למעלה: ${S.lost.map((x) => esc(x.name)).join(', ')}</p>` : ''}
       <h4>מה למדנו בדרך</h4><ul class="ex-facts">${facts}${rare}</ul>
       ${R.got.length ? `<p class="ex-badges">${I.star} תג חדש: ${R.got.map((b) => `<b>${esc(b.name)}</b>`).join(', ')}</p>` : ''}
-      <div class="wl-row"><button class="wl-btn gold" data-ex="again">${I.down} עוד משלחת, אותו צוות</button><button class="wl-btn" data-ex="newteam">${I.team} צוות אחר</button><button class="wl-btn" data-ex="exit">חזרה</button></div>
+      <div class="wl-row"><button class="wl-btn gold" data-ex="again">${I.down} עוד משלחת, אותו צוות</button><button class="wl-btn" data-ex="newteam">${I.team} צוות אחר</button><button class="wl-btn" data-ex="exit">${icon('arrowR')}חזרה</button></div>
     </div>`;
   }
 

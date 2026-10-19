@@ -8,6 +8,7 @@ import { badgesFor } from '../data/badges.js';
 import { badgeHTML } from './badge-art.js';
 import { avatarHTML, avatarName, AVATAR_IDS } from './avatars.js';
 import { zoneWord } from '../core/place.js';
+import { HUB_ICONS, tileIcon } from './icons-hub.js';   // the learning hub's icons: icon() draws them too
 
 /* ------------------------------------------------------------------ helpers */
 export const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -84,7 +85,7 @@ const I = {
   info: '<circle class="f" cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".9" fill="currentColor"/>',
   quality: '<path class="f" d="M3 18l5.5-8 4 5.5 2.5-3.5L21 18z"/><path d="M3 18l5.5-8 4 5.5 2.5-3.5L21 18z"/><circle cx="16.5" cy="6.5" r="2"/>',
 };
-export const icon = (n, cls) => `<svg class="ic${cls ? ' ' + cls : ''}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${I[n] || ''}</svg>`;
+export const icon = (n, cls) => `<svg class="ic${cls ? ' ' + cls : ''}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${I[n] || HUB_ICONS[n] || ''}</svg>`;
 
 const ANIMAL_KINDS = new Set(['animal', 'colony', 'swarm']);
 const TYPE_COLORS = {
@@ -360,15 +361,15 @@ export function createUI(root, bus) {
         <div class="st-learnwrap">
           <div class="st-fan">${fan.map((src, i) => `<img src="${src}" alt="" draggable="false" style="--k:${i - (fan.length - 1) / 2}">`).join('')}</div>
           <div class="st-lgrid">
-            <button data-learn="home">${icon('book')}<span><b>מרכז הלמידה</b><small>כל המשחקים במקום אחד</small></span></button>
-            <button data-learn="setup">${icon('help')}<span><b>חידון</b><small>שאלות על היער והשונית</small></span></button>
-            <button data-learn="album">${icon('cards')}<span><b>אלבום הקלפים</b><small>חבילות, סדרות ואוסף</small></span></button>
-            <button data-learn="duel">${icon('versus')}<span><b>מי חזק ברשת?</b><small>קלף מול קלף</small></span></button>
-            <button data-learn="keepforest">${icon('tree')}<span><b>מחזיקים את היער</b><small>משחק קלפים ואירועים</small></span></button>
-            <button data-learn="webpuzzle">${icon('web')}<span><b>חוט הקשר</b><small>מחברים את הרשת</small></span></button>
-            <button data-learn="inventors">${icon('bulb')}<span><b>הממציאים</b><small>פותרים בעיות בעזרת הטבע</small></span></button>
-            <button data-learn="expedition">${icon('drop')}<span><b>משלחת לעומק</b><small>צוללים עם הקלפים לשונית</small></span></button>
-            <button data-learn="badges">${icon('sparkle')}<span><b>התגים שלי</b><small>תגים ומסגרות לקלפים</small></span></button>
+            <button data-learn="home">${tileIcon('learn', 'st-lic')}<span><b>מרכז הלמידה</b><small>כל המשחקים במקום אחד</small></span></button>
+            <button data-learn="setup">${tileIcon('quiz', 'st-lic')}<span><b>חידון</b><small>שאלות על היער והשונית</small></span></button>
+            <button data-learn="album">${tileIcon('album', 'st-lic')}<span><b>אלבום הקלפים</b><small>חבילות, סדרות ואוסף</small></span></button>
+            <button data-learn="duel">${tileIcon('strong', 'st-lic')}<span><b>מי חזק ברשת?</b><small>קלף מול קלף</small></span></button>
+            <button data-learn="keepforest">${tileIcon('keep', 'st-lic')}<span><b>מחזיקים את היער</b><small>משחק קלפים ואירועים</small></span></button>
+            <button data-learn="webpuzzle">${tileIcon('thread', 'st-lic')}<span><b>חוט הקשר</b><small>מחברים את הרשת</small></span></button>
+            <button data-learn="inventors">${tileIcon('invent', 'st-lic')}<span><b>הממציאים</b><small>פותרים בעיות בעזרת הטבע</small></span></button>
+            <button data-learn="expedition">${tileIcon('dive', 'st-lic')}<span><b>משלחת לעומק</b><small>צוללים עם הקלפים לשונית</small></span></button>
+            <button data-learn="badges">${tileIcon('medal', 'st-lic')}<span><b>התגים שלי</b><small>תגים ומסגרות לקלפים</small></span></button>
           </div>
         </div>
       </section>

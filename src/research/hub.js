@@ -1,6 +1,7 @@
 // חוקרי הטבע – the research centre: the mysteries (תעלומות) by level, with the stars each player earned.
 // Opened from the start screen; picking a mystery calls onPick(caseId) and main.js builds its island.
 import { icon, esc } from '../ui/ui.js';
+import { tileIcon } from '../ui/icons-hub.js';
 import { ISLAND_ART } from '../data/island-art.js';
 import { CASES } from './cases/index.js';
 import { researchProgress } from './progress.js';
@@ -27,7 +28,7 @@ export function createResearchHub(root, { onPick, onClose, onLab }) {
     const prog = researchProgress().cases;
     const starRow = (id) => { const s = (prog[id] && prog[id].stars) || []; return `<span class="rs-h-stars">${[0, 1, 2].map((i) => `<i class="${s[i] ? 'on' : ''}">★</i>`).join('')}</span>`; };
     el.innerHTML = `<div class="rs-h-bg"></div><div class="rs-h-inner">
-      <header class="rs-h-head"><button class="rs-h-back">${icon('arrowL')}<span>חזרה</span></button>
+      <header class="rs-h-head"><button class="rs-h-back">${icon('arrowR')}<span>חזרה</span></button>
         <div><small class="rs-h-centre">המרכז המדעי</small><h1>${esc(RESEARCH_NAME)}</h1><p>תעלומות בטבע: מודדים, משערים, מנסים ומאזנים</p></div>
         <div class="rs-h-badge">${icon('flask')}</div></header>
       ${LEVELS.map((L) => {
@@ -41,7 +42,7 @@ export function createResearchHub(root, { onPick, onClose, onLab }) {
         </div></section>`;
       }).join('')}
       <section class="rs-h-level rs-h-lab"><h2>${icon('flask')}<span>מעבדת החוקרים</span><small>רובו־דע מחכה לכם: מיקרוסקופ, שולחן ממציאים ואטלס</small></h2>
-        <div class="rs-h-cases"><button class="rs-h-case rs-h-labgo"><div class="rs-h-body"><b>המעבדה של רובו־דע</b><p>מגדילים במיקרוסקופ, ממציאים בעזרת הטבע, ומשדרגים את הכלים בסביבות.</p></div></button></div></section>
+        <div class="rs-h-cases"><button class="rs-h-case rs-h-labgo"><div class="rs-h-body"><b>${tileIcon('lab', 'rs-h-tic')}המעבדה של רובו־דע</b><p>מגדילים במיקרוסקופ, ממציאים בעזרת הטבע, ומשדרגים את הכלים בסביבות.</p></div></button></div></section>
       </div>`;
     el.querySelector('.rs-h-back').addEventListener('click', close);
     el.querySelectorAll('[data-case]').forEach((b) => b.addEventListener('click', () => { close(); onPick(b.dataset.case); }));

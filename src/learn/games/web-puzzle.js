@@ -1,4 +1,6 @@
 import { relVerb, dietVerb, notTogether, defName, joinObj } from '../../data/common.js';
+import { icon } from '../../ui/ui.js';
+import { tileIcon } from '../../ui/icons-hub.js';
 // "חוט הקשר" – web puzzle mini-game for the learning hub (single player).
 // Each level shows a small web of species cards: some fixed (face up) and some empty slots, joined by
 // relation threads. The player drags (or taps) a card from the hand into a slot so that every thread is true.
@@ -392,9 +394,9 @@ export function mountWebPuzzle(root, ctx, opts = {}) {
     const total = (b) => levelsFor(ctx, b, kids).levels.reduce((s, l) => s + (ST.stars[lkey(b, l.idx)] || 0), 0);
     const nextI = L.findIndex((l) => !ST.stars[lkey(biome, l.idx)] && unlocked(biome, l.idx));
     root.innerHTML = `<section class="wl-screen wp-pick">
-      <div class="wp-phead"><h1>${IC_THREAD}חוט הקשר</h1><p>מחברים את היצורים ברשת: מי מאביק, מי מפיץ זרעים, מי גר אצל מי?</p></div>
+      <div class="wp-phead"><h1>${tileIcon('thread', 'wl-tic')}חוט הקשר</h1><p>מחברים את היצורים ברשת: מי מאביק, מי מפיץ זרעים, מי גר אצל מי?</p></div>
       ${packLine(biome, 'wp-total')}
-      <div class="wp-tabs">${BIOMES.map((b) => `<button class="wp-tab${b === biome ? ' on' : ''}" data-b="${b}">${BNAME[b]} <small>${IC_STAR} ${total(b)}/${levelsFor(ctx, b, kids).levels.length * 3}</small></button>`).join('')}</div>
+      <div class="wp-tabs">${BIOMES.map((b) => `<button class="wp-tab${b === biome ? ' on' : ''}" data-b="${b}">${icon(b)}${BNAME[b]} <small>${IC_STAR} ${total(b)}/${levelsFor(ctx, b, kids).levels.length * 3}</small></button>`).join('')}</div>
       <div class="wp-grid paper">${L.map((l) => {
         const s = ST.stars[lkey(biome, l.idx)] || 0, open = unlocked(biome, l.idx);
         return `<button class="wp-lvl${open ? '' : ' lock'}${l.idx === nextI ? ' next' : ''}" data-i="${l.idx}" ${open ? '' : 'disabled'} aria-label="שלב ${l.idx + 1}">
@@ -416,7 +418,7 @@ export function mountWebPuzzle(root, ctx, opts = {}) {
         <span class="wp-sp"></span>
         <span class="wp-mist" title="כוכבים"></span>
         ${kids ? `<button class="wl-btn gold" data-a="hint">${IC_BULB}<span>רמז</span></button>` : ''}
-        <button class="wl-btn" data-a="levels">שלבים</button>
+        <button class="wl-btn" data-a="levels">${icon('levels')}<span>שלבים</span></button>
       </div>
       <div class="wp-board paper"><svg class="wp-svg" xmlns="http://www.w3.org/2000/svg"></svg><div class="wp-layer"></div></div>
       <div class="wp-msg"></div>
@@ -579,10 +581,10 @@ export function mountWebPuzzle(root, ctx, opts = {}) {
         <p>${stars === 3 ? 'בלי אף טעות – כל החוטים נכונים!' : stars === 2 ? 'כמעט בלי טעויות. יפה מאוד! בלי טעויות מקבלים 3 כוכבים.' : 'הצלחתם! אפשר לנסות שוב ולקבל עוד כוכבים.'}</p>
         <div class="wp-earned">${cardLine}${packHtml}</div>
         <div class="wp-btns">
-          ${hasNext ? '<button class="wl-btn go" data-a="next">לשלב הבא</button>' : ''}
-          <button class="wl-btn" data-a="again">שוב</button>
-          <button class="wl-btn" data-a="levels">בחירת שלב</button>
-          <button class="wl-btn gold" data-a="album">לאלבום</button>
+          ${hasNext ? `<button class="wl-btn go" data-a="next">לשלב הבא${icon('arrowL')}</button>` : ''}
+          <button class="wl-btn" data-a="again">${icon('again')}שוב</button>
+          <button class="wl-btn" data-a="levels">${icon('levels')}בחירת שלב</button>
+          <button class="wl-btn gold" data-a="album">${icon('album')}לאלבום</button>
         </div></div>`;
       d.hidden = false;
     }, 900);

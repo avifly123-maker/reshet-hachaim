@@ -31,6 +31,8 @@ import { mountExpedition } from './games/expedition.js';
 import { RELATION_TYPES, DIET_VERBS, gw, activeNameFor, ALIASES, defName } from '../data/common.js';
 import { key as profileKey, current as currentPlayer } from '../core/profiles.js';
 import { avatarHTML } from '../ui/avatars.js';
+import { icon } from '../ui/ui.js';
+import { tileIcon } from '../ui/icons-hub.js';   // one icon set for every button of the hub (see the sheet: tools/icon-sheet.mjs)
 
 const STORE_KEY = 'web-of-life-cards';
 const ROUND = 10;
@@ -1282,6 +1284,39 @@ ${BADGE_CSS}
 .wol-learn .wl-lp{display:block}
 .wol-learn .wl-lp.e b{color:#8a2452}.wol-learn .wl-lp.r b{color:#9c6512}
 `;
+/* the hub's icons (src/ui/icons-hub.js): a coloured tile before each title, a line icon before each button's words */
+const BGROUP_IC = { amazon: 'amazon', grove: 'grove', reef: 'reef', lab: 'invent', deep: 'dive', research: 'research' };
+const ICON_CSS = `
+.wol-learn .wl-bgroup h3>span{display:inline-flex;align-items:center;gap:.45em}
+.wol-learn .wl-bgroup h3 .wl-tic{font-size:1.15em}
+.wol-learn .wl-tic{display:inline-grid;place-items:center;flex:none;width:1.3em;height:1.3em;border-radius:.34em;vertical-align:middle;
+  background:linear-gradient(160deg,rgba(255,255,255,.24),rgba(0,0,0,.14)),var(--tc,#3a4d5c);box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 .08em .2em rgba(0,0,0,.3)}
+.wol-learn .wl-tic .ic{width:.8em;height:.8em;color:#fff1c4}
+.wol-learn .wl-tbody h2{gap:.32em}
+.wol-learn .wl-home .wl-tile.game .wl-tbody h2{font-size:1.6em}
+@media (max-width:900px){.wol-learn .wl-home .wl-tile.game .wl-tbody h2{font-size:1.35em}}
+.wol-learn .wl-bt-text b{display:flex;align-items:center;gap:.35em}
+.wol-learn .wl-bhead b{display:inline-flex;align-items:center;gap:.4em}
+.wol-learn .wl-frames h3{display:flex;align-items:center;gap:.35em}.wol-learn .wl-frames h3 .ic{width:1.2em;height:1.2em;color:#9c6512}
+.wol-learn .wl-btn .ic{width:1.3em;height:1.3em}
+.wol-learn .wl-chip .ic{width:1.25em;height:1.25em}
+.wol-learn .wl-tab{display:inline-flex;align-items:center;gap:.3em}
+.wol-learn .wl-tab .ic{width:1.15em;height:1.15em;opacity:.8}
+.wol-learn .wl-tab.sel .ic{opacity:1}
+@media (max-width:1180px){.wol-learn .wl-tab .ic{display:none}}
+/* the games: their title gets the tile, place tabs and filters the zone icons */
+.wol-learn .wp-phead h1 .wl-tic,.wol-learn .kf-phead h1 .wl-tic{width:1.15em;height:1.15em}
+.wol-learn .wp-phead h1 .wl-tic .ic,.wol-learn .kf-phead h1 .wl-tic .ic{width:.72em;height:.72em}
+.wol-learn .wp-tab .ic{width:1.2em;height:1.2em}
+.wol-learn .kf-bt h2{display:flex;align-items:center;justify-content:center;gap:.3em}
+.wol-learn .kf-bt h2 .wl-tic{width:1em;height:1em;border-radius:.28em}.wol-learn .kf-bt h2 .wl-tic .ic{width:.66em;height:.66em}
+.wol-learn .kf-phead h1 .wl-tic{width:1em;height:1em}
+.wol-learn .kf-bar [data-a=setup]{white-space:nowrap}
+@media (max-width:900px){.wol-learn .kf-bar [data-a=setup] .ic{display:none}}   /* the crowded game bar keeps the words on one line */
+@media (max-height:520px){.wol-learn .kf-pick .kf-phead p{display:none}.wol-learn .wl-screen.kf-pick{gap:.5em;padding-bottom:.4em}}   /* 800x460: the go button stays on the screen */
+.wol-learn .iv-handbar .iv-f,.wol-learn .ex-tab{display:inline-flex;align-items:center;gap:.3em}
+.wol-learn .iv-handbar .iv-f .ic,.wol-learn .ex-tab .ic{width:1.1em;height:1.1em}
+`;
 let cssInjected = false;
 function injectCss() {
   if (cssInjected || typeof document === 'undefined') return;
@@ -1289,7 +1324,7 @@ function injectCss() {
   const st = document.createElement('style');
   st.id = 'wol-learn-css';
   // raise specificity above the game's "#ui.wol button" resets
-  st.textContent = CSS.replace(/\.wol-learn/g, '#wol-learn.wol-learn');
+  st.textContent = (CSS + ICON_CSS).replace(/\.wol-learn/g, '#wol-learn.wol-learn');
   document.head.appendChild(st);
 }
 
@@ -1317,7 +1352,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
       <button class="wl-back" data-wl="back">${IC.back}<span>חזרה</span></button>
       <h2 class="wl-crumb"></h2><span class="wl-sp"></span>
       <span class="wl-who"></span>
-      <button class="wl-chip" data-wl="packs" title="חבילות קלפים">${IC.pack}<span class="wl-chipn"></span></button>
+      <button class="wl-chip" data-wl="packs" title="חבילות קלפים">${icon('pack')}<span class="wl-chipn"></span></button>
       <img class="wl-logo" src="${BABA_DA_LOGO}" alt="בבא דע">
     </header>
     <main class="wl-main"></main>
@@ -1463,12 +1498,12 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
             <span class="wl-mchip ok" style="bottom:2.2em;right:2.4em">טוקן!</span>
             <span class="wl-mchip" style="bottom:3em;left:1.8em">תנשמת?</span>
           </div>
-          <div class="wl-tbody"><h2>חידון</h2><p>10 שאלות על בעלי החיים והצמחים. תשובה נכונה יכולה להביא חבילת קלפים!</p></div>
+          <div class="wl-tbody"><h2>${tileIcon('quiz', 'wl-tic')}חידון</h2><p>10 שאלות על בעלי החיים והצמחים. תשובה נכונה יכולה להביא חבילת קלפים!</p></div>
         </button>
         <button class="wl-tile album paper" data-wl="album">
-          ${S.packs ? `<span class="wl-tnote wl-chip">${IC.pack}<span>${S.packs} לפתיחה</span></span>` : ''}
+          ${S.packs ? `<span class="wl-tnote wl-chip">${icon('pack')}<span>${S.packs} לפתיחה</span></span>` : ''}
           <div class="wl-tart"><div class="wl-fan">${fan.map((c) => cardHTML(c)).join('')}</div></div>
-          <div class="wl-tbody"><h2>אלבום הקלפים</h2><p>אספתם <b>${have}</b> מתוך <b>${total}</b> קלפים</p>
+          <div class="wl-tbody"><h2>${tileIcon('album', 'wl-tic')}אלבום הקלפים</h2><p>אספתם <b>${have}</b> מתוך <b>${total}</b> קלפים</p>
             <div class="wl-meter"><i style="width:${Math.round((have / total) * 100)}%"></i></div></div>
         </button>
       </div>
@@ -1476,23 +1511,23 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
       <div class="wl-tiles wl-games">
         <button class="wl-tile game paper" data-wl="game" data-g="webpuzzle">
           <div class="wl-tart wl-gart">${['amazon:brazilnut', 'amazon:agouti'].map((id) => CARD.get(id)).filter(Boolean).map((c) => cardHTML(c)).join('<span class="wl-gthread"></span>')}</div>
-          <div class="wl-tbody"><h2>חוט הקשר</h2><p>חידות רשת: מי מאביק, מי מפיץ זרעים, מי אוכל את מי? השלימו את הרשת וקבלו קלפים.</p></div>
+          <div class="wl-tbody"><h2>${tileIcon('thread', 'wl-tic')}חוט הקשר</h2><p>חידות רשת: מי מאביק, מי מפיץ זרעים, מי אוכל את מי? השלימו את הרשת וקבלו קלפים.</p></div>
         </button>
         <button class="wl-tile game paper" data-wl="game" data-g="keepforest">
           <div class="wl-tart wl-gart">${['grove:oak', 'grove:jay', 'tool:watergen'].map((id) => CARD.get(id)).filter(Boolean).map((c) => cardHTML(c)).join('')}</div>
-          <div class="wl-tbody"><h2>מחזיקים את היער</h2><p>בונים יער מהקלפים שלכם ושומרים עליו מבצורת, משריפה ומכריתה.</p></div>
+          <div class="wl-tbody"><h2>${tileIcon('keep', 'wl-tic')}מחזיקים את היער</h2><p>בונים יער מהקלפים שלכם ושומרים עליו מבצורת, משריפה ומכריתה.</p></div>
         </button>
         <button class="wl-tile game paper" data-wl="game" data-g="inventors">
           <div class="wl-tart wl-gart">${['reef:reefshark', 'grove:owl', 'amazon:hummingbird'].map((id) => CARD.get(id)).filter(Boolean).map((c) => cardHTML(c)).join('')}</div>
-          <div class="wl-tbody"><h2>הממציאים</h2><p>פותרים בעיות אמיתיות בעזרת היצורים שלכם, ובונים רובוטים מצחיקים. מותר לטעות!</p></div>
+          <div class="wl-tbody"><h2>${tileIcon('invent', 'wl-tic')}הממציאים</h2><p>פותרים בעיות אמיתיות בעזרת היצורים שלכם, ובונים רובוטים מצחיקים. מותר לטעות!</p></div>
         </button>
         <button class="wl-tile game paper" data-wl="game" data-g="expedition">
           <div class="wl-tart wl-gart">${['reef:octopus', 'reef:turtle', 'tool:rov'].map((id) => CARD.get(id)).filter(Boolean).map((c) => cardHTML(c)).join('')}</div>
-          <div class="wl-tbody"><h2>משלחת לעומק</h2><p>צוות של ארבעה קלפים צולל לשונית. בכל אתגר בוחרים מי מתמודד, ומחליטים: לרדת עוד או לחזור עם הדגימות.</p></div>
+          <div class="wl-tbody"><h2>${tileIcon('dive', 'wl-tic')}משלחת לעומק</h2><p>צוות של ארבעה קלפים צולל לשונית. בכל אתגר בוחרים מי מתמודד, ומחליטים: לרדת עוד או לחזור עם הדגימות.</p></div>
         </button>
       </div>
       <button class="wl-badgetile paper" data-wl="badges"><span class="wl-bt-row">${BADGES.filter((b) => ownedBadges()[b.id]).slice(-4).map((b) => badgeHTML(b)).join('') || BADGES.slice(0, 3).map((b) => badgeHTML(b, { own: false })).join('')}</span>
-        <span class="wl-bt-text"><b>התגים שלי</b><small>אספתם ${Object.keys(ownedBadges()).filter((id) => BADGES.some((b) => b.id === id)).length} מתוך ${BADGES.length} תגים. תגים מקבלים במשימות מומחים, במשחקים ובמעבדה.</small></span></button>
+        <span class="wl-bt-text"><b>${tileIcon('medal', 'wl-tic')}התגים שלי</b><small>אספתם ${Object.keys(ownedBadges()).filter((id) => BADGES.some((b) => b.id === id)).length} מתוך ${BADGES.length} תגים. תגים מקבלים במשימות מומחים, במשחקים ובמעבדה.</small></span></button>
       </section>`;
   }
 
@@ -1500,11 +1535,11 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   function renderBadges() {
     const own = ownedBadges(), cur = chosenFrame(), open = new Set(openFrames().map((f) => f.id));
     main.innerHTML = `<section class="wl-screen wl-badges">
-      <div class="wl-bhead paper"><b>התגים שלי</b><span>אספתם ${BADGES.filter((b) => own[b.id]).length} מתוך ${BADGES.length}</span></div>
+      <div class="wl-bhead paper"><b>${tileIcon('medal', 'wl-tic')}התגים שלי</b><span>אספתם ${BADGES.filter((b) => own[b.id]).length} מתוך ${BADGES.length}</span></div>
       ${BADGE_GROUPS.map((g) => { const list = BADGES.filter((b) => b.group === g.id); const have = list.filter((b) => own[b.id]).length;
-        return `<section class="wl-bgroup" style="--bg1:${g.col};--bg2:${g.col2}"><h3><span>${esc(g.name)}</span><small>${have} מתוך ${list.length}</small></h3>
+        return `<section class="wl-bgroup" style="--bg1:${g.col};--bg2:${g.col2}"><h3><span>${tileIcon(BGROUP_IC[g.id] || 'medal', 'wl-tic')}${esc(g.name)}</span><small>${have} מתוך ${list.length}</small></h3>
           <div class="wl-bgrid">${list.map((b) => badgeHTML(b, { own: !!own[b.id], how: true })).join('')}</div></section>`; }).join('')}
-      <section class="wl-frames paper"><h3>מסגרות לקלפים באלבום</h3><p>כל קבוצת תגים פותחת מסגרת. בחרו מסגרת, והיא תופיע על כל הקלפים שלכם באלבום.</p>
+      <section class="wl-frames paper"><h3>${icon('frame')}מסגרות לקלפים באלבום</h3><p>כל קבוצת תגים פותחת מסגרת. בחרו מסגרת, והיא תופיע על כל הקלפים שלכם באלבום.</p>
         <div class="wl-frow">${FRAMES.map((f) => { const g = BADGE_GROUPS.find((x) => x.id === f.group);
           return `<button class="wl-frame fr-${f.id}${cur === f.id ? ' sel' : ''}" data-wl="frame" data-f="${f.id}" ${open.has(f.id) ? '' : 'disabled'}><span class="wl-fsw"></span><b>${esc(f.name)}</b><small>${open.has(f.id) ? (cur === f.id ? 'נבחרה' : 'אפשר לבחור') : f.group === 'all' ? `נפתחת עם ${f.need} תגים` : `נפתחת עם ${f.need} תגים של ${esc(g ? g.short : '')}`}</small></button>`; }).join('')}</div></section>
     </section>`;
@@ -1641,9 +1676,9 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
       ${gotSrc ? `<span class="wl-gotpack src">${IC_SCROLL} קלף מקור חדש באלבום: ${esc(gotSrc.title)}</span>` : ''}
       ${Q.packs ? `<span class="wl-gotpack">${IC.pack} הרווחתם ${Q.packs === 1 ? 'חבילת קלפים אחת' : Q.packs + ' חבילות קלפים'}</span>` : '<p>בפעם הבאה אולי תרוויחו חבילת קלפים!</p>'}
       <div class="wl-row">
-        <button class="wl-btn go" data-wl="again">שחקו שוב</button>
-        ${S.packs ? `<button class="wl-btn gold" data-wl="pack">${IC.pack} פתחו חבילה</button>` : `<button class="wl-btn" data-wl="album">${IC.cards} לאלבום</button>`}
-        <button class="wl-btn" data-wl="home">למרכז הלמידה</button>
+        <button class="wl-btn go" data-wl="again">${icon('again')}שחקו שוב</button>
+        ${S.packs ? `<button class="wl-btn gold" data-wl="pack">${icon('pack')} פתחו חבילה</button>` : `<button class="wl-btn" data-wl="album">${icon('album')} לאלבום</button>`}
+        <button class="wl-btn" data-wl="home">${icon('learn')}למרכז הלמידה</button>
       </div></div></section>`;
     sfx(stars === 3 ? 'mission' : 'discover');
     if (stars === 3) later(() => confetti($('.wl-stars'), 30), 600);
@@ -1662,7 +1697,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
         <span class="wl-seti">${st.ic}</span><span class="wl-setb"><b>${esc(st.name)}</b><span class="wl-setd">${setDots(st)}<span class="wl-setn">${p.done ? IC.check : `${p.have}/${p.n}`}</span></span></span></button>`;
     }).join('');
     return `<div class="wl-setlayer"${setsOpen ? '' : ' hidden'}><div class="wl-setveil" data-wl="setsclose"></div>
-      <div class="wl-sets paper" role="dialog" aria-label="סדרות"><div class="wl-setsh"><b>סדרות</b><small>${IC.pack}<span>אספו סדרה שלמה – וקבלו חבילת קלפים במתנה</span></small><span class="wl-sp"></span><span class="wl-setsn">שלמות: <b>${done}</b> מתוך <b>${sets.length}</b></span><button class="wl-btn" data-wl="setsclose">סגירה</button></div>
+      <div class="wl-sets paper" role="dialog" aria-label="סדרות"><div class="wl-setsh"><b>סדרות</b><small>${IC.pack}<span>אספו סדרה שלמה – וקבלו חבילת קלפים במתנה</span></small><span class="wl-sp"></span><span class="wl-setsn">שלמות: <b>${done}</b> מתוך <b>${sets.length}</b></span><button class="wl-btn" data-wl="setsclose">${icon('close')}סגירה</button></div>
       <div class="wl-setrow">${chips}</div></div></div>`;
   }
   function showSets(on) {
@@ -1677,7 +1712,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
       <div class="wl-sett"><b>${esc(st.name)}</b><span class="wl-setw">${SET_WHERE[st.where]}</span><p>${esc(st.sub)}</p></div>
       <span class="wl-setp"><b>${p.have}</b> מתוך <b>${p.n}</b></span>
       <span class="wl-setr">${IC.pack}<span>${p.done ? 'הסדרה שלמה – קיבלתם חבילה!' : `עוד ${miss === 1 ? 'קלף אחד' : miss + ' קלפים'} – וחבילה במתנה`}</span></span>
-      <button class="wl-btn" data-wl="filter" data-v="all">כל הקלפים</button></div>`;
+      <button class="wl-btn" data-wl="filter" data-v="all">${icon('album')}כל הקלפים</button></div>`;
   }
   // a heading row inside the card grid (the "הכול" page shows the album part by part)
   const ALBUM_PARTS = [['amazon', 'אמזונס', '#2f7a5a'], ['grove', 'חורש', '#9a7a2e'], ['reef', 'שונית', '#1f8ab0'], ['tech', 'טכנולוגיה', '#2c5f8f']];
@@ -1702,18 +1737,19 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
       body = ALBUM_PARTS.map(([v, t, col]) => { const l = CARDS.filter((c) => inPart(c, v)); return secHTML(t, l.filter((c) => S.owned[c.id]).length, l.length, col) + cards(l); }).join('');
       if (srcOn()) body += secHTML('מן המקורות', srcHave, SOURCE_CARDS.length, '#b8892e', 'סיפורים ופסוקים על הבריאה') + srcCards();
     } else body = cards(CARDS.filter((c) => inPart(c, filter)));
-    const tab = (v, t) => `<button class="wl-tab${filter === v ? ' sel' : ''}" data-wl="filter" data-v="${v}" aria-pressed="${filter === v}">${t}</button>`;
+    const TAB_IC = { all: 'zones', amazon: 'amazon', grove: 'grove', reef: 'reef', tech: 'robot', src: 'scroll' };
+    const tab = (v, t) => `<button class="wl-tab${filter === v ? ' sel' : ''}" data-wl="filter" data-v="${v}" aria-pressed="${filter === v}">${icon(TAB_IC[v])}${t}</button>`;
     const sets = activeSets(), setsDone = sets.filter((st) => setProg(st).done).length;
     const late = S.packs && !opensLeft();
     main.innerHTML = `<section class="wl-screen wl-album">
       <div class="wl-abar paper">
         <div class="wl-count" title="אספתם ${have} מתוך ${total} קלפים"><b><span class="wl-cw">אספתם </span>${have} <span class="wl-cof">מתוך</span> ${total}</b><div class="wl-meter"><i style="width:${Math.round((have / total) * 100)}%"></i></div></div>
         <div class="wl-tabs">${tab('all', 'הכול')}${tab('amazon', 'אמזונס')}${tab('grove', 'חורש')}${tab('reef', 'שונית')}${tab('tech', 'טכנולוגיה')}${srcOn() ? tab('src', 'מן המקורות') : ''}</div>
-        <button class="wl-btn wl-setsbtn${curSet ? ' on' : ''}" data-wl="setsopen" aria-expanded="${setsOpen}" title="סדרות: אספו סדרה שלמה וקבלו חבילת קלפים במתנה">${IC.cards}<span class="wl-bl">סדרות</span><span class="wl-setsc">${setsDone}/${sets.length}</span></button>
-        <button class="wl-btn wl-legbtn" data-wl="legend" title="מה רואים על הקלף?" aria-label="מה רואים על הקלף?">${IC.quest}<span class="wl-bl">מה רואים על הקלף?</span></button>
+        <button class="wl-btn wl-setsbtn${curSet ? ' on' : ''}" data-wl="setsopen" aria-expanded="${setsOpen}" title="סדרות: אספו סדרה שלמה וקבלו חבילת קלפים במתנה">${icon('sets')}<span class="wl-bl">סדרות</span><span class="wl-setsc">${setsDone}/${sets.length}</span></button>
+        <button class="wl-btn wl-legbtn" data-wl="legend" title="מה רואים על הקלף?" aria-label="מה רואים על הקלף?">${icon('help')}<span class="wl-bl">מה רואים על הקלף?</span></button>
         <span class="wl-sp"></span>
-        <button class="wl-btn gold wl-packbtn" data-wl="pack" ${S.packs ? '' : 'disabled'} title="${late ? 'היום כבר פתחתם ' + OPEN_PER_DAY + ' חבילות. מחר אפשר לפתוח עוד' : 'פתחו חבילה. אפשר לפתוח עד ' + OPEN_PER_DAY + ' חבילות ביום'}" aria-label="${late ? 'עוד חבילות מחר' : 'פתחו חבילה'}">${IC.pack}<span class="wl-bl">${late ? 'עוד חבילות מחר' : 'פתחו חבילה'}</span>${S.packs ? `<span class="wl-badgeN">${S.packs}</span>` : ''}</button>
-        <button class="wl-btn go wl-duelbtn" data-wl="duel" ${have >= 3 ? '' : 'disabled'} title="${have >= 3 ? 'מי חזק ברשת?' : 'צריך לפחות 3 קלפים'}" aria-label="מי חזק ברשת?">${IC.versus}<span class="wl-dlab">מי חזק ברשת?</span></button>
+        <button class="wl-btn gold wl-packbtn" data-wl="pack" ${S.packs ? '' : 'disabled'} title="${late ? 'היום כבר פתחתם ' + OPEN_PER_DAY + ' חבילות. מחר אפשר לפתוח עוד' : 'פתחו חבילה. אפשר לפתוח עד ' + OPEN_PER_DAY + ' חבילות ביום'}" aria-label="${late ? 'עוד חבילות מחר' : 'פתחו חבילה'}">${icon('pack')}<span class="wl-bl">${late ? 'עוד חבילות מחר' : 'פתחו חבילה'}</span>${S.packs ? `<span class="wl-badgeN">${S.packs}</span>` : ''}</button>
+        <button class="wl-btn go wl-duelbtn" data-wl="duel" ${have >= 3 ? '' : 'disabled'} title="${have >= 3 ? 'מי חזק ברשת?' : 'צריך לפחות 3 קלפים'}" aria-label="מי חזק ברשת?">${icon('strong')}<span class="wl-dlab">מי חזק ברשת?</span></button>
       </div>
       <div class="wl-abody">
         ${curSet ? setInfoHTML(curSet) : ''}
@@ -1746,7 +1782,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
         ${c.story ? `<div class="wl-sstory">${paras(c.story)}</div>` : ''}
         ${c.quote ? `<div class="wl-src"><p class="t">${esc(c.quote)}</p><small>${esc(c.ref)}</small></div>` : `<div class="wl-src"><small>${esc(c.ref)}</small></div>`}
         ${c.lesson ? `<p class="wl-slesson">${esc(c.lesson)}</p>` : ''}
-        <button class="wl-btn" data-wl="close">סגירה</button></div>`;
+        <button class="wl-btn" data-wl="close">${icon('close')}סגירה</button></div>`;
     modal.hidden = false;
   }
   function zoom(id) {
@@ -1761,7 +1797,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
         ${TORAH && sourcesOn() && SHIRA[id] ? `<div class="wl-src shira"><small>בפרק שירה</small><p class="t"><b>${esc(SHIRA[id].who)}:</b> ${esc(SHIRA[id].text)}</p><small>${esc(SHIRA[id].ref)}</small>${SHIRA[id].note ? `<p class="n">${esc(SHIRA[id].note)}</p>` : ''}</div>` : ''}
         <div class="wl-mstats">${(c.sk || KEYS_LAND).map((k) => `<span class="s-${k}">${STAT_ICON[k]} <b>${STAT_NAMES[k]}</b> – ${STAT_HELP[k]} ${pips(c.stats[k])}</span>`).join('')}</div>
         ${setsOf(id).length ? `<div class="wl-msets"><small>בסדרה:</small>${setsOf(id).map((st) => { const p = setProg(st); return `<button class="wl-mset${p.done ? ' done' : ''}" data-wl="set" data-v="${st.id}" style="--sc:${st.col}">${st.ic}<span>${esc(st.name)}</span><b>${p.done ? IC.check : p.have + '/' + p.n}</b></button>`; }).join('')}</div>` : ''}
-        <button class="wl-btn" data-wl="close">סגירה</button></div>`;
+        <button class="wl-btn" data-wl="close">${icon('close')}סגירה</button></div>`;
     modal.hidden = false;
   }
   // what a rare / very rare card can do in "מחזיקים את היער" (agreeing with the species)
@@ -1793,7 +1829,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     modal.innerHTML = `<div class="wl-lgcard">${cardHTML(c)}${items.map(([k], i) => (nums[i] ? `<span class="wl-lgpin" data-k="${k}">${nums[i]}</span>` : '')).join('')}</div>
       <div class="wl-mtext wl-legend paper"><h3>מה רואים על הקלף?</h3>
         <ol>${items.map(([k, t, x], i) => `<li data-k="${k}"${nums[i] ? '' : ' class="wl-lgx"'}><span class="wl-lgn">${nums[i] || IC_KEY}</span><div><b>${t}</b><p>${x}</p></div></li>`).join('')}</ol>
-        <button class="wl-btn go" data-wl="close">הבנתי</button></div>`;
+        <button class="wl-btn go" data-wl="close">${icon('check')}הבנתי</button></div>`;
     modal.hidden = false;
     // pin each number next to its part of the card (offsets ignore the pop-in scale animation)
     const box = modal.querySelector('.wl-lgcard'), card = box.querySelector('.wl-card');
@@ -1840,7 +1876,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
       main.innerHTML = `<section class="wl-screen wl-packs"><div><h2 class="wl-ptitle">החבילות מחכות למחר</h2>
         <p class="wl-psub">היום כבר פתחתם ${OPEN_PER_DAY} חבילות. ${S.packs === 1 ? 'החבילה שלכם שמורה' : `${S.packs} החבילות שלכם שמורות`}, ומחר תוכלו לפתוח עוד ${OPEN_PER_DAY}.</p></div>
         <div class="wl-stage v2"><div class="wl-rays"></div><span class="wl-pk-wait">${IC.pack}</span></div>
-        <div class="wl-row"><button class="wl-btn go" data-wl="album">${IC.cards} לאלבום</button><button class="wl-btn" data-wl="duel">${IC.versus} מי חזק ברשת?</button></div></section>`;
+        <div class="wl-row"><button class="wl-btn go" data-wl="album">${icon('album')} לאלבום</button><button class="wl-btn" data-wl="duel">${icon('strong')} מי חזק ברשת?</button></div></section>`;
       return;
     }
     main.innerHTML = `<section class="wl-screen wl-packs">
@@ -1940,8 +1976,8 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     $('.wl-ptitle').textContent = nNew ? (nNew === 1 ? 'קלף חדש באלבום!' : `${nNew} קלפים חדשים באלבום!`) : 'הקלפים כבר באלבום – עכשיו יש לכם עוד עותק';
     $('.wl-psub').textContent = `אספתם ${collection().have} מתוך ${collection().total}` + (sets.length ? ` · השלמתם סדרה: ${sets.map((st) => st.name).join(', ')} – חבילה במתנה!` : '');
     const after = $('.wl-pafter'); after.style.visibility = 'visible';
-    after.innerHTML = `${S.packs && opensLeft() ? `<button class="wl-btn gold" data-wl="pack">${IC.pack} עוד חבילה <span class="wl-badgeN">${S.packs}</span></button>` : S.packs ? `<span class="wl-dhint">${IC.pack} עוד חבילות מחכות למחר</span>` : ''}
-      <button class="wl-btn go" data-wl="album">${IC.cards} לאלבום</button>`;
+    after.innerHTML = `${S.packs && opensLeft() ? `<button class="wl-btn gold" data-wl="pack">${icon('pack')} עוד חבילה <span class="wl-badgeN">${S.packs}</span></button>` : S.packs ? `<span class="wl-dhint">${IC.pack} עוד חבילות מחכות למחר</span>` : ''}
+      <button class="wl-btn go" data-wl="album">${icon('album')} לאלבום</button>`;
   }
 
   /* ── duel: מי חזק ברשת? */
@@ -2040,7 +2076,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
       <h2>${win ? 'ניצחתם!' : tie ? 'תיקו!' : 'הפעם המחשב ניצח'}</h2>
       <p>אתם <b>${D.me}</b> · המחשב <b>${D.him}</b></p>
       ${win ? (gotPack ? `<span class="wl-gotpack">${IC.pack} קיבלתם חבילת קלפים!</span>` : '<p>היום כבר קיבלתם את כל חבילות הקלפים מהמשחק הזה. מחר יהיו עוד!<br>אפשר להמשיך לשחק בשביל הכיף, או להרוויח חבילות בחידון.</p>') : '<p>נסו שוב – כל קלף חזק במשהו אחר.</p>'}
-      <div class="wl-row"><button class="wl-btn go" data-wl="duel">שחקו שוב</button><button class="wl-btn" data-wl="album">${IC.cards} לאלבום</button></div>
+      <div class="wl-row"><button class="wl-btn go" data-wl="duel">${icon('again')}שחקו שוב</button><button class="wl-btn" data-wl="album">${icon('album')} לאלבום</button></div>
     </div></section>`;
     sfx(win ? 'mission' : 'click');
     if (win) later(() => confetti($('.wl-stars'), 30), 500);
