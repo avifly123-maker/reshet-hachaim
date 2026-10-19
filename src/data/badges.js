@@ -66,6 +66,13 @@ export const BADGES = [
   { id: 'b_q20', group: 'lab', art: 'kinkajou', name: 'חוקר סקרן', how: 'עשרים שאלות חקר קיבלו תשובה', earn: 'lab:q20' },
   { id: 'b_qall', group: 'lab', art: 'mushroom', name: 'כל השאלות', how: 'כל שאלות החקר באטלס קיבלו תשובה', earn: 'lab:qall' },
   { id: 'b_qopen', group: 'lab', art: 'coati', name: 'שאלה פתוחה', how: 'חוקרים שאלה שגם המדענים עוד לא פתרו', earn: 'lab:open' },
+  // open inventions and the robot workshop's missions (1.3.1)
+  { id: 'b_invcreative', group: 'lab', art: 'liana', name: 'רעיון יצירתי', how: 'פותרים בעיה ב"הממציאים" בדרך אחרת, שגם היא עובדת באמת', earn: 'inv:creative' },
+  { id: 'b_invcreative5', group: 'lab', art: 'seaanemone', name: 'חושבים אחרת', how: 'חמישה רעיונות יצירתיים שעובדים ב"הממציאים"', earn: 'inv:creative5' },
+  { id: 'b_robot1', group: 'lab', art: 'surgeonfish', name: 'משימה ראשונה', how: 'רובוט שעובר את כל הבדיקות של משימה בסדנת הרובוטים', earn: 'inv:robot' },
+  { id: 'b_robotall', group: 'lab', art: 'hyrax', name: 'צוות הרובוטים', how: 'רובוט מוצלח לכל שש המשימות בסדנת הרובוטים', earn: 'inv:robotall' },
+  { id: 'b_robotlean', group: 'lab', art: 'tapir', name: 'פשוט וחכם', how: 'משימה עם הצטיינות בכל הבדיקות, ורק שתי תכונות לרובוט', earn: 'inv:lean' },
+  { id: 'b_robotround', group: 'lab', art: 'capybara', name: 'רובוט לכל דבר', how: 'במבחן הגדול: רובוט שעובר בהצטיינות שבע בדיקות או יותר', earn: 'inv:allround' },
   // ── משלחת לעומק (src/learn/games/expedition.js)
   { id: 'b_deep1', group: 'deep', art: 'clownfish', name: 'צוללן מתחיל', how: 'חוזרים בשלום ממשלחת ראשונה', earn: 'deep:first' },
   { id: 'b_deepcave', group: 'deep', art: 'moray', name: 'אל המערה', how: 'מגיעים עם הצוות עד המערה', earn: 'deep:cave' },

@@ -9,11 +9,11 @@
 //   thinking activity has its beginners' version; SAY keeps its keys and its {m|f|mp|fp} tokens have four forms
 import fs from 'node:fs';
 import { ROOM_K, TALK_K, FACTS_K, JOKES_K, ATLAS_K, SCOPE_K, SAMPLES_K, THINK_K, QUEST_K, QUEST_UI_K } from '../src/lab/kids-text.js';
-import { PROBLEMS_K, TRAIT_K, THEMES_K, WILD_K, SAY_K, TRIALS_K, INV_UI_K, NAMES_K } from '../src/data/inventions-kids.js';
+import { PROBLEMS_K, TRAIT_K, THEMES_K, WILD_K, SAY_K, TRIALS_K, INV_UI_K, NAMES_K, MISSIONS_K, ROBOT_SAY_K } from '../src/data/inventions-kids.js';
 import * as STATION from '../src/lab/station-text.js';   // the station worlds (19.10): every text a pair { f, k }
 import { SAMPLES } from '../src/lab/samples.js';
 import { QUESTIONS } from '../src/data/lab-questions.js';
-import { PROBLEMS, TRAIT, THEMES, WILD, SAY, TRIALS } from '../src/data/inventions.js';
+import { PROBLEMS, TRAIT, THEMES, WILD, SAY, TRIALS, MISSIONS, ROBOT_SAY } from '../src/data/inventions.js';
 import { BIOME as AMAZON } from '../src/data/amazon.js';
 import { BIOME as GROVE } from '../src/data/grove.js';
 import { BIOME as REEF } from '../src/data/reef.js';
@@ -99,7 +99,20 @@ for (const id of Object.keys(PROBLEMS_K)) if (!PROBLEMS.some((p) => p.id === id)
 for (const t of Object.keys(TRAIT)) if (!TRAIT_K[t]) err('TRAIT_K', `no beginners' name for trait ${t}`);
 for (const t of THEMES) if (!THEMES_K[t.id]) err('THEMES_K', `no beginners' name for theme ${t.id}`);
 if (WILD_K.length !== WILD.length) err('WILD_K', `${WILD_K.length} funny pairs, WILD has ${WILD.length}`);
-for (const t of TRIALS) { const k = TRIALS_K[t.id]; if (!k) { err('TRIALS_K', `no trial ${t.id}`); continue; } for (const f of Object.keys(t.fun)) if (!k.fun[f]) err('TRIALS_K.' + t.id, `no fun.${f}`); }
+for (const t of TRIALS) { const k = TRIALS_K[t.id]; if (!k) { err('TRIALS_K', `no trial ${t.id}`); continue; } for (const f of Object.keys(t.fun)) if (!k.fun[f]) err('TRIALS_K.' + t.id, `no fun.${f}`);
+  for (const f of ['title', 'need']) if (!k[f]) err('TRIALS_K.' + t.id, `no ${f}`);
+  if (t.load && !k.load) err('TRIALS_K.' + t.id, 'no load (why the weight or the size hurt)'); }
+for (const id of Object.keys(TRIALS_K)) if (!TRIALS.some((t) => t.id === id)) err('TRIALS_K', `unknown test ${id}`);
+// open inventions (1.3.1): the beginners' problems say what they need (want) and why each creative route works
+for (const p of kidsProblems) {
+  const k = PROBLEMS_K[p.id]; if (!k) continue;
+  if (p.want && !k.want) err('PROBLEMS_K.' + p.id, 'no want (the gentle hint)');
+  if ((k.alt || []).length !== (p.alt || []).length) err('PROBLEMS_K.' + p.id, `${(k.alt || []).length} creative routes, the problem has ${(p.alt || []).length}`);
+  (p.alt || []).forEach((a, i) => { const ka = (k.alt || [])[i] || {}; if (!ka.why) err(`PROBLEMS_K.${p.id}.alt[${i}]`, 'no why'); if (a.fact && !ka.fact) err(`PROBLEMS_K.${p.id}.alt[${i}]`, 'no fact'); });
+}
+walk('MISSIONS_K', MISSIONS_K); walk('ROBOT_SAY_K', ROBOT_SAY_K);
+for (const m of MISSIONS) { const k = MISSIONS_K[m.id]; if (!k || !k.title || !k.ask) err('MISSIONS_K', `no beginners' title and ask for mission ${m.id}`); }
+for (const key of Object.keys(ROBOT_SAY)) if (!ROBOT_SAY_K[key]) err('ROBOT_SAY_K', `no ${key}`);
 for (const key of Object.keys(SAY)) if (!SAY_K[key] || !SAY_K[key].length) err('SAY_K', `no lines for ${key}`);
 for (const [key, lines] of Object.entries(SAY_K)) for (const [i, l] of lines.entries()) for (const g of l.match(/\{[^{}]*\|[^{}]*\}/g) || []) if (g.split('|').length !== 4) err(`SAY_K.${key}[${i}]`, `gender token without four forms: ${g}`);
 

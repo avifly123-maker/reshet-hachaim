@@ -25,32 +25,34 @@ export const TRAIT = {
   basking: 'כנפיים שאוספות שמש', lightspread: 'מפזר אור', snap: 'צבת עם בועה', lantern: 'פה עם חמש שיניים',
   germguard: 'חיידקים שומרים', skinchem: 'חומר מיוחד בעור', regrow: 'עור שחוזר וגדל', microskin: 'דוגמה זעירה בעור',
   pace: 'יודעות כמה לשלוח', dance: 'ריקוד שמספר',
+  // 1.3.1 (open inventions): colours from pigment (not structure), slimy skin, stinging arms, sticky tube feet
+  bright: 'צבעים עזים', slime: 'עור חלקלק', sting: 'זרועות צורבות', tubefeet: 'רגליים דביקות',
 };
 
 // species id → traits (the first one is the strongest; the cards show the first three)
 export const TRAITS = {
   // אמזונס
   kapok: ['hollowfiber', 'tall', 'float'], brazilnut: ['tough', 'armor', 'tall'], fig: ['hold', 'coil', 'climb'], cecropia: ['team', 'tall'], acai: ['tall'],
-  heliconia: ['shine', 'bloom'], bromeliad: ['shelter', 'bloom'], orchid: ['shine', 'bloom'], liana: ['coil', 'hold', 'climb'], fern: ['shelter'],
-  glowfungus: ['glow', 'mycel'], waterlily: ['ribs', 'float'], leafcutter: ['germguard', 'team', 'strong'], orchidbee: ['shine', 'fly'], morpho: ['shine', 'fly'],
-  hummingbird: ['hover', 'fast'], dartfrog: ['skinchem', 'shine'], toucan: ['lightstrong', 'foamcore', 'loud'], macaw: ['loud', 'shine'], sloth: ['patient', 'hold'],
+  heliconia: ['bright', 'bloom'], bromeliad: ['shelter', 'bloom'], orchid: ['bright', 'bloom'], liana: ['coil', 'hold', 'climb'], fern: ['shelter'],
+  glowfungus: ['glow', 'mycel'], waterlily: ['ribs', 'float'], leafcutter: ['germguard', 'team', 'strong'], orchidbee: ['shine', 'hover', 'fly'], morpho: ['shine', 'fly'],
+  hummingbird: ['hover', 'fast'], dartfrog: ['skinchem', 'bright'], toucan: ['lightstrong', 'foamcore', 'loud'], macaw: ['loud', 'shine'], sloth: ['patient', 'hold'],
   agouti: ['memory', 'dig'], howler: ['loud', 'climb'], jaguar: ['fast', 'nightsee', 'strong'], harpy: ['strong', 'fast'],
   capybara: ['swim', 'patient', 'walk'], tapir: ['strong', 'swim', 'walk'], fruitbat: ['softwing', 'nightsee', 'fly'], anteater: ['dig', 'strong', 'walk'],
   kinkajou: ['nightsee', 'climb'], coati: ['climb', 'team'],
   // חורש
   oak: ['tall', 'strong'], terebinth: ['tall'], carob: ['tall', 'patient'], pine: ['opens', 'tall'], mastic: ['shelter'], buckthorn: ['shelter'],
-  sage: ['bloom'], rockrose: ['bloom', 'sun'], cyclamen: ['bloom'], anemone: ['bloom', 'shine'], mushroom: ['mycel', 'shelter'],
+  sage: ['bloom'], rockrose: ['bloom', 'sun'], cyclamen: ['bloom'], anemone: ['bloom', 'bright'], mushroom: ['mycel', 'shelter'],
   honeybee: ['hexa', 'dance', 'team'], butterfly: ['basking', 'shine', 'fly'], harvesterant: ['pace', 'team', 'memory'], firefly: ['glow', 'fly'],
   jay: ['memory', 'fly'], blackbird: ['loud', 'fly'], chameleon: ['colorshift', 'wrap', 'grip', 'hide'], agama: ['tail', 'sun', 'fast'],
   spinymouse: ['regrow', 'spines', 'fast'], porcupine: ['foamcore', 'spines', 'armor'], hedgehog: ['cushion', 'spines', 'armor'], hyrax: ['suction', 'sun', 'climb', 'walk'],
   gazelle: ['fast', 'walk'], fox: ['nightsee', 'fast'], owl: ['quiet', 'nightsee'], hoopoe: ['germguard', 'dig', 'fly'], tortoise: ['dome', 'armor', 'patient', 'walk'], chukar: ['hide', 'fast'],
   // שונית
-  reefshark: ['slick', 'microskin', 'fast', 'swim'], octopus: ['grip', 'suction', 'colorshift', 'hide'], clownfish: ['antisting', 'swim'], jellyfish: ['pulse', 'float'],
-  stingray: ['wave', 'hide'], turtle: ['paddle', 'armor', 'swim', 'patient'], parrotfish: ['wovenhard', 'strong', 'swim'], cleaner: ['team', 'swim'], moray: ['hide', 'strong'],
-  grouper: ['strong', 'swim'], butterflyfish: ['shine', 'swim'], lionfish: ['spines', 'shine'], urchin: ['lantern', 'spines', 'armor'], goby: ['team', 'hide'],
-  shrimp: ['snap', 'dig', 'team'], starfish: ['grip', 'patient'], hermit: ['armor', 'hide'], surgeonfish: ['fast', 'swim'], seaanemone: ['shelter'],
+  reefshark: ['slick', 'microskin', 'fast', 'swim'], octopus: ['grip', 'suction', 'colorshift', 'hide'], clownfish: ['antisting', 'swim'], jellyfish: ['pulse', 'sting', 'float'],
+  stingray: ['wave', 'hide'], turtle: ['paddle', 'armor', 'swim', 'patient'], parrotfish: ['wovenhard', 'strong', 'swim'], cleaner: ['team', 'swim'], moray: ['slime', 'hide', 'strong'],
+  grouper: ['strong', 'swim'], butterflyfish: ['bright', 'swim'], lionfish: ['spines', 'bright'], urchin: ['lantern', 'tubefeet', 'spines', 'armor'], goby: ['team', 'hide'],
+  shrimp: ['snap', 'dig', 'team'], starfish: ['tubefeet', 'regrow', 'grip', 'patient'], hermit: ['armor', 'hide'], surgeonfish: ['fast', 'swim'], seaanemone: ['sting', 'shelter'],
   sponge: ['filter'], clam: ['lightspread', 'armor', 'filter'], seagrass: ['hold', 'shelter'], branching: ['shelter'], brain: ['ribs', 'shelter'], table: ['shelter'],
-  softcoral: ['shelter'], firecoral: ['shelter'], seafan: ['filter', 'shelter'], algae: ['sun'], plankton: ['float'],
+  softcoral: ['shelter'], firecoral: ['sting', 'shelter'], seafan: ['filter', 'shelter'], algae: ['sun'], plankton: ['float'],
   // technology cards
   rov: ['machine', 'nightsee', 'swim'], uwcam: ['machine', 'nightsee'], camera: ['machine', 'nightsee'], drone: ['machine', 'hover'], seeddrone: ['machine', 'hover'],
   buoy: ['machine', 'float'], sensor: ['machine', 'float'], weather: ['machine'], watergen: ['machine'], listener: ['machine', 'quiet'], rescue: ['machine', 'strong'],
@@ -240,6 +242,112 @@ export const PROBLEMS = [
     real: 'honeybee', fact: 'דבורה שמצאה פרחים טובים חוזרת לכוורת ורוקדת. הריקוד מספר לדבורות האחרות לאן לעוף, וכך יותר דבורות הולכות לפרחים הטובים, בלי שאף אחת מנהלת אותן. חוקרים באמריקה ובאנגליה בנו לפי זה דרך לחלק עבודה בין מחשבים, וחברות גדולות משתמשות בה היום.',
     clue: 'מי חוזר הביתה ורוקד, כדי לספר לחברים איפה יש אוכל?', show: { fail: 'מחשב אחד עבד קשה מאוד, וכל השאר ישנו.', half: 'העבודה התחלקה, אבל לא לפי מה שהיה צריך.' } },
 ];
+// ── open inventions (1.3.1): more than one way to solve a problem. Scoring is by the TRAITS of the cards on the bench
+// (src/data/invent-score.js), never by a card id:
+//   · a route is a set of traits that solves the problem: the problem's own (`key`, or `need` for a combination) or
+//     one of its `alt` routes. An alt route is a different idea that really works (a creative solution): `why` says why
+//     it works, `fact` (optional) is a true fact about it (docs/sources.md, "open inventions"). A route of two traits
+//     may come from two cards or from one card that has both.
+//   · `want` says in plain words what the problem needs, without naming a creature: the gentle first hint, and the
+//     "what is still missing" line of a partial result (an object by trait for a combination).
+//   · `half` (when given here) replaces the problem's half list: traits that became an alt route leave it.
+// tools/check-inventions.mjs runs every card and every pair of cards against every problem.
+const ROUTES = {
+  swim: { want: 'משהו שעוזר לבגד להחליק במים, עם פחות חיכוך.',
+    alt: [{ t: ['slime'], why: 'בגד עם שכבה חלקלקה, כמו העור של המורנה: המים מתחככים בו פחות.', fact: 'חוקרים מצאו שהריר שעל העור של דגים מקטין את החיכוך עם המים.' }] },
+  quiet: { want: 'משהו שעושה פחות רעש, או בולע את הרעש.',
+    alt: [{ t: ['mycel'], why: 'קירות מחומר רך של חוטי פטרייה לאורך המסילה: חומר רך ומלא חורים בולע חלק מהרעש.', fact: 'יש היום לוחות שבולעים רעש, והם עשויים מחוטי פטרייה. תולים אותם על קירות, כדי שיהיה שקט יותר.' }] },
+  hover: { want: 'מישהו שיודע לעמוד במקום אחד באוויר.' },
+  sting: { want: 'משהו שהזרועות הצורבות לא יכולות לעבור דרכו.',
+    alt: [{ t: ['armor', 'swim'], why: 'חליפה דקה שמכסה את כל העור, כמו שריון שאפשר לשחות בו: הזרועות הצורבות לא מגיעות לעור.', fact: 'יש מקומות שבהם שוחים בחליפות דקות וצמודות שמכסות את כל הגוף, כדי להגן מצריבות של מדוזות.' }] },
+  roof: { want: 'מבנה שנותן חוזק גדול עם מעט חומר.', half: ['float', 'lightstrong', 'foamcore'],
+    alt: [{ t: ['hexa'], why: 'גג שבנוי ממשושים, כמו חלת דבש: הוא חזק מאוד ושוקל מעט.', fact: 'בחממות הענק של "פרויקט עדן" באנגליה, הכיפות בנויות ממסגרת קלה של משושים.' },
+      { t: ['dome'], why: 'גג בצורת כיפה, כמו שריון הצב: הכיפה מפזרת את המשקל לכל הצדדים, ולכן היא מחזיקה הרבה.' }] },
+  color: { want: 'משהו שהצבע שלו בא מהצורה של החלקים הזעירים, ולא מצבע.', half: ['bright', 'bloom'],
+    alt: [{ t: ['colorshift'], why: 'בעור שמשנה צבע יש גם תאים זעירים שמחזירים אור בצבעים. גם כך מקבלים צבע מבריק בלי צבע.' }] },
+  grip: { want: 'משהו שתופס חזק, אבל ברכות.', half: ['hold', 'strong', 'tubefeet', 'wrap'],
+    alt: [{ t: ['suction'], why: 'כפות יניקה רכות: הן נצמדות לביצה בלי למעוך אותה, וגם לאבן חלקה.' }] },
+  wing: { want: 'חומר שהוא גם קל מאוד וגם חזק.', half: ['ribs', 'armor', 'tough'],
+    alt: [{ t: ['foamcore'], why: 'קצף קל בתוך צינור קשה, כמו בקוץ של הדורבן: הרבה חוזק ומעט משקל.', fact: 'חוקרים בנו לוחות קלים למטוסים ולמכוניות, לפי הקולמוס של הדורבן.' },
+      { t: ['hexa'], why: 'מבנה של משושים, כמו חלת דבש: חזק מאוד ושוקל מעט. לוחות כאלה נמצאים במטוסים.' }] },
+  panel: { want: 'מבנה חזק שרובו אוויר.', half: ['ribs', 'team', 'tough'],
+    alt: [{ t: ['foamcore'], why: 'לוח עם קצף קל בפנים וקליפה חזקה בחוץ, כמו הקולמוס של הדורבן.', fact: 'לפי הקולמוס של הדורבן בנו חוקרים לוחות קלים, בשביל מטוסים ומכוניות.' },
+      { t: ['lightstrong'], why: 'קליפה דקה וחזקה, ובפנים קצף עם חללים, כמו במקור של הטוקן: חזק וקל.' }] },
+  lamp: { want: 'משהו שעוזר לאור לצאת החוצה, במקום להיתקע בפנים.', half: ['shine', 'bright'],
+    alt: [{ t: ['lightspread'], why: 'שכבה שמפזרת את האור, כמו התאים המנצנצים של צדפת הענק: האור לא נתקע בפנים, ויוצא לכל הכיוונים.' }] },
+  robotswim: { want: 'דרך לזוז במים בלי לבזבז הרבה כוח.', half: ['float', 'patient', 'paddle'],
+    alt: [{ t: ['wave'], why: 'סנפירים רחבים שזזים בגל רך, כמו של חתול הים: תנועה כזאת חוסכת כוח.', fact: 'חברה בגרמניה בנתה רובוט כזה בהשראת המנטה, קרובה של חתול הים. הוא צורך מעט מאוד חשמל.' },
+      { t: ['float', 'patient'], why: 'רובוט שעולה ויורד רק בעזרת שינוי בציפה, וגולש לאט קדימה. כמעט לא צריך מנוע.', fact: 'כך עובדים "רחפני ים" אמיתיים: הם עולים ויורדים, גולשים לאט, ונשארים בים שבועות ואפילו חודשים.' }] },
+  glide: { want: 'תנועה רכה ושקטה במים, בלי מדחף רועש.', half: ['quiet', 'hide', 'slime'],
+    alt: [{ t: ['pulse'], why: 'רובוט רך שזז בפעימות, כמו מדוזה: הוא שקט ועדין, והדגים לא בורחים ממנו.', fact: 'חוקרים בפלורידה בנו מדוזות רובוטיות רכות, כדי לחקור שוניות בלי לפגוע בהן.' }] },
+  cloth: { want: 'משהו שנפתח ונסגר לבד, לפי מה שקורה סביבו.',
+    alt: [{ t: ['coil'], why: 'חוטים שמתלפפים ונפתחים: כשהחוט מתלפף, נפתח רווח לאוויר.', fact: 'כך באמת עובד הבד החכם: הסיבים שלו מתכרבלים כשהם נרטבים מזיעה, ונפתחים רווחים בבד.' }] },
+  camo: { want: 'משהו שמשנה את המראה שלו לפי מה שמסביב.', half: ['hide', 'shine', 'bright'] },
+  lifevest: { want: 'חומר שיש בו הרבה אוויר סגור, שהמים לא נכנסים אליו.', half: ['float'],
+    alt: [{ t: ['foamcore'], why: 'קצף מלא בבועות אוויר קטנות, כמו בתוך הקולמוס של הדורבן: המים לא נכנסים לבועות, והחגורה צפה.', fact: 'רוב חגורות ההצלה היום ממולאות בקצף. לפני כן מילאו אותן בסיבי קפוק.' }] },
+  plasma: { want: 'דרך להיפטר מחיידקים בלי לשפוך חומרים למים.',
+    alt: [{ t: ['filter'], why: 'מסננת דקה מאוד, כמו בספוג: היא עוצרת גם חיידקים זעירים, והמים יוצאים נקיים יותר.', fact: 'הספוג שואב מים דרך חורים זעירים, ותופס ואוכל גם חיידקים קטנטנים.' }] },
+  batbot: { want: 'משהו רך, שלא מזיק כשהוא נתקל במשהו.',
+    alt: [{ t: ['fly', 'cushion'], why: 'רחפן עם ריפוד רך מסביב, כמו הקוצים של הקיפוד: כשהוא נתקל במשהו, הריפוד בולם את המכה.' }] },
+  safedrone: { want: { hover: 'מישהו שעומד במקום אחד באוויר.', softwing: 'משהו רך, שלא שובר ענפים כשהוא נוגע בהם.' },
+    alt: [{ t: ['hover', 'cushion'], why: 'רחפן שעומד במקום, עם ריפוד רך מסביב: גם אם הוא נוגע בענף, הריפוד בולם, ושום דבר לא נשבר.' }] },
+  quill: { want: 'מבנה ארוך וקל, שלא מתכופף.', half: ['hexa', 'ribs', 'spines'],
+    alt: [{ t: ['lightstrong'], why: 'קליפה קשה בחוץ וקצף קל בפנים, כמו במקור של הטוקן: אותו רעיון, וגם הוא עובד.' },
+      { t: ['hollowfiber'], why: 'צינור חלול מתכופף פחות ממוט מלא שיש לו אותו משקל. לכן גם צינור חלול הוא קורה טובה.' }] },
+  nutshell: { want: 'חומר שלא נסדק, גם כשמכים בו.', half: ['armor', 'lightstrong', 'foamcore'],
+    alt: [{ t: ['cushion'], why: 'ריפוד שמתכופף ובולם את המכה, כמו הקוצים של הקיפוד: המכה לא מגיעה לקופסה, והיא לא נסדקת.' }] },
+  helmet: { want: 'משהו שבולם את המכה, ולא מעביר אותה הלאה.', half: ['spines', 'armor'],
+    alt: [{ t: ['foamcore'], why: 'קצף עם הרבה תאים קטנים, כמו בתוך הקולמוס: כשמכים בו, התאים נמעכים ובולמים את המכה.', fact: 'ברוב קסדות האופניים יש שכבה של קצף. בזמן נפילה הקצף נמעך, והראש נעצר לאט יותר.' }] },
+  package: { want: { mycel: 'חומר מהטבע, שנעלם באדמה.', cushion: 'משהו שבולם מכות.' },
+    alt: [{ t: ['mycel', 'foamcore'], why: 'מגדלים את חוטי הפטרייה בצורה של קצף קל, כמו בתוך הקולמוס: הוא בולם מכות, ואחר כך נרקב באדמה.' },
+      { t: ['mycel', 'hollowfiber'], why: 'קופסה מחוטי פטרייה, ובפנים צמר רך של סיבי קפוק: שניהם חומרים מהטבע, והם נרקבים באדמה.' }] },
+  tooth: { want: 'חומר שנשאר חזק וחד, גם אחרי הרבה חיכוך.',
+    alt: [{ t: ['lantern'], why: 'שיניים כמו של קיפוד הים: כשהן נשחקות, הן מתחדדות במקום להתקהות.', fact: 'חוקרים בקליפורניה גילו שהשיניים של קיפוד ים מתחדדות לבד בזמן שהן נשחקות. הם חושבים שאפשר לבנות כך כלי חיתוך.' }] },
+  mycelium: { want: 'חומר מהטבע, שנרקב באדמה.',
+    alt: [{ t: ['hollowfiber'], why: 'למלא את האריזה בצמר של סיבי קפוק: זה חומר מצמח, רך וקל, והוא נרקב באדמה.' }] },
+  tongue: { want: 'משהו שמתאים את עצמו לכל צורה.', half: ['grip', 'hold', 'suction', 'tubefeet'],
+    alt: [{ t: ['coil'], why: 'זרוע רכה שמתלפפת סביב החפץ, כמו קנוקנת: היא נצמדת לכל צורה.' }] },
+  tailbot: { want: 'משהו שעוזר לגוף להישאר ישר באוויר.',
+    alt: [{ t: ['softwing'], why: 'כנפיים כבדות שנפתחות ונסגרות באוויר, כמו של העטלף: כשמזיזים אותן, הגוף מסתובב בחזרה ונשאר ישר.', fact: 'חוקרים גילו שעטלפים מסתובבים באוויר בעזרת התנועה של הכנפיים הכבדות שלהם. הם כתבו שזה יכול לעזור גם לרובוטים מעופפים.' }] },
+  righting: { want: 'צורה או חלק שעוזרים לרובוט להתהפך בחזרה.',
+    alt: [{ t: ['tail'], why: 'זנב חזק שדוחף את הקרקע: הוא מרים צד אחד של הגוף, והרובוט מתגלגל בחזרה.' }] },
+  tendril: { want: 'משהו שנאחז בעמוד בלי ידיים.', half: ['hold', 'climb', 'grip'],
+    alt: [{ t: ['suction'], why: 'כפות יניקה שנצמדות לעמוד, אחת אחרי השנייה: כך אפשר לטפס גם בלי ידיים.' },
+      { t: ['tubefeet'], why: 'הרבה רגליים קטנות ודביקות, כמו של הקוצנון: כל אחת נצמדת ומשתחררת, והרובוט זוחל למעלה.' }] },
+  marsclaw: { want: 'משהו שאוסף מעט, בדיוק מהמקום הנכון.',
+    alt: [{ t: ['dig', 'grip'], why: 'כף חפירה קטנה, ויד עדינה שסוגרת אותה מלמעלה: אוספים מעט אדמה, ושום דבר לא נשפך.' }] },
+  amphibot: { want: { paddle: 'משהו ששוחה טוב במים.', walk: 'משהו שהולך טוב על היבשה.' },
+    alt: [{ t: ['swim', 'walk'], why: 'רובוט ששוחה כמו יצור מים והולך כמו יצור יבשה. הקפיברה, למשל, עושה את שניהם, ועוברת מהמים אל החוף.' }] },
+  handy: { want: { suction: 'משהו שנצמד לדברים רטובים וחלקים.', wrap: 'משהו שעוטף כל צורה.' },
+    alt: [{ t: ['suction', 'grip'], why: 'זרוע אחת שגם נצמדת וגם מתעגלת סביב החפץ, כמו הזרוע של התמנון: היא מרימה גם אבנים רטובות וגם צדפים משונים.' }] },
+  stunt: { want: { tail: 'משהו ששומר על הגוף ישר בקפיצה.', dome: 'משהו שעוזר לקום אחרי נפילה.' },
+    alt: [{ t: ['softwing', 'dome'], why: 'כנפי עור כבדות מייצבות את הגוף באוויר, כמו אצל העטלף, ושריון עגול עוזר לקום אחרי נפילה.' }] },
+  slothbot: { want: { patient: 'משהו שזז לאט וחוסך כוח.', sun: 'משהו שמקבל כוח מהשמש.' },
+    alt: [{ t: ['patient', 'basking'], why: 'רובוט איטי, עם כנפיים שאוספות אור שמש כמו של פרפר: הוא חוסך כוח וגם נטען.' }] },
+  solar: { want: 'משהו שאוסף יותר אור אל הפאנל.', half: ['sun', 'shine'],
+    alt: [{ t: ['lightspread'], why: 'שכבה שמפזרת את האור על כל הפאנל, כמו בצדפת הענק: כל חלק בפאנל מקבל אור, ופחות אור הולך לאיבוד.', fact: 'חוקרים בפנסילבניה לומדים את צדפת הענק, כדי לנצל טוב יותר את אור השמש.' }] },
+  algaefarm: { want: 'משהו שמעביר את האור גם לעומק.', half: ['sun', 'shine', 'filter'],
+    alt: [{ t: ['basking'], why: 'מראות בצורת כנפיים פתוחות, שמחזירות את אור השמש פנימה ולמטה, אל האצות שבעומק.' },
+      { t: ['hollowfiber'], why: 'צינורות חלולים ומבריקים מבפנים, שמובילים את אור השמש למטה, כמו סיב חלול.', fact: 'יש בניינים שמכניסים בהם אור שמש לחדרים פנימיים, דרך צינורות שמבריקים מבפנים.' }] },
+  solarfarm: { want: { basking: 'משהו שאוסף הרבה אור.', lightspread: 'משהו שמפזר את האור למקום שצריך.' },
+    alt: [{ t: ['basking', 'hollowfiber'], why: 'מראות אוספות את האור, וצינורות חלולים ומבריקים מובילים אותו בדיוק למקום שצריך.', fact: 'יש בניינים שמכניסים בהם אור שמש לחדרים פנימיים, דרך צינורות שמבריקים מבפנים.' }] },
+  germfree: { want: 'משטח שחיידקים מתקשים להיאחז בו, או משהו ששומר עליו.',
+    alt: [{ t: ['germguard'], why: 'מנקים עם חיידקים טובים, כמו החיידקים ששומרים על הנמלים: הם תופסים את המקום, ולחיידקים המזיקים נשאר פחות מקום.', fact: 'בכמה בתי חולים באיטליה ניקו משטחים בעזרת חיידקים טובים, ועל המשטחים נמצאו הרבה פחות חיידקים מזיקים.' }] },
+  antifungal: { want: 'יצור שיש לו חומר שעוצר פטריות מזיקות.',
+    alt: [{ t: ['skinchem'], why: 'בעור של צפרדעים יש חומרים שעוצרים חיידקים ופטריות. גם שם אפשר לחפש תרופה.', fact: 'בעור של צפרדע אחת מאפריקה מצאו חומרים שעוצרים פטרייה מזיקה.' },
+      { t: ['mycel'], why: 'גם פטריות מייצרות חומרים נגד פטריות אחרות. אולי שם יש תרופה?', fact: 'תרופה אמיתית נגד פטריות בעור מייצרים מעובש, שהוא סוג של פטרייה.' }] },
+  painkiller: { want: 'יצור שיש לו חומר מיוחד שפועל על הגוף.',
+    alt: [{ t: ['sting'], why: 'החומרים הצורבים של בעלי חיים פועלים על העצבים. לכן חוקרים מחפשים בהם גם תרופות נגד כאב.', fact: 'בשושנת ים, מהסוג שהשושנון גר בה, מצאו חוקרים חומרים שהקטינו כאב בבדיקות.' }] },
+  heal: { want: 'יצור שהגוף שלו יודע לבנות מחדש חלקים שנפגעו.' },
+  bandage: { want: 'משהו שנצמד גם במים, ומשתחרר בקלות.',
+    alt: [{ t: ['tubefeet'], why: 'רגליים קטנות כמו של הקוצנון: הן נדבקות לסלע מתחת למים, ומשתחררות בלי לקרוע כלום.', fact: 'חוקרים לומדים את הרגליים הקטנות של כוכבי ים. הן נדבקות ומשתחררות שוב ושוב, ואולי ילמדו מהן לעשות דבק חדש.' }] },
+  anternet: { want: 'מישהו שיודע לשלוח עוד עובדים, רק כשיש בשבילם עבודה.', half: ['team', 'memory'],
+    alt: [{ t: ['dance'], why: 'כמו הדבורים: מי שחזר עם הצלחה מספר לאחרים, ורק אז יוצאים עוד. כך הרשת לא נעמסת.' }] },
+  beeserver: { want: 'מישהו שמחלק עבודה בלי מנהל, לפי מה שקורה עכשיו.', half: ['team', 'memory'],
+    alt: [{ t: ['pace'], why: 'כמו נמלי הקציר: שולחים עוד עובדים לאן שהעבודה מצליחה, ופחות לאן שהיא לא מצליחה.' }] },
+};
+for (const p of PROBLEMS) { const r = ROUTES[p.id] || {}; p.want = r.want || ''; p.alt = r.alt || []; if (r.half) p.half = r.half; }
+
 export const problemById = (id) => PROBLEMS.find((p) => p.id === id) || null;
 export const problemNeeds = (p) => (p.need ? p.need : [p.key]);
 
@@ -292,18 +400,89 @@ export const SAY = {
   trialWin: ['עבר בהצטיינות!', 'הצליח בקלות!', 'כמו אלוף!'],
   trialHalf: ['עבר, בקושי.', 'הצליח, אבל לאט.', 'כמעט נפל, ובסוף עבר.'],
   trialFail: ['לא הלך...', 'נתקע באמצע.', 'הלך לנוח.'],
+  // open inventions (1.3.1): two good ideas that are not a full solution yet, and a creative route that works
+  good: ['חשיבה טובה! יש כאן שני דברים שעוזרים.', 'כיוון טוב מאוד! עוד צעד קטן, ויש המצאה.'],
+  creative: ['רעיון יצירתי שעובד!', 'לא חשבתי על זה, וזה עובד באמת! רעיון יצירתי.'],
 };
 
-// the free workshop: a robot built from one body and two traits, tested on five trials
+// ── the robot workshop (1.3.1): a goal first, then a body (one card) and 2 to 4 traits from other cards.
+// Every trait adds weight (TRAIT_W, default 1) and the body has its own weight (bodyWeight): a robot with four traits
+// is good at more things, but heavier, and in some tests weight hurts. The body brings its first two traits free.
+// A test (TRIALS) is scored by src/data/invent-score.js robotTest(): a `good` trait is the main help, an `ok` trait helps a
+// little, a `bad` trait hurts; `heavy` says how much weight above 4 hurts here, `busy` how much each trait beyond two
+// hurts (more motors make more noise, more parts make a bigger robot). `need` names what helps (the "what was missing"
+// line of the breakdown), `load` why the weight or the size hurt. Mission ids and test ids are kept in saves.
+export const TRAIT_W = { armor: 2, dome: 2, tough: 2, strong: 2, tall: 2, machine: 2, lightstrong: 0, foamcore: 0, hollowfiber: 0, float: 0 };
+const BODY_KIND_W = { tree: 4, palm: 4, coral: 3, shrub: 2, sessile: 2, colony: 1, swarm: 1, herb: 1, vine: 1, epiphyte: 1, fungus: 1, 'water-plant': 1, seaplant: 1, animal: 2 };
+const BODY_W = { jaguar: 3, tapir: 3, capybara: 3, anteater: 3, gazelle: 3, grouper: 3, turtle: 3, tortoise: 3, reefshark: 3,
+  hummingbird: 1, orchidbee: 1, morpho: 1, dartfrog: 1, honeybee: 1, butterfly: 1, firefly: 1, spinymouse: 1, goby: 1, cleaner: 1, shrimp: 1, clownfish: 1, agama: 1, chameleon: 1, plankton: 1 };
+export function bodyWeight(card) {
+  if (!card) return 0;
+  if (card.type === 'tool') return 3;
+  const id = String(card.id || '').split(':').pop();
+  return BODY_W[id] || BODY_KIND_W[card.skind] || 2;
+}
+export const traitWeight = (t) => (t in TRAIT_W ? TRAIT_W[t] : 1);
+
 export const TRIALS = [
-  { id: 'water', title: 'מרוץ במים', icon: 'drop', good: ['slick', 'fast', 'swim', 'wave', 'pulse', 'paddle'], ok: ['float', 'patient', 'hollowfiber'],
+  { id: 'swim', title: 'שחייה', icon: 'drop', good: ['swim', 'slick', 'slime', 'paddle', 'wave', 'pulse'], ok: ['float', 'fast', 'hollowfiber'], heavy: 2,
+    need: 'משהו ששוחה, או עור חלק במים', load: 'במים, רובוט כבד שוקע ומאט.',
     fun: { fail: 'שקע לקרקעית ושלח בועות.', half: 'שחה, אבל בעיגולים.', win: 'חתך את המים כמו חץ!' } },
-  { id: 'night', title: 'חיפוש בלילה', icon: 'moon', good: ['nightsee', 'glow'], ok: ['quiet', 'memory', 'softwing'],
-    fun: { fail: 'נתקל בעץ ואמר "סליחה".', half: 'מצא, אבל רק את הדרך חזרה.', win: 'מצא הכול בחושך!' } },
-  { id: 'climb', title: 'טיפוס על עץ', icon: 'tree', good: ['climb', 'grip', 'hold', 'coil', 'suction'], ok: ['hover', 'fly', 'patient', 'tail', 'wrap'],
-    fun: { fail: 'החליק למטה כמו במגלשה.', half: 'הגיע לענף הראשון ונח שם.', win: 'הגיע לצמרת!' } },
-  { id: 'carry', title: 'הרמת משא', icon: 'box', good: ['strong', 'team'], ok: ['armor', 'tall', 'wovenhard', 'walk'],
+  { id: 'branch', title: 'אחיזה בענף', icon: 'tree', good: ['grip', 'hold', 'coil', 'wrap'], ok: ['climb', 'suction', 'tubefeet', 'tail'], heavy: 3,
+    need: 'משהו שנאחז בענף או מתלפף סביבו', load: 'ענף דק מתכופף מתחת לרובוט כבד.',
+    fun: { fail: 'החליק למטה כמו במגלשה.', half: 'נתלה על הענף, והענף התכופף.', win: 'נאחז בענף ולא זז!' } },
+  { id: 'sand', title: 'הליכה בחול', icon: 'sand', good: ['walk', 'dig'], ok: ['fast', 'patient', 'strong'], heavy: 2,
+    need: 'משהו שהולך ביבשה או חופר', load: 'בחול, רובוט כבד שוקע עמוק.',
+    fun: { fail: 'שקע בחול ונשאר תקוע.', half: 'הלך, אבל כל צעד לקח רגע.', win: 'עבר את הדיונה בקלות!' } },
+  { id: 'quiet', title: 'שקט בלילה', icon: 'moon', good: ['quiet', 'softwing', 'patient'], ok: ['hide', 'slime'], bad: ['loud', 'machine'], busy: 12,
+    need: 'משהו שזז בשקט', load: 'כל תכונה נוספת היא עוד מנוע, ועוד מנוע עושה עוד רעש.',
+    fun: { fail: 'כולם התעוררו מהרעש.', half: 'כמעט שקט, רק חרק קצת.', win: 'עבר בשקט, ואף אחד לא שמע!' } },
+  { id: 'heat', title: 'חום חזק', icon: 'sun', good: ['sun', 'dig'], ok: ['patient', 'shine', 'dome'], bad: ['basking'],
+    need: 'משהו שאוהב שמש, או מסתתר מתחת לאדמה', load: '',
+    fun: { fail: 'התחמם מדי ונכבה.', half: 'החזיק מעמד, אבל נח בצל.', win: 'עבד גם בצהריים הכי חמים!' } },
+  { id: 'cold', title: 'קור ושלג', icon: 'thermo', good: ['team', 'dig', 'basking'], ok: ['patient', 'shelter', 'armor'],
+    need: 'משהו שאוסף חום מהשמש, מתחבא במחילה, או מתחמם יחד עם אחרים', load: '',
+    fun: { fail: 'קפא במקום, כמו גלידה.', half: 'רעד מקור, אבל המשיך.', win: 'נשאר חם ועבד כל הלילה!' } },
+  { id: 'wall', title: 'טיפוס על קיר', icon: 'wall', good: ['suction', 'tubefeet', 'climb'], ok: ['grip', 'hold', 'tail'], heavy: 3,
+    need: 'משהו שנצמד או מטפס', load: 'על קיר, כל תוספת מושכת את הרובוט למטה.',
+    fun: { fail: 'החליק למטה ונחת על הגב.', half: 'טיפס עד האמצע ונח.', win: 'הגיע עד למעלה!' } },
+  { id: 'carry', title: 'נשיאת משא', icon: 'box', good: ['strong', 'team'], ok: ['walk', 'armor', 'tall', 'wovenhard'],
+    need: 'משהו חזק, או צוות שעובד יחד', load: '',
     fun: { fail: 'הרים את המשא... בדמיון.', half: 'הרים, והלך כמו עצלן.', win: 'הרים בקלות ועוד ביקש עוד!' } },
-  { id: 'hide', title: 'מחבואים גדול', icon: 'eye', good: ['hide', 'colorshift', 'armor', 'spines'], ok: ['patient', 'quiet', 'dig', 'dome', 'cushion'],
-    fun: { fail: 'התחבא מאחורי עלה קטנטן. רואים אותו.', half: 'התחבא טוב, אבל פיהק בקול.', win: 'אף אחד לא מצא אותו!' } },
+  { id: 'gap', title: 'מעבר בסדק צר', icon: 'gap', good: ['hide', 'coil', 'slime'], ok: ['dig', 'patient'], bad: ['armor', 'dome', 'spines', 'tall'], heavy: 1, busy: 15,
+    need: 'משהו קטן שיודע להשתחל ולהסתתר', load: 'כל תכונה נוספת מגדילה את הרובוט, והסדק צר.',
+    fun: { fail: 'נתקע בכניסה לסדק.', half: 'עבר, אבל השאיר שם בורג.', win: 'השתחל פנימה כמו תמנון!' } },
+  { id: 'glide', title: 'גלישה באוויר', icon: 'wind', good: ['fly', 'softwing', 'hover'], ok: ['lightstrong', 'foamcore', 'hollowfiber', 'basking'], heavy: 4,
+    need: 'משהו שעף, או כנף רחבה וקלה', load: 'באוויר, כל תוספת מושכת למטה.',
+    fun: { fail: 'נפל ישר למטה. בום.', half: 'גלש קצת, ונחת מוקדם.', win: 'גלש רחוק ונחת בעדינות!' } },
+  { id: 'dark', title: 'ראייה בחושך', icon: 'eye', good: ['nightsee', 'glow'], ok: ['memory', 'quiet'],
+    need: 'משהו שרואה בחושך או מאיר', load: '',
+    fun: { fail: 'נתקל בעץ ואמר "סליחה".', half: 'מצא, אבל רק את הדרך חזרה.', win: 'מצא הכול בחושך!' } },
+  { id: 'clean', title: 'ניקוי משטח בשונית', icon: 'wave', good: ['lantern', 'wovenhard', 'filter'], ok: ['tubefeet', 'suction', 'team', 'patient'], heavy: 1,
+    need: 'משהו שמגרד אצות או מסנן מים', load: 'רובוט כבד עלול לשבור את האלמוגים.',
+    fun: { fail: 'הסתובב במקום, והאצות נשארו.', half: 'ניקה פינה אחת ונח.', win: 'השונית נקייה ומבריקה!' } },
 ];
+
+// the goals: the child picks one before building; each needs some of the tests (all of them: the big test)
+export const MISSIONS = [
+  { id: 'reef', title: 'לנקות את השונית', ask: 'אצות מכסות את האלמוגים. צריך רובוט שישחה, ינקה בעדינות, ויגיע גם לסדקים.', tests: ['swim', 'clean', 'gap'], art: 'reef:urchin' },
+  { id: 'cave', title: 'לספור עטלפים במערה', ask: 'במערה חשוך ושקט. צריך רובוט שרואה בחושך, לא מעיר אף אחד, ומטפס על הקירות.', tests: ['dark', 'quiet', 'wall'], art: 'amazon:fruitbat' },
+  { id: 'fire', title: 'להציל זרעים מהשריפה', ask: 'אחרי שריפה בחורש, צריך לאסוף זרעים מהאדמה החמה ולהביא אותם למשתלה.', tests: ['heat', 'carry', 'sand'], art: 'grove:oak' },
+  { id: 'nest', title: 'לבדוק קן בצמרת', ask: 'רוצים לדעת אם יש ביצים בקן גבוה, בלי להבהיל את הציפורים.', tests: ['branch', 'quiet', 'glide'], art: 'grove:jay' },
+  { id: 'snow', title: 'משלוח להר המושלג', ask: 'בחורף, תחנת המחקר בהר מכוסה שלג. צריך להביא לשם ציוד, במעלה סלע תלול.', tests: ['cold', 'carry', 'wall'], art: 'grove:hyrax' },
+  { id: 'deep', title: 'מערה מתחת למים', ask: 'בשונית יש מערה חשוכה עם כניסה צרה. מה יש בפנים?', tests: ['swim', 'dark', 'gap'], art: 'reef:moray' },
+  { id: 'all', title: 'המבחן הגדול', ask: 'כל שתים עשרה הבדיקות. אין רובוט שמצליח בכולן. בכמה תצליחו?', tests: TRIALS.map((t) => t.id), art: 'reef:octopus', free: true },
+];
+
+// what רובו־דע says about a test and about a mission
+export const ROBOT_SAY = {
+  helped: 'עזר:', hurt: 'הכביד:', weight: 'משקל {w}.', bad: 'הפריע:', missing: 'חסר:',
+  missionAll: 'המשימה הצליחה בגדול! הרובוט עבר את כל הבדיקות בהצטיינות.',
+  missionWin: 'המשימה הצליחה! עוד שיפור קטן, ואולי זה יהיה מושלם.',
+  missionFail: 'המשימה עוד לא הצליחה. הבדיקה הקשה: {t}.',
+  tipNeed: 'אולי תכונה אחרת? בבדיקה הזאת עוזר {need}.',
+  tipHeavy: 'הרובוט כבד מדי בשביל הבדיקה הזאת. נסו פחות תכונות, או תכונות קלות יותר.',
+  free: 'הרובוט עבר {n} מתוך 12 בדיקות. אין רובוט שעובר את כולן: כל תכונה עוזרת במשהו ומכבידה במשהו אחר.',
+  lean: 'רק שתי תכונות, והמשימה הצליחה! לפעמים פחות זה יותר.',
+};
+
