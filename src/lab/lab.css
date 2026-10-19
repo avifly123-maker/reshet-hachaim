@@ -212,3 +212,39 @@
 /* the microscope inside its frame: the tray scrolls on its own, so the panel's own buttons stay in view */
 #ui.wol .lb-frame .lb-scope .lb-tray { max-height: min(36vh, 330px); }
 #ui.wol .lb-frame .lb-scope .lb-side { max-height: 100%; }
+/* the look-around room (19.10): drag the room itself, two round turning arrows at the sides (the left one turns to
+   the left: a direction in the room, not in the text), a quiet hint about dragging until the child has turned once */
+#ui.wol .lb-drag { position: absolute; inset: 0; z-index: 0; display: none; cursor: grab; touch-action: none; }
+#ui.wol .lb.pano .lb-drag { display: block; }
+#ui.wol .lb.busy .lb-drag { display: none; }
+#ui.wol .lb-drag.grab { cursor: grabbing; }
+#ui.wol .lb-turn { position: absolute; top: 50%; z-index: 2; display: none; place-items: center; width: 56px; height: 56px; margin-top: -28px; padding: 0; border: 0; border-radius: 50%; background: rgba(14, 26, 20, .6); box-shadow: 0 0 0 3px rgba(251, 246, 228, .85), 0 6px 16px rgba(0, 0, 0, .3); cursor: pointer; touch-action: none; transition: transform .15s, background .15s; backdrop-filter: blur(2px); }
+#ui.wol .lb-turn svg { width: 30px; height: 30px; fill: none; stroke: #fbf6e4; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+#ui.wol .lb-turn-l { left: 14px; }
+#ui.wol .lb-turn-r { right: 14px; }
+#ui.wol .lb.pano:not(.at-st):not(.busy) .lb-turn { display: grid; }
+#ui.wol .lb-turn:hover { background: rgba(14, 26, 20, .82); transform: scale(1.06); }
+#ui.wol .lb-turn:active { transform: scale(.95); }
+#ui.wol .lb-turn:focus-visible { outline: 3px solid #ffc27a; outline-offset: 3px; }
+#ui.wol .lb-look { position: absolute; left: 50%; bottom: 96px; transform: translateX(-50%); z-index: 1; display: flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 16px; background: rgba(14, 26, 20, .62); color: #fbf6e4; font-weight: 700; font-size: .92em; white-space: nowrap; pointer-events: none; transition: opacity .8s; }
+#ui.wol .lb-look svg { width: 30px; height: 15px; fill: none; stroke: #ffc27a; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+#ui.wol .lb-look.gone, #ui.wol .lb.at-st .lb-look, #ui.wol .lb.busy .lb-look, #ui.wol .lb:not(.pano) .lb-look { opacity: 0; }
+#ui.wol .lb-look[hidden] { display: none; }
+#ui.wol .lb.pano .lb-hot.edge-l .lb-dot, #ui.wol .lb.pano .lb-hot.edge-r .lb-dot { width: 18px; height: 18px; }
+@media (max-width: 860px), (max-height: 520px) {
+  #ui.wol .lb-turn { width: 46px; height: 46px; margin-top: -23px; }
+  #ui.wol .lb-turn svg { width: 25px; height: 25px; }
+  #ui.wol .lb-turn-l { left: 10px; }
+  #ui.wol .lb-turn-r { right: 10px; }
+  #ui.wol .lb-look { bottom: 86px; font-size: .85em; }
+}
+/* in the look-around room his words, when he is out of sight, sit in the middle above the stations bar (the sides keep
+   the turning arrows and the spots of the stations out of sight); the dragging hint sits under the top bar */
+#ui.wol .lb.pano:not(.at-st) .lb-say.dock { right: auto; left: 50% !important; bottom: 92px; transform: translateX(-50%); max-width: min(600px, 74vw); }
+#ui.wol .lb.pano .lb-look { bottom: auto; top: 78px; }
+@media (max-width: 860px), (max-height: 520px) {
+  #ui.wol .lb.pano:not(.at-st) .lb-say.dock { bottom: 84px; }
+  #ui.wol .lb.pano .lb-look { top: 70px; }
+}
+/* his bubble above his head stays readable over the stations' spots (they still take clicks through it) */
+#ui.wol .lb.pano .lb-say:not(.dock) { z-index: 3; }

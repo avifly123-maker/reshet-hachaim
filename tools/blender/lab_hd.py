@@ -4,6 +4,7 @@
 #   lab_hd_build()                       builds scene 'lab_hd' (geometry, materials, lights, cameras)
 #   lab_hd_render(station, pct, samples, final)   async Cycles render → lab/st_<station>.png (final) or animals/pv/lab_<station>.png
 #   lab_hd_cams()                        lab/lab_cams.json: every station's camera (three's axes), the robot spot, the aquarium box
+#   lab_hd_pano(w, samples, slices)      the look-around room: a big equirectangular from the centre, in slices → lab/pano_<i>.png
 # Layout (metres, Z up, the game gets x, z, -y): a round wood-and-glass field station, radius 5 m, on the shore of
 # the Gulf of Eilat (the Blender panorama of the gulf is outside the windows).
 #   windows 30°..150° (+Y)   microscope desk 58°   atlas lectern 122°   aquarium 185°   cabinet 318°   greenhouse 0°
@@ -1115,6 +1116,7 @@ def lab_hd_build():
 
 def lab_hd_render(station='home', pct=25, samples=48, final=False):
     sc = _scene(); sc.camera = bpy.data.objects['lhc_' + station]
+    sc.render.use_border = False   # a panorama slice (lab_hd_pano) may have left the border on
     sc.render.resolution_x, sc.render.resolution_y = (1024, 512) if station == 'env' else (2560, 1440)
     sc.render.resolution_percentage = 100 if station == 'env' else pct; sc.cycles.samples = samples
     name = 'env.png' if (final and station == 'env') else ('st_%s.png' if final else 'lab_%s.png') % station
@@ -1132,6 +1134,7 @@ def lab_hd_cams():
         out['stations'][k] = {'pos': [round(cam.x, 4), round(cam.z, 4), round(-cam.y, 4)],   # aimed at 'at' with no roll (three: lookAt)
                               'fov': round(math.degrees(fovv), 4), 'robot': [round(rob.x, 3), round(rob.z, 3), round(-rob.y, 3)],
                               'at': [round(at.x, 3), round(at.z, 3), round(-at.y, 3)]}
+    e = PANO_EYE; out['pano'] = {'eye': [round(e[0], 4), round(e[2], 4), round(-e[1], 4)]}   # the look-around room's eye
     aq = place(185, 4.3)
     c = aq @ Vector((0, 0, 1.47)); out['aquarium'] = {'centre': [round(c.x, 3), round(c.z, 3), round(-c.y, 3)], 'size': [2.5, 0.8, 0.55], 'yaw': 185 - 90}
     with open(os.path.join(LD, 'lab_cams.json'), 'w') as fh: json.dump(out, fh, indent=1)
@@ -1144,13 +1147,80 @@ def _rq_tick():
     if RQ['cur']:
         if bpy.app.is_job_running('RENDER') or not os.path.exists(RQ['cur']): return 4.0
         RQ['done'].append(RQ['cur']); RQ['cur'] = None
-    if not RQ['list']: return None
-    st, pct, samples = RQ['list'].pop(0)
-    try: RQ['cur'] = lab_hd_render(st, pct, samples, True)['file']
-    except Exception as e: RQ['done'].append('error %s: %s' % (st, e)); RQ['cur'] = None
+    if not RQ['list']:
+        try: _scene().render.use_border = False
+        except Exception: pass
+        return None
+    item = RQ['list'].pop(0)
+    try:
+        if item[0] == 'pano': RQ['cur'] = _pano_slice(*item[1:])
+        else: RQ['cur'] = lab_hd_render(item[0], item[1], item[2], True)['file']
+    except Exception as e: RQ['done'].append('error %s: %s' % (item[0], e)); RQ['cur'] = None
     return 6.0
 
 def lab_hd_render_all(stations=None, pct=75, samples=64):
     RQ['list'] = [(s, pct, samples) for s in (stations or list(STATIONS) + ['env'])]; RQ['done'] = []
     if not bpy.app.timers.is_registered(_rq_tick): bpy.app.timers.register(_rq_tick, first_interval=1.0)
     return {'queued': len(RQ['list'])}
+
+
+# ═══════════════════════════════════════════ the look-around room: a big panorama from the room's centre
+# The game's lab room (src/lab/room-view.js) is this picture on a sphere round the eye: the child turns freely, and the
+# robot walks round the table on top of it. The eye is lhc_env's place (the reflections' panorama), so env.png serves as
+# a soft placeholder until this render exists. Blender's equirectangular: the picture's middle looks along +Y (three -z,
+# the windows), its right half toward +X; build-lab.py and room-view.js read it the same way.
+PANO_EYE = (0.0, -0.6, 1.3)
+PANO_META = {}
+
+def _pano_cam(sc):
+    ob = bpy.data.objects.get('lhc_pano')
+    if ob is None:
+        cd = bpy.data.cameras.get('lhc_pano') or bpy.data.cameras.new('lhc_pano'); cd.type = 'PANO'
+        try: cd.panorama_type = 'EQUIRECTANGULAR'
+        except Exception: pass
+        try: cd.cycles.panorama_type = 'EQUIRECTANGULAR'   # Blender 3.x keeps it on the Cycles settings
+        except Exception: pass
+        cd.clip_start = 0.05; cd.clip_end = 3000
+        ob = bpy.data.objects.new('lhc_pano', cd); sc.collection.objects.link(ob)
+    ob.location = PANO_EYE; ob.rotation_euler = (math.radians(90), 0, 0)
+    return ob
+
+def _pano_slice(i, w, samples, slices, ov):
+    """One vertical slice of the panorama, rendered at full size with the render border (black outside it), async."""
+    sc = _scene(); sc.camera = _pano_cam(sc); r = sc.render
+    r.resolution_x, r.resolution_y = w, w // 2; r.resolution_percentage = 100; sc.cycles.samples = samples
+    s = PANO_META['slices'][i]
+    r.use_border = True; r.use_crop_to_border = False   # full size: the stitching knows every column's place exactly
+    r.border_min_x = max(0.0, (s['ra'] - 2) / w); r.border_max_x = min(1.0, (s['rb'] + 2) / w)   # 2 px more than promised
+    r.border_min_y, r.border_max_y = 0.0, 1.0
+    p = os.path.join(LD, s['file']); r.filepath = p
+    if os.path.exists(p): os.remove(p)
+    bpy.context.window.scene = sc
+    with bpy.context.temp_override(window=bpy.context.window_manager.windows[0]):
+        bpy.ops.render.render('INVOKE_DEFAULT', write_still=True)
+    return p
+
+def lab_hd_pano(w=4096, samples=40, slices=4, overlap=24):
+    """Render the look-around room: an equirectangular panorama w x w/2 from the room's centre (camera lhc_pano, at
+    lhc_env's place), in `slices` vertical slices through the gentle render queue (one async render at a time, half the
+    cores, never a blocking render). Writes lab/pano_<i>.png (full size, black outside its slice) and
+    lab/pano_slices.json; tools/build-lab.py stitches them into art/lab/pano.png (copy the slices and the json there).
+    Time: a station picture (1920 x 1080 = 2.1 Mpx, 64 samples) took 25 to 35 min on Avi's laptop, about 15 min per
+    megapixel at 64 samples. 4096 x 2048 = 8.4 Mpx at 40 samples comes to about 80 min in all, so about 20 min for each
+    of 4 slices; the slice with the windows and the aquarium's water may take 30. Smaller: w=3072 is about 45 min in all.
+    Check progress by listing lab/ (each slice appears when it is done); lab_hd_render_stop() empties the queue.
+    Run lab_hd_build() first in a fresh session (it makes the scene, the lights and the cameras)."""
+    ov = int(overlap); cols = [round(k * w / slices) for k in range(slices + 1)]
+    PANO_META.clear(); PANO_META.update({'w': w, 'h': w // 2, 'samples': samples, 'eye_blender': list(PANO_EYE), 'slices': [
+        {'i': i, 'file': 'pano_%d.png' % i, 'a': cols[i], 'b': cols[i + 1], 'ra': max(0, cols[i] - ov), 'rb': min(w, cols[i + 1] + ov)} for i in range(slices)]})
+    with open(os.path.join(LD, 'pano_slices.json'), 'w') as fh: json.dump(PANO_META, fh, indent=1)
+    RQ['list'] = [('pano', i, w, samples, slices, ov) for i in range(slices)]; RQ['done'] = []
+    if not bpy.app.timers.is_registered(_rq_tick): bpy.app.timers.register(_rq_tick, first_interval=1.0)
+    mpx = w * (w // 2) / 1e6; est = 15.0 * mpx * samples / 64.0
+    print('lab_hd_pano: %d slices of %dx%d, %d samples; expected about %d min each, %d min in all' % (slices, w, w // 2, samples, est / slices, est))
+    return {'queued': slices, 'min_per_slice': round(est / slices), 'min_total': round(est)}
+
+def lab_hd_render_stop():
+    """Empty the render queue (the render that is running finishes on its own; Esc in Blender stops it)."""
+    n = len(RQ['list']); RQ['list'] = []
+    return {'dropped': n, 'running': RQ['cur']}

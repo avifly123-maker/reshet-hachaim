@@ -28,6 +28,8 @@ import { stOf, thinkOf } from './progress.js';
 import { openMiniReef, openDayNight } from './aquarium.js';
 import { openGrow, openSeeds } from './greenhouse.js';
 import { openCollection, openSort, openClues, collectionCount, shelfPeek } from './cabinet.js';
+// the look-around room (19.10): a panorama from the room's centre, turning, and the robot's walks to the stations
+import { createRoomView, yawOf } from './room-view.js';
 
 const STATION_INFO = {
   home: { name: 'החדר', ic: 'home' },
@@ -52,6 +54,16 @@ const HOT = {
   aquarium: { p: [-4.284, 1.35, 0.375], ey: 50 }, greenhouse: { p: [3.3, 0.95, 0.3], ey: 56 }, cabinet: { p: [3.493, 1.15, 3.145], ey: 70 },
 };
 const ROBOT_SPOT = { table: [-0.75, 0, -1.05] };   // three's axes: behind the inventors table, on the left
+// the look-around room: a point on each station as seen from the room's centre (the panorama's eye), the robot's place
+// in the room when the lab opens (beside the table, clear of it, in sight), and the first direction of the view
+const HOT_P = {
+  scope: [2.215, 1.25, -3.545], table: [0.05, 0.9, -0.8], atlas: [-2.35, 1.2, -3.25],
+  aquarium: [-4.15, 1.4, 0.375], greenhouse: [3.95, 1.1, 0.0], cabinet: [3.4, 1.2, 3.05],
+};
+const HOME_SPOT = [-2.78, 0, -0.25];
+const ROOM_SPOT = { table: [-1.85, 0, -0.45] };   // in the room he waits at the table's end, where the child can see him
+const VIEW0 = { yaw: -58, pitch: -10 };
+const wrapA = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 const ORDER = ['home', 'scope', 'table', 'aquarium', 'greenhouse', 'cabinet', 'atlas'];
 const IMG_ASPECT = 16 / 9;
 
@@ -141,15 +153,17 @@ function makeRobot() {
   const gr = sx.createRadialGradient(64, 64, 4, 64, 64, 62); gr.addColorStop(0, 'rgba(0,0,0,.55)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); sx.fillStyle = gr; sx.fillRect(0, 0, 128, 128);
   const sh = new THREE.Mesh(new THREE.PlaneGeometry(0.7, 0.7), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(sc), transparent: true, depthWrite: false, toneMapped: false }));
   sh.rotation.x = -Math.PI / 2; sh.position.y = 0.004; root.add(sh);
-  const st = { t: 0, blinkT: 2, blink: 0, expr: 'happy', exprT: 0, talk: 0, look: 0, wave: 0 };
+  const st = { t: 0, blinkT: 2, blink: 0, expr: 'happy', exprT: 0, talk: 0, look: 0, wave: 0, lean: 0 };
   return {
     root, M, face,
     say(expr, seconds) { st.expr = expr || 'happy'; st.exprT = 3; st.talkT = seconds; },
     wave() { st.wave = 1.6; },
+    lean(v) { st.lean = v; },   // a little forward while he glides (the look-around room's walks)
     update(dt, camPos) {
       st.t += dt;
       float.position.y = 0.1 + Math.sin(st.t * 1.8) * 0.018;
       float.rotation.z = Math.sin(st.t * 0.9) * 0.02;
+      float.rotation.x += (st.lean - float.rotation.x) * Math.min(1, dt * 6);
       // blink now and then
       st.blinkT -= dt; if (st.blinkT < 0) { st.blink = 1; st.blinkT = 2.5 + Math.random() * 3; }
       st.blink = Math.max(0, st.blink - dt * 7);
@@ -191,17 +205,23 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     return (tex[id] = t);
   }
   // the rendered room behind everything: two pictures, cross-faded during a move
-  const bgU = { tA: { value: fallback }, tB: { value: fallback }, uMix: { value: 0 }, uCrop: { value: new THREE.Vector4(0, 0, 1, 1) }, uZoomA: { value: 1 }, uZoomB: { value: 1 } };
+  // (uAlpha: a station's picture fading in over the look-around room, or out of it; blended while staying in the opaque
+  // pass, so the robot is still drawn over it)
+  const bgU = { tA: { value: fallback }, tB: { value: fallback }, uMix: { value: 0 }, uCrop: { value: new THREE.Vector4(0, 0, 1, 1) }, uZoomA: { value: 1 }, uZoomB: { value: 1 }, uAlpha: { value: 1 } };
   const bg = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.ShaderMaterial({
     uniforms: bgU, depthTest: false, depthWrite: false, toneMapped: false,
+    blending: THREE.CustomBlending, blendSrc: THREE.SrcAlphaFactor, blendDst: THREE.OneMinusSrcAlphaFactor, blendSrcAlpha: THREE.ZeroFactor, blendDstAlpha: THREE.OneFactor,
     vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 1.0, 1.0); }',
-    fragmentShader: `uniform sampler2D tA, tB; uniform float uMix, uZoomA, uZoomB; uniform vec4 uCrop; varying vec2 vUv;
+    fragmentShader: `uniform sampler2D tA, tB; uniform float uMix, uZoomA, uZoomB, uAlpha; uniform vec4 uCrop; varying vec2 vUv;
       vec2 cr(vec2 uv, float z){ vec2 p = uCrop.xy + uv * uCrop.zw; return (p - 0.5) / z + 0.5; }
-      void main(){ vec4 a = texture2D(tA, cr(vUv, uZoomA)); vec4 b = texture2D(tB, cr(vUv, uZoomB)); gl_FragColor = mix(a, b, uMix);
+      void main(){ vec4 a = texture2D(tA, cr(vUv, uZoomA)); vec4 b = texture2D(tB, cr(vUv, uZoomB)); gl_FragColor = vec4(mix(a, b, uMix).rgb, uAlpha);
         #include <colorspace_fragment>
       }`,
   }));
   bg.frustumCulled = false; bg.renderOrder = -1000; group.add(bg);
+  // the look-around room (src/lab/room-view.js): the panorama behind everything while the child is in the room
+  const room = LAB_ART && LAB_ART.pano ? createRoomView({ url: LAB_ART.pano, eye: LAB_ART.cams && LAB_ART.cams.pano && LAB_ART.cams.pano.eye }) : null;
+  if (room) group.add(room.quad);
   // light for the live things, close to the room's (the morning sun through the windows, warm lamps, the room around)
   const hemi = new THREE.HemisphereLight('#f4eee2', '#8a6a4a', 1.25); group.add(hemi);
   const key = new THREE.DirectionalLight('#fff0dc', 1.6); key.position.set(0.3 * 10, 0.5 * 10, -0.82 * 10); group.add(key);
@@ -243,21 +263,27 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     out.applyAxisAngle(new THREE.Vector3(0, 1, 0), box.yaw); return out.add(box.c);
   }
   function pickTarget(f, first) { boxPoint(f.box, 0.06 + Math.random() * 0.88, 0.15 + Math.random() * 0.75, 0.15 + Math.random() * 0.7, f.tgt); }
-  function updateFishVisible() { const on = station === 'aquarium'; for (const f of fish) f.holder.visible = on; }
+  // the fish swim in the aquarium's own picture, and in the look-around room too (they are where the aquarium is)
+  function updateFishVisible() { const on = view === 'room' || station === 'aquarium'; for (const f of fish) f.holder.visible = on; }
 
   // ── the screen
   let open_ = false, station = 'home', prevSt = null, move = 0, panel = null, sayT = 0, greeted = false;
+  // view: 'room' = the look-around panorama (the room), 'pic' = a station's own picture with its Blender camera
+  let view = room ? 'room' : 'pic';
   const prevState = {};
   // beginners (the start screen's מתחילים) read the room fully vocalised: the frame is painted again when the level changes
   let kids = labKids(), painted = null;
   const stName = (id) => (kids ? ROOM_K.stations[id] : STATION_INFO[id].name);
   injectStationCss();
-  el.innerHTML = `<div class="lb-top"><button class="lb-btn lb-exit">${icon('arrowL')}<span></span></button>
+  el.innerHTML = `<div class="lb-drag" aria-hidden="true"></div><div class="lb-top"><button class="lb-btn lb-exit">${icon('arrowL')}<span></span></button>
       <button class="lb-btn lb-talk"><i class="lb-tface"></i><span></span></button>
       <button class="lb-btn lb-think">${icon('flask')}<span></span></button>
       <div class="lb-title"><small></small><h1></h1></div>
       <button class="lb-btn lb-home">${icon('home')}<span></span></button></div>
     <div class="lb-hots" role="group"></div>
+    <button class="lb-turn lb-turn-l" data-turn="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button>
+    <button class="lb-turn lb-turn-r" data-turn="1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 5.5L16 12l-6.5 6.5"/></svg></button>
+    <div class="lb-look" hidden><svg viewBox="0 0 32 16" aria-hidden="true"><path d="M3 8h26M8 3L3 8l5 5M24 3l5 5-5 5"/></svg><span></span></div>
     <nav class="lb-bar">${ORDER.map((id) => `<button data-st="${id}" class="${id === 'home' ? 'on' : ''}">${icon(STATION_INFO[id].ic || 'leaf')}<span></span></button>`).join('')}</nav>
     <div class="lb-panels"></div><div class="lb-say" hidden><i class="lb-face"></i><p></p></div>`;
   const hots = el.querySelector('.lb-hots'), sayEl = el.querySelector('.lb-say'), panels = el.querySelector('.lb-panels');
@@ -277,6 +303,35 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     b.onclick = () => { if (b.dataset.skip) { delete b.dataset.skip; return; } touchShown = null; hots.querySelectorAll('.lb-hot').forEach((x) => x.classList.remove('show')); go(b.dataset.hot); };
   });
   el.addEventListener('pointerdown', (e) => { if (touchShown && !e.target.closest('.lb-hot')) { touchShown = null; hots.querySelectorAll('.lb-hot').forEach((x) => x.classList.remove('show')); } });
+  // looking round the room: drag the room (mouse or finger), the two arrows (a click turns a step, holding keeps
+  // turning), the keyboard's arrows. The left arrow turns to the left whatever the page's direction: it is a direction
+  // in the room, not in the text. A click while the robot walks goes straight into the station.
+  const dragEl = el.querySelector('.lb-drag'), lookEl = el.querySelector('.lb-look');
+  if (room) {
+    dragEl.addEventListener('pointerdown', (e) => {
+      if (walk && walk.st) { finishWalk(); return; }
+      if (view !== 'room' || station !== 'home' || e.button > 0) return;
+      try { dragEl.setPointerCapture(e.pointerId); } catch (_) { /* a synthetic pointer */ }
+      room.dragStart(e.clientX, e.clientY, el.clientWidth || innerWidth, el.clientHeight || innerHeight); dragEl.classList.add('grab');
+    });
+    dragEl.addEventListener('pointermove', (e) => { if (room.S.drag) room.dragMove(e.clientX, e.clientY, camera); });
+    const up = () => { if (room.S.drag) { room.dragEnd(); dragEl.classList.remove('grab'); } };
+    dragEl.addEventListener('pointerup', up); dragEl.addEventListener('pointercancel', up); dragEl.addEventListener('lostpointercapture', up);
+    el.querySelectorAll('[data-turn]').forEach((b) => {
+      const dir = +b.dataset.turn;
+      b.addEventListener('pointerdown', (e) => { if (e.button > 0) return; try { b.setPointerCapture(e.pointerId); } catch (_) { /* */ } room.holdStart(dir); });
+      const end = () => room.holdEnd();
+      b.addEventListener('pointerup', end); b.addEventListener('pointercancel', end); b.addEventListener('lostpointercapture', end);
+      b.addEventListener('click', (e) => { if (e.detail === 0) room.step(dir * 40, 0); });   // Enter or Space on the focused arrow
+    });
+    addEventListener('keydown', (e) => {
+      if (!open_ || view !== 'room' || e.target.closest && e.target.closest('input,textarea,select')) return;
+      if (walk && walk.st && (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape')) { e.preventDefault(); finishWalk(); return; }
+      if (station !== 'home' || panel || talkEl) return;
+      const k = { ArrowLeft: [-30, 0], ArrowRight: [30, 0], ArrowUp: [0, 8], ArrowDown: [0, -8] }[e.key];
+      if (k) { e.preventDefault(); room.step(k[0], k[1]); }
+    });
+  }
   function paintChrome() {
     kids = labKids(); if (painted === kids) return; painted = kids;
     el.classList.toggle('kids', kids);
@@ -284,6 +339,9 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     T('.lb-exit span', kids ? ROOM_K.exit : 'למרכז המדעי'); T('.lb-talk span', kids ? ROOM_K.talk : 'לדבר עם רובו־דע'); T('.lb-think span', kids ? ROOM_K.think : 'חושבים כמו חוקרים');
     T('.lb-title small', kids ? ROOM_K.centre : 'המרכז המדעי'); T('.lb-title h1', kids ? ROOM_K.title : 'המעבדה של רובו־דע');
     T('.lb-home span', one(COMMON_T.room, kids));
+    T('.lb-look span', kids ? ROOM_K.drag : 'גררו כדי להסתכל מסביב');
+    const tl = el.querySelector('.lb-turn-l'), tr = el.querySelector('.lb-turn-r');
+    tl.setAttribute('aria-label', kids ? ROOM_K.turnL : 'להסתובב שמאלה'); tr.setAttribute('aria-label', kids ? ROOM_K.turnR : 'להסתובב ימינה');
     el.querySelectorAll('[data-st] span').forEach((s) => { s.textContent = stName(s.parentNode.dataset.st); });
     hots.querySelectorAll('[data-hot]').forEach((b) => { const n = stName(b.dataset.hot); b.querySelector('.lb-tip').textContent = n; b.setAttribute('aria-label', n); });
   }
@@ -319,18 +377,109 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
   const toStation = () => { panel = null; if (!quiet && open_) arrive(); };
   function go(id) {
     if (!STATION_INFO[id]) return;
+    if (walk && walk.st && id === walk.st) { finishWalk(); return; }   // asked again during the walk: straight in
     dropPanel();
     if (talkEl) { talkEl.remove(); talkEl = null; }   // the conversation does not stay open under the next station
-    if (id === station && move <= 0) { arrive(); return; }
+    if (id === station && move <= 0 && !(walk && walk.st)) { arrive(); return; }
     audio && audio.play('select');
+    if (room && view === 'room') {
+      // in the look-around room: the robot walks to the station, the view turns with him, then the station's picture
+      prevSt = station; station = id; navState();
+      if (id === 'home') { walk = null; ov.to = 0; robot.lean(0); return; }   // the walk was called off: he stays where he is
+      startWalk(id); return;
+    }
+    if (room && id === 'home') { prevSt = station; station = id; navState(); startBack(prevSt); return; }
     prevSt = station; station = id; move = 1;
     bgU.tA.value = texOf(prevSt); bgU.tB.value = texOf(station); bgU.uMix.value = 0;
-    el.querySelectorAll('[data-st]').forEach((b) => b.classList.toggle('on', b.dataset.st === station));
-    hots.classList.toggle('on', station === 'home');
-    el.classList.toggle('at-st', station !== 'home');
+    navState();
     placeRobot(true); updateFishVisible();
     if (station === 'aquarium') addFish();
   }
+  function navState() {
+    el.querySelectorAll('[data-st]').forEach((b) => b.classList.toggle('on', b.dataset.st === station));
+    hots.classList.toggle('on', station === 'home');
+    el.classList.toggle('at-st', station !== 'home');
+  }
+
+  // ── the look-around room: the robot's walk to a station, the station's picture fading in over the room, and back
+  let walk = null;                       // { st (null: a short step back), path, t, dur, look }
+  const ov = { a: 0, to: 0 };            // the station's picture over the room: 0 = the room only, 1 = the picture only
+  let backHello = false;                 // the room's words once the picture has faded out
+  const EYE = room ? room.EYE : new THREE.Vector3();
+  const walkSpot = (id) => new THREE.Vector3().fromArray(ROOM_SPOT[id] || (cams[id] && cams[id].robot) || HOME_SPOT).setY(0);
+  // the view looks at the station, a little toward the robot's spot beside it, so both are in the picture
+  function viewToward(id, robotAt) {
+    const look = new THREE.Vector3().fromArray(HOT_P[id]); const ys = yawOf(look, EYE);
+    const yaw = robotAt ? ys + wrapA(yawOf(robotAt, EYE) - ys) * 0.3 : ys;
+    const pitch = Math.atan2(look.y - EYE.y, Math.hypot(look.x - EYE.x, look.z - EYE.z)) - 0.1;
+    return { yaw, pitch, look };
+  }
+  function startWalk(id) {
+    const to = walkSpot(id), from = robot.root.position.clone().setY(0);
+    const path = room.plan(from, to);
+    const v = viewToward(id, to);
+    room.S.rate = 3.5;
+    walk = { st: id, path, t: 0, dur: THREE.MathUtils.clamp(0.75 + path.len * 0.13, 0.9, 1.6), look: v.look, ys: yawOf(v.look, EYE), pitch: v.pitch, p0: room.S.pitch };
+    ov.to = 0; robot.root.visible = true; hush();
+  }
+  // a click during the walk, or asking for the same station again: straight in
+  function finishWalk() {
+    if (!walk || !walk.st) return;
+    robot.root.position.copy(walk.path.pts[walk.path.pts.length - 1]); enterStation(walk.st);
+  }
+  function enterStation(id) {
+    walk = null; ov.a = 0; ov.to = 0; view = 'pic'; room.quad.visible = false; room.S.fovMul = 1; room.S.rate = 6;
+    bgU.tA.value = bgU.tB.value = texOf(id); bgU.uMix.value = 0; bgU.uAlpha.value = 1; bgU.uZoomA.value = 1; bg.visible = true;
+    robot.lean(0); placeRobot(false); updateFishVisible(); el.classList.remove('pano');
+    if (id === 'aquarium') addFish();
+    arrive();
+  }
+  // back from a station: the room again, facing the station; its picture fades out, the robot turns round and steps
+  // back toward the middle of the room when the table lets the child see him there
+  function startBack(from) {
+    view = 'room'; room.quad.visible = true; el.classList.add('pano');
+    const at = walkSpot(from) || robot.root.position.clone();
+    const v = viewToward(from, at); room.face(v.yaw, v.pitch, true); room.S.rate = 6;
+    robot.root.position.copy(at); robot.root.visible = true; robot.root.rotation.y = Math.atan2(v.look.x - at.x, v.look.z - at.z);
+    bgU.tA.value = texOf(from); bgU.uMix.value = 0; ov.a = 1; ov.to = 0; backHello = true;
+    const rest = room.restSpot(at, v.yaw);
+    walk = rest.distanceTo(at) > 0.15 ? { st: null, path: room.plan(at, rest), t: -0.35, dur: 1.0, look: null } : null;
+    updateFishVisible();
+  }
+  const _ahead = new THREE.Vector3();
+  let slowDbg = 1;   // headless tests: a slower walk, for a picture in the middle of it
+  function updateRoom(dt) {
+    dt *= slowDbg;
+    const W = renderer.domElement.clientWidth || innerWidth, H = renderer.domElement.clientHeight || innerHeight;
+    // the picture of a station over the room (entering: it fades in while the view closes in a little)
+    if (ov.a !== ov.to) ov.a = ov.to > ov.a ? Math.min(ov.to, ov.a + dt / 0.5) : Math.max(ov.to, ov.a - dt / 0.55);
+    const e = ov.a * ov.a * (3 - 2 * ov.a);
+    room.S.fovMul = 1 - 0.14 * e;
+    room.apply(camera, W, H, dt);
+    computeCrop(); bg.visible = ov.a > 0.001; bgU.uAlpha.value = e; bgU.uZoomA.value = 1.06 - 0.06 * e; bgU.uMix.value = 0;
+    if (backHello && ov.a <= 0) { backHello = false; if (station === 'home' && !panel && !talkEl) arrive(); }
+    const rp = robot.root.position;
+    if (walk) {
+      walk.t += dt;
+      const k = Math.max(0, Math.min(1, walk.t / walk.dur)), s = k * k * (3 - 2 * k);
+      room.at(walk.path, s * walk.path.len, rp);
+      room.at(walk.path, Math.min(walk.path.len, s * walk.path.len + 0.25), _ahead);
+      const goal = walk.t < 0 ? null : k < 0.9 && _ahead.distanceToSquared(rp) > 1e-4 ? _ahead : walk.look || EYE;
+      if (goal) robot.root.rotation.y += wrapA(Math.atan2(goal.x - rp.x, goal.z - rp.z) - robot.root.rotation.y) * Math.min(1, dt * (k < 0.9 ? 8 : 5));
+      robot.lean(walk.t > 0 && k < 0.92 ? 0.13 * Math.sin(Math.PI * k) : 0);
+      // the view follows him, leaning toward the station: at the end it looks at the station, with him beside it
+      if (walk.st) { const yr = yawOf(rp, EYE); room.face(yr + THREE.MathUtils.clamp(wrapA(walk.ys - yr) * 0.7, -0.6, 0.6), walk.p0 + (walk.pitch - walk.p0) * Math.min(1, k * 1.5)); }
+      if (k >= 1) {
+        if (walk.st) { if (ov.to !== 1) { bgU.tA.value = texOf(walk.st); ov.to = 1; } if (ov.a >= 1) enterStation(walk.st); }
+        else walk = null;
+      }
+    } else robot.root.rotation.y += wrapA(Math.atan2(EYE.x - rp.x, EYE.z - rp.z) - robot.root.rotation.y) * Math.min(1, dt * 3);   // idle: he faces the child
+    // the fish load once the aquarium comes into view
+    if (!fish.length && !fishLoading && Math.abs(wrapA(yawOf(AQ_P, EYE) - room.S.yaw)) < 1.3) addFish();
+    // the hint about dragging fades once the child has turned (or after a while)
+    if (lookEl && !lookEl.hidden && (room.S.turned || (lookT -= dt) < 0)) lookEl.classList.add('gone');
+  }
+  const AQ_P = new THREE.Vector3().fromArray(HOT_P.aquarium); let lookT = 9;
   // a working panel inside a frame with a voice strip at its foot (say() writes there)
   function framed(open) {
     const fr = document.createElement('div'); fr.className = 'lb-frame' + (kids ? ' kids' : ''); panels.appendChild(fr);
@@ -396,13 +545,16 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
   function setCamera(id) {
     const c = cams[viewOf(id)]; if (!c) return;
     camera.position.fromArray(c.pos); camera.up.set(0, 1, 0); camera.lookAt(_at.fromArray(c.at));   // Blender aims its cameras with no roll, like lookAt
-    const W = renderer.domElement.clientWidth || innerWidth, H = renderer.domElement.clientHeight || innerHeight; const A = W / H;
+    computeCrop();
     const FW = 1600, FH = FW / IMG_ASPECT;
-    if (A > IMG_ASPECT) { crop.w = 1; crop.h = IMG_ASPECT / A; } else { crop.h = 1; crop.w = A / IMG_ASPECT; }
-    crop.x = (1 - crop.w) / 2; crop.y = (1 - crop.h) / 2;
     camera.fov = c.fov; camera.aspect = IMG_ASPECT; camera.near = 0.05; camera.far = 200;
     camera.setViewOffset(FW, FH, crop.x * FW, crop.y * FH, crop.w * FW, crop.h * FH);
     camera.updateProjectionMatrix(); camera.updateMatrixWorld();
+  }
+  function computeCrop() {
+    const W = renderer.domElement.clientWidth || innerWidth, H = renderer.domElement.clientHeight || innerHeight; const A = W / H;
+    if (A > IMG_ASPECT) { crop.w = 1; crop.h = IMG_ASPECT / A; } else { crop.h = 1; crop.w = A / IMG_ASPECT; }
+    crop.x = (1 - crop.w) / 2; crop.y = (1 - crop.h) / 2;
     bgU.uCrop.value.set(crop.x, 1 - crop.y - crop.h, crop.w, crop.h);
   }
   const _v = new THREE.Vector3(), _up = new THREE.Vector3(0.6, 1.4, 0);
@@ -419,11 +571,38 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
       if (!inFront || x < 4 || x > 96 || y < 12 || y > 86) { edge = _cs.x < 0 ? 'l' : 'r'; x = edge === 'l' ? 2.5 : 97.5; y = inFront ? p.y : (h.ey || 50); }
       y = Math.max(16, Math.min(80, edge && h.ey ? h.ey : y));
       b.hidden = false; b.style.left = x + '%'; b.style.top = y + '%';
-      if (b.dataset.edge !== edge) { b.dataset.edge = edge; b.classList.toggle('edge-l', edge === 'l'); b.classList.toggle('edge-r', edge === 'r'); b.querySelector('.lb-arrow').hidden = !edge; }
+      setEdge(b, edge);
     }
+  }
+  function setEdge(b, edge) { if (b.dataset.edge !== edge) { b.dataset.edge = edge; b.classList.toggle('edge-l', edge === 'l'); b.classList.toggle('edge-r', edge === 'r'); b.querySelector('.lb-arrow').hidden = !edge; } }
+  // in the look-around room: a spot on every station in sight; the others wait at the side they are nearer to (the
+  // shorter turn), above and below the turning arrow, nearest first. A click on one turns there and walks there.
+  const EDGE_Y = [31, 69, 23, 77];
+  function placeHotsRoom() {
+    const side = { l: [], r: [] };
+    for (const b of hots.children) {
+      const h = HOT_P[b.dataset.hot]; if (!h) { b.hidden = true; continue; }
+      _v.fromArray(h); _cs.copy(_v).applyMatrix4(camera.matrixWorldInverse);
+      const p = project(_v);
+      b.hidden = false;
+      if (_cs.z < -0.2 && p.x > 9 && p.x < 91 && p.y > 6 && p.y < 94) { b.style.left = p.x + '%'; b.style.top = Math.max(17, Math.min(81, p.y)) + '%'; setEdge(b, ''); continue; }
+      const d = wrapA(yawOf(_v.fromArray(h), EYE) - room.S.yaw); side[d < 0 ? 'l' : 'r'].push([Math.abs(d), b]);
+    }
+    for (const s of ['l', 'r']) side[s].sort((a, c) => a[0] - c[0]).forEach(([, b], i) => { b.style.left = (s === 'l' ? 2.8 : 97.2) + '%'; b.style.top = EDGE_Y[Math.min(i, 3)] + '%'; setEdge(b, s); });
   }
   function update(dt) {
     if (!open_) return;
+    el.classList.toggle('busy', !!panel || !!talkEl);
+    if (view === 'room') {
+      updateRoom(dt);
+      if (view === 'room') robot.root.visible = bgU.uAlpha.value < 0.55 || !bg.visible;   // (entering a station just switched to its picture)
+      fill.position.copy(camera.position).add(_up); fill.target = robot.root;
+      robot.update(dt, walk && walk.look && walk.t > 0 ? walk.look : camera.position);
+      updateFish(dt);
+      if (station === 'home') placeHotsRoom();
+      placeSay(dt);
+      return;
+    }
     setCamera(station);
     if (move > 0) {
       move = Math.max(0, move - dt / 0.75); const k = 1 - move; const e = k * k * (3 - 2 * k);
@@ -434,6 +613,12 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     if (robotMove > 0) { robotMove = Math.max(0, robotMove - dt / 1.1); const k = 1 - robotMove; const e = 1 - (1 - k) * (1 - k); robot.root.position.lerpVectors(_fromP, _toP, e); }
     fill.position.copy(camera.position).add(_up); fill.target = robot.root;   // a soft light from the child's side
     robot.update(dt, camera.position);
+    updateFish(dt);
+    // hotspots (home) and the speech bubble above the robot's head
+    if (station === 'home' && move === 0) placeHots();
+    placeSay(dt);
+  }
+  function updateFish(dt) {
     for (const f of fish) {
       if (!f.holder.visible) continue;
       f.t += dt; _q.subVectors(f.tgt, f.p); const d = _q.length();
@@ -443,15 +628,15 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
       f.holder.rotation.y += Math.atan2(Math.sin(yaw - f.holder.rotation.y), Math.cos(yaw - f.holder.rotation.y)) * Math.min(1, dt * 3);
       f.v.update(dt, { action: 'fly', speed: f.speed * 4, t: f.t });
     }
-    // hotspots (home) and the speech bubble above the robot's head
-    if (station === 'home' && move === 0) placeHots();
+  }
+  function placeSay(dt) {
     if (sayT > 0) {
       sayT -= dt; if (sayT <= 0) sayEl.hidden = true;
       // over a panel the robot is hidden: his words sit in a corner, with his face
       const hp = robot.root.position.clone(); hp.y = 1.22; const p = project(hp);
       const dock = !!panel || !p.ok || p.x < 12 || p.x > 88 || p.y < 14 || !robot.root.visible;
       sayEl.classList.toggle('dock', dock);
-      if (!dock) { sayEl.style.left = p.x + '%'; sayEl.style.top = Math.max(16, p.y - 2) + '%'; }
+      if (!dock) { const hw = (sayEl.offsetWidth / (el.clientWidth || innerWidth)) * 50 + 1; sayEl.style.left = (hw < 49 ? Math.max(hw, Math.min(100 - hw, p.x)) : p.x) + '%'; sayEl.style.top = Math.max(16, p.y - 2) + '%'; }
       else { sayEl.style.left = ''; sayEl.style.top = ''; }
     }
   }
@@ -463,7 +648,15 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     scene.add(group);
     station = 'home'; move = 0; bgU.tA.value = texOf('home'); bgU.uMix.value = 0; bgU.uZoomA.value = 1;
     hots.classList.add('on'); el.classList.remove('at-st'); el.querySelectorAll('[data-st]').forEach((b) => b.classList.toggle('on', b.dataset.st === 'home'));
-    placeRobot(false); robot.root.visible = true; updateFishVisible();
+    if (room) {
+      // the look-around room: the robot beside the table, the view a little to the left (the robot, the books, the
+      // atlas and the aquarium's corner); the dragging hint until the child has turned once
+      view = 'room'; walk = null; ov.a = ov.to = 0; backHello = false; room.load(); room.quad.visible = true; bg.visible = false; el.classList.add('pano');
+      room.face(VIEW0.yaw * Math.PI / 180, VIEW0.pitch * Math.PI / 180, true); room.S.fovMul = 1; room.S.rate = 6;
+      robot.root.position.fromArray(HOME_SPOT); robot.root.rotation.y = Math.atan2(EYE.x - HOME_SPOT[0], EYE.z - HOME_SPOT[2]); robot.lean(0);
+      lookT = 9; lookEl.classList.remove('gone'); lookEl.hidden = room.S.turned;
+    } else placeRobot(false);
+    robot.root.visible = true; updateFishVisible();
     // warm up the other pictures in the background
     setTimeout(() => ORDER.forEach(texOf), 300);
     if (!greeted) { greeted = true; setTimeout(() => { robot.wave(); say(kids ? ROOM_K.hello : 'שלום! אני רובו־דע. כאן במעבדה מגלים איך הטבע עובד, וממציאים בעזרתו. במה נתחיל?', 'happy'); }, 600); }
@@ -473,6 +666,9 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     if (!open_) return; open_ = false; el.classList.remove('on'); clearTimeout(sayQT);
     dropPanel(); if (talkEl) { talkEl.remove(); talkEl = null; }
     scene.remove(group); camera.clearViewOffset();
+    // the pictures leave the GPU (they stay decoded and go up again on the next visit)
+    if (room) { room.dispose(); walk = null; room.S.drag = null; room.S.hold = 0; }
+    for (const k in tex) tex[k].dispose();
     renderer.toneMapping = prevState.tone; scene.environment = prevState.env || null; scene.background = prevState.bg || null; scene.fog = prevState.fog || null;
     if (pipe.setBloom) pipe.setBloom(0.38);
     pipe.resize();
@@ -574,7 +770,11 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
 
   window.__labDebug = { go, say, openTalk, openQuestions: (id) => openQuest(id), think: (id) => (id ? (pendingThink = id, go(thinkById(id).st)) : thinkMenu()), get panel() { return panel; }, get station() { return station; }, robot, openPanel: (k) => { station = k; arrive(); },
     act: (id) => { const st = Object.keys(STATION_INFO).find((k) => (STATION_INFO[k].menu || []).includes(id)); if (st === station && move <= 0) openAct(id); else { pendingAct = id; go(st); } },
-    hots: () => [...hots.querySelectorAll('.lb-hot')].map((b) => ({ id: b.dataset.hot, x: b.style.left, y: b.style.top, edge: b.dataset.edge || '', hidden: b.hidden })) };
+    hots: () => [...hots.querySelectorAll('.lb-hot')].map((b) => ({ id: b.dataset.hot, x: b.style.left, y: b.style.top, edge: b.dataset.edge || '', hidden: b.hidden })),
+    // the look-around room: where the view looks (degrees), turn it, and the robot's walk
+    room: room && { face: (yaw, pitch = VIEW0.pitch, now = true) => room.face(yaw * Math.PI / 180, pitch * Math.PI / 180, now), get yaw() { return Math.round(wrapA(room.S.yaw) * 180 / Math.PI); },
+      get pitch() { return Math.round(room.S.pitch * 180 / Math.PI); }, get view() { return view; }, get walking() { return walk ? (walk.st || 'back') : ''; }, get loaded() { return room.loaded; },
+      robot: () => robot.root.position.toArray().map((x) => +x.toFixed(2)), slow: (k) => { slowDbg = k; } } };
   return { open, close, update, isOpen: () => open_ };
 }
 

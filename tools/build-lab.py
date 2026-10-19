@@ -3,17 +3,21 @@
 Input (from the Blender session, tools/blender/lab_hd.py and robo_da.py):
   art/lab/st_<station>.png   one Cycles render per station (2560×1440)
   art/lab/env.png            the room seen from its centre, equirectangular (reflections on the robot)
+  art/lab/pano.png           the same view, big (lab_hd_pano: 4096 × 2048), for the look-around room; or its slices
+                             art/lab/pano_<i>.png + pano_slices.json (stitched here into pano.png). Until it exists the
+                             room is env.png, enlarged gently (a placeholder: soft, but in the right place)
   art/lab/lab_cams.json      every station's camera in three's axes (position, quaternion, vertical fov), the robot's
                              spot, the point a hotspot marks, the aquarium's box
   art/lab/robo_da.json       the robot's parts: {g: group, m: material, p, n, uv?, i} in three's axes
 Output:
-  lab-art.js   { st: {id: webp data URL}, env: webp data URL, cams }   (a picture table: the desktop build serves
+  lab-art.js   { st: {id: webp data URL}, env: webp data URL, pano: webp data URL, panoFrom: 'pano'|'env', cams }
+               (with a panorama the room's old fixed picture st_home is left out: the look-around room replaces it)   (a picture table: the desktop build serves
                the pictures as files, so they load only when the lab opens)
   lab-robot.js { parts: [{g, m, o, s, p, n, uv?, i}], pivots }   positions int16 against the part's box, normals
                int8, uv uint16, indices uint16, corners with equal position/normal/uv merged
 usage: python3 tools/build-lab.py [--quality 84] [--width 2560]"""
 import json, base64, struct, io, sys, pathlib
-from PIL import Image
+from PIL import Image, ImageFilter
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 A = ROOT / 'art/lab'
 Q = int(sys.argv[sys.argv.index('--quality') + 1]) if '--quality' in sys.argv else 84
@@ -58,15 +62,58 @@ if rj.exists():
           'export const LAB_ROBOT = ' + json.dumps(data, separators=(',', ':')) + ';\n')
     (ROOT / 'src/data/lab-robot.js').write_text(js); print('lab-robot.js', f'{len(js)/1024:.0f} KB', len(data['parts']), 'parts')
 
+# ── the look-around room: an equirectangular panorama from the room's centre (src/lab/room-view.js)
+def stitch():
+    """pano_<i>.png are full-size renders, black outside their slice (lab_hd_pano, render border); pano_slices.json says
+    each slice's own columns [a, b) and the rendered ones [ra, rb) (a little wider). Each column is taken from its slice,
+    and across the overlap of two neighbours the two are blended, so the denoiser's edges never show."""
+    meta_f = A / 'pano_slices.json'
+    if not meta_f.exists(): return None
+    meta = json.load(open(meta_f)); W, H = meta['w'], meta['h']
+    files = [A / s['file'] for s in meta['slices']]
+    if not all(f.exists() for f in files): print('pano: slices missing', [f.name for f in files if not f.exists()]); return None
+    out = A / 'pano.png'
+    if out.exists() and out.stat().st_mtime >= max(f.stat().st_mtime for f in files): return out
+    pano = Image.new('RGB', (W, H))
+    for s, f in zip(meta['slices'], files):
+        im = Image.open(f).convert('RGB')
+        if im.size != (W, H): raise SystemExit(f'pano: {f.name} is {im.size}, expected {(W, H)}')
+        a, ra, rb = s['a'], s['ra'], s['rb']
+        # pasted in order: each slice covers all it rendered, and fades in over the overlap with the slice before it
+        # (that one rendered up to a + (a - ra)), so the two blend evenly and the denoiser's edges never show
+        mask = Image.new('L', (W, H), 0); mask.paste(255, (ra, 0, rb, H))
+        if s['i'] > 0:
+            n = 2 * (a - ra)
+            for x in range(ra, ra + n): mask.paste(int(round(255 * (x - ra + 0.5) / n)), (x, 0, x + 1, H))
+        pano.paste(im, (0, 0), mask)
+    pano.save(out); print('pano: stitched', len(files), 'slices into', out.name, pano.size)
+    return out
+
+def pano_image():
+    stitch()
+    if (A / 'pano.png').exists(): return Image.open(A / 'pano.png').convert('RGB'), 'pano'
+    if (A / 'env.png').exists():
+        # the placeholder: the reflections' 1024 × 512 render, enlarged twice with a soft sharpening (it stays soft)
+        im = Image.open(A / 'env.png').convert('RGB')
+        im = im.resize((im.width * 2, im.height * 2), Image.LANCZOS).filter(ImageFilter.UnsharpMask(radius=2.2, percent=70, threshold=2))
+        return im, 'env'
+    return None, None
+
 # ── the rendered room
 cams = json.load(open(A / 'lab_cams.json')) if (A / 'lab_cams.json').exists() else None
+pim, pfrom = pano_image()
+pano = None
+if pim is not None:
+    if pim.width > 4096: pim = pim.resize((4096, 2048), Image.LANCZOS)
+    buf = io.BytesIO(); pim.save(buf, 'WEBP', quality=82 if pfrom == 'pano' else 86, method=6); pano = 'data:image/webp;base64,' + b64(buf.getvalue())
 st = {}
 for f in sorted(A.glob('st_*.png')):
+    if f.stem == 'st_home' and pano: continue   # the look-around room replaces the old fixed picture of the room
     st[f.stem[3:]] = webp(f, WIDTH, Q)
 env = webp(A / 'env.png', 1024, 80) if (A / 'env.png').exists() else None
-art = {'st': st, 'env': env, 'cams': cams}
+art = {'st': st, 'env': env, 'pano': pano, 'panoFrom': pfrom, 'cams': cams}
 js = ('// GENERATED by tools/build-lab.py from art/lab/ (Cycles renders of tools/blender/lab_hd.py) – do not edit.\n'
       '// The lab of רובו־דע: one rendered picture per station, the room for reflections, and the cameras that took them.\n'
       'export const LAB_ART = ' + json.dumps(art, separators=(',', ':')) + ';\n')
 (ROOT / 'src/data/lab-art.js').write_text(js)
-print('lab-art.js', f'{len(js)/1024/1024:.2f} MB', 'stations:', list(st), 'env' if env else 'no env')
+print('lab-art.js', f'{len(js)/1024/1024:.2f} MB', 'stations:', list(st), 'env' if env else 'no env', f'pano from {pfrom} {len(pano)//1024} KB' if pano else 'no pano')
