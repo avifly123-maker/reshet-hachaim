@@ -398,7 +398,9 @@
 #ui.wol .rs-say.on { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
 #ui.wol .rs-say.low { top: auto; bottom: 12px; }
 @media (max-height: 640px) { #ui.wol .rs-say { top: 200px; } }
-@media (max-height: 520px) { #ui.wol .rs-say { top: 176px; } }
+@media (max-height: 520px) { #ui.wol .rs-say { top: 98px; } }
+/* "see what happens" stays on top of רובו־דע's bubble, so it can always be pressed */
+#ui.wol .rs-ff.on { z-index: 47; }
 #ui.wol .rs-say-ic { flex: none; display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(160deg, rgba(255, 255, 255, .24), rgba(0, 0, 0, .14)), var(--tc, #3a4d5c); }
 #ui.wol .rs-say-ic .ic { width: 26px; height: 26px; color: #fff1c4; }
 #ui.wol .rs-say-body { flex: 1; min-width: 0; }

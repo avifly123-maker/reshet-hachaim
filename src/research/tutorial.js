@@ -11,10 +11,10 @@ const STEPS = [
   { id: 'measure', hi: '.rs-tool[data-tool="nightcam"]', done: (s) => s.placed.has('nightcam') },
   { id: 'night', hi: '.rs-note [data-act="tonight"]', done: (s) => s.known.has('mice') },
   { id: 'board', hi: '.rs-board', manual: true },
-  { id: 'notebook', hi: '.rs-lab', done: (s) => s.nbOpen || !!s.guess },
-  { id: 'hypTab', hi: '.nb-tab[data-tab="hyp"]', done: (s) => s.nbTab === 'hyp' || !!s.guess },
+  { id: 'notebook', hi: '.rs-lab', done: (s) => (s.nbOpen && s.known.size > 0) || !!s.guess },
+  { id: 'hypTab', hi: '.nb-tab[data-tab="hyp"]', done: (s) => (s.nbTab === 'hyp' && s.known.size > 0) || !!s.guess },
   { id: 'hyp', hi: '.nb-hyps', done: (s) => !!s.guess },
-  { id: 'close', hi: '.rs-nbm .rs-x', done: (s) => !s.modal },
+  { id: 'close', hi: '.rs-nbm .rs-x', done: (s) => !!s.guess && !s.modal },
   { id: 'idea', hi: '.rs-ideas', done: (s) => s.acts > 0 },
   { id: 'see', hi: '.rs-see', done: (s) => s.ff || s.runs > 0 },
   { id: 'wait', hi: null, done: (s) => s.runs > 0 },
@@ -25,18 +25,14 @@ const STEPS = [
 export function createTutorial({ R, T, texts, state, onEnd }) {
   const pressed = new Set();
   let cur = null, over = false, t = 0;
-  const doneAt = (i, s) => {
-    const st = STEPS[i];
-    if (st.end) return false;
-    if (!st.manual) return st.done(s);
-    // a "הבא" step is passed once pressed, or once the child is already further on
-    return pressed.has(st.id) || STEPS.slice(i + 1).some((x) => !x.manual && !x.end && x.done(s));
-  };
   function tick(dt) {
     if (over) return;
     t -= Math.max(dt || 0, 0.05); if (t > 0) return; t = 0.2;   // also on a slow machine, where frames are far apart
     const s = state();
-    let i = 0; while (i < STEPS.length - 1 && doneAt(i, s)) i++;
+    // the step after the furthest one done: a child who goes ahead on their own is followed, never sent back
+    let last = -1;
+    for (let k = 0; k < STEPS.length - 1; k++) if (STEPS[k].manual ? pressed.has(STEPS[k].id) : STEPS[k].done(s)) last = k;
+    const i = Math.min(STEPS.length - 1, last + 1);
     const st = STEPS[i];
     const key = st.end ? (s.lastHeals ? 'endOk' : 'endTry') : st.id;
     // a step inside a window (the notebook, the conclusion) speaks from the bottom, so it never covers the window's top
