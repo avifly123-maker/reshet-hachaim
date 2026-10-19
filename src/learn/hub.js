@@ -772,17 +772,35 @@ const CSS = `
 .wol-learn .wl-end p{font-size:1.2em;color:var(--ink2)}
 .wol-learn .wl-row{display:flex;gap:.8em;flex-wrap:wrap;justify-content:center}
 /* album */
-.wol-learn .wl-album{align-items:stretch;padding:0 1.6em 0;gap:.8em;animation:none}
-.wol-learn .wl-abar{display:flex;align-items:center;gap:1em;flex-wrap:wrap;padding:.7em 1.1em;border-radius:20px}
-.wol-learn .wl-count{display:flex;flex-direction:column;min-width:13em}
-.wol-learn .wl-count b{font-size:1.25em;color:#1f2c1a}
-.wol-learn .wl-tabs{display:flex;gap:.35em;background:rgba(80,70,40,.1);padding:.25em;border-radius:99px}
-.wol-learn .wl-tab{padding:.45em 1em;border-radius:99px;font-weight:700;color:var(--ink2);min-height:2.4em}
+/* album: one slim bar of navigation on top, the rest of the page is cards */
+.wol-learn .wl-album{align-items:stretch;padding:0 1.6em 0;gap:.6em;animation:none;min-width:0}
+.wol-learn .wl-abar{flex:none;display:flex;align-items:center;gap:.6em;flex-wrap:nowrap;padding:.35em .6em .35em .7em;border-radius:18px;min-width:0}
+.wol-learn .wl-abar .wl-btn{min-height:2.45em;padding:.2em .95em;font-size:.98em;gap:.4em;white-space:nowrap;flex:none;box-shadow:0 3px 0 var(--edge),0 5px 12px rgba(0,0,0,.16)}
+.wol-learn .wl-abar .wl-btn.gold{box-shadow:0 3px 0 #9c6512,0 5px 12px rgba(0,0,0,.2)}
+.wol-learn .wl-abar .wl-btn.go{box-shadow:0 3px 0 #2f6a26,0 5px 12px rgba(0,0,0,.2)}
+.wol-learn .wl-abar .wl-btn .wl-ic{width:1.3em;height:1.3em}
+.wol-learn .wl-count{flex:none;display:flex;flex-direction:column;min-width:0}
+.wol-learn .wl-count b{font-size:1.08em;line-height:1.15;color:#1f2c1a;white-space:nowrap}
+.wol-learn .wl-count .wl-meter{height:.5em;margin-top:.25em}
+.wol-learn .wl-tabs{flex:0 1 auto;min-width:0;display:flex;gap:.2em;background:rgba(80,70,40,.1);padding:.2em;border-radius:99px;overflow-x:auto;scrollbar-width:none}
+.wol-learn .wl-tabs::-webkit-scrollbar{display:none}
+.wol-learn .wl-tab{flex:none;padding:.3em .85em;border-radius:99px;font-weight:700;color:var(--ink2);min-height:2.15em;white-space:nowrap}
 .wol-learn .wl-tab.sel{background:#fbf6e5;color:#1f2c1a;box-shadow:0 2px 6px rgba(0,0,0,.15)}
-.wol-learn .wl-grid{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;display:grid;grid-template-columns:repeat(auto-fill,minmax(10.2em,1fr));gap:1.1em;padding:.6em .4em 1.6em;align-content:start;justify-items:center;scrollbar-width:thin;scrollbar-color:rgba(246,240,220,.35) transparent}
+.wol-learn .wl-setsbtn .wl-ic{color:#7a5a12}
+.wol-learn .wl-setsc{font-size:.8em;font-weight:900;padding:.1em .5em;border-radius:99px;background:rgba(80,70,40,.12);color:var(--ink2);direction:ltr}
+.wol-learn .wl-setsbtn.on,.wol-learn .wl-setsbtn[aria-expanded="true"]{background:linear-gradient(180deg,#fff6d6,#f3d88e)}
+.wol-learn .wl-abody{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;gap:.55em}
+.wol-learn .wl-grid{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;display:grid;grid-template-columns:repeat(auto-fill,minmax(10.6em,1fr));gap:1.25em .9em;padding:.5em .5em 2em;align-content:start;justify-items:center;scrollbar-width:thin;scrollbar-color:rgba(246,240,220,.35) transparent;overscroll-behavior:contain}
 .wol-learn .wl-grid .wl-card{--cw:10em;cursor:pointer}
-.wol-learn .wl-grid .wl-card.anim{animation:wl-rise .4s both;animation-delay:calc(var(--d,0) * 22ms)}
+.wol-learn .wl-grid .wl-card.anim,.wol-learn .wl-grid .wl-scard.anim{animation:wl-rise .4s both;animation-delay:calc(var(--d,0) * 22ms)}
 .wol-learn .wl-grid .wl-card:not(.is-locked):hover{transform:translateY(-4px) scale(1.03);z-index:2}
+/* a heading row in the grid: one part of the album */
+.wol-learn .wl-gsec{--gc:#2f7a5a;grid-column:1/-1;justify-self:stretch;display:flex;align-items:center;gap:.7em;padding:.2em .2em 0;color:#f3ecd2;min-width:0}
+.wol-learn .wl-gsec:not(:first-child){margin-top:.6em}
+.wol-learn .wl-gsec b{flex:none;font-family:var(--serif);font-size:1.3em;line-height:1.2;padding:.1em .8em;border-radius:99px;background:var(--gc);color:#fff;box-shadow:inset 0 -.15em 0 rgba(0,0,0,.18),0 3px 10px rgba(0,0,0,.25)}
+.wol-learn .wl-gsec .wl-gsub{flex:none;font-weight:700;color:#e2dcbd;white-space:nowrap}
+.wol-learn .wl-gsec small{flex:none;font-weight:800;font-size:.95em;color:#f3ecd2;opacity:.85;white-space:nowrap}
+.wol-learn .wl-gsec i{flex:1;height:2px;min-width:1em;background:linear-gradient(270deg,rgba(246,240,220,.35),rgba(246,240,220,0))}
 /* card */
 .wol-learn .wl-card{--cw:12em;position:relative;width:10em;height:14.2em;font-size:calc(var(--cw) / 10);border-radius:.8em;padding:.32em;flex:none;
   background:linear-gradient(150deg,#9fd57a,#4f9a3e 45%,#2f5a2a);box-shadow:0 .5em 1.2em rgba(0,0,0,.35),inset 0 0 0 .08em rgba(255,255,255,.35);transition:transform .2s;text-align:right;color:var(--ink)}
@@ -929,16 +947,8 @@ const CSS = `
 .wol-learn .wl-src.shira{margin:.8em 0}
 .wol-learn .wl-gotpack.src{background:linear-gradient(180deg,#fbf0d0,#efd9a0);color:#5a3a10}
 .wol-learn .wl-gotpack.src .wl-ic{width:1.2em;height:1.2em}
-.wol-learn .wl-srcpage{display:flex;flex-direction:column;gap:1em;padding:0 0 1.5em;flex:1;min-height:0;overflow-y:auto;scrollbar-width:thin}
-.wol-learn .wl-grid>.wl-srcall{grid-column:1/-1;justify-self:stretch}
-.wol-learn .wl-grid>.wl-srcall .wl-srcpage{overflow:visible}
 .wol-learn .wl-pk-wait{display:grid;place-items:center;width:9em;height:12em;border-radius:1em;background:rgba(246,240,220,.08);box-shadow:inset 0 0 0 3px rgba(246,240,220,.2)}
 .wol-learn .wl-pk-wait .wl-ic{width:4.5em;height:4.5em;color:#f6cf72;opacity:.8}
-.wol-learn .wl-srcall{margin-top:1.4em;padding-top:1.2em;border-top:2px dashed rgba(246,240,220,.25)}
-.wol-learn .wl-srchead{display:flex;gap:.8em;align-items:center;padding:.8em 1.1em;border-radius:1em}
-.wol-learn .wl-srchead>.wl-ic{width:2.2em;height:2.2em;color:#b8892e;flex:none}
-.wol-learn .wl-srchead p{margin:.15em 0 0;opacity:.85}
-.wol-learn .wl-sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(10.5em,1fr));gap:1em}
 .wol-learn .wl-scard{--sc:#b8892e;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4em;min-height:13.5em;padding:1.2em .9em;border-radius:1em;cursor:pointer;
   color:#3a2a10;text-align:center;font:inherit;border:0;
   background:radial-gradient(120% 80% at 50% 0%,rgba(255,255,255,.65),transparent 60%),linear-gradient(180deg,#fbf3dc,#ecdcb0);
@@ -951,6 +961,14 @@ const CSS = `
 .wol-learn .wl-scard.locked b{opacity:.7}
 .wol-learn .wl-scard:not(.locked):hover{transform:translateY(-.2em)}
 .wol-learn .wl-scard.big{width:13em;min-height:18em;cursor:default;animation:none}
+.wol-learn .wl-grid .wl-scard{width:10em;height:14.2em;min-height:0;overflow:hidden;border-radius:.8em;box-shadow:0 0 0 .2em #fff8e6,0 0 0 .34em var(--sc),0 .5em 1.2em rgba(0,0,0,.35);animation:none}
+.wol-learn .wl-grid .wl-scard.art{padding:.45em .45em .6em;gap:.2em}
+.wol-learn .wl-grid .wl-scard .wl-sart{aspect-ratio:1.55;border-radius:.55em}
+.wol-learn .wl-grid .wl-scard.art .wl-sci{width:2.5em;height:2.5em;margin-top:-1.45em}
+.wol-learn .wl-grid .wl-scard.art .wl-sci .wl-ic{width:1.35em;height:1.35em}
+.wol-learn .wl-grid .wl-scard b{font-size:1.08em;line-height:1.3;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;flex:none}
+.wol-learn .wl-grid .wl-scard small{font-size:.8em;line-height:1.3;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
+.wol-learn .wl-grid .wl-scard:not(.locked):hover{transform:translateY(-4px) scale(1.03);z-index:2}
 .wol-learn .wl-scard.art{justify-content:flex-start;padding:.55em .55em .9em;gap:.25em}
 .wol-learn .wl-sart{position:relative;display:block;width:100%;aspect-ratio:1.45;border-radius:.65em;overflow:hidden;flex:none;box-shadow:inset 0 0 0 .12em rgba(80,50,10,.35)}
 .wol-learn .wl-sart img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
@@ -1094,8 +1112,7 @@ ${BADGE_CSS}
 .wol-learn .wl-mrar{display:flex;align-items:center;gap:.6em;padding:.45em .8em;border-radius:12px;background:rgba(80,70,40,.08);font-size:1em;line-height:1.35;color:#2c3524}
 .wol-learn .wl-mrar .wl-gems{flex:none;font-size:1.3em;cursor:default}
 .wol-learn .wl-mrar.r-rare{background:rgba(240,180,76,.2)}.wol-learn .wl-mrar.r-epic{background:rgba(179,48,106,.12)}.wol-learn .wl-mrar.r-tech{background:rgba(44,95,143,.12)}
-.wol-learn .wl-legbtn{min-height:2.6em;padding:.3em 1em}
-.wol-learn .wl-legbtn .wl-ic{width:1.3em;height:1.3em;color:#2f6a26}
+.wol-learn .wl-legbtn .wl-ic{color:#2f6a26}
 .wol-learn .wl-lgcard{position:relative;flex:none}
 .wol-learn .wl-lgpin{position:absolute;z-index:3;width:1.9em;height:1.9em;margin:-.95em 0 0 -.95em;border-radius:50%;display:grid;place-items:center;background:linear-gradient(180deg,#fff2c4,#f0b44c);color:#3a2608;font-weight:900;font-size:1em;box-shadow:0 0 0 .18em #1f2c1a,0 .2em .5em rgba(0,0,0,.4);animation:wl-pop .4s .35s both}
 .wol-learn .wl-legend{width:min(31em,50vw);max-height:100%;overflow:auto;padding:1em 1.3em;gap:.5em}
@@ -1148,7 +1165,6 @@ ${BADGE_CSS}
 @keyframes wl-star{0%{opacity:0;transform:scale(.2) rotate(-40deg)}100%{opacity:1;transform:none}}
 @keyframes wl-sheen{0%{background-position:150% 0}100%{background-position:-100% 0}}
 @keyframes wl-conf{0%{opacity:0;transform:translate(-50%,-50%) scale(.4) rotate(0)}15%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) rotate(var(--r)) scale(1)}}
-@media (max-width:1100px){.wol-learn .wl-count{min-width:8.5em}.wol-learn .wl-abar{gap:.55em;padding:.6em .8em}.wol-learn .wl-tab{padding:.45em .7em}.wol-learn .wl-abar .wl-btn{padding-left:.8em;padding-right:.8em}}
 @media (max-height:620px){.wol-learn .wl-tart{height:10em}.wol-learn .wl-hero h1{font-size:2.6em}}
 @media (prefers-reduced-motion:reduce){.wol-learn,.wol-learn *,.wol-learn *::before,.wol-learn *::after{animation-duration:.01ms!important;animation-delay:0s!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 /* round 2: gentle colour – each corner of the learning centre has its own soft nature hue */
@@ -1188,12 +1204,17 @@ ${BADGE_CSS}
 .wol-learn .wl-tabs .wl-tab:nth-child(4).sel{background:#dbeaf0;color:#1f5670}
 .wol-learn .wl-sub{border-right-color:var(--sun);background:rgba(242,207,91,.16)}
 /* album sets ("סדרות") */
-.wol-learn .wl-sets{display:flex;flex-direction:column;gap:.15em;flex:none;min-width:0;margin-top:-.25em}
-.wol-learn .wl-setsh{display:flex;align-items:baseline;gap:.7em;padding:0 .3em;line-height:1.15;color:#f3ecd2}
-.wol-learn .wl-setsh b{font-family:var(--serif);font-size:1.2em}
-.wol-learn .wl-setsh small{display:flex;align-items:center;gap:.3em;font-size:.86em;font-weight:700;color:#e2dcbd;white-space:nowrap}
-.wol-learn .wl-setsh small .wl-ic{width:1.15em;height:1.15em;color:var(--amber)}
-.wol-learn .wl-setrow{min-width:0;display:flex;flex-wrap:wrap;gap:.4em;padding:.15em .2em .35em}
+.wol-learn .wl-setlayer{position:absolute;inset:0;z-index:6;display:flex;flex-direction:column;align-items:stretch}
+.wol-learn .wl-setlayer[hidden]{display:none}
+.wol-learn .wl-setveil{position:absolute;inset:0;border-radius:18px;background:rgba(8,20,12,.55);backdrop-filter:blur(2px);animation:wl-fadein .2s both}
+.wol-learn .wl-sets{position:relative;display:flex;flex-direction:column;gap:.6em;min-width:0;max-height:calc(100% - 1em);overflow-y:auto;padding:.7em .9em .9em;border-radius:18px;animation:wl-rise .25s both;scrollbar-width:thin}
+.wol-learn .wl-setsh{display:flex;align-items:center;gap:.7em;padding:0 .2em;line-height:1.15;color:#1f2c1a;flex-wrap:wrap}
+.wol-learn .wl-setsh b{font-family:var(--serif);font-size:1.4em}
+.wol-learn .wl-setsh small{display:flex;align-items:center;gap:.3em;font-size:.95em;font-weight:700;color:var(--ink2)}
+.wol-learn .wl-setsh small .wl-ic{width:1.2em;height:1.2em;color:#b96f12}
+.wol-learn .wl-setsn{font-weight:700;color:var(--ink2);white-space:nowrap}
+.wol-learn .wl-setsh .wl-btn{min-height:2.3em;padding:.2em 1em;font-size:.95em}
+.wol-learn .wl-setrow{min-width:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(12.5em,1fr));gap:.55em;padding:.2em .2em .35em}
 .wol-learn .wl-set{--sc:#5f9a3e;flex:1 0 auto;display:flex;align-items:center;gap:.4em;padding:.24em .35em .24em .6em;border-radius:16px;background:#f3ecd6;color:var(--ink);text-align:right;
   box-shadow:0 3px 0 rgba(60,50,25,.35),0 6px 14px rgba(0,0,0,.2);transition:transform .15s,box-shadow .2s}
 .wol-learn .wl-set:hover{transform:translateY(-2px)}
@@ -1211,8 +1232,9 @@ ${BADGE_CSS}
 .wol-learn .wl-set.done .wl-setn{width:1.45em;height:1.45em;border-radius:50%;display:grid;place-items:center;background:var(--sc);color:#fff}
 .wol-learn .wl-set.done .wl-setn .wl-ic{width:1em;height:1em}
 .wol-learn .wl-set.justdone{animation:wl-bump .7s 3}
-.wol-learn .wl-set{max-width:13em}
-@media (max-width:1100px){.wol-learn .wl-set{gap:.3em;padding:.2em .25em .2em .45em;border-radius:14px}.wol-learn .wl-set .wl-seti{width:1.6em;height:1.6em}.wol-learn .wl-set .wl-seti .wl-ic{width:1.05em;height:1.05em}.wol-learn .wl-setb b{font-size:.84em}.wol-learn .wl-setrow{gap:.3em}}
+.wol-learn .wl-set{padding:.4em .5em .4em .7em;gap:.55em;background:#f6f0dc;box-shadow:0 2px 0 rgba(60,50,25,.3),0 4px 10px rgba(0,0,0,.15)}
+.wol-learn .wl-set .wl-seti{width:2.2em;height:2.2em}
+.wol-learn .wl-set .wl-setb b{font-size:1em}
 .wol-learn .wl-setinfo{--sc:#5f9a3e;flex:none;display:flex;align-items:center;gap:.8em;padding:.45em .8em .45em 1em;border-radius:18px;border-right:.45em solid var(--sc);animation:wl-rise .3s both}
 .wol-learn .wl-setinfo .wl-seti{width:2.7em;height:2.7em}
 .wol-learn .wl-setinfo .wl-seti .wl-ic{width:1.5em;height:1.5em}
@@ -1226,12 +1248,14 @@ ${BADGE_CSS}
 .wol-learn .wl-setr .wl-ic{color:#b96f12}
 .wol-learn .wl-setinfo.done .wl-setr{background:linear-gradient(180deg,#fff2c4,#f8d98a);box-shadow:0 0 .8em rgba(240,180,76,.5)}
 .wol-learn .wl-setinfo .wl-btn{min-height:2.4em;padding:.25em 1em;font-size:.95em}
-@media (max-height:660px){.wol-learn .wl-sets{flex-direction:row;align-items:center;gap:.5em;margin-top:0}.wol-learn .wl-setsh small{display:none}
-.wol-learn .wl-setrow{flex:1;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;scrollbar-color:rgba(246,240,220,.45) transparent;padding:.3em .2em .45em;-webkit-mask-image:linear-gradient(270deg,#000 92%,transparent);mask-image:linear-gradient(270deg,#000 92%,transparent)}
-.wol-learn .wl-set{flex:none}.wol-learn .wl-setinfo{padding:.3em .7em .3em .8em;gap:.6em}.wol-learn .wl-setinfo .wl-seti{width:2.1em;height:2.1em}.wol-learn .wl-sett b{font-size:1.15em}.wol-learn .wl-sett p{display:none}.wol-learn .wl-album{gap:.55em}.wol-learn .wl-abar{padding:.45em .8em}}
+@media (max-height:660px){.wol-learn .wl-setinfo{padding:.25em .6em .25em .7em;gap:.6em}.wol-learn .wl-setinfo .wl-seti{width:2em;height:2em}.wol-learn .wl-sett b{font-size:1.15em}.wol-learn .wl-sett p{display:none}.wol-learn .wl-album{gap:.45em}.wol-learn .wl-abody{gap:.45em}.wol-learn .wl-gsec b{font-size:1.15em}}
 @media (max-height:520px){.wol-learn .wl-packs{gap:.5em;padding-bottom:.5em}.wol-learn .wl-ptitle{font-size:1.7em}.wol-learn .wl-packs .wl-stage{font-size:.78em;margin-top:.9em}}
-@media (max-height:660px) and (max-width:900px){.wol-learn .wl-abar .wl-dlab{display:none}.wol-learn .wl-abar .wl-btn.go{padding-left:.6em;padding-right:.6em}.wol-learn .wl-count b{max-width:5.6em;line-height:1.1}.wol-learn .wl-tab{padding:.4em .55em}.wol-learn .wl-abar{gap:.4em}}
-@media (max-height:660px) and (max-width:1100px){.wol-learn .wl-legbtn span{display:none}.wol-learn .wl-legbtn{padding:.3em .55em}.wol-learn .wl-count{min-width:0}.wol-learn .wl-count b{font-size:1.05em}.wol-learn .wl-setr{padding:.25em .6em;font-size:.9em}}
+/* the album bar stays one row: labels give way to icons as the screen narrows */
+@media (max-width:1500px){.wol-learn .wl-legbtn .wl-bl{display:none}.wol-learn .wl-abar .wl-legbtn{padding:.2em .6em}}
+@media (max-width:1180px){.wol-learn .wl-abar .wl-dlab{display:none}.wol-learn .wl-abar .wl-duelbtn{padding:.2em .7em}.wol-learn .wl-count .wl-cw{display:none}.wol-learn .wl-tab{padding:.3em .65em}.wol-learn .wl-abar{gap:.45em}}
+@media (max-width:780px){.wol-learn .wl-packbtn .wl-bl{display:none}.wol-learn .wl-abar .wl-packbtn{padding:.2em .7em}}
+@media (max-width:960px){.wol-learn .wl-setsbtn .wl-setsc{display:none}.wol-learn .wl-album{padding:0 1em}.wol-learn .wl-sett p,.wol-learn .wl-setw{display:none}.wol-learn .wl-setr{padding:.25em .6em;font-size:.9em}}
+@media (max-width:860px){.wol-learn .wl-tab{padding:.3em .5em}.wol-learn .wl-abar{gap:.35em;padding:.3em .45em}.wol-learn .wl-abar .wl-btn{padding:.2em .6em}.wol-learn .wl-setsh small{display:none}.wol-learn .wl-setp{display:none}}
 .wol-learn .wl-toast.set{gap:.7em;padding:.55em 1.6em .55em 1.1em;font-size:1.12em;line-height:1.25;box-shadow:0 0 0 .2em #fff6dc,0 0 2em rgba(246,207,114,.8),0 8px 24px rgba(0,0,0,.35)}
 .wol-learn .wl-toast.set .wl-seti{width:2.4em;height:2.4em}.wol-learn .wl-toast.set .wl-seti .wl-ic{width:1.4em;height:1.4em}
 .wol-learn .wl-toast.set b{display:block;font-family:var(--serif);font-size:1.15em}
@@ -1390,7 +1414,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   const GAMES = { webpuzzle: mountWebPuzzle, keepforest: mountKeepForest, inventors: mountInventors, expedition: mountExpedition };
   let gameInst = null;
   function go(name, opts = {}) {
-    clearTimers(); closeModal();
+    clearTimers(); closeModal(); setsOpen = false;
     if (name === 'home') returnTo = null;
     if (gameInst) { try { gameInst.destroy && gameInst.destroy(); } catch (e) { console.warn(e); } gameInst = null; }
     if (GAMES[name]) {
@@ -1410,6 +1434,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   let returnTo = null;
   function back() {
     if (!modal.hidden) return closeModal();
+    if (screen === 'album' && setsOpen) { sfx('click'); return showSets(false); }
     if (returnTo && screen === returnTo) { sfx('click'); returnTo = null; return close(); }
     const p = PARENT[screen];
     if (p) { sfx('click'); go(p); } else close();
@@ -1627,13 +1652,23 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   /* ── album */
   let filter = 'all';
   const setDots = (st) => st.cards.map((c) => `<i class="${S.owned[c.id] ? 'on' : ''}${c.rarity === 'epic' || c.rarity === 'rare' ? ' r' : ''}"></i>`).join('');
+  // the sets live in a panel that opens from the "סדרות" button, so the album page is mostly cards
+  let setsOpen = false;
   function setsHTML() {
-    const chips = activeSets().map((st) => {
+    const sets = activeSets(), done = sets.filter((st) => setProg(st).done).length;
+    const chips = sets.map((st) => {
       const p = setProg(st), sel = filter === 'set:' + st.id;
       return `<button class="wl-set${p.done ? ' done' : ''}${sel ? ' sel' : ''}" data-wl="set" data-v="${st.id}" style="--sc:${st.col}" aria-pressed="${sel}" title="${esc(st.sub)} · ${SET_WHERE[st.where]}">
         <span class="wl-seti">${st.ic}</span><span class="wl-setb"><b>${esc(st.name)}</b><span class="wl-setd">${setDots(st)}<span class="wl-setn">${p.done ? IC.check : `${p.have}/${p.n}`}</span></span></span></button>`;
     }).join('');
-    return `<div class="wl-sets"><div class="wl-setsh"><b>סדרות</b><small>${IC.pack}<span>אספו סדרה שלמה – וקבלו חבילת קלפים במתנה</span></small></div><div class="wl-setrow">${chips}</div></div>`;
+    return `<div class="wl-setlayer"${setsOpen ? '' : ' hidden'}><div class="wl-setveil" data-wl="setsclose"></div>
+      <div class="wl-sets paper" role="dialog" aria-label="סדרות"><div class="wl-setsh"><b>סדרות</b><small>${IC.pack}<span>אספו סדרה שלמה – וקבלו חבילת קלפים במתנה</span></small><span class="wl-sp"></span><span class="wl-setsn">שלמות: <b>${done}</b> מתוך <b>${sets.length}</b></span><button class="wl-btn" data-wl="setsclose">סגירה</button></div>
+      <div class="wl-setrow">${chips}</div></div></div>`;
+  }
+  function showSets(on) {
+    setsOpen = !!on;
+    const layer = main.querySelector('.wl-setlayer'); if (layer) layer.hidden = !setsOpen;
+    const btn = main.querySelector('.wl-setsbtn'); if (btn) btn.setAttribute('aria-expanded', String(setsOpen));
   }
   function setInfoHTML(st) {
     const p = setProg(st), miss = p.n - p.have;
@@ -1644,31 +1679,48 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
       <span class="wl-setr">${IC.pack}<span>${p.done ? 'הסדרה שלמה – קיבלתם חבילה!' : `עוד ${miss === 1 ? 'קלף אחד' : miss + ' קלפים'} – וחבילה במתנה`}</span></span>
       <button class="wl-btn" data-wl="filter" data-v="all">כל הקלפים</button></div>`;
   }
+  // a heading row inside the card grid (the "הכול" page shows the album part by part)
+  const ALBUM_PARTS = [['amazon', 'אמזונס', '#2f7a5a'], ['grove', 'חורש', '#9a7a2e'], ['reef', 'שונית', '#1f8ab0'], ['tech', 'טכנולוגיה', '#2c5f8f']];
+  const inPart = (c, v) => (v === 'tech' ? c.type === 'tool' : c.biome === v);
+  const secHTML = (title, have, n, col, sub = '') => `<div class="wl-gsec" style="--gc:${col}"><b>${title}</b>${sub ? `<span class="wl-gsub">${sub}</span>` : ''}<small>${have} מתוך ${n}</small><i></i></div>`;
   function renderAlbum() {
     checkSets(); // also grants sets an older save already had complete (with the celebration)
     const { total, have } = collection();
     const frameCls = chosenFrame() !== 'none' ? 'fr-' + chosenFrame() : '';   // the frame the player chose with their badges
-    if (filter === 'src' && !(TORAH && sourcesOn())) filter = 'all';
+    if (filter === 'src' && !srcOn()) filter = 'all';
     const curSet0 = filter.startsWith('set:') ? SET_BY.get(filter.slice(4)) : null;
     const curSet = curSet0 && (!curSet0.torah || sourcesOn()) ? curSet0 : null;
     if (filter.startsWith('set:') && !curSet) filter = 'all';
-    const list = curSet ? curSet.cards : CARDS.filter((c) => filter === 'all' || (filter === 'tech' ? c.type === 'tool' : c.biome === filter));
-    const tab = (v, t) => `<button class="wl-tab${filter === v ? ' sel' : ''}" data-wl="filter" data-v="${v}">${t}</button>`;
+    let n = 0;   // running index: the first cards rise in one after the other
+    const cards = (arr) => arr.map((c) => { const i = n++, anim = i < 24 ? 'anim' : ''; return S.owned[c.id] ? cardHTML(c, { style: `--d:${i}`, cls: anim + (frameCls ? ' ' + frameCls : ''), count: S.owned[c.id] }) : cardHTML(c, { style: `--d:${i}`, cls: anim, locked: true }); }).join('');
+    const own = srcOn() ? ownedSources() : {}, srcHave = SOURCE_CARDS.filter((c) => own[c.id]).length;
+    const srcCards = () => SOURCE_CARDS.map((c) => sourceCardHTML(c, !!own[c.id], n++)).join('');
+    let body;
+    if (curSet) body = cards(curSet.cards);
+    else if (filter === 'src') body = secHTML('קלפי מקור', srcHave, SOURCE_CARDS.length, '#b8892e', 'סיפורים ופסוקים על הבריאה') + srcCards();
+    else if (filter === 'all') {
+      body = ALBUM_PARTS.map(([v, t, col]) => { const l = CARDS.filter((c) => inPart(c, v)); return secHTML(t, l.filter((c) => S.owned[c.id]).length, l.length, col) + cards(l); }).join('');
+      if (srcOn()) body += secHTML('מן המקורות', srcHave, SOURCE_CARDS.length, '#b8892e', 'סיפורים ופסוקים על הבריאה') + srcCards();
+    } else body = cards(CARDS.filter((c) => inPart(c, filter)));
+    const tab = (v, t) => `<button class="wl-tab${filter === v ? ' sel' : ''}" data-wl="filter" data-v="${v}" aria-pressed="${filter === v}">${t}</button>`;
+    const sets = activeSets(), setsDone = sets.filter((st) => setProg(st).done).length;
+    const late = S.packs && !opensLeft();
     main.innerHTML = `<section class="wl-screen wl-album">
       <div class="wl-abar paper">
-        <div class="wl-count"><b>אספתם ${have} מתוך ${total}</b><div class="wl-meter"><i style="width:${Math.round((have / total) * 100)}%"></i></div></div>
-        <div class="wl-tabs">${tab('all', 'הכול')}${tab('amazon', 'אמזונס')}${tab('grove', 'חורש')}${tab('reef', 'שונית')}${tab('tech', 'טכנולוגיה')}${TORAH && sourcesOn() ? tab('src', 'מן המקורות') : ''}</div>
-        <button class="wl-btn wl-legbtn" data-wl="legend">${IC.quest}<span>מה רואים על הקלף?</span></button>
+        <div class="wl-count" title="אספתם ${have} מתוך ${total} קלפים"><b><span class="wl-cw">אספתם </span>${have} <span class="wl-cof">מתוך</span> ${total}</b><div class="wl-meter"><i style="width:${Math.round((have / total) * 100)}%"></i></div></div>
+        <div class="wl-tabs">${tab('all', 'הכול')}${tab('amazon', 'אמזונס')}${tab('grove', 'חורש')}${tab('reef', 'שונית')}${tab('tech', 'טכנולוגיה')}${srcOn() ? tab('src', 'מן המקורות') : ''}</div>
+        <button class="wl-btn wl-setsbtn${curSet ? ' on' : ''}" data-wl="setsopen" aria-expanded="${setsOpen}" title="סדרות: אספו סדרה שלמה וקבלו חבילת קלפים במתנה">${IC.cards}<span class="wl-bl">סדרות</span><span class="wl-setsc">${setsDone}/${sets.length}</span></button>
+        <button class="wl-btn wl-legbtn" data-wl="legend" title="מה רואים על הקלף?" aria-label="מה רואים על הקלף?">${IC.quest}<span class="wl-bl">מה רואים על הקלף?</span></button>
         <span class="wl-sp"></span>
-        <button class="wl-btn gold" data-wl="pack" ${S.packs ? '' : 'disabled'} title="${S.packs && !opensLeft() ? 'היום כבר פתחתם ' + OPEN_PER_DAY + ' חבילות. מחר אפשר לפתוח עוד' : 'אפשר לפתוח עד ' + OPEN_PER_DAY + ' חבילות ביום'}">${IC.pack} ${S.packs && !opensLeft() ? 'עוד חבילות מחר' : 'פתחו חבילה'} ${S.packs ? `<span class="wl-badgeN">${S.packs}</span>` : ''}</button>
-        <button class="wl-btn go" data-wl="duel" ${have >= 3 ? '' : 'disabled'} title="${have >= 3 ? 'מי חזק ברשת?' : 'צריך לפחות 3 קלפים'}" aria-label="מי חזק ברשת?">${IC.versus} <span class="wl-dlab">מי חזק ברשת?</span></button>
+        <button class="wl-btn gold wl-packbtn" data-wl="pack" ${S.packs ? '' : 'disabled'} title="${late ? 'היום כבר פתחתם ' + OPEN_PER_DAY + ' חבילות. מחר אפשר לפתוח עוד' : 'פתחו חבילה. אפשר לפתוח עד ' + OPEN_PER_DAY + ' חבילות ביום'}" aria-label="${late ? 'עוד חבילות מחר' : 'פתחו חבילה'}">${IC.pack}<span class="wl-bl">${late ? 'עוד חבילות מחר' : 'פתחו חבילה'}</span>${S.packs ? `<span class="wl-badgeN">${S.packs}</span>` : ''}</button>
+        <button class="wl-btn go wl-duelbtn" data-wl="duel" ${have >= 3 ? '' : 'disabled'} title="${have >= 3 ? 'מי חזק ברשת?' : 'צריך לפחות 3 קלפים'}" aria-label="מי חזק ברשת?">${IC.versus}<span class="wl-dlab">מי חזק ברשת?</span></button>
       </div>
-      ${setsHTML()}
-      ${curSet ? setInfoHTML(curSet) : ''}
-      ${filter === 'src' ? sourcePageHTML() : `<div class="wl-grid${curSet ? ' inset' : ''}">${list.map((c, i) => { const o = { style: `--d:${i}`, cls: (i < 24 ? 'anim' : '') + (frameCls ? ' ' + frameCls : '') }; return S.owned[c.id] ? cardHTML(c, { ...o, count: S.owned[c.id] }) : cardHTML(c, { ...o, cls: i < 24 ? 'anim' : '', locked: true }); }).join('')}${filter === 'all' && srcOn() ? `<div class="wl-srcall">${sourcePageHTML()}</div>` : ''}</div>`}
+      <div class="wl-abody">
+        ${curSet ? setInfoHTML(curSet) : ''}
+        <div class="wl-grid${curSet ? ' inset' : ''}">${body}</div>
+        ${setsHTML()}
+      </div>
     </section>`;
-    const selSet = main.querySelector('.wl-set.sel'), setRow = selSet && selSet.parentElement;   // a scrolling row of chips: keep the chosen one in view
-    if (setRow && setRow.scrollWidth > setRow.clientWidth) { const r = selSet.getBoundingClientRect(), rr = setRow.getBoundingClientRect(); if (r.left < rr.left || r.right > rr.right) setRow.scrollLeft += (r.left + r.width / 2) - (rr.left + rr.width / 2); }
     if (!S.packs && have < 3) toast(`${IC.quest}<span>שחקו בחידון כדי להרוויח חבילות קלפים</span>`);
   }
   // torah edition: the album page of source cards ("מן המקורות")
@@ -1678,15 +1730,10 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   const srcNoArt = (c, own) => `<span class="wl-sart none"><i>${own ? (IC[c.icon] || IC_SCROLL) : IC_SCROLL}</i></span>`;
   function sourceCardHTML(c, own, i) {
     const art = TORAH ? SOURCE_ART[c.id] : '';
-    return `<button class="wl-scard${own ? '' : ' locked'}${art || TORAH ? ' art' : ''}" data-wl="szoom" data-s="${c.id}" style="--sc:${c.col};--d:${i}">
+    return `<button class="wl-scard${own ? '' : ' locked'}${art || TORAH ? ' art' : ''}${i < 24 ? ' anim' : ''}" data-wl="szoom" data-s="${c.id}" style="--sc:${c.col};--d:${i}">
       ${art ? `<span class="wl-sart"><img src="${art}" alt="" draggable="false" style="object-position:50% ${((SRC_FOCUS[c.id] ?? 0.5) * 100).toFixed(0)}%"></span>` : TORAH ? srcNoArt(c, own) : ''}
       <span class="wl-sci">${own ? (IC[c.icon] || IC_SCROLL) : IC_SCROLL}</span>
       <b>${own ? esc(c.title) : 'קלף מקור'}</b><small>${own ? esc(c.ref) : esc(EARN_TEXT[c.earn] || '')}</small></button>`;
-  }
-  function sourcePageHTML() {
-    const own = ownedSources(), have = SOURCE_CARDS.filter((c) => own[c.id]).length;
-    return `<div class="wl-srcpage"><div class="wl-srchead paper">${IC_SCROLL}<div><b>קלפי מקור</b><p>סיפורים ופסוקים על הבריאה. אספתם ${have} מתוך ${SOURCE_CARDS.length}.</p></div></div>
-      <div class="wl-sgrid">${SOURCE_CARDS.map((c, i) => sourceCardHTML(c, !!own[c.id], i)).join('')}</div></div>`;
   }
   function szoom(id) {
     const c = SOURCE_CARDS.find((x) => x.id === id); if (!c) return;
@@ -2006,8 +2053,9 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     pick: (t) => { QS[t.dataset.g] = t.dataset.v; sfx('select'); renderSetup(); },
     start: () => { sfx('click'); go('quiz'); }, again: () => { sfx('click'); go('quiz', { level: Q && Q.level, biome: Q && Q.biome }); },
     ans: (t) => answer(+t.dataset.k), next: nextQ,
-    filter: (t) => { filter = t.dataset.v; sfx('click'); renderAlbum(); },
-    set: (t) => { const v = 'set:' + t.dataset.v; const fromZoom = !modal.hidden; closeModal(); filter = filter === v && !fromZoom ? 'all' : v; sfx('select'); if (screen === 'album') renderAlbum(); else go('album'); },
+    filter: (t) => { filter = t.dataset.v; setsOpen = false; sfx('click'); renderAlbum(); },
+    setsopen: () => { sfx('click'); showSets(!setsOpen); }, setsclose: () => { sfx('click'); showSets(false); },
+    set: (t) => { const v = 'set:' + t.dataset.v; const fromZoom = !modal.hidden; closeModal(); setsOpen = false; filter = filter === v && !fromZoom ? 'all' : v; sfx('select'); if (screen === 'album') renderAlbum(); else go('album'); },
     pack: () => { sfx('click'); go('pack'); }, tear: tearPack, reveal: (t) => revealCard(t), revealall: revealAll, legend: () => cardLegend(),
     game: (t) => { sfx('click'); go(t.dataset.g); },
     szoom: (t) => szoom(t.dataset.s),
