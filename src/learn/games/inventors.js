@@ -1,20 +1,27 @@
 import { genderOf } from '../../data/common.js';
 import { icon } from '../../ui/ui.js';
-import { PROBLEMS, TRAIT as TRAIT0, TRAITS, traitsOf, SAY as SAY0, TRIALS as TRIALS0, THEMES as THEMES0, WILD as WILD0, problemNeeds } from '../../data/inventions.js';
-import { PROBLEMS_K, TRAIT_K, THEMES_K, WILD_K, SAY_K, TRIALS_K, INV_UI_K, nameK } from '../../data/inventions-kids.js';   // the beginners' words (ניקוד מלא)
+import { PROBLEMS, TRAIT as TRAIT0, TRAITS, traitsOf, SAY as SAY0, TRIALS as TRIALS0, THEMES as THEMES0, WILD as WILD0, problemNeeds, MISSIONS as MISSIONS0, ROBOT_SAY as RSAY0 } from '../../data/inventions.js';
+import { PROBLEMS_K, TRAIT_K, THEMES_K, WILD_K, SAY_K, TRIALS_K, INV_UI_K, MISSIONS_K, ROBOT_SAY_K, nameK } from '../../data/inventions-kids.js';   // the beginners' words (ניקוד מלא)
+import { scoreProblem, gaugeOf, robotTest, robotWeight } from '../../data/invent-score.js';
 import { invent, markSolved } from '../../lab/progress.js';
 import { TORAH } from '../../core/edition.js';
 import { grantSource } from '../../core/sources-store.js';
 // "הממציאים" – a sandbox of inventions for the learning hub and the lab of רובו־דע (single player).
 // Two workshops:
 //  · בעיות להמציא – a real problem people solved by learning from a creature. The child puts one or two of
-//    their own cards on the workbench and runs the test. Every card brings traits (src/data/inventions.js):
-//    the right trait solves it, a near one half solves it, anything else flops in a funny way. There is no
-//    single path: try, fail, try again. A solved problem shows what really happened (docs/sources.md).
-//  · סדנת הרובוטים – build a robot from one body card and two traits from other cards, and test it on five
-//    trials (water race, night search, climbing, carrying, hide-and-seek). Pure fun and surprise.
+//    their own cards on the workbench and runs the test. Every card brings traits (src/data/inventions.js) and the
+//    score is by traits (src/data/invent-score.js): the problem's own route, or a creative route that really works
+//    too ("רעיון יצירתי שעובד!", with why it works and a true fact), solves it (3 stars); two useful ideas give 2 stars,
+//    one gives 1, each with "what works / what is still missing". There is no single path: try, fail, try again.
+//    A solved problem shows what really happened (docs/sources.md). Hints come late and gently: after a few tries
+//    what is needed (in words), later the clue question, and only when asked again, the cards marked.
+//  · סדנת הרובוטים – pick a mission first, then a body card and 2 to 4 traits from other cards. Every trait adds
+//    weight: more traits can do more, but some tests hate weight or size. Each test shows what helped, what hurt
+//    and what was missing.
 // Prizes are badges (ctx.badge): inv:first, inv:five, inv:ten, inv:many (25), inv:all, inv:stubborn (10 failed
-// tries), inv:wild, inv:pair (the first combination of two traits), inv:theme:<theme> (every problem on a shelf).
+// tries), inv:wild, inv:pair (the first combination of two traits), inv:theme:<theme> (every problem on a shelf),
+// inv:creative (a creative route), inv:creative5, inv:robot (a mission passed), inv:robotall (all six missions),
+// inv:lean (a mission with full marks and only two traits), inv:allround (7 of the 12 tests in the big test).
 // The shark-skin problem also gives the lab's invention (the faster reef survey robot) and, in the torah
 // edition, the source card "שאל נא בהמות ותורך".
 // The problems sit on themed shelves (THEMES). Some need two traits from two cards (a combination): one of the
@@ -24,7 +31,8 @@ import { grantSource } from '../../core/sources-store.js';
 // Solved problems are mirrored into the lab's progress (markSolved) for the research questions of the atlas.
 //
 // export function mountInventors(root, ctx, opts) → { destroy() }   (opts.view: 'problems' | 'robots', opts.problem: an id)
-// Debug hook: window.__ivDebug = { state(), pick(problemId), theme(id), put(cardId), clear(), test(), view(v), robot(body, a, b), run(), hand() }
+// Debug hook: window.__ivDebug = { state(), pick(problemId), theme(id), put(cardId), clear(), test(), eval(pid, ids), hintAt(n), view(v),
+//   mission(id), robot(body, ...traits), pickFor(cardId), run(), hand() }
 
 const CSS_ID = 'wl-inventors-css';
 const sv = (body) => `<svg class="wl-ic" viewBox="0 0 24 24" aria-hidden="true">${body}</svg>`;
@@ -56,6 +64,13 @@ const I = {
   claw: sv('<path d="M12 3v6M7.5 4.5q-2 5 1.5 8.5M16.5 4.5q2 5-1.5 8.5" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M8 13h8l-1.5 7h-5z" fill="currentColor"/>'),
   back: sv('<path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'),
   undo: sv('<path d="M8 7L4 11l4 4" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 11H14a5 5 0 0 1 0 10h-3" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/>'),
+  // the robot workshop's tests (1.3.1)
+  sand: sv('<path d="M2.5 17c3-4.5 6-4.5 9 0M11 17c3-6 7-6 10.5 0" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M2.5 20.5h19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="17" cy="6" r="2.6" fill="currentColor"/>'),
+  thermo: sv('<path d="M10 4.5a2 2 0 0 1 4 0v9.3a4 4 0 1 1-4 0z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="17.2" r="2.2" fill="currentColor"/><path d="M12 15V8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'),
+  wall: sv('<rect x="3" y="4" width="8" height="4.5" rx="1" fill="currentColor"/><rect x="13" y="4" width="8" height="4.5" rx="1" fill="currentColor"/><rect x="3" y="10" width="3.5" height="4.5" rx="1" fill="currentColor"/><rect x="8" y="10" width="8" height="4.5" rx="1" fill="currentColor"/><rect x="17.5" y="10" width="3.5" height="4.5" rx="1" fill="currentColor"/><rect x="3" y="16" width="8" height="4.5" rx="1" fill="currentColor"/><rect x="13" y="16" width="8" height="4.5" rx="1" fill="currentColor"/>'),
+  gap: sv('<path d="M3 3.5h6.5l1 8-1 9H3zM21 3.5h-6.5l-1 8 1 9H21z" fill="currentColor"/>'),
+  star: sv('<path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z" fill="currentColor"/>'),
+  weight: sv('<path d="M8.5 7.5a3.5 3.5 0 1 1 7 0" stroke="currentColor" stroke-width="2" fill="none"/><path d="M6.5 8.5h11l2.5 12H4z" fill="currentColor"/>'),
 };
 // the robot's face on the radio: a visor with eyes that change with the result
 const FACE = {
@@ -166,19 +181,19 @@ function injectCss() {
 .wol-learn .iv-steps button{padding:.4em .9em;border-radius:999px;background:rgba(246,240,220,.1);color:#e8e2c4;font-weight:700}
 .wol-learn .iv-steps button.on{background:#7ff0ff;color:#0f2530}
 .wol-learn .iv-trials{display:flex;flex-direction:column;gap:.45em}
-.wol-learn .iv-trial{display:grid;grid-template-columns:2em 8em 1fr;align-items:center;gap:.6em;padding:.5em .8em;border-radius:.8em;background:rgba(246,240,220,.07);color:#ece5c8}
+.wol-learn .iv-trial{display:grid;grid-template-columns:2em minmax(6em,9em) 1fr auto;align-items:center;gap:.25em .6em;padding:.45em .8em;border-radius:.8em;background:rgba(246,240,220,.07);color:#ece5c8}
 .wol-learn .iv-trial .wl-ic{width:1.5em;height:1.5em;color:#7ff0ff}
 .wol-learn .iv-trial b{font-weight:800}
 .wol-learn .iv-trial .bar{position:relative;height:.8em;border-radius:999px;background:rgba(0,0,0,.35);overflow:hidden}
 .wol-learn .iv-trial .bar i{position:absolute;inset:0 auto 0 0;width:0;background:linear-gradient(90deg,#e05a3a,#f2c94c 50%,#5fc35a);transition:width .9s ease-out}
-.wol-learn .iv-trial small{grid-column:2 / 4;color:#cfc6a8}
+.wol-learn .iv-trial small{grid-column:2 / 5;color:#cfc6a8}
 .wol-learn .iv-best{display:flex;gap:.5em;flex-wrap:wrap}
 .wol-learn .iv-best span{padding:.3em .7em;border-radius:.6em;background:rgba(246,240,220,.08);color:#e8e2c4;font-size:.88em}
 @keyframes iv-pop{from{opacity:0;transform:translateY(.6em) scale(.97)}to{opacity:1;transform:none}}
 @keyframes iv-shake{0%,100%{transform:none}25%{transform:translateX(-.3em) rotate(-2deg)}75%{transform:translateX(.3em) rotate(2deg)}}
 .wol-learn .iv-slot.shake{animation:iv-shake .4s 2}
 .wol-learn .iv-main>*,.wol-learn .iv-rmain>*{min-width:0}
-.wol-learn .iv.wl-screen{align-items:stretch}.wol-learn .iv>*{max-width:100%}.wol-learn .iv-bench>*{flex:none}
+.wol-learn .iv.wl-screen{align-items:stretch}.wol-learn .iv.wl-screen.still{animation:none}.wol-learn .iv>*{max-width:100%}.wol-learn .iv-bench>*{flex:none}
 @media (max-width:860px){.wol-learn .iv{padding:0 .7em .4em;gap:.4em}.wol-learn .iv-main{grid-template-columns:minmax(9em,11em) minmax(0,1fr);gap:.6em}.wol-learn .iv-rmain{grid-template-columns:minmax(10em,13em) minmax(0,1fr);gap:.6em}
   .wol-learn .iv-robot{font-size:.74em;padding:.6em}.wol-learn .iv-rbody{flex:none}
   .wol-learn .iv-side{gap:.25em}.wol-learn .iv-th{min-height:0;padding:.3em .1em}.wol-learn .iv-th span{display:none}
@@ -189,6 +204,59 @@ function injectCss() {
 @media (max-height:500px){.wol-learn .iv-plan p{font-size:.8em;line-height:1.25}.wol-learn .iv-plan .iv-need{margin-top:.15em}.wol-learn .iv-plan h3{font-size:1.05em}
   .wol-learn .iv-tabs button{padding:.3em .8em}.wol-learn .iv-handbar .iv-f{padding:.2em .7em}.wol-learn .iv-hand{padding:.2em .2em .3em}.wol-learn .iv-hc .wl-card{--cw:min(5.4em,11vh)}
   .wol-learn .iv-slot,.wol-learn .iv-slot .wl-card{--cw:min(5.4em,12vh)}.wol-learn .iv-test{padding:.5em 1.1em;font-size:1em}.wol-learn .iv-radio{padding:.45em .7em;min-height:0}.wol-learn .iv-face{width:2.2em;height:2.2em}}
+/* open inventions (1.3.1): stars, what works and what is missing, the creative idea */
+.wol-learn .iv-stars{display:flex;gap:.15em;justify-content:center}
+.wol-learn .iv-stars .wl-ic{width:1.2em;height:1.2em;color:rgba(246,240,220,.22)}
+.wol-learn .iv-stars .wl-ic.on{color:#f6cf72;filter:drop-shadow(0 0 .25em rgba(246,207,114,.6))}
+.wol-learn .iv-break{display:flex;flex-direction:column;gap:.15em;margin-top:.35em}
+.wol-learn .iv-break .ok{color:#b9ef9a}
+.wol-learn .iv-break .miss{color:#f6e7b8}
+.wol-learn .iv-fact.creative{background:#fff4cf;box-shadow:0 0 0 .18em #f6cf72,0 .3em .7em rgba(0,0,0,.3)}
+.wol-learn .iv-fact.creative h4{color:#8a5a12}
+.wol-learn .iv-fact .iv-tf{display:block;margin-top:.3em;color:#3d5a2a}
+/* the robot workshop (1.3.1): missions, how many traits, weight, tests with a breakdown */
+.wol-learn .iv-mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(13.5em,1fr));gap:.5em}
+.wol-learn .iv-mis{display:grid;grid-template-columns:3.2em 1fr auto;align-items:center;column-gap:.6em;row-gap:.2em;padding:.5em .6em;border-radius:.8em;background:rgba(246,240,220,.1);color:#ece5c8;text-align:right}
+.wol-learn .iv-mis.on{background:linear-gradient(180deg,#f6edcf,#e2d3a6);color:var(--ink)}
+.wol-learn .iv-mis .ph{grid-row:1 / 3;width:3.2em;height:3.2em;border-radius:50%;object-fit:cover;box-shadow:0 0 0 .15em #d8a640;background:#2b3a44}
+.wol-learn .iv-mis b{font-weight:800;line-height:1.15}
+.wol-learn .iv-mis .tl{grid-column:2 / 4;display:flex;gap:.3em;align-items:center;flex-wrap:wrap}
+.wol-learn .iv-mis .tl .wl-ic{width:1.1em;height:1.1em;color:#7ff0ff}
+.wol-learn .iv-mis.on .tl .wl-ic{color:#1f5a7a}
+.wol-learn .iv-mis .best{display:flex}
+.wol-learn .iv-mis .best .wl-ic{width:.85em;height:.85em;color:rgba(246,240,220,.2)}
+.wol-learn .iv-mis .best .wl-ic.on{color:#f6cf72}
+.wol-learn .iv-mhead{display:flex;align-items:center;gap:.6em;padding:.45em .7em;border-radius:.8em;background:#22507a;color:#eaf3fb}
+.wol-learn .iv-mhead img{width:2.6em;height:2.6em;border-radius:50%;object-fit:cover;flex:none}
+.wol-learn .iv-mhead b{font-family:var(--serif);font-size:1.08em}
+.wol-learn .iv-mhead p{margin:0;font-size:.86em;opacity:.92;line-height:1.3}
+.wol-learn .iv-mhead .tl{display:flex;gap:.3em;flex-wrap:wrap;margin-top:.2em}
+.wol-learn .iv-mhead .tl span{display:flex;align-items:center;gap:.2em;font-size:.78em;padding:.05em .5em;border-radius:999px;background:rgba(255,255,255,.14)}
+.wol-learn .iv-mhead .tl .wl-ic{width:1.1em;height:1.1em}
+.wol-learn .iv-mhead button{margin-inline-start:auto;flex:none;font-size:.8em;padding:.3em .8em;border-radius:999px;background:rgba(0,0,0,.25);color:#f6e7b8;font-weight:700}
+.wol-learn .iv-count{display:flex;align-items:center;gap:.35em;color:#e8e2c4;font-weight:700;font-size:.9em}
+.wol-learn .iv-count button{width:2em;height:2em;border-radius:50%;background:rgba(246,240,220,.12);color:#e8e2c4;font-weight:900}
+.wol-learn .iv-count button.on{background:#7ff0ff;color:#0f2530}
+.wol-learn .iv-wt{display:flex;align-items:center;gap:.4em;color:#e8e2c4;font-size:.85em;font-weight:700;justify-content:center}
+.wol-learn .iv-wt .wl-ic{width:1.1em;height:1.1em}
+.wol-learn .iv-wt .seg{display:flex;gap:2px;direction:ltr}
+.wol-learn .iv-wt .seg i{width:.5em;height:.9em;border-radius:2px;background:rgba(246,240,220,.15)}
+.wol-learn .iv-wt .seg i.f{background:#5fc35a}.wol-learn .iv-wt .seg i.f.m{background:#f2c94c}.wol-learn .iv-wt .seg i.f.h{background:#e05a3a}
+.wol-learn .iv-bt{font-size:.78em;color:#bfe8f2;text-align:center;line-height:1.3}
+.wol-learn .iv-mod .x{display:inline-block;width:.8em;height:.16em;border-radius:1em;background:currentColor;opacity:.55;margin-inline-start:.2em}
+.wol-learn .iv-mod.body{background:#7ff0ff;color:#0f2530;box-shadow:0 .2em 0 #2a7f95}
+.wol-learn .iv-trial .lv{font-size:.78em;font-weight:800;padding:.05em .5em;border-radius:999px;text-align:center;white-space:nowrap}
+.wol-learn .iv-trial .lv.win{background:#5fc35a;color:#0d2a0a}.wol-learn .iv-trial .lv.half{background:#f2c94c;color:#3a2a04}.wol-learn .iv-trial .lv.fail{background:#e05a3a;color:#fff}
+.wol-learn .iv-trial.pending{opacity:.4}.wol-learn .iv-trial.pending .iv-why,.wol-learn .iv-trial.pending small,.wol-learn .iv-trial.pending .lv{visibility:hidden}
+.wol-learn .iv-why{grid-column:2 / 5;display:flex;flex-wrap:wrap;gap:.05em .8em;font-size:.84em;line-height:1.35}
+.wol-learn .iv-why .ok{color:#b9ef9a}.wol-learn .iv-why .hurt{color:#ffb39a}.wol-learn .iv-why .miss{color:#f6e7b8}
+.wol-learn .iv-rbtns{display:flex;gap:.4em;flex-wrap:wrap;justify-content:center}
+.wol-learn .iv-hc.off .wl-card{opacity:.55}
+@media (max-height:660px){.wol-learn .iv-rbody{flex:none}.wol-learn .iv-robot .iv-steps button{padding:.25em .7em}.wol-learn .iv-robot .iv-mods{gap:.3em}.wol-learn .iv-robot .iv-mod{padding:.28em .65em}.wol-learn .iv-robot{gap:.35em;padding:.6em}.wol-learn .iv-mis{padding:.35em .5em}.wol-learn .iv-mis .ph{width:2.6em;height:2.6em}.wol-learn .iv-mis{grid-template-columns:2.6em 1fr auto}}
+.wol-learn .iv-rtop{display:flex;flex-direction:column;align-items:center;gap:.4em}.wol-learn .iv-rcol{display:flex;flex-direction:column;align-items:center;gap:.35em}
+@media (max-height:660px){.wol-learn .iv-rtop{flex-direction:row;gap:.6em;justify-content:center}.wol-learn .iv-rbody{font-size:.42em}.wol-learn .iv-rcol{gap:.25em}.wol-learn .iv-robot .iv-test{font-size:1em;padding:.45em 1.1em}.wol-learn .iv-robot .iv-mod{font-size:.9em}.wol-learn .iv-rname{font-size:1.1em}}
+.wol-learn .iv-rmini{display:none;width:2em;height:2em;border-radius:50%;object-fit:cover;vertical-align:middle;margin-inline-end:.35em;box-shadow:0 0 0 .12em #7ff0ff}
+@media (max-height:500px){.wol-learn .iv-rbody,.wol-learn .iv-robot .iv-steps{display:none}.wol-learn .iv-rmini{display:inline-block}.wol-learn .iv-robot .iv-test{font-size:.95em;padding:.4em 1em}.wol-learn .iv-mod{padding:.25em .6em}.wol-learn .iv-mgrid{grid-template-columns:repeat(auto-fill,minmax(12em,1fr));gap:.35em}.wol-learn .iv-mhead p{display:none}.wol-learn .iv-why{font-size:.8em}.wol-learn .iv-trial{padding:.3em .6em}}
 `).replace(/\.wol-learn/g, '#wol-learn.wol-learn');
   document.head.appendChild(st);
 }
@@ -197,15 +265,20 @@ export function mountInventors(root, ctx, opts = {}) {
   injectCss();
   const esc = ctx.esc, kids = !!ctx.kids();
   // beginners read every word fully vocalised (src/data/inventions-kids.js): the same data with their texts laid over it
-  const U = INV_UI_K, ui = (plain, key, vars) => (kids ? (vars ? String(U[key]).replace(/\{(\w+)\}/g, (m, x) => vars[x] ?? m) : U[key]) : plain);
+  const U = INV_UI_K, ui = (plain, key, vars) => { const s = kids ? U[key] : plain; return vars ? String(s).replace(/\{(\w+)\}/g, (m, x) => vars[x] ?? m) : s; };
   const TRAIT = kids ? { ...TRAIT0, ...TRAIT_K } : TRAIT0;
   const SAY = kids ? { ...SAY0, ...SAY_K } : SAY0;
+  const RS = kids ? { ...RSAY0, ...ROBOT_SAY_K } : RSAY0;
   const THEMES = kids ? THEMES0.map((t) => ({ ...t, name: THEMES_K[t.id] || t.name })) : THEMES0;
   const WILD = kids ? WILD0.map((w, i) => ({ ...w, text: WILD_K[i] || w.text })) : WILD0;
-  const TRIALS = kids ? TRIALS0.map((t) => (TRIALS_K[t.id] ? { ...t, title: TRIALS_K[t.id].title, fun: { ...t.fun, ...TRIALS_K[t.id].fun } } : t)) : TRIALS0;
-  const kidsP = (p) => (kids && PROBLEMS_K[p.id] ? { ...p, ...PROBLEMS_K[p.id], show: { ...(p.show || {}), ...PROBLEMS_K[p.id].show } } : p);
+  const TRIALS = kids ? TRIALS0.map((t) => (TRIALS_K[t.id] ? { ...t, ...TRIALS_K[t.id], load: TRIALS_K[t.id].load || '', fun: { ...t.fun, ...TRIALS_K[t.id].fun } } : t)) : TRIALS0;
+  const MISSIONS = kids ? MISSIONS0.map((m) => ({ ...m, ...(MISSIONS_K[m.id] || {}) })) : MISSIONS0;
+  // a beginners' problem: its texts, and the creative routes' words laid over the routes (the traits stay)
+  const kidsP = (p) => { const k = kids && PROBLEMS_K[p.id]; if (!k) return p;
+    return { ...p, ...k, show: { ...(p.show || {}), ...k.show }, alt: (p.alt || []).map((a, i) => ({ ...a, ...((k.alt || [])[i] || {}) })) }; };
   const nm = (c) => (c ? (kids ? nameK(c.name) : c.name) : '');
-  const ST = Object.assign({ solved: {}, tries: 0, fails: 0, robots: [], seen: {} }, ctx.store('inventors') || {});
+  const ST = Object.assign({ solved: {}, tries: 0, fails: 0, robots: [], seen: {}, creative: {}, missions: {} }, ctx.store('inventors') || {});
+  ST.creative = ST.creative || {}; ST.missions = ST.missions || {};
   const save = () => ctx.store('inventors', ST);
   // the beginners' set: the eight first problems (as before) and a few simple new ones
   // (a research question of the lab may ask for another problem: it joins the list then)
@@ -215,7 +288,7 @@ export function mountInventors(root, ctx, opts = {}) {
   let pid = (PLIST.find((p) => p.id === opts.problem) || PLIST.find((p) => !ST.solved[p.id]) || PLIST[0]).id;
   let theme = (PLIST.find((p) => p.id === pid) || PLIST[0]).theme;
   let slots = [null, null], filter = 'all', result = null, failsHere = 0, hintAsk = 0, alive = true;
-  const R = { body: null, mods: [null, null], step: 0, run: null };
+  const R = { mission: null, picking: false, n: 2, body: null, mods: [], pickFor: null, run: null, done: null, nudge: '' };
   const offs = [];
   const on = (t, ev, fn) => { t.addEventListener(ev, fn); offs.push(() => t.removeEventListener(ev, fn)); };
   const later = (fn, ms) => ctx.later(() => { if (alive) fn(); }, ms);
@@ -228,12 +301,15 @@ export function mountInventors(root, ctx, opts = {}) {
   const isPlant = (c) => !isTool(c) && c.sp && !c.sp.animal;
   const traits = (c) => traitsOf({ id: c.id, type: c.type, skind: c.sp && c.sp.kind });
   const cardOfSp = (sp) => ['amazon', 'grove', 'reef'].map((b) => ctx.CARD.get(b + ':' + sp)).find(Boolean) || null;
+  const asBench = (c) => ({ id: c.id, tr: traits(c), tool: isTool(c), biome: c.biome, card: c });
   // {m|f|mp|fp} → the words for the card name's gender and number
   const fill = (s, c, p) => String(s).replace(/\{n\}/g, nm(c)).replace(/\{p\}/g, p ? p.title : '')
     .replace(/\{([^{}|]*\|[^{}]*)\}/g, (_, g) => { const o = g.split('|'); const k = c && !isTool(c) ? GI[genderOf(spId(c))] ?? 0 : (c && /ת$|ה$/.test(c.name.split(' ')[0]) ? 1 : 0); return o[Math.min(k, o.length - 1)]; });
   const pick = (arr, seed) => arr[Math.abs(seed) % arr.length];
   const hash = (s) => { let h = 7; for (const ch of String(s)) h = (h * 31 + ch.charCodeAt(0)) | 0; return h; };
   const curP = () => PLIST.find((x) => x.id === pid) || PLIST[0];
+  const q = (t) => (kids ? `"${TRAIT[t]}"` : `«${TRAIT[t]}»`);
+  const stars = (n, cls = 'iv-stars') => `<span class="${cls}">${[0, 1, 2].map((i) => I.star.replace('class="wl-ic"', `class="wl-ic${i < n ? ' on' : ''}"`)).join('')}</span>`;
 
   // the cards on the table: the player's own; with fewer than 8 the lab lends a starter set.
   // If no card on the table has a trait the current problem needs, the lab lends the creature it came from.
@@ -256,49 +332,38 @@ export function mountInventors(root, ctx, opts = {}) {
   }
 
   /* ───────────── problems */
-  // which needed traits the cards on the bench bring, each from a different card
-  function cover(need, cards) {
-    if (need.length === 1) return cards.some((c) => traits(c).includes(need[0])) ? [need[0]] : [];
-    const [a, b] = need;
-    for (const x of cards) for (const y of cards) if (x !== y && traits(x).includes(a) && traits(y).includes(b)) return [a, b];
-    const got = need.filter((t) => cards.some((c) => traits(c).includes(t)));
-    return got.slice(0, 1);
-  }
   function evaluate(p, cards) {
-    // only living things are a source of inspiration: a device card never solves a problem (it can still be half of a funny pair)
-    const need = problemNeeds(p), got = cover(need, cards.filter((c) => !isTool(c)));
-    const has = (c, t) => !isTool(c) && traits(c).includes(t);
+    const r = scoreProblem(p, cards.map(asBench), hash(cards.map((c) => c.id).join()));
+    const card = (b) => (b ? b.card : null);
     const reals = [p.real, p.real2].filter(Boolean);
-    if (got.length === need.length) {
-      const keyCards = cards.filter((c) => need.some((t) => has(c, t)));
-      const combo = need.length === 2;
-      const halfCards = cards.filter((c) => !need.some((t) => has(c, t)) && traits(c).some((t) => p.half.includes(t)));
-      const pair = !combo && cards.length === 2 && (keyCards.length === 2 || halfCards.length === 1);
+    const out = { ...r, by: card(r.by) || (r.keyCards && card(r.keyCards[0])) || cards[0], score: gaugeOf(r) };
+    if (r.level === 'win' && !r.creative) {
+      // a single-trait problem won with two cards that each help (a pair), or by a creature people did not learn from (wild)
+      const keys = r.keyCards.map(card);
+      const halfCards = cards.filter((c) => !keys.includes(c) && traits(c).some((t) => p.half.includes(t)));
+      out.pair = !r.combo && cards.length === 2 && (keys.length === 2 || halfCards.length === 1);
+      const realHit = keys.some((c) => reals.includes(spId(c)));
       const biomes = new Set(cards.map((c) => (isTool(c) ? 'tool' : c.biome)));
-      const realHit = keyCards.some((c) => reals.includes(spId(c)));
-      const wild = cards.length === 2 && (combo ? !realHit : biomes.size === 2 && !realHit);
-      return { level: 'win', score: combo || pair ? 100 : 92, by: keyCards[0], pair, combo, wild };
+      out.wild = cards.length === 2 && (r.combo ? !realHit : biomes.size === 2 && !realHit);
     }
-    if (got.length) {   // a combination with one of its two parts
-      const by = cards.find((c) => has(c, got[0]));
-      return { level: 'part', score: 55, by, part: got[0], missing: need.find((t) => t !== got[0]) };
-    }
-    const halfCards = cards.filter((c) => traits(c).some((t) => p.half.includes(t)));
-    if (halfCards.length) return { level: 'half', score: cards.length === 2 && halfCards.length === 2 ? 62 : 48, by: halfCards[0] };
-    if (cards.length === 2) {
-      const [x, y] = cards.map(traits);
-      const w = WILD.find((o) => (x.includes(o.t[0]) && y.includes(o.t[1])) || (x.includes(o.t[1]) && y.includes(o.t[0])));
-      if (w) return { level: 'odd', score: 30, by: cards[0], text: w.text };
-    }
-    return { level: 'fail', score: 8 + (hash(cards.map((c) => c.id).join()) & 15), by: cards[0] };
+    return out;
+  }
+  // what the problem still needs, in words (the gentle hint and the "still missing" line)
+  function wantOf(p, missing) {
+    if (!p.want) return '';
+    if (typeof p.want === 'string') return p.want;
+    const t = (missing && missing.find((x) => p.want[x])) || problemNeeds(p)[0];
+    return p.want[t] || '';
   }
   function sayFor(p, r, cards) {
     const c = r.by, seed = hash(p.id + cards.map((x) => x.id).join());
     const show = p.show || {};
+    if (r.level === 'win' && r.creative) return { face: 'wow', text: pick(SAY.creative, seed) };
     if (r.level === 'win') return { face: r.wild ? 'wow' : 'happy', text: fill(pick(r.wild ? SAY.wild : r.combo ? SAY.combo : r.pair ? SAY.winPair : SAY.win, seed), c, p) };
+    if (r.level === 'good') return { face: 'happy', text: pick(SAY.good, seed), saw: (r.part && p.part && p.part[r.part]) || show.half || '' };
     if (r.level === 'part') return { face: 'think', text: pick(SAY.part, seed), saw: (p.part && p.part[r.part]) || show.half || '' };
-    if (r.level === 'half') return { face: 'think', text: fill(pick(SAY.half, seed), c, p) + ` (${TRAIT[traits(c).find((t) => p.half.includes(t))]}: ${ui('קרוב!', 'close')})`, saw: show.half || '' };
-    if (r.level === 'odd') return { face: 'wow', text: kids ? r.text : pick(SAY.odd, seed) + ' ' + r.text, saw: show.fail || '' };
+    if (r.level === 'half') { const t = traits(c).find((x) => r.helped.some((h) => h.t === x)); return { face: 'think', text: fill(pick(SAY.half, seed), c, p) + (t ? ` (${TRAIT[t]}: ${ui('קרוב!', 'close')})` : ''), saw: show.half || '' }; }
+    if (r.level === 'odd') return { face: 'wow', text: kids ? WILD[r.wild].text : pick(SAY.odd, seed) + ' ' + WILD[r.wild].text, saw: show.fail || '' };
     let text;
     if (isTool(c)) text = fill(pick(SAY.failTool, seed), c, p);
     else if (!isPlant(c) && p.sea && c.biome !== 'reef') text = fill(pick(SAY.oddWater, seed), c, p);
@@ -318,7 +383,7 @@ export function mountInventors(root, ctx, opts = {}) {
     later(() => {
       if (r.level === 'win') {
         const first = !ST.solved[p.id];
-        ST.solved[p.id] = { by: cards.map((c) => c.id), at: Date.now() };
+        ST.solved[p.id] = { by: cards.map((c) => c.id), at: Date.now(), ...(r.creative ? { alt: r.alt } : {}) };
         ctx.sfx('quizRight'); ctx.confetti(root.querySelector('.iv-bench'), 40);
         const n = solvedCount();
         ctx.badge('inv:first');
@@ -329,6 +394,11 @@ export function mountInventors(root, ctx, opts = {}) {
         if (PLIST.filter((x) => x.theme === p.theme).every((x) => ST.solved[x.id])) ctx.badge('inv:theme:' + p.theme);
         if (r.combo) ctx.badge('inv:pair');
         if (r.wild) ctx.badge('inv:wild');
+        if (r.creative) {   // a creative route: kept per problem and route, so five different ones make the second badge
+          ST.creative[p.id + ':' + r.alt] = Date.now();
+          ctx.badge('inv:creative');
+          if (Object.keys(ST.creative).length >= 5) ctx.badge('inv:creative5');
+        }
         try { markSolved(p.id); invent(p.real); if (p.real2) invent(p.real2); } catch (e) { /* the lab's atlas stamps "השראה" on this creature */ }
         if (p.id === 'swim' && first) {   // the lab's real invention: the reef survey robot gets the shark-skin coat
           try { invent('sharkskin'); } catch (e) { /* */ }
@@ -338,47 +408,65 @@ export function mountInventors(root, ctx, opts = {}) {
       } else {
         ST.fails++; failsHere++;
         ctx.tally('inv:fails', 1); if (ctx.tally('inv:fails') >= 10) ctx.badge('inv:stubborn');
-        ctx.sfx(r.level === 'half' || r.level === 'part' ? 'click' : 'quizWrong');
-        root.querySelectorAll('.iv-slot').forEach((el) => { el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); });
+        ctx.sfx(r.stars > 0 ? 'click' : 'quizWrong');
+        if (r.stars === 0) root.querySelectorAll('.iv-slot').forEach((el) => { el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); });
       }
       save();
       result = { ...r, ...s, p };
       render();
       // the bench is short on small screens: bring the result (and what really happened) into view
-      const bench = root.querySelector('.iv-bench'), last = bench && bench.querySelector(r.level === 'win' ? '.iv-fact' : '.iv-radio');
+      const bench = root.querySelector('.iv-bench'), last = bench && bench.querySelector(r.level === 'win' ? '.iv-fact:last-child' : '.iv-radio');
       if (bench && last) bench.scrollTop = Math.max(0, last.offsetTop + last.offsetHeight - bench.clientHeight + 12);
       const handEl = root.querySelector('.iv-hand'); if (handEl) handEl.scrollLeft = 0;
     }, 1250);
   }
-  // hints: 1 = the clue (a question), 2 = the cards with a missing trait are marked
-  const hintStage = () => Math.max(hintAsk, failsHere >= (kids ? 2 : 3) ? 2 : failsHere >= 1 ? 1 : 0);
+  // hints come late and gently: 1 = what is needed in words (after a few tries), 2 = the clue question (after more),
+  // 3 = the cards that may help are marked (only when asked for)
+  const hintStage = () => Math.max(hintAsk, failsHere >= (kids ? 4 : 5) ? 2 : failsHere >= (kids ? 2 : 3) ? 1 : 0);
   function missingNow(p) {
-    const need = problemNeeds(p), got = cover(need, slots.filter(Boolean));
-    return need.filter((t) => !got.includes(t));
+    const need = problemNeeds(p), live = slots.filter(Boolean).filter((c) => !isTool(c));
+    return need.filter((t) => !live.some((c) => traits(c).includes(t)));
+  }
+  // the cards a stage-3 hint marks: one with a missing trait of the problem's own route, or with a creative route's trait
+  const hintTraits = (p, missing) => new Set([...missing, ...(p.alt || []).flatMap((a) => a.t.filter((t) => t !== 'fly' && t !== 'swim'))]);
+  function breakdownHTML(p, r) {
+    const live = r.helped.filter((h) => !h.card.tool);
+    const cardsIn = [...new Set(live.map((h) => h.card))];   // each card once, with the traits of it that help
+    const works = cardsIn.map((b) => `${live.filter((h) => h.card === b).map((h) => q(h.t)).join(', ')} (${esc(nm(b.card))})`).join('; ');
+    const miss = r.part && p.part ? '' : wantOf(p, r.missing);   // a combination's part text already says what is missing
+    return `<span class="iv-break">${works ? `<span class="ok">${ui('מה עובד:', 'works')} ${works}</span>` : ''}${miss ? `<span class="miss">${ui('מה עוד חסר:', 'stillMissing')} ${esc(miss)}</span>` : ''}</span>`;
   }
   function problemsHTML() {
     const p = curP();
     const { list, lent, lentIds } = hand(p);
     const used = new Set(slots.filter(Boolean).map((c) => c.id));
     const shown = list.filter((c) => filter === 'all' || (filter === 'tech' ? isTool(c) : c.biome === filter));
-    const stage = hintStage(), missing = missingNow(p);
-    const hinted = (c) => (traits(c).some((t) => missing.includes(t)) ? 1 : 0);   // marked cards come first in the hand
+    const stage = hintStage(), missing = missingNow(p), marks = hintTraits(p, missing);
+    const hinted = (c) => (!isTool(c) && traits(c).some((t) => marks.has(t)) ? 1 : 0);   // marked cards come first in the hand
     const need = problemNeeds(p);
     const slot = (i) => slots[i] ? `<div class="iv-slot" data-iv="unslot" data-i="${i}" title="${ui('הורדה מהשולחן', 'unslot')}">${ctx.cardHTML(slots[i])}</div>`
       : `<div class="iv-slot" data-iv="noop">${i === 0 ? ui('בחרו קלף מלמטה', 'slot0') : p.need ? ui('כאן שמים את הקלף השני', 'slot1need') : ui('אפשר להוסיף עוד אחד', 'slot1')}</div>`;
     const traitList = missing.map((t) => `"${esc(TRAIT[t])}"`).join(kids ? U.and : ' וגם ');
-    const clueText = stage >= 2 && missing.length ? ui(`רמז: חפשו ${traitList}. סימנתי לכם קלפים כאלה.`, 'clueCards', { t: traitList })
-      : stage >= 1 && p.clue ? ui(`רמז: ${esc(p.clue)}`, 'clue', { t: esc(p.clue) }) : '';
+    const clueText = stage >= 3 && missing.length ? ui(`רמז: חפשו ${traitList}, או רעיון אחר. סימנתי לכם קלפים שאולי יעזרו.`, 'clueCards', { t: traitList })
+      : stage >= 2 && p.clue ? ui(`רמז: ${esc(p.clue)}`, 'clue', { t: esc(p.clue) })
+        : stage >= 1 && p.want ? ui(`רמז קטן: ${esc(wantOf(p, missing))}`, 'hintSmall', { t: esc(wantOf(p, missing)) }) : '';
     const clueLine = clueText ? `<span class="iv-clue">${clueText}</span>` : '';
     let res = '';
     const robo = ui('רובו־דע:', 'robo');
+    const mine = result && result !== 'busy' && result.p && result.p.id === p.id;
     if (result === 'busy') res = `<div class="iv-radio">${face('think')}<p>${kids ? U.busy : `בודקים... ${esc(slots.filter(Boolean).map((c) => c.name).join(' ו'))} על שולחן הניסוי.`}</p></div>`;
-    else if (result && result.p && result.p.id === p.id) {
-      res = `<div class="iv-radio">${face(result.face)}<p><b>${robo}</b> ${esc(result.text)}${result.saw ? `<span class="iv-saw">${ui('הניסוי הראה:', 'saw')} ${esc(result.saw)}</span>` : ''}${result.level !== 'win' ? clueLine : ''}</p></div>`;
+    else if (mine) {
+      const partial = result.stars > 0 && result.level !== 'win';
+      res = `<div class="iv-radio">${face(result.face)}<p><b>${robo}</b> ${esc(result.text)}${result.saw ? `<span class="iv-saw">${ui('הניסוי הראה:', 'saw')} ${esc(result.saw)}</span>` : ''}${partial ? breakdownHTML(p, result) : ''}${result.level !== 'win' ? clueLine : ''}</p></div>`;
       if (result.level === 'win') {
         const r1 = cardOfSp(p.real), r2 = p.real2 ? cardOfSp(p.real2) : null;
         const who = [r1, r2].filter(Boolean).map(nm).join(kids ? ', ' : ' ו');
-        res += `<div class="iv-fact"><h4>${I.check}${p.need ? ui('מאיפה הרעיונות באו', 'howPair') : ui('כך זה קרה באמת', 'how')}${who ? ` · ${esc(who)}` : ''}${p.need ? `<span class="iv-two">${ui('שילוב', 'pair')}</span>` : ''}</h4><p>${esc(p.fact)}</p></div>`;
+        if (result.creative) {
+          const a = p.alt[result.alt] || {};
+          const by = result.keyCards.map((b) => nm(b.card)).join(kids ? ', ' : ' ו');
+          res += `<div class="iv-fact creative"><h4>${I.bulb}${ui('רעיון יצירתי שעובד!', 'creativeT')}${by ? ` · ${esc(by)}` : ''}</h4><p>${esc(a.why || '')}${a.fact ? `<span class="iv-tf">${esc(a.fact)}</span>` : ''}</p></div>`;
+        }
+        res += `<div class="iv-fact"><h4>${I.check}${result.creative ? ui('וכך פתרו את זה באמת', 'realWay') : p.need ? ui('מאיפה הרעיונות באו', 'howPair') : ui('כך זה קרה באמת', 'how')}${who ? ` · ${esc(who)}` : ''}${p.need ? `<span class="iv-two">${ui('שילוב', 'pair')}</span>` : ''}</h4><p>${esc(p.fact)}</p></div>`;
       }
     }
     const inTheme = PLIST.filter((x) => x.theme === theme);
@@ -392,51 +480,133 @@ export function mountInventors(root, ctx, opts = {}) {
       </div>
       <div class="iv-bench">
         <div class="iv-plan"><h3>${I[p.icon] || I.flask}${esc(p.title)}</h3><p>${esc(p.ask)}</p>
-          ${p.need ? `<div class="iv-need">${need.map((t) => `<span class="${missing.includes(t) ? '' : 'ok'}">${stage >= 2 || !missing.includes(t) ? esc(TRAIT[t]) : ui('תכונה ' + (need.indexOf(t) + 1), 'trait', { n: need.indexOf(t) + 1 })}</span>`).join('')}<span>${ui('שני קלפים, שתי תכונות', 'twoCards')}</span></div>` : ''}</div>
+          ${p.need ? `<div class="iv-need">${need.map((t) => `<span class="${missing.includes(t) ? '' : 'ok'}">${stage >= 3 || !missing.includes(t) ? esc(TRAIT[t]) : ui('תכונה ' + (need.indexOf(t) + 1), 'trait', { n: need.indexOf(t) + 1 })}</span>`).join('')}<span>${ui('שני קלפים, שתי תכונות', 'twoCards')}</span></div>` : ''}</div>
         <div class="iv-row">${slot(0)}<span class="iv-plus">${ui('וגם', 'plus')}</span>${slot(1)}
           <div class="iv-go"><button class="iv-test" data-iv="test" ${slots.some(Boolean) && result !== 'busy' ? '' : 'disabled'}>${I.flask}${ui('לבדוק בניסוי!', 'test')}</button>
-            <div class="iv-gauge"><i style="width:${result && result !== 'busy' && result.p && result.p.id === p.id ? result.score : 0}%"></i></div>
+            <div class="iv-gauge"><i style="width:${mine ? result.score : 0}%"></i></div>
+            ${stars(mine ? result.stars : 0)}
             <button class="iv-hintb" data-iv="hint">${I.bulbHint}${ui('רמז', 'hint')}</button></div></div>
-        ${res || `<div class="iv-radio">${face('happy')}<p><b>${robo}</b> ${clueText || (p.need ? ui('כאן צריך שילוב: שני קלפים, וכל אחד מביא תכונה אחרת. מותר לטעות, ככה ממציאים!', 'idleNeed') : ui('שימו על השולחן קלף אחד או שניים, ונבדוק יחד. מותר לטעות, ככה ממציאים!', 'idle'))}</p></div>`}
+        ${res || `<div class="iv-radio">${face('happy')}<p><b>${robo}</b> ${clueText || (p.need ? ui('כאן צריך שילוב: שני קלפים, וכל אחד מביא תכונה אחרת. מותר לטעות, ככה ממציאים!', 'idleNeed') : ui('שימו על השולחן קלף אחד או שניים, ונבדוק יחד. יש יותר מדרך אחת!', 'idle'))}</p></div>`}
       </div></div>
       <div class="iv-handbar">${filtersHTML()}
         ${lent ? `<small class="iv-lent">${ui('המעבדה השאילה לכם כמה קלפים', 'lent')}</small>` : `<small>${ui(`${shown.length} קלפים`, 'cards', { n: shown.length })}</small>`}</div>
-      <div class="iv-hand">${(stage >= 2 ? [...shown].sort((a, b) => hinted(b) - hinted(a)) : shown).map((c) => { const tr = traits(c); const hint = stage >= 2 && tr.some((t) => missing.includes(t));
-        const chips = [...new Set([...(hint ? tr.filter((t) => missing.includes(t)) : []), ...tr])].slice(0, 2);
-        return `<div class="iv-hc${used.has(c.id) ? ' used' : ''}${hint ? ' hint' : ''}" data-iv="card" data-c="${esc(c.id)}" title="${esc(tr.map((t) => TRAIT[t]).join(' · '))}">${ctx.cardHTML(c)}<div class="iv-tr">${chips.map((t) => `<i class="${hint && missing.includes(t) ? 'k' : ''}">${esc(TRAIT[t])}</i>`).join('')}${lentIds.has(c.id) ? `<i class="iv-lb">${ui('מושאל', 'lentOne')}</i>` : ''}</div></div>`; }).join('')}</div>`;
+      <div class="iv-hand">${(stage >= 3 ? [...shown].sort((a, b) => hinted(b) - hinted(a)) : shown).map((c) => { const tr = traits(c); const hint = stage >= 3 && hinted(c);
+        const chips = [...new Set([...(hint ? tr.filter((t) => marks.has(t)) : []), ...tr])].slice(0, 3);
+        return `<div class="iv-hc${used.has(c.id) ? ' used' : ''}${hint ? ' hint' : ''}" data-iv="card" data-c="${esc(c.id)}" title="${esc(tr.map((t) => TRAIT[t]).join(' · '))}">${ctx.cardHTML(c)}<div class="iv-tr">${chips.map((t) => `<i class="${hint && marks.has(t) ? 'k' : ''}">${esc(TRAIT[t])}</i>`).join('')}${lentIds.has(c.id) ? `<i class="iv-lb">${ui('מושאל', 'lentOne')}</i>` : ''}</div></div>`; }).join('')}</div>`;
   }
   const F_IC = { all: 'zones', amazon: 'amazon', grove: 'grove', reef: 'reef', tech: 'robot' };
   const filtersHTML = () => [['all', 'הכול'], ['amazon', 'אמזונס'], ['grove', 'חורש'], ['reef', 'שונית'], ['tech', 'טכנולוגיה']].map(([v, t]) => `<button class="iv-f${filter === v ? ' on' : ''}" data-iv="filter" data-v="${v}">${icon(F_IC[v])}${kids ? U.filters[v] : t}</button>`).join('');
+
   /* ───────────── robots */
+  const mission = () => MISSIONS.find((m) => m.id === R.mission) || null;
+  const robotObj = () => ({ body: R.body ? { id: R.body.id, type: R.body.type, skind: R.body.sp && R.body.sp.kind } : null, bodyTr: R.body ? traits(R.body).slice(0, 2) : [], mods: R.mods.map((m) => m.t) });
+  const testOf = (id) => TRIALS.find((t) => t.id === id);
+  const artOf = (id) => { const c = ctx.CARD.get(id); return c && c.art ? c.art : ''; };
   function robotName() {
     if (!R.body) return '';
-    const mods = R.mods.filter(Boolean).map((m) => TRAIT[m.t]);
-    if (kids) return U.robotOf.replace('{name}', nm(R.body)) + (mods.length ? U.with + mods.join(U.and) : '');
-    return `רובו־${R.body.name}${mods.length ? ' עם ' + mods.join(' ו') : ''}`;
+    return kids ? U.robotOf.replace('{name}', nm(R.body)) : `רובו־${R.body.name}`;
   }
-  function robotTraits() { return [...(R.body ? traits(R.body).slice(0, 2) : []), ...R.mods.filter(Boolean).map((m) => m.t)]; }
   function runRobot() {
-    if (!R.body || R.run) return;
-    const tr = robotTraits();
-    const res = TRIALS.map((tl, i) => {
-      const g = tl.good.filter((t) => tr.includes(t)).length, o = tl.ok.filter((t) => tr.includes(t)).length;
-      const sc = Math.min(100, g * 55 + o * 22 + (hash(R.body.id + tl.id) & 7));
-      const lv = sc >= 55 ? 'win' : sc >= 22 ? 'half' : 'fail';
-      return { tl, sc, lv, line: tl.fun[lv] + ' ' + pick(lv === 'win' ? SAY.trialWin : lv === 'half' ? SAY.trialHalf : SAY.trialFail, hash(tl.id + R.body.id + i)) };
-    });
-    R.run = res; ctx.sfx('click'); render();
-    root.querySelectorAll('.iv-trial .bar i').forEach((b, i) => later(() => { b.style.width = res[i].sc + '%'; if (i === res.length - 1) finishRobot(); }, 350 + i * 450));
+    const m = mission();
+    if (!R.body || !m || R.run) return;
+    const robot = robotObj();
+    const res = m.tests.map((id, i) => { const tl = testOf(id); const x = robotTest(tl, robot); return { tl, ...x, line: tl.fun[x.lv] + ' ' + pick(x.lv === 'win' ? SAY.trialWin : x.lv === 'half' ? SAY.trialHalf : SAY.trialFail, hash(tl.id + R.body.id + i)) }; });
+    R.run = res; R.done = null; ctx.sfx('click'); render();
+    const rows = root.querySelectorAll('.iv-trial');
+    const step = m.free ? 260 : 650;
+    res.forEach((r, i) => later(() => {
+      const row = rows[i]; if (row) { row.classList.remove('pending'); const b = row.querySelector('.bar i'); if (b) b.style.width = r.sc + '%'; }
+      const bench = root.querySelector('.iv-bench'); if (bench && row) bench.scrollTop = Math.max(0, row.offsetTop + row.offsetHeight - bench.clientHeight + 8);
+      ctx.sfx(r.lv === 'win' ? 'place' : 'click');
+      if (i === res.length - 1) later(finishRobot, 500);
+    }, 300 + i * step));
   }
   function finishRobot() {
-    const res = R.run; if (!res) return;
-    const total = res.reduce((s, r) => s + r.sc, 0), wins = res.filter((r) => r.lv === 'win').length;
-    ST.robots = [{ name: robotName(), total, at: Date.now() }, ...(ST.robots || [])].sort((a, b) => b.total - a.total).slice(0, 5);
-    // a robot that wins a trial its body could never do alone is a wild idea
+    const res = R.run, m = mission(); if (!res || !m) return;
+    const wins = res.filter((r) => r.lv === 'win').length, fails = res.filter((r) => r.lv === 'fail').length;
+    const pass = !m.free && fails === 0;
+    const prev = ST.missions[m.id] || 0;
+    ST.missions[m.id] = Math.max(prev, m.free ? wins : pass ? 1 + wins : 0);   // a passed mission is stored as 1 + its wins (1 to 4)
+    ST.robots = [{ name: robotName(), mission: m.id, wins, of: res.length, n: R.mods.length, at: Date.now() }, ...(ST.robots || []).filter((r) => r.mission)].slice(0, 8);
+    if (pass) ctx.badge('inv:robot');
+    if (MISSIONS.filter((x) => !x.free).every((x) => (ST.missions[x.id] || 0) >= 1)) ctx.badge('inv:robotall');
+    if (pass && wins === res.length && R.mods.length <= 2) ctx.badge('inv:lean');
+    if (m.free && wins >= 7) ctx.badge('inv:allround');
+    // a robot that wins a test its body could never do alone is a wild idea
     const own = R.body ? traits(R.body) : [];
-    if (res.some((r) => r.lv === 'win' && !r.tl.good.some((t) => own.includes(t)))) ctx.badge('inv:wild');
-    save(); ctx.sfx(wins >= 3 ? 'quizRight' : 'click');
-    if (wins >= 4) ctx.confetti(root.querySelector('.iv-robot'), 30);
-    R.done = { total, wins }; render();
+    if (res.some((r) => r.lv === 'win' && !r.tl.good.some((t) => own.includes(t)) && !r.tl.ok.some((t) => own.includes(t)))) ctx.badge('inv:wild');
+    save(); ctx.sfx(pass || (m.free && wins >= 6) ? 'quizRight' : 'click');
+    if ((pass && wins === res.length) || (m.free && wins >= 7)) ctx.confetti(root.querySelector('.iv-robot'), 30);
+    R.done = { wins, fails, pass }; render();
+    const bench = root.querySelector('.iv-bench'); if (bench) bench.scrollTop = bench.scrollHeight;
+  }
+  // a test's breakdown: what helped, what hurt (weight, size, a trait that gets in the way), what was missing
+  function whyHTML(r) {
+    const parts = [];
+    const helped = [...r.good, ...r.ok];
+    if (helped.length) parts.push(`<span class="ok">${RS.helped} ${helped.map(q).join(', ')}</span>`);
+    if (r.weightPen >= 8 || r.busyPen >= 10) parts.push(`<span class="hurt">${RS.hurt} ${r.weightPen >= 8 ? RS.weight.replace('{w}', r.W) + ' ' : ''}${esc(r.tl.load || '')}</span>`);
+    if (r.bad.length) parts.push(`<span class="hurt">${RS.bad} ${r.bad.map(q).join(', ')}</span>`);
+    if (!r.good.length) parts.push(`<span class="miss">${RS.missing} ${esc(r.tl.need)}.</span>`);
+    return `<div class="iv-why">${parts.join('')}</div>`;
+  }
+  function summaryHTML() {
+    const m = mission(), d = R.done; if (!m || !d) return '';
+    let text, fc;
+    if (m.free) { text = RS.free.replace('{n}', d.wins); fc = d.wins >= 7 ? 'wow' : 'happy'; }
+    else if (d.pass && d.wins === R.run.length) { text = RS.missionAll + (R.mods.length <= 2 ? ' ' + RS.lean : ''); fc = 'wow'; }
+    else if (d.pass) { text = RS.missionWin; fc = 'happy'; }
+    else {
+      const hard = R.run.filter((r) => r.lv === 'fail').sort((a, b) => a.sc - b.sc)[0];
+      text = RS.missionFail.replace('{t}', hard.tl.title) + ' ' + (hard.good.length && hard.weightPen + hard.busyPen >= 20 ? RS.tipHeavy : RS.tipNeed.replace('{need}', hard.tl.need));
+      fc = 'oops';
+    }
+    return `<div class="iv-radio">${face(fc)}<p><b>${ui('רובו־דע:', 'robo')}</b> ${esc(text)}</p></div>
+      <div class="iv-rbtns"><button class="iv-hintb" data-iv="improve">${I.gear}${ui('לשפר את הרובוט', 'improve')}</button><button class="iv-hintb" data-iv="again">${I.undo}${ui('רובוט חדש', 'newRobot')}</button><button class="iv-hintb" data-iv="pickm">${I.flask}${ui('משימה אחרת', 'change')}</button></div>`;
+  }
+  function missionsHTML() {
+    // the best result so far: a passed mission is stored as 1 + its wins; the big test as its wins (7 or more: three stars)
+    const best = (m) => { const v = ST.missions[m.id] || 0; if (!v) return ''; return stars(m.free ? (v >= 7 ? 3 : v >= 5 ? 2 : v >= 3 ? 1 : 0) : v - 1, 'best'); };
+    return `<div class="iv-radio">${face('happy')}<p><b>${ui('רובו־דע:', 'robo')}</b> ${kids ? U.say[0] : 'איזו משימה נבנה לה רובוט? לכל משימה יש בדיקות משלה.'}</p></div>
+      <div class="iv-mgrid">${MISSIONS.map((m) => `<button class="iv-mis${R.mission === m.id ? ' on' : ''}" data-iv="mission" data-m="${m.id}">${artOf(m.art) ? `<img class="ph" src="${artOf(m.art)}" alt="">` : '<span class="ph"></span>'}<b>${esc(m.title)}</b>${best(m)}
+        <span class="tl">${m.free ? `${I.gear}<small>12</small>` : m.tests.map((id) => I[testOf(id).icon] || I.flask).join('')}</span></button>`).join('')}</div>`;
+  }
+  function robotsHTML() {
+    const { list, lent } = hand(null);
+    const shown = list.filter((c) => filter === 'all' || (filter === 'tech' ? isTool(c) : c.biome === filter));
+    const m = mission(), choosing = !m || R.picking;
+    const stepIx = choosing ? 0 : !R.body ? 1 : 2;
+    const stepNames = kids ? U.steps : ['משימה', 'גוף', 'תכונות'];
+    const sayStep = kids ? U.say[stepIx] : ['בחרו משימה לרובוט.', 'בחרו גוף לרובוט: קלף מלמטה.', 'בחרו תכונות: לחצו על קלף, ואז על תכונה.'][stepIx];
+    const W = R.body ? robotWeight(robotObj()) : 0;
+    const segs = Array.from({ length: 12 }, (_, i) => `<i class="${i < W ? 'f' : ''}${W > 4 ? ' m' : ''}${W > 7 ? ' h' : ''}"></i>`).join('');
+    const mod = (i) => R.mods[i] ? `<button class="iv-mod" data-iv="unmod" data-i="${i}" title="${ui('הורדה', 'unslot')}">${I.gear}${esc(TRAIT[R.mods[i].t])}<span class="x"></span></button>` : `<span class="iv-mod empty">${ui('תכונה ' + (i + 1), 'trait', { n: i + 1 })}</span>`;
+    let bench;
+    if (choosing) bench = missionsHTML();
+    else {
+      const head = `<div class="iv-mhead">${artOf(m.art) ? `<img src="${artOf(m.art)}" alt="">` : ''}<div><b>${esc(m.title)}</b><p>${esc(m.ask)}</p>
+        <div class="tl">${m.free ? `<span>${I.gear}${m.tests.length}</span>` : m.tests.map((id) => `<span>${I[testOf(id).icon] || I.flask}${esc(testOf(id).title)}</span>`).join('')}</div></div>
+        ${R.run && !R.done ? '' : `<button data-iv="pickm">${ui('משימה אחרת', 'change')}</button>`}</div>`;
+      let body;
+      if (R.run) body = `<div class="iv-trials">${R.run.map((r) => `<div class="iv-trial${R.done ? '' : ' pending'}">${I[r.tl.icon] || I.flask}<b>${esc(r.tl.title)}</b><span class="bar"><i${R.done ? ` style="width:${r.sc}%"` : ''}></i></span><span class="lv ${r.lv}">${kids ? U.lv[r.lv] : { win: 'עבר', half: 'בקושי', fail: 'לא עבר' }[r.lv]}</span><small>${esc(r.line)}</small>${whyHTML(r)}</div>`).join('')}</div>` + summaryHTML();
+      else if (R.pickFor) body = `<div class="iv-plan"><h3>${I.gear}${kids ? esc(U.pickTrait.replace('{name}', nm(R.pickFor))) : `איזו תכונה לקחת מ${esc(R.pickFor.name)}?`}</h3><div class="iv-row">${traits(R.pickFor).map((t) => `<button class="iv-mod" data-iv="trait" data-t="${t}">${esc(TRAIT[t])}</button>`).join('')}</div></div>`;
+      else body = `<div class="iv-radio">${face(R.nudge ? 'think' : 'happy')}<p><b>${ui('רובו־דע:', 'robo')}</b> ${esc(R.nudge || sayStep)} ${R.body ? ui('יותר תכונות: יותר יכולות, אבל גם יותר משקל.', 'more') : ''}</p></div>`;
+      bench = head + body;
+    }
+    return `<div class="iv-rmain">
+      <div class="iv-robot"><div class="iv-rtop"><div class="iv-rbody">${robotSVG()}<div class="iv-port">${R.body && R.body.art ? `<img src="${R.body.art}" alt="">` : '<b>?</b>'}</div></div>
+        <div class="iv-rcol"><div class="iv-rname">${R.body && R.body.art ? `<img class="iv-rmini" src="${R.body.art}" alt="">` : ''}${esc(robotName() || ui('הרובוט שלכם', 'yourRobot'))}</div>
+        ${R.body ? `<div class="iv-bt">${ui('הגוף מביא:', 'bodyGives')} ${traits(R.body).slice(0, 2).map((t) => esc(TRAIT[t])).join(', ')}</div>` : ''}
+        <div class="iv-steps">${stepNames.map((s, i) => `<button class="${stepIx === i ? 'on' : ''}" data-iv="step" data-s="${i}">${esc(s)}</button>`).join('')}</div></div></div>
+        <div class="iv-count">${ui('כמה תכונות?', 'howMany')}${[2, 3, 4].map((n) => `<button class="${R.n === n ? 'on' : ''}" data-iv="count" data-n="${n}">${n}</button>`).join('')}</div>
+        <div class="iv-mods">${Array.from({ length: R.n }, (_, i) => mod(i)).join('')}</div>
+        <div class="iv-wt">${I.weight}${ui('משקל', 'weight')} <span class="seg">${segs}</span> ${W}</div>
+        <button class="iv-test" data-iv="run" ${R.body && m && !R.run ? '' : 'disabled'}>${I.flask}${ui('לבדוק בשטח!', 'field')}</button>
+      </div>
+      <div class="iv-bench">${bench}</div></div>
+      <div class="iv-handbar">${filtersHTML()}
+        ${lent ? `<small class="iv-lent">${ui('המעבדה השאילה לכם כמה קלפים', 'lent')}</small>` : ''}</div>
+      <div class="iv-hand">${shown.map((c) => `<div class="iv-hc${(R.body && R.body.id === c.id) ? ' used' : ''}${choosing ? ' off' : ''}" data-iv="rcard" data-c="${esc(c.id)}" title="${esc(traits(c).map((t) => TRAIT[t]).join(' · '))}">${ctx.cardHTML(c)}<div class="iv-tr">${traits(c).slice(0, 3).map((t) => `<i>${esc(TRAIT[t])}</i>`).join('')}</div></div>`).join('')}</div>`;
   }
   function robotSVG() {
     return `<svg viewBox="0 0 120 125" aria-hidden="true"><defs><linearGradient id="ivm" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9eef2"/><stop offset="1" stop-color="#a9b6c0"/></linearGradient></defs>
@@ -446,40 +616,19 @@ export function mountInventors(root, ctx, opts = {}) {
       <rect x="34" y="94" width="14" height="22" rx="6" fill="#c9d4dc" stroke="#6b7b86" stroke-width="2"/><rect x="72" y="94" width="14" height="22" rx="6" fill="#c9d4dc" stroke="#6b7b86" stroke-width="2"/>
       <ellipse cx="60" cy="120" rx="40" ry="4" fill="rgba(127,240,255,.25)"/></svg>`;
   }
-  function robotsHTML() {
-    const { list, lent } = hand(null);
-    const shown = list.filter((c) => filter === 'all' || (filter === 'tech' ? isTool(c) : c.biome === filter));
-    const stepName = kids ? U.steps : ['בחרו גוף לרובוט: יצור מהקלפים', 'בחרו תכונה ראשונה: לחצו על קלף ואז על תכונה', 'בחרו תכונה שנייה'];
-    const mod = (i) => R.mods[i] ? `<span class="iv-mod" data-iv="unmod" data-i="${i}">${I.gear}${esc(TRAIT[R.mods[i].t])}</span>` : `<span class="iv-mod empty">${ui('תכונה ' + (i + 1), 'trait', { n: i + 1 })}</span>`;
-    let trials = '';
-    if (R.run) trials = `<div class="iv-trials">${R.run.map((r) => `<div class="iv-trial">${I[r.tl.icon] || I.flask}<b>${esc(r.tl.title)}</b><span class="bar"><i${R.done ? ` style="width:${r.sc}%"` : ''}></i></span><small>${esc(r.line)}</small></div>`).join('')}</div>`
-      + (R.done ? `<div class="iv-radio">${face(R.done.wins >= 3 ? 'wow' : R.done.wins >= 1 ? 'happy' : 'oops')}<p><b>${ui('רובו־דע:', 'robo')}</b> ${kids ? (R.done.wins >= 4 ? U.champ : R.done.wins >= 2 ? U.some.replace('{n}', R.done.wins) : R.done.wins === 1 ? U.oneTrial : U.rest)
-        : R.done.wins >= 4 ? 'רובוט אלוף! הוא עבר כמעט הכול.' : R.done.wins >= 2 ? `עבר ${R.done.wins} מתוך 5. לא רע בכלל! אולי תכונה אחרת תעזור בשאר?` : R.done.wins === 1 ? 'עבר ניסוי אחד. מצחיק, אבל עוד לא מוכן לשטח.' : 'הרובוט הלך לנוח... ננסה גוף אחר או תכונות אחרות?'}</p></div>` : '');
-    return `<div class="iv-rmain">
-      <div class="iv-robot"><div class="iv-rbody">${robotSVG()}<div class="iv-port">${R.body && R.body.art ? `<img src="${R.body.art}" alt="">` : '<b>?</b>'}</div></div>
-        <div class="iv-rname">${esc(robotName() || ui('הרובוט שלכם', 'yourRobot'))}</div>
-        <div class="iv-mods">${mod(0)}${mod(1)}</div>
-        <div class="iv-steps"><button class="${R.step === 0 ? 'on' : ''}" data-iv="step" data-s="0">${ui('גוף', 'body')}</button><button class="${R.step === 1 ? 'on' : ''}" data-iv="step" data-s="1">${ui('תכונה 1', 'trait', { n: 1 })}</button><button class="${R.step === 2 ? 'on' : ''}" data-iv="step" data-s="2">${ui('תכונה 2', 'trait', { n: 2 })}</button></div>
-        <button class="iv-test" data-iv="run" ${R.body && !R.run ? '' : 'disabled'}>${I.flask}${ui('לבדוק בשטח!', 'field')}</button>
-        ${R.run && R.done ? `<button class="iv-hintb" data-iv="again">${I.undo}${ui('רובוט חדש', 'newRobot')}</button>` : ''}
-        ${(ST.robots || []).length ? `<div class="iv-best">${ST.robots.slice(0, 3).map((r) => `<span>${esc(r.name)} · ${r.total}</span>`).join('')}</div>` : ''}
-      </div>
-      <div class="iv-bench">${trials || `<div class="iv-radio">${face('think')}<p><b>${ui('רובו־דע:', 'robo')}</b> ${esc(stepName[R.step] || stepName[0])}. ${kids ? U.later : 'אחר כך נבדוק את הרובוט בחמישה ניסויים: מרוץ במים, חיפוש בלילה, טיפוס, הרמת משא ומחבואים.'}</p></div>`}
-        ${R.pickFor ? `<div class="iv-plan"><h3>${I.gear}${kids ? esc(U.pickTrait.replace('{name}', nm(R.pickFor))) : `איזו תכונה לקחת מ${esc(R.pickFor.name)}?`}</h3><div class="iv-row">${traits(R.pickFor).map((t) => `<button class="iv-mod" data-iv="trait" data-t="${t}">${esc(TRAIT[t])}</button>`).join('')}</div></div>` : ''}
-      </div></div>
-      <div class="iv-handbar">${filtersHTML()}
-        ${lent ? `<small class="iv-lent">${ui('המעבדה השאילה לכם כמה קלפים', 'lent')}</small>` : ''}</div>
-      <div class="iv-hand">${shown.map((c) => `<div class="iv-hc${(R.body && R.body.id === c.id) ? ' used' : ''}" data-iv="rcard" data-c="${esc(c.id)}" title="${esc(traits(c).map((t) => TRAIT[t]).join(' · '))}">${ctx.cardHTML(c)}<div class="iv-tr">${traits(c).slice(0, 2).map((t) => `<i>${esc(TRAIT[t])}</i>`).join('')}</div></div>`).join('')}</div>`;
-  }
 
+  let shownOnce = false, settle = false;
   function render() {
     if (!alive) return;
+    if (!settle) { settle = true; later(() => { shownOnce = true; }, 400); }
     const solved = PLIST.filter((p) => ST.solved[p.id]).length;
-    root.innerHTML = `<section class="wl-screen iv${kids ? ' kids' : ''}">
+    // the hub's screens rise in once (wl-rise); a re-render after a click must not rise again (it flickered)
+    root.innerHTML = `<section class="wl-screen iv${kids ? ' kids' : ''}${shownOnce ? ' still' : ''}">
       <div class="iv-top"><div class="iv-tabs"><button class="${view === 'problems' ? 'on' : ''}" data-iv="view" data-v="problems">${I.bulb}${ui('בעיות להמציא', 'problems')}</button><button class="${view === 'robots' ? 'on' : ''}" data-iv="view" data-v="robots">${I.gear}${ui('סדנת הרובוטים', 'robots')}</button></div>
         <span class="iv-score">${I.check}${ui(`${solved} מתוך ${PLIST.length} המצאות`, 'score', { n: solved, all: PLIST.length })}</span></div>
       ${view === 'problems' ? problemsHTML() : robotsHTML()}</section>`;
   }
+  const resetRun = () => { R.run = null; R.done = null; };
   function onClick(e) {
     const t = e.target.closest('[data-iv]'); if (!t || !alive) return;
     const a = t.dataset.iv;
@@ -491,38 +640,52 @@ export function mountInventors(root, ctx, opts = {}) {
       if (result === 'busy') return;
       const c = ctx.CARD.get(t.dataset.c); if (!c) return;
       if (slots.some((s) => s && s.id === c.id)) { slots = slots.map((s) => (s && s.id === c.id ? null : s)); }
-      else { const i = slots[0] ? (slots[1] ? 1 : 1) : 0; slots[i] = c; }
+      else { const i = slots[0] ? 1 : 0; slots[i] = c; }
       result = null; ctx.sfx('place'); render(); return;
     }
     if (a === 'unslot') { slots[+t.dataset.i] = null; result = null; render(); return; }
     if (a === 'test') { runTest(); return; }
-    if (a === 'hint') { hintAsk = Math.min(2, hintStage() + 1); if (result && result !== 'busy' && result.level === 'win') result = null; render(); return; }
+    if (a === 'hint') { hintAsk = Math.min(3, hintStage() + 1); if (result && result !== 'busy' && result.level === 'win') result = null; render(); return; }
     // robots
-    if (a === 'step') { R.step = +t.dataset.s; R.pickFor = null; render(); return; }
+    if (R.run && !R.done && a !== 'view' && a !== 'filter') return;   // the tests are running
+    if (a === 'mission') { R.mission = t.dataset.m; R.picking = false; R.nudge = ''; resetRun(); ctx.sfx('click'); render(); return; }
+    if (a === 'pickm') { R.picking = true; resetRun(); render(); return; }
+    if (a === 'step') { const s = +t.dataset.s; R.pickFor = null; R.nudge = ''; if (s === 0) R.picking = true; else if (s === 1 && R.mission) { R.picking = false; R.body = null; resetRun(); } else R.picking = false; render(); return; }
+    if (a === 'count') { R.n = +t.dataset.n; R.mods = R.mods.slice(0, R.n); R.nudge = ''; resetRun(); ctx.sfx('click'); render(); return; }
     if (a === 'rcard') {
-      const c = ctx.CARD.get(t.dataset.c); if (!c || R.run) return;
-      if (R.step === 0) { R.body = c; R.step = 1; R.pickFor = null; ctx.sfx('place'); }
-      else { R.pickFor = c; }
+      const c = ctx.CARD.get(t.dataset.c); if (!c) return;
+      if (!R.mission || R.picking) { R.nudge = ''; if (!R.mission) { R.picking = true; } render(); const r2 = root.querySelector('.iv-radio p'); if (r2) r2.lastChild.textContent = ' ' + ui('קודם בוחרים משימה, ואז בונים.', 'first'); return; }
+      resetRun();
+      if (!R.body) { R.body = c; R.pickFor = null; R.nudge = ''; ctx.sfx('place'); }
+      else { R.pickFor = c; R.nudge = ''; }
       render(); return;
     }
-    if (a === 'trait') { const i = R.step === 2 ? 1 : 0; R.mods[i] = { t: t.dataset.t, from: R.pickFor && R.pickFor.id }; R.pickFor = null; R.step = Math.min(2, R.step + 1); ctx.sfx('place'); render(); return; }
-    if (a === 'unmod') { R.mods[+t.dataset.i] = null; render(); return; }
+    if (a === 'trait') {
+      if (R.mods.length >= R.n) { R.pickFor = null; R.nudge = ui('אין מקום. הורידו תכונה, או בחרו יותר מקומות.', 'full'); render(); return; }
+      if (!R.mods.some((m) => m.t === t.dataset.t)) R.mods.push({ t: t.dataset.t, from: R.pickFor && R.pickFor.id });
+      R.pickFor = null; R.nudge = ''; ctx.sfx('place'); render(); return;
+    }
+    if (a === 'unmod') { R.mods.splice(+t.dataset.i, 1); resetRun(); render(); return; }
     if (a === 'run') { runRobot(); return; }
-    if (a === 'again') { R.body = null; R.mods = [null, null]; R.step = 0; R.run = null; R.done = null; render(); return; }
+    if (a === 'improve') { resetRun(); render(); return; }
+    if (a === 'again') { R.body = null; R.mods = []; R.pickFor = null; R.nudge = ''; resetRun(); render(); return; }
   }
   on(root, 'click', onClick);
   render();
   try {
     window.__ivDebug = {
-      state: () => JSON.parse(JSON.stringify({ view, pid, theme, slots: slots.map((c) => c && c.id), result: result && result.level, text: result && result.text, saw: result && result.saw, hint: hintStage(), solved: ST.solved, tries: ST.tries, fails: ST.fails, problems: PLIST.length })),
+      state: () => JSON.parse(JSON.stringify({ view, pid, theme, slots: slots.map((c) => c && c.id), result: result && result.level, stars: result && result.stars, creative: !!(result && result.creative), text: result && result.text, saw: result && result.saw, hint: hintStage(), solved: ST.solved, tries: ST.tries, fails: ST.fails, problems: PLIST.length,
+        robot: { mission: R.mission, n: R.n, body: R.body && R.body.id, mods: R.mods.map((m) => m.t), run: R.run && R.run.map((r) => [r.tl.id, r.lv, r.sc]), done: R.done } })),
       pick: (id) => { const p = PLIST.find((x) => x.id === id); if (!p) return 'no problem'; pid = id; theme = p.theme; slots = [null, null]; result = null; failsHere = 0; hintAsk = 0; render(); return 'ok'; },
       theme: (id) => { theme = id; render(); },
       put: (id) => { const c = ctx.CARD.get(id); if (!c) return 'no card'; slots[slots[0] ? 1 : 0] = c; result = null; render(); return 'ok'; },
       clear: () => { slots = [null, null]; result = null; render(); },
       hand: () => { const h = hand(); return { ids: h.list.map((c) => c.id), lent: [...h.lentIds] }; },
-      eval: (pidX, ids) => { const p = PROBLEMS.find((x) => x.id === pidX); const cards = ids.map((i) => ctx.CARD.get(i)).filter(Boolean); return p && cards.length ? evaluate(p, cards).level : null; },
-      test: () => runTest(), view: (v) => { view = v; render(); },
-      robot: (body, a, b) => { R.body = ctx.CARD.get(body); R.mods = [a ? { t: a } : null, b ? { t: b } : null]; R.run = null; R.done = null; render(); }, run: () => runRobot(),
+      eval: (pidX, ids) => { const p = PROBLEMS.find((x) => x.id === pidX); const cards = ids.map((i) => ctx.CARD.get(i)).filter(Boolean); if (!p || !cards.length) return null; const r = evaluate(p, cards); return { level: r.level, stars: r.stars, creative: !!r.creative }; },
+      test: () => runTest(), view: (v) => { view = v; render(); }, hintAt: (n) => { hintAsk = n; render(); },
+      mission: (id) => { R.mission = id; R.picking = false; resetRun(); render(); },
+      robot: (body, ...mods) => { R.body = ctx.CARD.get(body); R.n = Math.max(2, Math.min(4, mods.length || 2)); R.mods = mods.filter(Boolean).map((x) => ({ t: x })); R.picking = false; R.pickFor = null; resetRun(); render(); }, run: () => runRobot(),
+      pickFor: (id) => { R.pickFor = ctx.CARD.get(id); render(); },
     };
   } catch (e) { /* */ }
   return { destroy() { alive = false; offs.forEach((f) => f()); try { if (window.__ivDebug) delete window.__ivDebug; } catch (e) { /* */ } } };

@@ -1,0 +1,12 @@
+[{"wait":2},
+{"clickSel":"[data-mode='kids']"},{"wait":0.5},
+{"js":"window.__app.bus.emit('ui:learn', { screen: 'inventors' }); 1"},{"wait":11},
+{"js":"window.__ivDebug.pick('roof'); window.__ivDebug.put('grove:tortoise'); 1"},{"wait":0.4},
+{"clickSel":".iv-bench .iv-test"},{"wait":2.5},
+{"shot":"shots/kids-1-creative.png"},
+{"js":"const s = window.__ivDebug.state(); s.result + ' ' + s.stars + ' creative=' + s.creative + ' ' + s.text"},
+{"js":"window.__ivDebug.view('robots'); window.__ivDebug.mission('nest'); window.__ivDebug.robot('amazon:sloth', 'softwing'); 1"},{"wait":0.4},
+{"clickSel":".iv-robot .iv-test"},{"wait":4},
+{"shot":"shots/kids-2-robot.png"},
+{"js":"JSON.stringify(window.__ivDebug.state().robot)"}
+]
