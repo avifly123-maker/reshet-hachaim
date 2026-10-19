@@ -1,4 +1,5 @@
 import { genderOf } from '../../data/common.js';
+import { icon } from '../../ui/ui.js';
 import { PROBLEMS, TRAIT as TRAIT0, TRAITS, traitsOf, SAY as SAY0, TRIALS as TRIALS0, THEMES as THEMES0, WILD as WILD0, problemNeeds } from '../../data/inventions.js';
 import { PROBLEMS_K, TRAIT_K, THEMES_K, WILD_K, SAY_K, TRIALS_K, INV_UI_K, nameK } from '../../data/inventions-kids.js';   // the beginners' words (ניקוד מלא)
 import { invent, markSolved } from '../../lab/progress.js';
@@ -404,7 +405,8 @@ export function mountInventors(root, ctx, opts = {}) {
         const chips = [...new Set([...(hint ? tr.filter((t) => missing.includes(t)) : []), ...tr])].slice(0, 2);
         return `<div class="iv-hc${used.has(c.id) ? ' used' : ''}${hint ? ' hint' : ''}" data-iv="card" data-c="${esc(c.id)}" title="${esc(tr.map((t) => TRAIT[t]).join(' · '))}">${ctx.cardHTML(c)}<div class="iv-tr">${chips.map((t) => `<i class="${hint && missing.includes(t) ? 'k' : ''}">${esc(TRAIT[t])}</i>`).join('')}${lentIds.has(c.id) ? `<i class="iv-lb">${ui('מושאל', 'lentOne')}</i>` : ''}</div></div>`; }).join('')}</div>`;
   }
-  const filtersHTML = () => [['all', 'הכול'], ['amazon', 'אמזונס'], ['grove', 'חורש'], ['reef', 'שונית'], ['tech', 'טכנולוגיה']].map(([v, t]) => `<button class="iv-f${filter === v ? ' on' : ''}" data-iv="filter" data-v="${v}">${kids ? U.filters[v] : t}</button>`).join('');
+  const F_IC = { all: 'zones', amazon: 'amazon', grove: 'grove', reef: 'reef', tech: 'robot' };
+  const filtersHTML = () => [['all', 'הכול'], ['amazon', 'אמזונס'], ['grove', 'חורש'], ['reef', 'שונית'], ['tech', 'טכנולוגיה']].map(([v, t]) => `<button class="iv-f${filter === v ? ' on' : ''}" data-iv="filter" data-v="${v}">${icon(F_IC[v])}${kids ? U.filters[v] : t}</button>`).join('');
   /* ───────────── robots */
   function robotName() {
     if (!R.body) return '';

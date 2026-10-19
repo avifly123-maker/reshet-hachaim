@@ -1,4 +1,6 @@
 import { relVerb, dietVerb, notTogether, gw, genderOf, defName, prefName, joinObj } from '../../data/common.js';
+import { icon } from '../../ui/ui.js';
+import { tileIcon } from '../../ui/icons-hub.js';
 // "מחזיקים את היער" – solitaire mini-game for the learning hub (single player, gentle, cooperative).
 // The player builds a small forest (3 layers × 3 slots) from album cards; every 2 turns "nature" flips an
 // event card (drought, heat, flood...). A forest that is ready holds on; otherwise its weakest card wilts a little.
@@ -940,9 +942,9 @@ export function mountKeepForest(root, ctx, opts = {}) {
       ${sum}
       <div class="kf-tip">${I.bulb}<span><b>טיפ:</b> ${esc(loseTip(T))}</span></div>
       <div class="kf-btns">
-        <button class="wl-btn go" data-a="again">נסו שוב</button>
+        <button class="wl-btn go" data-a="again">${icon('again')}נסו שוב</button>
         <button class="wl-btn" data-a="how">${I.quest}<span>איך משחקים?</span></button>
-        <button class="wl-btn" data-a="setup">בחירת מקום</button>
+        <button class="wl-btn" data-a="setup">${icon('place')}בחירת מקום</button>
       </div></div>`
       : `<div class="kf-dbox paper">
       <div class="kf-stars">${[0, 1, 2].map((k) => `<span class="${k < stars ? 'on' : ''}">${I.star}</span>`).join('')}</div>
@@ -953,9 +955,9 @@ export function mountKeepForest(root, ctx, opts = {}) {
       ${gotPack ? `<div class="kf-pack">${I.star}<span>שלושה כוכבים ראשונים ${Y('ביער הזה', 'בשונית')} – קיבלתם חבילת קלפים!</span></div>` : ''}
       ${S.borrowed ? `<p style="font-size:.95em">הקלפים השאולים חזרו לערכת ההתחלה. קלפים משלכם מקבלים בחידון ובחבילות.</p>` : ''}
       <div class="kf-btns">
-        <button class="wl-btn go" data-a="again">עוד סיבוב</button>
-        <button class="wl-btn" data-a="setup">בחירת מקום</button>
-        <button class="wl-btn gold" data-a="album">לאלבום</button>
+        <button class="wl-btn go" data-a="again">${icon('again')}עוד סיבוב</button>
+        <button class="wl-btn" data-a="setup">${icon('place')}בחירת מקום</button>
+        <button class="wl-btn gold" data-a="album">${icon('album')}לאלבום</button>
       </div></div>`;
     d.hidden = false;
     if (!lost) ctx.confetti(d.querySelector('.kf-dbox'), stars * 12);
@@ -1006,7 +1008,7 @@ export function mountKeepForest(root, ctx, opts = {}) {
           <span><i class="kf-borrow kf-lb">שאול</i>קלף שקיבלתם בהשאלה לסיבוב הזה (עוד אין לכם אותו באלבום)</span>
           ${kids ? `<span><i class="kf-lt">${I.bulb}רמז</i>שומר היער מראה קלף טוב</span>` : `<span><i class="kf-lt">${I.skip}דילוג</i>מחזירים קלף אחד לחפיסה ומוותרים על התור</span><span><i class="kf-lt w">${I.wilt}נובל</i>קלף חלש שלא נותן חִיּוּת – אפשר לשים עליו קלף חדש</span>`}
         </div>
-        <button class="wl-btn go" data-a="howok">${first && S ? 'הבנתי – מתחילים!' : 'הבנתי'}</button>
+        <button class="wl-btn go" data-a="howok">${icon('check')}${first && S ? 'הבנתי – מתחילים!' : 'הבנתי'}</button>
       </div></div>`;
   }
   function showHow() {
@@ -1038,21 +1040,21 @@ export function mountKeepForest(root, ctx, opts = {}) {
       const show = (sp.length >= 3 ? sp : ctx.CARDS.filter((c) => c.biome === b && c.art)).slice(0, 3);
       const best = ST.best[b] || 0;
       return `<button class="kf-bt paper${b === biome ? ' on' : ''}" data-b="${b}">
-        <h2>${BNAME[b]}</h2>
+        <h2>${tileIcon(b, 'wl-tic')}${BNAME[b]}</h2>
         <div class="kf-fan">${show.map((c) => ctx.cardHTML(c)).join('')}</div>
         <p>${mine.length ? `<b>${mine.length}</b> קלפים שלכם מתאימים` : 'עוד אין לכם קלפים מהמקום הזה'}${add ? `<br>ועוד ${add} קלפים שאולים מתוך ערכת ההתחלה` : ''}</p>
         <span class="kf-best">${[0, 1, 2].map((k) => `<span class="${k < best ? 'on' : ''}">${I.star}</span>`).join('')}</span>
       </button>`;
     };
     root.innerHTML = `<section class="wl-screen kf-pick">
-      <div class="kf-phead"><h1>${I.life}מחזיקים את היער</h1><p>בונים יער מהקלפים שלכם, ועוזרים לו לעבור את מה שהטבע מביא.</p></div>
+      <div class="kf-phead"><h1>${tileIcon('keep', 'wl-tic')}מחזיקים את היער</h1><p>בונים יער מהקלפים שלכם, ועוזרים לו לעבור את מה שהטבע מביא.</p></div>
       <div class="kf-biomes">${BIOMES.map(tile).join('')}</div>
       <div class="kf-goalbox paper">
         <div class="kf-hgoal">${I.target}<div><small>המטרה</small><b>${Y('לשמור על היער חי ובריא', 'לשמור על השונית חיה ובריאה')} במשך ${kids ? 5 : 8} אירועים של הטבע</b></div></div>
         <div class="kf-gline">${goalStars()}<span class="kf-glose">${I.wilt}פחות מ-${thresholds()[0]} חִיּוּת בסוף – ${Y('היער לא החזיק', 'השונית לא החזיקה')} מעמד</span></div>
       </div>
       <div class="kf-pbtns"><button class="wl-btn" data-a="how">${I.quest}<span>איך משחקים?</span></button>
-      <button class="wl-btn go" data-a="start">יוצאים ל${BNAME[biome]}!</button></div>
+      <button class="wl-btn go" data-a="start">יוצאים ל${BNAME[biome]}!${icon('arrowL')}</button></div>
     </section>`;
   }
 
@@ -1099,7 +1101,7 @@ export function mountKeepForest(root, ctx, opts = {}) {
       <span class="kf-sp"></span>
       ${kids && S.phase === 'play' ? `<button class="wl-btn gold" data-a="hint">${I.bulb}<span>רמז</span></button>` : ''}
       <button class="wl-btn kf-q" data-a="how" title="איך משחקים?" aria-label="איך משחקים?">${I.quest}</button>
-      <button class="wl-btn" data-a="setup">מקום אחר</button>`;
+      <button class="wl-btn" data-a="setup">${icon('place')}<span>מקום אחר</span></button>`;
     renderBoard(fresh);
     renderSide();
     renderHand();
@@ -1185,7 +1187,7 @@ export function mountKeepForest(root, ctx, opts = {}) {
           <p>${esc(D.story[S.biome])}</p>`;
         // small screens: once the card has turned over, fold it away so the outcome has room (its name is the heading)
         later(() => { if (S && S.phase === 'event' && S.cur && S.cur.res) side.classList.add('resolved'); }, 1000);
-        cont.innerHTML = `<button class="wl-btn go" data-a="cont">${S.evIdx + 1 >= N ? 'לסיכום' : 'ממשיכים'}</button>`;
+        cont.innerHTML = `<button class="wl-btn go" data-a="cont">${S.evIdx + 1 >= N ? 'לסיכום' : 'ממשיכים'}${icon('arrowL')}</button>`;
       } else info.innerHTML = `<h3>${I.deck}<span>הטבע הופך קלף...</span></h3>`;
       return;
     }
