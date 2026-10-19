@@ -248,3 +248,5 @@
 }
 /* his bubble above his head stays readable over the stations' spots (they still take clicks through it) */
 #ui.wol .lb.pano .lb-say:not(.dock) { z-index: 3; }
+/* the orange spots stay above the robot's words in the look-around room (the words never hide a station) */
+#ui.wol .lb.pano .lb-hots { z-index: 4; }
