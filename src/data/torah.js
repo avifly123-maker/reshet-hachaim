@@ -116,6 +116,20 @@ export const SOURCE_CARDS = [
     quote: 'זֶה הַיָּם גָּדוֹל וּרְחַב יָדָיִם, שָׁם רֶמֶשׂ וְאֵין מִסְפָּר, חַיּוֹת קְטַנּוֹת עִם גְּדֹלוֹת.',
     lesson: 'בשונית חיים יחד שושנון קטן וכריש גדול, פלנקטון זעיר וצב ים. לכל אחד מהם יש מקום ותפקיד.' },
 ];
+// the album page "מן המקורות" in five sets (each source card is in exactly one); a whole set gives a card pack, like the
+// other album sets. Shown only in the torah edition while "מקורות ופסוקים" is on.
+export const SOURCE_SETS = [
+  { id: 'src-bereshit', name: 'מעשה בראשית', col: '#b0803a', sub: 'כל בריה נבראה בחכמה, ולכל אחת יש תפקיד',
+    cards: ['rabu', 'tachlit', 'spider', 'lashevet', 'chamato'] },
+  { id: 'src-shomrim', name: 'שומרים על העולם', col: '#3f7a4a', sub: 'לעבוד ולשמור, לנטוע ולא לקלקל',
+    cards: ['leovdah', 'tikun', 'choni', 'efes', 'tikva'] },
+  { id: 'src-chesed', name: 'עולם חסד יבנה', col: '#8a5a7a', sub: 'נותנים זה לזה, ודואגים לכל בריה',
+    cards: ['chesed', 'shnayim', 'nefesh', 'rashbi'] },
+  { id: 'src-lomdim', name: 'לומדים מהבריות', col: '#8f5b2e', sub: 'הנמלה, השפן, הנמר והכריש מלמדים אותנו',
+    cards: ['ant', 'small4', 'lion', 'sheal'] },
+  { id: 'src-harim', name: 'מן ההרים עד הים', col: '#2f7a9a', sub: 'צבאים על ההרים, כפירים ביער וחיות בים הגדול',
+    cards: ['tzvi', 'tzvaim', 'kfirim', 'yam'] },
+];
 export const EARN_TEXT = { quiz: 'מקבלים בחידון "מן המקורות" (7 תשובות נכונות ומעלה)', 'mission:gt1': 'מקבלים במשימה "לך אל נמלה" בחורש',
   'mission:gt2': 'מקבלים במשימה "החרוב של חוני" בחורש', 'set:avot': 'מקבלים כשמשלימים את הסדרה "רץ כצבי"',
   'research:mice-owl': 'מקבלים כשפותרים את התעלומה "יותר מדי קוצנים" בחוקרי הטבע',

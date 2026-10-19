@@ -17,7 +17,7 @@ import { artPos } from '../data/art-focus.js';
 import { PACK_ART } from '../data/pack-art.js';
 import { SOURCE_ART } from '../data/source-art.js';
 import { TORAH, sourcesOn, setSourcesOn } from '../core/edition.js';
-import { SHIRA, SHIRA_SET, TZVI_SET, SOURCE_CARDS, EARN_TEXT } from '../data/torah.js';
+import { SHIRA, SHIRA_SET, TZVI_SET, SOURCE_CARDS, SOURCE_SETS, EARN_TEXT } from '../data/torah.js';
 import { TQUIZ_ALL } from '../data/torah-quiz.js';   // torah.js TQUIZ + the larger bank of "מן המקורות" questions
 import { QBANK } from '../data/quiz-bank.js';        // hand-written quiz questions, mixed into every round
 import { ownedSources, grantSource } from '../core/sources-store.js';
@@ -28,6 +28,8 @@ import { mountWebPuzzle } from './games/web-puzzle.js';
 import { mountKeepForest } from './games/keep-forest.js';
 import { mountInventors } from './games/inventors.js';
 import { mountExpedition } from './games/expedition.js';
+import { mountVerseMatch } from './games/verse-match.js';   // מה הפסוק מלמד? (torah edition)
+import { FRAME_ART } from '../data/frame-art.js';            // Blender frames for the album cards (tools/build-frames.py); may be empty
 import { RELATION_TYPES, DIET_VERBS, gw, activeNameFor, ALIASES, defName } from '../data/common.js';
 import { key as profileKey, current as currentPlayer } from '../core/profiles.js';
 import { avatarHTML } from '../ui/avatars.js';
@@ -287,10 +289,13 @@ const SETS = SET_DEFS.map((d) => ({ ...d,
 // torah edition: two more sets from the sources (shown only while "מקורות ופסוקים" is on)
 const IC_SCROLL = sv('<path d="M6 4h10.5A2.5 2.5 0 0 1 19 6.5V18a2 2 0 0 1-2 2H7.5A2.5 2.5 0 0 1 5 17.5V5a1 1 0 0 1 1-1z" fill="currentColor"/><path d="M8.5 8.5h7M8.5 11.5h7M8.5 14.5h4.5" stroke="#fff" stroke-opacity=".6" stroke-width="1.5" stroke-linecap="round"/>');
 if (TORAH) for (const d of [SHIRA_SET, TZVI_SET]) SETS.push({ ...d, torah: true, ic: d.id === 'shira' ? IC_SCROLL : IC.paw, cards: d.cards.map((id) => CARD.get(id)).filter(Boolean) });
+// and the source cards themselves in five sets (SOURCE_SETS): their cards are SOURCE_CARDS, owned in core/sources-store.js
+const SRC_BY = new Map(SOURCE_CARDS.map((c) => [c.id, c]));
+if (TORAH) for (const d of SOURCE_SETS) SETS.push({ ...d, where: 'src', torah: true, src: true, ic: IC_SCROLL, cards: d.cards.map((id) => SRC_BY.get(id)).filter(Boolean) });
 const activeSets = () => SETS.filter((st) => !st.torah || sourcesOn());
 const SET_BY = new Map(SETS.map((st) => [st.id, st]));
 const setsOf = (id) => activeSets().filter((st) => st.cards.some((c) => c.id === id));
-const SET_WHERE = { amazon: 'אמזונס', grove: 'חורש', reef: 'שונית', both: 'שני היערות', tech: 'טכנולוגיה' };
+const SET_WHERE = { amazon: 'אמזונס', grove: 'חורש', reef: 'שונית', both: 'שני היערות', tech: 'טכנולוגיה', src: 'מן המקורות' };
 // sanity check (dev console): 4–8 cards, and a rare or very rare card in every species set
 for (const st of SETS) {
   if (st.torah) continue;
@@ -634,6 +639,17 @@ function flipHTML(c, o = {}) {
   return `<div class="wl-flip${o.up ? ' is-up' : ''} ${o.cls || ''}" style="${o.style || ''}" data-cid="${esc(c ? c.id : '')}">
     <div class="wl-fin"><div class="wl-face wl-fback">${backHTML()}</div><div class="wl-face wl-ffront">${c ? cardHTML(c, o) : ''}</div></div></div>`;
 }
+
+/* ───────────────────────────────────────────── album frames from Blender (art/frames/<id>.png → src/data/frame-art.js)
+   A frame with a picture is drawn by border-image (9-slice: the corners keep their ornament, the edges stretch along the
+   card); one without keeps its box-shadow frame below. */
+const FRAME_SLICE = '22%';
+const FRAME_CSS = Object.keys(FRAME_ART || {}).map((id) => `
+.wol-learn .fr-${id}.wl-card,.wol-learn .wl-frame.fr-${id} .wl-fsw{box-shadow:0 .5em 1em rgba(0,0,0,.35)}
+.wol-learn .fr-${id}.wl-card::before,.wol-learn .wl-frame.fr-${id} .wl-fsw::before{content:"";position:absolute;inset:-.5em;z-index:4;pointer-events:none;
+  border:1.15em solid transparent;border-image:url("${FRAME_ART[id]}") ${FRAME_SLICE} / 1.15em / 0 stretch}
+.wol-learn .wl-frame.fr-${id} .wl-fsw{position:relative}
+.wol-learn .wl-frame.fr-${id} .wl-fsw::before{inset:-.35em;border-width:.8em;border-image-width:.8em}`).join('');
 
 /* ───────────────────────────────────────────── CSS */
 const LEAF_BG = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220" viewBox="0 0 220 220"><g fill="#cfe8b0" fill-opacity=".05"><path d="M30 70C26 40 46 18 84 16c2 38-22 58-54 54z"/><path d="M150 40c-4-22 10-38 38-40 2 28-16 42-38 40z"/><path d="M120 170c-6-34 18-58 60-60 2 42-24 64-60 60z"/><path d="M20 190c-2-18 10-30 30-32 2 22-12 34-30 32z"/></g><g stroke="#cfe8b0" stroke-opacity=".05" stroke-width="2" fill="none"><path d="M30 70L70 30M150 40l26-26M120 170l46-46"/></g></svg>');
@@ -1071,10 +1087,6 @@ const CSS = `
 .wol-learn .wl-gthread{width:2.2em;height:.25em;border-radius:9px;background:linear-gradient(90deg,#f6cf72,#8fd067);box-shadow:0 0 .8em #f6cf72}
 /* badges (תגים) */
 ${BADGE_CSS}
-.wol-learn .wl-badgetile{display:flex;align-items:center;gap:1.2em;width:min(60em,100%);margin:0 auto;padding:.8em 1.4em;border-radius:1.2em;text-align:right;cursor:pointer;transition:transform .2s}
-.wol-learn .wl-badgetile:hover{transform:translateY(-.2em)}
-.wol-learn .wl-bt-row{display:flex;gap:.2em}.wol-learn .wl-bt-row .bdg{--bs:4.2em}
-.wol-learn .wl-bt-text b{display:block;font-family:var(--serif);font-size:1.4em;color:#3a2a10}.wol-learn .wl-bt-text small{color:#5a4a30}
 .wol-learn .wl-badges{gap:1em;padding:0 1.6em 1.6em;overflow-y:auto;overflow-x:hidden;min-height:0;scrollbar-width:thin}
 .wol-learn .wl-bhead{display:flex;align-items:center;justify-content:space-between;padding:.7em 1.2em;border-radius:1em;width:min(60em,100%);margin:0 auto}
 .wol-learn .wl-bhead b{font-family:var(--serif);font-size:1.5em}
@@ -1097,6 +1109,58 @@ ${BADGE_CSS}
 .wol-learn .fr-brass.wl-card,.wol-learn .wl-frame.fr-brass .wl-fsw{box-shadow:0 0 0 .22em #b88a2a,0 0 0 .3em #6b4a12,0 0 0 .48em #e8c870,0 .5em 1em rgba(0,0,0,.35)}
 .wol-learn .fr-deep.wl-card,.wol-learn .wl-frame.fr-deep .wl-fsw{box-shadow:0 0 0 .22em #163a5a,0 0 0 .42em #6fd0ff,0 0 1.1em rgba(111,208,255,.55)}
 .wol-learn .fr-gold.wl-card,.wol-learn .wl-frame.fr-gold .wl-fsw{box-shadow:0 0 0 .2em #fff2b0,0 0 0 .44em #d8a640,0 0 0 .52em #8a6214,0 0 1.4em rgba(246,207,114,.6)}
+.wol-learn .fr-silver.wl-card,.wol-learn .wl-frame.fr-silver .wl-fsw{box-shadow:0 0 0 .18em #f4f6f8,0 0 0 .38em #a9b4bf,0 0 0 .48em #5f6b77,0 0 1.1em rgba(210,225,240,.55)}
+.wol-learn .fr-sources.wl-card,.wol-learn .wl-frame.fr-sources .wl-fsw{box-shadow:0 0 0 .2em #f3e2b8,0 0 0 .32em #8a5a22,0 0 0 .46em #c99a52,0 0 0 .52em #5a3a12,0 .5em 1em rgba(0,0,0,.35)}
+${FRAME_CSS}
+/* the settings gear (torah edition) and its window */
+.wol-learn .wl-gear{display:grid;place-items:center;width:2.6em;height:2.6em;border-radius:50%;background:rgba(246,240,220,.12);border:1px solid rgba(246,240,220,.22);color:#f3ecd2;transition:background .2s}
+.wol-learn .wl-gear:hover{background:rgba(246,240,220,.24)}
+.wol-learn .wl-gear .ic{width:1.35em;height:1.35em}
+.wol-learn .wl-settings{width:min(30em,90vw)}
+.wol-learn .wl-settings h3{display:flex;align-items:center;gap:.35em}.wol-learn .wl-settings h3 .ic{width:.9em;height:.9em;color:#7a5a12}
+.wol-learn .wl-settings .wl-srcsw{margin:0;background:rgba(255,255,255,.4);box-shadow:inset 0 0 0 1px rgba(120,90,40,.25)}
+.wol-learn .wl-settings .wl-btn{align-self:center}
+/* the badge showcase on the hub's home */
+.wol-learn .wl-bshow{display:flex;align-items:center;gap:1.2em;width:min(60em,100%);margin:0 auto;padding:.6em 1.3em;border-radius:1.2em;flex:none}
+.wol-learn .wl-bs-new{flex:1;min-width:0;display:flex;flex-direction:column;gap:.2em}
+.wol-learn .wl-bs-new h3{display:flex;align-items:center;gap:.4em;font-family:var(--serif);font-size:1.35em;color:#3a2a10}
+.wol-learn .wl-bs-row{display:flex;gap:.6em;flex-wrap:wrap}
+.wol-learn .wl-bs-empty{color:#5a4a30;font-size:1em}
+.wol-learn .wl-bshow .bdg{--bs:6.6em}
+.wol-learn .wl-bs-next{flex:none;display:flex;flex-direction:column;align-items:center;gap:.15em;padding:.3em .8em;border-radius:1em;background:rgba(80,70,40,.08);box-shadow:inset 0 0 0 1px rgba(120,90,40,.2)}
+.wol-learn .wl-bs-next>small{font-weight:800;color:#6a5020;font-size:.88em}
+.wol-learn .wl-bs-next .bdg{--bs:5.6em}
+.wol-learn .wl-bs-all{flex:none;flex-direction:column;gap:.1em;min-height:0;padding:.55em 1em;line-height:1.1}
+.wol-learn .wl-bs-all b{font-size:.85em;color:var(--ink2);direction:ltr}
+@media (max-width:900px),(max-height:520px){.wol-learn .wl-bshow{gap:.7em;padding:.45em .8em}.wol-learn .wl-bshow .bdg{--bs:5.2em}.wol-learn .wl-bs-next .bdg{--bs:4.6em}.wol-learn .wl-bs-new h3{font-size:1.15em}}
+/* a badge you can point at: it grows and tells its name and how it is earned (the badges screen and the showcase) */
+.wol-learn .wl-bz{position:relative;display:block;border-radius:1em;padding:.25em;z-index:1;-webkit-tap-highlight-color:transparent}
+.wol-learn .wl-bz .bdg-med{transition:transform .28s cubic-bezier(.2,.9,.3,1.3),filter .28s}
+.wol-learn .wl-bz .bdg-rib{transition:transform .28s}
+.wol-learn .wl-bz:hover,.wol-learn .wl-bz:focus-visible{z-index:5}
+.wol-learn .wl-bz:hover .bdg-med,.wol-learn .wl-bz:focus-visible .bdg-med{transform:scale(1.42) translateY(-.12em)}
+.wol-learn .wl-bz:hover .bdg-rib,.wol-learn .wl-bz:focus-visible .bdg-rib{transform:translateY(1.2em) scale(1.08)}
+.wol-learn .wl-btip{position:absolute;left:50%;top:calc(100% + .9em);transform:translate(-50%,-.3em);width:max-content;max-width:15em;padding:.45em .8em;border-radius:.8em;background:#2a2214;color:#fbf3d8;text-align:center;
+  font-size:.92em;line-height:1.35;box-shadow:0 .5em 1.2em rgba(0,0,0,.45),inset 0 0 0 1px rgba(246,207,114,.35);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:6}
+.wol-learn .wl-btip b{display:block;color:#f6cf72;font-family:var(--serif)}
+.wol-learn .wl-btip small{display:block;color:#e6dcbc}
+.wol-learn .wl-bz:hover .wl-btip,.wol-learn .wl-bz:focus-visible .wl-btip{opacity:1;transform:translate(-50%,0)}
+@media (hover:none){.wol-learn .wl-btip{display:none}}   /* on a touch screen a tap opens the badge big instead */
+.wol-learn .wl-bgrid{gap:1.2em .9em}
+.wol-learn .wl-bgrid .bdg{--bs:7.6em}
+.wol-learn .wl-bgroup{overflow:visible}
+@media (max-height:520px){.wol-learn .wl-bgrid .bdg{--bs:6.6em}}
+.wol-learn .wl-bzbig .bdg{--bs:min(15em,40vh);animation:wl-pop .45s cubic-bezier(.2,.9,.3,1.25) both}
+.wol-learn .wl-bzbig .bdg-rib{font-size:calc(var(--bs) * .11)}
+.wol-learn .wl-bzt small{color:#6a5a40;font-weight:700}
+.wol-learn .wl-bzg{display:flex;align-items:center;gap:.4em;font-weight:800}
+/* the source game's tile, and five games in two rows */
+.wol-learn .wl-games.n5{display:grid;grid-template-columns:repeat(6,1fr);gap:1.2em 1.6em;width:min(80em,100%)}
+.wol-learn .wl-games.n5>.wl-tile{width:auto;grid-column:span 2}
+.wol-learn .wl-games.n5>.wl-tile:nth-child(n+4){grid-column:span 3}
+.wol-learn .wl-vmtile .wl-tart{background:radial-gradient(circle at 50% 60%,rgba(246,207,114,.5),transparent 62%),linear-gradient(180deg,#f3e6c4,#e2cf9c)}
+.wol-learn .wl-vmsrc{display:block;width:6.4em;height:6.4em;border-radius:.8em;overflow:hidden;transform:rotate(4deg);box-shadow:0 0 0 .22em #8f5b2e,0 0 0 .34em #f6dfa0,0 .5em 1em rgba(0,0,0,.3)}
+.wol-learn .wl-vmsrc img{width:100%;height:100%;object-fit:cover}
 /* duel */
 .wol-learn .wl-duel{padding:0 1.6em 1em;gap:.7em}
 .wol-learn .wl-dhead{display:flex;align-items:center;gap:1.2em;padding:.55em 1.3em;border-radius:20px;width:min(60em,100%)}
@@ -1283,6 +1347,23 @@ ${BADGE_CSS}
 @media (max-width:780px){.wol-learn .wl-packbtn .wl-bl{display:none}.wol-learn .wl-abar .wl-packbtn{padding:.2em .7em}}
 @media (max-width:960px){.wol-learn .wl-setsbtn .wl-setsc{display:none}.wol-learn .wl-album{padding:0 1em}.wol-learn .wl-sett p,.wol-learn .wl-setw{display:none}.wol-learn .wl-setr{padding:.25em .6em;font-size:.9em}}
 @media (max-width:860px){.wol-learn .wl-tab{padding:.3em .5em}.wol-learn .wl-abar{gap:.35em;padding:.3em .45em}.wol-learn .wl-abar .wl-btn{padding:.2em .6em}.wol-learn .wl-setsh small{display:none}.wol-learn .wl-setp{display:none}}
+/* fitBar(): the steps the bar takes when the tabs do not fit (t1 → t2 → t3 → wrap, each keeps the ones before) */
+.wol-learn .wl-abar.t1 .wl-tab .ic{display:none}
+.wol-learn .wl-abar.t2 .wl-bl,.wol-learn .wl-abar.t2 .wl-dlab,.wol-learn .wl-abar.t2 .wl-setsc,.wol-learn .wl-abar.t2 .wl-cw{display:none}
+.wol-learn .wl-abar.t2 .wl-btn{padding:.2em .6em}
+.wol-learn .wl-abar.t3{gap:.3em}.wol-learn .wl-abar.t3 .wl-tab{padding:.3em .45em;font-size:.93em}
+.wol-learn .wl-abar.wrap{flex-wrap:wrap;row-gap:.3em}
+.wol-learn .wl-abar.wrap .wl-tabs{order:9;flex:1 1 100%;justify-content:center}
+.wol-learn .wl-abar.wrap .wl-tab{padding:.25em .7em;font-size:1em}
+/* the source-card sets in the sets panel, and the small set headings on the "מן המקורות" page */
+.wol-learn .wl-setsub{grid-column:1/-1;display:flex;align-items:center;gap:.45em;margin-top:.35em;padding:.15em .2em 0;color:#5a3b10;border-top:1px dashed rgba(120,90,40,.35)}
+.wol-learn .wl-setsub .wl-ic{width:1.4em;height:1.4em;color:#b8892e}
+.wol-learn .wl-setsub b{font-family:var(--serif);font-size:1.2em}
+.wol-learn .wl-setsub small{font-weight:700;color:var(--ink2)}
+.wol-learn .wl-gsec.sub{margin-top:.2em}
+.wol-learn .wl-gsec.sub b{font-size:1.05em;padding:.05em .7em}
+.wol-learn .wl-gsec.sub .wl-gsub{font-weight:600;font-size:.92em}
+@media (max-width:900px){.wol-learn .wl-gsec.sub .wl-gsub{display:none}}
 .wol-learn .wl-toast.set{gap:.7em;padding:.55em 1.6em .55em 1.1em;font-size:1.12em;line-height:1.25;box-shadow:0 0 0 .2em #fff6dc,0 0 2em rgba(246,207,114,.8),0 8px 24px rgba(0,0,0,.35)}
 .wol-learn .wl-toast.set .wl-seti{width:2.4em;height:2.4em}.wol-learn .wl-toast.set .wl-seti .wl-ic{width:1.4em;height:1.4em}
 .wol-learn .wl-toast.set b{display:block;font-family:var(--serif);font-size:1.15em}
@@ -1310,7 +1391,7 @@ ${BADGE_CSS}
 .wol-learn .wl-lp.e b{color:#8a2452}.wol-learn .wl-lp.r b{color:#9c6512}
 `;
 /* the hub's icons (src/ui/icons-hub.js): a coloured tile before each title, a line icon before each button's words */
-const BGROUP_IC = { amazon: 'amazon', grove: 'grove', reef: 'reef', lab: 'invent', deep: 'dive', research: 'research' };
+const BGROUP_IC = { amazon: 'amazon', grove: 'grove', reef: 'reef', lab: 'invent', deep: 'dive', research: 'research', sources: 'scroll' };
 const ICON_CSS = `
 .wol-learn .wl-bgroup h3>span{display:inline-flex;align-items:center;gap:.45em}
 .wol-learn .wl-bgroup h3 .wl-tic{font-size:1.15em}
@@ -1320,7 +1401,6 @@ const ICON_CSS = `
 .wol-learn .wl-tbody h2{gap:.32em}
 .wol-learn .wl-home .wl-tile.game .wl-tbody h2{font-size:1.6em}
 @media (max-width:900px){.wol-learn .wl-home .wl-tile.game .wl-tbody h2{font-size:1.35em}}
-.wol-learn .wl-bt-text b{display:flex;align-items:center;gap:.35em}
 .wol-learn .wl-bhead b{display:inline-flex;align-items:center;gap:.4em}
 .wol-learn .wl-frames h3{display:flex;align-items:center;gap:.35em}.wol-learn .wl-frames h3 .ic{width:1.2em;height:1.2em;color:#9c6512}
 .wol-learn .wl-btn .ic{width:1.3em;height:1.3em}
@@ -1377,6 +1457,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
       <button class="wl-back" data-wl="back">${IC.back}<span>חזרה</span></button>
       <h2 class="wl-crumb"></h2><span class="wl-sp"></span>
       <span class="wl-who"></span>
+      ${TORAH ? `<button class="wl-gear" data-wl="settings" title="הגדרות" aria-label="הגדרות">${icon('sliders')}</button>` : ''}
       <button class="wl-chip" data-wl="packs" title="חבילות קלפים">${icon('pack')}<span class="wl-chipn"></span></button>
       <img class="wl-logo" src="${BABA_DA_LOGO}" alt="בבא דע">
     </header>
@@ -1402,7 +1483,9 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove('on'), ms);
   }
   /* ── album sets: a whole set → one free pack, once per player. Checked after every card gain and when the album opens. */
-  const setProg = (st) => { const have = st.cards.filter((c) => S.owned[c.id]).length; return { have, n: st.cards.length, done: have === st.cards.length }; };
+  // a set of source cards counts the player's source cards; every other set counts album cards
+  const ownsIn = (st) => { if (!st.src) return (c) => !!S.owned[c.id]; const o = ownedSources(); return (c) => !!o[c.id]; };
+  const setProg = (st) => { const has = ownsIn(st), have = st.cards.filter(has).length; return { have, n: st.cards.length, done: have === st.cards.length }; };
   let setQueue = 0;
   function checkSets() {
     if (!open_) return [];
@@ -1447,8 +1530,8 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   }
 
   /* ── navigation */
-  const PARENT = { home: null, setup: 'home', quiz: 'setup', end: 'home', album: 'home', pack: 'album', duel: 'album', webpuzzle: 'home', keepforest: 'home', inventors: 'home', expedition: 'home', badges: 'home' };
-  const TITLES = { home: '', setup: 'חידון', quiz: 'חידון', end: 'חידון', album: 'אלבום הקלפים', pack: 'פתיחת חבילה', duel: 'מי חזק ברשת?', webpuzzle: 'חוט הקשר', keepforest: 'מחזיקים את היער', inventors: 'הממציאים', expedition: 'משלחת לעומק', badges: 'התגים שלי' };
+  const PARENT = { home: null, setup: 'home', quiz: 'setup', end: 'home', album: 'home', pack: 'album', duel: 'album', webpuzzle: 'home', keepforest: 'home', inventors: 'home', expedition: 'home', badges: 'home', versematch: 'home' };
+  const TITLES = { home: '', setup: 'חידון', quiz: 'חידון', end: 'חידון', album: 'אלבום הקלפים', pack: 'פתיחת חבילה', duel: 'מי חזק ברשת?', webpuzzle: 'חוט הקשר', keepforest: 'מחזיקים את היער', inventors: 'הממציאים', expedition: 'משלחת לעומק', badges: 'התגים שלי', versematch: 'מה הפסוק מלמד?' };
   /* ── card mini-games (each lives in ./games/*.js and gets this context) */
   let MODE = 'full';
   const readMode = () => { try { MODE = window.localStorage.getItem(profileKey('web-of-life-mode')) || 'full'; } catch (e) { MODE = MODE || 'full'; } };
@@ -1468,15 +1551,16 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     addCards: (ids) => { const fresh = []; for (const id of ids) { if (!CARD.get(id)) continue; if (!S.owned[id]) fresh.push(id); S.owned[id] = (S.owned[id] || 0) + 1; } save(); if (fresh.length) setTimeout(checkSets, 900); return fresh; },
     grantPack: (n) => grantPack(n), sfx: (n) => sfx(n), toast: (h) => toast(h), confetti: (t, n, p) => confetti(t, n, p),
     later: (fn, ms) => later(fn, ms), reduced, setTitle: (t) => { $('.wl-crumb').textContent = t; },
-    exit: () => go('home'), toAlbum: () => go('album'), root: () => el,
+    exit: () => go('home'), toAlbum: (f) => { if (f) filter = f; go('album'); }, root: () => el,
     badge: (earn) => grantBadge(earn), tally: (key, add) => badgeTally(key, add), hasBadge: (id) => hasBadge(id),
   };
-  const GAMES = { webpuzzle: mountWebPuzzle, keepforest: mountKeepForest, inventors: mountInventors, expedition: mountExpedition };
+  const GAMES = { webpuzzle: mountWebPuzzle, keepforest: mountKeepForest, inventors: mountInventors, expedition: mountExpedition, versematch: mountVerseMatch };
   let gameInst = null;
   function go(name, opts = {}) {
     clearTimers(); closeModal(); setsOpen = false;
     if (name === 'home') returnTo = null;
     if (gameInst) { try { gameInst.destroy && gameInst.destroy(); } catch (e) { console.warn(e); } gameInst = null; }
+    if (name === 'versematch' && !srcOn()) name = 'home';   // the torah edition's game, only while the sources are on
     if (GAMES[name]) {
       screen = name; $('.wl-crumb').textContent = TITLES[name]; $('.wl-back span').textContent = returnTo === name ? (MODE === 'kids' ? 'חֲזָרָה לַמַּעְבָּדָה' : 'חזרה למעבדה') : 'חזרה'; updateChip(false);
       main.innerHTML = '';
@@ -1532,8 +1616,8 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
             <div class="wl-meter"><i style="width:${Math.round((have / total) * 100)}%"></i></div></div>
         </button>
       </div>
-      ${TORAH ? `<button class="wl-srcsw paper${sourcesOn() ? ' on' : ''}" data-wl="srctoggle" role="switch" aria-checked="${sourcesOn()}">${IC_SCROLL}<span><b>מקורות ופסוקים</b><small>${sourcesOn() ? 'פועל – חידון "מן המקורות", קלפי מקור ושירת הבריאה' : 'כבוי – המשחק בלי תוכן מן המקורות'}</small></span><i class="sw"></i></button>` : ''}
-      <div class="wl-tiles wl-games">
+      ${badgeShowHTML()}
+      <div class="wl-tiles wl-games${srcOn() ? ' n5' : ''}">
         <button class="wl-tile game paper" data-wl="game" data-g="webpuzzle">
           <div class="wl-tart wl-gart">${['amazon:brazilnut', 'amazon:agouti'].map((id) => CARD.get(id)).filter(Boolean).map((c) => cardHTML(c)).join('<span class="wl-gthread"></span>')}</div>
           <div class="wl-tbody"><h2>${tileIcon('thread', 'wl-tic')}חוט הקשר</h2><p>חידות רשת: מי מאביק, מי מפיץ זרעים, מי אוכל את מי? השלימו את הרשת וקבלו קלפים.</p></div>
@@ -1550,22 +1634,71 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
           <div class="wl-tart wl-gart">${['reef:octopus', 'reef:turtle', 'tool:rov'].map((id) => CARD.get(id)).filter(Boolean).map((c) => cardHTML(c)).join('')}</div>
           <div class="wl-tbody"><h2>${tileIcon('dive', 'wl-tic')}משלחת לעומק</h2><p>צוות של ארבעה קלפים צולל לשונית. בכל אתגר בוחרים מי מתמודד, ומחליטים: לרדת עוד או לחזור עם הדגימות.</p></div>
         </button>
+        ${srcOn() ? `<button class="wl-tile game paper wl-vmtile" data-wl="game" data-g="versematch">
+          <div class="wl-tart wl-gart">${SOURCE_ART.ant ? `<span class="wl-vmsrc"><img src="${SOURCE_ART.ant}" alt="" draggable="false"></span>` : ''}<span class="wl-gthread"></span>${CARD.get('grove:harvesterant') ? cardHTML(CARD.get('grove:harvesterant')) : ''}</div>
+          <div class="wl-tbody"><h2>${tileIcon('scroll', 'wl-tic')}מה הפסוק מלמד?</h2><p>קלף מקור ושלושה קלפים מהאלבום: איזה מהם מתאים למה שהפסוק מלמד? לפעמים יש יותר מתשובה אחת.</p></div>
+        </button>` : ''}
       </div>
-      <button class="wl-badgetile paper" data-wl="badges"><span class="wl-bt-row">${BADGES.filter((b) => ownedBadges()[b.id]).slice(-4).map((b) => badgeHTML(b)).join('') || BADGES.slice(0, 3).map((b) => badgeHTML(b, { own: false })).join('')}</span>
-        <span class="wl-bt-text"><b>${tileIcon('medal', 'wl-tic')}התגים שלי</b><small>אספתם ${Object.keys(ownedBadges()).filter((id) => BADGES.some((b) => b.id === id)).length} מתוך ${BADGES.length} תגים. תגים מקבלים במשימות מומחים, במשחקים ובמעבדה.</small></span></button>
       </section>`;
+  }
+  /* ── badges: the ones this edition shows (the torah edition's own only while "מקורות ופסוקים" is on) */
+  const visB = (x) => !x.torah || srcOn();
+  const vBadges = () => BADGES.filter(visB);
+  // the next badge worth aiming for: a first step in each corner of the hub, then the rest in order
+  const NEXT_FIRST = ['b_vm1', 'b_inv1', 'b_deep1', 'b_rs1', 'b_scope', 'b_fair', 'b_minireef', 'b_vmeye', 'b_inv5', 'b_q5', 'b_deepcave', 'b_rs3'];
+  function nextBadge() {
+    const own = ownedBadges(), list = vBadges().filter((b) => !own[b.id]);
+    for (const id of NEXT_FIRST) { const b = list.find((x) => x.id === id); if (b) return b; }
+    return list[0] || null;
+  }
+  // a badge you can point at: it grows, and shows its name and how it is earned; a click (or a touch) opens it big
+  const bzHTML = (b, own, cls = '') => `<button class="wl-bz ${cls}" data-wl="bzoom" data-b="${b.id}" aria-label="${esc(own ? b.name + ': ' + b.how : 'תג נעול: ' + b.how)}">${badgeHTML(b, { own, peek: !own && cls.includes('next') })}
+    <span class="wl-btip" aria-hidden="true"><b>${esc(own ? b.name : 'עוד לא: ' + b.name)}</b><small>${esc(b.how)}</small></span></button>`;
+  // the hub's home: the newest badges, big, and the next one to aim for (in place of the old sources switch)
+  function badgeShowHTML() {
+    const own = ownedBadges(), mine = vBadges().filter((b) => own[b.id]).sort((a, b) => own[b.id] - own[a.id]);
+    const nx = nextBadge();
+    return `<section class="wl-bshow paper">
+      <div class="wl-bs-new"><h3>${tileIcon('medal', 'wl-tic')}${mine.length ? 'התגים החדשים שלי' : 'התגים שלי'}</h3>
+        ${mine.length ? `<div class="wl-bs-row">${mine.slice(0, 3).map((b) => bzHTML(b, true)).join('')}</div>`
+          : '<p class="wl-bs-empty">עוד אין לכם תגים. תגים מקבלים במשימות מומחים, במשחקים, במעבדה ובתעלומות.</p>'}</div>
+      ${nx ? `<div class="wl-bs-next"><small>התג הבא שאפשר להשיג</small>${bzHTML(nx, false, 'next')}</div>` : ''}
+      <button class="wl-btn wl-bs-all" data-wl="badges">${icon('medal')}<span>כל התגים</span><b>${mine.length}/${vBadges().length}</b></button>
+    </section>`;
+  }
+  function bzoom(id) {
+    const b = BADGES.find((x) => x.id === id); if (!b) return;
+    const own = ownedBadges(), g = BADGE_GROUPS.find((x) => x.id === b.group);
+    sfx('select');
+    const when = own[b.id] ? new Date(own[b.id]) : null;
+    modal.innerHTML = `<div class="wl-bzbig">${badgeHTML(b, { own: !!own[b.id], peek: !own[b.id] })}</div>
+      <div class="wl-mtext paper wl-bzt"><h3>${esc(own[b.id] ? b.name : 'תג נעול: ' + b.name)}</h3>
+        <p><b>${own[b.id] ? 'קיבלתם אותו על:' : 'איך מקבלים אותו:'}</b> ${esc(b.how)}</p>
+        ${g ? `<p class="wl-bzg">${tileIcon(BGROUP_IC[g.id] || 'medal', 'wl-tic')}${esc(g.name)}</p>` : ''}
+        ${when ? `<small>התקבל ב־${when.getDate()}.${when.getMonth() + 1}.${when.getFullYear()}</small>` : ''}
+        <button class="wl-btn" data-wl="close">${icon('close')}סגירה</button></div>`;
+    modal.hidden = false;
+  }
+  /* ── settings (the gear in the top bar): the torah edition's "מקורות ופסוקים" switch lives here */
+  function openSettings() {
+    sfx('select');
+    const on = sourcesOn();
+    modal.innerHTML = `<div class="wl-mtext paper wl-settings"><h3>${icon('sliders')}הגדרות</h3>
+      <button class="wl-srcsw${on ? ' on' : ''}" data-wl="srctoggle" role="switch" aria-checked="${on}">${IC_SCROLL}<span><b>מקורות ופסוקים</b><small>${on ? 'פועל: חידון "מן המקורות", קלפי מקור, המשחק "מה הפסוק מלמד?" ושירת הבריאה' : 'כבוי: המשחק בלי תוכן מן המקורות'}</small></span><i class="sw"></i></button>
+      <button class="wl-btn" data-wl="close">${icon('check')}סיום</button></div>`;
+    modal.hidden = false;
   }
 
   /* ── the badges (תגים) and the album frames they open */
   function renderBadges() {
     const own = ownedBadges(), cur = chosenFrame(), open = new Set(openFrames().map((f) => f.id));
     main.innerHTML = `<section class="wl-screen wl-badges">
-      <div class="wl-bhead paper"><b>${tileIcon('medal', 'wl-tic')}התגים שלי</b><span>אספתם ${BADGES.filter((b) => own[b.id]).length} מתוך ${BADGES.length}</span></div>
-      ${BADGE_GROUPS.map((g) => { const list = BADGES.filter((b) => b.group === g.id); const have = list.filter((b) => own[b.id]).length;
+      <div class="wl-bhead paper"><b>${tileIcon('medal', 'wl-tic')}התגים שלי</b><span>אספתם ${vBadges().filter((b) => own[b.id]).length} מתוך ${vBadges().length}</span></div>
+      ${BADGE_GROUPS.filter(visB).map((g) => { const list = vBadges().filter((b) => b.group === g.id); const have = list.filter((b) => own[b.id]).length;
         return `<section class="wl-bgroup" style="--bg1:${g.col};--bg2:${g.col2}"><h3><span>${tileIcon(BGROUP_IC[g.id] || 'medal', 'wl-tic')}${esc(g.name)}</span><small>${have} מתוך ${list.length}</small></h3>
-          <div class="wl-bgrid">${list.map((b) => badgeHTML(b, { own: !!own[b.id], how: true })).join('')}</div></section>`; }).join('')}
+          <div class="wl-bgrid">${list.map((b) => bzHTML(b, !!own[b.id])).join('')}</div></section>`; }).join('')}
       <section class="wl-frames paper"><h3>${icon('frame')}מסגרות לקלפים באלבום</h3><p>כל קבוצת תגים פותחת מסגרת. בחרו מסגרת, והיא תופיע על כל הקלפים שלכם באלבום.</p>
-        <div class="wl-frow">${FRAMES.map((f) => { const g = BADGE_GROUPS.find((x) => x.id === f.group);
+        <div class="wl-frow">${FRAMES.filter(visB).map((f) => { const g = BADGE_GROUPS.find((x) => x.id === f.group);
           return `<button class="wl-frame fr-${f.id}${cur === f.id ? ' sel' : ''}" data-wl="frame" data-f="${f.id}" ${open.has(f.id) ? '' : 'disabled'}><span class="wl-fsw"></span><b>${esc(f.name)}</b><small>${open.has(f.id) ? (cur === f.id ? 'נבחרה' : 'אפשר לבחור') : f.group === 'all' ? `נפתחת עם ${f.need} תגים` : `נפתחת עם ${f.need} תגים של ${esc(g ? g.short : '')}`}</small></button>`; }).join('')}</div></section>
     </section>`;
   }
@@ -1711,16 +1844,20 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
 
   /* ── album */
   let filter = 'all';
-  const setDots = (st) => st.cards.map((c) => `<i class="${S.owned[c.id] ? 'on' : ''}${c.rarity === 'epic' || c.rarity === 'rare' ? ' r' : ''}"></i>`).join('');
+  const setDots = (st) => { const has = ownsIn(st); return st.cards.map((c) => `<i class="${has(c) ? 'on' : ''}${c.rarity === 'epic' || c.rarity === 'rare' ? ' r' : ''}"></i>`).join(''); };
   // the sets live in a panel that opens from the "סדרות" button, so the album page is mostly cards
   let setsOpen = false;
   function setsHTML() {
     const sets = activeSets(), done = sets.filter((st) => setProg(st).done).length;
-    const chips = sets.map((st) => {
+    const chip = (st) => {
       const p = setProg(st), sel = filter === 'set:' + st.id;
       return `<button class="wl-set${p.done ? ' done' : ''}${sel ? ' sel' : ''}" data-wl="set" data-v="${st.id}" style="--sc:${st.col}" aria-pressed="${sel}" title="${esc(st.sub)} · ${SET_WHERE[st.where]}">
         <span class="wl-seti">${st.ic}</span><span class="wl-setb"><b>${esc(st.name)}</b><span class="wl-setd">${setDots(st)}<span class="wl-setn">${p.done ? IC.check : `${p.have}/${p.n}`}</span></span></span></button>`;
-    }).join('');
+    };
+    // the source-card sets get a heading of their own, after the album's sets
+    const srcSets = sets.filter((st) => st.src);
+    const chips = sets.filter((st) => !st.src).map(chip).join('')
+      + (srcSets.length ? `<div class="wl-setsub">${IC_SCROLL}<b>מן המקורות</b><small>סדרות של קלפי מקור</small></div>${srcSets.map(chip).join('')}` : '');
     return `<div class="wl-setlayer"${setsOpen ? '' : ' hidden'}><div class="wl-setveil" data-wl="setsclose"></div>
       <div class="wl-sets paper" role="dialog" aria-label="סדרות"><div class="wl-setsh"><b>סדרות</b><small>${IC.pack}<span>אספו סדרה שלמה – וקבלו חבילת קלפים במתנה</span></small><span class="wl-sp"></span><span class="wl-setsn">שלמות: <b>${done}</b> מתוך <b>${sets.length}</b></span><button class="wl-btn" data-wl="setsclose">${icon('close')}סגירה</button></div>
       <div class="wl-setrow">${chips}</div></div></div>`;
@@ -1742,7 +1879,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   // a heading row inside the card grid (the "הכול" page shows the album part by part)
   const ALBUM_PARTS = [['amazon', 'אמזונס', '#2f7a5a'], ['grove', 'חורש', '#9a7a2e'], ['reef', 'שונית', '#1f8ab0'], ['tech', 'טכנולוגיה', '#2c5f8f']];
   const inPart = (c, v) => (v === 'tech' ? c.type === 'tool' : c.biome === v);
-  const secHTML = (title, have, n, col, sub = '') => `<div class="wl-gsec" style="--gc:${col}"><b>${title}</b>${sub ? `<span class="wl-gsub">${sub}</span>` : ''}<small>${have} מתוך ${n}</small><i></i></div>`;
+  const secHTML = (title, have, n, col, sub = '', cls = '') => `<div class="wl-gsec${cls ? ' ' + cls : ''}" style="--gc:${col}"><b>${title}</b>${sub ? `<span class="wl-gsub">${sub}</span>` : ''}<small>${have} מתוך ${n}</small><i></i></div>`;
   function renderAlbum() {
     checkSets(); // also grants sets an older save already had complete (with the celebration)
     const { total, have } = collection();
@@ -1754,13 +1891,15 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     let n = 0;   // running index: the first cards rise in one after the other
     const cards = (arr) => arr.map((c) => { const i = n++, anim = i < 24 ? 'anim' : ''; return S.owned[c.id] ? cardHTML(c, { style: `--d:${i}`, cls: anim + (frameCls ? ' ' + frameCls : ''), count: S.owned[c.id] }) : cardHTML(c, { style: `--d:${i}`, cls: anim, locked: true }); }).join('');
     const own = srcOn() ? ownedSources() : {}, srcHave = SOURCE_CARDS.filter((c) => own[c.id]).length;
-    const srcCards = () => SOURCE_CARDS.map((c) => sourceCardHTML(c, !!own[c.id], n++)).join('');
+    const srcCards = (list = SOURCE_CARDS) => list.map((c) => sourceCardHTML(c, !!own[c.id], n++)).join('');
+    // the source cards, set by set (SOURCE_SETS): a small heading for each set
+    const srcBySets = () => SETS.filter((st) => st.src).map((st) => secHTML(esc(st.name), st.cards.filter((c) => own[c.id]).length, st.cards.length, st.col, esc(st.sub), 'sub') + srcCards(st.cards)).join('');
     let body;
-    if (curSet) body = cards(curSet.cards);
-    else if (filter === 'src') body = secHTML('קלפי מקור', srcHave, SOURCE_CARDS.length, '#b8892e', 'סיפורים ופסוקים על הבריאה') + srcCards();
+    if (curSet) body = curSet.src ? srcCards(curSet.cards) : cards(curSet.cards);
+    else if (filter === 'src') body = secHTML('קלפי מקור', srcHave, SOURCE_CARDS.length, '#b8892e', 'סיפורים ופסוקים על הבריאה') + srcBySets();
     else if (filter === 'all') {
       body = ALBUM_PARTS.map(([v, t, col]) => { const l = CARDS.filter((c) => inPart(c, v)); return secHTML(t, l.filter((c) => S.owned[c.id]).length, l.length, col) + cards(l); }).join('');
-      if (srcOn()) body += secHTML('מן המקורות', srcHave, SOURCE_CARDS.length, '#b8892e', 'סיפורים ופסוקים על הבריאה') + srcCards();
+      if (srcOn()) body += secHTML('מן המקורות', srcHave, SOURCE_CARDS.length, '#b8892e', 'סיפורים ופסוקים על הבריאה') + srcBySets();
     } else body = cards(CARDS.filter((c) => inPart(c, filter)));
     const TAB_IC = { all: 'zones', amazon: 'amazon', grove: 'grove', reef: 'reef', tech: 'robot', src: 'scroll' };
     const tab = (v, t) => `<button class="wl-tab${filter === v ? ' sel' : ''}" data-wl="filter" data-v="${v}" aria-pressed="${filter === v}">${icon(TAB_IC[v])}${t}</button>`;
@@ -1782,8 +1921,22 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
         ${setsHTML()}
       </div>
     </section>`;
+    fitBar();
     if (!S.packs && have < 3) toast(`${IC.quest}<span>שחקו בחידון כדי להרוויח חבילות קלפים</span>`);
   }
+  // The album bar stays one row while it can: first the tab icons go, then the words of the buttons, then the tabs get
+  // smaller; if that is still too wide, the tabs take a row of their own. Every tab stays in sight (Avi, 19.10: the
+  // "טכנולוגיה" and "מן המקורות" tabs hid behind the sets button).
+  function fitBar() {
+    const bar = main.querySelector('.wl-abar'), tabs = bar && bar.querySelector('.wl-tabs'); if (!tabs) return;
+    bar.classList.remove('t1', 't2', 't3', 'wrap');
+    for (const c of ['t1', 't2', 't3', 'wrap']) {
+      if (tabs.scrollWidth <= tabs.clientWidth + 1) return;
+      bar.classList.add(c);
+    }
+  }
+  let fitT = 0;
+  const onResize = () => { clearTimeout(fitT); fitT = setTimeout(() => { if (open_ && screen === 'album') fitBar(); }, 80); };
   // torah edition: the album page of source cards ("מן המקורות")
   // where the subject of each painting sits (0 = top, 1 = bottom): the album card shows a wide strip of it
   const SRC_FOCUS = { lion: 0.42, tzvi: 0.42, small4: 0.55, ant: 0.6, rashbi: 0.45, choni: 0.42, spider: 0.5, lashevet: 0.45, tikva: 0.62, shnayim: 0.72, kfirim: 0.6, efes: 0.62, tzvaim: 0.64 };
@@ -1807,6 +1960,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
         ${c.story ? `<div class="wl-sstory">${paras(c.story)}</div>` : ''}
         ${c.quote ? `<div class="wl-src"><p class="t">${esc(c.quote)}</p><small>${esc(c.ref)}</small></div>` : `<div class="wl-src"><small>${esc(c.ref)}</small></div>`}
         ${c.lesson ? `<p class="wl-slesson">${esc(c.lesson)}</p>` : ''}
+        ${((st) => (st ? `<div class="wl-msets"><small>בסדרה:</small><button class="wl-mset${setProg(st).done ? ' done' : ''}" data-wl="set" data-v="${st.id}" style="--sc:${st.col}">${st.ic}<span>${esc(st.name)}</span><b>${setProg(st).done ? IC.check : setProg(st).have + '/' + setProg(st).n}</b></button></div>` : ''))(SETS.find((s) => s.src && s.cards.some((x) => x.id === c.id)))}
         <button class="wl-btn" data-wl="close">${icon('close')}סגירה</button></div>`;
     modal.hidden = false;
   }
@@ -2120,7 +2274,15 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     pack: () => { sfx('click'); go('pack'); }, tear: tearPack, reveal: (t) => revealCard(t), revealall: revealAll, legend: () => cardLegend(),
     game: (t) => { sfx('click'); go(t.dataset.g); },
     szoom: (t) => szoom(t.dataset.s),
-    srctoggle: () => { setSourcesOn(!sourcesOn()); sfx('click'); if (!sourcesOn() && (filter === 'src' || (filter.startsWith('set:') && SET_BY.get(filter.slice(4))?.torah))) filter = 'all'; go(screen === 'home' ? 'home' : screen); },
+    // the switch in the settings: the screen below follows it (a game in play is left alone, the source game closes)
+    srctoggle: () => {
+      setSourcesOn(!sourcesOn()); sfx('click');
+      if (!sourcesOn() && (filter === 'src' || (filter.startsWith('set:') && SET_BY.get(filter.slice(4))?.torah))) filter = 'all';
+      if (screen === 'versematch' && !sourcesOn()) go('home');
+      else if (['home', 'album', 'setup', 'badges'].includes(screen)) go(screen);
+      openSettings();
+    },
+    settings: () => openSettings(), bzoom: (t) => bzoom(t.dataset.b),
     duel: () => { sfx('click'); go('duel'); }, play: (t) => playCard(+t.dataset.k), dnext: duelNext,
     badges: () => { sfx('click'); go('badges'); }, frame: (t) => { if (chooseFrame(t.dataset.f)) { sfx('select'); renderBadges(); } },
   };
@@ -2150,6 +2312,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     reloadState(); readMode(); paintWho(); // the start screen may have switched player or מתחילים / מתקדמים since the hub was created
     open_ = true; el.hidden = false;
     window.addEventListener('keydown', onKey, true);
+    window.addEventListener('resize', onResize);
     go('home');
     try { $('.wl-back').focus({ preventScroll: true }); } catch (e) { /* */ }
   }
@@ -2157,6 +2320,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     if (!open_) return;
     open_ = false; clearTimers(); closeModal(); el.hidden = true;
     window.removeEventListener('keydown', onKey, true);
+    window.removeEventListener('resize', onResize);
     sfx('click');
     try { onClose && onClose(); } catch (e) { console.warn(e); }
   }
