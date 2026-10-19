@@ -328,7 +328,7 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
         vec3 c = mix(uDeep, uShallow, pow(h, 1.4));
         c = mix(c, vec3(0.42, 0.38, 0.22), uMurk * 0.55);
         c = mix(c, c * vec3(1.08, 1.02, 0.86), uWarm * 0.5);
-        c *= mix(1.0, 0.28, uNight);
+        c *= mix(vec3(1.0), vec3(0.36, 0.5, 0.6), uNight);   // a soft teal glow at night
         vec3 V = normalize(cameraPosition - vW);
         float fr = pow(1.0 - abs(dot(V, vN)), 2.0);
         float band = 0.5 + 0.5 * sin(vW.y * 2.4 + uTime * 0.8 + atan(vW.z, vW.x) * 6.0);
@@ -360,7 +360,7 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
         float spec = pow(max(dot(N, H), 0.0), 140.0) * smoothstep(-0.05, 0.2, uSunDir.y);
         vec3 c = mix(uShallow * 0.95, vec3(0.62, 0.9, 0.96), fr * 0.25);   // clear tropical water: turquoise, never milky
         c = mix(c, vec3(0.45, 0.4, 0.25), uMurk * 0.5);
-        c *= mix(1.0, 0.25, uNight);
+        c *= mix(vec3(1.0), vec3(0.32, 0.44, 0.56), uNight);
         float edge = 1.0 - smoothstep(${(EDGE - 0.6).toFixed(1)}, ${(EDGE + 0.2).toFixed(1)}, length(vW.xz));
         gl_FragColor = vec4(c + uSunCol * spec * 2.2, (0.15 + fr * 0.2 + spec * 0.45 + uMurk * 0.3) * edge);
       }`,
@@ -445,7 +445,7 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
       float h(vec3 p){ return fract(sin(dot(p, vec3(12.9898, 78.233, 37.719))) * 43758.5453); }
       // far away: the reddish granite mountains around the Gulf of Eilat, and the gulf's deep blue water below the horizon
       float ridge(float a){ return 0.012 + 0.05 * (0.55 + 0.45 * sin(a * 2.0 + 0.7)) * (0.6 + 0.25 * sin(a * 7.0 + 1.3) + 0.15 * sin(a * 17.0 + 0.4) + 0.08 * sin(a * 41.0)); }
-      void main(){ float y = vD.y; vec3 c = y > 0.0 ? mix(uHor, uZen, pow(y, 0.55)) : mix(uHor, vec3(0.16, 0.42, 0.58) * mix(1.0, 0.3, uNight), smoothstep(0.0, -0.12, y));
+      void main(){ float y = vD.y; vec3 c = y > 0.0 ? mix(uHor, uZen, pow(y, 0.55)) : mix(uHor, vec3(0.16, 0.42, 0.58) * mix(1.0, 0.4, uNight), smoothstep(0.0, -0.12, y));
         float az = atan(vD.z, vD.x), rg = ridge(az);
         if (uPanoOn < 0.5 && y > -0.002 && y < rg) { float k = y / rg; vec3 m = mix(vec3(0.55, 0.32, 0.24), vec3(0.72, 0.5, 0.38), k) * mix(1.0, 0.25, uNight); c = mix(m, uHor, 0.35 + 0.35 * (1.0 - k) * 0.6); }
         if (uPanoOn > 0.5) {   // the Blender landscape, re-hazed toward the live horizon colour (time of day)
@@ -453,7 +453,7 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
           if (pv > 0.0 && pv < 1.0) {
             vec2 puv = vec2(fract(atan(vD.z, vD.x) / 6.2831853 + 0.5 + uPanoRot), pv);
             vec4 pc = texture2D(uPano, puv); float m = texture2D(uPanoMist, puv).r * 0.6;
-            vec3 land = (max(pc.rgb - uPanoHazeSrc * m, 0.0) + uHor * m) * mix(1.0, 0.22, uNight);
+            vec3 land = (max(pc.rgb - uPanoHazeSrc * m, 0.0) + uHor * m) * mix(1.0, 0.34, uNight);
             c = mix(c, land, pc.a * smoothstep(0.0, 0.06, pv));
           }
         }
@@ -486,7 +486,7 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
           c = mix(c, vec3(0.42, 0.38, 0.22), uMurk * 0.45);
           float far = smoothstep(115.0, 150.0, r);                   // beyond the picture: open water
           c = mix(c, uFar, far);
-          c *= mix(1.0, 0.22, uNight);
+          c *= mix(vec3(1.0), vec3(0.4, 0.56, 0.7), uNight);   // moonlit sea floor: dim and blue, still visible
           gl_FragColor = vec4(c, 1.0);
         }`,
     }));
@@ -516,9 +516,9 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
     return Math.asin(clamp(sunDir.y, -1, 1));
   }
   const cTmp = new THREE.Color(), cTmp2 = new THREE.Color();
-  const COL = { zenDay: new THREE.Color('#4f9fe6'), horDay: new THREE.Color('#d6eef6'), zenNight: new THREE.Color('#0a1530'), horNight: new THREE.Color('#1c2d52'),
-    zenDusk: new THREE.Color('#3d5fa8'), horDusk: new THREE.Color('#ffb98a'), sunNoon: new THREE.Color('#fff4dc'), sunLow: new THREE.Color('#ffb070'), moon: new THREE.Color('#8fb0ff'),
-    fogDay: new THREE.Color('#8fcfe8'), fogNight: new THREE.Color('#122440'), fogMurk: new THREE.Color('#9a9270'),
+  const COL = { zenDay: new THREE.Color('#4f9fe6'), horDay: new THREE.Color('#d6eef6'), zenNight: new THREE.Color('#0b1d40'), horNight: new THREE.Color('#25426a'),
+    zenDusk: new THREE.Color('#3d5fa8'), horDusk: new THREE.Color('#ffb98a'), sunNoon: new THREE.Color('#fff4dc'), sunLow: new THREE.Color('#ffb070'), moon: new THREE.Color('#a6c2ff'),
+    fogDay: new THREE.Color('#8fcfe8'), fogNight: new THREE.Color('#1b3d5c'), fogMurk: new THREE.Color('#9a9270'),
     shallowDay: new THREE.Color('#3fc3d6'), deepDay: new THREE.Color('#0d5a86') };
 
   function update(dt, ctx = {}) {
@@ -548,10 +548,11 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
     const useSun = e > -0.04;
     sunLight.position.copy(useSun ? sunDir : moonDir).multiplyScalar(130);
     if (useSun) { sunLight.color.copy(sCol).lerp(cTmp2.set('#bfefff'), 0.35); sunLight.intensity = 2.1 * dayAmt * (1 - 0.6 * state.rain) * (1 - 0.5 * state.murk); }
-    else { sunLight.color.copy(COL.moon); sunLight.intensity = 1.2 * night.v; }
-    hemi.color.set('#b4d6f2').lerp(cTmp2.set('#3a5fb0'), night.v * 0.85);
-    hemi.groundColor.set('#d8c8a0').multiplyScalar(0.3 + 0.7 * dayAmt).lerp(cTmp2.set('#1a2a48'), night.v * 0.7);
-    hemi.intensity = lerp(1.05, 1.6, night.v) * (1 - 0.2 * state.murk);
+    // night (Avi, 19.10: too dark): moonlight through the water and a soft teal-blue glow, so the reef stays readable
+    else { sunLight.color.copy(COL.moon); sunLight.intensity = 2.0 * night.v; }
+    hemi.color.set('#b4d6f2').lerp(cTmp2.set('#6a9ad6'), night.v * 0.85);
+    hemi.groundColor.set('#d8c8a0').multiplyScalar(0.3 + 0.7 * dayAmt).lerp(cTmp2.set('#2d4c6c'), night.v * 0.75);
+    hemi.intensity = lerp(1.05, 2.9, night.v) * (1 - 0.2 * state.murk);
     // water colours
     waterU.uShallow.value.copy(COL.shallowDay).lerp(cTmp2.set('#2a6ba0'), dusk * 0.2);
     waterU.uDeep.value.copy(COL.deepDay);

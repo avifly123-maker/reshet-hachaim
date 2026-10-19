@@ -397,6 +397,7 @@ export function createUI(root, bus) {
         <button class="st-go" data-id="${esc(b.id)}">${S.mode === 'kids' ? 'יוצאים לדרך · מתחילים' : 'יוצאים לדרך'}${icon('arrowL')}</button></div>`;
       info.querySelector('.st-go').addEventListener('click', () => emit('start:biome', { id: b.id }));
       startEl.style.setProperty('--zc', (b.palette && b.palette[1]) || '#2d5a35');
+      startEl.dataset.zone = b.id;   // the background takes the chosen environment's light and colours (style.css)
     };
     const paintCar = () => {
       isls.forEach((el, i) => {
