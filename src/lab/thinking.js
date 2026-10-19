@@ -45,12 +45,12 @@ function finish(id) {
 }
 
 // ───────────────────────────────────────── the frame of every activity: a title, the habit, the work, and his voice
-function shell(root, a0, { robot, audio, onClose }) {
+function shell(root, a0, { robot, audio, onClose, back }) {
   injectCss();
   const kids = labKids(), a = named(a0, kids), SK = THINK_K.shell;
   const el = document.createElement('div'); el.className = `lb-panel lt lt-p-${a.id}${kids ? ' kids' : ''}`; root.appendChild(el);
   el.innerHTML = `<header class="lt-head"><div class="lt-ttl"><small>${kids ? SK.tag : 'חושבים כמו חוקרים'} · ${esc(a.where)}</small><h2>${esc(a.name)}</h2></div>
-      <p class="lt-habit">${icon('bulb')}<span>${esc(a.habit)}</span></p><button class="lb-btn lt-back">${kids ? SK.back : 'חזרה לחדר'}</button></header>
+      <p class="lt-habit">${icon('bulb')}<span>${esc(a.habit)}</span></p><button class="lb-btn lt-back">${esc(back || (kids ? SK.back : 'חזרה לחדר'))}</button></header>
     <div class="lt-body"></div><div class="lt-voice" aria-live="polite">${face('happy')}<p></p></div>`;
   const body = el.querySelector('.lt-body'), voice = el.querySelector('.lt-voice');
   let alive = true; const timers = [];

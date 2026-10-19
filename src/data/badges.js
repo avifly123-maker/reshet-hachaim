@@ -42,6 +42,14 @@ export const BADGES = [
   { id: 'b_observe', group: 'lab', art: 'gazelle', name: 'עין של חוקר', how: 'בארון האוסף: מפרידים בין מה שראינו למה שחשבנו, ובודקים', earn: 'lab:observe' },
   { id: 'b_cause', group: 'lab', art: 'mushroom', name: 'ביחד או בגלל', how: 'בחדר: מגלים בניסוי מה גורם למה', earn: 'lab:cause' },
   { id: 'b_thinker', group: 'lab', art: 'firefly', name: 'חושבים כמו חוקרים', how: 'כל חמשת הניסויים של רובו־דע', earn: 'lab:thinker' },
+  // the station worlds (src/lab/aquarium.js, greenhouse.js, cabinet.js)
+  { id: 'b_minireef', group: 'lab', art: 'clownfish', name: 'שונית בקופסה', how: 'באקווריום: שונית קטנה שכולם מוצאים בה בית ואוכל', earn: 'lab:minireef' },
+  { id: 'b_night', group: 'lab', art: 'moray', name: 'משמרת לילה', how: 'באקווריום: שמונה גילויים של יום ולילה, חום ושמש', earn: 'lab:night' },
+  { id: 'b_grow', group: 'lab', art: 'honeybee', name: 'גנן חוקר', how: 'בחממה: מגדלים חמנייה ומגיעים לארבעה סופים שונים', earn: 'lab:grow' },
+  { id: 'b_seeds', group: 'lab', art: 'terebinth', name: 'זרעים מטיילים', how: 'בחממה: זרע שמגיע רחוק בכל אחת מארבע הבדיקות', earn: 'lab:seeds' },
+  { id: 'b_collect', group: 'lab', art: 'blackbird', name: 'אספן', how: 'בארון האוסף: עשרים דברים על המדפים', earn: 'lab:collect' },
+  { id: 'b_sort', group: 'lab', art: 'starfish', name: 'ממיין חכם', how: 'בארון האוסף: רובו־דע מנחש את הכלל שלכם, ואתם מנחשים את שלו', earn: 'lab:sort' },
+  { id: 'b_clues', group: 'lab', art: 'fox', name: 'עקבות ורמזים', how: 'בארון האוסף: מגלים מי השאיר כל אחד מהרמזים', earn: 'lab:clues' },
   // the big inventors update (1.3): more inventions, combinations, the shelves (THEMES in src/data/inventions.js), research questions
   { id: 'b_inv10', group: 'lab', art: 'leafcutter', name: 'עשר המצאות', how: 'עשר המצאות שונות ב"הממציאים"', earn: 'inv:ten' },
   { id: 'b_inv25', group: 'lab', art: 'tortoise', name: 'ממציא ותיק', how: 'עשרים וחמש המצאות שונות ב"הממציאים"', earn: 'inv:many' },

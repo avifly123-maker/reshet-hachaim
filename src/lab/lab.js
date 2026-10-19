@@ -21,15 +21,35 @@ import { THINK, OPEN as THINK_OPEN, openThinkMenu, thinkById, thinkDone } from '
 import { openQuestions, answeredCount } from './questions.js';
 import { labKids, fmt, readMs } from './level.js';
 import { ROOM_K, TALK_K, FACTS_K, JOKES_K, ATLAS_K, SAMPLES_K, THINK_K } from './kids-text.js';   // the beginners' words (ניקוד מלא)
+// the station worlds (19.10): the aquarium, the greenhouse and the cabinet open a menu of their own activities
+import { openStationMenu, one, face as stFace, injectStationCss } from './station-kit.js';
+import { MENU_T, COMMON_T } from './station-text.js';
+import { stOf, thinkOf } from './progress.js';
+import { openMiniReef, openDayNight } from './aquarium.js';
+import { openGrow, openSeeds } from './greenhouse.js';
+import { openCollection, openSort, openClues, collectionCount, shelfPeek } from './cabinet.js';
 
 const STATION_INFO = {
   home: { name: 'החדר', ic: 'home' },
   scope: { name: 'המיקרוסקופ', ic: 'binoc', open: 'scope' },
   table: { name: 'שולחן הממציאים', ic: 'bulb', open: 'inventors' },
-  aquarium: { name: 'האקווריום', ic: 'drop', think: 'float' },
-  greenhouse: { name: 'החממה', ic: 'sprout', think: 'fair' },
-  cabinet: { name: 'ארון האוסף', ic: 'leaf', say: null, think: ['measure', 'observe'] },
+  aquarium: { name: 'האקווריום', ic: 'drop', menu: ['minireef', 'daynight', 'float'] },
+  greenhouse: { name: 'החממה', ic: 'sprout', menu: ['grow', 'seeds', 'fair'] },
+  cabinet: { name: 'ארון האוסף', ic: 'leaf', menu: ['collection', 'sort', 'clues', 'measure', 'observe'] },
   atlas: { name: 'האטלס', ic: 'book', open: 'atlas' },
+};
+// the activities of the station worlds (the thinking corner's own activities open through THINK_OPEN)
+const ACTS = { minireef: openMiniReef, daynight: openDayNight, grow: openGrow, seeds: openSeeds, collection: openCollection, sort: openSort, clues: openClues };
+const ACT_IC = { minireef: 'drop', daynight: 'moon', float: 'drop', grow: 'sprout', seeds: 'leaf', fair: 'sprout', collection: 'satchel', sort: 'cards', clues: 'search', measure: 'target', observe: 'binoc' };
+const ACT_DONE = { minireef: (r) => (r.ends || {}).thriving ? 'done' : r.runs ? 'mid' : '', daynight: (r) => Object.keys(r.found || {}).length >= 8 ? 'done' : r.found ? 'mid' : '',
+  grow: (r) => Object.keys(r.ends || {}).length >= 4 ? 'done' : r.ends ? 'mid' : '', seeds: (r) => Object.keys(r.won || {}).length >= 4 ? 'done' : r.tries ? 'mid' : '',
+  collection: (r) => (r.max || 0) >= 20 ? 'done' : '', sort: (r) => (r.robotGuessed || 0) >= 1 && (r.childGuessed || 0) >= 2 ? 'done' : r.robotGuessed || r.childGuessed ? 'mid' : '',
+  clues: (r) => Object.keys(r.solved || {}).length >= 7 ? 'done' : r.solved ? 'mid' : '' };
+// the orange spots on the room picture: a point on each piece of furniture (three's axes); a station outside the picture
+// (the aquarium on the left wall, the greenhouse and the cabinet behind the right edge) gets a spot on that edge, pointing
+const HOT = {
+  scope: { p: [2.215, 1.3, -3.545] }, table: { p: [0.05, 0.86, -0.15] }, atlas: { p: [-2.3, 1.2, -3.2] },
+  aquarium: { p: [-4.284, 1.35, 0.375], ey: 50 }, greenhouse: { p: [3.3, 0.95, 0.3], ey: 56 }, cabinet: { p: [3.493, 1.15, 3.145], ey: 70 },
 };
 const ROBOT_SPOT = { table: [-0.75, 0, -1.05] };   // three's axes: behind the inventors table, on the left
 const ORDER = ['home', 'scope', 'table', 'aquarium', 'greenhouse', 'cabinet', 'atlas'];
@@ -231,28 +251,41 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
   // beginners (the start screen's מתחילים) read the room fully vocalised: the frame is painted again when the level changes
   let kids = labKids(), painted = null;
   const stName = (id) => (kids ? ROOM_K.stations[id] : STATION_INFO[id].name);
+  injectStationCss();
   el.innerHTML = `<div class="lb-top"><button class="lb-btn lb-exit">${icon('arrowL')}<span></span></button>
       <button class="lb-btn lb-talk"><i class="lb-tface"></i><span></span></button>
       <button class="lb-btn lb-think">${icon('flask')}<span></span></button>
-      <div class="lb-title"><small></small><h1></h1></div></div>
-    <div class="lb-hots"></div>
+      <div class="lb-title"><small></small><h1></h1></div>
+      <button class="lb-btn lb-home">${icon('home')}<span></span></button></div>
+    <div class="lb-hots" role="group"></div>
     <nav class="lb-bar">${ORDER.map((id) => `<button data-st="${id}" class="${id === 'home' ? 'on' : ''}">${icon(STATION_INFO[id].ic || 'leaf')}<span></span></button>`).join('')}</nav>
     <div class="lb-panels"></div><div class="lb-say" hidden><i class="lb-face"></i><p></p></div>`;
   const hots = el.querySelector('.lb-hots'), sayEl = el.querySelector('.lb-say'), panels = el.querySelector('.lb-panels');
   el.querySelector('.lb-exit').onclick = () => { close(); onExit && onExit(); };
   el.querySelector('.lb-talk').onclick = () => openTalk();
   el.querySelector('.lb-think').onclick = () => thinkMenu();
+  el.querySelector('.lb-home').onclick = () => go('home');   // the big way back from any station: the room's main view
   el.querySelectorAll('[data-st]').forEach((b) => b.onclick = () => go(b.dataset.st));
-  hots.innerHTML = ORDER.filter((id) => id !== 'home').map((id) => `<button class="lb-hot" data-hot="${id}">${icon(STATION_INFO[id].ic || 'leaf')}<span></span></button>`).join('');
-  hots.querySelectorAll('[data-hot]').forEach((b) => b.onclick = () => go(b.dataset.hot));
+  // orange spots: hover, focus or a first touch shows the two words; a click (or a second touch) goes in
+  hots.innerHTML = ORDER.filter((id) => id !== 'home').map((id) => `<button class="lb-hot" data-hot="${id}"><i class="lb-dot"></i><i class="lb-arrow" hidden></i><span class="lb-tip" role="tooltip"></span></button>`).join('');
+  let touchShown = null;
+  hots.querySelectorAll('[data-hot]').forEach((b) => {
+    b.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'mouse') return;
+      if (touchShown !== b) { touchShown = b; hots.querySelectorAll('.lb-hot').forEach((x) => x.classList.toggle('show', x === b)); b.dataset.skip = '1'; }
+    });
+    b.onclick = () => { if (b.dataset.skip) { delete b.dataset.skip; return; } touchShown = null; hots.querySelectorAll('.lb-hot').forEach((x) => x.classList.remove('show')); go(b.dataset.hot); };
+  });
+  el.addEventListener('pointerdown', (e) => { if (touchShown && !e.target.closest('.lb-hot')) { touchShown = null; hots.querySelectorAll('.lb-hot').forEach((x) => x.classList.remove('show')); } });
   function paintChrome() {
     kids = labKids(); if (painted === kids) return; painted = kids;
     el.classList.toggle('kids', kids);
     const T = (sel, t) => { const n = el.querySelector(sel); if (n) n.textContent = t; };
     T('.lb-exit span', kids ? ROOM_K.exit : 'למרכז המדעי'); T('.lb-talk span', kids ? ROOM_K.talk : 'לדבר עם רובו־דע'); T('.lb-think span', kids ? ROOM_K.think : 'חושבים כמו חוקרים');
     T('.lb-title small', kids ? ROOM_K.centre : 'המרכז המדעי'); T('.lb-title h1', kids ? ROOM_K.title : 'המעבדה של רובו־דע');
+    T('.lb-home span', one(COMMON_T.room, kids));
     el.querySelectorAll('[data-st] span').forEach((s) => { s.textContent = stName(s.parentNode.dataset.st); });
-    hots.querySelectorAll('[data-hot] span').forEach((s) => { s.textContent = stName(s.parentNode.dataset.hot); });
+    hots.querySelectorAll('[data-hot]').forEach((b) => { const n = stName(b.dataset.hot); b.querySelector('.lb-tip').textContent = n; b.setAttribute('aria-label', n); });
   }
   paintChrome();
 
@@ -262,14 +295,31 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     clearTimeout(sayQT); let rest = [];
     if (Array.isArray(text)) { rest = text.slice(1); text = text[0]; }
     text = String(text ?? '');
+    // over a panel with its own voice strip (the microscope, the atlas, the questions, the conversation) his words go
+    // there, at the panel's foot: they never cover a caption or a card
+    const pvs = panels.querySelectorAll('.lb-pv'); const pv = pvs[pvs.length - 1];
+    if (pv) {
+      sayEl.hidden = true; sayT = 0;
+      pv.innerHTML = `${stFace(expr === 'normal' ? 'happy' : expr)}<p><b>${esc(one(COMMON_T.robo, kids))}</b> ${esc(text)}</p>`;
+      pv.classList.remove('pop'); void pv.offsetWidth; pv.classList.add('pop');
+      robot.say(expr, Math.min(4, 0.8 + text.length * 0.045));
+      if (rest.length) sayQT = setTimeout(() => { if (open_) say(rest, expr); }, readMs(text));
+      return;
+    }
     sayEl.hidden = false; sayEl.querySelector('p').textContent = text;
     sayEl.classList.remove('pop'); void sayEl.offsetWidth; sayEl.classList.add('pop');
     robot.say(expr, Math.min(4, 0.8 + text.length * 0.045)); sayT = 6 + text.length * 0.06;
     if (rest.length) { sayT += 2; sayQT = setTimeout(() => { if (open_) say(rest, expr); }, readMs(text)); }
   }
+  // a panel closed by the lab itself (moving to another station) must not move the lab again
+  let quiet = false;
+  function dropPanel() { if (!panel) return; const p = panel; panel = null; quiet = true; try { p.close(); } finally { quiet = false; } }
+  // every "חזרה לחדר" goes to the room's main view; a station activity's own back button goes to its station's menu
+  const toRoom = () => { panel = null; if (!quiet && open_ && station !== 'home') go('home'); };
+  const toStation = () => { panel = null; if (!quiet && open_) arrive(); };
   function go(id) {
     if (!STATION_INFO[id]) return;
-    if (panel) { panel.close(); panel = null; }
+    dropPanel();
     if (talkEl) { talkEl.remove(); talkEl = null; }   // the conversation does not stay open under the next station
     if (id === station && move <= 0) { arrive(); return; }
     audio && audio.play('select');
@@ -277,28 +327,48 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     bgU.tA.value = texOf(prevSt); bgU.tB.value = texOf(station); bgU.uMix.value = 0;
     el.querySelectorAll('[data-st]').forEach((b) => b.classList.toggle('on', b.dataset.st === station));
     hots.classList.toggle('on', station === 'home');
+    el.classList.toggle('at-st', station !== 'home');
     placeRobot(true); updateFishVisible();
     if (station === 'aquarium') addFish();
   }
+  // a working panel inside a frame with a voice strip at its foot (say() writes there)
+  function framed(open) {
+    const fr = document.createElement('div'); fr.className = 'lb-frame' + (kids ? ' kids' : ''); panels.appendChild(fr);
+    const inner = document.createElement('div'); inner.className = 'lb-frame-in'; fr.appendChild(inner);
+    const pv = document.createElement('div'); pv.className = 'lb-pv'; pv.setAttribute('aria-live', 'polite'); fr.appendChild(pv);
+    const p = open(inner, () => fr.remove());
+    return { close: () => { fr.remove(); p && p.close && p.close(); } };
+  }
+  const actCtx = (st) => ({ robot, audio, thumbs, back: one(MENU_T[st].back, labKids()), onClose: toStation });
+  function openAct(id) {
+    dropPanel(); hush();
+    if (ACTS[id]) panel = ACTS[id](panels, actCtx(station));
+    else if (THINK_OPEN[id]) openThink(id);
+  }
+  function stationMenu() {
+    const info = STATION_INFO[station]; hush();
+    const items = info.menu.map((id) => ({ id, ic: ACT_IC[id], state: ACTS[id] ? (ACT_DONE[id] || (() => ''))(stOf(id)) : thinkDone(id) ? 'done' : Object.keys(thinkOf(id)).length ? 'mid' : '', isNew: !!ACTS[id] && !Object.keys(stOf(id)).length }));
+    const vars = station === 'cabinet' ? { n: collectionCount() } : {};
+    panel = openStationMenu(panels, { st: station, items, robot, audio, vars, extra: station === 'cabinet' ? shelfPeek(thumbs) : '', onClose: () => { panel = null; }, onPick: (id) => openAct(id) });
+  }
   function arrive() {
     const info = STATION_INFO[station];
-    if (info.open === 'scope') panel = openMicroscope(panels, { say, thumbs, audio, start: takeSample(), onDone: () => { robot.wave(); const P = labProgress(); if (SAMPLES.every((x) => P.seen[x.id])) grantBadge('lab:scope'); }, onClose: () => { panel = null; } });
+    if (info.open === 'scope') panel = framed((r, done) => openMicroscope(r, { say, thumbs, audio, start: takeSample(), onDone: () => { robot.wave(); const P = labProgress(); if (SAMPLES.every((x) => P.seen[x.id])) grantBadge('lab:scope'); }, onClose: () => { done(); toRoom(); } }));
     else if (info.open === 'inventors') {
       // the inventors table is the hub's "הממציאים" (problems and robots, with the child's own cards); the lab stays underneath
       robot.wave(); say(kids ? ROOM_K.table : 'שולחן הממציאים! כאן פותרים בעיות אמיתיות בעזרת היצורים שלכם, ובונים רובוטים. מותר לטעות, ככה ממציאים.', 'happy');
       if (openGame) setTimeout(() => { if (open_ && station === 'table') openGame('inventors'); }, 700);
-      else panel = openInventors(panels, { say, thumbs, audio, onInvented: () => robot.wave(), onClose: () => { panel = null; }, goScope: () => setTimeout(() => go('scope'), 900) });
+      else panel = framed((r, done) => openInventors(r, { say, thumbs, audio, onInvented: () => robot.wave(), onClose: () => { done(); toRoom(); }, goScope: () => setTimeout(() => go('scope'), 900) }));
     }
-    else if (info.open === 'atlas') panel = openAtlas(panels, { say, thumbs, onClose: () => { panel = null; }, onQuestions: () => openQuest() });
+    else if (info.open === 'atlas') panel = framed((r, done) => openAtlas(r, { say, thumbs, onClose: () => { done(); toRoom(); }, onQuestions: () => openQuest() }));
     else if (pendingThink) { const id = pendingThink; pendingThink = null; openThink(id); }
-    else if (typeof info.think === 'string') openThink(info.think);
-    else if (station === 'cabinet' && info.think) { hush(); panel = openThinkMenu(panels, { only: info.think, title: kids ? ROOM_K.cabinetTitle : 'ארון האוסף', robot, audio, onClose: () => { panel = null; }, onPick: (id) => openThink(id) }); }
-    else if (station === 'cabinet' && kids) { const n = Object.keys(labProgress().seen).length; say(n > 1 ? fmt(ROOM_K.cabinetSome, { n }) : n ? ROOM_K.cabinetOne : ROOM_K.cabinetNone, 'happy'); }
-    else if (station === 'cabinet') { const n = Object.keys(labProgress().seen).length; say(n ? `בארון האוסף שומרים את מה שמצאנו. כבר יש כאן ${n} ${n === 1 ? 'גילוי' : 'גילויים'} מהמיקרוסקופ.` : 'בארון האוסף שומרים את מה שמצאנו: קונכיות, נוצות, זרעים ושברי אלמוג. כל גילוי במיקרוסקופ יוסיף כאן עוד משהו.', 'happy'); }
+    else if (pendingAct) { const id = pendingAct; pendingAct = null; openAct(id); }
+    else if (info.menu) stationMenu();
     else if (info.say) say(info.say, 'happy');
     else if (station === 'home' && kids) say(ROOM_K.home, 'happy');
     else if (station === 'home') say('לאן הולכים עכשיו? המיקרוסקופ מחכה לכם, וגם שולחן הממציאים. ובחממה ובאקווריום מחכים ניסויים.', 'happy');
   }
+  let pendingAct = null;
   const _fromP = new THREE.Vector3(), _toP = new THREE.Vector3();
   let robotMove = 0;
   // where the robot hovers: by his charging pad in the room view; at a station, in the near corner of the picture
@@ -337,6 +407,21 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
   }
   const _v = new THREE.Vector3(), _up = new THREE.Vector3(0.6, 1.4, 0);
   function project(p) { _v.copy(p).project(camera); return { x: (_v.x * 0.5 + 0.5) * 100, y: (-_v.y * 0.5 + 0.5) * 100, ok: _v.z < 1 }; }
+  // every orange spot sits on its furniture in the room picture, at any screen shape (the camera already carries the
+  // cover crop); a station outside the picture gets a spot on that edge of the screen, with an arrow
+  const _cs = new THREE.Vector3();
+  function placeHots() {
+    for (const b of hots.children) {
+      const h = HOT[b.dataset.hot]; if (!h) { b.hidden = true; continue; }
+      _v.fromArray(h.p); _cs.copy(_v).applyMatrix4(camera.matrixWorldInverse);
+      const p = project(_v); const inFront = _cs.z < 0 && p.ok;
+      let x = p.x, y = p.y, edge = '';
+      if (!inFront || x < 4 || x > 96 || y < 12 || y > 86) { edge = _cs.x < 0 ? 'l' : 'r'; x = edge === 'l' ? 2.5 : 97.5; y = inFront ? p.y : (h.ey || 50); }
+      y = Math.max(16, Math.min(80, edge && h.ey ? h.ey : y));
+      b.hidden = false; b.style.left = x + '%'; b.style.top = y + '%';
+      if (b.dataset.edge !== edge) { b.dataset.edge = edge; b.classList.toggle('edge-l', edge === 'l'); b.classList.toggle('edge-r', edge === 'r'); b.querySelector('.lb-arrow').hidden = !edge; }
+    }
+  }
   function update(dt) {
     if (!open_) return;
     setCamera(station);
@@ -359,9 +444,7 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
       f.v.update(dt, { action: 'fly', speed: f.speed * 4, t: f.t });
     }
     // hotspots (home) and the speech bubble above the robot's head
-    if (station === 'home' && move === 0) {
-      for (const b of hots.children) { const c = cams[b.dataset.hot]; if (!c) { b.hidden = true; continue; } const p = project(_v.fromArray(c.at || c.robot)); b.hidden = !p.ok; b.style.left = p.x + '%'; b.style.top = p.y + '%'; }
-    }
+    if (station === 'home' && move === 0) placeHots();
     if (sayT > 0) {
       sayT -= dt; if (sayT <= 0) sayEl.hidden = true;
       // over a panel the robot is hidden: his words sit in a corner, with his face
@@ -379,7 +462,7 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     if (pipe.setBloom) pipe.setBloom(0.12);
     scene.add(group);
     station = 'home'; move = 0; bgU.tA.value = texOf('home'); bgU.uMix.value = 0; bgU.uZoomA.value = 1;
-    hots.classList.add('on'); el.querySelectorAll('[data-st]').forEach((b) => b.classList.toggle('on', b.dataset.st === 'home'));
+    hots.classList.add('on'); el.classList.remove('at-st'); el.querySelectorAll('[data-st]').forEach((b) => b.classList.toggle('on', b.dataset.st === 'home'));
     placeRobot(false); robot.root.visible = true; updateFishVisible();
     // warm up the other pictures in the background
     setTimeout(() => ORDER.forEach(texOf), 300);
@@ -388,7 +471,7 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
   }
   function close() {
     if (!open_) return; open_ = false; el.classList.remove('on'); clearTimeout(sayQT);
-    if (panel) { panel.close(); panel = null; }
+    dropPanel(); if (talkEl) { talkEl.remove(); talkEl = null; }
     scene.remove(group); camera.clearViewOffset();
     renderer.toneMapping = prevState.tone; scene.environment = prevState.env || null; scene.background = prevState.bg || null; scene.fog = prevState.fog || null;
     if (pipe.setBloom) pipe.setBloom(0.38);
@@ -447,12 +530,12 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
   let talkN = 0, jokeN = 0, nextN = 0, talkEl = null;
   function openTalk() {
     if (talkEl) { talkEl.remove(); talkEl = null; return; }
-    if (panel) { panel.close(); panel = null; }
+    dropPanel();
     kids = labKids();
     talkEl = document.createElement('div'); talkEl.className = 'lb-panel lb-chat' + (kids ? ' kids' : '');
     talkEl.innerHTML = `<header><h2>${kids ? TALK_K.head : 'מדברים עם רובו־דע'}</h2><button class="lb-btn lb-back">${kids ? TALK_K.close : 'סגירה'}</button></header>
       <p class="lb-chat-sub">${kids ? TALK_K.sub : 'בחרו שאלה, ורובו־דע יענה.'}</p>
-      <div class="lb-qs">${Object.entries(TALK).map(([k, t]) => `<button data-q="${k}">${esc(kids ? TALK_K.q[k] : t.q)}</button>`).join('')}</div>`;
+      <div class="lb-qs">${Object.entries(TALK).map(([k, t]) => `<button data-q="${k}">${esc(kids ? TALK_K.q[k] : t.q)}</button>`).join('')}</div><div class="lb-pv lb-chat-pv" aria-live="polite"></div>`;
     panels.appendChild(talkEl);
     talkEl.querySelector('.lb-back').onclick = () => { talkEl.remove(); talkEl = null; };
     talkEl.querySelectorAll('[data-q]').forEach((b) => b.onclick = () => { const k = b.dataset.q, t = TALK[k]; audio && audio.play('click'); robot.wave(); say(kids ? KA[k]() : t.a(), t.e); });
@@ -463,10 +546,10 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
   let pendingSample = null;
   const takeSample = () => { const s = pendingSample; pendingSample = null; return s; };
   function openQuest(start) {
-    if (panel) { panel.close(); panel = null; }
-    panel = openQuestions(panels, { say, thumbs, audio, start, onClose: () => { panel = null; }, onBack: () => arrive(),
-      goScope: (id) => { pendingSample = id; if (station === 'scope') { if (panel) { panel.close(); panel = null; } arrive(); } else go('scope'); },
-      goInvent: (pid) => { if (openGame) openGame('inventors', { problem: pid }); } });
+    dropPanel();
+    panel = framed((r, done) => openQuestions(r, { say, thumbs, audio, start, onClose: () => { done(); panel = null; }, onBack: () => arrive(),
+      goScope: (id) => { pendingSample = id; if (station === 'scope') { dropPanel(); arrive(); } else go('scope'); },
+      goInvent: (pid) => { if (openGame) openGame('inventors', { problem: pid }); } }));
   }
 
   // ── חושבים כמו חוקרים (src/lab/thinking.js): a panel per activity; the menu lists all five
@@ -474,18 +557,24 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
   function hush() { sayEl.hidden = true; sayT = 0; }
   function openThink(id) {
     if (talkEl) { talkEl.remove(); talkEl = null; }
-    if (panel) { panel.close(); panel = null; }
+    dropPanel();
     const f = THINK_OPEN[id]; if (!f) return; hush();
-    panel = f(panels, { robot, audio, thumbs, onClose: () => { panel = null; } });
+    // at a station with its own menu the activity's back button returns to that menu; in the room it is the room
+    const menu = !!STATION_INFO[station].menu;
+    panel = f(panels, { robot, audio, thumbs, back: menu ? one(MENU_T[station].back, labKids()) : null, onClose: menu ? toStation : () => { panel = null; } });
   }
   function thinkMenu() {
     if (talkEl) { talkEl.remove(); talkEl = null; }
-    if (panel) { panel.close(); panel = null; }
+    dropPanel();
     hush();
-    panel = openThinkMenu(panels, { robot, audio, onClose: () => { panel = null; }, onPick: (id) => { const a = thinkById(id); pendingThink = id; go(a.st); } });
+    // its back button: the station's own menu, or the room (a pick opens something else at once: nothing to do then)
+    const back = () => { panel = null; if (quiet) return; setTimeout(() => { if (!panel && move <= 0 && open_ && station !== 'home') { if (STATION_INFO[station].menu) arrive(); else go('home'); } }, 0); };
+    panel = openThinkMenu(panels, { robot, audio, onClose: back, onPick: (id) => { const a = thinkById(id); pendingThink = id; if (a.st === station && move <= 0) { pendingThink = null; openThink(id); } else go(a.st); } });
   }
 
-  window.__labDebug = { go, say, openTalk, openQuestions: (id) => openQuest(id), think: (id) => (id ? (pendingThink = id, go(thinkById(id).st)) : thinkMenu()), get panel() { return panel; }, get station() { return station; }, robot, openPanel: (k) => { station = k; arrive(); } };
+  window.__labDebug = { go, say, openTalk, openQuestions: (id) => openQuest(id), think: (id) => (id ? (pendingThink = id, go(thinkById(id).st)) : thinkMenu()), get panel() { return panel; }, get station() { return station; }, robot, openPanel: (k) => { station = k; arrive(); },
+    act: (id) => { const st = Object.keys(STATION_INFO).find((k) => (STATION_INFO[k].menu || []).includes(id)); if (st === station && move <= 0) openAct(id); else { pendingAct = id; go(st); } },
+    hots: () => [...hots.querySelectorAll('.lb-hot')].map((b) => ({ id: b.dataset.hot, x: b.style.left, y: b.style.top, edge: b.dataset.edge || '', hidden: b.hidden })) };
   return { open, close, update, isOpen: () => open_ };
 }
 

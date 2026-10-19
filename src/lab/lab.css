@@ -12,14 +12,25 @@
 #ui.wol .lb-title { padding: 8px 18px 10px; border-radius: 14px; background: rgba(14, 26, 20, .62); color: var(--chalk); text-align: center; backdrop-filter: blur(2px); }
 #ui.wol .lb-title small { color: var(--honey); font-size: .82em; letter-spacing: .03em; }
 #ui.wol .lb-title h1 { margin: 0; font-family: var(--serif); font-size: 1.55em; line-height: 1.05; }
-/* hotspots over the stations (home view) */
-#ui.wol .lb-hots { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .4s; }
-#ui.wol .lb-hots.on { opacity: 1; }
+/* hotspots over the stations (home view): a soft orange dot on each piece of furniture; hover, focus or a first touch
+   shows two words; a station outside the picture gets its dot on that edge of the screen, with an arrow */
+#ui.wol .lb-hots { position: absolute; inset: 0; pointer-events: none; opacity: 0; visibility: hidden; z-index: 2; }
+#ui.wol .lb-hots.on { opacity: 1; visibility: visible; transition: opacity .4s; }
 #ui.wol .lb-hots.on .lb-hot { pointer-events: auto; }
-#ui.wol .lb-hot { position: absolute; transform: translate(-50%, -50%); display: flex; align-items: center; gap: 6px; padding: 6px 12px 6px 10px; border: 2px solid rgba(255, 236, 190, .85); border-radius: 20px; background: rgba(20, 34, 26, .72); color: #fff6dc; font: inherit; font-weight: 700; font-size: .92em; cursor: pointer; white-space: nowrap; box-shadow: 0 0 0 4px rgba(255, 214, 120, .18), 0 6px 18px rgba(0, 0, 0, .35); animation: lbPulse 2.8s ease-in-out infinite; }
-#ui.wol .lb-hot .ic { width: 18px; height: 18px; color: #ffd978; }
-#ui.wol .lb-hot:hover { background: rgba(40, 70, 50, .9); animation: none; transform: translate(-50%, -50%) scale(1.06); }
-@keyframes lbPulse { 0%, 100% { box-shadow: 0 0 0 4px rgba(255, 214, 120, .18), 0 6px 18px rgba(0, 0, 0, .35); } 50% { box-shadow: 0 0 0 9px rgba(255, 214, 120, .08), 0 6px 18px rgba(0, 0, 0, .35); } }
+#ui.wol .lb-hot { position: absolute; transform: translate(-50%, -50%); width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; background: transparent; cursor: pointer; display: grid; place-items: center; }
+#ui.wol .lb-dot { display: block; width: 22px; height: 22px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #ffc27a, #f08a24 55%, #d86a10); box-shadow: 0 0 0 3px rgba(255, 255, 255, .9), 0 2px 8px rgba(0, 0, 0, .35); animation: lbDot 2.4s ease-in-out infinite; }
+@keyframes lbDot { 0%, 100% { box-shadow: 0 0 0 3px rgba(255, 255, 255, .9), 0 0 0 6px rgba(240, 138, 36, .35), 0 2px 8px rgba(0, 0, 0, .35); } 50% { box-shadow: 0 0 0 3px rgba(255, 255, 255, .9), 0 0 0 14px rgba(240, 138, 36, 0), 0 2px 8px rgba(0, 0, 0, .35); } }
+#ui.wol .lb-hot:hover .lb-dot, #ui.wol .lb-hot:focus-visible .lb-dot, #ui.wol .lb-hot.show .lb-dot { animation: none; transform: scale(1.18); }
+#ui.wol .lb-hot:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+#ui.wol .lb-tip { position: absolute; bottom: calc(100% + 4px); left: 50%; transform: translateX(-50%) translateY(4px); padding: 5px 12px; border-radius: 12px; background: rgba(20, 34, 26, .9); color: #fff6dc; font-weight: 800; font-size: .95em; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity .18s, transform .18s; box-shadow: 0 4px 12px rgba(0, 0, 0, .35); }
+#ui.wol .lb-hot:hover .lb-tip, #ui.wol .lb-hot:focus-visible .lb-tip, #ui.wol .lb-hot.show .lb-tip { opacity: 1; transform: translateX(-50%); }
+#ui.wol .lb-hot.edge-l .lb-tip { left: 0; transform: translateY(4px); } #ui.wol .lb-hot.edge-r .lb-tip { left: auto; right: 0; transform: translateY(4px); }
+#ui.wol .lb-hot.edge-l:hover .lb-tip, #ui.wol .lb-hot.edge-l:focus-visible .lb-tip, #ui.wol .lb-hot.edge-l.show .lb-tip,
+#ui.wol .lb-hot.edge-r:hover .lb-tip, #ui.wol .lb-hot.edge-r:focus-visible .lb-tip, #ui.wol .lb-hot.edge-r.show .lb-tip { transform: none; }
+#ui.wol .lb-hot[hidden], #ui.wol .lb-arrow[hidden] { display: none; }
+#ui.wol .lb-arrow { position: absolute; top: 50%; margin-top: -7px; width: 0; height: 0; border-top: 7px solid transparent; border-bottom: 7px solid transparent; }
+#ui.wol .lb-hot.edge-l .lb-arrow { left: -3px; border-right: 9px solid #f08a24; }
+#ui.wol .lb-hot.edge-r .lb-arrow { right: -3px; border-left: 9px solid #f08a24; }
 /* the station bar */
 #ui.wol .lb-bar { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; padding: 6px; border-radius: 18px; background: rgba(14, 26, 20, .7); max-width: calc(100% - 24px); overflow-x: auto; }
 #ui.wol .lb-bar button { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 76px; padding: 6px 8px; border: 0; border-radius: 12px; background: transparent; color: #e8e2c8; font: inherit; font-size: .8em; cursor: pointer; }
@@ -27,7 +38,7 @@
 #ui.wol .lb-bar button.on { background: #fbf6e4; color: #2a1a0e; }
 #ui.wol .lb-bar button:hover:not(.on) { background: rgba(255, 255, 255, .1); }
 /* Robo-Da speaks: a bubble above his head */
-#ui.wol .lb-say { position: absolute; transform: translate(-50%, -100%); max-width: min(420px, 60vw); padding: 12px 16px; border-radius: 16px; background: #263440; color: #eaf6fa; font-size: 1.02em; line-height: 1.45; box-shadow: 0 8px 22px rgba(0, 0, 0, .35); pointer-events: none; }
+#ui.wol .lb-say { position: absolute; z-index: 1; transform: translate(-50%, -100%); max-width: min(420px, 60vw); padding: 12px 16px; border-radius: 16px; background: #263440; color: #eaf6fa; font-size: 1.02em; line-height: 1.45; box-shadow: 0 8px 22px rgba(0, 0, 0, .35); pointer-events: none; }
 #ui.wol .lb-say::after { content: ''; position: absolute; bottom: -9px; left: 50%; margin-left: -9px; border: 9px solid transparent; border-bottom: 0; border-top-color: #263440; }
 #ui.wol .lb-say p { margin: 0; }
 #ui.wol .lb-say.pop { animation: lbPop .3s ease-out; }
@@ -166,3 +177,38 @@
 #ui.wol .lb.kids .lb-panel p, #ui.wol .lb.kids .lb-card small, #ui.wol .lb.kids .lb-tray span, #ui.wol .lb.kids .lb-q-list button span { line-height: 1.55; }
 #ui.wol .lb.kids .lb-panel h2, #ui.wol .lb.kids .lb-q-head h3 { line-height: 1.35; }
 #ui.wol .lb.kids .lt-ttl h2 { line-height: 1.3; }
+
+/* at a station: a big, clear way back to the room's main view (top left), and no way out of the lab from the corner */
+#ui.wol .lb .lb-home { display: none; padding: 11px 22px; font-size: 1.12em; background: linear-gradient(180deg, #ffe08a, #e8a43a); color: #2a1a06; box-shadow: 0 4px 0 #9c6519, 0 8px 18px rgba(0, 0, 0, .3); }
+#ui.wol .lb .lb-home .ic { width: 22px; height: 22px; }
+#ui.wol .lb.at-st .lb-home { display: inline-flex; }
+#ui.wol .lb.at-st .lb-title, #ui.wol .lb.at-st .lb-exit { display: none; }
+#ui.wol .lb.at-st .lb-top { justify-content: flex-start; }
+#ui.wol .lb.at-st .lb-home { margin-inline-start: auto; }
+/* a working panel in a frame, with רובו־דע's voice on a strip at its foot (never over a caption) */
+#ui.wol .lb-frame { position: absolute; inset: 72px 18px 86px; display: flex; flex-direction: column; gap: 6px; pointer-events: auto; animation: lbIn .35s ease-out; }
+#ui.wol .lb-frame-in { position: relative; flex: 1; min-height: 0; }
+#ui.wol .lb-frame-in > .lb-panel { inset: 0; }
+#ui.wol .lb-frame-in > .lb-atlas { display: flex; flex-direction: column; }
+#ui.wol .lb-frame-in > .lb-atlas .lb-a-grid { flex: 1; min-height: 0; overflow: auto; padding: 2px; }
+#ui.wol .lb-pv { flex: none; display: flex; align-items: center; gap: 10px; padding: 6px 12px; border-radius: 14px; background: #263440; color: #eaf6fa; min-height: 40px; box-shadow: 0 4px 12px rgba(0, 0, 0, .25), inset 0 0 0 1px rgba(127, 240, 255, .25); }
+#ui.wol .lb-pv:empty { visibility: hidden; }
+#ui.wol .lb-pv p { margin: 0; line-height: 1.4; }
+#ui.wol .lb-pv b { color: #7ff0ff; }
+#ui.wol .lb-pv .ls-face { width: 36px; height: 36px; flex: none; }
+#ui.wol .lb-pv.pop { animation: lbPopD .3s ease-out; }
+#ui.wol .lb-frame.kids .lb-pv p, #ui.wol .lb-chat.kids .lb-pv p { line-height: 1.65; }
+#ui.wol .lb-chat-pv { margin-top: 10px; }
+@media (max-width: 1100px), (max-height: 680px) {
+  #ui.wol .lb-frame { inset: 64px 8px 80px; }
+  #ui.wol .lb .lb-home { padding: 8px 16px; font-size: 1em; }
+}
+@media (max-height: 520px) {
+  #ui.wol .lb-frame { inset: 58px 6px 94px; }
+  #ui.wol .lb-pv { min-height: 34px; padding: 4px 10px; font-size: .9em; }
+  #ui.wol .lb-pv .ls-face { width: 28px; height: 28px; }
+  #ui.wol .lb-dot { width: 20px; height: 20px; }
+}
+/* the microscope inside its frame: the tray scrolls on its own, so the panel's own buttons stay in view */
+#ui.wol .lb-frame .lb-scope .lb-tray { max-height: min(36vh, 330px); }
+#ui.wol .lb-frame .lb-scope .lb-side { max-height: 100%; }
