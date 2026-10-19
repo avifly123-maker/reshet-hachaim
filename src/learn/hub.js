@@ -330,6 +330,26 @@ function freshest(list, n, idOf) {
   const k = n - un.length;
   return { pick: [...un, ...shuffle(old.slice(0, Math.max(k, Math.ceil(old.length / 3)))).slice(0, k)], forget: list.map(idOf) };
 }
+// "all places": the bank's picks are spread over the three places (each place keeps its own unseen-first order and
+// starts again on its own when it runs out); the few 'all' questions get a slot now and then.
+function freshestSpread(list, n, idOf) {
+  const by = {};
+  for (const x of list) (by[x.z] || (by[x.z] = [])).push(x);
+  const zones = shuffle(['amazon', 'grove', 'reef'].filter((z) => by[z] && by[z].length));
+  const quota = {};
+  if (by.all && Math.random() < 0.25 && n > 0) quota.all = 1;
+  for (let k = 0, left = n - (quota.all || 0); left > 0 && zones.length; k++, left--) { const z = zones[k % zones.length]; quota[z] = (quota[z] || 0) + 1; }
+  const pick = [], forget = [];
+  let short = 0;
+  for (const z of Object.keys(quota)) {
+    const want = Math.min(quota[z], by[z].length);
+    short += quota[z] - want;
+    const r = freshest(by[z], want, idOf);
+    pick.push(...r.pick); if (r.forget) forget.push(...r.forget);
+  }
+  if (short > 0) { const used = new Set(pick); const rest = freshest(list.filter((x) => !used.has(x)), short, idOf); pick.push(...rest.pick); }
+  return { pick, forget: forget.length ? forget : null };
+}
 function hashId(s) { let h = 5381; for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
 
 /* ───────────────────────────────────────────── torah edition: the "מן המקורות" corner of the quiz */
@@ -561,7 +581,7 @@ function buildRound(level, biomeSel) {
   }
   // fill the round from the bank (more of it when a generator found nothing, e.g. in a small pool)
   const nb = Math.min(bank.length, Math.max(0, ROUND - out.length));
-  const fromBank = freshest(bank, nb, (b) => 'qb-' + b.id);
+  const fromBank = biomeSel === 'both' ? freshestSpread(bank, nb, (b) => 'qb-' + b.id) : freshest(bank, nb, (b) => 'qb-' + b.id);
   for (const b of fromBank.pick) out.push(bankQ(b));
   for (const k of fallback) { while (out.length < ROUND) { GKEY = k; GPICK = ''; const q = GEN[k](pool, used); if (!q) break; q.qid = q.qid || GPICK; out.push(q); } }
   // shuffle question order, then answer positions (balanced so the right answer is not biased to any slot)
@@ -725,7 +745,11 @@ const CSS = `
 .wol-learn .wl-qart img{width:100%;flex:1;min-height:0;object-fit:contain;filter:drop-shadow(0 8px 10px rgba(40,30,10,.25));animation:wl-pop .6s .15s cubic-bezier(.2,.9,.3,1.3) both}
 .wol-learn .wl-qart.tool img{width:72%}
 .wol-learn .wl-qart .wl-anm{margin:.2em 0 .7em;padding:.2em .9em;border-radius:99px;background:rgba(255,255,255,.75);font-family:var(--serif);font-weight:700;font-size:1.25em;color:#1f2c1a}
-.wol-learn .wl-qbody{display:flex;flex-direction:column;justify-content:center;gap:.9em;min-height:0;overflow:auto;padding:.2em}
+.wol-learn .wl-qbody{display:flex;flex-direction:column;justify-content:flex-start;gap:.9em;min-height:0;overflow:auto;padding:.2em}
+/* centred while it fits, and the question stays reachable when it does not (justify-content:center would clip the top) */
+.wol-learn .wl-qbody>:first-child{margin-top:auto}
+.wol-learn .wl-qbody>:last-child{margin-bottom:auto}
+.wol-learn .wl-quiz.torah .wl-qbody>:first-child{margin-top:0}
 .wol-learn .wl-qtag{align-self:flex-start;font-size:.9em;font-weight:800;color:var(--moss);background:rgba(95,174,74,.16);padding:.2em .8em;border-radius:99px}
 .wol-learn .wl-q{font-family:var(--serif);font-size:2em;line-height:1.15;color:#1f2c1a}
 .wol-learn .wl-quiz.easy .wl-q{font-size:2.9em}
@@ -737,6 +761,7 @@ const CSS = `
   font-size:1.22em;font-weight:800;color:var(--ink);text-align:center;line-height:1.2;transition:transform .12s,background .25s,border-color .25s,opacity .3s}
 .wol-learn .wl-opts.stack .wl-opt{justify-content:flex-start;text-align:right;min-height:3.3em;font-size:1.12em}
 .wol-learn .wl-quiz.easy .wl-opt{min-height:5.6em;font-size:1.6em}
+.wol-learn .wl-quiz.easy .wl-opts.stack .wl-opt{min-height:3em;font-size:1.4em}
 .wol-learn .wl-opt:hover:not(:disabled){transform:translateY(-3px);border-color:#a99863}
 .wol-learn .wl-opt:active:not(:disabled){transform:translateY(1px)}
 .wol-learn .wl-opt img{width:2.4em;height:2.4em;object-fit:contain;flex:none;border-radius:50%;background:radial-gradient(circle,#fff 30%,rgba(255,255,255,0) 72%)}
@@ -1646,7 +1671,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
       <div class="wl-fbt"><b>${ok ? pick(['נכון! כל הכבוד!', 'מצוין!', 'יפה מאוד!', 'בדיוק!']) : `כמעט! התשובה הנכונה: ${esc(right.label)}`}</b>
         <p>${esc(fact)}</p>${q.src ? `<div class="wl-src"><p class="t">${esc(q.src)}</p><small>${esc(q.ref)}</small></div>` : ''}${gotPack ? `<span class="wl-gotpack">${IC.pack} קיבלתם חבילת קלפים!</span>` : ''}</div>
       <button class="wl-btn ${last ? 'gold' : 'go'}" data-wl="next">${last ? 'לתוצאות' : 'הבא'} ${IC.next}</button></div>`;
-    const nb = $('.wl-fb [data-wl="next"]'); if (nb) setTimeout(() => { try { nb.focus({ preventScroll: true }); if (q.src) $('.wl-fb').scrollIntoView({ block: 'nearest' }); } catch (e) { /* */ } }, 50);
+    const nb = $('.wl-fb [data-wl="next"]'); if (nb) setTimeout(() => { try { nb.focus({ preventScroll: true }); $('.wl-fb').scrollIntoView({ block: 'nearest' }); } catch (e) { /* */ } }, 50);
   }
   function nextQ() {
     if (!Q || !Q.answered) return;
@@ -2147,7 +2172,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
       _sets: () => SETS.map((st) => ({ id: st.id, name: st.name, cards: st.cards.map((c) => c.id + ':' + c.rarity), have: setProg(st).have, done: !!(S.sets || {})[st.id] })),
       _reset: () => { if (!open_) reloadState(); S.owned = {}; S.packs = START_PACKS; S.duelPacks = null; S.sets = {}; save(); },
       _state: () => { if (!open_) reloadState(); return JSON.parse(JSON.stringify(S)); },
-      _round: (level = 'easy', biome = 'both') => buildRound(level, biome).map((q) => ({ q: q.q, sub: q.sub, tag: q.tag, art: q.art && q.art.id, opts: q.options.map((o) => (o.ok ? '*' : '') + o.label) })),
+      _round: (level = 'easy', biome = 'both') => buildRound(level, biome).map((q) => ({ qid: q.qid, q: q.q, sub: q.sub, tag: q.tag, art: q.art && q.art.id, opts: q.options.map((o) => (o.ok ? '*' : '') + o.label) })),
       cards: CARDS.length,
     };
   } catch (e) { /* no window */ }

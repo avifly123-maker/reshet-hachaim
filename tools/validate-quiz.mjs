@@ -63,6 +63,36 @@ function textRules(where, s) {
     const k = b.z + '/' + b.lvl; per[k] = (per[k] || 0) + 1;
   }
   if (QBANK.length < 120) err(`quiz bank: ${QBANK.length} questions (want 120 or more)`);
+  // enough for coming back again and again: every place about 120, with a fair share at each level
+  // (a round takes 4 bank questions for beginners and 5 for advanced; S.seen keeps up to 700 ids)
+  const MIN_ZONE = 110, MIN_LEVEL = 45;
+  for (const z of ['amazon', 'grove', 'reef']) {
+    const e = per[z + '/easy'] || 0, h = per[z + '/hard'] || 0;
+    if (e + h < MIN_ZONE) err(`quiz bank: ${z} has ${e + h} questions (want ${MIN_ZONE} or more)`);
+    if (e < MIN_LEVEL) err(`quiz bank: ${z} has ${e} beginner questions (want ${MIN_LEVEL} or more)`);
+    if (h < MIN_LEVEL) err(`quiz bank: ${z} has ${h} advanced questions (want ${MIN_LEVEL} or more)`);
+  }
+  // duplicates: the same question written a little differently is an error; a very similar one is a warning
+  const norm = (s) => plain(s).replace(/[^א-ת0-9 ]/g, ' ').replace(/(^| )[והבלכמש]?ה?(?=[א-ת])/g, '$1').replace(/\s+/g, ' ').trim();
+  const words = (s) => new Set(norm(s).split(' ').filter((w) => w.length > 1));
+  const seenNorm = new Map();
+  for (const b of QBANK) {
+    const n = norm(b.q);
+    if (seenNorm.has(n)) err(`qbank ${b.id}: the same question as ${seenNorm.get(n)} ("${plain(b.q).slice(0, 50)}")`);
+    else seenNorm.set(n, b.id);
+  }
+  const ws = QBANK.map((b) => [b, words(b.q)]);
+  for (let i = 0; i < ws.length; i++) {
+    for (let j = i + 1; j < ws.length; j++) {
+      const [a, A] = ws[i], [b, B] = ws[j];
+      if (a.z !== b.z && a.z !== 'all' && b.z !== 'all') continue;
+      let both = 0; for (const w of A) if (B.has(w)) both++;
+      const sim = both / (A.size + B.size - both || 1);
+      if (sim >= 0.75 && norm(a.q) !== norm(b.q)) warn(`qbank ${a.id} / ${b.id}: very similar questions ("${plain(a.q).slice(0, 40)}" / "${plain(b.q).slice(0, 40)}")`);
+    }
+  }
+  // three answers, one clearly right (older entries may have two to four)
+  for (const b of QBANK) if (Array.isArray(b.o) && b.o.length !== 3) warn(`qbank ${b.id}: ${b.o.length} answers (three is the house style)`);
   console.log(`quiz bank: ${QBANK.length} questions · ` + Object.entries(per).map(([k, n]) => `${k} ${n}`).join(', '));
 }
 
