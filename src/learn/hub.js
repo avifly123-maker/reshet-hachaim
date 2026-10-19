@@ -1526,8 +1526,8 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
           <div class="wl-tbody"><h2>${tileIcon('dive', 'wl-tic')}משלחת לעומק</h2><p>צוות של ארבעה קלפים צולל לשונית. בכל אתגר בוחרים מי מתמודד, ומחליטים: לרדת עוד או לחזור עם הדגימות.</p></div>
         </button>
       </div>
-      <button class="wl-badgetile paper" data-wl="badges"><span class="wl-bt-row">${BADGES.filter((b) => ownedBadges()[b.id]).slice(-4).map((b) => badgeHTML(b)).join('') || BADGES.slice(0, 3).map((b) => badgeHTML(b, { own: false })).join('')}</span>
-        <span class="wl-bt-text"><b>${tileIcon('medal', 'wl-tic')}התגים שלי</b><small>אספתם ${Object.keys(ownedBadges()).filter((id) => BADGES.some((b) => b.id === id)).length} מתוך ${BADGES.length} תגים. תגים מקבלים במשימות מומחים, במשחקים ובמעבדה.</small></span></button>
+      <button class="wl-badgetile paper" data-wl="badges"><span class="wl-bt-row">${BADGES.filter((b) => ownedBadges()[b.id]).slice(-4).map((b) => badgeHTML(b)).join('') || BADGES.filter((b) => !b.retired).slice(0, 3).map((b) => badgeHTML(b, { own: false })).join('')}</span>
+        <span class="wl-bt-text"><b>${tileIcon('medal', 'wl-tic')}התגים שלי</b><small>אספתם ${Object.keys(ownedBadges()).filter((id) => BADGES.some((b) => b.id === id)).length} מתוך ${BADGES.filter((b) => !b.retired || ownedBadges()[b.id]).length} תגים. תגים מקבלים במשימות מומחים, במשחקים ובמעבדה.</small></span></button>
       </section>`;
   }
 
@@ -1535,8 +1535,8 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   function renderBadges() {
     const own = ownedBadges(), cur = chosenFrame(), open = new Set(openFrames().map((f) => f.id));
     main.innerHTML = `<section class="wl-screen wl-badges">
-      <div class="wl-bhead paper"><b>${tileIcon('medal', 'wl-tic')}התגים שלי</b><span>אספתם ${BADGES.filter((b) => own[b.id]).length} מתוך ${BADGES.length}</span></div>
-      ${BADGE_GROUPS.map((g) => { const list = BADGES.filter((b) => b.group === g.id); const have = list.filter((b) => own[b.id]).length;
+      <div class="wl-bhead paper"><b>${tileIcon('medal', 'wl-tic')}התגים שלי</b><span>אספתם ${BADGES.filter((b) => own[b.id]).length} מתוך ${BADGES.filter((b) => !b.retired || own[b.id]).length}</span></div>
+      ${BADGE_GROUPS.map((g) => { const list = BADGES.filter((b) => b.group === g.id && (!b.retired || own[b.id])); /* a retired badge shows only to who earned it */ const have = list.filter((b) => own[b.id]).length;
         return `<section class="wl-bgroup" style="--bg1:${g.col};--bg2:${g.col2}"><h3><span>${tileIcon(BGROUP_IC[g.id] || 'medal', 'wl-tic')}${esc(g.name)}</span><small>${have} מתוך ${list.length}</small></h3>
           <div class="wl-bgrid">${list.map((b) => badgeHTML(b, { own: !!own[b.id], how: true })).join('')}</div></section>`; }).join('')}
       <section class="wl-frames paper"><h3>${icon('frame')}מסגרות לקלפים באלבום</h3><p>כל קבוצת תגים פותחת מסגרת. בחרו מסגרת, והיא תופיע על כל הקלפים שלכם באלבום.</p>

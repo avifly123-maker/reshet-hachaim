@@ -325,6 +325,51 @@ The cabinet, "מי השאיר את זה?":
 - **Parrotfish:** teeth packed into "a parrot-like beak" with which they rasp algae from coral rock, and what is left comes out as sand — https://en.wikipedia.org/wiki/Parrotfish .
 - **The wrong answers** say only plain things: a fox and a hyrax have soft pads, not hooves (hyrax soles: grove section above); the hoopoe's wings are black and white (https://en.wikipedia.org/wiki/Eurasian_hoopoe ); a hermit crab lives in one empty shell (https://en.wikipedia.org/wiki/Hermit_crab ); the sea urchin's small mouth is under its body (sample line above); a green turtle has a beak and eats mostly seagrass (https://en.wikipedia.org/wiki/Green_sea_turtle ).
 
+### The cabinet's bigger games (1.3.1: src/lab/sort-data.js, clue-cases.js, observe-cases.js)
+
+"ממיינים כמו חוקרים", the pool: every card creature with plain attributes (plant / animal / fungus, water / land / air, what it eats and when it is awake as in the zone data, backbone, moves or stays, fur / feathers / scales / other, smaller or bigger than a hand). An attribute that is not clear for a creature is left empty and that creature is not sorted by it (capybara and chukar for "home", the porcupine's and hedgehog's quills, the corals for "makes its own food", diet of filter feeders, and so on).
+- **Fungi are their own kingdom,** "distinct from both plants and animals", and do not photosynthesize — https://en.wikipedia.org/wiki/Fungus . **Corals and sponges are animals** (reef section; Sponge line above).
+- **Morays have smooth, scaleless skin** covered in mucus — https://en.wikipedia.org/wiki/Moray_eel . **Fruit bats** fly and have fur (Egyptian fruit bat line below; bats are mammals).
+- **Some of the reef's white sand comes from parrotfish** (Parrotfish line above).
+
+"מי השאיר את זה?", 25 cases (eight in the grove and the reef, nine in the Amazon):
+- **Porcupine** eats roots, bulbs and tubers, "excavating tubers"; broad feet with long claws for burrowing; nocturnal — https://en.wikipedia.org/wiki/Indian_crested_porcupine .
+- **Hoopoe** walks over open ground and pauses "to probe the ground with the full length of their bill" — https://en.wikipedia.org/wiki/Hoopoe .
+- **Tortoise tracks:** a trail of parallel tracks; "sometimes the tail or shell will leave drag marks in the trail" — https://bear-tracker.com/turtle.html .
+- **Fox tracks:** four toes, "each claw ... registers directly in front of each toe", oval prints; the direct register trot (the hind foot lands where the front foot stepped) — https://www.wildernesscollege.com/fox-tracks.html .
+- **Leafcutter ants** cut leaves and carry the fragments to the nest; the largest workers clear the main foraging trails — https://en.wikipedia.org/wiki/Leafcutter_ant ; they "farm a fungus that feeds the colony" — https://www.ab.mpg.de/767575/traffic-jam .
+- **Tapir:** "four toes on the front feet and three on the hind feet"; tapirs with rivers spend much time in water and swim — https://en.wikipedia.org/wiki/Tapir .
+- **Capybara:** "slightly webbed feet", grazes "mainly on grasses and aquatic plants", lives near fresh water — https://en.wikipedia.org/wiki/Capybara .
+- **Agouti and the Brazil nut:** the capsule has a small hole that lets large rodents like the agouti gnaw it open; they eat some seeds and bury others, and some of these germinate into new trees — https://en.wikipedia.org/wiki/Brazil_nut .
+- **Hummingbird nest:** a small cup about 3.8 cm across, bound with spider silk, lichen and moss; two white pea-sized eggs — https://en.wikipedia.org/wiki/Hummingbird .
+- **Macaws at clay licks:** macaws and parrots eat clay from the high clay walls of riverbanks; the clay binds alkaloids in their diet and adds minerals and sodium — https://www.tambopatalodge.com/en/blog/tambopata-is-famous-for-its-macaw-clay-licks .
+- **Giant anteater** tears an ant or termite nest open "with its claws and inserts its long, sticky tongue" — https://en.wikipedia.org/wiki/Giant_anteater .
+- **Jaguar:** cats (except cheetahs) have retractable claws, so "in general the claws are not visible in the track", and the print is round — https://www.kora.ch/en/species/lynx/signs-in-the-field (a lynx page: the game says "like most cats"); jaguars mark with scrapes, "depressions in the ground made by felids with their hind legs" with the dirt in "a pile of it at the end of the scrape" — https://peerj.com/articles/4983 ; https://en.wikipedia.org/wiki/Jaguar ("scrape marks ... to mark its territory").
+- **Howler monkeys:** males call at dawn, heard far through the forest, likely spacing between groups; they eat mainly top canopy leaves — https://en.wikipedia.org/wiki/Howler_monkey .
+- **Hermit crab tracks:** long winding trails on wet sand, identified as hermit crab tracks — https://juneauempire.com/sports/on-the-trails-animal-tracks-and-bird-feeder-activities .
+- **Sea urchin halos:** "the circles of rock without vegetation, that sea urchins leave when they feed" — https://esa.org/blog/2025/12/17/sea-urchin-halos-a-new-tool-to-detect-ecosystems-at-risk/ ; the urchin grazes at night (reef.js).
+- **Stingray pits:** sand craters formed by a feeding stingray, which draws water in through its spiracles and forces it out under its body, stirring the sand to expose prey — https://australian.museum/learn/news/blog/mysterious-sand-craters/ .
+- **Green turtle grazing** trims only the top of seagrass and leaves the roots, which keeps the beds healthy — https://en.wikipedia.org/wiki/Green_sea_turtle .
+- **Clownfish eggs:** the female lays them on a rock near the anemone; the male cleans, guards and fans them with his fins — https://en.wikipedia.org/wiki/Clownfish ; the Red Sea anemonefish lives in the Red Sea — https://en.wikipedia.org/wiki/Amphiprion_bicinctus .
+- **Pistol shrimp and goby** (aquarium line above: the shrimp digs, the goby keeps watch).
+- (Which suspects were "nearby" and the order of the clues are game choices. The paintings of the clues are made for the game; no droppings in any case.)
+
+"ראינו או חשבנו?", 19 finds (the three of 1.3.0 are sourced above):
+- **Fruit bats eat figs** ("Persian lilacs, loquat, figs, and wild dates"; "any soft, pulpy fruit") and leave the roost at dusk — https://en.wikipedia.org/wiki/Egyptian_fruit_bat ; the bat lives in Israel — https://cris.bgu.ac.il/en/publications/is-the-egyptian-fruit-bat-rousettus-aegyptiacus-a-pest-in-israel-/ .
+- **Blackbirds** feed on the ground and pull earthworms from the soil — https://en.wikipedia.org/wiki/Common_blackbird .
+- **Coral bleaching** (aquarium "יום ולילה" lines above).
+- **Spittle on plants** ("cuckoo spit") is made by the nymphs of sap-sucking froghoppers; each blob holds a small nymph; plant growth is usually unaffected — https://www.rhs.org.uk/biodiversity/cuckoo-spit-spittlebugs .
+- **Harvester ants** carry seeds to the nest and leave the husks in a ring (line above).
+- **Song thrush** (קיכלי רונן) uses a favourite stone as an anvil to break snail shells; northern birds winter around the Mediterranean and the Middle East — https://en.wikipedia.org/wiki/Song_thrush .
+- **Phototropism:** shoots bend toward light because cells on the shaded side grow longer — https://en.wikipedia.org/wiki/Phototropism .
+- **Mushrooms** are fruiting bodies of a fungus whose thread-like mycelium lives in the soil — https://en.wikipedia.org/wiki/Mycelium (mushrooms after rain: line above).
+- **Small round holes in acorns** are made by acorn weevil larvae chewing their way out — https://yardandgarden.extension.iastate.edu/faq/there-are-small-round-holes-many-acorns-ground-what-made-holes ; the larvae feed inside the acorn — https://en.wikipedia.org/wiki/Curculio_glandium .
+- **Cleaning stations:** clients open their mouths wide to be cleaned and cleaners swim into the mouth and gills and eat parasites — https://en.wikipedia.org/wiki/Cleaning_station .
+- **Sloth fur** has grooved hair that hosts green algae, which camouflage the sloth — https://en.wikipedia.org/wiki/Sloth .
+- **Evaporation** goes faster at higher temperatures — https://en.wikipedia.org/wiki/Evaporation .
+- **Pine cones** close when wet and open when dry (Pine cone line above). **Glowing fungi** in decaying wood (foxfire) — https://en.wikipedia.org/wiki/Foxfire .
+- (The counts, days and minutes in the finds are game values.)
+
 ## Quiz bank (מרכז הלמידה: src/data/quiz-bank.js)
 
 The 158 hand-written questions restate facts that are already sourced above, species by species (Amazon, grove, reef) and in the tools' card texts (src/game/tools.js). New facts used only in the bank:

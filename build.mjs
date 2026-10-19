@@ -88,7 +88,7 @@ async function buildDesktop(outdir) {
   };
   // The generated picture tables (src/data/*.js written by tools/build-*.py) hold base64 data URIs; in the desktop build
   // each module is replaced by the same table with file paths, so a picture costs nothing until something shows it.
-  const ASSET_MODULES = /[\\/]src[\\/]data[\\/](panorama|ground-textures|card-art|thumbs|island-art|tree-shadow|logo|pack-art|source-art|lab-art|reef-backdrop)\.js$/;
+  const ASSET_MODULES = /[\\/]src[\\/]data[\\/](panorama|ground-textures|card-art|thumbs|island-art|tree-shadow|logo|pack-art|source-art|lab-art|lab-items-art|reef-backdrop)\.js$/;
   const assetPlugin = {
     name: 'asset-files',
     setup(b) {
