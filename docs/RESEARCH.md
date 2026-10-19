@@ -92,4 +92,14 @@
 - תנים וצבאים ברמת הנדיב: [LJMU](https://researchonline.ljmu.ac.uk/25893/1/Cascading%20Effects%20of%20Anthropogenic%20Excess%20Food%20for%20Predators%20on%20a%20Peri-Urban%20Population%20of%20an%20Endangered%20Ungulate.pdf)
 - נמלים גוזרות בשולי יער: [Wirth ועמיתיו](https://portal.fis.tum.de/en/publications/increasing-densities-of-leaf-cutting-ants-atta-spp-with-proximity/), [Journal of Tropical Ecology](https://resolve.cambridge.org/core/journals/journal-of-tropical-ecology/article/abs/leafcutting-ants-proliferate-in-the-amazon-an-expected-response-to-forest-edge/C0DC3C101DAC10DB73A752BFA7F4FF95)
 
+
+## אחרי הבדיקה (19.10)
+
+- בלי חבילות קלפים בתעלומות. הפרס הוא תג וכוכבים (אבי: "יש מספיק חבילות, עדיף תגים").
+- הפתעה מופיעה רק כשהמספר באמת חוצה את הקו אחרי הרעיון של הילד, כדי שלא תספר על סיבה שלא קרתה.
+- שורות התוצאה אחרי "לראות מה קורה" נבדקו מחדש. בחמש תעלומות הן היו הפוכות, ותוקנו.
+- במתחילים, כשהתקציב נגמר ואי אפשר לנסות עוד רעיון, מופיע הכפתור "לְנַסּוֹת מֵחָדָשׁ".
+- הדילמה מופיעה כמה שניות אחרי התוצאה, וחוזרת פעם אחת אחרי "עוד לא".
+- הבודק מוודא שכל מכשיר שתעלומה מציבה קיים במשחק.
+
 </div>
