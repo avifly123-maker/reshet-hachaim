@@ -394,7 +394,7 @@ export function createResearchSession(ctx) {
     const thrift = spent <= (C.stars?.thrift ?? Infinity);
     const stars = [true, right, thrift];
     const first = saveCaseResult(C.id, stars, { spent, acts: acts.length });
-    if (first) { try { window.__wolLearn && window.__wolLearn.grantPack && window.__wolLearn.grantPack(1); } catch (e) { /* the hub is optional */ } }
+    // no card pack any more (Avi, 19.10: the album has enough; badges are the prize): the research:* badges come below
     // badges (תגים): the first mystery, three stars, every mystery, and a way of one's own
     const other = runner.otherWay();
     grantBadge('research:first');
@@ -407,7 +407,7 @@ export function createResearchSession(ctx) {
     if (TORAH && C.source) { const card = SOURCE_CARDS.find((c) => c.id === C.source); if (card) { grantSource(card.id); source = card; } }
     audio.play('mission');
     R.setSolved(T('solvedTitle'));
-    R.showSolved({ stars, pack: first, source, solvedText: C.solved, learned: C.learned, real: C.realStory, other, attempt, tries: logs.filter((l) => l.kind === 'idea').length });
+    R.showSolved({ stars, pack: false, source, solvedText: C.solved, learned: C.learned, real: C.realStory, other, attempt, tries: logs.filter((l) => l.kind === 'idea').length });
   }
 
   // ─────────────────────────────────────── try again: the place goes back to how it was; the measurements, the guess
