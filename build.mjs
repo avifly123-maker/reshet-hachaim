@@ -78,7 +78,7 @@ async function buildDesktop(outdir) {
   for (const p of ['index.html', 'core.js', 'migrate.html', 'packs', 'chunks', 'assets', 'build-info.json']) fs.rmSync(path.join(outdir, p), { recursive: true, force: true });
   fs.mkdirSync(outdir, { recursive: true });
   const assets = new Map();   // published path → bytes
-  const ext = { 'image/webp': 'webp', 'image/png': 'png', 'image/jpeg': 'jpg', 'image/svg+xml': 'svg', 'font/woff2': 'woff2' };
+  const ext = { 'image/webp': 'webp', 'image/png': 'png', 'image/jpeg': 'jpg', 'image/svg+xml': 'svg', 'font/woff2': 'woff2', 'audio/ogg': 'ogg' };
   const toFile = (dataUri, rel) => {
     const m = /^data:([^;,]+);base64,(.*)$/s.exec(dataUri);
     if (!m || !ext[m[1]]) return dataUri;
@@ -88,7 +88,7 @@ async function buildDesktop(outdir) {
   };
   // The generated picture tables (src/data/*.js written by tools/build-*.py) hold base64 data URIs; in the desktop build
   // each module is replaced by the same table with file paths, so a picture costs nothing until something shows it.
-  const ASSET_MODULES = /[\\/]src[\\/]data[\\/](panorama|ground-textures|card-art|thumbs|island-art|tree-shadow|logo|pack-art|source-art|lab-art|reef-backdrop)\.js$/;
+  const ASSET_MODULES = /[\\/]src[\\/]data[\\/](panorama|ground-textures|card-art|thumbs|island-art|tree-shadow|logo|pack-art|source-art|lab-art|reef-backdrop|music)\.js$/;
   const assetPlugin = {
     name: 'asset-files',
     setup(b) {

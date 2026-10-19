@@ -1,0 +1,13 @@
+{
+ "name": "lab",
+ "loop": 100.0,
+ "pad": 1.0,
+ "lufs": -20.0,
+ "lra": 4.8,
+ "true_peak": -6.7,
+ "sample_peak_db": -6.72,
+ "seam_jump": 0.00363,
+ "max_step": 0.0669,
+ "median_step": 0.003971,
+ "bytes": 1055692
+}
