@@ -10,6 +10,8 @@
 import { esc, icon } from '../ui/ui.js';
 import { thinkUpdate, thinkOf } from './progress.js';
 import { grant as grantBadge } from '../core/badges-store.js';
+import { labKids, fmt, readMs } from './level.js';
+import { THINK_K } from './kids-text.js';   // the beginners' words: fully vocalised, short bubbles
 
 export const THINK = [
   { id: 'fair', name: 'הניסוי ההוגן', habit: 'משנים רק דבר אחד בכל פעם', st: 'greenhouse', where: 'בחממה', ic: 'sprout' },
@@ -19,6 +21,8 @@ export const THINK = [
   { id: 'cause', name: 'ביחד או בגלל?', habit: 'ביחד זה עוד לא בגלל', st: 'home', where: 'בחדר', ic: 'web' },
 ];
 export const thinkById = (id) => THINK.find((a) => a.id === id) || null;
+// an activity's name, habit and place in the words of the child's level
+const named = (a, kids) => (kids && a ? { ...a, ...THINK_K.items[a.id] } : a);
 export const thinkDone = (id) => !!thinkOf(id).done;
 
 // רובו־דע's face on the voice strip
@@ -41,24 +45,30 @@ function finish(id) {
 }
 
 // ───────────────────────────────────────── the frame of every activity: a title, the habit, the work, and his voice
-function shell(root, a, { robot, audio, onClose }) {
+function shell(root, a0, { robot, audio, onClose }) {
   injectCss();
-  const el = document.createElement('div'); el.className = `lb-panel lt lt-p-${a.id}`; root.appendChild(el);
-  el.innerHTML = `<header class="lt-head"><div class="lt-ttl"><small>חושבים כמו חוקרים · ${esc(a.where)}</small><h2>${esc(a.name)}</h2></div>
-      <p class="lt-habit">${icon('bulb')}<span>${esc(a.habit)}</span></p><button class="lb-btn lt-back">חזרה לחדר</button></header>
+  const kids = labKids(), a = named(a0, kids), SK = THINK_K.shell;
+  const el = document.createElement('div'); el.className = `lb-panel lt lt-p-${a.id}${kids ? ' kids' : ''}`; root.appendChild(el);
+  el.innerHTML = `<header class="lt-head"><div class="lt-ttl"><small>${kids ? SK.tag : 'חושבים כמו חוקרים'} · ${esc(a.where)}</small><h2>${esc(a.name)}</h2></div>
+      <p class="lt-habit">${icon('bulb')}<span>${esc(a.habit)}</span></p><button class="lb-btn lt-back">${kids ? SK.back : 'חזרה לחדר'}</button></header>
     <div class="lt-body"></div><div class="lt-voice" aria-live="polite">${face('happy')}<p></p></div>`;
   const body = el.querySelector('.lt-body'), voice = el.querySelector('.lt-voice');
   let alive = true; const timers = [];
   const later = (fn, ms) => { const t = setTimeout(() => { if (alive) fn(); }, ms); timers.push(t); };
+  // a list (the beginners' texts) is a few short lines: each one appears after the one before it was read
   const talk = (text, expr = 'happy') => {
-    voice.innerHTML = `${face(expr)}<p><b>רובו־דע:</b> ${esc(text)}</p>`;
+    const parts = (Array.isArray(text) ? text : [text]).map(String).filter(Boolean);
+    let delay = 0;
+    const lines = parts.map((t, i) => { const d = delay; delay += readMs(t); return `<span class="lt-part" style="animation-delay:${i ? d : 0}ms">${esc(t)}</span>`; });
+    voice.innerHTML = `${face(expr)}<p class="${parts.length > 1 ? 'lt-parts' : ''}"><b>${kids ? SK.robo : 'רובו־דע:'}</b> ${lines.join(' ')}</p>`;
     voice.classList.remove('pop'); void voice.offsetWidth; voice.classList.add('pop');
-    robot && robot.say && robot.say(expr, Math.min(4, 0.8 + text.length * 0.045));
+    const len = parts.join(' ').length;
+    robot && robot.say && robot.say(expr, Math.min(4, 0.8 + len * 0.045));
   };
   const sfx = (n) => { try { audio && audio.play(n); } catch (e) { /* */ } };
   const close = () => { if (!alive) return; alive = false; timers.forEach(clearTimeout); el.remove(); onClose && onClose(); };
   el.querySelector('.lt-back').onclick = close;
-  return { el, body, talk, sfx, later, close, alive: () => alive };
+  return { el, body, talk, sfx, later, close, alive: () => alive, kids };
 }
 
 // ═════════════════════════════════════════ 1. הניסוי ההוגן (the greenhouse)
@@ -72,13 +82,13 @@ const VARS = [
   { id: 'soil', name: 'אדמה', the: 'האדמה', opts: [['garden', 'אדמת גן'], ['sand', 'חול']] },
 ];
 function growPot(p) {
-  let h = 14, leaves = 6, green = 1, droop = 0, pale = 0, note = 'ירוק וחזק';
-  if (p.soil === 'sand') { h *= 0.8; leaves = 4; green = 0.8; note = 'קטן, ירוק בהיר'; }
-  if (p.water === 'much') { h *= 0.65; leaves = Math.min(leaves, 4); green *= 0.62; note = 'העלים מצהיבים'; }
-  if (p.water === 'little') { h *= 0.55; leaves = Math.min(leaves, 4); droop = 1; note = 'נבול וצמא'; }
-  if (p.light === 'dark') { h *= 1.5; leaves = 2; pale = 1; note = 'גבוה, צהוב ודק'; }
+  let h = 14, leaves = 6, green = 1, droop = 0, pale = 0, note = 'ירוק וחזק', nk = 'ok';
+  if (p.soil === 'sand') { h *= 0.8; leaves = 4; green = 0.8; note = 'קטן, ירוק בהיר'; nk = 'sand'; }
+  if (p.water === 'much') { h *= 0.65; leaves = Math.min(leaves, 4); green *= 0.62; note = 'העלים מצהיבים'; nk = 'much'; }
+  if (p.water === 'little') { h *= 0.55; leaves = Math.min(leaves, 4); droop = 1; note = 'נבול וצמא'; nk = 'little'; }
+  if (p.light === 'dark') { h *= 1.5; leaves = 2; pale = 1; note = 'גבוה, צהוב ודק'; nk = 'dark'; }
   h += (Math.random() - 0.5) * 1.2;
-  return { h: Math.round(h * 10) / 10, leaves, green, droop, pale, note };
+  return { h: Math.round(h * 10) / 10, leaves, green, droop, pale, note, nk };
 }
 function potSVG(p, g) {
   const soil = p.soil === 'sand' ? '#e2c48a' : '#5a3b22';
@@ -102,40 +112,47 @@ function potSVG(p, g) {
 }
 export function openFair(root, ctx) {
   const a = thinkById('fair'); const S = shell(root, a, ctx);
+  const k = S.kids, K = THINK_K.fair;
+  const VS = k ? VARS.map((v) => ({ ...v, name: K.vars[v.id].name, the: K.vars[v.id].the, opts: v.opts.map(([o]) => [o, K.vars[v.id].opts[o]]) })) : VARS;
   const pots = [{ light: 'sun', water: 'mid', soil: 'garden' }, { light: 'sun', water: 'mid', soil: 'garden' }];
   let grown = null, busy = false, jokeI = 0;
-  const diffs = () => VARS.filter((v) => pots[0][v.id] !== pots[1][v.id]);
+  const diffs = () => VS.filter((v) => pots[0][v.id] !== pots[1][v.id]);
   function render() {
     const R = thinkOf('fair'); const d = diffs();
-    const potCard = (i) => `<section class="lt-potc"><b>עציץ ${i ? 'ב' : 'א'}</b>${potSVG(pots[i], grown && grown[i])}<small class="lt-note">${grown ? `${grown[i].h.toLocaleString('he-IL')} ס"מ · ${esc(grown[i].note)}` : 'זרע באדמה'}</small>
-      ${VARS.map((v) => `<div class="lt-seg" role="group" aria-label="${v.name}"><span>${v.name}</span>${v.opts.map(([k, t]) => `<button data-pot="${i}" data-v="${v.id}" data-o="${k}" class="${pots[i][v.id] === k ? 'on' : ''}" ${busy ? 'disabled' : ''}>${t}</button>`).join('')}</div>`).join('')}</section>`;
-    const tag = d.length === 0 ? '<span class="lt-tag same">אין הבדל בין העציצים</span>' : d.length === 1 ? `<span class="lt-tag ok">שונה רק ${d[0].the}</span>` : `<span class="lt-tag many">שונים ${d.map((v) => v.the).join(' וגם ')}</span>`;
+    const potCard = (i) => `<section class="lt-potc"><b>${k ? K.pot : 'עציץ'} ${i ? 'ב' : 'א'}</b>${potSVG(pots[i], grown && grown[i])}<small class="lt-note">${grown ? `${grown[i].h.toLocaleString('he-IL')} ס"מ · ${esc(k ? K.notes[grown[i].nk] : grown[i].note)}` : k ? K.seed : 'זרע באדמה'}</small>
+      ${VS.map((v) => `<div class="lt-seg" role="group" aria-label="${v.name}"><span>${v.name}</span>${v.opts.map(([k, t]) => `<button data-pot="${i}" data-v="${v.id}" data-o="${k}" class="${pots[i][v.id] === k ? 'on' : ''}" ${busy ? 'disabled' : ''}>${t}</button>`).join('')}</div>`).join('')}</section>`;
+    const tag = k ? (d.length === 0 ? `<span class="lt-tag same">${K.same}</span>` : d.length === 1 ? `<span class="lt-tag ok">${fmt(K.one, { the: d[0].the })}</span>` : `<span class="lt-tag many">${fmt(K.many, { list: d.map((v) => v.the).join(K.and) })}</span>`)
+      : d.length === 0 ? '<span class="lt-tag same">אין הבדל בין העציצים</span>' : d.length === 1 ? `<span class="lt-tag ok">שונה רק ${d[0].the}</span>` : `<span class="lt-tag many">שונים ${d.map((v) => v.the).join(' וגם ')}</span>`;
     S.body.innerHTML = `<div class="lt-fair">${potCard(0)}
-      <section class="lt-mid">${tag}<button class="lt-go" data-act="grow" ${busy ? 'disabled' : ''}>${icon('sprout')}${grown ? 'לגדל שוב' : 'לגדל שלושה שבועות'}</button>
-        <div class="lt-book"><small>המחברת: מה גילינו בניסוי הוגן</small>${VARS.map((v) => `<span class="${R[v.id] ? 'on' : ''}">${R[v.id] ? icon('check') : ''}${v.name}${R[v.id] ? '' : '?'}</span>`).join('')}</div></section>
+      <section class="lt-mid">${tag}<button class="lt-go" data-act="grow" ${busy ? 'disabled' : ''}>${icon('sprout')}${grown ? (k ? K.again : 'לגדל שוב') : (k ? K.grow : 'לגדל שלושה שבועות')}</button>
+        <div class="lt-book"><small>${k ? K.book : 'המחברת: מה גילינו בניסוי הוגן'}</small>${VS.map((v) => `<span class="${R[v.id] ? 'on' : ''}">${R[v.id] ? icon('check') : ''}${v.name}${R[v.id] ? '' : '?'}</span>`).join('')}</div></section>
       ${potCard(1)}</div>`;
   }
   function grow() {
     if (busy) return; busy = true; grown = null; render(); S.sfx('click');
-    S.talk('מגדלים... שלושה שבועות עוברים מהר כשאתם רובוט.', 'curious');
+    S.talk(k ? K.growing : 'מגדלים... שלושה שבועות עוברים מהר כשאתם רובוט.', 'curious');
     S.later(() => {
       grown = [growPot(pots[0]), growPot(pots[1])]; busy = false; render(); S.sfx('discover');
       S.body.querySelectorAll('.lt-pot').forEach((s) => s.classList.add('grow'));
       const d = diffs();
       if (d.length === 0) {
         const dh = Math.abs(grown[0].h - grown[1].h).toLocaleString('he-IL');
+        if (k) { S.talk(fmt(K.sameRes, { dh }), 'curious'); return; }
         S.talk(`שני העציצים קיבלו בדיוק אותו דבר, ולכן גדלו כמעט אותו דבר. ההבדל הקטן, ${dh} ס"מ, הוא סתם: גם שני נבטים תאומים לא יוצאים זהים. עכשיו שנו דבר אחד, ונראה מה הוא עושה.`, 'curious');
         return;
       }
       if (d.length > 1) {
         thinkUpdate('fair', (r) => { r.mixed = (r.mixed || 0) + 1; });
-        const j = ['אולי בכלל זה בגלל שסיפרתי לעציץ א בדיחה?', 'אולי עציץ ב קם הבוקר על צד שמאל?', 'אולי זה בגלל שהשקיתי אחד מהם עם חיוך?'][jokeI++ % 3];
+        const j = ['אולי בכלל זה בגלל שסיפרתי לעציץ א בדיחה?', 'אולי עציץ ב קם הבוקר על צד שמאל?', 'אולי זה בגלל שהשקיתי אחד מהם עם חיוך?'][jokeI % 3];
+        if (k) { S.talk(fmt(K.mixed, { list: d.map((v) => v.the).join(K.or), joke: K.jokes[jokeI++ % K.jokes.length] }), 'oops'); S.sfx('invalid'); return; }
+        jokeI++;
         S.talk(`העציצים יצאו שונים! אבל מי עשה את זה: ${d.map((v) => v.the).join(' או ')}? ${j} שינינו ${d.length === 2 ? 'שני' : 'שלושה'} דברים ביחד, אז אי אפשר לדעת. ניסוי הוגן משנה רק דבר אחד.`, 'oops');
         S.sfx('invalid');
         return;
       }
       const v = d[0], vals = new Set([pots[0][v.id], pots[1][v.id]]);
-      let line = '', expr = 'wow';
+      let line = '', expr = 'wow', kl = null;
+      if (k) kl = v.id === 'light' ? K.light : v.id === 'soil' ? K.soil : vals.has('little') && vals.has('much') ? K.both : vals.has('much') ? K.much : K.little;
       if (v.id === 'light') line = 'בארון החשוך הנבט גבוה יותר! אבל הוא צהוב, דק וחלש. הוא נמתח למעלה כדי לחפש אור. גבוה זה לא תמיד בריא.';
       else if (v.id === 'soil') line = 'בחול הנבט קטן יותר, והעלים בהירים. החול לא שומר הרבה מים ומזון, ואדמת גן שומרת יותר.';
       else if (vals.has('little') && vals.has('much')) { line = 'שניהם חלשים: אחד צמא, והשני מוצף. אולי הכי טוב באמצע? נסו מים במידה מול אחד מהם.'; expr = 'curious'; }
@@ -145,8 +162,10 @@ export function openFair(root, ctx) {
       const R = thinkOf('fair'); render(); S.body.querySelectorAll('.lt-pot').forEach((s) => s.classList.add('grow'));
       if (VARS.every((x) => R[x.id]) && !R.done) {
         finish('fair'); S.sfx('mission');
-        S.talk(`ניסוי הוגן! שינינו רק את ${v.the}. ${line} ועכשיו המחברת מלאה: גיליתם מה עושים האור, המים והאדמה, כל אחד בניסוי הוגן משלו.`, 'wow');
-      } else S.talk(`ניסוי הוגן! שינינו רק את ${v.the}, ולכן ברור מה עשה את ההבדל. ${line}`, expr);
+        if (k) S.talk([fmt(K.fairOne, { the: v.the }), ...kl, K.full], 'wow');
+        else S.talk(`ניסוי הוגן! שינינו רק את ${v.the}. ${line} ועכשיו המחברת מלאה: גיליתם מה עושים האור, המים והאדמה, כל אחד בניסוי הוגן משלו.`, 'wow');
+      } else if (k) S.talk([fmt(K.fairOne, { the: v.the }), ...kl], expr);
+      else S.talk(`ניסוי הוגן! שינינו רק את ${v.the}, ולכן ברור מה עשה את ההבדל. ${line}`, expr);
     }, 1400);
   }
   S.el.addEventListener('click', (e) => {
@@ -155,26 +174,27 @@ export function openFair(root, ctx) {
     if (b.dataset.pot != null) { pots[+b.dataset.pot][b.dataset.v] = b.dataset.o; grown = null; S.sfx('click'); render(); }
   });
   render();
-  if (thinkOf('fair').done) S.talk('המחברת כבר מלאה! אבל חוקרים לא מפסיקים לבדוק. נסו שילובים אחרים, ונראה אם תצליחו להפתיע אותי.', 'happy');
+  if (k) S.talk(thinkOf('fair').done ? K.introDone : K.intro, 'happy');
+  else if (thinkOf('fair').done) S.talk('המחברת כבר מלאה! אבל חוקרים לא מפסיקים לבדוק. נסו שילובים אחרים, ונראה אם תצליחו להפתיע אותי.', 'happy');
   else S.talk('שני עציצים, ובכל אחד זרע של שעועית. מה עוזר לנבט לגדול? שנו משהו באחד העציצים, ואז לחצו "לגדל שלושה שבועות".', 'happy');
   return { close: S.close, debug: { pots, grow, diffs } };
 }
 
 // ═════════════════════════════════════════ 2. צף או שוקע? (the aquarium)
 // A glass tank: fresh water, or water from the Dead Sea (very salty: about 1.24 kg a litre). Guess first, then drop.
-const ITEMS = [
-  { id: 'apple', name: 'תפוח', the: 'התפוח', g: 'm', f: [1, 1], why: 'בערך רבע מהתפוח הוא אוויר, ולכן הוא צף.' },
-  { id: 'coin', name: 'מטבע', the: 'המטבע', g: 'm', f: [0, 0], why: 'המטבע קטן, אבל הוא כבד מאוד בשביל הגודל שלו.', joke: 'המטבע שלי! טוב, לפחות עכשיו אני יודע איפה הוא.' },
-  { id: 'egg', name: 'ביצה', the: 'הביצה', g: 'f', f: [0, 1], why: ['במים מתוקים הביצה שוקעת.', 'מי ים המלח מלאים במלח. הם כבדים יותר, ודוחפים חזק יותר למעלה. לכן הביצה צפה.'] },
-  { id: 'pumice', name: 'אבן ספוג', the: 'אבן הספוג', g: 'f', f: [1, 1], why: 'יש באבן הזאת המון בועות אוויר קטנות. אבן שצפה!' },
-  { id: 'orange', name: 'תפוז', the: 'התפוז', g: 'm', f: [1, 1], why: 'בקליפה של התפוז יש המון כיסי אוויר קטנים, והם מחזיקים אותו למעלה כמו מצוף.' },
-  { id: 'peeled', name: 'תפוז קלוף', the: 'התפוז הקלוף', g: 'm', f: [0, 1], why: ['בלי הקליפה ובלי כיסי האוויר שבה, התפוז שוקע!', 'במי ים המלח גם תפוז בלי קליפה צף. המים המלוחים דוחפים חזק.'] },
-  { id: 'ice', name: 'קוביית קרח', the: 'קוביית הקרח', g: 'f', f: [1, 1], why: 'קרח קל יותר ממים, ולכן הוא צף.' },
-  { id: 'pebble', name: 'חלוק אבן', the: 'חלוק האבן', g: 'm', f: [0, 0], why: 'חלוק האבן כבד מדי, אפילו בשביל מי ים המלח.' },
+const ITEMS_ALL = [
+  { id: 'apple', name: 'תפוח', the: 'התפוח', to: 'לתפוח', g: 'm', f: [1, 1], why: 'בערך רבע מהתפוח הוא אוויר, ולכן הוא צף.' },
+  { id: 'coin', name: 'מטבע', the: 'המטבע', to: 'למטבע', g: 'm', f: [0, 0], why: 'המטבע קטן, אבל הוא כבד מאוד בשביל הגודל שלו.', joke: 'המטבע שלי! טוב, לפחות עכשיו אני יודע איפה הוא.' },
+  { id: 'egg', name: 'ביצה', the: 'הביצה', to: 'לביצה', g: 'f', f: [0, 1], why: ['במים מתוקים הביצה שוקעת.', 'מי ים המלח מלאים במלח. הם כבדים יותר, ודוחפים חזק יותר למעלה. לכן הביצה צפה.'] },
+  { id: 'pumice', name: 'אבן ספוג', the: 'אבן הספוג', to: 'לאבן הספוג', g: 'f', f: [1, 1], why: 'יש באבן הזאת המון בועות אוויר קטנות. אבן שצפה!' },
+  { id: 'orange', name: 'תפוז', the: 'התפוז', to: 'לתפוז', g: 'm', f: [1, 1], why: 'בקליפה של התפוז יש המון כיסי אוויר קטנים, והם מחזיקים אותו למעלה כמו מצוף.' },
+  { id: 'peeled', name: 'תפוז קלוף', the: 'התפוז הקלוף', to: 'לתפוז הקלוף', g: 'm', f: [0, 1], why: ['בלי הקליפה ובלי כיסי האוויר שבה, התפוז שוקע!', 'במי ים המלח גם תפוז בלי קליפה צף. המים המלוחים דוחפים חזק.'] },
+  { id: 'ice', name: 'קוביית קרח', the: 'קוביית הקרח', to: 'לקוביית הקרח', g: 'f', f: [1, 1], why: 'קרח קל יותר ממים, ולכן הוא צף.' },
+  { id: 'pebble', name: 'חלוק אבן', the: 'חלוק האבן', to: 'לחלוק האבן', g: 'm', f: [0, 0], why: 'חלוק האבן כבד מדי, אפילו בשביל מי ים המלח.' },
 ];
-const WATERS = [{ id: 0, name: 'מים מתוקים', in: 'במים מתוקים' }, { id: 1, name: 'מי ים המלח', in: 'במי ים המלח' }];
-const verb = (it, fl) => (it.g === 'f' ? (fl ? 'תצוף' : 'תשקע') : (fl ? 'יצוף' : 'ישקע'));
-const past = (it, fl) => (it.g === 'f' ? (fl ? 'צפה' : 'שוקעת') : (fl ? 'צף' : 'שוקע'));   // present tense
+const WATERS_ALL = [{ id: 0, name: 'מים מתוקים', in: 'במים מתוקים' }, { id: 1, name: 'מי ים המלח', in: 'במי ים המלח' }];
+const verb = (it, fl) => (it.kv ? it.kv[fl ? 1 : 0] : it.g === 'f' ? (fl ? 'תצוף' : 'תשקע') : (fl ? 'יצוף' : 'ישקע'));
+const past = (it, fl) => (it.kn ? it.kn[fl ? 1 : 0] : it.g === 'f' ? (fl ? 'צפה' : 'שוקעת') : (fl ? 'צף' : 'שוקע'));   // present tense
 function itemSVG(id) {
   const S = {
     apple: '<circle cx="20" cy="22" r="13" fill="#d93a32"/><circle cx="15" cy="18" r="3.5" fill="#f08a80" opacity=".7"/><path d="M20 10q1-5 4-6" stroke="#6a4a22" stroke-width="2" fill="none"/><path d="M22 8q6-4 9 0q-5 3-9 0z" fill="#5aa845"/>',
@@ -190,6 +210,10 @@ function itemSVG(id) {
 }
 export function openFloat(root, ctx) {
   const a = thinkById('float'); const S = shell(root, a, ctx);
+  const k = S.kids, K = THINK_K.float;
+  // beginners: the same things and the same physics, in vocalised words (kv / kn: the verbs for the item's gender)
+  const ITEMS = k ? ITEMS_ALL.map((it) => ({ ...it, ...K.items[it.id], kv: K.verb[it.g], kn: K.now[it.g] })) : ITEMS_ALL;
+  const WATERS = k ? WATERS_ALL.map((w, i) => ({ ...w, ...K.waters[i] })) : WATERS_ALL;
   let cur = null, water = 0, guess = null, phase = 'pick', lastFl = null;
   const key = (it, w) => it.id + ':' + w;
   function render() {
@@ -203,12 +227,12 @@ export function openFloat(root, ctx) {
     </svg>`;
     const cell = (it, w) => { const v = res[key(it, w)]; return `<td class="${v == null ? '' : v ? 'f' : 's'}">${v == null ? '<i>?</i>' : arrow(!!v)}</td>`; };
     S.body.innerHTML = `<div class="lt-float">
-      <section class="lt-shelf"><small>בחרו משהו לזרוק למים</small><div>${ITEMS.map((it) => `<button data-it="${it.id}" class="${cur === it ? 'on' : ''}" ${phase === 'drop' ? 'disabled' : ''}>${itemSVG(it.id)}<span>${it.name}</span></button>`).join('')}</div></section>
+      <section class="lt-shelf"><small>${k ? K.shelf : 'בחרו משהו לזרוק למים'}</small><div>${ITEMS.map((it) => `<button data-it="${it.id}" class="${cur === it ? 'on' : ''}" ${phase === 'drop' ? 'disabled' : ''}>${itemSVG(it.id)}<span>${it.name}</span></button>`).join('')}</div></section>
       <section class="lt-tankc"><div class="lt-seg lt-wseg" role="group" aria-label="איזה מים">${WATERS.map((w) => `<button data-w="${w.id}" class="${water === w.id ? 'on' : ''}" ${phase === 'drop' ? 'disabled' : ''}>${w.name}</button>`).join('')}</div>${tank}
-        <div class="lt-guess">${cur ? (phase === 'pick' ? `<span>מה יקרה ל${esc(cur.the)}?</span><button data-g="1">${arrow(true)}${verb(cur, 1)}</button><button data-g="0">${arrow(false)}${verb(cur, 0)}</button>`
-          : phase === 'res' ? `<button data-act="again">${icon('undo')}עוד ניסוי</button>` : '<span>נופל למים...</span>') : '<span>קודם בוחרים, אחר כך מנחשים</span>'}</div></section>
-      <section class="lt-table"><small>מה גילינו</small><table><thead><tr><th></th><th>מתוקים</th><th>ים המלח</th></tr></thead><tbody>${ITEMS.map((it) => `<tr><th>${it.name}</th>${cell(it, 0)}${cell(it, 1)}</tr>`).join('')}</tbody></table>
-        <div class="lt-surp">${icon('sparkle')}<b>${R.surprises || 0}</b> הפתעות</div></section></div>`;
+        <div class="lt-guess">${cur ? (phase === 'pick' ? `<span>${k ? fmt(K.ask, { to: esc(cur.to) }) : `מה יקרה ${esc(cur.to)}?`}</span><button data-g="1">${arrow(true)}${verb(cur, 1)}</button><button data-g="0">${arrow(false)}${verb(cur, 0)}</button>`
+          : phase === 'res' ? `<button data-act="again">${icon('undo')}${k ? K.again : 'עוד ניסוי'}</button>` : `<span>${k ? K.falling : 'נופל למים...'}</span>`) : `<span>${k ? K.first : 'קודם בוחרים, אחר כך מנחשים'}</span>`}</div></section>
+      <section class="lt-table"><small>${k ? K.found : 'מה גילינו'}</small><table><thead><tr><th></th><th>${k ? K.sweet : 'מתוקים'}</th><th>${k ? K.dead : 'ים המלח'}</th></tr></thead><tbody>${ITEMS.map((it) => `<tr><th>${it.name}</th>${cell(it, 0)}${cell(it, 1)}</tr>`).join('')}</tbody></table>
+        <div class="lt-surp">${icon('sparkle')}<b>${R.surprises || 0}</b> ${k ? K.surprises : 'הפתעות'}</div></section></div>`;
   }
   function drop(g) {
     guess = g; phase = 'drop'; lastFl = !!cur.f[water]; render(); S.sfx('click');
@@ -219,24 +243,28 @@ export function openFloat(root, ctx) {
       const R = thinkUpdate('float', (r) => { r.res = r.res || {}; r.res[k] = lastFl ? 1 : 0; if (fresh) { r.tests = (r.tests || 0) + 1; if (!right) r.surprises = (r.surprises || 0) + 1; } });
       render();
       const why = Array.isArray(cur.why) ? cur.why[water] : cur.why;
-      if (right) { S.sfx('quizRight'); S.talk(`צדקתם! ${cur.the} ${past(cur, lastFl)} ${WATERS[water].in}. ${why}${cur.joke && !lastFl ? ' ' + cur.joke : ''}`, 'happy'); }
+      if (S.kids) {
+        if (right) { S.sfx('quizRight'); S.talk([...fmt(K.right, { the: cur.the, now: past(cur, lastFl), in: WATERS[water].in, why }), ...(cur.joke && !lastFl ? [cur.joke] : [])], 'happy'); }
+        else { S.sfx('discover'); S.talk(fmt(K.wrong, { he: K.he[cur.g], verb: verb(cur, !lastFl), the: cur.the, now: past(cur, lastFl), why }), 'wow'); }
+      } else if (right) { S.sfx('quizRight'); S.talk(`צדקתם! ${cur.the} ${past(cur, lastFl)} ${WATERS[water].in}. ${why}${cur.joke && !lastFl ? ' ' + cur.joke : ''}`, 'happy'); }
       else { S.sfx('discover'); S.talk(`הפתעה! ניחשתם ש${cur.g === 'f' ? 'היא' : 'הוא'} ${verb(cur, !lastFl)}, אבל ${cur.the} ${past(cur, lastFl)}. טעות כזאת היא גילוי! ${why}`, 'wow'); }
       const all = ITEMS.every((it) => [0, 1].every((w) => R.res && key(it, w) in R.res));
       if (((R.surprises || 0) >= 3 || all) && !R.done) {
         finish('float'); S.sfx('mission');
-        S.later(() => S.talk(all && (R.surprises || 0) < 3 ? 'בדקתם הכול! ולא סתם בדקתם: ניחשתם קודם, ואז בדקתם. ככה עושים חוקרים.' : 'כבר שלוש הפתעות! כל ניחוש שלא הצליח לימד אותנו משהו חדש. ככה עושים חוקרים: מנחשים, בודקים, ומשנים את הדעה.', 'wow'), 4200);
+        if (S.kids) S.later(() => S.talk(all && (R.surprises || 0) < 3 ? K.doneAll : K.doneThree, 'wow'), 4200);
+        else S.later(() => S.talk(all && (R.surprises || 0) < 3 ? 'בדקתם הכול! ולא סתם בדקתם: ניחשתם קודם, ואז בדקתם. ככה עושים חוקרים.' : 'כבר שלוש הפתעות! כל ניחוש שלא הצליח לימד אותנו משהו חדש. ככה עושים חוקרים: מנחשים, בודקים, ומשנים את הדעה.', 'wow'), 4200);
       }
     }, 1500);
   }
   S.el.addEventListener('click', (e) => {
     const b = e.target.closest('button'); if (!b || phase === 'drop') return;
-    if (b.dataset.it) { cur = ITEMS.find((x) => x.id === b.dataset.it); phase = 'pick'; S.sfx('click'); render(); S.talk(`מה יקרה ל${cur.the} ${WATERS[water].in}? נחשו קודם, ורק אחר כך נבדוק.`, 'curious'); return; }
-    if (b.dataset.w != null) { water = +b.dataset.w; if (phase === 'res') phase = 'pick'; S.sfx('click'); render(); if (water) S.talk('מי ים המלח מלוחים מאוד, הרבה יותר ממי הים הרגילים. האם זה ישנה משהו?', 'curious'); return; }
+    if (b.dataset.it) { cur = ITEMS.find((x) => x.id === b.dataset.it); phase = 'pick'; S.sfx('click'); render(); S.talk(k ? fmt(K.pick, { to: cur.to, in: WATERS[water].in }) : `מה יקרה ${cur.to} ${WATERS[water].in}? נחשו קודם, ורק אחר כך נבדוק.`, 'curious'); return; }
+    if (b.dataset.w != null) { water = +b.dataset.w; if (phase === 'res') phase = 'pick'; S.sfx('click'); render(); if (water) S.talk(k ? K.salty : 'מי ים המלח מלוחים מאוד, הרבה יותר ממי הים הרגילים. האם זה ישנה משהו?', 'curious'); return; }
     if (b.dataset.g != null && cur) { drop(+b.dataset.g); return; }
-    if (b.dataset.act === 'again') { phase = 'pick'; render(); S.talk('מה עכשיו? אפשר לבחור משהו אחר, או להחליף את המים.', 'happy'); }
+    if (b.dataset.act === 'again') { phase = 'pick'; render(); S.talk(k ? K.next : 'מה עכשיו? אפשר לבחור משהו אחר, או להחליף את המים.', 'happy'); }
   });
   render();
-  S.talk('מכל מים, ומדף של דברים. לפני שזורקים, מנחשים: יצוף או ישקע? ניחוש שלא הצליח הוא לא כישלון, הוא הפתעה.', 'happy');
+  S.talk(k ? K.intro : 'מכל מים, ומדף של דברים. לפני שזורקים, מנחשים: יצוף או ישקע? ניחוש שלא הצליח הוא לא כישלון, הוא הפתעה.', 'happy');
   return { close: S.close, debug: { pickItem: (id, w) => { cur = ITEMS.find((x) => x.id === id); water = w || 0; phase = 'pick'; render(); }, drop } };
 }
 
@@ -253,9 +281,11 @@ const SHAKES = ['רגע, דג קפץ באקווריום ונבהלתי.', 'או�
 const median = (a) => { const s = [...a].sort((x, y) => x - y), n = s.length; return n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2; };
 export function openMeasure(root, ctx) {
   const a = thinkById('measure'); const S = shell(root, a, ctx);
+  const k = S.kids, K = THINK_K.measure;
+  const W = k ? WEIGH.map((w) => ({ ...w, name: K.items[w.id] })) : WEIGH;
   let item, truth, reads, chosen, busy = false, shown = null, shakeI = 0;
   function round(i) {
-    item = i != null ? WEIGH[i] : WEIGH[Math.floor(Math.random() * WEIGH.length)];
+    item = i != null ? W[i] : W[Math.floor(Math.random() * W.length)];
     truth = item.min + Math.round(Math.random() * (item.max - item.min)); reads = []; chosen = null; shown = null;
   }
   const noise = () => (Math.random() + Math.random() + Math.random() - 1.5) * 2.6;
@@ -268,22 +298,23 @@ export function openMeasure(root, ctx) {
     const X = (v) => 12 + (hi - v) / (hi - lo) * 276;   // RTL: small on the right, big on the left
     const srt = [...reads].sort((x, y) => x - y); const mid = reads.length >= 3 ? median(reads) : null;
     const dots = reads.map((v, i) => `<circle cx="${X(v)}" cy="${30 - 8 * reads.slice(0, i).filter((u) => u === v).length}" r="6" class="${mid != null && v === mid ? 'm' : ''}"/>`).join('');
-    const opts = [['first', 'המדידה הראשונה', reads.length >= 1], ['last', 'המדידה האחרונה', reads.length >= 2], ['mid', 'האמצעית', reads.length >= 3]];
+    const opts = [['first', k ? K.opts.first : 'המדידה הראשונה', reads.length >= 1], ['last', k ? K.opts.last : 'המדידה האחרונה', reads.length >= 2], ['mid', k ? K.opts.mid : 'האמצעית', reads.length >= 3]];
+    const gram = k ? K.gram : 'גרם';
     S.body.innerHTML = `<div class="lt-measure">
       <section class="lt-scale"><div class="lt-item-big">${item.name}</div>
         <svg viewBox="0 0 200 128" role="img" aria-label="משקל"><path d="M22 104A78 78 0 0 1 178 104z" fill="#f6edcf" stroke="#8a6a2a" stroke-width="4"/>${ticks}
           <text x="${100 + 66}" y="118" class="lt-sc" text-anchor="end">0</text><text x="${100 - 66}" y="118" class="lt-sc">${top}</text>
           <g class="lt-needle" style="transform:rotate(${ang}deg)"><path d="M100 100L100 40" stroke="#b8322a" stroke-width="3.5" stroke-linecap="round"/></g><circle cx="100" cy="100" r="7" fill="#3a2a14"/></svg>
-        <div class="lt-read">${shown == null ? 'עוד לא שקלנו' : `${shown} גרם`}</div>
-        <button class="lt-go" data-act="weigh" ${busy || chosen ? 'disabled' : ''}>${icon('target')}לשקול${reads.length ? ' שוב' : ''}</button></section>
-      <section class="lt-reads"><small>המדידות שלנו (${reads.length})</small>
+        <div class="lt-read">${shown == null ? (k ? K.notYet : 'עוד לא שקלנו') : `${shown} ${gram}`}</div>
+        <button class="lt-go" data-act="weigh" ${busy || chosen ? 'disabled' : ''}>${icon('target')}${k ? (reads.length ? K.again : K.weigh) : `לשקול${reads.length ? ' שוב' : ''}`}</button></section>
+      <section class="lt-reads"><small>${k ? K.reads : 'המדידות שלנו'} (${reads.length})</small>
         <svg class="lt-line" viewBox="0 0 300 62" aria-hidden="true"><path d="M8 38H292" stroke="#8a7a50" stroke-width="2"/>${Array.from({ length: Math.floor(hi / 5) - Math.ceil(lo / 5) + 1 }, (_, k) => { const v = (Math.ceil(lo / 5) + k) * 5; return `<path d="M${X(v)} 34V42" stroke="#8a7a50" stroke-width="1.5"/><text x="${X(v)}" y="56" text-anchor="middle" class="lt-sc">${v}</text>`; }).join('')}${dots}
           ${chosen ? `<path d="M${X(truth)} 8V46" stroke="#2c7a3a" stroke-width="3" stroke-dasharray="4 3"/>` : ''}</svg>
-        <div class="lt-chips">${srt.map((v) => `<span class="${mid != null && v === mid ? 'm' : ''}">${v}</span>`).join('') || '<em>לחצו "לשקול"</em>'}</div>
-        ${reads.length >= 3 && !chosen ? '<p class="lt-tip">מסדרים מהקטן לגדול. האמצעית היא זו שבאמצע.</p>' : ''}
-        <small>מה נכתוב במחברת?</small><div class="lt-opts">${opts.map(([k, t, ok]) => `<button data-pick="${k}" class="${chosen === k ? 'on' : ''}" ${!ok || chosen || busy ? 'disabled' : ''}>${t}</button>`).join('')}</div>
-        ${chosen ? `<button class="lt-go" data-act="next">${icon('undo')}לשקול משהו אחר</button>` : ''}
-        <div class="lt-wins">${icon('check')}<b>${R.good || 0}</b> מתוך 3 פעמים קרוב בעזרת האמצעית</div></section></div>`;
+        <div class="lt-chips">${srt.map((v) => `<span class="${mid != null && v === mid ? 'm' : ''}">${v}</span>`).join('') || `<em>${k ? K.press : 'לחצו "לשקול"'}</em>`}</div>
+        ${reads.length >= 3 && !chosen ? `<p class="lt-tip">${k ? K.tip : 'מסדרים מהקטן לגדול. האמצעית היא זו שבאמצע.'}</p>` : ''}
+        <small>${k ? K.write : 'מה נכתוב במחברת?'}</small><div class="lt-opts">${opts.map(([k, t, ok]) => `<button data-pick="${k}" class="${chosen === k ? 'on' : ''}" ${!ok || chosen || busy ? 'disabled' : ''}>${t}</button>`).join('')}</div>
+        ${chosen ? `<button class="lt-go" data-act="next">${icon('undo')}${k ? K.other : 'לשקול משהו אחר'}</button>` : ''}
+        <div class="lt-wins">${icon('check')}<b>${R.good || 0}</b> ${k ? K.wins : 'מתוך 3 פעמים קרוב בעזרת האמצעית'}</div></section></div>`;
   }
   function weigh() {
     if (busy || chosen) return; busy = true; S.sfx('click');
@@ -293,21 +324,37 @@ export function openMeasure(root, ctx) {
     // the needle wobbles before it settles
     const seq = [v + 6, v - 4, v + 2, v];
     shown = seq[0]; render();
-    seq.slice(1).forEach((x, i) => S.later(() => { shown = x; const n = S.body.querySelector('.lt-needle'); const top = Math.ceil(item.max * 1.35 / 10) * 10; if (n) n.style.transform = `rotate(${90 - 180 * Math.max(0, Math.min(1, x / top))}deg)`; const r = S.body.querySelector('.lt-read'); if (r) r.textContent = x + ' גרם'; }, 220 * (i + 1)));
+    seq.slice(1).forEach((x, i) => S.later(() => { shown = x; const n = S.body.querySelector('.lt-needle'); const top = Math.ceil(item.max * 1.35 / 10) * 10; if (n) n.style.transform = `rotate(${90 - 180 * Math.max(0, Math.min(1, x / top))}deg)`; const r = S.body.querySelector('.lt-read'); if (r) r.textContent = x + ' ' + (k ? K.gram : 'גרם'); }, 220 * (i + 1)));
     S.later(() => {
       busy = false; render();
+      if (k) {
+        if (shake) S.talk([K.shakes[shakeI++ % K.shakes.length], K.odd], 'oops');
+        else if (reads.length === 1) S.talk(fmt(K.one, { v }), 'curious');
+        else if (reads.length === 2) S.talk(reads[0] === reads[1] ? K.twice : fmt(K.differ, { a: reads[0], v }), 'curious');
+        else S.talk(fmt(pick(K.more), { n: reads.length }), 'happy');
+        return;
+      }
       if (shake) S.talk(`${SHAKES[shakeI++ % SHAKES.length]} המדידה הזאת יצאה משונה.`, 'oops');
       else if (reads.length === 1) S.talk(`${v} גרם. זה המשקל? אולי. המשקל שלי קצת רועד.`, 'curious');
       else if (reads.length === 2) S.talk(reads[0] === reads[1] ? 'אותו מספר פעמיים! יופי. אבל ליתר ביטחון?' : `רגע, קודם יצא ${reads[0]} ועכשיו ${v}. איזה מהם נכון?`, 'curious');
       else S.talk(pick(['עוד מדידה בשביל המחברת.', 'המחט רוקדת, אבל מסתובבת סביב אותו מקום.', `כבר ${reads.length} מדידות. רואים איפה רוב הנקודות?`]), 'happy');
     }, 950);
   }
-  function choose(k) {
+  function choose(c) {
     if (chosen || busy) return;
+    const k = c;   // the choice ('first', 'last', 'mid'); the beginners' branch below reads S.kids
     const val = k === 'first' ? reads[0] : k === 'last' ? reads[reads.length - 1] : median(reads);
     chosen = k; const d = Math.abs(val - truth), close = d <= 2;
     const R = thinkUpdate('measure', (r) => { r.rounds = (r.rounds || 0) + 1; if (k === 'mid' && close) r.good = (r.good || 0) + 1; });
     render(); S.sfx(close ? 'quizRight' : 'quizWrong');
+    if (S.kids) {
+      const KM = THINK_K.measure;
+      const said = fmt(KM.exact, { t: truth, v: String(val).replace('.5', KM.half) });
+      const ln = c === 'mid' ? (close ? KM.midClose : KM.midFar) : close ? KM.luck : KM.far;
+      S.talk([said, ...[].concat(ln)], close ? (c === 'mid' ? 'wow' : 'happy') : 'oops');
+      if ((R.good || 0) >= 3 && !R.done) { finish('measure'); S.sfx('mission'); S.later(() => S.talk(KM.done, 'wow'), 4200); }
+      return;
+    }
     const exact = `המשקל המדויק של המעבדה: ${truth} גרם. כתבנו ${String(val).replace('.5', ' וחצי')}.`;
     let line;
     if (k === 'mid') line = close ? 'האמצעית ניצחה! כשמודדים כמה פעמים ולוקחים את האמצעית, מדידה משונה אחת לא מקלקלת.' : 'הפעם גם האמצעית פספסה. זה קורה! עוד כמה מדידות יעזרו.';
@@ -319,16 +366,17 @@ export function openMeasure(root, ctx) {
     const b = e.target.closest('button'); if (!b) return;
     if (b.dataset.act === 'weigh') weigh();
     else if (b.dataset.pick) choose(b.dataset.pick);
-    else if (b.dataset.act === 'next') { round(); render(); S.talk(`עכשיו ${item.name}. כמה פעמים נשקול הפעם?`, 'happy'); }
+    else if (b.dataset.act === 'next') { round(); render(); S.talk(k ? fmt(K.nextItem, { name: item.name }) : `עכשיו ${item.name}. כמה פעמים נשקול הפעם?`, 'happy'); }
   });
   round(0); render();
-  S.talk('זה המשקל הישן שלי. הוא קצת רועד, כמו רובוט בבוקר. כמה שוקל הבלוט? שקלו, ואז החליטו מה לכתוב במחברת.', 'happy');
+  if (k) S.talk(K.intro, 'happy');
+  else S.talk('זה המשקל הישן שלי. הוא קצת רועד, כמו רובוט בבוקר. כמה שוקל הבלוט? שקלו, ואז החליטו מה לכתוב במחברת.', 'happy');
   return { close: S.close, debug: { weigh, choose, get truth() { return truth; }, get reads() { return reads; } } };
 }
 
 // ═════════════════════════════════════════ 4. ראינו או חשבנו? (the cabinet)
 // Three small finds. Sort each sentence: did we see it, or do we think it? Then choose a way to check, and see what was true.
-const SCENES = [
+const SCENES_ALL = [
   { id: 'tracks', title: 'סימנים בבוץ', intro: 'בבוקר מצאנו בחורש, ליד השלולית, סימנים בבוץ.',
     cards: [['בבוץ יש סימנים בצורת לב הפוך', 'see'], ['הסימנים הולכים בשורה אל השלולית', 'see'], ['צבי בא לשתות', 'think'], ['הצבי בא לשתות ביום', 'think']],
     checks: [['להציב מצלמת לילה ליד השלולית', 1], ['לספור כמה סימנים יש', 0, 'ספרנו: שנים־עשר סימנים. נחמד! אבל מי השאיר אותם? הספירה לא אומרת.'], ['לשאול את רובו־דע מה דעתו', 0, 'לדעתי זו הייתה ג׳ירפה. רואים? גם לי יש פרשנויות. ניחוש של רובוט הוא לא בדיקה!']],
@@ -365,21 +413,26 @@ function sceneSVG(id, after, thumbs) {
 }
 export function openObserve(root, ctx) {
   const a = thinkById('observe'); const S = shell(root, a, ctx);
+  const k = S.kids, K = THINK_K.observe;
+  // beginners: the same three finds, in vocalised words (the right check stays the same)
+  const SCENES = k ? SCENES_ALL.map((sc) => { const t = K.scenes[sc.id]; return { ...sc, title: t.title, intro: t.intro, reveal: t.reveal,
+    cards: sc.cards.map(([, kind], i) => [t.cards[i], kind]), checks: sc.checks.map(([, ok, line], i) => [t.checks[i][0], ok, line == null ? line : t.checks[i][1]]) }; }) : SCENES_ALL;
   let si = 0, placed = {}, stage = 'sort', order = [];
   const shuffle = () => { order = [0, 1, 2, 3].sort(() => Math.random() - 0.5); };
   function render() {
     const R = thinkOf('observe'); const sc = SCENES[si];
+    const saw = k ? K.saw : 'ראינו', thought = k ? K.thought : 'חשבנו';
     const all = sc.cards.every((_, i) => placed[i]);
     S.body.innerHTML = `<div class="lt-obs">
       <nav class="lt-tabs">${SCENES.map((x, i) => `<button data-sc="${i}" class="${i === si ? 'on' : ''} ${R[x.id] ? 'done' : ''}">${R[x.id] ? icon('check') : ''}${x.title}</button>`).join('')}</nav>
       <section class="lt-pic"><p>${esc(sc.intro)}</p>${sceneSVG(sc.id, stage === 'reveal', ctx.thumbs)}</section>
-      <section class="lt-sort">${stage === 'sort' ? `<small>כל משפט: ראינו אותו בעיניים, או שרק חשבנו?</small>
-        ${order.map((i) => { const [t] = sc.cards[i]; const p = placed[i]; return `<div class="lt-card ${p ? 'ok ' + p : ''}" data-ci="${i}"><span>${esc(t)}</span>${p ? `<em>${p === 'see' ? icon('binoc') + 'ראינו' : icon('bulb') + 'חשבנו'}</em>` : `<button data-k="see">${icon('binoc')}ראינו</button><button data-k="think">${icon('bulb')}חשבנו</button>`}</div>`; }).join('')}
-        ${all ? '<button class="lt-go" data-act="checks">איך נבדוק מה קרה באמת?</button>' : ''}`
-      : stage === 'check' ? `<small>איך נבדוק?</small>${sc.checks.map(([t], i) => `<button class="lt-check" data-chk="${i}">${esc(t)}</button>`).join('')}`
-      : `<div class="lt-reveal">${icon('search')}<p>${esc(sc.reveal)}</p></div>${si < SCENES.length - 1 ? `<button class="lt-go" data-sc="${si + 1}">לממצא הבא</button>` : ''}`}</section></div>`;
+      <section class="lt-sort">${stage === 'sort' ? `<small>${k ? K.sort : 'כל משפט: ראינו אותו בעיניים, או שרק חשבנו?'}</small>
+        ${order.map((i) => { const [t] = sc.cards[i]; const p = placed[i]; return `<div class="lt-card ${p ? 'ok ' + p : ''}" data-ci="${i}"><span>${esc(t)}</span>${p ? `<em>${p === 'see' ? icon('binoc') + saw : icon('bulb') + thought}</em>` : `<button data-k="see">${icon('binoc')}${saw}</button><button data-k="think">${icon('bulb')}${thought}</button>`}</div>`; }).join('')}
+        ${all ? `<button class="lt-go" data-act="checks">${k ? K.how : 'איך נבדוק מה קרה באמת?'}</button>` : ''}`
+      : stage === 'check' ? `<small>${k ? K.howShort : 'איך נבדוק?'}</small>${sc.checks.map(([t], i) => `<button class="lt-check" data-chk="${i}">${esc(t)}</button>`).join('')}`
+      : `<div class="lt-reveal">${icon('search')}<div>${[].concat(sc.reveal).map((t) => `<p>${esc(t)}</p>`).join('')}</div></div>${si < SCENES.length - 1 ? `<button class="lt-go" data-sc="${si + 1}">${k ? K.next : 'לממצא הבא'}</button>` : ''}`}</section></div>`;
   }
-  function open(i) { si = i; placed = {}; stage = 'sort'; shuffle(); render(); S.talk(SCENES[i].intro + ' מה ראינו בעיניים, ומה אנחנו רק חושבים?', 'curious'); }
+  function open(i) { si = i; placed = {}; stage = 'sort'; shuffle(); render(); S.talk(k ? fmt(K.open, { intro: SCENES[i].intro }) : SCENES[i].intro + ' מה ראינו בעיניים, ומה אנחנו רק חושבים?', 'curious'); }
   S.el.addEventListener('click', (e) => {
     const b = e.target.closest('button'); if (!b) return;
     const sc = SCENES[si];
@@ -388,21 +441,24 @@ export function openObserve(root, ctx) {
       const i = +b.closest('[data-ci]').dataset.ci; const want = sc.cards[i][1];
       if (b.dataset.k === want) {
         placed[i] = want; S.sfx('place'); render();
-        if (sc.cards.every((_, k) => placed[k])) S.talk('יופי! שני דברים ראינו, ושני דברים חשבנו. המחשבות יכולות להיות נכונות, ויכולות להיות לא. איך נדע?', 'happy');
+        if (sc.cards.every((_, j) => placed[j])) S.talk(k ? K.allPlaced : 'יופי! שני דברים ראינו, ושני דברים חשבנו. המחשבות יכולות להיות נכונות, ויכולות להיות לא. איך נדע?', 'happy');
+        else if (k) S.talk(want === 'see' ? K.seeOk : K.thinkOk, 'happy');
         else S.talk(want === 'see' ? 'נכון, את זה רואים ממש. זו תצפית.' : 'נכון, את זה לא ראינו. זה מה שאנחנו חושבים שקרה. זו פרשנות.', 'happy');
       } else {
         S.sfx('invalid'); const c = b.closest('.lt-card'); c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake');
-        S.talk(want === 'think' ? 'רגע, ראינו את זה בעיניים? לא ממש. זה מה שאנחנו חושבים שקרה.' : 'את זה דווקא רואים ממש בתמונה. זה מה שראינו.', 'oops');
+        if (k) S.talk(want === 'think' ? K.notSeen : K.isSeen, 'oops');
+        else S.talk(want === 'think' ? 'רגע, ראינו את זה בעיניים? לא ממש. זה מה שאנחנו חושבים שקרה.' : 'את זה דווקא רואים ממש בתמונה. זה מה שראינו.', 'oops');
       }
       return;
     }
-    if (b.dataset.act === 'checks') { stage = 'check'; S.sfx('click'); render(); S.talk('יש כמה דרכים. איזו מהן באמת תגלה לנו מה קרה?', 'curious'); return; }
+    if (b.dataset.act === 'checks') { stage = 'check'; S.sfx('click'); render(); S.talk(k ? K.checks : 'יש כמה דרכים. איזו מהן באמת תגלה לנו מה קרה?', 'curious'); return; }
     if (b.dataset.chk != null) {
       const [, ok, line] = sc.checks[+b.dataset.chk];
       if (!ok) { S.sfx('click'); S.talk(line, 'oops'); return; }
       stage = 'reveal'; S.sfx('discover');
       const R = thinkUpdate('observe', (r) => { r[sc.id] = 1; }); render();
-      if (SCENES.every((x) => R[x.id]) && !R.done) { finish('observe'); S.sfx('mission'); S.talk('שלושת הממצאים נפתרו! חוקרים לא מתבלבלים בין מה שראו למה שחשבו, ובודקים את המחשבות.', 'wow'); }
+      if (SCENES.every((x) => R[x.id]) && !R.done && k) { finish('observe'); S.sfx('mission'); S.talk(K.done, 'wow'); }
+      else if (SCENES.every((x) => R[x.id]) && !R.done) { finish('observe'); S.sfx('mission'); S.talk('שלושת הממצאים נפתרו! חוקרים לא מתבלבלים בין מה שראו למה שחשבו, ובודקים את המחשבות.', 'wow'); }
       else S.talk(sc.reveal, 'wow');
     }
   });
@@ -413,7 +469,7 @@ export function openObserve(root, ctx) {
 // ═════════════════════════════════════════ 5. ביחד או בגלל? (the room)
 // Two things counted week after week rise and fall together. Is one the cause of the other, is something else behind
 // both, or is it chance? Doing something (an experiment) shows it.
-const CASES = [
+const CASES_ALL = [
   { id: 'snails', title: 'חלזונות ופטריות', a: 'חלזונות', b: 'פטריות', ca: '#8a5a2a', cb: '#8a5ab8', weeks: 10,
     story: 'בחורש ספרנו כל שבוע חלזונות ופטריות. בשבועות שיש הרבה חלזונות, יש גם הרבה פטריות!',
     A: [2, 3, 9, 10, 4, 2, 8, 11, 3, 2], B: [1, 2, 7, 9, 3, 1, 6, 9, 2, 1],
@@ -436,45 +492,50 @@ const CASES = [
     right: 'אוי. אז זה היה סתם במקרה. ארבעה שבועות זה מעט מדי, ובחורף יורד גשם בכל מקרה. ואני כבר הזמנתי משחת צחצוח מיוחדת לאנטנות...',
     wrong: { ab: 'גם אני קיוויתי! אבל כשצחצחתי כל יום, לא ירד גשם. מה זה אומר?', ba: 'הגשם גורם לי לצחצח? לא, אני מצחצח מתי שבא לי. תסתכלו על הניסויים.', third: 'מה יכול לגרום גם לצחצוח וגם לגשם? אני לא מצחצח לפי מזג האוויר. אולי זה משהו פשוט יותר?' } },
 ];
-function chartSVG(c) {
+function chartSVG(c, week1) {
   const n = c.weeks, max = Math.max(...c.A, ...c.B) * 1.15;
   const X = (i) => 270 - i * (240 / (n - 1));   // RTL: the first week on the right
   const Y = (v) => 118 - v / max * 100;
   const line = (arr, col) => `<path d="${arr.map((v, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)} ${Y(v).toFixed(1)}`).join('')}" stroke="${col}" stroke-width="3.2" fill="none" stroke-linejoin="round"/>${arr.map((v, i) => `<circle cx="${X(i).toFixed(1)}" cy="${Y(v).toFixed(1)}" r="3.6" fill="${col}"/>`).join('')}`;
   return `<svg class="lt-chart" viewBox="0 0 300 140" role="img" aria-label="גרף: ${esc(c.a)} ו${esc(c.b)}"><path d="M20 118H286" stroke="#9a8a60" stroke-width="1.5"/>
     ${Array.from({ length: n }, (_, i) => `<text x="${X(i).toFixed(1)}" y="133" text-anchor="middle" class="lt-wk">${i + 1}</text>`).join('')}
-    ${line(c.A, c.ca)}${line(c.B, c.cb)}<text x="286" y="12" text-anchor="start" class="lt-wk">שבוע 1 מימין</text></svg>`;
+    ${line(c.A, c.ca)}${line(c.B, c.cb)}<text x="286" y="12" text-anchor="start" class="lt-wk">${week1 || 'שבוע 1 מימין'}</text></svg>`;
 }
 export function openCause(root, ctx) {
   const a = thinkById('cause'); const S = shell(root, a, ctx);
+  const k = S.kids, K = THINK_K.cause;
+  // beginners: the same three cases and numbers, in vocalised words
+  const CASES = k ? CASES_ALL.map((c) => { const t = K.cases[c.id]; return { ...c, title: t.title, a: t.a, b: t.b, story: t.story, opts: t.opts, right: t.right, wrong: t.wrong,
+    tests: c.tests.map(([, da, db], i) => [t.tests[i][0], da, db, t.tests[i][1]]) }; }) : CASES_ALL;
   let ci = 0, done = [], answered = null;
-  const effect = (d) => (d > 0 ? `${arrow(true)}עלה` : d < 0 ? `${arrow(false)}ירד` : '<i class="eq">=</i>לא השתנה');
+  const effect = (d) => (d > 0 ? `${arrow(true)}${k ? K.up : 'עלה'}` : d < 0 ? `${arrow(false)}${k ? K.down : 'ירד'}` : `<i class="eq">=</i>${k ? K.same : 'לא השתנה'}`);
   function render() {
     const R = thinkOf('cause'); const c = CASES[ci];
     S.body.innerHTML = `<div class="lt-cause">
       <nav class="lt-tabs">${CASES.map((x, i) => `<button data-cs="${i}" class="${i === ci ? 'on' : ''} ${R[x.id] ? 'done' : ''}">${R[x.id] ? icon('check') : ''}${x.title}</button>`).join('')}</nav>
-      <section class="lt-graph"><p>${esc(c.story)}</p>${chartSVG(c)}<div class="lt-keys"><span><i style="background:${c.ca}"></i>${esc(c.a)}</span><span><i style="background:${c.cb}"></i>${esc(c.b)}</span></div></section>
-      <section class="lt-tests"><small>ניסויים: לעשות משהו, ולראות מה קורה</small>
+      <section class="lt-graph">${[].concat(c.story).map((t) => `<p>${esc(t)}</p>`).join('')}${chartSVG(c, k ? K.week1 : null)}<div class="lt-keys"><span><i style="background:${c.ca}"></i>${esc(c.a)}</span><span><i style="background:${c.cb}"></i>${esc(c.b)}</span></div></section>
+      <section class="lt-tests"><small>${k ? K.tests : 'ניסויים: לעשות משהו, ולראות מה קורה'}</small>
         ${c.tests.map(([t, da, db], i) => `<div class="lt-test ${done.includes(i) ? 'did' : ''}"><button data-t="${i}" ${done.includes(i) ? 'disabled' : ''}>${icon('flask')}${esc(t)}</button>${done.includes(i) ? `<span><b>${esc(c.a)}:</b> ${effect(da)}</span><span><b>${esc(c.b)}:</b> ${effect(db)}</span>` : ''}</div>`).join('')}
-        <small>אז מה קורה כאן?</small><div class="lt-ans">${Object.entries(c.opts).map(([k, t]) => `<button data-an="${k}" class="${answered === k ? (k === c.answer ? 'right' : 'wrong') : ''}">${esc(t)}</button>`).join('')}</div></section></div>`;
+        <small>${k ? K.what : 'אז מה קורה כאן?'}</small><div class="lt-ans">${Object.entries(c.opts).map(([k, t]) => `<button data-an="${k}" class="${answered === k ? (k === c.answer ? 'right' : 'wrong') : ''}">${esc(t)}</button>`).join('')}</div></section></div>`;
   }
-  function openCase(i) { ci = i; done = []; answered = null; render(); S.talk(CASES[i].story + ' האם אחד מהם גורם לשני? אולי כדאי לעשות ניסוי.', 'curious'); }
+  function openCase(i) { ci = i; done = []; answered = null; render(); S.talk(k ? [...CASES[i].story, K.ask] : CASES[i].story + ' האם אחד מהם גורם לשני? אולי כדאי לעשות ניסוי.', 'curious'); }
   S.el.addEventListener('click', (e) => {
     const b = e.target.closest('button'); if (!b) return;
     const c = CASES[ci];
     if (b.dataset.cs != null) { S.sfx('click'); openCase(+b.dataset.cs); return; }
     if (b.dataset.t != null) { const i = +b.dataset.t; if (!done.includes(i)) done.push(i); answered = null; S.sfx('discover'); render(); S.talk(c.tests[i][3], c.id === 'antenna' ? 'oops' : 'wow'); return; }
     if (b.dataset.an) {
-      const k = b.dataset.an;
-      if (!done.length) { S.sfx('click'); S.talk('רגע! קודם עושים ניסוי, ורק אחר כך מחליטים מה גורם למה.', 'curious'); return; }
-      answered = k;
-      if (k === c.answer) {
+      const an = b.dataset.an;
+      if (!done.length) { S.sfx('click'); S.talk(k ? K.first : 'רגע! קודם עושים ניסוי, ורק אחר כך מחליטים מה גורם למה.', 'curious'); return; }
+      answered = an;
+      if (an === c.answer) {
         const R = thinkUpdate('cause', (r) => { r[c.id] = 1; }); S.sfx('quizRight'); render();
         S.talk(c.right, c.id === 'antenna' ? 'oops' : 'wow');
-        if (CASES.every((x) => R[x.id]) && !R.done) { finish('cause'); S.sfx('mission'); S.later(() => S.talk('פתרתם את שלושתם! שני דברים שקורים ביחד הם רק רמז. כדי לדעת מה גורם למה, עושים ניסוי.', 'wow'), 5200); }
+        if (CASES.every((x) => R[x.id]) && !R.done && k) { finish('cause'); S.sfx('mission'); S.later(() => S.talk(K.done, 'wow'), 5200); }
+        else if (CASES.every((x) => R[x.id]) && !R.done) { finish('cause'); S.sfx('mission'); S.later(() => S.talk('פתרתם את שלושתם! שני דברים שקורים ביחד הם רק רמז. כדי לדעת מה גורם למה, עושים ניסוי.', 'wow'), 5200); }
       } else {
         S.sfx('quizWrong'); render();
-        S.talk(done.length ? c.wrong[k] : 'לפני שעונים, אולי נעשה ניסוי? ככה בודקים מה גורם למה.', 'curious');
+        S.talk(done.length ? c.wrong[an] : k ? K.before : 'לפני שעונים, אולי נעשה ניסוי? ככה בודקים מה גורם למה.', 'curious');
       }
     }
   });
@@ -485,13 +546,14 @@ export function openCause(root, ctx) {
 // ═════════════════════════════════════════ the menu: all five, or the ones of one station
 export function openThinkMenu(root, { only, onPick, robot, audio, onClose, title }) {
   injectCss();
-  const list = THINK.filter((a) => !only || only.includes(a.id));
-  const el = document.createElement('div'); el.className = 'lb-panel lt lt-menu' + (only ? ' few' : ''); root.appendChild(el);
+  const kids = labKids(), M = THINK_K.menu;
+  const list = THINK.filter((a) => !only || only.includes(a.id)).map((a) => named(a, kids));
+  const el = document.createElement('div'); el.className = 'lb-panel lt lt-menu' + (only ? ' few' : '') + (kids ? ' kids' : ''); root.appendChild(el);
   const n = THINK.filter((a) => thinkDone(a.id)).length;
-  el.innerHTML = `<header class="lt-head"><div class="lt-ttl"><small>המעבדה של רובו־דע</small><h2>${esc(title || 'חושבים כמו חוקרים')}</h2></div>
-      <p class="lt-habit">${only ? 'שני ניסויים קטנים מחכים כאן.' : `חמישה ניסויים קטנים. בכל אחד לומדים הרגל אחד של חוקרים. מותר לטעות, ככה מגלים. (${n} מתוך 5)`}</p><button class="lb-btn lt-back">חזרה לחדר</button></header>
+  el.innerHTML = `<header class="lt-head"><div class="lt-ttl"><small>${kids ? M.small : 'המעבדה של רובו־דע'}</small><h2>${esc(title || (kids ? M.title : 'חושבים כמו חוקרים'))}</h2></div>
+      <p class="lt-habit">${kids ? (only ? M.few : fmt(M.all, { n })) : only ? 'שני ניסויים קטנים מחכים כאן.' : `חמישה ניסויים קטנים. בכל אחד לומדים הרגל אחד של חוקרים. מותר לטעות, ככה מגלים. (${n} מתוך 5)`}</p><button class="lb-btn lt-back">${kids ? THINK_K.shell.back : 'חזרה לחדר'}</button></header>
     <div class="lt-body"><div class="lt-grid">${list.map((a) => { const r = thinkOf(a.id); const st = r.done ? 'done' : Object.keys(r).length ? 'mid' : '';
-      return `<button class="lt-mcard ${st}" data-a="${a.id}"><span class="lt-mic">${icon(a.ic)}</span><b>${esc(a.name)}</b><span>${esc(a.habit)}</span><small>${esc(a.where)}${st === 'done' ? ' · ' + icon('check') + 'הושלם' : st === 'mid' ? ' · בדרך' : ''}</small></button>`; }).join('')}</div></div>`;
+      return `<button class="lt-mcard ${st}" data-a="${a.id}"><span class="lt-mic">${icon(a.ic)}</span><b>${esc(a.name)}</b><span>${esc(a.habit)}</span><small>${esc(a.where)}${st === 'done' ? ' · ' + icon('check') + (kids ? M.done : 'הושלם') : st === 'mid' ? ' · ' + (kids ? M.mid : 'בדרך') : ''}</small></button>`; }).join('')}</div></div>`;
   let alive = true;
   const close = () => { if (!alive) return; alive = false; el.remove(); onClose && onClose(); };
   el.querySelector('.lt-back').onclick = close;
@@ -623,6 +685,11 @@ function injectCss() {
 #ui.wol .lt-reveal{display:flex;gap:8px;padding:10px;border-radius:12px;background:#eaf6dc;border:2px solid #8ab86a}
 #ui.wol .lt-reveal .ic{width:22px;height:22px;flex:none;color:#2c5a2a}
 #ui.wol .lt-reveal p{margin:0;line-height:1.45;font-weight:600}
+#ui.wol .lt-reveal p+p{margin-top:4px}
+#ui.wol .lt-voice .lt-part{animation:ltPart .4s ease-out both}
+@keyframes ltPart{from{opacity:0}to{opacity:1}}
+#ui.wol .lt.kids .lt-voice p,#ui.wol .lt.kids .lt-reveal p{line-height:1.7}
+#ui.wol .lt.kids .lt-card span,#ui.wol .lt.kids .lt-check,#ui.wol .lt.kids .lt-graph p,#ui.wol .lt.kids .lt-pic p,#ui.wol .lt.kids .lt-habit{line-height:1.6}
 #ui.wol .lt-sort .lt-go{align-self:flex-start}
 /* cause */
 #ui.wol .lt-cause{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(250px,1fr);grid-template-rows:auto 1fr;gap:8px 14px;height:100%}

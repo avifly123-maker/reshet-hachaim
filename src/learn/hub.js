@@ -1388,7 +1388,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     if (name === 'home') returnTo = null;
     if (gameInst) { try { gameInst.destroy && gameInst.destroy(); } catch (e) { console.warn(e); } gameInst = null; }
     if (GAMES[name]) {
-      screen = name; $('.wl-crumb').textContent = TITLES[name]; $('.wl-back span').textContent = returnTo === name ? 'חזרה למעבדה' : 'חזרה'; updateChip(false);
+      screen = name; $('.wl-crumb').textContent = TITLES[name]; $('.wl-back span').textContent = returnTo === name ? (MODE === 'kids' ? 'חֲזָרָה לַמַּעְבָּדָה' : 'חזרה למעבדה') : 'חזרה'; updateChip(false);
       main.innerHTML = '';
       try { gameInst = GAMES[name](main, GAME_CTX, opts) || null; } catch (e) { console.error(e); main.innerHTML = '<p style="padding:2em">אירעה תקלה במשחק.</p>'; }
       main.scrollTop = 0; return;

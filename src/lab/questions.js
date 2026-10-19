@@ -9,6 +9,9 @@ import { PROBLEMS } from '../data/inventions.js';
 import { SAMPLES } from './samples.js';
 import { labProgress, setQuestion } from './progress.js';
 import { grant as grantBadge } from '../core/badges-store.js';
+import { labKids, fmt } from './level.js';
+import { QUEST_K, QUEST_UI_K, SAMPLES_K } from './kids-text.js';
+import { PROBLEMS_K } from '../data/inventions-kids.js';
 
 const ZONES = [['amazon', 'אמזונס'], ['grove', 'חורש'], ['reef', 'שונית']];
 
@@ -62,8 +65,11 @@ function injectCss() {
   document.head.appendChild(st);
 }
 
-const sampleName = (id) => (SAMPLES.find((s) => s.id === id) || {}).name || '';
-const problemTitle = (id) => (PROBLEMS.find((p) => p.id === id) || {}).title || '';
+const sampleName = (id, kids) => (kids && SAMPLES_K[id] ? SAMPLES_K[id].name : (SAMPLES.find((s) => s.id === id) || {}).name || '');
+const problemTitle = (id, kids) => (kids && PROBLEMS_K[id] ? PROBLEMS_K[id].title : (PROBLEMS.find((p) => p.id === id) || {}).title || '');
+// beginners: a smaller set of the easiest questions, fully vocalised (src/lab/kids-text.js); same ids, same progress
+const KIDS_QS = QUESTIONS.filter((q) => QUEST_K[q.id]).map((q) => ({ ...q, ...QUEST_K[q.id] }));
+export const questionsFor = (kids) => (kids ? KIDS_QS : QUESTIONS);
 
 // is the investigation of a question done?
 export function investigated(q, P = labProgress()) {
@@ -73,7 +79,7 @@ export function investigated(q, P = labProgress()) {
 }
 // answered = guessed and investigated
 export function answered(q, P = labProgress()) { const s = P.qs[q.id]; return !!(s && s.g != null && investigated(q, P)); }
-export const answeredCount = (P = labProgress()) => QUESTIONS.filter((q) => answered(q, P)).length;
+export const answeredCount = (P = labProgress(), kids = false) => questionsFor(kids).filter((q) => answered(q, P)).length;
 
 function grantFor(P) {
   const n = answeredCount(P);
@@ -91,35 +97,37 @@ function guessOrder(q) {
 
 export function openQuestions(root, { say, thumbs = {}, audio, onClose, onBack, goScope, goInvent, start }) {
   injectCss();
-  const el = document.createElement('div'); el.className = 'lb-panel lb-quest'; root.appendChild(el);
+  const kids = labKids(), K = QUEST_UI_K, QS = questionsFor(kids);
+  const el = document.createElement('div'); el.className = 'lb-panel lb-quest' + (kids ? ' kids' : ''); root.appendChild(el);
   let zone = 'amazon', cur = null, last = '', alive = true;
-  if (start) { cur = QUESTIONS.find((q) => q.id === start) || null; if (cur) zone = cur.zone; }
-  const status = (q, P) => { const s = P.qs[q.id] || {}; if (answered(q, P)) return q.open ? ['open', 'שאלה פתוחה'] : ['done', 'יש תשובה']; if (s.g != null) return ['wait', 'מחכה לבדיקה']; return ['new', 'חדשה']; };
+  if (start) { cur = QS.find((q) => q.id === start) || null; if (cur) zone = cur.zone; }
+  const status = (q, P) => { const s = P.qs[q.id] || {}; if (answered(q, P)) return q.open ? ['open', 'שאלה פתוחה'] : ['done', kids ? K.done : 'יש תשובה']; if (s.g != null) return ['wait', kids ? K.wait : 'מחכה לבדיקה']; return ['new', kids ? K.fresh : 'חדשה']; };
 
   function detail(q, P) {
-    if (!q) return `<div class="lb-q-empty"><p>בחרו שאלה מהרשימה.</p><p>קודם מנחשים, אחר כך חוקרים, ורק אז מגלים את התשובה.</p></div>`;
+    if (!q) return kids ? `<div class="lb-q-empty">${K.empty.map((t) => `<p>${t}</p>`).join('')}</div>` : `<div class="lb-q-empty"><p>בחרו שאלה מהרשימה.</p><p>קודם מנחשים, אחר כך חוקרים, ורק אז מגלים את התשובה.</p></div>`;
     const s = P.qs[q.id] || {}, done = investigated(q, P), got = s.g != null;
     const img = thumbs[q.sp] ? `<img src="${thumbs[q.sp]}" alt="">` : '';
     let h = `<div class="lb-q-head">${img}<h3>${esc(q.q)}</h3></div>`;
     // 1 · the guess
-    h += `<section class="lb-q-step ${got ? 'ok' : 'on'}"><b><i>1</i>מה הניחוש שלכם?</b>`;
+    h += `<section class="lb-q-step ${got ? 'ok' : 'on'}"><b><i>1</i>${kids ? K.step1 : 'מה הניחוש שלכם?'}</b>`;
     if (!got) h += `<div class="lb-q-guess">${guessOrder(q).map((i) => `<button data-g="${i}">${esc(q.guesses[i])}</button>`).join('')}</div>`;
-    else h += `<p>הניחוש שלכם: <em>${esc(q.guesses[s.g])}</em></p>`;
+    else h += `<p>${kids ? K.yours : 'הניחוש שלכם:'} <em>${esc(q.guesses[s.g])}</em></p>`;
     h += `</section>`;
     // 2 · the investigation
-    const how = q.how.scope ? `להסתכל במיקרוסקופ: ${esc(sampleName(q.how.scope))}` : q.how.invent ? `לנסות בשולחן הממציאים: ${esc(problemTitle(q.how.invent))}` : 'להסתכל עם רובו־דע';
-    h += `<section class="lb-q-step ${done ? 'ok' : got ? 'on' : 'off'}"><b><i>2</i>חוקרים</b>`;
+    const how = kids ? (q.how.scope ? fmt(K.howScope, { name: esc(sampleName(q.how.scope, kids)) }) : q.how.invent ? fmt(K.howInvent, { name: esc(problemTitle(q.how.invent, kids)) }) : K.howWatch)
+      : q.how.scope ? `להסתכל במיקרוסקופ: ${esc(sampleName(q.how.scope))}` : q.how.invent ? `לנסות בשולחן הממציאים: ${esc(problemTitle(q.how.invent))}` : 'להסתכל עם רובו־דע';
+    h += `<section class="lb-q-step ${done ? 'ok' : got ? 'on' : 'off'}"><b><i>2</i>${kids ? K.step2 : 'חוקרים'}</b>`;
     if (q.how.watch && s.watched) h += `<p class="lb-q-watch">${esc(q.how.watch)}</p>`;
-    else if (done) h += `<p>${q.how.scope ? 'מצאתם במיקרוסקופ את מה שצריך.' : 'פתרתם את הבעיה בשולחן הממציאים.'}</p>`;
-    else h += `<button class="lb-btn lb-q-go" ${got ? '' : 'disabled'}>${how}</button>${got ? '' : '<small>קודם בוחרים ניחוש.</small>'}`;
+    else if (done) h += `<p>${q.how.scope ? (kids ? K.didScope : 'מצאתם במיקרוסקופ את מה שצריך.') : (kids ? K.didInvent : 'פתרתם את הבעיה בשולחן הממציאים.')}</p>`;
+    else h += `<button class="lb-btn lb-q-go" ${got ? '' : 'disabled'}>${how}</button>${got ? '' : `<small>${kids ? K.guessFirst : 'קודם בוחרים ניחוש.'}</small>`}`;
     h += `</section>`;
     // 3 · the answer
-    h += `<section class="lb-q-step ${got && done ? 'ok ans' : 'off'}"><b><i>3</i>${q.open ? 'מה יודעים עד היום' : 'התשובה'}</b>`;
+    h += `<section class="lb-q-step ${got && done ? 'ok ans' : 'off'}"><b><i>3</i>${q.open ? 'מה יודעים עד היום' : kids ? K.step3 : 'התשובה'}</b>`;
     if (got && done) {
       const verdict = q.open ? (s.g === q.idea ? 'גם חוקרים חושבים כך, אבל זה עוד לא בטוח.' : 'רעיון מעניין! גם אותו אפשר לבדוק.')
-        : s.g === q.right ? 'הניחוש שלכם היה נכון!' : 'הפתעה! הניחוש היה אחר. כך לומדים.';
+        : s.g === q.right ? (kids ? K.yes : 'הניחוש שלכם היה נכון!') : (kids ? K.no : 'הפתעה! הניחוש היה אחר. כך לומדים.');
       h += `<p class="lb-q-verdict ${q.open ? 'open' : s.g === q.right ? 'yes' : 'no'}">${verdict}</p><p>${esc(q.a)}</p>`;
-    } else h += `<p class="lb-q-lock">התשובה תיפתח אחרי הניחוש והבדיקה.</p>`;
+    } else h += `<p class="lb-q-lock">${kids ? K.lock : 'התשובה תיפתח אחרי הניחוש והבדיקה.'}</p>`;
     return h + `</section>`;
   }
   function render(force) {
@@ -127,30 +135,31 @@ export function openQuestions(root, { say, thumbs = {}, audio, onClose, onBack, 
     const P = labProgress();
     const key = JSON.stringify([zone, cur && cur.id, P.qs, P.seen, P.solved]);
     if (!force && key === last) return; last = key;
-    const list = QUESTIONS.filter((q) => q.zone === zone);
-    const n = answeredCount(P);
+    const list = QS.filter((q) => q.zone === zone);
+    const n = answeredCount(P, kids);
     const keep = el.querySelector('.lb-q-list'), scroll = keep ? keep.scrollTop : 0;   // the list keeps its place when a question is picked
-    el.innerHTML = `<header><h2>שאלות חקר</h2><p>${n} מתוך ${QUESTIONS.length} שאלות קיבלו תשובה</p><button class="lb-btn lb-back">חזרה לאטלס</button></header>
-      <div class="lb-q-cols"><div class="lb-q-side"><nav class="lb-q-zones">${ZONES.map(([z, t]) => `<button data-z="${z}" class="${z === zone ? 'on' : ''}">${t}</button>`).join('')}</nav>
+    el.innerHTML = `<header><h2>${kids ? K.title : 'שאלות חקר'}</h2><p>${kids ? fmt(K.count, { n, all: QS.length }) : `${n} מתוך ${QUESTIONS.length} שאלות קיבלו תשובה`}</p><button class="lb-btn lb-back">${kids ? K.back : 'חזרה לאטלס'}</button></header>
+      <div class="lb-q-cols"><div class="lb-q-side"><nav class="lb-q-zones">${ZONES.map(([z, t]) => `<button data-z="${z}" class="${z === zone ? 'on' : ''}">${kids ? K.zones[z] : t}</button>`).join('')}</nav>
         <div class="lb-q-list">${list.map((q) => { const [k, t] = status(q, P); return `<button data-q="${q.id}" class="${cur === q ? 'on' : ''} ${k}">${thumbs[q.sp] ? `<img src="${thumbs[q.sp]}" alt="">` : ''}<span>${esc(q.q)}</span><small>${t}</small></button>`; }).join('')}</div></div>
         <div class="lb-q-main">${detail(cur, P)}</div></div>`;
     const lst = el.querySelector('.lb-q-list'); if (lst && scroll) lst.scrollTop = scroll;
     el.querySelector('.lb-back').onclick = () => { close(); onBack && onBack(); };
     el.querySelectorAll('[data-z]').forEach((b) => b.onclick = () => { zone = b.dataset.z; cur = null; const l = el.querySelector('.lb-q-list'); if (l) l.scrollTop = 0; audio && audio.play('click'); render(true); });
-    el.querySelectorAll('[data-q]').forEach((b) => b.onclick = () => { cur = QUESTIONS.find((q) => q.id === b.dataset.q); audio && audio.play('click'); render(true); const S = labProgress().qs[cur.id]; if (!S || S.g == null) say('מה אתם חושבים? בחרו ניחוש. מותר לטעות!', 'curious'); });
+    el.querySelectorAll('[data-q]').forEach((b) => b.onclick = () => { cur = QS.find((q) => q.id === b.dataset.q); audio && audio.play('click'); render(true); const S = labProgress().qs[cur.id]; if (!S || S.g == null) say(kids ? K.sayPick : 'מה אתם חושבים? בחרו ניחוש. מותר לטעות!', 'curious'); });
     el.querySelectorAll('[data-g]').forEach((b) => b.onclick = () => {
       setQuestion(cur.id, { g: +b.dataset.g }); audio && audio.play('select');
       const P2 = labProgress();
-      if (answered(cur, P2)) { setQuestion(cur.id, { done: Date.now() }); say('כבר בדקתם את זה קודם! עכשיו אפשר לראות את התשובה.', 'wow'); grantFor(labProgress()); }
+      if (answered(cur, P2)) { setQuestion(cur.id, { done: Date.now() }); say(kids ? K.sayAlready : 'כבר בדקתם את זה קודם! עכשיו אפשר לראות את התשובה.', 'wow'); grantFor(labProgress()); }
+      else if (kids) say(cur.how.scope ? K.sayScope : cur.how.invent ? K.sayInvent : K.sayWatch, 'happy');
       else say(cur.how.scope ? 'ניחוש רשום. עכשיו בואו נבדוק במיקרוסקופ.' : cur.how.invent ? 'ניחוש רשום. עכשיו ננסה לפתור בעיה בשולחן הממציאים.' : 'ניחוש רשום. עכשיו נסתכל יחד.', 'happy');
       render(true);
     });
     const go = el.querySelector('.lb-q-go');
     if (go) go.onclick = () => {
       const q = cur; if (!q) return;
-      if (q.how.watch) { setQuestion(q.id, { watched: Date.now(), done: Date.now() }); audio && audio.play('discover'); say(q.open ? 'הסתכלנו. ומה למדנו? שאלה פתוחה היא שאלה טובה מאוד!' : 'הסתכלנו. עכשיו התשובה פתוחה.', 'wow'); grantFor(labProgress()); render(true); return; }
-      if (q.how.scope) { say('הולכים למיקרוסקופ. מצאו את שלושת הדברים שמסתתרים בדגימה.', 'happy'); goScope && goScope(q.how.scope, q.id); return; }
-      if (q.how.invent) { say('לשולחן הממציאים! פתרו את הבעיה, ואחר כך חזרו לאטלס.', 'happy'); goInvent && goInvent(q.how.invent, q.id); }
+      if (q.how.watch) { setQuestion(q.id, { watched: Date.now(), done: Date.now() }); audio && audio.play('discover'); say(q.open ? 'הסתכלנו. ומה למדנו? שאלה פתוחה היא שאלה טובה מאוד!' : kids ? K.goWatch : 'הסתכלנו. עכשיו התשובה פתוחה.', 'wow'); grantFor(labProgress()); render(true); return; }
+      if (q.how.scope) { say(kids ? K.goScope : 'הולכים למיקרוסקופ. מצאו את שלושת הדברים שמסתתרים בדגימה.', 'happy'); goScope && goScope(q.how.scope, q.id); return; }
+      if (q.how.invent) { say(kids ? K.goInvent : 'לשולחן הממציאים! פתרו את הבעיה, ואחר כך חזרו לאטלס.', 'happy'); goInvent && goInvent(q.how.invent, q.id); }
     };
   }
   // the answers of questions investigated elsewhere (the microscope, the hub's inventors game) open on their own
@@ -162,7 +171,8 @@ export function openQuestions(root, { say, thumbs = {}, audio, onClose, onBack, 
   }, 1200);
   function close() { if (!alive) return; alive = false; clearInterval(tick); el.remove(); onClose && onClose(); }
   render(true);
-  say(answeredCount() ? 'ברוכים השבים לשאלות החקר. איזו שאלה נחקור היום?' : 'כל יצור מעורר שאלות. בחרו שאלה, נחשו, ואז נחקור יחד.', 'curious');
-  try { window.__lqDebug = { pick: (id) => { cur = QUESTIONS.find((q) => q.id === id) || null; if (cur) zone = cur.zone; render(true); }, guess: (i) => { const b = el.querySelector(`[data-g="${i}"]`); if (b) b.click(); }, go: () => { const b = el.querySelector('.lb-q-go'); if (b) b.click(); }, count: () => answeredCount(), zone: (z) => { zone = z; render(true); } }; } catch (e) { /* */ }
+  if (kids) say(answeredCount(undefined, true) ? K.helloBack : K.hello, 'curious');
+  else say(answeredCount() ? 'ברוכים השבים לשאלות החקר. איזו שאלה נחקור היום?' : 'כל יצור מעורר שאלות. בחרו שאלה, נחשו, ואז נחקור יחד.', 'curious');
+  try { window.__lqDebug = { pick: (id) => { cur = QS.find((q) => q.id === id) || null; if (cur) zone = cur.zone; render(true); }, guess: (i) => { const b = el.querySelector(`[data-g="${i}"]`); if (b) b.click(); }, go: () => { const b = el.querySelector('.lb-q-go'); if (b) b.click(); }, count: () => answeredCount(undefined, kids), list: () => QS.map((q) => q.id), zone: (z) => { zone = z; render(true); } }; } catch (e) { /* */ }
   return { close };
 }
