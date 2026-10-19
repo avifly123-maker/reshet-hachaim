@@ -1270,6 +1270,36 @@
 #ui.wol .st-pane .st-modes, #ui.wol .st-info, #ui.wol .st-dots { position: relative; z-index: 6; }
 #ui.wol .st-car { z-index: 1; }
 
+/* a brighter start screen in the chosen environment's own colours (Avi, 19.10: too dark; stronger contrast, vivid colours):
+   Amazon deep lush green, the grove golden olive, the reef turquoise. A soft light behind the island, deeper at the edges
+   and at the bottom so the light text stays easy to read. */
+#ui.wol .start { --stbg: #2a6a44; --stbg2: #0f2e1d; --stglow: #b6ec8c; --stleaf: #173f28;
+  background-color: var(--stbg); transition: opacity .6s, visibility .6s, background-color .8s; }
+#ui.wol .start[data-zone="amazon"] { --stbg: #23704a; --stbg2: #0c2c1c; --stglow: #a8f08a; --stleaf: #0f3a24; }
+#ui.wol .start[data-zone="grove"] { --stbg: #6f8f32; --stbg2: #2e3c12; --stglow: #ffe28a; --stleaf: #34461a; }
+#ui.wol .start[data-zone="reef"] { --stbg: #1d7f98; --stbg2: #0a3346; --stglow: #9cf2f4; --stleaf: #0d4656; }
+#ui.wol .st-bg { background:
+  radial-gradient(ellipse 46% 40% at 50% 50%, color-mix(in srgb, var(--stglow) 46%, transparent), transparent 72%),
+  radial-gradient(ellipse 80% 70% at 50% 46%, color-mix(in srgb, var(--stglow) 14%, transparent), transparent 80%),
+  linear-gradient(180deg, color-mix(in srgb, var(--stbg2) 55%, transparent) 0%, transparent 26%, transparent 62%, color-mix(in srgb, var(--stbg2) 80%, transparent) 100%); }
+#ui.wol .st-tint { background: radial-gradient(ellipse 60% 50% at 50% 58%, color-mix(in srgb, var(--zc, #2d5a35) 40%, transparent), transparent 70%); }
+#ui.wol .st-canopy .cf, #ui.wol .st-canopy.bottom .cf { fill: color-mix(in srgb, var(--stleaf) 70%, var(--stbg)); transition: fill .8s; }
+#ui.wol .st-canopy .cm { fill: color-mix(in srgb, var(--stleaf) 85%, #000); transition: fill .8s; }
+#ui.wol .st-canopy .cn, #ui.wol .st-canopy .cv { fill: color-mix(in srgb, var(--stleaf) 55%, #000); color: color-mix(in srgb, var(--stleaf) 55%, #000); transition: fill .8s, color .8s; }
+#ui.wol .st-shaft { background: linear-gradient(180deg, rgba(255, 238, 170, .2), rgba(255, 238, 170, 0) 75%); }
+/* the islands: clearer and more vivid; the two behind are softer but no longer grey */
+#ui.wol .st-isl[data-k="0"] img { filter: saturate(1.28) contrast(1.1) brightness(1.06) drop-shadow(0 24px 26px rgba(0, 0, 0, .45)); }
+#ui.wol .st-isl[data-k="0"]:hover img { filter: saturate(1.32) contrast(1.12) brightness(1.12) drop-shadow(0 28px 30px rgba(0, 0, 0, .5)); }
+#ui.wol .st-isl[data-k="1"], #ui.wol .st-isl[data-k="-1"] { opacity: .8; filter: saturate(.95) brightness(.86); }
+#ui.wol .st-isl[data-k="1"]:hover, #ui.wol .st-isl[data-k="-1"]:hover { opacity: .95; filter: saturate(1.1) brightness(1); }
+#ui.wol .st-isl::before { content: ""; position: absolute; inset: -6% 4% 10%; border-radius: 50%; pointer-events: none; opacity: 0; transition: opacity .6s;
+  background: radial-gradient(ellipse at 50% 55%, color-mix(in srgb, var(--stglow, #fff) 55%, transparent), transparent 66%); filter: blur(10px); }
+#ui.wol .st-isl[data-k="0"]::before { opacity: .75; }
+#ui.wol .st-glow { opacity: .7; }
+#ui.wol .st-info h2 { text-shadow: 0 2px 4px rgba(0, 0, 0, .55), 0 4px 16px rgba(0, 0, 0, .45); }
+#ui.wol .st-info .bc-intro { color: #f1f4e2; text-shadow: 0 1px 3px rgba(0, 0, 0, .7); }
+#ui.wol .st-info .bc-sub { text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+
 /* expert missions (משימות מומחים): gold row, the badge they give, a checklist of their parts */
 #ui.wol .missions li.expert .m-row b { color: #8a5a0a; }
 #ui.wol .missions li.expert .m-check { box-shadow: 0 0 0 2px #e2b247; }

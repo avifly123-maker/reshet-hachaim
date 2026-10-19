@@ -8,6 +8,7 @@ from playwright.async_api import async_playwright
 from PIL import Image
 import numpy as np
 zone = sys.argv[1]; out = sys.argv[2]
+EXPOSURE = {'amazon': 1.3, 'grove': 1.12, 'reef': 1.1}.get(zone, 1.1)   # the dense Amazon canopy needs the most light
 W_, H_ = 1600, 1100
 async def main():
     async with async_playwright() as p:
@@ -46,7 +47,7 @@ async def main():
         })()""")
         J = json.loads(res); print('hidden', J['hidden'])
         await pg.evaluate("(()=>{const W=window.__game, d=W.debug; for(let i=0;i<10;i++){ W.rain=0; W.rainTarget=0; W.rainT=0; W.storm=0; W.dayFrac=0.42; d.auto(); d.ff(1); } })()")  # noon light settles
-        res = await pg.evaluate("""(()=>{const P=window.__app.pipe, rd=P.renderer, cam=P.camera, sc=P.scene, W=window.__game, shots={};
+        res = await pg.evaluate("""(()=>{const P=window.__app.pipe, rd=P.renderer, cam=P.camera, sc=P.scene, W=window.__game, shots={}, EXPOSURE=""" + str(EXPOSURE) + """;
           W.rain=0; W.dayFrac=0.42; sc.fog=null; sc.background=null;
           const HIDE=/^(sky|far-land|mist-sea2?|light-shafts|motes|pollen|mist|rain|birds|web-links|markers|tools|clouds?)$/;
           sc.traverse(o=>{ if(o.userData&&o.userData.entity) return; if(HIDE.test(o.name)||o.type==='Points') o.visible=false; if(o.geometry&&o.geometry.boundingSphere&&o.geometry.boundingSphere.radius>150) o.visible=false; });
@@ -61,7 +62,11 @@ async def main():
           const fov=24, el=0.42, rr=Math.max(sz.x, sz.z)*0.5, hh=sz.y;
           const dd=Math.max(rr*1.15, hh*0.8)/Math.sin(fov*Math.PI/360);
           cam.fov=fov; cam.position.set(c.x, c.y+dd*Math.sin(el), c.z+dd*Math.cos(el)); cam.lookAt(c.x, c.y, c.z); cam.updateProjectionMatrix();
-          for (const [k,c] of [['b',0x000000],['w',0xffffff]]) { rd.setClearColor(c,1); rd.shadowMap.needsUpdate=true; P.render(0.016); shots[k]=rd.domElement.toDataURL('image/png'); }
+          // straight to the canvas, without the post-processing: the bloom spread the white background over the island and
+          // left it half transparent (a ghost on a light start screen); a touch more exposure for bright, vivid stills
+          rd.toneMappingExposure = EXPOSURE;
+          for (const [k,c] of [['b',0x000000],['w',0xffffff]]) { rd.setClearColor(c,1); rd.shadowMap.needsUpdate=true; rd.render(sc, cam); shots[k]=rd.domElement.toDataURL('image/png'); }
+          rd.toneMappingExposure = 1;
           return JSON.stringify({shots});})()""")
         J = json.loads(res)
         ims = {k: np.asarray(Image.open(io.BytesIO(base64.b64decode(v.split(',')[1]))).convert('RGB')).astype(np.float32) / 255 for k, v in J['shots'].items()}
