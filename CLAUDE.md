@@ -128,7 +128,7 @@ Plan and Avi's decisions: `docs/LAB.md` (Hebrew). Code: `src/lab/` (pack `lab`, 
 - Two Blender bees (`honeybee.py`, `orchidbee.py`, one model in two colours).
 - "Where?" beacons for a species, mission how-to hints, done-by-itself notes and the completed-missions list, zone names instead of "the island" (`src/core/place.js`), game controller support (`src/ui/gamepad.js`).
 
-`claude/research-1.3` (version 1.3.0, the research world "חוקרי היער", still in development and not published: no public release, the owner tests it on his PC; test installers are in `installer\1.3.0-dev`) has everything from 1.2.3 merged in; merge each 1.2.x fix into it as well. It installs over 1.2 and keeps all data (see the upgrade rule above).
+`claude/research-1.3` (version 1.3.0, the research world "חוקרי היער", still in development and not published: no public release, the owner tests it on his PC; test installers are in `installer\1.3.0-test2` (19.10; earlier ones in 1.3.0-dev and 1.3.0-test)) has everything from 1.2.3 merged in; merge each 1.2.x fix into it as well. It installs over 1.2 and keeps all data (see the upgrade rule above).
 
 At the end of a Blender session: stop the queue and keep-awake timers, save the scene to `blend\` and quit Blender (the owner asked that nothing keeps running on his PC). The scripts are the source; the saved `.blend` is only a convenience.
 
