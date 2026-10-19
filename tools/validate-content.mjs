@@ -48,13 +48,14 @@ const GOAL_PARTS = {
   toolSince: ['tool', 'count'], tool: ['tool', 'count'], young: ['species', 'min', 'count'], sownBy: ['species', 'by', 'count'],
   plantLight: ['species', 'min', 'count'], growTo: ['species', 'min', 'count'], pollinate: ['species', 'count'],
   swimKinds: ['count'], kinds: ['count'], link: ['from', 'to'], calm: ['seconds'], eventDone: ['event'], seasons: ['count', 'kinds'],
+  transplant: ['count'], scarHealed: ['count'], strongGrown: ['min', 'count'],   // the coral nursery (reef, 1.3.1)
 };
 const DID_STATS = ['uprooted', 'moved', 'letGo', 'reshaped'];
 const EFFECTS = {
   treeFall: ['target'], rain: ['seconds'], drought: ['seconds', 'strength'], fire: ['strength'], heat: ['seconds'],
   flood: ['seconds'], points: ['amount'], add: ['species', 'count'], remove: ['species', 'count'], unlock: ['species'],
   boost: ['species', 'amount'], plant: ['species', 'count', 'where'],
-  logging: ['count'], anchor: ['count'], protect: [], road: [], ecoBridge: [], removeRoad: [],
+  logging: ['count'], anchor: ['count'], breakCorals: ['count'], protect: [], road: [], ecoBridge: [], removeRoad: [],
 };
 // Forbidden content (hard content rules). Matched as substrings on all Hebrew/English text.
 const FORBIDDEN = [
@@ -301,12 +302,12 @@ function validateBiome(B, id) {
         const req = EFFECTS[ef.type];
         if (!req) { err(id, `${p}: ${where} effect type "${ef.type}" invalid`); continue; }
         for (const k of req) if (ef[k] === undefined) err(id, `${p}: ${where} ${ef.type} missing ${k}`);
-        for (const k of Object.keys(ef)) if (k !== 'type' && !req.includes(k)) err(id, `${p}: ${where} ${ef.type} unknown param ${k}`);
+        for (const k of Object.keys(ef)) if (k !== 'type' && !req.includes(k) && !(ef.type === 'plant' && k === 'strong')) err(id, `${p}: ${where} ${ef.type} unknown param ${k}`);
         if (ef.species !== undefined && !idSet.has(ef.species)) err(id, `${p}: ${where} species "${ef.species}" not in biome`);
         if (ef.type === 'treeFall' && ef.target !== 'tallest' && !idSet.has(ef.target)) err(id, `${p}: treeFall target invalid`);
         if (ef.type === 'remove' && !(ef.count === 'all' || (Number.isInteger(ef.count) && ef.count > 0))) err(id, `${p}: remove count`);
         if ((ef.type === 'add' || ef.type === 'plant') && !(Number.isInteger(ef.count) && ef.count > 0)) err(id, `${p}: ${ef.type} count`);
-        if (ef.type === 'plant' && !['gap', 'any'].includes(ef.where)) err(id, `${p}: plant where`);
+        if (ef.type === 'plant' && !['gap', 'any', 'scar'].includes(ef.where)) err(id, `${p}: plant where`);
         for (const k of ['seconds']) if (ef[k] !== undefined && !(isNum(ef[k]) && ef[k] > 0)) err(id, `${p}: ${ef.type}.${k}`);
         for (const k of ['strength']) if (ef[k] !== undefined && !(isNum(ef[k]) && ef[k] > 0 && ef[k] <= 1)) err(id, `${p}: ${ef.type}.${k} must be 0..1`);
         if (ef.type === 'boost' && !(isNum(ef.amount) && ef.amount > 0 && ef.amount <= 1)) err(id, `${p}: boost amount 0..1`);

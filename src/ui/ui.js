@@ -96,7 +96,7 @@ const typeColor = (t) => TYPE_COLORS[t] || '#9fc7a0';
 const SEASON_ICON = { winter: 'drop', spring: 'flower', summer: 'sun', autumn: 'autumn' };
 const LAYER_TINT = {
   all: '#5d8f52', emergent: '#a8cf7a', canopy: '#6aa84f', understory: '#46803f', shrubs: '#5f8a3e',
-  floor: '#7a5636', ground: '#7a5636', water: '#3f86a8', air: '#9ccbe6', sky: '#9ccbe6',
+  floor: '#7a5636', ground: '#7a5636', water: '#3f86a8', air: '#9ccbe6', sky: '#9ccbe6', nursery: '#e889a8',
 };
 const DEFAULT_TIPS = [
   'כל צמח וכל בעל חיים בטבע קשורים זה לזה – זאת רשת החיים.',
@@ -602,6 +602,7 @@ export function createUI(root, bus) {
         <div class="km-group">
           <button class="km-row" data-a="home" role="menuitem">${icon('home')}<span>מסך הפתיחה</span></button>
           <button class="km-row" data-a="help" role="menuitem">${icon('help')}<span>איך משחקים</span></button>
+          <button class="km-row" data-a="coach" role="menuitem">${icon('sprout')}<span>הדרכה צעד אחר צעד</span></button>
           <button class="km-row" data-a="save" role="menuitem">${icon('save')}<span>שמירת היער</span></button>
           <button class="km-row" data-a="report" role="menuitem">${icon('pencil')}<span>דוח יומי</span></button>
           <button class="km-row" data-a="reset" role="menuitem">${icon('target')}<span>מבט על ${zoneWord('all')}</span></button>
@@ -631,9 +632,10 @@ export function createUI(root, bus) {
     const b = e.target.closest('[data-a]'); if (!b) return;
     const a = b.dataset.a;
     if (a === 'menu') { setKit(!qWrap.classList.contains('open')); return; }
-    if (a === 'home' || a === 'help' || a === 'save' || a === 'reset' || a === 'report') setKit(false);
+    if (a === 'home' || a === 'help' || a === 'coach' || a === 'save' || a === 'reset' || a === 'report') setKit(false);
     if (a === 'home') emit('ui:home');
     else if (a === 'help') emit('ui:help');
+    else if (a === 'coach') emit('ui:coach');
     else if (a === 'journal') emit('ui:journal');
     else if (a === 'save') emit('ui:save');
     else if (a === 'report') emit('ui:report');
@@ -697,22 +699,22 @@ export function createUI(root, bus) {
   tray.querySelector('.tr-info').addEventListener('click', (e) => { const on = tray.classList.toggle('help-open'); e.currentTarget.setAttribute('aria-expanded', String(on)); });
   tray.querySelector('.tr-fold').addEventListener('click', () => { S.trayCollapsed = !S.trayCollapsed; tray.classList.toggle('collapsed', S.trayCollapsed); syncTrayH(); });
   trScroll.addEventListener('wheel', (e) => { if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { trScroll.scrollBy({ left: -e.deltaY }); e.preventDefault(); } }, { passive: false });
-  const isAnimal = (c) => ANIMAL_KINDS.has(c.kind);
+  const isAnimal = (c) => c.tab === 'animals' || ANIMAL_KINDS.has(c.kind);   // tab: a species that stays in place but is an animal (the giant clam)
   function cardSig(c) { return [c.name, c.cost, c.locked, c.lockText, c.canAfford, c.alive, c.isNew, c.color, c.layerName, c.thumb ? c.thumb.length + c.thumb.slice(-24) : 0].join('|'); }
   const lockMsg = (c) => { const t = c.lockText || ''; return /^משימה:\s*/.test(t) ? 'נפתח במשימה: ' + t.replace(/^משימה:\s*/, '') : (t || 'עוד נעול'); };
   const lockShort = (c) => (c.lockText || 'נעול').replace(/^משימה:\s*/, '');
   function fillCard(el, c) {
-    el.className = 'card k-' + (ANIMAL_KINDS.has(c.kind) ? 'animal' : c.kind === 'tool' ? 'tech' : 'plant') + (c.locked ? ' locked' : '') + (!c.locked && !c.canAfford ? ' poor' : '') + (c.isNew ? ' new' : '') + (c.alive ? ' has-alive' : '');
+    el.className = 'card k-' + (isAnimal(c) ? 'animal' : c.kind === 'tool' ? 'tech' : 'plant') + (c.locked ? ' locked' : '') + (!c.locked && !c.canAfford ? ' poor' : '') + (c.isNew ? ' new' : '') + (c.alive ? ' has-alive' : '') + (c.nursery ? ' nursery' : '');
     el.style.setProperty('--c', c.color || '#6a9');
     el.innerHTML = `${thumbHTML(c.thumb, c.color, c.kind)}
       <span class="c-name">${esc(c.name)}</span>
-      <span class="c-meta">${c.locked ? `<span class="c-lock">${icon('lock')}<span>${esc(lockShort(c))}</span></span>` :
+      <span class="c-meta">${c.nursery ? '<span class="c-nur">מהמשתלה</span>' : c.locked ? `<span class="c-lock">${icon('lock')}<span>${esc(lockShort(c))}</span></span>` :
         `<span class="c-cost" title="מחיר: ${fmt(c.cost || 0)} נקודות חיים">${icon('leaf')}${fmt(c.cost || 0)}</span>${c.layerName ? `<span class="c-layer" title="${esc(c.layerName)}" style="--lt:${LAYER_TINT[c.layer] || '#7a9a5a'}"></span>` : ''}`}</span>
-      ${c.alive ? `<span class="c-alive" title="יש ${fmt(c.alive)} כאלה ${zoneWord('in')} עכשיו">${fmt(c.alive)}</span>` : ''}
+      ${c.alive ? `<span class="c-alive" title="${c.nursery ? `${fmt(c.alive)} מחכים במשתלה` : `יש ${fmt(c.alive)} כאלה ${zoneWord('in')} עכשיו`}">${fmt(c.alive)}</span>` : ''}
       ${c.isNew ? `<span class="c-new">${icon('sparkle')}חדש</span>` : ''}
       ${c.locked ? `<span class="c-lockbig">${icon('lock')}</span>` : ''}`;
     el.title = c.locked ? lockMsg(c) : '';
-    el.setAttribute('aria-label', c.name + (c.locked ? '. ' + lockMsg(c) : `. מחיר ${fmt(c.cost || 0)} נקודות חיים` + (c.alive ? `. יש ${fmt(c.alive)} ${zoneWord('in')}` : '')));
+    el.setAttribute('aria-label', c.name + (c.nursery ? `. מהמשתלה, ${fmt(c.alive || 0)} מחכים. גררו אל השונית` : c.locked ? '. ' + lockMsg(c) : `. מחיר ${fmt(c.cost || 0)} נקודות חיים` + (c.alive ? `. יש ${fmt(c.alive)} ${zoneWord('in')}` : '')));
   }
   function renderTray(force) {
     const isTech = (c) => c.kind === 'tool';
@@ -897,13 +899,13 @@ export function createUI(root, bus) {
     const o = s.one, back = o.refund ? ` <small>+${o.refund}</small>` : '';
     if (o.kind === 'plant' && /בעל חיים/.test(s.kindName || '')) {   // a coral, a sponge, an anemone: an animal that stays in place
       const lb = 'להוציא אותו מהשונית';
-      return `<section class="sp-one"><h4>${icon('sprout')}מה שבחרתם</h4><p>יותר מדי ממנו, או שהוא במקום לא טוב? אפשר להעביר אותו למקום אחר או להוציא אותו ולפנות מקום.</p>
+      return `<section class="sp-one"><h4>${icon('sprout')}מה שבחרתם</h4>${o.strong ? '<p class="sp-strong">זה אלמוג חזק מהמשתלה. הוא גדל משבר של אלמוג שעמד בחום, ולכן בגל חום הוא מלבין פחות.</p>' : ''}<p>יותר מדי ממנו, או שהוא במקום לא טוב? גררו אותו למקום אחר (לוחצים עליו וגוררים, או גוררים את הידית שמתחתיו), או הוציאו אותו ופנו מקום.</p>
         <div class="sp-one-btns">${o.canMove ? `<button class="btn ghosty" data-act="move">${icon('target')}<span>להעביר למקום אחר</span></button>` : ''}
         ${upBtn(lb, 'leaf', back)}</div></section>`;
     }
     if (o.kind === 'plant') {
       const lb = 'לעקור את הצמח הזה';
-      return `<section class="sp-one"><h4>${icon('sprout')}הצמח שבחרתם</h4><p>מוצל מדי, או שיש יותר מדי ממנו? אפשר להעביר אותו למקום אחר או לעקור אותו ולפנות מקום.</p>
+      return `<section class="sp-one"><h4>${icon('sprout')}הצמח שבחרתם</h4><p>מוצל מדי, או שיש יותר מדי ממנו? גררו אותו למקום אחר (לוחצים עליו וגוררים, או גוררים את הידית שמתחתיו), או עקרו אותו ופנו מקום.</p>
         <div class="sp-one-btns">${o.canMove ? `<button class="btn ghosty" data-act="move">${icon('target')}<span>להעביר למקום אחר</span></button>` : ''}
         ${upBtn(lb, 'leaf', back)}</div></section>`;
     }

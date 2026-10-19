@@ -26,6 +26,8 @@ import { clamp, smoothstep, damp, makeRng, SEASONS } from '../core/util.js';
 import { key as profileKey } from '../core/profiles.js';
 import { createFieldReport } from './report.js';
 import { createResearchSession } from '../research/session.js';
+import { howto } from '../ui/howto.js';
+import { zoneHowto, HOWTO_LABELS } from '../data/howto-cards.js';
 import { zoneWord, setPlace } from '../core/place.js';
 
 const DAY_LEN = 270;            // seconds of game time per day
@@ -55,7 +57,7 @@ function farTreeSources(biomeId, plantBuilders) {
   }));
 }
 
-export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, animalBuilders, quality, onExit, save = null, research = null }) {
+export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, animalBuilders, zoneEnv = null, quality, onExit, save = null, research = null }) {
   const scene = pipe.scene, camera = pipe.camera, canvas = pipe.renderer.domElement;
   setPlace(biome.id);
   const reg = buildRegistry(biome);
@@ -77,7 +79,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
 
   ui.setLoading(0.05, `בונים את ${zoneWord()}...`);
   await tick0();
-  const env = createEnvironment(pipe, biome.id, { quality, seed: biome.id === 'amazon' ? 3 : 7, impostorTrees: farTreeSources(biome.id, plantBuilders) });
+  const env = createEnvironment(pipe, biome.id, { quality, seed: biome.id === 'amazon' ? 3 : 7, impostorTrees: farTreeSources(biome.id, plantBuilders), zoneEnv });
   W.env = env;
   const light = createLightSystem(env); W.light = light;
   const links = createLinks(scene);
@@ -169,6 +171,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
           if (s > bestS) { bestS = s; best = { entity: p, part: e.part, edge: e }; }
         }
       } else {
+        if (animal.touring) continue;   // the hunter the child rides on only looks around (src/game/tour.js)
         for (const a of W.animals) {
           if (a === animal || a.sp.id !== e.to || !alive(a) || a.leaving || a.injured || a.touring) continue;
           const d = a.pos.distanceTo(animal.pos); if (d > R) continue;
@@ -281,7 +284,13 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     markers.burst(_v.set(p.x, p.topY(), p.z), '#c8ff8a', 20, { size: 0.5 });
     if (p.sp.layer === 'emergent' && !W._emNoted) { W._emNoted = true; ui.toast(`ה${p.sp.name} ${gw(p.sp.id,'הגיע','הגיעה','הגיעו','הגיעו')} לקומת הענקים – עכשיו ${gw(p.sp.id,'הוא מקבל','היא מקבלת','הם מקבלים','הן מקבלות')} את כל אור השמש!`, 'good'); }
   };
+  // the reef: where a coral broke or faded away a "scar" stays: the best place for a strong young coral from the nursery
+  W.scars = W.scars || [];
   W.onPlantDied = (p, reason) => {
+    if (W.biomeId === 'reef' && !W.research && p.sp.kind === 'coral' && reason !== 'uproot') {
+      W.scars.push({ x: +p.x.toFixed(2), z: +p.z.toFixed(2), t: Math.round(W.simT) });
+      if (W.scars.length > 6) W.scars.shift();
+    }
     if (reason !== 'uproot' && reason !== 'fall' && reason !== 'event' && !W.research) W.stats.lossT = W.simT;
     if (reason !== 'uproot') report?.plantDied(reason);   // a plant the player took out did not die
     for (const a of W.animals) if (a.perch && a.perch.plant === p) { a.perch = null; a.state = 'idle'; a.timer = 0; }
@@ -379,11 +388,19 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   }
 
   // validity check for placing species at (x,z) from the tray
-  function checkPlace(sp, hit) {
+  function checkPlace(sp, hit, { nursery = false, free = false } = {}) {
     if (!hit) return { ok: false, reason: `גררו ${zoneWord('to')}` };
     const { x, z } = hit;
-    if (!W.unlocked.has(sp.id)) return { ok: false, reason: 'עוד נעול' };
-    if (W.points < sp.cost) return { ok: false, reason: 'אין מספיק נקודות חיים' };
+    if (nursery) {   // a strong coral from the nursery: already paid for, it only needs a good spot (best: where the reef was hurt)
+      const c = checkPlace(sp, hit, { free: true });
+      if (!c.ok) return c;
+      const scar = scarNear(x, z);
+      return scar ? { ...c, scar, warn: false, text: 'כאן השונית נפגעה. מקום טוב לאלמוג חזק!' } : c;
+    }
+    if (!free) {
+      if (!W.unlocked.has(sp.id)) return { ok: false, reason: 'עוד נעול' };
+      if (W.points < sp.cost) return { ok: false, reason: 'אין מספיק נקודות חיים' };
+    }
     if (W.countPlaced(sp.id) >= sp.maxCount) return { ok: false, reason: `הגעתם למספר המרבי של ${sp.name} (${sp.maxCount}). אפשר ללחוץ על אחד מהם ולעקור או להוציא אותו` };
     if (Math.hypot(x, z) > env.radius + 0.5) return { ok: false, reason: 'קרוב מדי לקצה' };
     if (sp.isPlant && !W.plantRoom(sp)) return { ok: false, reason: 'אין מקום לעוד צמחים. לחצו על צמח ועקרו אותו כדי לפנות מקום' };
@@ -410,6 +427,26 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     return { ok: true, text: sp.active === 'night' ? activeNameFor(sp.id, 'night') : '' };
   }
 
+  const scarNear = (x, z, r = 3.5) => W.scars.find(s => Math.hypot(s.x - x, s.z - z) < r) || null;
+  // a strong young coral from the nursery goes onto the reef: bigger than one planted from the tray (it grew on the
+  // nursery's branches) and it bleaches much less in a heat wave (src/world/plants.js)
+  function transplant(sp, hit, chk) {
+    if (!tools || !tools.takeFromNursery(sp.id)) return null;
+    const p = spawnPlant(sp, hit.x, hit.z, { growth: 0.5 });
+    if (!p) { ui.toast('לא נמצא מקום לשתול כאן', 'warn'); return null; }
+    p.strong = true; W.nurseryNew = 0;
+    W.everPlaced.add(sp.id); W.stats.transplants = (W.stats.transplants || 0) + 1;
+    markers.burst(p.focusPoint(_v), '#ffb0c8', 22, { size: 0.45 });
+    audio.play('place');
+    const scar = chk.scar && W.scars.includes(chk.scar) ? chk.scar : null;
+    if (scar) {
+      W.scars.splice(W.scars.indexOf(scar), 1); W.stats.scarsHealed = (W.stats.scarsHealed || 0) + 1; W.points += 5;
+      markers.locate(null);
+      ui.toast(`${sp.name} חזק נשתל במקום שבו השונית נפגעה. השונית מתחילה להתאושש! (+5)`, 'good');
+    } else ui.toast(`${sp.name} חזק נשתל בשונית. הוא כבר גדול, ובגל חום הוא מלבין פחות.`, 'good');
+    refreshTray();
+    return p;
+  }
   function place(sp, hit, chk) {
     W.points -= sp.cost;
     const [g0, g1] = sp.groupSize; const n = Math.max(1, Math.min(g0 + Math.floor(Math.random() * (g1 - g0 + 1)), sp.maxCount - W.countPlaced(sp.id)));
@@ -538,7 +575,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   function oneInfo(id) {
     const e = W.selected;
     if (W.research || !e || e.sp.id !== id || !alive(e) || e.removed || W.experiment) return null;
-    if (e.isPlant) return { kind: 'plant', canMove: !e.host && !e.falling && !e.fallen && e.sp.kind !== 'water-plant', refund: refundOf(e.sp) };
+    if (e.isPlant) return { kind: 'plant', canMove: !e.host && !e.falling && !e.fallen && e.sp.kind !== 'water-plant', refund: refundOf(e.sp), strong: !!e.strong };
     if (e.leaving || e.type !== 'animal') return null;
     return { kind: 'animal', refund: refundOf(e.sp) };
   }
@@ -581,9 +618,12 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   function endMove(hit) {
     const m = moving; moving = null; markers.showGhost(null); ui.hideHover(); canvas.style.cursor = '';
     if (!m || !hit) return;
-    const e = m.e, chk = checkMove(e, hit);
-    if (!chk.ok) { audio.play('invalid'); ui.toast(chk.reason, 'warn'); return; }
-    if (!alive(e)) return;
+    commitMove(m.e, hit);
+  }
+  function commitMove(e, hit) {
+    const chk = checkMove(e, hit);
+    if (!chk.ok) { audio.play('invalid'); ui.toast(chk.reason, 'warn'); return false; }
+    if (!alive(e)) return false;
     markers.burst(_v.set(e.x, e.y + 0.5, e.z), '#c8a878', 16, { size: 0.4, speed: 2 });
     e.x = hit.x; e.z = hit.z; e.y = env.heightAt(hit.x, hit.z) - 0.05; e.obj.position.set(e.x, e.y, e.z);
     e.health = Math.min(e.health, 0.85);   // moving shakes the roots a little
@@ -593,6 +633,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     markers.burst(_v.set(e.x, e.y + 0.5, e.z), '#b8f08a', 18, { size: 0.4, speed: 2 });
     W.stats.moved = (W.stats.moved || 0) + 1;
     audio.play('place'); ui.toast(`${e.sp.name} ${gw(e.sp.id, 'הועבר', 'הועברה', 'הועברו', 'הועברו')} למקום החדש.`, 'good');
+    return true;
   }
   let panelId = null;
   function showPanel(id, fresh) { panelId = id; const info = speciesInfo(id); if (fresh) ui.showSpecies(info); else ui.updateSpecies(info); }
@@ -700,20 +741,22 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
       dragState = { tool: tid, sp: { id, name: toolDef(tid, W.biomeId)?.name, isPlant: false }, model: tools.model(tid, W.biomeId) };
       dragMove({ id, x, y }); return;
     }
-    const sp = reg.byId.get(id); if (!sp) return;
+    const nursery = id.startsWith('nursery:');
+    const sp = reg.byId.get(nursery ? id.slice(8) : id); if (!sp) return;
     audio.play('pickup');
+    if (nursery && W.scars.length) markers.locate(W.scars.slice(), '#ffb0c8', (s, out) => { out.set(s.x, env.heightAt(s.x, s.z), s.z); return 0.3; }, 600);   // where the reef was hurt
     let model = null;
     try {
       if (sp.isPlant) { const v = plantBuilders[id]({ seed: 5, rng: makeRng(5), hostHeight: 8, hostRadius: 0.4 }); v.setGrowth(sp.kind === 'tree' || sp.kind === 'palm' ? 0.22 : 0.7); v.setHealth(1); model = v.object; dragState = { sp, vis: v }; }
       else { const v = animalBuilders[id]({ seed: 5, rng: makeRng(5) }); if (v.type === 'animal') { v.object.scale.setScalar(1.15 * Math.pow(Math.max(1, 0.9 / (v.length || 1)), 0.6)); v.update(0.016, { action: sp.locomotion === 'flying' ? 'hover' : 'idle', speed: 0, t: 0, night: 0 }); } model = v.object; dragState = { sp, vis: v }; }
     } catch (e) { dragState = { sp }; }
-    dragState.model = model;
+    dragState.model = model; dragState.nursery = nursery;
     dragMove({ id, x, y });
   }
   function dragMove({ x, y }) {
     if (!dragState) return;
     const hit = groundHit(x, y);
-    const chk = dragState.tool ? tools.check(dragState.tool, hit) : checkPlace(dragState.sp, hit);
+    const chk = dragState.tool ? tools.check(dragState.tool, hit) : checkPlace(dragState.sp, hit, { nursery: dragState.nursery });
     dragState.hit = hit; dragState.chk = chk;
     if (dragState.tool) {
       if (hit) { const pos = chk.host ? new THREE.Vector3(chk.host.x, chk.host.y + 4, chk.host.z) : chk.target ? chk.target.pos.clone() : new THREE.Vector3(hit.x, hit.y, hit.z); markers.showGhost(pos, chk.ok, 1.6, dragState.model, 3, false); if (dragState.tool === 'drone' || dragState.tool === 'seeddrone') dragState.model.position.y += 3; }
@@ -740,9 +783,11 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     const st = dragState; dragState = null;
     markers.showGhost(null); ui.setDragHint(null);
     disposeDragModel(st);
+    if (st.nursery) markers.locate(null);
     if (cancelled) return;
     const hit = groundHit(x, y);
     if (st.tool) { const c = tools.check(st.tool, hit); if (!c.ok) { audio.play('invalid'); ui.toast(c.reason, 'warn'); return; } tools.use(st.tool, hit, c); moments?.onTool(st.tool); refreshTray(); return; }
+    if (st.nursery) { const c = checkPlace(st.sp, hit, { nursery: true }); if (!c.ok) { audio.play('invalid'); ui.toast(c.reason, 'warn'); return; } transplant(st.sp, hit, c); return; }
     const chk = checkPlace(st.sp, hit);
     if (!chk.ok) { audio.play('invalid'); ui.toast(chk.reason, 'warn'); return; }
     place(st.sp, hit, chk); moments?.onPlace(st.sp);
@@ -813,12 +858,26 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
       case 'unlock': if (sp) unlock(sp.id, true); break;
       case 'add': if (sp) addSpecies(sp, fx.count || 1); break;
       case 'plant': if (sp) {
-        const spots = fx.where === 'gap' ? light.brightSpots((fx.count || 1) * 3, 4) : [];
+        // where 'scar': first the places where the reef was hurt; strong: corals from the nursery (bigger, bleach less)
+        const spots = fx.where === 'gap' ? light.brightSpots((fx.count || 1) * 3, 4) : fx.where === 'scar' ? W.scars.slice() : [];
+        const g0 = fx.strong ? 0.5 : 0.12;
         let n = 0;
-        for (const s of spots) { if (n >= (fx.count || 1)) break; if (env.isPlaceable(s.x, s.z) && spacingOK(sp, s.x, s.z)) { if (spawnPlant(sp, s.x, s.z, { growth: 0.12 })) n++; } }
-        while (n < (fx.count || 1)) { const s = randomPlaceSpot(sp); if (!s) break; if (spawnPlant(sp, s.x, s.z, { growth: 0.12 })) n++; else break; }
+        const put = (x, z) => { const p = spawnPlant(sp, x, z, { growth: g0 }); if (p && fx.strong) p.strong = true; return p; };
+        for (const s of spots) {
+          if (n >= (fx.count || 1)) break;
+          let at = env.isPlaceable(s.x, s.z) && spacingOK(sp, s.x, s.z) ? s : fx.where === 'scar' ? findSpotNear(sp, s.x, s.z, 2.5) : null;
+          if (at && put(at.x, at.z)) { n++; if (fx.where === 'scar') { W.scars.splice(W.scars.indexOf(s), 1); W.stats.scarsHealed = (W.stats.scarsHealed || 0) + 1; } }
+        }
+        while (n < (fx.count || 1)) { const s = randomPlaceSpot(sp); if (!s) break; if (put(s.x, s.z)) n++; else break; }
         W.everPlaced.add(sp.id);
       } break;
+      case 'breakCorals': {   // a storm breaks corals; where they stood the reef is hurt (W.scars, filled by onPlantDied)
+        const cor = W.plants.filter(p => alive(p) && p.sp.kind === 'coral').sort(() => Math.random() - 0.5);
+        const n = fx.count || 1;
+        for (let i = 0; i < Math.min(n, cor.length); i++) cor[i].die('event');
+        for (let i = cor.length; i < n; i++) { const s = randomPlaceSpot({ kind: 'coral' }); if (s) { W.scars.push({ x: +s.x.toFixed(2), z: +s.z.toFixed(2), t: Math.round(W.simT) }); if (W.scars.length > 6) W.scars.shift(); } }   // no coral to break: the storm still leaves bare rock
+        break;
+      }
       case 'remove': if (sp) {
         const ents = [...W.plants.filter(p => p.sp.id === sp.id && alive(p)), ...W.animals.filter(a => a.sp.id === sp.id && alive(a) && !a.leaving)];
         const n = fx.count === 'all' ? ents.length : Math.min(ents.length, fx.count || 1);
@@ -979,14 +1038,27 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     return list.map(sp => {
       const m = missions.missions.find(mm => (mm.reward?.unlock || []).includes(sp.id));
       return {
-        id: sp.id, name: sp.name, kind: sp.kind, layer: sp.layer, layerName: sp.layerName, cost: sp.cost,
+        id: sp.id, name: sp.name, kind: sp.kind, tab: sp.showAs === 'animal' ? 'animals' : undefined, layer: sp.layer, layerName: sp.layerName, cost: sp.cost,
         locked: !W.unlocked.has(sp.id), lockText: m ? `משימה: ${m.title}` : 'נפתח באירוע',
         canAfford: W.points >= sp.cost, alive: W.countAlive(sp.id), thumb: thumbs[sp.id] || null, color: sp.color,
         isNew: W.unlocked.has(sp.id) && sp.unlock !== 'start' && !W.seenNew.has(sp.id),
       };
     });
   }
-  function refreshTray() { if (W.research) return; ui.setTray(tools ? [...trayCards(), ...tools.cards()] : trayCards()); }
+  // strong young corals waiting in the coral nurseries: one card per kind, before the corals planted from the tray
+  function nurseryCards() {
+    if (!tools || W.biomeId !== 'reef') return [];
+    return [...tools.nurseryStock()].map(([sid, n]) => {
+      const sp = reg.byId.get(sid);
+      return { id: 'nursery:' + sid, name: sp.name + ' חזק', kind: sp.kind, layer: 'nursery', layerName: 'מהמשתלה', cost: 0, locked: false, canAfford: true,
+        alive: n, thumb: thumbs[sid] || CARD_ART[sid] || null, color: '#e889a8', isNew: !!W.nurseryNew, nursery: true };
+    });
+  }
+  function refreshTray() {
+    if (W.research) return;
+    const sp = trayCards(), ns = nurseryCards();
+    ui.setTray(tools ? [...ns, ...sp, ...tools.cards()] : sp);
+  }
 
   // ─────────────────────────────────────────── save / load (localStorage, optional)
   const SAVE_KEY = profileKey('web-of-life-' + biome.id);   // per player
@@ -999,7 +1071,13 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   const on = (n, f) => offs.push(bus.on(n, f));
   on('drag:start', dragStart); on('drag:move', dragMove); on('drag:end', dragEnd);
   on('drag:denied', ({ id, reason }) => { audio.play('invalid'); const sp = reg.byId.get(id) || toolDef(String(id).replace(/^tool:/, ''), W.biomeId); ui.toast(reason === 'locked' ? `${sp?.name} עוד נעול – השלימו משימות כדי לפתוח` : reason === 'cost' ? `צריך ${sp?.cost} נקודות חיים` : 'אי אפשר עכשיו', 'warn'); });
-  on('card:click', ({ id }) => { if (id.startsWith('tool:')) { const d = toolDef(id.slice(5), W.biomeId); if (d) ui.showDialog({ title: d.name, text: d.fact + '\n\n' + d.hint + `\nמחיר: ${d.cost} נקודות חיים.`, buttons: [{ id: 'ok', label: 'הבנתי' }] }); return; } W.seenNew.add(id); showPanel(id, true); audio.play('click'); refreshTray(); });
+  on('card:click', ({ id }) => {
+    if (id.startsWith('nursery:')) {
+      const sp = reg.byId.get(id.slice(8)); W.nurseryNew = 0; refreshTray();
+      ui.showDialog({ title: `${sp.name} חזק מהמשתלה`, text: `במשתלה גדלים שברים של אלמוגים שעמדו בגל חום. אלמוג כזה מלבין פחות כשהמים מתחממים, והוא כבר גדול כשהוא יוצא מהמשתלה.\n\nגררו אותו מהמגש אל השונית. הכי טוב לשתול אותו במקום שבו אלמוג נשבר או נחלש: שם השונית צריכה עזרה. בזמן הגרירה המקומות האלה מסומנים.\n\nאלמוג חזק מגיע רק מהמשתלה.`, buttons: [{ id: 'ok', label: 'הבנתי' }] });
+      return;
+    }
+    if (id.startsWith('tool:')) { const d = toolDef(id.slice(5), W.biomeId); if (d) ui.showDialog({ title: d.name, text: d.fact + '\n\n' + d.hint + `\nמחיר: ${d.cost} נקודות חיים.`, buttons: [{ id: 'ok', label: 'הבנתי' }] }); return; } W.seenNew.add(id); showPanel(id, true); audio.play('click'); refreshTray(); });
   on('time:speed', ({ speed }) => { if (!W.experiment) W.speed = speed; });
   on('species:select', ({ id }) => { const e = nearestOf(id, rig.controls.target); if (e) { select(e); rig.focusOn(e.focusPoint(new THREE.Vector3()), e.isPlant && e.isTree ? 30 : 12); } else showPanel(id, true); });
   on('species:close', () => { select(null); panelId = null; });
@@ -1065,7 +1143,17 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   on('toggle:web', ({ on: v }) => { webMode = v; rebuildLinks(); if (v) ui.toast('כל הקווים הזוהרים הם קשרים ברשת החיים', 'info'); });
   on('journal:select', ({ id }) => { ui.hideJournal(); showPanel(id, true); });
   on('ui:journal', () => openJournal());
-  on('ui:help', () => startCoach(true));
+  // "איך משחקים": four short cards the first time the child enters this zone (src/ui/howto.js, src/data/howto-cards.js);
+  // the step-by-step coach (first forest only) follows them. The menu's "איך משחקים" shows them again.
+  let howtoBox = null;
+  function showHowto(force, after) {
+    if (W.research || (howtoBox && howtoBox.open)) return null;
+    const cards = zoneHowto(biome.id, W.kids, (id) => CARD_ART[id] || thumbs[id] || null);
+    howtoBox = howto(document.getElementById('ui'), cards, { key: 'zone-' + biome.id, force, onClose: () => { howtoBox = null; if (after && !disposed) after(); }, labels: W.kids ? HOWTO_LABELS.kids : HOWTO_LABELS.full, title: (W.kids ? HOWTO_LABELS.kids : HOWTO_LABELS.full).title });
+    return howtoBox;
+  }
+  on('ui:help', () => showHowto(true));
+  on('ui:coach', () => startCoach(true));
   on('coach:next', () => coachNext()); on('coach:skip', () => { coachStep = -1; ui.hideCoach(); try { localStorage.setItem(profileKey('web-of-life-coach'), '1'); } catch (e) { } });
   on('dialog:button', () => { });
   on('ui:home', () => { onExit && onExit(); });
@@ -1144,6 +1232,88 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   canvas.addEventListener('pointerdown', onDown); canvas.addEventListener('pointerup', onUp); canvas.addEventListener('pointermove', onMove);
   const onLeave = () => { lastMove = null; ui.hideHover(); };
   canvas.addEventListener('pointerleave', onLeave);
+
+  // ─────────────────────────────────────────── moving by dragging (1.3.1, Avi: moving plants was too complicated)
+  // A selected plant: press on it and drag, or drag the "גררו כדי להזיז" handle under it (mouse and touch). A device that
+  // stands on the ground (a field camera, a nursery, a water generator...): press on it and drag. While dragging, the
+  // thing itself follows the pointer a little above the ground, with the green / red ring and a line that says why not.
+  // The orbit camera stays still meanwhile. The old way (the card's "להעביר למקום אחר", then a click) still works.
+  const mvHandle = document.createElement('button');
+  mvHandle.type = 'button'; mvHandle.className = 'mv-handle'; mvHandle.hidden = true;
+  mvHandle.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="currentColor"><circle cx="9" cy="6" r="1.9"/><circle cx="15" cy="6" r="1.9"/><circle cx="9" cy="12" r="1.9"/><circle cx="15" cy="12" r="1.9"/><circle cx="9" cy="18" r="1.9"/><circle cx="15" cy="18" r="1.9"/></g></svg><span>גררו כדי להזיז</span>';
+  mvHandle.setAttribute('aria-label', 'גררו כדי להזיז למקום אחר');
+  document.getElementById('ui').appendChild(mvHandle);
+  let mv = null;   // { kind: 'plant' | 'device', e, p, pid, x0, y0, started, hit, chk }
+  const movable = (e) => !!e && e.isPlant && alive(e) && !e.host && !e.falling && !e.fallen && e.sp.kind !== 'water-plant' && !W.research && !W.experiment;
+  const controlsOn = (v) => { if (!W.viewMode) rig.controls.enabled = v; };
+  function mvStart() {
+    mv.started = true; ui.hideSpecies(); ui.hideHover(); mvHandle.hidden = true; canvas.style.cursor = 'grabbing';
+    audio.play('pickup');
+  }
+  function mvUpdate(x, y) {
+    const hit = groundHit(x, y);
+    const chk = mv.kind === 'plant' ? checkMove(mv.e, hit) : tools.checkDeviceMove(mv.p, hit);
+    mv.hit = hit; mv.chk = chk;
+    if (hit) {
+      markers.showGhost(new THREE.Vector3(hit.x, env.heightAt(hit.x, hit.z), hit.z), chk.ok, mv.kind === 'plant' && mv.e.isTree ? 2.4 : 1.1, null, 3, chk.warn);
+      if (mv.kind === 'plant') mv.e.obj.position.set(hit.x, env.heightAt(hit.x, hit.z) + 0.35, hit.z);
+      else tools.placeDeviceAt(mv.p, hit.x, hit.z, false, 0.35);
+    } else markers.showGhost(null);
+    const name = mv.kind === 'plant' ? mv.e.sp.name : (toolDef(mv.p.id, W.biomeId)?.name || '');
+    ui.showHover({ x, y, name: (chk.ok ? '✓ ' : '') + name, sub: chk.ok ? (mv.kind === 'plant' ? chk.text.replace('לחצו כדי להעביר', 'שחררו כדי להעביר') : chk.text) : chk.reason });
+  }
+  function mvEnd(cancel) {
+    const m = mv; mv = null; controlsOn(true);
+    markers.showGhost(null); ui.hideHover(); canvas.style.cursor = '';
+    if (!m || !m.started) return;
+    if (m.kind === 'plant') {
+      const e = m.e, ok = !cancel && m.hit && m.chk && m.chk.ok && commitMove(e, m.hit);
+      if (!ok && alive(e)) { e.obj.position.set(e.x, e.y, e.z); if (!cancel && m.chk && !m.chk.ok) { audio.play('invalid'); ui.toast(m.chk.reason, 'warn'); } }
+      if (alive(e)) select(e);
+    } else {
+      const p = m.p;
+      if (!cancel && m.hit && m.chk && m.chk.ok) { tools.placeDeviceAt(p, m.hit.x, m.hit.z, true); audio.play('place'); markers.burst(_v.set(p.x, env.heightAt(p.x, p.z) + 1, p.z), '#b8f08a', 14, { size: 0.4 }); }
+      else { tools.placeDeviceAt(p, p.x, p.z, false); if (!cancel && m.chk && !m.chk.ok) { audio.play('invalid'); ui.toast(m.chk.reason, 'warn'); } }
+    }
+  }
+  const mvPress = (e, kind, target, from) => { mv = { kind, e: kind === 'plant' ? target : null, p: kind === 'device' ? target : null, pid: e.pointerId, x0: e.clientX, y0: e.clientY, started: false, from }; controlsOn(false); };
+  mvHandle.addEventListener('pointerdown', (e) => {
+    if (e.button > 0 || mv || !movable(W.selected)) return;
+    e.preventDefault(); e.stopPropagation();
+    try { mvHandle.setPointerCapture(e.pointerId); } catch (err) { }
+    mvPress(e, 'plant', W.selected, 'handle'); mvStart(); mvUpdate(e.clientX, e.clientY);
+  });
+  mvHandle.addEventListener('click', (e) => e.preventDefault());
+  // capture phase: decide before the orbit controls see the press
+  const onMvDown = (e) => {
+    if (mv || e.target !== canvas || e.button > 0 || W.viewMode || dragState || moving || W.research) return;
+    const dv = tools && tools.pickDevice(e.clientX, e.clientY, canvas.getBoundingClientRect());
+    if (dv) { mvPress(e, 'device', dv, 'press'); return; }
+    if (movable(W.selected) && pick(e.clientX, e.clientY, { animals: false }) === W.selected) mvPress(e, 'plant', W.selected, 'press');
+  };
+  const onMvMove = (e) => {
+    if (!mv || e.pointerId !== mv.pid) return;
+    if (!mv.started) { if (Math.hypot(e.clientX - mv.x0, e.clientY - mv.y0) < 8) return; mvStart(); }
+    mvUpdate(e.clientX, e.clientY);
+  };
+  const onMvUp = (e) => { if (mv && e.pointerId === mv.pid) mvEnd(e.type === 'pointercancel'); };
+  const onMvKey = (e) => { if (mv && mv.started && e.key === 'Escape') { mvEnd(true); ui.toast('ההזזה בוטלה', 'info'); } };
+  addEventListener('pointerdown', onMvDown, true); addEventListener('pointermove', onMvMove); addEventListener('pointerup', onMvUp); addEventListener('pointercancel', onMvUp); addEventListener('keydown', onMvKey);
+  // the handle sits under the selected plant (projected every frame)
+  const _hp = new THREE.Vector3();
+  function placeMoveHandle() {
+    const e = W.selected;
+    const show = movable(e) && !W.viewMode && !mv && !dragState && !moving && !ui.isModalOpen();
+    if (!show) { if (!mvHandle.hidden) mvHandle.hidden = true; return; }
+    _hp.set(e.x, e.y, e.z).project(camera);
+    if (_hp.z > 1 || Math.abs(_hp.x) > 1.05 || Math.abs(_hp.y) > 1.05) { mvHandle.hidden = true; return; }
+    const r = canvas.getBoundingClientRect();
+    const x = (_hp.x + 1) / 2 * r.width + r.left, sy = (1 - _hp.y) / 2 * r.height + r.top;
+    const tr = document.querySelector('#ui .tray'), trTop = tr && !tr.classList.contains('collapsed') ? tr.getBoundingClientRect().top : r.bottom;
+    const y = sy + 18 + 46 > trTop ? Math.max(r.top + 70, sy - 64) : sy + 18;   // near the tray: above the plant instead of under it
+    mvHandle.hidden = false;
+    mvHandle.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px) translate(-50%, 0)`;
+  }
 
 
   // ─────────────────────────────────────────── human impact: stumps and roads
@@ -1272,14 +1442,15 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     return {
       v: 1, biome: biome.id, savedAt: Date.now(), points: Math.round(W.points), day: W.day, dayFrac: W.dayFrac, season: W.season, simT: W.simT,
       unlocked: [...W.unlocked], discovered: [...W.discovered], everPlaced: [...W.everPlaced], quizDone: [...W.quizDone], seenNew: [...W.seenNew],
-      stats: { pollinations: W.stats.pollinations, dispersals: W.stats.dispersals, experiments: W.stats.experiments, births: W.stats.births, toolUse: W.stats.toolUse || {}, seeded: W.stats.seeded || 0, rescues: W.stats.rescues || 0, expSpecies: W.stats.expSpecies || [], uprooted: W.stats.uprooted || 0, moved: W.stats.moved || 0, letGo: W.stats.letGo || 0 },
+      stats: { pollinations: W.stats.pollinations, dispersals: W.stats.dispersals, experiments: W.stats.experiments, births: W.stats.births, toolUse: W.stats.toolUse || {}, seeded: W.stats.seeded || 0, rescues: W.stats.rescues || 0, expSpecies: W.stats.expSpecies || [], uprooted: W.stats.uprooted || 0, moved: W.stats.moved || 0, letGo: W.stats.letGo || 0, transplants: W.stats.transplants || 0, scarsHealed: W.stats.scarsHealed || 0 },
+      ...(W.scars.length ? { scars: W.scars } : {}),
       missions: missions.missions.filter(m => m.done).map(m => m.id),
       missionProgress: missions.serializeProgress(),
       events: missions.events.filter(e => e.fired && e.resolved).map(e => ({ id: e.id, r: 1 })),   // fired-but-unanswered events run again after loading
       treeFallen: W.treeFallen, gapPos: W.gapPos ? { x: +W.gapPos.x.toFixed(2), z: +W.gapPos.z.toFixed(2) } : null, protected: W.protected,
       road: W.road ? { a: W.road.a, b: W.road.b, bridge: W.road.bridge } : null,
       stumps: W.stumps.map(t => ({ x: +t.x.toFixed(2), z: +t.z.toFixed(2), r: +t.r.toFixed(2) })),
-      plants: plants.map(p => ({ id: p.sp.id, x: +p.x.toFixed(2), z: +p.z.toFixed(2), g: +p.growth.toFixed(3), h: +p.health.toFixed(2), w: p.wild ? 1 : 0, host: p.host ? (index.get(p.host) ?? -1) : -1, ai: p.attachIdx || 0, s: p.seed, b: Math.round(p.bornT ?? -1), ...(p.sownBy ? { a: p.sownBy } : {}) })),   // the seed keeps the same shape (and branch spots) after loading
+      plants: plants.map(p => ({ id: p.sp.id, x: +p.x.toFixed(2), z: +p.z.toFixed(2), g: +p.growth.toFixed(3), h: +p.health.toFixed(2), w: p.wild ? 1 : 0, host: p.host ? (index.get(p.host) ?? -1) : -1, ai: p.attachIdx || 0, s: p.seed, b: Math.round(p.bornT ?? -1), ...(p.sownBy ? { a: p.sownBy } : {}), ...(p.strong ? { st: 1 } : {}) })),   // the seed keeps the same shape (and branch spots) after loading
       tools: tools ? tools.serialize() : null,
       report: report ? report.serialize() : undefined,
       animals: W.animals.filter(a => keepOnSave(a) && !a.leaving).map(a => ({ id: a.sp.id, x: +a.pos.x.toFixed(2), y: +a.pos.y.toFixed(2), z: +a.pos.z.toFixed(2), e: +a.energy.toFixed(2), g: +a.grow.toFixed(2) })),
@@ -1311,6 +1482,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
       e.fired = false; e.resolved = false;
       if (e.trigger.type === 'mission' && doneIds.has(e.trigger.id)) missions.fire(e, 8);   // its mission will not start again, so queue it now
     }
+    W.scars = Array.isArray(S.scars) ? S.scars.filter(s => s && isFinite(s.x) && isFinite(s.z)).slice(-6) : [];
     W.treeFallen = !!S.treeFallen; W.protected = !!S.protected;
     W.gapPos = S.gapPos && isFinite(S.gapPos.x) && isFinite(S.gapPos.z) ? { x: S.gapPos.x, z: S.gapPos.z } : null;
     for (const t of S.stumps || []) addStump(t.x, t.z, t.r);
@@ -1323,7 +1495,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
       if (p.host >= 0 && !host) continue;
       const opts = { growth: p.g, host, attachIdx: p.ai, restore: true }; if (Number.isFinite(p.s)) opts.seed = p.s;
       const e = spawnPlant(sp, p.x, p.z, opts);
-      if (e) { e.health = p.h ?? 1; e.wild = !!p.w; e.pop = 1; e.bornT = Number.isFinite(p.b) ? p.b : -1; if (p.a) e.sownBy = p.a; made[i] = e; }   // saves before 1.3: born "long ago"
+      if (e) { e.health = p.h ?? 1; e.wild = !!p.w; e.pop = 1; e.bornT = Number.isFinite(p.b) ? p.b : -1; if (p.a) e.sownBy = p.a; if (p.st) e.strong = true; made[i] = e; }   // saves before 1.3: born "long ago"
     }
     for (const a of S.animals || []) {
       const sp = reg.byId.get(a.id); if (!sp) continue;
@@ -1470,11 +1642,12 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     markers.update(rdt, t, camera, px);
     // hover label
     hoverT -= rdt;
-    if (hoverT <= 0 && lastMove && !dragState && !moving && !down && !W.viewMode) {
+    placeMoveHandle();
+    if (hoverT <= 0 && lastMove && !dragState && !moving && !mv && !down && !W.viewMode) {
       hoverT = 0.12;
       const fc = fieldcam && fieldcam.pickAt(lastMove.x, lastMove.y);
       const h = fc ? null : pick(lastMove.x, lastMove.y);
-      if (fc) { ui.showHover({ x: lastMove.x, y: lastMove.y, name: 'מצלמת שטח', sub: 'לחצו כדי להסתכל דרכה' }); canvas.style.cursor = 'pointer'; }
+      if (fc) { ui.showHover({ x: lastMove.x, y: lastMove.y, name: 'מצלמת שטח', sub: 'לחצו כדי להסתכל דרכה, או גררו כדי להזיז' }); canvas.style.cursor = 'pointer'; }
       else if (h) { const sub = h.injured ? '❗ ' + hurtText(h) : h.isPlant ? `${h.sp.kindName}${h.growth < 0.95 ? ` · גדל ${Math.round(h.growth * 100)}%` : ''}` : (h.state === 'sleep' ? gw(h.sp.id, 'ישן', 'ישנה', 'ישנים', 'ישנות') : h.state === 'eat' ? gw(h.sp.id, 'אוכל', 'אוכלת', 'אוכלים', 'אוכלות') : h.energy < 0.3 ? gw(h.sp.id, 'רעב', 'רעבה', 'רעבים', 'רעבות') : h.sp.kindName); ui.showHover({ x: lastMove.x, y: lastMove.y, name: h.sp.name, sub }); canvas.style.cursor = 'pointer'; }
       else { ui.hideHover(); canvas.style.cursor = ''; }
     }
@@ -1484,7 +1657,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     fitT -= rdt; if (fitT <= 0) { fitT = 0.5; fitViewToUI(false); }
     // audio ambience
     audio.update({ dayFrac: W.dayFrac, season: W.season, rain: W.rain, wind: W.wind, vitality: W.vitality, night, cameraHeight: camera.position.y, fire: W.fires.length ? 1 : 0, speed: dt > 0 ? W.speed : 0 });
-    if (!coachStarted) { coachStarted = true; if (!W.restored && !W.research) setTimeout(() => startCoach(false), 900); }
+    if (!coachStarted) { coachStarted = true; if (!W.research) setTimeout(() => { if (disposed) return; const after = W.restored ? null : () => startCoach(false); if (!showHowto(false, after) && after) after(); }, 900); }
   }
 
   function weatherUpdate(dt, rdt) {
@@ -1554,7 +1727,10 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     }
   }
 
+  let disposed = false;
   function dispose() {
+    disposed = true;
+    if (howtoBox) { const b = howtoBox; howtoBox = null; try { b.close(); } catch (e) { } }
     if (session) { session.dispose(); session = null; }
     if (report) { report.dispose(); }   // closes the report screen and keeps the child's note before the last save
     // leaving mid-experiment: bring the species back first, so nothing is lost and the banner does not stay on screen
@@ -1567,6 +1743,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     for (const o of offs) o();
     if (ptsEl) ptsEl.removeEventListener('click', explainPoints);
     removeEventListener('keydown', onMoveKey);
+    removeEventListener('pointerdown', onMvDown, true); removeEventListener('pointermove', onMvMove); removeEventListener('pointerup', onMvUp); removeEventListener('pointercancel', onMvUp); removeEventListener('keydown', onMvKey); mvHandle.remove();
     canvas.removeEventListener('pointerdown', onDown); canvas.removeEventListener('pointerup', onUp); canvas.removeEventListener('pointermove', onMove); canvas.removeEventListener('pointerleave', onLeave);
     for (const e of [...W.plants, ...W.animals]) { if (e.obj.parent) e.obj.parent.remove(e.obj); try { e.vis.dispose(); } catch (err) { } }
     W.plants = []; W.animals = [];

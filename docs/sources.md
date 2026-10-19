@@ -458,3 +458,13 @@ Every quote was copied from Sefaria (Miqra according to the Masorah; Torat Emet 
 | פרק שירה (ישעיהו לה, א) | Perek_Shirah.1.6 (מדבר) | 152 |
 | פרק שירה (תהלים צח, ח) | Perek_Shirah.1.10 (נהרות) | 153 |
 | פרק שירה (ירמיהו כה, ל) | Perek_Shirah.5.5 (גמל) | 156 |
+
+## Coral nursery: strong corals (1.3.1, src/game/tools.js nurseryTick, src/world/plants.js heat)
+
+Only the nursery gives "strong" young corals; they go onto the reef bigger and bleach less in a heat wave. What the game leans on:
+- **Mid-water coral nursery in Eilat**: fragments of branching corals on a floating rope net at 6 m grew 13 to 46 times in volume within 144 days, and small colonies were ready for transplanting after 144 to 200 days ("coral gardening"). Shafir, Van Rijn & Rinkevich 2006, *Marine Biology* 149: 679-687 — https://cris.huji.ac.il/en/publications/steps-in-the-construction-of-underwater-coral-nursery-an-essentia/ (game: a nursery fragment is planted at growth 0.5 instead of 0.3).
+- **Nurseries built from heat-tolerant parents bleach less**: in American Samoa, 800 fragments from 80 colonies were grown in nurseries before the 2015 bleaching; clones of heat-tolerant parents "resisted bleaching 20-85% better across species" — https://reeffutures2018.dryfta.com/component/dryfta/abstract/public/212/using-naturally-occurring-climate-resilient-corals-to-construct-bleaching-resistant-nurseries (game: a strong coral feels 35% of the heat stress, i.e. 65% less; it is not immune).
+- **Ranking nursery corals by heat tolerance before outplanting** (NOAA and the Hawaii Institute of Marine Biology): biopsies of nursery colonies were warmed from 24.5 to 32.5 °C and ranked by how late they bleached; possible costs (growth, reproduction) are still studied — https://www.fisheries.noaa.gov/feature-story/noaa-and-partners-seek-make-reefs-resilient-super-corals . The game therefore gives strong corals no extra growth speed after transplanting, only the head start of the nursery.
+- **Gulf of Aqaba Stylophora pistillata did not bleach under warmer water in Eilat experiments** (pre-adapted heat tolerance; pollution may lower it) — https://actu.epfl.ch/news/coral-reefs-in-the-gulf-of-aqaba-may-survive-globa/ (with Fine et al. 2013 above). In the game, ordinary corals pale in a heat wave and recover when it ends; none die of the heat alone.
+- **Storms break branching and table corals**; damaged spots are where restoration plants first (game: r_storm, scars) — the table coral text in src/data/reef.js (Acropora, https://en.wikipedia.org/wiki/Acropora , already listed for it); no numbers are quoted.
+- Wording: no "evolution"; the texts say "a fragment of a coral that stood the heat" (שבר של אלמוג שעמד בחום).

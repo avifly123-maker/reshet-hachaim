@@ -8,4 +8,5 @@
 {"js":"document.querySelectorAll('.dialog button, .modal-layer button').length"},
 {"shot":"shots/integ1.png"},
 {"js":"window.__game.debug.ff&&window.__game.debug.ff(60); 'grove ok '+window.__game.plants.length"},
+{"js":"window.__wolLearn.open(); 1"},{"wait":4},
 {"js":"window.__wolLearn.open(); const r=window.__wolLearn._round('easy','both').length; window.__wolLearn._go('keepforest'); window.__kfDebug.start('amazon'); window.__kfDebug.auto(30); window.__wolLearn._go('webpuzzle'); window.__wpDebug.open('amazon',2); window.__wpDebug.solve(); 'hub ok '+r"},{"wait":2}]

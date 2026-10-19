@@ -10,7 +10,7 @@ import { BIOME as GROVE } from '../data/grove.js';
 import { BIOME as REEF } from '../data/reef.js';
 import { DIET_PARTS, ACTIVE_NAMES, KINDS } from '../data/common.js';
 import { THUMBS } from '../data/thumbs.js';
-import { TOOL_DEFS, TOOL_ICONS, REEF_TOOL_CARDS } from '../game/tools.js';
+import { TOOL_DEFS, TOOL_ICONS, REEF_TOOL_CARDS } from '../game/tool-defs.js';   // plain data (no 3D models)
 import { BABA_DA_LOGO } from '../data/logo.js';
 import { CARD_ART } from '../data/card-art.js';
 import { artPos } from '../data/art-focus.js';
@@ -156,7 +156,7 @@ const SP = [];
 for (const bid of ['amazon', 'grove', 'reef']) {
   for (const s of BIOMES[bid].species) {
     // the reef has no rendered thumbnails yet: its card painting stands in for them
-    SP.push({ ...s, biome: bid, key: bid + ':' + s.id, animal: isAnimalKind(s.kind), img: (THUMBS[bid] || {})[s.id] || (bid === 'reef' ? CARD_ART[s.id] || '' : '') });
+    SP.push({ ...s, biome: bid, key: bid + ':' + s.id, animal: isAnimalKind(s.kind) || s.showAs === 'animal', img: (THUMBS[bid] || {})[s.id] || (bid === 'reef' ? CARD_ART[s.id] || '' : '') });
   }
 }
 const SPK = new Map(SP.map((s) => [s.key, s]));
