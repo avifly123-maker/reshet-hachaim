@@ -41,10 +41,11 @@ export const BADGES = [
   // ── חושבים כמו חוקרים (src/lab/thinking.js): one habit of scientific thinking each
   { id: 'b_fair', group: 'lab', art: 'sage', name: 'ניסוי הוגן', how: 'בחממה: מגלים מה עושים האור, המים והאדמה, כל אחד בניסוי הוגן', earn: 'lab:fair' },
   { id: 'b_float', group: 'lab', art: 'plankton', name: 'הופתעתי!', how: 'באקווריום: מנחשים לפני שבודקים, עד שלוש הפתעות', earn: 'lab:float' },
-  { id: 'b_measure', group: 'lab', art: 'pine', name: 'מודדים שוב', how: 'בארון האוסף: שלוש פעמים קרוב בעזרת המדידה האמצעית', earn: 'lab:measure' },
+  // retired in 1.3.1 (Avi: the wobbly scale game was removed); kept so a badge already earned stays, shown only to who has it
+  { id: 'b_measure', group: 'lab', art: 'pine', name: 'מודדים שוב', how: 'בארון האוסף: שלוש פעמים קרוב בעזרת המדידה האמצעית', earn: 'lab:measure', retired: true },
   { id: 'b_observe', group: 'lab', art: 'gazelle', name: 'עין של חוקר', how: 'בארון האוסף: מפרידים בין מה שראינו למה שחשבנו, ובודקים', earn: 'lab:observe' },
   { id: 'b_cause', group: 'lab', art: 'mushroom', name: 'ביחד או בגלל', how: 'בחדר: מגלים בניסוי מה גורם למה', earn: 'lab:cause' },
-  { id: 'b_thinker', group: 'lab', art: 'firefly', name: 'חושבים כמו חוקרים', how: 'כל חמשת הניסויים של רובו־דע', earn: 'lab:thinker' },
+  { id: 'b_thinker', group: 'lab', art: 'firefly', name: 'חושבים כמו חוקרים', how: 'כל ארבעת הניסויים של רובו־דע', earn: 'lab:thinker' },
   // the station worlds (src/lab/aquarium.js, greenhouse.js, cabinet.js)
   { id: 'b_minireef', group: 'lab', art: 'clownfish', name: 'שונית בקופסה', how: 'באקווריום: שונית קטנה שכולם מוצאים בה בית ואוכל', earn: 'lab:minireef' },
   { id: 'b_night', group: 'lab', art: 'moray', name: 'משמרת לילה', how: 'באקווריום: שמונה גילויים של יום ולילה, חום ושמש', earn: 'lab:night' },
@@ -52,7 +53,11 @@ export const BADGES = [
   { id: 'b_seeds', group: 'lab', art: 'terebinth', name: 'זרעים מטיילים', how: 'בחממה: זרע שמגיע רחוק בכל אחת מארבע הבדיקות', earn: 'lab:seeds' },
   { id: 'b_collect', group: 'lab', art: 'blackbird', name: 'אספן', how: 'בארון האוסף: עשרים דברים על המדפים', earn: 'lab:collect' },
   { id: 'b_sort', group: 'lab', art: 'starfish', name: 'ממיין חכם', how: 'בארון האוסף: רובו־דע מנחש את הכלל שלכם, ואתם מנחשים את שלו', earn: 'lab:sort' },
-  { id: 'b_clues', group: 'lab', art: 'fox', name: 'עקבות ורמזים', how: 'בארון האוסף: מגלים מי השאיר כל אחד מהרמזים', earn: 'lab:clues' },
+  { id: 'b_clues', group: 'lab', art: 'fox', name: 'עקבות ורמזים', how: 'בארון האוסף: מגלים מי השאיר שמונה רמזים', earn: 'lab:clues' },
+  // 1.3.1: the bigger cabinet games
+  { id: 'b_cluesall', group: 'lab', art: 'jaguar', name: 'בלש הטבע', how: 'בארון האוסף: כל הרמזים בשלושת האזורים פוענחו', earn: 'lab:clues-all' },
+  { id: 'b_sortrules', group: 'lab', art: 'hermit', name: 'הרבה דרכים למיין', how: 'בארון האוסף: ממיינים לפי שישה כללים שונים', earn: 'lab:sortrules' },
+  { id: 'b_observeall', group: 'lab', art: 'sloth', name: 'בודקים כל מחשבה', how: 'בארון האוסף: כל הממצאים של "ראינו או חשבנו?" נבדקו', earn: 'lab:observe-all' },
   // the big inventors update (1.3): more inventions, combinations, the shelves (THEMES in src/data/inventions.js), research questions
   { id: 'b_inv10', group: 'lab', art: 'leafcutter', name: 'עשר המצאות', how: 'עשר המצאות שונות ב"הממציאים"', earn: 'inv:ten' },
   { id: 'b_inv25', group: 'lab', art: 'tortoise', name: 'ממציא ותיק', how: 'עשרים וחמש המצאות שונות ב"הממציאים"', earn: 'inv:many' },

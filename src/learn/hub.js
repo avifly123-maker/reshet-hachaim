@@ -1643,7 +1643,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   }
   /* ── badges: the ones this edition shows (the torah edition's own only while "מקורות ופסוקים" is on) */
   const visB = (x) => !x.torah || srcOn();
-  const vBadges = () => BADGES.filter(visB);
+  const vBadges = () => { const own = ownedBadges(); return BADGES.filter((b) => visB(b) && (!b.retired || own[b.id])); };   /* a retired badge shows only to who earned it */
   // the next badge worth aiming for: a first step in each corner of the hub, then the rest in order
   const NEXT_FIRST = ['b_vm1', 'b_inv1', 'b_deep1', 'b_rs1', 'b_scope', 'b_fair', 'b_minireef', 'b_vmeye', 'b_inv5', 'b_q5', 'b_deepcave', 'b_rs3'];
   function nextBadge() {

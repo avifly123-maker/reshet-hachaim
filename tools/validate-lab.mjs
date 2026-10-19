@@ -11,6 +11,9 @@ import fs from 'node:fs';
 import { ROOM_K, TALK_K, FACTS_K, JOKES_K, ATLAS_K, SCOPE_K, SAMPLES_K, THINK_K, QUEST_K, QUEST_UI_K } from '../src/lab/kids-text.js';
 import { PROBLEMS_K, TRAIT_K, THEMES_K, WILD_K, SAY_K, TRIALS_K, INV_UI_K, NAMES_K, MISSIONS_K, ROBOT_SAY_K } from '../src/data/inventions-kids.js';
 import * as STATION from '../src/lab/station-text.js';   // the station worlds (19.10): every text a pair { f, k }
+import { RULES, THINGS, SORT2_T, CREATURES } from '../src/lab/sort-data.js';   // 1.3.1: the cabinet's bigger games
+import { CLUE_CASES, SUS, ZONES_T, CAB_T } from '../src/lab/clue-cases.js';
+import { OBS_CASES, OBS_T } from '../src/lab/observe-cases.js';
 import { SAMPLES } from '../src/lab/samples.js';
 import { QUESTIONS } from '../src/data/lab-questions.js';
 import { PROBLEMS, TRAIT, THEMES, WILD, SAY, TRIALS, MISSIONS, ROBOT_SAY } from '../src/data/inventions.js';
@@ -136,22 +139,65 @@ for (const id of qs) {
   if (q.how.watch) err('QUEST_K.' + id, 'an observation question (its watch text has no beginners\' version)');
 }
 
-// the five thinking activities: the same things as src/lab/thinking.js (read from its source: it draws on the page)
+// the four thinking activities (המשקל הרועד was removed in 1.3.1): the same things as src/lab/thinking.js (read from its source: it draws on the page)
 const thinkSrc = fs.readFileSync(new URL('../src/lab/thinking.js', import.meta.url), 'utf8');
 const block = (name) => { const i = thinkSrc.indexOf(`const ${name} = [`); return i < 0 ? '' : thinkSrc.slice(i, thinkSrc.indexOf('\n];', i)); };
 const idsIn = (name) => [...block(name).matchAll(/^\s*\{ id: '(\w+)'/gm)].map((m) => m[1]);
-for (const a of ['fair', 'float', 'measure', 'observe', 'cause']) if (!THINK_K.items[a]) err('THINK_K.items', `no ${a}`);
+for (const a of ['fair', 'float', 'observe', 'cause']) if (!THINK_K.items[a]) err('THINK_K.items', `no ${a}`);
 for (const v of idsIn('VARS')) if (!THINK_K.fair.vars[v]) err('THINK_K.fair.vars', `no ${v}`);
 for (const id of idsIn('ITEMS_ALL')) { const it = THINK_K.float.items[id]; if (!it) err('THINK_K.float.items', `no ${id}`); else for (const f of ['name', 'the', 'to', 'why']) if (!it[f]) err('THINK_K.float.items.' + id, `no ${f}`); }
-for (const id of idsIn('WEIGH')) if (!THINK_K.measure.items[id]) err('THINK_K.measure.items', `no ${id}`);
-for (const id of idsIn('SCENES_ALL')) { const s = THINK_K.observe.scenes[id]; if (!s) err('THINK_K.observe.scenes', `no ${id}`); else { if (s.cards.length !== 4) err('THINK_K.observe.scenes.' + id, 'four cards'); if (s.checks.length !== 3) err('THINK_K.observe.scenes.' + id, 'three checks'); } }
+// (ראינו או חשבנו? moved to src/lab/observe-cases.js in 1.3.1: checked below)
 for (const id of idsIn('CASES_ALL')) {
   const c = THINK_K.cause.cases[id]; if (!c) { err('THINK_K.cause.cases', `no ${id}`); continue; }
   const src = block('CASES_ALL'); const at = src.indexOf(`id: '${id}'`); const seg = src.slice(at, src.indexOf("{ id: '", at + 5) > 0 ? src.indexOf("{ id: '", at + 5) : undefined);
   const nTests = ((seg.match(/tests: \[(.*?)\]\],/s) || [])[1] || '').split("], ['").length;
   if (c.tests.length !== nTests) err('THINK_K.cause.cases.' + id, `${c.tests.length} tests, the case has ${nTests}`);
 }
-if (idsIn('ITEMS_ALL').length !== 8 || idsIn('SCENES_ALL').length !== 3 || idsIn('CASES_ALL').length !== 3) warn('thinking.js', 'the lists of thinking.js changed: check THINK_K');
+if (idsIn('ITEMS_ALL').length !== 8 || idsIn('CASES_ALL').length !== 3) warn('thinking.js', 'the lists of thinking.js changed: check THINK_K');
+
+// ── 1.3.1: the cabinet's games (sort-data.js, clue-cases.js, observe-cases.js)
+walkPairs('SORT2_T', SORT2_T); walkPairs('SUS', SUS); walkPairs('ZONES_T', ZONES_T); walkPairs('CAB_T', CAB_T); walkPairs('OBS_T', OBS_T);
+for (const [r, v] of Object.entries(RULES)) { walkPairs(`RULES.${r}.name`, v.name); walkPairs(`RULES.${r}.g`, v.g); }
+THINGS.forEach((t) => walkPairs(`THINGS.${t.id}`, t.name));
+for (const c of CREATURES) { if (!c.name.k || c.name.k === c.name.f) err('CREATURES.' + c.id, `no vocalised name for "${c.name.f}" (NAMES_K)`); if (!fs.existsSync(new URL(`../art/${c.id}.webp`, import.meta.url))) err('CREATURES.' + c.id, 'no card painting'); }
+// a case of the full level only: its texts are { f, k: null }; a beginners' case: every text a full pair
+function walkCase(where, v, kidsOn) {
+  if (v && typeof v === 'object' && !Array.isArray(v) && 'f' in v && 'k' in v) {
+    if (kidsOn) return walkPairs(where, v, 150);
+    if (typeof v.f !== 'string' || !v.f.trim()) err(where, 'no full-level text (f)'); else if (v.f.includes('—')) err(where, `em dash: "${v.f}"`);
+    return;
+  }
+  if (Array.isArray(v)) return v.forEach((x, i) => walkCase(`${where}[${i}]`, x, kidsOn));
+  if (v && typeof v === 'object') for (const [k, x] of Object.entries(v)) walkCase(`${where}.${k}`, x, kidsOn);
+}
+let manifest = []; try { manifest = JSON.parse(fs.readFileSync(new URL('../art/lab-items/manifest.json', import.meta.url), 'utf8')).map((m) => m.id); } catch (e) { warn('art/lab-items/manifest.json', 'missing'); }
+const picRef = (where, ref) => {
+  if (String(ref).startsWith('card:')) { if (!fs.existsSync(new URL(`../art/${ref.slice(5)}.webp`, import.meta.url))) err(where, `no card painting ${ref}`); return; }
+  if (!manifest.includes(ref)) err(where, `the painting "${ref}" is not in art/lab-items/manifest.json`);
+};
+const clueKids = {};
+for (const c of CLUE_CASES) {
+  const w = 'CLUE_CASES.' + c.id;
+  walkCase(w, { title: c.title, what: c.what, d: c.d, no: c.no, yes: c.yes }, !!c.kids);
+  if (!c.pics || c.pics.length < 1 || c.pics.length > 2) err(w, 'one or two pictures'); else c.pics.forEach((p) => picRef(w, p));
+  if (c.d.length < 2 || c.d.length > 3) err(w, 'two or three details');
+  if (c.sus.length !== 4 || new Set(c.sus).size !== 4) err(w, 'four different suspects');
+  for (const s of c.sus) { if (!SUS[s]) err(w, `no name for suspect ${s}`); picRef(w, 'card:' + s); }
+  for (const s of c.sus.slice(1)) if (!c.no[s]) err(w, `no reason why it is not ${s}`);
+  if (c.kids) clueKids[c.zone] = (clueKids[c.zone] || 0) + 1;
+}
+for (const z of ['amazon', 'grove', 'reef']) { const n = CLUE_CASES.filter((c) => c.zone === z).length; if (n < 8) err('CLUE_CASES', `${n} cases in ${z}, at least 8`); if ((clueKids[z] || 0) < 4) err('CLUE_CASES', `${clueKids[z] || 0} beginners' cases in ${z}, at least 4`); }
+let obsKids = 0;
+for (const c of OBS_CASES) {
+  const w = 'OBS_CASES.' + c.id;
+  walkCase(w, { title: c.title, intro: c.intro, cards: c.cards.map((x) => x[0]), checks: c.checks.map((x) => [x[0], x[2]].filter(Boolean)), reveal: c.reveal }, !!c.kids);
+  picRef(w, c.pic); if (c.after) picRef(w, c.after);
+  if (c.cards.length !== 4 || c.cards.filter((x) => x[1] === 'see').length !== 2) err(w, 'four sentences, two seen and two thought');
+  if (c.checks.length !== 3 || c.checks[0][1] !== 1 || c.checks.slice(1).some((x) => x[1] !== 0 || !x[2])) err(w, 'three checks: the first shows what happened, the others say why not');
+  if (c.kids) obsKids++;
+}
+if (OBS_CASES.length < 16) err('OBS_CASES', `${OBS_CASES.length} finds, at least 16`);
+if (obsKids < 8) err('OBS_CASES', `${obsKids} beginners' finds, at least 8`);
 
 for (const w of warns) console.log('warn  ' + w);
 for (const e of errors) console.log('ERROR ' + e);

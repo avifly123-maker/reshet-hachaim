@@ -37,16 +37,16 @@ const STATION_INFO = {
   table: { name: 'שולחן הממציאים', ic: 'bulb', open: 'inventors' },
   aquarium: { name: 'האקווריום', ic: 'drop', menu: ['minireef', 'daynight', 'float'] },
   greenhouse: { name: 'החממה', ic: 'sprout', menu: ['grow', 'seeds', 'fair'] },
-  cabinet: { name: 'ארון האוסף', ic: 'leaf', menu: ['collection', 'sort', 'clues', 'measure', 'observe'] },
+  cabinet: { name: 'ארון האוסף', ic: 'leaf', menu: ['collection', 'sort', 'clues', 'observe'] },
   atlas: { name: 'האטלס', ic: 'book', open: 'atlas' },
 };
 // the activities of the station worlds (the thinking corner's own activities open through THINK_OPEN)
 const ACTS = { minireef: openMiniReef, daynight: openDayNight, grow: openGrow, seeds: openSeeds, collection: openCollection, sort: openSort, clues: openClues };
-const ACT_IC = { minireef: 'drop', daynight: 'moon', float: 'drop', grow: 'sprout', seeds: 'leaf', fair: 'sprout', collection: 'satchel', sort: 'cards', clues: 'search', measure: 'target', observe: 'binoc' };
+const ACT_IC = { minireef: 'drop', daynight: 'moon', float: 'drop', grow: 'sprout', seeds: 'leaf', fair: 'sprout', collection: 'satchel', sort: 'cards', clues: 'search', observe: 'binoc' };
 const ACT_DONE = { minireef: (r) => (r.ends || {}).thriving ? 'done' : r.runs ? 'mid' : '', daynight: (r) => Object.keys(r.found || {}).length >= 8 ? 'done' : r.found ? 'mid' : '',
   grow: (r) => Object.keys(r.ends || {}).length >= 4 ? 'done' : r.ends ? 'mid' : '', seeds: (r) => Object.keys(r.won || {}).length >= 4 ? 'done' : r.tries ? 'mid' : '',
   collection: (r) => (r.max || 0) >= 20 ? 'done' : '', sort: (r) => (r.robotGuessed || 0) >= 1 && (r.childGuessed || 0) >= 2 ? 'done' : r.robotGuessed || r.childGuessed ? 'mid' : '',
-  clues: (r) => Object.keys(r.solved || {}).length >= 7 ? 'done' : r.solved ? 'mid' : '' };
+  clues: (r) => Object.keys(r.solved || {}).length >= 8 ? 'done' : r.solved ? 'mid' : '' };
 // the orange spots on the room picture: a point on each piece of furniture (three's axes); a station outside the picture
 // (the aquarium on the left wall, the greenhouse and the cabinet behind the right edge) gets a spot on that edge, pointing
 const HOT = {

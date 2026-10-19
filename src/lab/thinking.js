@@ -1,22 +1,23 @@
-// מעבדת רובו־דע – "חושבים כמו חוקרים": five small experiments, each one habit of scientific thinking, learnt by doing.
+// מעבדת רובו־דע – "חושבים כמו חוקרים": four small experiments, each one habit of scientific thinking, learnt by doing.
 //   fair     (the greenhouse)  הניסוי ההוגן      change one thing at a time; two changes at once and nobody can tell which did it
 //   float    (the aquarium)    צף או שוקע?       guess before you test; a wrong guess is a discovery (fresh water and Dead Sea water)
-//   measure  (the cabinet)     המשקל הרועד       one measurement can lie; weigh a few times and take the middle one
+//   (המשקל הרועד, the wobbly scale, was removed in 1.3.1 at Avi's request; an old 'measure' record in a save is ignored)
 //   observe  (the cabinet)     ראינו או חשבנו?   what we saw and what we think happened; then a check that decides
 //   cause    (the room)        ביחד או בגלל?     two things that rise together; an experiment shows what causes what
 // Each activity is a panel over the rendered room, with רובו־דע's voice on a strip at its foot (his face changes).
 // Facts are in docs/sources.md (the lab, "חושבים כמו חוקרים"). Progress: labProgress().think (src/lab/progress.js).
-// Badges: lab:fair, lab:float, lab:measure, lab:observe, lab:cause, and lab:thinker for all five (src/data/badges.js).
+// Badges: lab:fair, lab:float, lab:observe, lab:cause, and lab:thinker for all four (src/data/badges.js).
 import { esc, icon } from '../ui/ui.js';
 import { thinkUpdate, thinkOf } from './progress.js';
 import { grant as grantBadge } from '../core/badges-store.js';
 import { labKids, fmt, readMs } from './level.js';
 import { THINK_K } from './kids-text.js';   // the beginners' words: fully vocalised, short bubbles
+import { OBS_CASES, OBS_T } from './observe-cases.js';   // ראינו או חשבנו? (1.3.1: 19 finds)
+import { picHTML, PICS_CSS } from './lab-pics.js';
 
 export const THINK = [
   { id: 'fair', name: 'הניסוי ההוגן', habit: 'משנים רק דבר אחד בכל פעם', st: 'greenhouse', where: 'בחממה', ic: 'sprout' },
   { id: 'float', name: 'צף או שוקע?', habit: 'מנחשים לפני שבודקים', st: 'aquarium', where: 'באקווריום', ic: 'drop' },
-  { id: 'measure', name: 'המשקל הרועד', habit: 'מודדים יותר מפעם אחת', st: 'cabinet', where: 'בארון האוסף', ic: 'target' },
   { id: 'observe', name: 'ראינו או חשבנו?', habit: 'מפרידים בין מה שראינו למה שחשבנו', st: 'cabinet', where: 'בארון האוסף', ic: 'binoc' },
   { id: 'cause', name: 'ביחד או בגלל?', habit: 'ביחד זה עוד לא בגלל', st: 'home', where: 'בחדר', ic: 'web' },
 ];
@@ -90,25 +91,15 @@ function growPot(p) {
   h += (Math.random() - 0.5) * 1.2;
   return { h: Math.round(h * 10) / 10, leaves, green, droop, pale, note, nk };
 }
-function potSVG(p, g) {
-  const soil = p.soil === 'sand' ? '#e2c48a' : '#5a3b22';
-  const bg = p.light === 'dark' ? '<rect x="8" y="6" width="144" height="196" rx="10" fill="#2a2420"/><path d="M8 6h144v14H8z" fill="#3a3028"/>' : '<circle cx="132" cy="28" r="14" fill="#ffd45a"/><circle cx="132" cy="28" r="22" fill="#ffd45a" opacity=".25"/>';
-  const wet = p.water === 'much' ? '<path d="M48 160h64v6H48z" fill="#6fb6e8" opacity=".85"/>' : '';
-  let plant = '';
-  if (g) {
-    const len = Math.min(150, g.h * 6.2), top = 160 - len;
-    const col = g.pale ? '#d9d27a' : `hsl(${Math.round(70 + 45 * g.green)},${Math.round(30 + 35 * g.green)}%,${Math.round(46 - 8 * g.green)}%)`;
-    const bend = g.droop ? 22 : 0;
-    plant = `<path class="lt-stem" d="M80 160 Q${80 + bend * 0.4} ${top + len * 0.5} ${80 + bend} ${top + bend * 0.5}" stroke="${g.pale ? '#cfc77a' : '#4a8a3a'}" stroke-width="${g.pale ? 2.2 : 4}" fill="none" stroke-linecap="round"/>`;
-    for (let i = 0; i < g.leaves; i++) {
-      const k = 0.35 + 0.65 * (i + 1) / g.leaves, y = 160 - len * k + (g.droop ? bend * k * 0.5 : 0), x = 80 + bend * k * k;
-      const s = (g.pale ? 0.5 : 1) * (0.7 + 0.3 * k), side = i % 2 ? 1 : -1, tilt = side * (g.droop ? 70 : 35);
-      plant += `<ellipse cx="${x + side * 12 * s}" cy="${y}" rx="${13 * s}" ry="${5.5 * s}" fill="${col}" transform="rotate(${tilt} ${x} ${y})"/>`;
-    }
-  } else plant = '<ellipse cx="80" cy="151" rx="8" ry="5" fill="#efe6c8" stroke="#8a6a3a" stroke-width="1.5"/><path d="M80 146q2-5 6-6" stroke="#6aa84f" stroke-width="2" fill="none" stroke-linecap="round"/>';
-  return `<svg class="lt-pot" viewBox="0 0 160 210" role="img" aria-label="עציץ">${bg}${plant}
-    <path d="M44 160h72l-8 44H52z" fill="#c8693a"/><path d="M40 156h80v10H40z" fill="#d97a48"/><path d="M46 158h68v4H46z" fill="${soil}"/>${wet}
-    </svg>`;
+// a pot: the painting of the seedling it grew (art/lab-items/fair-<result>.webp; before growing, the seed), what it gets
+// as small signs on the picture, and a ruler with the height. No colour says "good" before the plants have grown.
+function potHTML(p, g, k, label) {
+  const ref = g ? 'fair-' + g.nk : 'fair-seed';
+  const drops = { little: 1, mid: 2, much: 3 }[p.water] || 2;
+  const H = 25, h = g ? Math.max(0, Math.min(H, g.h)) : 0;
+  return `<div class="lt-potpic ${p.light === 'dark' ? 'dark' : ''} ${g ? 'grown' : ''}">${picHTML(ref, label)}
+    <span class="lt-cond"><i class="${p.light}">${icon(p.light === 'dark' ? 'moon' : 'sun')}</i><i class="w">${[...Array(drops)].map(() => icon('drop')).join('')}</i><i class="s ${p.soil}"></i></span>
+    ${g ? `<span class="lt-ruler" aria-hidden="true"><i style="height:${(h / H * 100).toFixed(0)}%"></i></span>` : ''}</div>`;
 }
 export function openFair(root, ctx) {
   const a = thinkById('fair'); const S = shell(root, a, ctx);
@@ -119,10 +110,12 @@ export function openFair(root, ctx) {
   const diffs = () => VS.filter((v) => pots[0][v.id] !== pots[1][v.id]);
   function render() {
     const R = thinkOf('fair'); const d = diffs();
-    const potCard = (i) => `<section class="lt-potc"><b>${k ? K.pot : 'עציץ'} ${i ? 'ב' : 'א'}</b>${potSVG(pots[i], grown && grown[i])}<small class="lt-note">${grown ? `${grown[i].h.toLocaleString('he-IL')} ס"מ · ${esc(k ? K.notes[grown[i].nk] : grown[i].note)}` : k ? K.seed : 'זרע באדמה'}</small>
+    const potCard = (i) => `<section class="lt-potc"><b>${k ? K.pot : 'עציץ'} ${i ? 'ב' : 'א'}</b>${potHTML(pots[i], grown && grown[i], k, (k ? K.pot : 'עציץ') + ' ' + (i ? 'ב' : 'א'))}<small class="lt-note ${grown ? (grown[i].nk === 'ok' ? 'good' : 'weak') : ''}">${grown ? `${grown[i].h.toLocaleString('he-IL')} ס"מ · ${esc(k ? K.notes[grown[i].nk] : grown[i].note)}` : k ? K.seed : 'זרע באדמה'}</small>
       ${VS.map((v) => `<div class="lt-seg" role="group" aria-label="${v.name}"><span>${v.name}</span>${v.opts.map(([k, t]) => `<button data-pot="${i}" data-v="${v.id}" data-o="${k}" class="${pots[i][v.id] === k ? 'on' : ''}" ${busy ? 'disabled' : ''}>${t}</button>`).join('')}</div>`).join('')}</section>`;
-    const tag = k ? (d.length === 0 ? `<span class="lt-tag same">${K.same}</span>` : d.length === 1 ? `<span class="lt-tag ok">${fmt(K.one, { the: d[0].the })}</span>` : `<span class="lt-tag many">${fmt(K.many, { list: d.map((v) => v.the).join(K.and) })}</span>`)
-      : d.length === 0 ? '<span class="lt-tag same">אין הבדל בין העציצים</span>' : d.length === 1 ? `<span class="lt-tag ok">שונה רק ${d[0].the}</span>` : `<span class="lt-tag many">שונים ${d.map((v) => v.the).join(' וגם ')}</span>`;
+    // the tag only says what differs; its colour (fair or not) shows after growing
+    const tc = grown ? (d.length === 1 ? 'ok' : d.length ? 'many' : 'same') : 'same';
+    const tag = k ? (d.length === 0 ? `<span class="lt-tag ${tc}">${K.same}</span>` : d.length === 1 ? `<span class="lt-tag ${tc}">${fmt(K.one, { the: d[0].the })}</span>` : `<span class="lt-tag ${tc}">${fmt(K.many, { list: d.map((v) => v.the).join(K.and) })}</span>`)
+      : d.length === 0 ? `<span class="lt-tag ${tc}">אין הבדל בין העציצים</span>` : d.length === 1 ? `<span class="lt-tag ${tc}">שונה רק ${d[0].the}</span>` : `<span class="lt-tag ${tc}">שונים ${d.map((v) => v.the).join(' וגם ')}</span>`;
     S.body.innerHTML = `<div class="lt-fair">${potCard(0)}
       <section class="lt-mid">${tag}<button class="lt-go" data-act="grow" ${busy ? 'disabled' : ''}>${icon('sprout')}${grown ? (k ? K.again : 'לגדל שוב') : (k ? K.grow : 'לגדל שלושה שבועות')}</button>
         <div class="lt-book"><small>${k ? K.book : 'המחברת: מה גילינו בניסוי הוגן'}</small>${VS.map((v) => `<span class="${R[v.id] ? 'on' : ''}">${R[v.id] ? icon('check') : ''}${v.name}${R[v.id] ? '' : '?'}</span>`).join('')}</div></section>
@@ -133,7 +126,7 @@ export function openFair(root, ctx) {
     S.talk(k ? K.growing : 'מגדלים... שלושה שבועות עוברים מהר כשאתם רובוט.', 'curious');
     S.later(() => {
       grown = [growPot(pots[0]), growPot(pots[1])]; busy = false; render(); S.sfx('discover');
-      S.body.querySelectorAll('.lt-pot').forEach((s) => s.classList.add('grow'));
+      S.body.querySelectorAll('.lt-potpic').forEach((s) => s.classList.add('grow'));
       const d = diffs();
       if (d.length === 0) {
         const dh = Math.abs(grown[0].h - grown[1].h).toLocaleString('he-IL');
@@ -159,7 +152,7 @@ export function openFair(root, ctx) {
       else if (vals.has('much')) { line = 'הרבה מאוד מים, והנבט נחלש! השורשים צריכים גם אוויר, ובאדמה מוצפת אין להם.'; thinkUpdate('fair', (r) => { r.toomuch = 1; }); }
       else line = 'עם מעט מים הנבט קטן ונבול. בלי מספיק מים קשה לגדול.';
       thinkUpdate('fair', (r) => { r[v.id] = 1; });
-      const R = thinkOf('fair'); render(); S.body.querySelectorAll('.lt-pot').forEach((s) => s.classList.add('grow'));
+      const R = thinkOf('fair'); render(); S.body.querySelectorAll('.lt-potpic').forEach((s) => s.classList.add('grow'));
       if (VARS.every((x) => R[x.id]) && !R.done) {
         finish('fair'); S.sfx('mission');
         if (k) S.talk([fmt(K.fairOne, { the: v.the }), ...kl, K.full], 'wow');
@@ -268,175 +261,47 @@ export function openFloat(root, ctx) {
   return { close: S.close, debug: { pickItem: (id, w) => { cur = ITEMS.find((x) => x.id === id); water = w || 0; phase = 'pick'; render(); }, drop } };
 }
 
-// ═════════════════════════════════════════ 3. המשקל הרועד (the cabinet)
-// An old wobbly scale: every weighing is a little off, and now and then something shakes it. Weigh as many times as you
-// like, then choose what goes in the notebook: the first, the last, or the middle one. The lab's exact scale decides.
-const WEIGH = [
-  { id: 'acorn', name: 'בלוט', min: 4, max: 9 },
-  { id: 'shell', name: 'קונכייה', min: 9, max: 20 },
-  { id: 'pebble', name: 'חלוק', min: 25, max: 55 },
-  { id: 'cone', name: 'אצטרובל', min: 40, max: 80 },
-];
-const SHAKES = ['רגע, דג קפץ באקווריום ונבהלתי.', 'אופס, התעטשתי. רובוטים מתעטשים? מסתבר שכן.', 'רוח נכנסה מהחלון ונשבה על המשקל.', 'נשענתי על השולחן בטעות.'];
-const median = (a) => { const s = [...a].sort((x, y) => x - y), n = s.length; return n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2; };
-export function openMeasure(root, ctx) {
-  const a = thinkById('measure'); const S = shell(root, a, ctx);
-  const k = S.kids, K = THINK_K.measure;
-  const W = k ? WEIGH.map((w) => ({ ...w, name: K.items[w.id] })) : WEIGH;
-  let item, truth, reads, chosen, busy = false, shown = null, shakeI = 0;
-  function round(i) {
-    item = i != null ? W[i] : W[Math.floor(Math.random() * W.length)];
-    truth = item.min + Math.round(Math.random() * (item.max - item.min)); reads = []; chosen = null; shown = null;
-  }
-  const noise = () => (Math.random() + Math.random() + Math.random() - 1.5) * 2.6;
-  function render() {
-    const R = thinkOf('measure');
-    const top = Math.ceil(item.max * 1.35 / 10) * 10;
-    const ang = shown == null ? 90 : 90 - 180 * Math.max(0, Math.min(1, shown / top));   // RTL: zero on the right
-    const ticks = Array.from({ length: 11 }, (_, k) => { const t = (-90 + k * 18) * Math.PI / 180; return `<path d="M${100 + Math.sin(t) * 70} ${100 - Math.cos(t) * 70}L${100 + Math.sin(t) * (k % 5 ? 62 : 56)} ${100 - Math.cos(t) * (k % 5 ? 62 : 56)}" stroke="#3a2a14" stroke-width="${k % 5 ? 1.5 : 2.5}"/>`; }).join('');
-    const lo = Math.max(0, Math.min(truth - 10, ...reads)), hi = Math.max(lo + 20, truth + 10, ...reads);
-    const X = (v) => 12 + (hi - v) / (hi - lo) * 276;   // RTL: small on the right, big on the left
-    const srt = [...reads].sort((x, y) => x - y); const mid = reads.length >= 3 ? median(reads) : null;
-    const dots = reads.map((v, i) => `<circle cx="${X(v)}" cy="${30 - 8 * reads.slice(0, i).filter((u) => u === v).length}" r="6" class="${mid != null && v === mid ? 'm' : ''}"/>`).join('');
-    const opts = [['first', k ? K.opts.first : 'המדידה הראשונה', reads.length >= 1], ['last', k ? K.opts.last : 'המדידה האחרונה', reads.length >= 2], ['mid', k ? K.opts.mid : 'האמצעית', reads.length >= 3]];
-    const gram = k ? K.gram : 'גרם';
-    S.body.innerHTML = `<div class="lt-measure">
-      <section class="lt-scale"><div class="lt-item-big">${item.name}</div>
-        <svg viewBox="0 0 200 128" role="img" aria-label="משקל"><path d="M22 104A78 78 0 0 1 178 104z" fill="#f6edcf" stroke="#8a6a2a" stroke-width="4"/>${ticks}
-          <text x="${100 + 66}" y="118" class="lt-sc" text-anchor="end">0</text><text x="${100 - 66}" y="118" class="lt-sc">${top}</text>
-          <g class="lt-needle" style="transform:rotate(${ang}deg)"><path d="M100 100L100 40" stroke="#b8322a" stroke-width="3.5" stroke-linecap="round"/></g><circle cx="100" cy="100" r="7" fill="#3a2a14"/></svg>
-        <div class="lt-read">${shown == null ? (k ? K.notYet : 'עוד לא שקלנו') : `${shown} ${gram}`}</div>
-        <button class="lt-go" data-act="weigh" ${busy || chosen ? 'disabled' : ''}>${icon('target')}${k ? (reads.length ? K.again : K.weigh) : `לשקול${reads.length ? ' שוב' : ''}`}</button></section>
-      <section class="lt-reads"><small>${k ? K.reads : 'המדידות שלנו'} (${reads.length})</small>
-        <svg class="lt-line" viewBox="0 0 300 62" aria-hidden="true"><path d="M8 38H292" stroke="#8a7a50" stroke-width="2"/>${Array.from({ length: Math.floor(hi / 5) - Math.ceil(lo / 5) + 1 }, (_, k) => { const v = (Math.ceil(lo / 5) + k) * 5; return `<path d="M${X(v)} 34V42" stroke="#8a7a50" stroke-width="1.5"/><text x="${X(v)}" y="56" text-anchor="middle" class="lt-sc">${v}</text>`; }).join('')}${dots}
-          ${chosen ? `<path d="M${X(truth)} 8V46" stroke="#2c7a3a" stroke-width="3" stroke-dasharray="4 3"/>` : ''}</svg>
-        <div class="lt-chips">${srt.map((v) => `<span class="${mid != null && v === mid ? 'm' : ''}">${v}</span>`).join('') || `<em>${k ? K.press : 'לחצו "לשקול"'}</em>`}</div>
-        ${reads.length >= 3 && !chosen ? `<p class="lt-tip">${k ? K.tip : 'מסדרים מהקטן לגדול. האמצעית היא זו שבאמצע.'}</p>` : ''}
-        <small>${k ? K.write : 'מה נכתוב במחברת?'}</small><div class="lt-opts">${opts.map(([k, t, ok]) => `<button data-pick="${k}" class="${chosen === k ? 'on' : ''}" ${!ok || chosen || busy ? 'disabled' : ''}>${t}</button>`).join('')}</div>
-        ${chosen ? `<button class="lt-go" data-act="next">${icon('undo')}${k ? K.other : 'לשקול משהו אחר'}</button>` : ''}
-        <div class="lt-wins">${icon('check')}<b>${R.good || 0}</b> ${k ? K.wins : 'מתוך 3 פעמים קרוב בעזרת האמצעית'}</div></section></div>`;
-  }
-  function weigh() {
-    if (busy || chosen) return; busy = true; S.sfx('click');
-    const shake = reads.length > 0 && Math.random() < 0.22;
-    let v = Math.round(truth + noise() + (shake ? (Math.random() < 0.5 ? -1 : 1) * (7 + Math.random() * 4) : 0)); v = Math.max(0, v);
-    reads.push(v);
-    // the needle wobbles before it settles
-    const seq = [v + 6, v - 4, v + 2, v];
-    shown = seq[0]; render();
-    seq.slice(1).forEach((x, i) => S.later(() => { shown = x; const n = S.body.querySelector('.lt-needle'); const top = Math.ceil(item.max * 1.35 / 10) * 10; if (n) n.style.transform = `rotate(${90 - 180 * Math.max(0, Math.min(1, x / top))}deg)`; const r = S.body.querySelector('.lt-read'); if (r) r.textContent = x + ' ' + (k ? K.gram : 'גרם'); }, 220 * (i + 1)));
-    S.later(() => {
-      busy = false; render();
-      if (k) {
-        if (shake) S.talk([K.shakes[shakeI++ % K.shakes.length], K.odd], 'oops');
-        else if (reads.length === 1) S.talk(fmt(K.one, { v }), 'curious');
-        else if (reads.length === 2) S.talk(reads[0] === reads[1] ? K.twice : fmt(K.differ, { a: reads[0], v }), 'curious');
-        else S.talk(fmt(pick(K.more), { n: reads.length }), 'happy');
-        return;
-      }
-      if (shake) S.talk(`${SHAKES[shakeI++ % SHAKES.length]} המדידה הזאת יצאה משונה.`, 'oops');
-      else if (reads.length === 1) S.talk(`${v} גרם. זה המשקל? אולי. המשקל שלי קצת רועד.`, 'curious');
-      else if (reads.length === 2) S.talk(reads[0] === reads[1] ? 'אותו מספר פעמיים! יופי. אבל ליתר ביטחון?' : `רגע, קודם יצא ${reads[0]} ועכשיו ${v}. איזה מהם נכון?`, 'curious');
-      else S.talk(pick(['עוד מדידה בשביל המחברת.', 'המחט רוקדת, אבל מסתובבת סביב אותו מקום.', `כבר ${reads.length} מדידות. רואים איפה רוב הנקודות?`]), 'happy');
-    }, 950);
-  }
-  function choose(c) {
-    if (chosen || busy) return;
-    const k = c;   // the choice ('first', 'last', 'mid'); the beginners' branch below reads S.kids
-    const val = k === 'first' ? reads[0] : k === 'last' ? reads[reads.length - 1] : median(reads);
-    chosen = k; const d = Math.abs(val - truth), close = d <= 2;
-    const R = thinkUpdate('measure', (r) => { r.rounds = (r.rounds || 0) + 1; if (k === 'mid' && close) r.good = (r.good || 0) + 1; });
-    render(); S.sfx(close ? 'quizRight' : 'quizWrong');
-    if (S.kids) {
-      const KM = THINK_K.measure;
-      const said = fmt(KM.exact, { t: truth, v: String(val).replace('.5', KM.half) });
-      const ln = c === 'mid' ? (close ? KM.midClose : KM.midFar) : close ? KM.luck : KM.far;
-      S.talk([said, ...[].concat(ln)], close ? (c === 'mid' ? 'wow' : 'happy') : 'oops');
-      if ((R.good || 0) >= 3 && !R.done) { finish('measure'); S.sfx('mission'); S.later(() => S.talk(KM.done, 'wow'), 4200); }
-      return;
-    }
-    const exact = `המשקל המדויק של המעבדה: ${truth} גרם. כתבנו ${String(val).replace('.5', ' וחצי')}.`;
-    let line;
-    if (k === 'mid') line = close ? 'האמצעית ניצחה! כשמודדים כמה פעמים ולוקחים את האמצעית, מדידה משונה אחת לא מקלקלת.' : 'הפעם גם האמצעית פספסה. זה קורה! עוד כמה מדידות יעזרו.';
-    else line = close ? 'יצא קרוב. הפעם היה מזל! מדידה אחת יכולה גם לבלבל.' : `יצא רחוק, ב־${d} גרם. מדידה אחת בלבלה אותנו. אולי כדאי למדוד כמה פעמים?`;
-    S.talk(`${exact} ${line}`, close ? (k === 'mid' ? 'wow' : 'happy') : 'oops');
-    if ((R.good || 0) >= 3 && !R.done) { finish('measure'); S.sfx('mission'); S.later(() => S.talk('שלוש פעמים קרוב בעזרת האמצעית! ככה עושים חוקרים: לא סומכים על מדידה אחת, מודדים שוב ושוב.', 'wow'), 4200); }
-  }
-  S.el.addEventListener('click', (e) => {
-    const b = e.target.closest('button'); if (!b) return;
-    if (b.dataset.act === 'weigh') weigh();
-    else if (b.dataset.pick) choose(b.dataset.pick);
-    else if (b.dataset.act === 'next') { round(); render(); S.talk(k ? fmt(K.nextItem, { name: item.name }) : `עכשיו ${item.name}. כמה פעמים נשקול הפעם?`, 'happy'); }
-  });
-  round(0); render();
-  if (k) S.talk(K.intro, 'happy');
-  else S.talk('זה המשקל הישן שלי. הוא קצת רועד, כמו רובוט בבוקר. כמה שוקל הבלוט? שקלו, ואז החליטו מה לכתוב במחברת.', 'happy');
-  return { close: S.close, debug: { weigh, choose, get truth() { return truth; }, get reads() { return reads; } } };
-}
-
 // ═════════════════════════════════════════ 4. ראינו או חשבנו? (the cabinet)
-// Three small finds. Sort each sentence: did we see it, or do we think it? Then choose a way to check, and see what was true.
-const SCENES_ALL = [
-  { id: 'tracks', title: 'סימנים בבוץ', intro: 'בבוקר מצאנו בחורש, ליד השלולית, סימנים בבוץ.',
-    cards: [['בבוץ יש סימנים בצורת לב הפוך', 'see'], ['הסימנים הולכים בשורה אל השלולית', 'see'], ['צבי בא לשתות', 'think'], ['הצבי בא לשתות ביום', 'think']],
-    checks: [['להציב מצלמת לילה ליד השלולית', 1], ['לספור כמה סימנים יש', 0, 'ספרנו: שנים־עשר סימנים. נחמד! אבל מי השאיר אותם? הספירה לא אומרת.'], ['לשאול את רובו־דע מה דעתו', 0, 'לדעתי זו הייתה ג׳ירפה. רואים? גם לי יש פרשנויות. ניחוש של רובוט הוא לא בדיקה!']],
-    reveal: 'המצלמה צילמה צבי ששותה מהשלולית באמצע הלילה, והסימנים שלו בבוץ נראו בדיוק כמו אלה שמצאנו. אז "צבי בא לשתות" כנראה נכון, ו"ביום" כנראה לא: הצבאים באים לשתות בלילה. בשביל זה בודקים.' },
-  { id: 'leaf', title: 'העלה האכול', intro: 'בבוקר מצאנו בחממה עלה אכול.',
-    cards: [['בשולי העלה יש חורים', 'see'], ['על העלה יש פס דק ומבריק', 'see'], ['מישהו רעב אכל את העלה', 'think'], ['זחל של פרפר אכל אותו', 'think']],
-    checks: [['לבדוק את העלה בלילה, עם פנס', 1], ['לחכות שהעלה יגדל בחזרה', 0, 'חיכינו שבוע. העלה לא גדל בחזרה, ורובו־דע נרדם.'], ['לנחש מה הכי סביר', 0, 'ניחוש הוא עוד פרשנות. כדי לדעת, צריך לראות!']],
-    reveal: 'בלילה, באור הפנס, מצאנו על העלה חילזון! הפס המבריק הוא השביל שהחילזון משאיר אחריו. אז "מישהו רעב" היה נכון, ו"זחל של פרפר" לא.' },
-  { id: 'glass', title: 'הכוס הבוכה', intro: 'השארנו על השולחן כוס מים עם קרח. אחרי זמן קצר:',
-    cards: [['על הכוס מבחוץ יש טיפות מים', 'see'], ['מסביב לכוס יש שלולית קטנה', 'see'], ['הכוס סדוקה, והמים יוצאים ממנה', 'think'], ['רובו־דע שפך מים, כרגיל', 'think']],
-    checks: [['לצבוע באדום את המים שבכוס', 1], ['לנגב ולחכות', 0, 'ניגבנו וחיכינו, והטיפות חזרו! מעניין... אבל מאיפה הן באות? נסו דרך שתראה אם הן יוצאות מתוך הכוס.'], ['לשאול את רובו־דע אם הוא שפך', 0, 'לא שפכתי! כמעט בטוח. טוב, בואו נבדוק בדרך אחרת.']],
-    reveal: 'המים בכוס אדומים, והטיפות בחוץ שקופות! אז הן לא יצאו מהכוס. הן באו מהאוויר: באוויר יש מים שאי אפשר לראות, וליד הכוס הקרה הם נעשים טיפות. הכוס לא סדוקה, ורובו־דע לא אשם!' },
-];
-function sceneSVG(id, after, thumbs) {
-  if (id === 'tracks') {
-    if (after && thumbs && thumbs.gazelle) return `<div class="lt-cam"><img src="${thumbs.gazelle}" alt="צבי"><span>מצלמת לילה · 02:40</span></div>`;
-    const heart = (x, y, r) => `<g transform="translate(${x} ${y}) rotate(${r})"><path d="M-6 -9q-5 6 -3 14q2 3 6 2q-1-8-3-16z" fill="#4a3220"/><path d="M6 -9q5 6 3 14q-2 3-6 2q1-8 3-16z" fill="#4a3220"/></g>`;
-    return `<svg viewBox="0 0 300 170" role="img" aria-label="סימנים בבוץ"><rect width="300" height="170" fill="#b08a5a"/><ellipse cx="60" cy="70" rx="58" ry="34" fill="#6aa8c8"/><ellipse cx="60" cy="66" rx="44" ry="22" fill="#8cc4dc"/>
-      ${[[250, 140, -70], [222, 122, -70], [196, 108, -68], [168, 92, -66], [140, 82, -64]].map(([x, y, r]) => heart(x, y, r)).join('')}<path d="M0 160q80-12 160 0t140 0v10H0z" fill="#8a6a3a"/></svg>`;
-  }
-  if (id === 'leaf') {
-    const snail = after ? '<g transform="translate(176 92)"><path d="M-22 10q10-6 30-2q8 2 10 6H-24z" fill="#c8b48a"/><circle cx="0" cy="0" r="13" fill="#b07a3a"/><path d="M0 0m-8 0a8 8 0 1 0 8-8a5 5 0 1 0 5 5" stroke="#6a4a1a" stroke-width="2" fill="none"/><path d="M-20 6l-6-10M-17 6l-2-11" stroke="#c8b48a" stroke-width="2"/></g>' : '';
-    return `<svg viewBox="0 0 300 170" role="img" aria-label="עלה אכול"><rect width="300" height="170" fill="${after ? '#1c2a22' : '#e9f2dc'}"/>${after ? '<circle cx="176" cy="92" r="70" fill="#f6edb8" opacity=".25"/>' : ''}
-      <path d="M40 140Q60 30 260 30Q240 140 40 140z" fill="#5aa845"/><path d="M40 140Q150 90 260 30" stroke="#3f7a30" stroke-width="3" fill="none"/>
-      <g fill="${after ? '#1c2a22' : '#e9f2dc'}"><circle cx="248" cy="58" r="11"/><circle cx="230" cy="96" r="9"/><circle cx="120" cy="52" r="10"/><circle cx="72" cy="126" r="8"/></g>
-      <path d="M90 116q40-30 80-20t70-34" stroke="#e8f4f8" stroke-width="3" fill="none" opacity=".85"/>${snail}</svg>`;
-  }
-  const red = after ? '#d8423a' : '#bfe4f6';
-  return `<svg viewBox="0 0 300 170" role="img" aria-label="כוס עם קרח"><rect width="300" height="170" fill="#e8dcc0"/><rect y="132" width="300" height="38" fill="#b8925a"/>
-    <ellipse cx="150" cy="140" rx="62" ry="9" fill="#9cc8e0" opacity=".8"/>
-    <path d="M114 40h72l-8 98h-56z" fill="rgba(255,255,255,.35)" stroke="#8aa8b8" stroke-width="3"/><path d="M118 62h64l-6 74h-52z" fill="${red}" opacity=".85"/>
-    <rect x="128" y="66" width="18" height="16" rx="3" fill="#fff" opacity=".8" transform="rotate(-12 137 74)"/><rect x="152" y="72" width="16" height="15" rx="3" fill="#fff" opacity=".8" transform="rotate(14 160 80)"/>
-    <g fill="#e6f6ff" stroke="#7ab0cc" stroke-width="1">${[[112, 70], [109, 92], [115, 112], [189, 66], [191, 88], [186, 110], [120, 128], [183, 126]].map(([x, y]) => `<ellipse cx="${x}" cy="${y}" rx="3.4" ry="4.6"/>`).join('')}</g></svg>`;
-}
+// Finds from all three zones (observe-cases.js, 19 of them; beginners see eight). Sort each sentence: did we see it, or do we
+// think it? Then choose a way to check, and see what was true. Five solved fill the notebook (the badge); all of them, one more.
 export function openObserve(root, ctx) {
   const a = thinkById('observe'); const S = shell(root, a, ctx);
   const k = S.kids, K = THINK_K.observe;
-  // beginners: the same three finds, in vocalised words (the right check stays the same)
-  const SCENES = k ? SCENES_ALL.map((sc) => { const t = K.scenes[sc.id]; return { ...sc, title: t.title, intro: t.intro, reveal: t.reveal,
-    cards: sc.cards.map(([, kind], i) => [t.cards[i], kind]), checks: sc.checks.map(([, ok, line], i) => [t.checks[i][0], ok, line == null ? line : t.checks[i][1]]) }; }) : SCENES_ALL;
-  let si = 0, placed = {}, stage = 'sort', order = [];
-  const shuffle = () => { order = [0, 1, 2, 3].sort(() => Math.random() - 0.5); };
+  const W = (v) => (v && typeof v === 'object' && 'f' in v ? (k ? v.k : v.f) : v);   // a pair in the child's words
+  const ONE = (v) => [].concat(W(v)).join(' ');
+  const LIST = OBS_CASES.filter((c) => !k || c.kids);
+  let ci = 0, placed = {}, stage = 'sort', order = [], checkOrder = [];
+  const solvedN = () => { const R = thinkOf('observe'); return LIST.filter((x) => R[x.id]).length; };
   function render() {
-    const R = thinkOf('observe'); const sc = SCENES[si];
+    const R = thinkOf('observe'); const sc = LIST[ci];
     const saw = k ? K.saw : 'ראינו', thought = k ? K.thought : 'חשבנו';
     const all = sc.cards.every((_, i) => placed[i]);
-    S.body.innerHTML = `<div class="lt-obs">
-      <nav class="lt-tabs">${SCENES.map((x, i) => `<button data-sc="${i}" class="${i === si ? 'on' : ''} ${R[x.id] ? 'done' : ''}">${R[x.id] ? icon('check') : ''}${x.title}</button>`).join('')}</nav>
-      <section class="lt-pic"><p>${esc(sc.intro)}</p>${sceneSVG(sc.id, stage === 'reveal', ctx.thumbs)}</section>
-      <section class="lt-sort">${stage === 'sort' ? `<small>${k ? K.sort : 'כל משפט: ראינו אותו בעיניים, או שרק חשבנו?'}</small>
-        ${order.map((i) => { const [t] = sc.cards[i]; const p = placed[i]; return `<div class="lt-card ${p ? 'ok ' + p : ''}" data-ci="${i}"><span>${esc(t)}</span>${p ? `<em>${p === 'see' ? icon('binoc') + saw : icon('bulb') + thought}</em>` : `<button data-k="see">${icon('binoc')}${saw}</button><button data-k="think">${icon('bulb')}${thought}</button>`}</div>`; }).join('')}
-        ${all ? `<button class="lt-go" data-act="checks">${k ? K.how : 'איך נבדוק מה קרה באמת?'}</button>` : ''}`
-      : stage === 'check' ? `<small>${k ? K.howShort : 'איך נבדוק?'}</small>${sc.checks.map(([t], i) => `<button class="lt-check" data-chk="${i}">${esc(t)}</button>`).join('')}`
-      : `<div class="lt-reveal">${icon('search')}<div>${[].concat(sc.reveal).map((t) => `<p>${esc(t)}</p>`).join('')}</div></div>${si < SCENES.length - 1 ? `<button class="lt-go" data-sc="${si + 1}">${k ? K.next : 'לממצא הבא'}</button>` : ''}`}</section></div>`;
+    S.body.innerHTML = `<div class="lt-obs2">
+      <p class="lt-explain">${icon('binoc')}<span>${esc(ONE(OBS_T.explain))}</span></p>
+      <nav class="lt-strip">${LIST.map((x, i) => `<button data-sc="${i}" class="${i === ci ? 'on' : ''} ${R[x.id] ? 'done' : ''}" title="${esc(ONE(x.title))}">${picHTML(x.pic, ONE(x.title))}${R[x.id] ? `<i class="ok">${icon('check')}</i>` : ''}</button>`).join('')}</nav>
+      <div class="lt-obs-main">
+        <section class="lt-pic2"><h3>${esc(ONE(sc.title))} <small>${esc(fmt(ONE(OBS_T.of), { n: ci + 1, all: LIST.length }))}</small></h3><p>${esc(ONE(sc.intro))}</p>
+          <div class="lt-figs ${stage === 'reveal' && sc.after ? 'two' : ''}"><figure>${picHTML(sc.pic, ONE(sc.title))}</figure>
+            ${stage === 'reveal' && sc.after ? `<figure class="after">${picHTML(sc.after, '', { thumbs: ctx.thumbs })}<figcaption>${esc(ONE(OBS_T.camera))}</figcaption></figure>` : ''}</div></section>
+        <section class="lt-sort">${stage === 'sort' ? `<small>${k ? K.sort : 'כל משפט: ראינו אותו בעיניים, או שרק חשבנו?'}</small>
+          ${order.map((i) => { const t = ONE(sc.cards[i][0]); const p = placed[i]; return `<div class="lt-card ${p ? 'ok ' + p : ''}" data-ci="${i}"><span>${esc(t)}</span>${p ? `<em>${p === 'see' ? icon('binoc') + saw : icon('bulb') + thought}</em>` : `<button data-k="see">${icon('binoc')}${saw}</button><button data-k="think">${icon('bulb')}${thought}</button>`}</div>`; }).join('')}
+          ${all ? `<button class="lt-go" data-act="checks">${k ? K.how : 'איך נבדוק מה קרה באמת?'}</button>` : ''}`
+        : stage === 'check' ? `<small>${k ? K.howShort : 'איך נבדוק?'}</small>${checkOrder.map((i) => `<button class="lt-check" data-chk="${i}">${esc(ONE(sc.checks[i][0]))}</button>`).join('')}`
+        : `<div class="lt-reveal">${icon('search')}<div>${[].concat(W(sc.reveal)).map((t) => `<p>${esc(t)}</p>`).join('')}</div></div>${LIST.length > 1 ? `<button class="lt-go" data-act="nextsc">${k ? K.next : 'לממצא הבא'}</button>` : ''}`}</section></div></div>`;
+    const on = S.body.querySelector('.lt-strip .on'); if (on && on.scrollIntoView) try { on.scrollIntoView({ block: 'nearest', inline: 'nearest' }); } catch (e) { /* */ }
   }
-  function open(i) { si = i; placed = {}; stage = 'sort'; shuffle(); render(); S.talk(k ? fmt(K.open, { intro: SCENES[i].intro }) : SCENES[i].intro + ' מה ראינו בעיניים, ומה אנחנו רק חושבים?', 'curious'); }
+  function open(i) {
+    ci = (i + LIST.length) % LIST.length; placed = {}; stage = 'sort';
+    order = [0, 1, 2, 3].sort(() => Math.random() - 0.5); checkOrder = [0, 1, 2].sort(() => Math.random() - 0.5);
+    render(); const sc = LIST[ci];
+    S.talk(k ? fmt(K.open, { intro: ONE(sc.intro) }) : ONE(sc.intro) + ' מה ראינו בעיניים, ומה אנחנו רק חושבים?', 'curious');
+  }
+  function nextOpen() { const R = thinkOf('observe'); for (let d = 1; d <= LIST.length; d++) { const j = (ci + d) % LIST.length; if (!R[LIST[j].id]) return j; } return (ci + 1) % LIST.length; }
   S.el.addEventListener('click', (e) => {
     const b = e.target.closest('button'); if (!b) return;
-    const sc = SCENES[si];
+    const sc = LIST[ci];
     if (b.dataset.sc != null) { S.sfx('click'); open(+b.dataset.sc); return; }
+    if (b.dataset.act === 'nextsc') { S.sfx('click'); open(nextOpen()); return; }
     if (b.dataset.k) {
       const i = +b.closest('[data-ci]').dataset.ci; const want = sc.cards[i][1];
       if (b.dataset.k === want) {
@@ -454,16 +319,17 @@ export function openObserve(root, ctx) {
     if (b.dataset.act === 'checks') { stage = 'check'; S.sfx('click'); render(); S.talk(k ? K.checks : 'יש כמה דרכים. איזו מהן באמת תגלה לנו מה קרה?', 'curious'); return; }
     if (b.dataset.chk != null) {
       const [, ok, line] = sc.checks[+b.dataset.chk];
-      if (!ok) { S.sfx('click'); S.talk(line, 'oops'); return; }
+      if (!ok) { S.sfx('click'); S.talk(W(line), 'oops'); return; }
       stage = 'reveal'; S.sfx('discover');
       const R = thinkUpdate('observe', (r) => { r[sc.id] = 1; }); render();
-      if (SCENES.every((x) => R[x.id]) && !R.done && k) { finish('observe'); S.sfx('mission'); S.talk(K.done, 'wow'); }
-      else if (SCENES.every((x) => R[x.id]) && !R.done) { finish('observe'); S.sfx('mission'); S.talk('שלושת הממצאים נפתרו! חוקרים לא מתבלבלים בין מה שראו למה שחשבו, ובודקים את המחשבות.', 'wow'); }
-      else S.talk(sc.reveal, 'wow');
+      const n = solvedN();
+      if (n >= Math.min(5, LIST.length) && !R.done) { finish('observe'); S.sfx('mission'); S.talk([...[].concat(W(sc.reveal)), ...[].concat(W(OBS_T.enough))], 'wow'); }
+      else if (n >= LIST.length) { try { grantBadge('lab:observe-all'); } catch (err) { /* */ } S.sfx('mission'); S.talk([...[].concat(W(sc.reveal)), ...[].concat(W(OBS_T.all))], 'wow'); }
+      else S.talk(W(sc.reveal), 'wow');
     }
   });
-  open(0);
-  return { close: S.close, debug: { open, get stage() { return stage; } } };
+  const first = LIST.findIndex((x) => !thinkOf('observe')[x.id]); open(first < 0 ? 0 : first);
+  return { close: S.close, debug: { open, get stage() { return stage; }, get list() { return LIST.map((x) => x.id); }, solve: () => { const sc = LIST[ci]; sc.cards.forEach((c, i) => { placed[i] = c[1]; }); stage = 'check'; render(); S.body.querySelector(`[data-chk="0"]`)?.click(); } } };
 }
 
 // ═════════════════════════════════════════ 5. ביחד או בגלל? (the room)
@@ -543,15 +409,16 @@ export function openCause(root, ctx) {
   return { close: S.close, debug: { openCase, test: (i) => S.el.querySelector(`[data-t="${i}"]`)?.click(), answer: (k) => S.el.querySelector(`[data-an="${k}"]`)?.click() } };
 }
 
-// ═════════════════════════════════════════ the menu: all five, or the ones of one station
+// ═════════════════════════════════════════ the menu: all four, or the ones of one station
 export function openThinkMenu(root, { only, onPick, robot, audio, onClose, title }) {
   injectCss();
   const kids = labKids(), M = THINK_K.menu;
   const list = THINK.filter((a) => !only || only.includes(a.id)).map((a) => named(a, kids));
   const el = document.createElement('div'); el.className = 'lb-panel lt lt-menu' + (only ? ' few' : '') + (kids ? ' kids' : ''); root.appendChild(el);
-  const n = THINK.filter((a) => thinkDone(a.id)).length;
+  const n = THINK.filter((a) => thinkDone(a.id)).length;   // (a 'measure' record of an old save is not in THINK: not counted)
+  if (n === THINK.length) { try { grantBadge('lab:thinker'); } catch (e) { /* */ } }   // a save that had all but the removed scale
   el.innerHTML = `<header class="lt-head"><div class="lt-ttl"><small>${kids ? M.small : 'המעבדה של רובו־דע'}</small><h2>${esc(title || (kids ? M.title : 'חושבים כמו חוקרים'))}</h2></div>
-      <p class="lt-habit">${kids ? (only ? M.few : fmt(M.all, { n })) : only ? 'שני ניסויים קטנים מחכים כאן.' : `חמישה ניסויים קטנים. בכל אחד לומדים הרגל אחד של חוקרים. מותר לטעות, ככה מגלים. (${n} מתוך 5)`}</p><button class="lb-btn lt-back">${kids ? THINK_K.shell.back : 'חזרה לחדר'}</button></header>
+      <p class="lt-habit">${kids ? (only ? M.few : fmt(M.all, { n })) : only ? 'שני ניסויים קטנים מחכים כאן.' : `ארבעה ניסויים קטנים. בכל אחד לומדים הרגל אחד של חוקרים. מותר לטעות, ככה מגלים. (${n} מתוך ${THINK.length})`}</p><button class="lb-btn lt-back">${kids ? THINK_K.shell.back : 'חזרה לחדר'}</button></header>
     <div class="lt-body"><div class="lt-grid">${list.map((a) => { const r = thinkOf(a.id); const st = r.done ? 'done' : Object.keys(r).length ? 'mid' : '';
       return `<button class="lt-mcard ${st}" data-a="${a.id}"><span class="lt-mic">${icon(a.ic)}</span><b>${esc(a.name)}</b><span>${esc(a.habit)}</span><small>${esc(a.where)}${st === 'done' ? ' · ' + icon('check') + (kids ? M.done : 'הושלם') : st === 'mid' ? ' · ' + (kids ? M.mid : 'בדרך') : ''}</small></button>`; }).join('')}</div></div>`;
   let alive = true;
@@ -560,13 +427,13 @@ export function openThinkMenu(root, { only, onPick, robot, audio, onClose, title
   el.querySelectorAll('[data-a]').forEach((b) => b.onclick = () => { try { audio && audio.play('select'); } catch (e) { /* */ } const id = b.dataset.a; close(); onPick && onPick(id); });
   return { close };
 }
-export const OPEN = { fair: openFair, float: openFloat, measure: openMeasure, observe: openObserve, cause: openCause };
+export const OPEN = { fair: openFair, float: openFloat, observe: openObserve, cause: openCause };
 
 // ───────────────────────────────────────── styles (scoped like lab.css: #ui.wol), injected once
 function injectCss() {
   if (document.getElementById('lt-css')) return;
   const st = document.createElement('style'); st.id = 'lt-css';
-  st.textContent = `
+  st.textContent = PICS_CSS + `
 #ui.wol .lb-panel.lt{inset:84px 12px 12px;display:flex;flex-direction:column;gap:8px;padding:12px 16px;background:linear-gradient(180deg,rgba(251,246,228,.97),rgba(238,228,198,.97));z-index:4}
 #ui.wol .lt-head{display:flex;align-items:center;gap:14px;flex:none}
 #ui.wol .lt-ttl small{display:block;color:#1d6680;font-weight:700;font-size:.8em}
@@ -587,7 +454,7 @@ function injectCss() {
 #ui.wol .lt-seg{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
 #ui.wol .lt-seg>span{min-width:3em;font-weight:700;font-size:.85em;color:#5a4420}
 #ui.wol .lt-seg button{padding:4px 10px;border-radius:999px;border:2px solid #c9b98a;background:#fff;color:#2a1a0e;font:inherit;font-size:.85em;font-weight:700;cursor:pointer}
-#ui.wol .lt-seg button.on{background:#2c7a5a;border-color:#2c7a5a;color:#fff}
+#ui.wol .lt-seg button.on{background:#263440;border-color:#263440;color:#ffe9a8}
 #ui.wol .lt-tabs{display:flex;gap:6px;flex-wrap:wrap}
 #ui.wol .lt-tabs button{display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border-radius:999px;border:2px solid #c9b98a;background:#fff8e6;font:inherit;font-weight:700;cursor:pointer;color:#2a1a0e}
 #ui.wol .lt-tabs button.on{background:#263440;border-color:#263440;color:#fff}
@@ -597,13 +464,26 @@ function injectCss() {
 #ui.wol .lt .shake{animation:ltShake .35s 2}
 /* fair */
 #ui.wol .lt-fair{display:grid;grid-template-columns:1fr minmax(170px,230px) 1fr;gap:12px;height:100%;min-height:250px}
-#ui.wol .lt-potc{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px;border-radius:14px;background:#fff;box-shadow:0 3px 0 #d8c79a;min-height:0}
+#ui.wol .lt-potc{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px;border-radius:16px;background:linear-gradient(180deg,#fffdf6,#f6eedb);box-shadow:0 3px 0 #d8c79a,0 6px 14px rgba(60,40,10,.12);min-height:0}
 #ui.wol .lt-potc>b{font-family:var(--serif);font-size:1.1em}
-#ui.wol .lt-pot{flex:1;min-height:90px;max-height:220px;width:100%}
-#ui.wol .lt-pot.grow .lt-stem,#ui.wol .lt-pot.grow ellipse{animation:ltGrow .9s ease-out both;transform-origin:80px 160px;transform-box:view-box}
-@keyframes ltGrow{from{transform:scale(.2);opacity:.3}to{transform:none;opacity:1}}
+#ui.wol .lt-potpic{position:relative;flex:none;width:min(100%,260px,max(96px,calc(100vh - 360px)));aspect-ratio:1;border-radius:14px;overflow:hidden;box-shadow:inset 0 0 0 2px rgba(138,100,32,.25)}
+#ui.wol .lt-potpic>img,#ui.wol .lt-potpic>.lp-ph{width:100%;height:100%;border-radius:14px}
+#ui.wol .lt-potpic.dark:not(.grown)::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 60%,rgba(20,16,12,.35),rgba(20,16,12,.8));pointer-events:none}
+#ui.wol .lt-potpic.grow>img,#ui.wol .lt-potpic.grow>.lp-ph{animation:ltGrow .8s ease-out both}
+@keyframes ltGrow{from{transform:scale(.9);opacity:.2;filter:blur(3px)}to{transform:none;opacity:1;filter:none}}
+#ui.wol .lt-cond{position:absolute;top:6px;right:6px;display:flex;flex-direction:column;gap:3px;z-index:1}
+#ui.wol .lt-cond i{display:flex;align-items:center;justify-content:center;gap:1px;min-width:24px;height:24px;padding:0 4px;border-radius:999px;background:rgba(255,255,255,.88);box-shadow:0 1px 3px rgba(0,0,0,.25)}
+#ui.wol .lt-cond .ic{width:15px;height:15px}
+#ui.wol .lt-cond i.sun{color:#d8901a}#ui.wol .lt-cond i.dark{color:#3a3a6a;background:#d8d4e8}
+#ui.wol .lt-cond i.w{color:#2a7ab8}#ui.wol .lt-cond i.w .ic{width:11px;height:11px}
+#ui.wol .lt-cond i.s{width:24px;background:radial-gradient(circle,#5a3b22 0 40%,transparent 42%),rgba(255,255,255,.88)}
+#ui.wol .lt-cond i.s.sand{background:radial-gradient(circle,#e2c48a 0 40%,transparent 42%),rgba(255,255,255,.88)}
+#ui.wol .lt-ruler{position:absolute;bottom:8px;left:8px;width:10px;height:70%;border-radius:5px;background:repeating-linear-gradient(0deg,rgba(255,255,255,.9) 0 9%,rgba(240,232,210,.9) 9% 10%);box-shadow:0 1px 3px rgba(0,0,0,.3);display:flex;align-items:flex-end;overflow:hidden}
+#ui.wol .lt-ruler i{display:block;width:100%;background:linear-gradient(180deg,#e8a43a,#c8781a);transition:height .8s ease-out}
 #ui.wol .lt-cm{font:700 15px sans-serif;fill:#2a1a0e}
-#ui.wol .lt-note{color:#2c5a2a!important}
+#ui.wol .lt-note{padding:2px 10px;border-radius:999px;background:#ece4cc;color:#5a4420!important;text-align:center}
+#ui.wol .lt-note.good{background:#d8f0cc;color:#2c5a2a!important}
+#ui.wol .lt-note.weak{background:#ffe6c8;color:#8a4a12!important}
 #ui.wol .lt-mid{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center}
 #ui.wol .lt-tag{padding:6px 12px;border-radius:12px;font-weight:800;font-size:.92em}
 #ui.wol .lt-tag.same{background:#ece4cc;color:#6a5a30}
@@ -640,35 +520,35 @@ function injectCss() {
 #ui.wol .lt-table td i{color:#b9a77a;font-style:normal}
 #ui.wol .lt-surp{display:flex;align-items:center;gap:5px;margin-top:6px;font-weight:800;color:#8a5a12}
 #ui.wol .lt-surp .ic{width:18px;height:18px;color:#e0a43a}
-/* measure */
-#ui.wol .lt-measure{display:grid;grid-template-columns:minmax(200px,280px) 1fr;gap:14px;align-items:start}
-#ui.wol .lt-scale{display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px;border-radius:14px;background:linear-gradient(180deg,#8a5a32,#6b4422);color:#fbf6e4}
-#ui.wol .lt-scale svg{width:100%;max-height:150px}
-#ui.wol .lt-item-big{font-family:var(--serif);font-size:1.3em;font-weight:800}
-#ui.wol .lt-needle{transform-origin:100px 100px;transform-box:view-box;transition:transform .2s cubic-bezier(.3,1.6,.5,1)}
-#ui.wol .lt-sc{font:700 11px sans-serif;fill:#3a2a14}
-#ui.wol .lt-read{font-weight:800;font-size:1.15em;padding:3px 14px;border-radius:8px;background:#1d2b36;color:#9ff6ff;font-variant-numeric:tabular-nums}
-#ui.wol .lt-reads{display:flex;flex-direction:column;gap:5px;min-width:0}
-#ui.wol .lt-line{width:100%;height:62px}
-#ui.wol .lt-line circle{fill:#8a7a50}#ui.wol .lt-line circle.m{fill:#e0a43a;stroke:#8a5a12;stroke-width:2}
-#ui.wol .lt-chips{display:flex;flex-wrap:wrap;gap:5px;direction:rtl}
-#ui.wol .lt-chips span{min-width:2em;text-align:center;padding:2px 8px;border-radius:8px;background:#fff;border:2px solid #d8c79a;font-weight:800}
-#ui.wol .lt-chips span.m{border-color:#e0a43a;background:#fff3d8}
-#ui.wol .lt-chips em{color:#8a7a50}
-#ui.wol .lt-tip{margin:0;font-size:.88em;color:#5a4420}
-#ui.wol .lt-opts{display:flex;flex-wrap:wrap;gap:6px}
-#ui.wol .lt-opts button{padding:6px 14px;border-radius:999px;border:2px solid #2c7a5a;background:#fff;color:#1d4a3a;font:inherit;font-weight:800;cursor:pointer}
-#ui.wol .lt-opts button.on{background:#2c7a5a;color:#fff}
-#ui.wol .lt-opts button:disabled:not(.on){opacity:.45;cursor:default}
-#ui.wol .lt-wins{display:flex;align-items:center;gap:5px;font-weight:700;color:#2c5a2a;font-size:.9em}
-#ui.wol .lt-wins .ic{width:16px;height:16px}
-#ui.wol .lt-reads .lt-go{align-self:flex-start}
 /* observe */
 #ui.wol .lt-obs{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,1fr);grid-template-rows:auto 1fr;gap:8px 14px;height:100%}
 #ui.wol .lt-obs .lt-tabs{grid-column:1 / -1}
 #ui.wol .lt-pic{display:flex;flex-direction:column;gap:4px;min-height:0}
 #ui.wol .lt-pic p{margin:0;font-weight:700}
 #ui.wol .lt-pic svg,#ui.wol .lt-cam{width:100%;max-height:210px;border-radius:12px;box-shadow:0 3px 0 #d8c79a}
+#ui.wol .lt-obs2{display:flex;flex-direction:column;gap:6px;height:100%;min-height:0}
+#ui.wol .lt-explain{display:flex;align-items:center;gap:6px;margin:0;padding:4px 10px;border-radius:10px;background:#e2f2fa;color:#1d4a6a;font-weight:700;font-size:.9em;line-height:1.3;flex:none}
+#ui.wol .lt-explain .ic{width:18px;height:18px;flex:none}
+#ui.wol .lt-strip{display:flex;gap:5px;overflow-x:auto;flex:none;padding-bottom:2px}
+#ui.wol .lt-strip button{position:relative;flex:none;width:42px;height:42px;padding:0;border-radius:9px;border:2px solid #e8dcc0;background:#fff;overflow:hidden;cursor:pointer}
+#ui.wol .lt-strip button img,#ui.wol .lt-strip button .lp-ph{width:100%;height:100%;border-radius:0}
+#ui.wol .lt-strip button .lp-ph span{font-size:.45em;padding:1px}
+#ui.wol .lt-strip button.on{border-color:#263440;box-shadow:0 0 0 2px #263440}
+#ui.wol .lt-strip button.done:not(.on){border-color:#6aa84f}
+#ui.wol .lt-strip .ok{position:absolute;top:1px;left:1px;display:grid;place-items:center;width:15px;height:15px;border-radius:50%;background:#4f8a3f;color:#fff}
+#ui.wol .lt-strip .ok .ic{width:11px;height:11px}
+#ui.wol .lt-obs-main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,1fr);gap:12px}
+#ui.wol .lt-pic2{display:flex;flex-direction:column;gap:3px;min-height:0}
+#ui.wol .lt-pic2 h3{margin:0;font-family:var(--serif);font-size:1.15em}
+#ui.wol .lt-pic2 h3 small{font-family:inherit;font-size:.65em;color:#8a7a50}
+#ui.wol .lt-pic2>p{margin:0;font-weight:700;line-height:1.35}
+#ui.wol .lt-figs{flex:1;min-height:0;display:flex;gap:8px;align-items:flex-start}
+#ui.wol .lt-figs figure{position:relative;margin:0;aspect-ratio:1;max-height:100%;flex:1 1 0;max-width:min(100%,250px);border-radius:14px;overflow:hidden;background:#fff;box-shadow:0 3px 0 #d8c79a,0 4px 12px rgba(60,40,10,.18)}
+#ui.wol .lt-figs.two figure{max-width:48%}
+#ui.wol .lt-figs figure img,#ui.wol .lt-figs figure .lp-ph{width:100%;height:100%;border-radius:0}
+#ui.wol .lt-figs figure.after{animation:ltPop .5s ease-out;box-shadow:0 0 0 3px #6aa84f,0 4px 12px rgba(60,40,10,.18)}
+#ui.wol .lt-figs figcaption{position:absolute;bottom:0;inset-inline:0;padding:2px 6px;background:rgba(38,52,64,.82);color:#fff;font-weight:800;font-size:.78em;text-align:center}
+#ui.wol .lt.kids .lt-explain{line-height:1.6}
 #ui.wol .lt-cam{position:relative;overflow:hidden;aspect-ratio:300/170;background:#000}
 #ui.wol .lt-cam img{width:100%;height:100%;object-fit:cover;filter:grayscale(.6) brightness(.85) sepia(.3) hue-rotate(60deg)}
 #ui.wol .lt-cam span{position:absolute;top:6px;right:8px;color:#bfffbf;font-weight:700;font-size:.8em;font-variant-numeric:tabular-nums}
@@ -732,6 +612,13 @@ function injectCss() {
   #ui.wol .lt-voice p{font-size:.88em;line-height:1.3}
   #ui.wol .lt-face{width:32px;height:32px}
   #ui.wol .lt-fair{grid-template-columns:1fr minmax(140px,180px) 1fr;gap:8px}
+  #ui.wol .lt-potc{padding:5px;gap:3px}
+  #ui.wol .lt-cond i{min-width:20px;height:20px}
+  #ui.wol .lt-cond .ic{width:12px;height:12px}
+  #ui.wol .lt-explain{font-size:.8em;padding:3px 8px}
+  #ui.wol .lt-strip button{width:34px;height:34px}
+  #ui.wol .lt-pic2 h3{font-size:1em}
+  #ui.wol .lt-obs-main{grid-template-columns:minmax(0,.9fr) minmax(250px,1.1fr);gap:8px}
   #ui.wol .lt-float{grid-template-columns:minmax(130px,160px) 1fr minmax(150px,180px);gap:8px}
   #ui.wol .lt-item{width:26px;height:26px}
   #ui.wol .lt-seg button{padding:3px 7px;font-size:.78em}
