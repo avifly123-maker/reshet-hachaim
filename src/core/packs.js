@@ -19,6 +19,7 @@ const LOADERS = {
   reef: () => import('../packs/reef.js'),
   hub: () => import('../packs/hub.js'),
   lab: () => import('../packs/lab.js'),
+  research: () => import('../packs/research.js'),   // the words of a running mystery (חוקרי הטבע)
 };
 
 const pending = new Map();   // name → Promise<module>

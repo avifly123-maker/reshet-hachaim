@@ -200,7 +200,8 @@ async function boot() {
   bus.on('ui:lab', () => { audio.start(); openLab('start'); });
   bus.on('ui:click', () => { try { audio.play('click'); } catch (e) { /* */ } });
   // חוקרי הטבע: the research centre and its mysteries
-  const researchHub = createResearchHub(root, { onPick: (id) => { const C = caseById(id); if (!C) return; loadPack(C.zone).catch(() => { /* reported by loadBiome */ }); loadBiome(C.zone, null, C); }, onLab: () => openLab() });
+  // { tutorial: true }: the guided mystery from the research centre's "הדרכה" button (src/research/tutorial.js)
+  const researchHub = createResearchHub(root, { onPick: (id, opts) => { let C = caseById(id); if (!C) return; if (opts && opts.tutorial) C = { ...C, tutorial: true }; loadPack(C.zone).catch(() => { /* reported by loadBiome */ }); loadBiome(C.zone, null, C); }, onLab: () => openLab() });
   // מעבדת רובו־דע: its own pack; while it is open the frame loop draws it (there is no forest then)
   let lab = null, labP = null, labFrom = 'hub';
   function openLab(from = 'hub') {
@@ -325,7 +326,7 @@ async function boot() {
     if (fpsEl) { fpsN++; const now = performance.now(); if (now - fpsT > 1000) { const i = pipe.renderer.info.render; fpsEl.textContent = `${Math.round(fpsN * 1000 / (now - fpsT))} fps · ${quality} · x${pipe.resScale.toFixed(2)} · ${i.calls} calls · ${Math.round(i.triangles / 1000)}k tris`; fpsN = 0; fpsT = now; } }
   }
   frame();
-  window.__app = { bus, ui, audio, pipe, loadBiome, researchHub, openLab: () => openLab(), openCase: (id) => { const C = caseById(id); if (C) loadBiome(C.zone, null, C); }, get game() { return game; } };
+  window.__app = { bus, ui, audio, pipe, loadBiome, researchHub, openLab: () => openLab(), openCase: (id, opts) => { let C = caseById(id); if (C && opts && opts.tutorial) C = { ...C, tutorial: true }; if (C) loadBiome(C.zone, null, C); }, get game() { return game; } };
 }
 
 boot();

@@ -5,6 +5,9 @@ import { icon, esc } from '../ui/ui.js';
 import { TOOL_ICONS } from '../game/tools.js';
 import { CASE_ICONS } from './case-icons.js';
 import { ADV_ICONS } from './icons-adv.js';
+import { CARD_ART } from '../data/card-art.js';
+import { notebookHTML } from './notebook.js';
+import { tileIcon } from '../ui/icons-hub.js';
 
 const svgURL = (body, bg) => 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="${bg}"/>${body}</svg>`);
 export const R_ICONS = {
@@ -48,7 +51,6 @@ export const R_ICONS = {
 };
 for (const k in CASE_ICONS) if (!R_ICONS[k]) R_ICONS[k] = CASE_ICONS[k];   // pictures of the frogs, young oaks and leaf-cutters mysteries
 Object.assign(R_ICONS, ADV_ICONS);   // the advanced mysteries' own icons (icons-adv.js)
-const SERIES_COLORS = ['#c8473a', '#3a7fc8', '#4f9a3c', '#d99a2b', '#8a5ab8', '#2f9a95'];
 const LIGHT_ICONS = { life: 'paw', regen: 'sprout', env: 'drop' };
 
 export function createResearchUI(root, o) {
@@ -56,13 +58,32 @@ export function createResearchUI(root, o) {
   const kids = C.level === 'kids';
   const els = [];
   const mk = (cls, html, parent = root, tag = 'div') => { const e = document.createElement(tag); e.className = cls; if (html != null) e.innerHTML = html; parent.appendChild(e); if (parent === root) els.push(e); return e; };
-  const pic = (thumb, ic, cls = 'rs-pic') => thumb ? `<img class="${cls}" src="${thumb}" alt="" draggable="false">` : R_ICONS[ic] ? `<img class="${cls}" src="${R_ICONS[ic]}" alt="" draggable="false">` : `<span class="${cls} rs-pic-ic">${icon(ic || 'leaf')}</span>`;
+  // a picture: the card painting when there is one (creatures, and devices such as the camera or the nest box), else the
+  // research icon; `species:<id>` names a creature
+  const pic = (thumb, ic, cls = 'rs-pic') => {
+    if (!thumb && ic && ic.startsWith('species:')) thumb = thumbs[ic.slice(8)] || CARD_ART[ic.slice(8)];
+    if (!thumb && ic && CARD_ART[ic]) thumb = CARD_ART[ic];
+    return thumb ? `<img class="${cls}" src="${thumb}" alt="" draggable="false">` : R_ICONS[ic] ? `<img class="${cls}" src="${R_ICONS[ic]}" alt="" draggable="false">` : `<span class="${cls} rs-pic-ic">${icon(ic || 'leaf')}</span>`;
+  };
   const ideaPic = (i) => i.thumb ? pic(i.thumb) : pic(null, i.icon);
 
-  let meter, board, table, notes, ffEl, ro = null;   // leaving goes through the game's own home button (toolbar)
+  let meter, board, table, notes, ffEl, steps, sayEl, ro = null;   // leaving goes through the game's own home button (toolbar)
+  const STEP_IC = ['binoc', 'search', 'pencil', 'flask', 'bulb'];
   function mount() {
     root.classList.add('research');
     if (kids) root.classList.add('rs-kids');
+    // the five steps of a researcher: where we are; a step can be tapped, and "what now?" answers in one sentence
+    steps = mk('rs-steps', `<ol>${[0, 1, 2, 3, 4].map((i) => `<li><button class="rs-st" data-step="${i}"><b>${icon(STEP_IC[i])}</b><span>${esc(T('s' + i))}</span></button></li>`).join('')}</ol>
+      <button class="rs-now">${icon('help')}<span>${esc(T('whatNow'))}</span></button>`);
+    steps.addEventListener('click', (e) => {
+      const s = e.target.closest('[data-step]'); if (s) { o.onStep && o.onStep(+s.dataset.step); return; }
+      if (e.target.closest('.rs-now')) o.onWhatNow && o.onWhatNow();
+    });
+    sayEl = mk('rs-say', '');
+    sayEl.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-say]'); if (b && sayEl._h && sayEl._h[b.dataset.say]) { sayEl._h[b.dataset.say](); return; }
+      if (e.target.closest('.rs-say-x')) hideSay();
+    });
     meter = mk('rs-meter plate', `<div class="rs-m-title">${esc(T('meter'))}</div>
       <div class="rs-lights">${['life', 'regen', 'env'].map((k) => `<div class="rs-light" data-k="${k}"><span class="rs-bulb">${icon(LIGHT_ICONS[k])}</span><span class="rs-l-name">${esc(C.lightNames[k])}</span></div>`).join('')}</div>
       <div class="rs-clock"><div class="rs-clock-fill"></div></div><div class="rs-m-line"></div>`);
@@ -93,6 +114,47 @@ export function createResearchUI(root, o) {
     meter.querySelector('.rs-m-line').textContent = solvedLine ? solvedLine : all ? T('balanced', { n: Math.max(0, Math.ceil(hold - held)) }) : held > 0 ? T('clockWaits') : T('notYet');
   }
 
+  // ───────────── the step bar: { cur, done: [5 booleans] } (a step left out on the way shows as hollow)
+  let stepSig = '';
+  function setSteps(st) {
+    if (!steps) return;
+    const sig = st.cur + '|' + st.done.join('');
+    if (sig === stepSig) return; stepSig = sig;
+    steps.querySelectorAll('.rs-st').forEach((b, i) => {
+      b.classList.toggle('on', i === st.cur);
+      b.classList.toggle('done', !!st.done[i] && i !== st.cur);
+      b.classList.toggle('skip', !st.done[i] && i < st.cur);
+      b.querySelector('b').innerHTML = st.done[i] && i !== st.cur ? icon('check') : icon(STEP_IC[i]);
+    });
+  }
+  // a bubble of רובו־דע under the step bar: "what now?", the guided mystery's steps. opts: { buttons: [{ id, label, primary }],
+  // on: { id: fn }, sticky (no closing by time), skip: { label, fn } }
+  function say(text, opts = {}) {
+    if (!sayEl) return;
+    clearTimeout(sayEl._t);
+    sayEl._h = { ...(opts.on || {}) };
+    const btns = (opts.buttons || []).map((b) => `<button class="rs-say-b${b.primary ? ' p' : ''}" data-say="${b.id}">${esc(b.label)}</button>`).join('');
+    sayEl.className = 'rs-say on' + (opts.tut ? ' tut' : '') + (opts.low ? ' low' : '');
+    root.classList.toggle('rs-say-low', !!opts.low);   // a window open under it leaves room at the bottom
+    sayEl.innerHTML = `${tileIcon('robot', 'rs-say-ic')}<div class="rs-say-body"><p>${esc(text)}</p>${btns ? `<div class="rs-say-bs">${btns}</div>` : ''}</div>
+      ${opts.sticky ? '' : `<button class="rs-say-x" aria-label="${esc(T('close'))}">${icon('close')}</button>`}`;
+    if (!opts.sticky) sayEl._t = setTimeout(hideSay, opts.ttl || 9000);
+  }
+  function hideSay() { if (!sayEl) return; clearTimeout(sayEl._t); sayEl.className = 'rs-say'; root.classList.remove('rs-say-low'); }
+  // highlight one element (the guided mystery points at the next button); null clears
+  let hiSel = null;
+  function hi(sel) {
+    hiSel = sel;
+    document.querySelectorAll('.rs-hi').forEach((e) => { if (!sel || !e.matches(sel)) e.classList.remove('rs-hi'); });
+    if (sel) { const e = [...document.querySelectorAll(sel)].find((x) => x.offsetParent !== null || x.getClientRects().length); if (e) e.classList.add('rs-hi'); }
+  }
+  // a short glow on a part of the desk (a tapped step points at the tools or the ideas)
+  function pulse(sel) {
+    const e = (table && table.querySelector(sel)) || document.querySelector(sel); if (!e) return;
+    e.classList.remove('rs-pulse'); void e.offsetWidth; e.classList.add('rs-pulse');
+    setTimeout(() => e.classList.remove('rs-pulse'), 2400);
+  }
+
   // ───────────── the board of measurements
   let boardSig = '';
   function setBoard(rows) {
@@ -117,7 +179,7 @@ export function createResearchUI(root, o) {
       <section class="rs-sec rs-sec-side">
         <div class="rs-budget" title="${esc(T('budget'))}"><span>${esc(T('budget'))}</span><b>${st.budget}</b><div class="rs-b-bar"><i style="width:${st.budgetMax ? (100 * st.budget / st.budgetMax).toFixed(0) : 0}%"></i></div></div>
         <button class="rs-hint" data-hint="1">${icon('bulb')}<span>${esc(T('hint'))}</span><span class="rs-bulbs"></span></button>
-        <button class="rs-lab" data-lab="1">${icon('flask')}<span>${esc(T('lab'))}</span></button>
+        <button class="rs-lab" data-lab="1">${icon('book')}<span>${esc(T('lab'))}</span></button>
         ${kids ? (st.stuck ? `<div class="rs-sbx"><button class="rs-retry" data-retry="1" title="${esc(T('retryTip'))}">${icon('undo')}<span>${esc(T('retry'))}</span></button></div>` : '') : `<div class="rs-sbx"><button class="rs-log" data-log="1">${icon('book')}<span>${esc(T('log'))}</span><i class="rs-log-n">${logN || ''}</i></button>
         <button class="rs-retry" data-retry="1" title="${esc(T('retryTip'))}">${icon('undo')}<span>${esc(T('retry'))}</span></button></div>`}
       </section></div>`;
@@ -189,9 +251,12 @@ export function createResearchUI(root, o) {
     closeModal();
     modal = mk('rs-modal ' + cls, `<div class="rs-scrim"></div><div class="rs-sheet">${html}</div>`);
     requestAnimationFrame(() => modal && modal.classList.add('on'));
+    sayLow(true);
     return modal;
   }
-  function closeModal() { if (!modal) return; const m = modal; modal = null; m.classList.remove('on'); const i = els.indexOf(m); if (i >= 0) els.splice(i, 1); setTimeout(() => m.remove(), 300); }
+  // the guided mystery's bubble moves under an open window, and back up when it closes (at once, not a frame later)
+  function sayLow(on) { if (!sayEl || !sayEl.classList.contains('tut')) return; sayEl.classList.toggle('low', on); root.classList.toggle('rs-say-low', on && sayEl.classList.contains('on')); }
+  function closeModal() { if (!modal) return; const m = modal; modal = null; sayLow(false); m.classList.remove('on'); m.style.pointerEvents = 'none';   /* a closing window never catches the next click */ const i = els.indexOf(m); if (i >= 0) els.splice(i, 1); setTimeout(() => m.remove(), 300); }
   const isOpen = () => !!modal;
 
   function showIntro() {
@@ -200,8 +265,9 @@ export function createResearchUI(root, o) {
       <h2>${esc(C.title)}</h2><p class="rs-call">${esc(C.call)}</p><p class="rs-more">${esc(C.callMore)}</p>
       <div class="rs-cast">${cast}</div>
       <button class="rs-go">${esc(T('start'))}${icon('arrowL')}</button>`);
-    m.querySelector('.rs-go').addEventListener('click', closeModal);
-    m.querySelector('.rs-scrim').addEventListener('click', closeModal);
+    const go = () => { closeModal(); o.onIntroClosed && o.onIntroClosed(); };
+    m.querySelector('.rs-go').addEventListener('click', go);
+    m.querySelector('.rs-scrim').addEventListener('click', go);
   }
 
   // a dilemma: two (or three) ways, each with what it gives and what it costs; choosing one applies that idea
@@ -215,70 +281,71 @@ export function createResearchUI(root, o) {
     m.querySelector('.rs-dl-later').addEventListener('click', () => { closeModal(); if (onLater) onLater(); });
   }
 
-  function openLab(d) {
-    const W0 = 640, H0 = 300, P = { l: 70, r: 22, t: 18, b: 34 };
-    const now = d.now, t0 = Math.min(...d.series.map((s) => s.from), now);
-    const span = Math.max(30, now - t0);
-    // time runs right to left, like the reading direction: the start at the right edge, now at the left
-    const X = (t) => W0 - P.r - (t - t0) / span * (W0 - P.l - P.r);
-    let graph;
-    if (!d.series.length) graph = `<div class="rs-nodata">${pic(null, 'quadrat')}<p>${esc(T('noData'))}</p></div>`;
-    else {
-      const lines = d.series.map((s, i) => {
-        const max = Math.max(1, ...s.points.map((p) => p[1])) * 1.15;
-        const Y = (v) => H0 - P.b - v / max * (H0 - P.t - P.b);
-        const pts = s.points.map((p) => `${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join(' ');
-        const last = s.points[s.points.length - 1] || [now, 0];
-        const col = SERIES_COLORS[i % SERIES_COLORS.length];
-        return { col, s, svg: `<polyline points="${pts}" fill="none" stroke="${col}" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${X(last[0])}" cy="${Y(last[1])}" r="4.5" fill="${col}"/>`, y: Y(last[1]), v: Math.round(last[1]) };
-      });
-      const flags = d.acts.filter((a) => a.t >= t0).map((a) => `<g class="rs-flag"><line x1="${X(a.t)}" x2="${X(a.t)}" y1="${P.t}" y2="${H0 - P.b}" stroke="#7a6a4a" stroke-dasharray="4 4"/><circle cx="${X(a.t)}" cy="${P.t + 2}" r="9" fill="#f6ead6" stroke="#7a6a4a"/></g>`).join('');
-      const flagPics = d.acts.filter((a) => a.t >= t0).map((a) => { const i = a.idea; const src = i && (i.icon.startsWith('species:') ? thumbs[i.icon.slice(8)] : R_ICONS[i.icon]); return src ? `<img class="rs-flag-pic" style="left:${(X(a.t) / W0 * 100).toFixed(2)}%;top:${((P.t - 7) / H0 * 100).toFixed(2)}%" src="${src}" alt="">` : ''; }).join('');
-      // labels at the "now" end (left), pushed apart so they never overlap
-      const labs = lines.map((l) => ({ ...l })).sort((a, b) => a.y - b.y);
-      for (let i = 1; i < labs.length; i++) if (labs[i].y - labs[i - 1].y < 26) labs[i].y = labs[i - 1].y + 26;
-      const labHtml = labs.map((l) => `<div class="rs-g-lab" style="top:${(l.y / H0 * 100).toFixed(2)}%;--c:${l.col}">${pic(l.s.thumb, l.s.icon)}<b>${l.v}</b><span>${esc(l.s.name)}</span></div>`).join('');
-      graph = `<div class="rs-graph"><svg viewBox="0 0 ${W0} ${H0}" preserveAspectRatio="none" aria-hidden="true">
-        <rect x="${P.l}" y="${P.t}" width="${W0 - P.l - P.r}" height="${H0 - P.t - P.b}" fill="none" stroke="#b9ab84"/>
-        ${flags}${lines.map((l) => l.svg).join('')}</svg>${flagPics}${labHtml}
-        <div class="rs-g-axis"><span class="rs-g-start">${esc(T('tStart'))}</span><i></i><span>${icon('hourglass')}${esc(T('tNow'))}</span></div></div>`;
-    }
-    const guesses = d.guesses.map((g) => `<button class="rs-guess${d.guess === g.id ? ' on' : ''}" data-g="${g.id}">${pic(g.icon.startsWith('species:') ? thumbs[g.icon.slice(8)] : null, g.icon)}<span>${esc(g.text)}</span></button>`).join('');
-    const m = openModal('rs-labm', `<div class="rs-lab-desk">
-      <header><h2>${icon('flask')}${esc(T('labTitle'))}</h2><button class="rs-x" aria-label="${esc(T('close'))}">${icon('close')}</button></header>
-      <div class="rs-lab-grid">
-        <section class="rs-lab-graph paper"><h3>${esc(T('graphs'))}</h3>${graph}</section>
-        <section class="rs-lab-book paper"><h3>${esc(T('myGuess'))}</h3><div class="rs-guesses">${guesses}</div></section>
-      </div></div>`);
-    m.querySelector('.rs-x').addEventListener('click', closeModal);
-    m.querySelector('.rs-scrim').addEventListener('click', closeModal);
-    m.querySelectorAll('.rs-guess').forEach((b) => b.addEventListener('click', () => {
-      m.querySelectorAll('.rs-guess').forEach((x) => x.classList.toggle('on', x === b));
-      o.onGuess(b.dataset.g);
-    }));
+  // the researcher's notebook (notebook.js): get() gives fresh data each time it is drawn (a chosen hypothesis, a new
+  // measurement); tab: 'measure' | 'hyp' | 'links' | 'log'
+  let nb = null;
+  function openNotebook(get, tab = 'measure') {
+    nb = { get, tab, sel: null };
+    const draw = () => {
+      if (!nb) return;
+      const d = get();
+      if (!nb.sel) { const k = d.rows.filter((r) => r.known); const best = k.slice().sort((a, b) => Math.abs(b.change) - Math.abs(a.change))[0]; nb.sel = best ? [best.id] : []; }
+      nb.sel = nb.sel.filter((id) => d.rows.some((r) => r.id === id && r.known));
+      const html = notebookHTML(d, nb.tab, nb.sel, { T, kids, pic });
+      if (modal && modal.classList.contains('rs-nbm')) { const s = modal.querySelector('.rs-sheet'); const keep = s.querySelector('.nb-page'); const y = keep ? keep.scrollTop : 0; s.innerHTML = html; const p = s.querySelector('.nb-page'); if (p && nb.keepScroll) p.scrollTop = y; }
+      else openModal('rs-labm rs-nbm', html);
+      nb.keepScroll = false;
+    };
+    draw();
+    const m = modal;
+    if (m._nb) return; m._nb = true;   // already open: drawn again on the asked page, with its own clicks
+    m.addEventListener('click', (e) => {
+      if (!nb || modal !== m) return;
+      if (e.target.closest('.rs-x') || e.target.classList.contains('rs-scrim')) { closeModal(); return; }
+      const t = e.target.closest('[data-tab]'); if (t) { nb.tab = t.dataset.tab; o.onNotebookTab && o.onNotebookTab(nb.tab); draw(); return; }
+      const r = e.target.closest('[data-row]');
+      if (r) {   // one line; a tap on another adds it for comparing (two at most); a tap on a chosen one takes it off
+        const id = r.dataset.row, i = nb.sel.indexOf(id);
+        if (i >= 0) { if (nb.sel.length > 1) nb.sel.splice(i, 1); } else { nb.sel.push(id); if (nb.sel.length > 2) nb.sel.shift(); }
+        nb.keepScroll = true; draw(); return;
+      }
+      const ms = e.target.closest('.nb-measure[data-tool]'); if (ms && ms.dataset.tool) { closeModal(); o.onTool(ms.dataset.tool); return; }
+      const pk = e.target.closest('[data-pick]'); if (pk) { o.onGuess(pk.dataset.pick); nb.keepScroll = true; draw(); return; }
+      const out = e.target.closest('[data-out]'); if (out) { o.onRule && o.onRule(out.dataset.out, true); nb.keepScroll = true; draw(); return; }
+      const bk = e.target.closest('[data-back]'); if (bk) { o.onRule && o.onRule(bk.dataset.back, false); nb.keepScroll = true; draw(); return; }
+    });
+  }
+  const nbOpen = () => !!(modal && modal.classList.contains('rs-nbm'));
+  const nbTab = () => (nbOpen() && nb ? nb.tab : null);
+
+  // what happened and why, after "see what happens": d = { ideas: [{ title, thumb, icon }], story, rows: [{ name, thumb,
+  // icon, before, after, dir, known, why }], heals, why: [text], guess, onWrite }
+  function showConclusion(d) {
+    const tried = d.ideas.map((i) => `<span class="cc-idea">${ideaPic(i)}<b>${esc(i.title)}</b></span>`).join('');
+    const rows = d.rows.length ? d.rows.map((r) => `<li class="cc-row d${r.dir}">${pic(r.thumb, r.icon, 'cc-pic')}<div><span class="cc-name">${esc(r.name)}</span>
+        ${r.known ? `<span class="cc-num"><b>${r.before}</b><i>${r.dir > 0 ? '▲' : '▼'}</i><b>${r.after}</b></span>` : `<span class="cc-num u">${esc(T('unknownRow'))}</span>`}
+        ${r.why ? `<p>${esc(r.why)}</p>` : ''}</div></li>`).join('') : `<li class="cc-row"><p>${esc(T('conclNothing'))}</p></li>`;
+    const verdict = d.heals ? `<div class="cc-verdict ok">${icon('check')}<p>${esc(T('conclGood'))}</p></div>`
+      : d.why.length ? `<div class="cc-verdict why"><h3>${icon('bulb')}${esc(T('conclWhy'))}</h3>${d.why.map((w) => `<p>${esc(w)}</p>`).join('')}</div>` : '';
+    const g = d.guess;
+    const hyp = g ? `<div class="cc-hyp"><span>${esc(T('conclGuess'))}</span> <b>${esc(g.text)}</b><div class="cc-hq"><span>${esc(T('conclStill'))}</span>
+        <button class="cc-yes">${esc(T('conclYes'))}</button><button class="cc-change">${esc(T('conclChange'))}</button></div></div>`
+      : `<div class="cc-hyp none"><span>${esc(T('conclNoGuess'))}</span><button class="cc-change">${esc(T('conclWrite'))}</button></div>`;
+    const m = openModal('rs-concl', `<div class="cc-sheet"><div class="rs-tape"></div><h2>${icon('bulb')}${esc(T('conclTitle'))}</h2>
+      <div class="cc-tried"><small>${esc(T('conclTried'))}</small>${tried}</div>
+      ${d.story ? `<p class="cc-story">${esc(d.story)}</p>` : ''}
+      ${verdict}
+      <h3 class="cc-h">${esc(T('conclSaw'))}</h3><ul class="cc-rows">${rows}</ul>
+      ${hyp}
+      <div class="cc-btns"><button class="cc-again">${esc(d.heals ? T('conclOk') : T('conclAgain'))}</button><button class="cc-graph">${icon('search')}${esc(T('conclGraph'))}</button></div></div>`);
+    m.querySelector('.cc-again').addEventListener('click', () => closeModal());
+    m.querySelector('.rs-scrim').addEventListener('click', () => closeModal());
+    m.querySelector('.cc-graph').addEventListener('click', () => { closeModal(); o.onLab('measure'); });
+    const y = m.querySelector('.cc-yes'); if (y) y.addEventListener('click', () => { y.closest('.cc-hq').innerHTML = `<b class="cc-kept">${icon('check')}</b>`; });
+    m.querySelector('.cc-change').addEventListener('click', () => { closeModal(); o.onLab('hyp'); });
   }
 
-  // the experiment log: everything that was tried, what came of it, the surprises; across every "try again"
-  const LOG_IC = { idea: 'flask', result: 'binoc', surprise: 'sparkle', retry: 'undo', solved: 'check' };
-  function openLog(entries) {
-    const rows = [];
-    let at = 0;
-    for (const e of entries) {
-      if (e.attempt !== at) { at = e.attempt; rows.push(`<li class="rs-lg-head">${esc(T('attempt', { n: at }))}</li>`); }
-      if (e.kind === 'retry') continue;
-      const ic = e.kind === 'idea' ? (e.thumb ? `<img class="rs-lg-pic" src="${e.thumb}" alt="">` : pic(null, e.icon, 'rs-lg-pic')) : `<span class="rs-lg-ic">${icon(LOG_IC[e.kind] || 'leaf')}</span>`;
-      const tag = e.kind === 'idea' ? T('logTried') : e.kind === 'surprise' ? T('surprise') : e.kind === 'solved' ? '' : T('logSaw');
-      const txt = e.kind === 'surprise' ? String(e.text).replace(/^הפתעה[:!]\s*/, '') : e.text;   // the tag already says it
-      rows.push(`<li class="rs-lg-${e.kind}">${ic}<div>${tag ? `<small>${esc(tag)}</small>` : ''}<p>${esc(txt)}</p></div></li>`);
-    }
-    const m = openModal('rs-logm', `<div class="rs-lab-desk rs-log-desk">
-      <header><h2>${icon('book')}${esc(T('log'))}</h2><button class="rs-x" aria-label="${esc(T('close'))}">${icon('close')}</button></header>
-      <div class="paper rs-log-paper"><p class="rs-log-sub">${esc(T('logSub'))}</p>
-      ${rows.length ? `<ol class="rs-lg">${rows.join('')}</ol>` : `<p class="rs-log-empty">${esc(T('logEmpty'))}</p>`}</div></div>`);
-    m.querySelector('.rs-x').addEventListener('click', closeModal);
-    m.querySelector('.rs-scrim').addEventListener('click', closeModal);
-    const list = m.querySelector('.rs-lg'); if (list) list.scrollTop = list.scrollHeight;
-  }
+
 
   function showSolved(d) {
     const starNames = [T('starHealed'), T('starGuess'), T('starThrift')];
@@ -300,7 +367,8 @@ export function createResearchUI(root, o) {
     if (ro) { ro.disconnect(); ro = null; }
     for (const e of els) { clearTimeout(e._t); e.remove(); }
     els.length = 0; modal = null;
-    root.classList.remove('research', 'rs-kids');
+    root.classList.remove('research', 'rs-kids', 'rs-say-low');
   }
-  return { mount, setLights, setSolved, setBoard, setTable, setBulbs, note, dropNote, offerSee, setFF, showIntro, showDilemma, openLab, openLog, setLogCount, showSolved, closeSolved: closeModal, isOpen, dispose };
+  return { mount, setLights, setSolved, setBoard, setTable, setBulbs, note, dropNote, offerSee, setFF, showIntro, showDilemma, openNotebook, nbOpen, nbTab, showConclusion,
+    setLogCount, showSolved, closeSolved: closeModal, closeModal, isOpen, modalIs: (cls) => !!(modal && modal.classList.contains(cls)), setSteps, say, hideSay, hi, pulse, dispose };
 }

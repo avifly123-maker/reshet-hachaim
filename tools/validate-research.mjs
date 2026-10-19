@@ -75,6 +75,39 @@ for (const C of CASES) {
   if (C.level === 'kids') for (const [k, s] of kidStrings(C)) if (!vocalised(s)) err(C.id, `beginner text without full nikud: ${k} "${s}"`);
 }
 for (const [k, s] of Object.entries(KIDS_TEXTS)) if (!vocalised(s)) err('texts', `beginner screen text without full nikud: ${k} "${s}"`);
+
+// 1.3.1 – "what happened and why" (src/research/explain-data.js): every idea that is not part of a fix needs its
+// prepared explanation (the link it leaves unmended), beginners' fully vocalised; forms and hypothesis pictures must
+// point at real board rows; the guided mystery and the sentence templates are vocalised; a badge for every mystery
+// and every level (src/data/badges.js) with a real card painting.
+const { EXPLAIN, TUTORIAL } = await import('../src/research/explain-data.js');
+const { KIDS_EXPLAIN } = await import('../src/research/explain.js');
+const { BADGES } = await import('../src/data/badges.js');
+const { CARD_ART } = await import('../src/data/card-art.js');
+for (const C of CASES) {
+  const X = EXPLAIN[C.id];
+  if (!X) { err(C.id, 'no explanations in src/research/explain-data.js'); continue; }
+  const fixIdeas = new Set(Object.values(C.tests?.fixes || {}).flat().map((a) => a.idea));
+  for (const i of C.ideas) {
+    const w = X.why && X.why[i.id];
+    if (!w && !fixIdeas.has(i.id)) err(C.id, `idea "${i.id}" is not part of any fix and has no explanation (why)`);
+    if (w && C.level === 'kids' && !vocalised(w)) err(C.id, `beginner explanation without full nikud: why.${i.id} "${w}"`);
+    if (w && /—/.test(w)) err(C.id, `why.${i.id}: no em dashes`);
+  }
+  for (const k of Object.keys(X.why || {})) if (!C.ideas.some((i) => i.id === k)) err(C.id, `why.${k} is not an idea`);
+  const boardIds = new Set(C.board.map((b) => b.id));
+  for (const [k, f] of Object.entries(X.forms || {})) { if (!boardIds.has(k)) err(C.id, `forms.${k} is not a board row`); if (!['mp', 'fp', 'ms', 'fs'].includes(f)) err(C.id, `forms.${k}: "${f}" is not mp / fp / ms / fs`); }
+  const sp = new Set(zones[C.zone].species.map((s) => s.id));
+  for (const [g, pics] of Object.entries(X.hyp || {})) {
+    if (!C.guesses.some((x) => x.id === g)) err(C.id, `hyp.${g} is not a guess`);
+    for (const p of pics) if (p.startsWith('species:') && !sp.has(p.slice(8)) && !CARD_ART[p.slice(8)]) err(C.id, `hyp.${g}: unknown species ${p}`);
+  }
+  if (!BADGES.some((b) => b.earn === 'research:case:' + C.id)) err(C.id, 'no badge for this mystery (research:case:<id> in src/data/badges.js)');
+}
+for (const L of new Set(CASES.map((c) => c.level))) if (!BADGES.some((b) => b.earn === 'research:level:' + L)) err('badges', `no badge for the level ${L}`);
+for (const b of BADGES) if (!CARD_ART[b.art]) err('badges', `${b.id}: no card painting "${b.art}"`);
+for (const [k, s] of Object.entries(TUTORIAL)) if (!vocalised(s)) err('tutorial', `guided mystery text without full nikud: ${k} "${s}"`);
+for (const [k, s] of Object.entries(KIDS_EXPLAIN)) if (!vocalised(s)) err('explain', `beginner sentence without full nikud: ${k} "${s}"`);
 for (const e of errors) console.log('ERROR', e);
 console.log(errors.length ? `\n${errors.length} error(s)` : `OK – ${CASES.length} mysteries checked`);
 if (process.argv.includes('--all')) await import('../tests/research/solvable.mjs');

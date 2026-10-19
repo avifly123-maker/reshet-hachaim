@@ -77,6 +77,28 @@ export const BADGES = [
   { id: 'b_rs3', group: 'research', art: 'butterflyfish', name: 'שלושה כוכבים', how: 'תעלומה עם שלושה כוכבים', earn: 'research:stars' },
   { id: 'b_rsall', group: 'research', art: 'hoopoe', name: 'בלש הטבע', how: 'כל התעלומות נפתרו', earn: 'research:all' },
   { id: 'b_rsodd', group: 'research', art: 'chameleon', name: 'דרך משלכם', how: 'פותרים תעלומה בדרך שאינה הדרך הרגילה', earn: 'research:other' },
+  // 1.3.1: one for every mystery (src/research/cases), one for every level, and good research habits (session.js finish)
+  { id: 'b_rc_mice', group: 'research', art: 'owl', name: 'בית לתנשמת', how: 'פותרים את התעלומה "יותר מדי קוצנים"', earn: 'research:case:mice-owl' },
+  { id: 'b_rc_bees', group: 'research', art: 'rockrose', name: 'פרחים וזרעים', how: 'פותרים את התעלומה "הפרחים שלא נותנים זרעים"', earn: 'research:case:flowers-bees' },
+  { id: 'b_rc_greenreef', group: 'research', art: 'parrotfish', name: 'שונית נקייה', how: 'פותרים את התעלומה "השונית הירוקה"', earn: 'research:case:green-reef' },
+  { id: 'b_rc_frogs', group: 'research', art: 'dartfrog', name: 'בריכה על ענף', how: 'פותרים את התעלומה "איפה הצפרדעים?"', earn: 'research:case:frogs' },
+  { id: 'b_rc_brazil', group: 'research', art: 'orchidbee', name: 'שותפי האגוז', how: 'פותרים את התעלומה "אגוזי הברזיל שלא נותנים פרי"', earn: 'research:case:brazil-nut' },
+  { id: 'b_rc_cleaning', group: 'research', art: 'cleaner', name: 'התחנה נפתחה', how: 'פותרים את התעלומה "תחנת הניקוי נסגרה"', earn: 'research:case:cleaning-station' },
+  { id: 'b_rc_oaks', group: 'research', art: 'hyrax', name: 'חורש מתחדש', how: 'פותרים את התעלומה "החורש שלא מתחדש"', earn: 'research:case:young-oaks' },
+  { id: 'b_rc_ants', group: 'research', art: 'anteater', name: 'צל בשוליים', how: 'פותרים את התעלומה "הנמלים שאכלו את היער"', earn: 'research:case:leafcutters' },
+  { id: 'b_rc_coral', group: 'research', art: 'branching', name: 'אלמוג בצבע', how: 'פותרים את התעלומה "האלמוג הלבן"', earn: 'research:case:white-coral' },
+  { id: 'b_rc_trap', group: 'research', art: 'fox', name: 'בלי מלכודת', how: 'פותרים את התעלומה "המלכודת"', earn: 'research:case:the-trap' },
+  { id: 'b_rc_hunters', group: 'research', art: 'harpy', name: 'הטורפים חזרו', how: 'פותרים את התעלומה "היער שנשאר בלי טורפים"', earn: 'research:case:no-predators' },
+  { id: 'b_rc_fire', group: 'research', art: 'pine', name: 'קיץ בלי אש', how: 'פותרים את התעלומה "אש בקיץ"', earn: 'research:case:summer-fire' },
+  { id: 'b_rc_gazelles', group: 'research', art: 'gazelle', name: 'הצבאים נשארו', how: 'פותרים את התעלומה "הצבאים נעלמים"', earn: 'research:case:gazelles' },
+  { id: 'b_rl_kids', group: 'research', art: 'sage', name: 'חוקר מתחיל', how: 'כל התעלומות של המתחילים נפתרו', earn: 'research:level:kids' },
+  { id: 'b_rl_middle', group: 'research', art: 'jay', name: 'חוקר מנוסה', how: 'כל התעלומות של הבינוניים נפתרו', earn: 'research:level:middle' },
+  { id: 'b_rl_adv', group: 'research', art: 'jaguar', name: 'חוקר מומחה', how: 'כל התעלומות של המתקדמים נפתרו', earn: 'research:level:advanced' },
+  { id: 'b_rh_guess', group: 'research', art: 'toucan', name: 'השערה קולעת', how: 'ההשערה הראשונה שבחרתם הייתה נכונה, והתעלומה נפתרה', earn: 'research:firstguess' },
+  { id: 'b_rh_nohint', group: 'research', art: 'tapir', name: 'בלי רמזים', how: 'פותרים תעלומה בלי להשתמש ברמז', earn: 'research:nohints' },
+  { id: 'b_rh_thrift', group: 'research', art: 'agouti', name: 'חוקר חסכן', how: 'פותרים תעלומה בתקציב קטן, בלי לבזבז', earn: 'research:thrift' },
+  { id: 'b_rh_book', group: 'research', art: 'blackbird', name: 'מחברת של חוקר', how: 'במחברת: פוסלים השערה אחת לפחות ובוחרים השערה, והתעלומה נפתרת', earn: 'research:notebook' },
+  { id: 'b_rh_order', group: 'research', art: 'tortoise', name: 'צעד אחר צעד', how: 'מודדים וכותבים השערה לפני הרעיון הראשון, ופותרים', earn: 'research:order' },
 ];
 
 // card frames for the album: a group's frame opens with `need` of its badges ('all': badges of any group)

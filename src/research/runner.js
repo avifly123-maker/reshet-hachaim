@@ -58,8 +58,19 @@ export function createRunner(C) {
   }
   // was it healed some other way than the case's main fix (C.mainFix: the ideas of the usual route)?
   const otherWay = () => !!(C.mainFix && C.mainFix.length && !C.mainFix.every((id) => used(id) >= C.mainFix.filter((x) => x === id).length));
+  // a copy of this mystery as it stands now (numbers, budget, clock, what was done), to look ahead without touching it:
+  // "if nothing more is done, will the place heal?" (the explanation after an experiment)
+  function fork() {
+    const r = createRunner(C);
+    r._load({ v: { ...model.state.v }, sat: { ...model.state.sat }, t: model.state.t, spent, held, solved, acts: acts.map((a) => ({ ...a })) });
+    return r;
+  }
+  function _load(st) {
+    Object.assign(model.state.v, st.v); Object.assign(model.state.sat, st.sat); model.state.t = st.t;
+    spent = st.spent; held = st.held; solved = st.solved; acts.length = 0; acts.push(...st.acts);
+  }
   return {
-    model, acts, apply, blocked, step, used, costOf, budgetLeft, ideaOf, surprises, fired, otherWay,
+    model, acts, apply, blocked, step, used, costOf, budgetLeft, ideaOf, surprises, fired, otherWay, fork, _load,
     get spent() { return spent; }, get held() { return held; }, get solved() { return solved; },
   };
 }
