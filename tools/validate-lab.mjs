@@ -10,6 +10,7 @@
 import fs from 'node:fs';
 import { ROOM_K, TALK_K, FACTS_K, JOKES_K, ATLAS_K, SCOPE_K, SAMPLES_K, THINK_K, QUEST_K, QUEST_UI_K } from '../src/lab/kids-text.js';
 import { PROBLEMS_K, TRAIT_K, THEMES_K, WILD_K, SAY_K, TRIALS_K, INV_UI_K, NAMES_K } from '../src/data/inventions-kids.js';
+import * as STATION from '../src/lab/station-text.js';   // the station worlds (19.10): every text a pair { f, k }
 import { SAMPLES } from '../src/lab/samples.js';
 import { QUESTIONS } from '../src/data/lab-questions.js';
 import { PROBLEMS, TRAIT, THEMES, WILD, SAY, TRIALS } from '../src/data/inventions.js';
@@ -58,6 +59,26 @@ walk('ROOM_K', ROOM_K); walk('TALK_K', TALK_K); walk('FACTS_K', FACTS_K); walk('
 walk('SCOPE_K', SCOPE_K); walk('SAMPLES_K', SAMPLES_K); walk('THINK_K', THINK_K); walk('QUEST_K', QUEST_K); walk('QUEST_UI_K', QUEST_UI_K);
 walk('PROBLEMS_K', PROBLEMS_K); walk('TRAIT_K', TRAIT_K); walk('THEMES_K', THEMES_K); walk('WILD_K', WILD_K); walk('SAY_K', SAY_K);
 walk('TRIALS_K', TRIALS_K); walk('INV_UI_K', INV_UI_K); walk('NAMES_K', Object.values(NAMES_K));
+
+// the station worlds: every leaf is a pair { f, k }; k is the beginners' text (a bubble or a list of bubbles), f the
+// full level's (plain, one string). Facts and the endings' and discoveries' words are a box, not a bubble: up to 150.
+let stationPairs = 0;
+function walkPairs(where, v, max = 90) {
+  if (v && typeof v === 'object' && !Array.isArray(v) && 'f' in v && 'k' in v) {
+    stationPairs++;
+    if (typeof v.f !== 'string' || !v.f.trim()) err(where, 'no full-level text (f)');
+    else if (v.f.includes('—')) err(where, `em dash: "${v.f}"`);
+    if (Array.isArray(v.k)) v.k.forEach((x, i) => check(`${where}.k[${i}]`, x, max)); else check(`${where}.k`, v.k, max);
+    // the same {name} placeholders on both levels
+    const ph = (s) => [...new Set(String([].concat(s).join(' ')).match(/\{\w+\}/g) || [])].sort().join(',');
+    if (ph(v.f) !== ph(v.k)) err(where, `placeholders differ: f ${ph(v.f) || '-'} / k ${ph(v.k) || '-'}`);
+    return;
+  }
+  if (typeof v === 'string') { err(where, `a plain string, not a pair { f, k }: "${v}"`); return; }
+  if (Array.isArray(v)) return v.forEach((x, i) => walkPairs(`${where}[${i}]`, x, max));
+  if (v && typeof v === 'object') for (const [k, x] of Object.entries(v)) walkPairs(`${where}.${k}`, x, ['fact', 'say', 'yes'].includes(k) ? 150 : max);
+}
+for (const [name, v] of Object.entries(STATION)) if (name !== 'L') walkPairs(name, v);
 
 // ── coverage
 for (const s of SAMPLES) {
@@ -121,5 +142,5 @@ if (idsIn('ITEMS_ALL').length !== 8 || idsIn('SCENES_ALL').length !== 3 || idsIn
 
 for (const w of warns) console.log('warn  ' + w);
 for (const e of errors) console.log('ERROR ' + e);
-console.log(errors.length ? `\n${errors.length} error(s)` : `OK – lab beginners' texts: ${SAMPLES.length} samples, ${qs.length} questions, ${kidsProblems.length} problems, ${names.size} card names, all vocalised`);
+console.log(errors.length ? `\n${errors.length} error(s)` : `OK – lab beginners' texts: ${SAMPLES.length} samples, ${qs.length} questions, ${kidsProblems.length} problems, ${names.size} card names, ${stationPairs} station texts, all vocalised`);
 process.exit(errors.length ? 1 : 0);

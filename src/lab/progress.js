@@ -2,19 +2,20 @@
 // { found: { <sampleId>: [targetIndex, ...] }, seen: { <sampleId>: true } (discovery complete), inventions: { <id>: time },
 //   tries: { <inventionId>: [{ choice, result }] }, think: { <activityId>: {...} } (the thinking corner, src/lab/thinking.js),
 //   solved: { <problemId>: time }   (problems of "הממציאים" solved, mirrored from the hub's store for the research questions),
-//   qs: { <questionId>: { g: guessIndex, watched?: time, done?: time } }   (שאלות חקר) }
-// Older saves have no solved / qs: they default to empty. The storage key never changes.
+//   qs: { <questionId>: { g: guessIndex, watched?: time, done?: time } }   (שאלות חקר),
+//   st: { <activityId>: {...} }   (the station worlds of the aquarium, the greenhouse and the cabinet: src/lab/aquarium.js, greenhouse.js, cabinet.js) }
+// Older saves have no solved / qs / st: they default to empty. The storage key never changes.
 // The game reads hasInvention() to upgrade a device (the underwater robot with a shark-skin coat swims faster).
 import { key as profileKey } from '../core/profiles.js';
 
 const K = 'web-of-life-lab';
-const EMPTY = () => ({ found: {}, seen: {}, inventions: {}, tries: {}, solved: {}, qs: {}, think: {} });
+const EMPTY = () => ({ found: {}, seen: {}, inventions: {}, tries: {}, solved: {}, qs: {}, think: {}, st: {} });
 export function labProgress() {
   try {
     const o = JSON.parse(localStorage.getItem(profileKey(K)) || '{}');
     if (!o || typeof o !== 'object') throw 0;
     const obj = (v) => (v && typeof v === 'object' ? v : {});
-    return { found: obj(o.found), seen: obj(o.seen), inventions: obj(o.inventions), tries: obj(o.tries), solved: obj(o.solved), qs: obj(o.qs), think: obj(o.think) };
+    return { found: obj(o.found), seen: obj(o.seen), inventions: obj(o.inventions), tries: obj(o.tries), solved: obj(o.solved), qs: obj(o.qs), think: obj(o.think), st: obj(o.st) };
   } catch (e) { return EMPTY(); }
 }
 function save(o) { try { localStorage.setItem(profileKey(K), JSON.stringify(o)); } catch (e) { /* storage full or blocked: the lab still works */ } }
@@ -43,3 +44,6 @@ export const problemSolved = (id) => !!labProgress().solved[id];
 export function setQuestion(id, patch) {
   const o = labProgress(); o.qs[id] = Object.assign({}, o.qs[id] || {}, patch); save(o); return o.qs[id];
 }
+// the station worlds (19.10): one small record per activity, like the thinking corner
+export function stUpdate(id, fn) { const o = labProgress(); const r = o.st[id] = o.st[id] || {}; try { fn(r); } catch (e) { /* */ } save(o); return r; }
+export const stOf = (id) => labProgress().st[id] || {};

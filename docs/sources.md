@@ -275,6 +275,56 @@ What the experiments show:
 - **More flowers bring more bees:** floral abundance raises insect visits — https://sro.sussex.ac.uk/id/eprint/63437/ .
 - (The counts in the graphs and the weights on the wobbly scale are made up for the game.)
 
+## The lab's stations (1.3: the aquarium, the greenhouse and the cabinet as small worlds; src/lab/aquarium.js, greenhouse.js, cabinet.js, texts in src/lab/station-text.js)
+
+The aquarium, "שונית בקופסה": the rules of the week follow the reef data of the game (src/data/reef.js and the reef section above): the clownfish lives in the anemone, the pistol shrimp digs and the goby keeps watch (also https://utmsi.utexas.edu/science-and-the-sea/radio-program/cooperation/ : the shrimp "digs a burrow", the goby "acts as a lookout" and wiggles to warn it), the moray and the octopus hide in holes, the lionfish rests under table coral and eats goby and shrimp (lionfish stomachs "mostly fin fish" — https://blogs.ifas.ufl.edu/charlotteco/2017/02/16/lionfish ), the moray hunts the octopus.
+- **Small fish shelter in branching coral** from predators (damselfish) — https://pmc.ncbi.nlm.nih.gov/articles/PMC5958076 (title and topic seen in search results).
+- **Grazers keep algae off corals:** herbivorous fish graze algae that would otherwise "outcompete corals for space and sunlight, eventually smothering them" — https://coral.org/blog/guardians-of-the-reef-the-importance-of-herbivore-fish-in-coral-reef-health/ ; parrotfish and urchins graze algae (Parrotfish line above; reef.js).
+- **Butterflyfish eat coral polyps** ("long mouth ... like forceps to pluck off individual coral polyps") — https://en.wikipedia.org/wiki/Corallivore .
+- **Cleaners need clients;** cleaner stations work by day (Bluestreak cleaner wrasse line above).
+- (The eight places, "a patch of algae feeds two grazers", "a branching coral hides three small fish" are game rules.)
+
+The aquarium, "יום ולילה":
+- **Parrotfish sleep in a mucus cocoon** every night; the leading idea (a hypothesis) is protection from small night parasites (gnathiid isopods), when cleaner fish are not active — https://www.nationalgeographic.com/science/article/parrotfish-sleep-in-a-mosquito-net-made-of-mucus .
+- **Coral polyps stretch out their tentacles at night** to catch plankton — https://www.livescience.com/63190-coral-polyps-feeding.html .
+- **Morays hunt at night, by smell** (Moray line above); **the urchin hides by day and scrapes algae at night** (reef.js).
+- **Bleaching:** when the water is too warm the polyps expel their algae and turn pale or white; they can recover, "but not if it stays too hot for too long" — https://www.livingoceansfoundation.org/coral-bleaching ; a rise of 1–2 °C above the usual can trigger bleaching, strong light with calm clear skies adds to it, and corals that survive can regain their algae if conditions improve quickly — https://floridadep.gov/sites/default/files/3-SEAFAN-Bleach-Fact-Sheet.pdf .
+- **Eilat's corals tolerate heat better than most** (Fine, Gildor & Genin 2013, line above) — also https://archive.israel21c.org/eilats-corals-resistant-to-effects-of-global-warming/ .
+- (Three heat steps, "two weeks of heat and sun turn it white", and the recovery speed are game values.)
+
+The greenhouse, "מגדלים חמנייה":
+- **Sunflowers need sun,** at least 6–8 hours a day — https://ucanr.edu/node/168463 ; in shade a seedling stretches, pale and weak (Etiolation line above); too little and too much water (lines above).
+- **Snails eat soft seedlings at night** (Snails lines above).
+- **Aphids suck plant sap; ladybirds eat aphids,** each one hundreds — https://blogs.ifas.ufl.edu/wakullaco/2016/05/19/aphids-are-the-insect-worlds-villain , https://pender.ces.ncsu.edu/2022/05/ladybugs-on-the-prowl (it also says aphids do little lasting harm: in the game a plant left with aphids only ends a little weaker).
+- **Bees give a sunflower more seeds:** seed yield was 43% higher in plants visited by pollinators (Scientia Agricola 2011) — https://revistas.usp.br/sa/en/article/view/22722 .
+
+The greenhouse, "זרעים יוצאים לדרך":
+- **Seeds spread away from the parent plant** so the young plant has room, water and light of its own — https://nj.gov/dep/parksandforests/natural/heritage/docs/bl_Seed_Dispersal_Strategies_4.4.24.pdf .
+- **Wind, animals, water:** maple-like winged seeds spin, fluffy (dandelion-like) seeds fly long distances, burdock's tiny hooks stick to fur and inspired Velcro, fruit-eating animals carry seeds away, a coconut floats on its air pocket — https://bbg.org/news/learn_how_seeds_travel_and_design_your_own_seed_activity ; terebinth seeds are spread by birds (grove section above).
+- **Aleppo (Jerusalem) pine seeds have a wing (about 20 mm) and are wind-dispersed** — https://en.wikipedia.org/wiki/Pinus_halepensis .
+- **The squirting cucumber (ירוקת החמור)** shoots its seeds out by itself, some about 10 m, at over 20 m/s — https://physicsworld.com/a/the-mechanics-of-squirting-cucumbers-revealed/ (7–8 m: https://en.wikipedia.org/wiki/Ecballium ); native around the Mediterranean, including the "Palestine" botanical region that covers Israel — https://www.kew.org/plants/squirting-cucumber . The game says "a few metres".
+- (All distances are game values; the goal line is 8 m.)
+
+The cabinet, "האוסף שלנו" (the six things always on the shelf):
+- **Pine cone** scales open when dry and close when wet; fire opens the cones (Pine cone and Aleppo pine lines above).
+- **Acorn:** the jay caches acorns one by one and forgets some, which sprout (Eurasian jay line above; "prolific caching of food, especially oak acorns" — https://en.wikipedia.org/wiki/Eurasian_jay ).
+- **Jay feather:** "a prominent bright blue patch with fine black bars" on the wing — https://en.wikipedia.org/wiki/Eurasian_jay .
+- **Carob pod** ripens slowly, about a year on the tree (Carob line above).
+- **Porcupine quill:** brown or black with white and black bands, some hollow (https://en.wikipedia.org/wiki/Indian_crested_porcupine , the grove's porcupine); the defensive quills "are not firmly attached" (https://en.wikipedia.org/wiki/Crested_porcupine ); porcupines do not shoot their quills — https://nationalzoo.si.edu/node/6871 (a North American porcupine page: the game says only that the porcupine does not shoot them).
+- **Winged pine seed:** Aleppo pine line above.
+
+The cabinet, "ממיינים כמו חוקרים":
+- **The same objects can be sorted in different ways,** depending on the property used — https://acs.org/content/dam/acsorg/education/k-8/inquiry-in-action/second-grade/g2-l1.1-classifying-objects.pdf .
+- **Sponges are animals** (phylum Porifera) — https://en.wikipedia.org/wiki/Sponge .
+- (Which box each thing goes in is plain description: plant or animal, sea or land, hard or soft, long or round, seeds, brown or not. Seeds and colour split the eight the same way on purpose.)
+
+The cabinet, "מי השאיר את זה?":
+- **Gazelle tracks** (Gazelle tracks line above). **Barn owl feathers** with a soft comb-like edge, found by a nest box (Barn owl lines above). **Jay feather** (above). **Porcupine quill** (above); the hedgehog's spines are brown and white and much shorter — https://en.wikipedia.org/wiki/European_hedgehog .
+- **An octopus returns to the same den and leaves a "midden" of shells from its meals near the entrance** — https://www.sciencefriday.com/educational-resources/make-an-octopus-den/ .
+- **Harvester ants (Messor) make chaff piles at their nests** (plant material: husks of the seeds they carry in) — https://cris.huji.ac.il/en/publications/chaff-piles-of-harvester-ant-messor-spp-nests-in-a-desert-ecosyst/ .
+- **Parrotfish:** teeth packed into "a parrot-like beak" with which they rasp algae from coral rock, and what is left comes out as sand — https://en.wikipedia.org/wiki/Parrotfish .
+- **The wrong answers** say only plain things: a fox and a hyrax have soft pads, not hooves (hyrax soles: grove section above); the hoopoe's wings are black and white (https://en.wikipedia.org/wiki/Eurasian_hoopoe ); a hermit crab lives in one empty shell (https://en.wikipedia.org/wiki/Hermit_crab ); the sea urchin's small mouth is under its body (sample line above); a green turtle has a beak and eats mostly seagrass (https://en.wikipedia.org/wiki/Green_sea_turtle ).
+
 ## Quiz bank (מרכז הלמידה: src/data/quiz-bank.js)
 
 The 158 hand-written questions restate facts that are already sourced above, species by species (Amazon, grove, reef) and in the tools' card texts (src/game/tools.js). New facts used only in the bank:
