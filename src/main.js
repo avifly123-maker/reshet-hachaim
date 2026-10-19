@@ -6,7 +6,6 @@ import { createUI } from './ui/ui.js';
 import { createAudio } from './audio/audio.js';
 import { createMusic } from './audio/music.js';
 import { makeBus, makeRng } from './core/util.js';
-import { createGame } from './game/game.js';
 import { BABA_DA_LOGO } from './data/logo.js';
 import { KIDS } from './data/kids.js';
 import { ZONES } from './data/zones.js';
@@ -16,6 +15,8 @@ import { createResearchHub } from './research/hub.js';
 import { caseById } from './research/cases/index.js';
 import { initGamepad } from './ui/gamepad.js';
 import { startBadgeToasts } from './ui/badge-toast.js';
+import { howto } from './ui/howto.js';
+import { labHowto, HOWTO_LABELS } from './data/howto-cards.js';
 
 // Zones (biomes): the start screen draws them from the registry (data/zones.js); a zone's content and species models
 // arrive in its pack – { zone: { data, plants, animals }, release() } – loaded when the zone is chosen (core/packs.js).
@@ -130,7 +131,7 @@ async function boot() {
     root.classList.toggle('kids', MODE === 'kids' && !research);
     try {
       // the zone's pack: already in (chosen before, or loading since the click), or fetched now behind the loading screen
-      if (!zoneOf(id)) { ui.setLoading(0.01, 'מכינים את היער...'); await loadPack(id); }
+      if (!zoneOf(id) || !loadedPack('game')) { ui.setLoading(0.01, 'מכינים את היער...'); await Promise.all([loadPack(id), loadPack('game')]); }
     } catch (e) {
       console.error(e);
       ui.setLoading(0, 'משהו השתבש בטעינה. אפשר לחזור למסך הפתיחה ולנסות שוב.');
@@ -144,7 +145,8 @@ async function boot() {
     resetAutoQ(2);   // a fresh island: forget the previous one's frame timing (the loading gap would count as one huge frame)
     try {
       gameZone = id;
-      game = await createGame({ save, research, pipe, ui, audio, bus, biome, plantBuilders: Z.plants, animalBuilders: Z.animals, quality, onExit: () => { closeGame(); resetAutoQ(2); audio.setBiome(null); showStart(); if (research) researchHub.open(); } });
+      const { createGame } = loadedPack('game');
+      game = await createGame({ save, research, pipe, ui, audio, bus, biome, plantBuilders: Z.plants, animalBuilders: Z.animals, zoneEnv: Z.env || null, quality, onExit: () => { closeGame(); resetAutoQ(2); audio.setBiome(null); showStart(); if (research) researchHub.open(); } });
       const g = game;
       if (SOFTWARE_GL) setTimeout(() => game && game === g && ui.toast('שימו לב: המחשב הזה מצייר בלי מנהל התקן גרפי, ולכן המשחק איטי. עדכון מנהל ההתקן של כרטיס המסך יפתור את זה.', 'warn'), 2500);
       // warm up shaders before revealing
@@ -177,7 +179,7 @@ async function boot() {
       buttons: [{ id: 'save-continue', label: 'להמשיך את היער השמור' }, { id: 'save-new', label: 'להתחיל יער חדש' }, { id: 'save-back', label: 'חזרה', kind: 'back' }], dismiss: 'save-back' });
   }
   // start fetching the zone's pack right at the click – it loads while the "continue the saved forest?" question is open
-  bus.on('start:biome', ({ id }) => { audio.start(); loadPack(id).catch(() => { /* reported by loadBiome */ }); askSaved(id); });
+  bus.on('start:biome', ({ id }) => { audio.start(); loadPack('game').catch(() => { }); loadPack(id).catch(() => { /* reported by loadBiome */ }); askSaved(id); });
   bus.on('dialog:button', ({ id }) => {
     if (!pendingBiome) return;
     const b = pendingBiome;
@@ -206,17 +208,33 @@ async function boot() {
   // { tutorial: true }: the guided mystery from the research centre's "הדרכה" button (src/research/tutorial.js)
   const researchHub = createResearchHub(root, { onPick: (id, opts) => { let C = caseById(id); if (!C) return; if (opts && opts.tutorial) C = { ...C, tutorial: true }; loadPack(C.zone).catch(() => { /* reported by loadBiome */ }); loadBiome(C.zone, null, C); }, onLab: () => openLab() });
   // מעבדת רובו־דע: its own pack; while it is open the frame loop draws it (there is no forest then)
-  let lab = null, labP = null, labFrom = 'hub', labOpening = false;
+  let lab = null, labP = null, labFrom = 'hub', labOpening = false, labArt = null, labHow = null;
+  // "איך משחקים" in the lab: four cards the first time (src/ui/howto.js), again from the "?" button in its top bar
+  function showLabHowto(force) {
+    if (labHow && labHow.open) return;
+    const kids = MODE === 'kids', L = kids ? HOWTO_LABELS.kids : HOWTO_LABELS.full;
+    const pic = (st) => (labArt && labArt.st && labArt.st[st]) || '';
+    labHow = howto(root, labHowto(kids, pic), { key: 'lab', force, labels: L, title: L.title });
+  }
   function openLab(from = 'hub') {
     labFrom = from; labOpening = true;   // the lab's music may begin while the room loads (a cross-fade from the start screen's)
     audio.start(); ui.hideStart();
     ui.setLoading && ui.setLoading(0.3, 'פותחים את המעבדה...');
     labP = labP || loadPack('lab').then((m) => {
-      lab = m.createLab({ root, pipe, audio, onExit: () => { startDrawn = false; showStart(); if (labFrom === 'hub') researchHub.open(); },
+      labArt = m.LAB_ART || null;
+      lab = m.createLab({ root, pipe, audio, onExit: () => { if (labHow) { labHow.close(); labHow = null; } startDrawn = false; showStart(); if (labFrom === 'hub') researchHub.open(); },
         openGame: (name, opts) => getHub().then((h) => (h.go ? h.go(name, { ...(opts || {}), from: 'lab' }) : h.open()), (e) => console.error(e)) });
+      const think = root.querySelector('.lb .lb-think');
+      if (think) {
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'lb-btn lb-howto';
+        b.innerHTML = '<b aria-hidden="true">?</b>'; b.title = 'איך משחקים?'; b.setAttribute('aria-label', 'איך משחקים?');
+        b.style.cssText = 'pointer-events:auto;min-width:44px;justify-content:center;padding:9px 14px;font-size:1.1em';
+        b.addEventListener('click', () => showLabHowto(true));
+        think.after(b);
+      }
       return lab;
     });
-    labP.then((L) => { labOpening = false; ui.hideLoading(); L.open(); }, (e) => { labOpening = false; labP = null; ui.hideLoading(); console.error(e); showStart(); });
+    labP.then((L) => { labOpening = false; ui.hideLoading(); L.open(); setTimeout(() => { if (L.isOpen()) showLabHowto(false); }, 700); }, (e) => { labOpening = false; labP = null; ui.hideLoading(); console.error(e); showStart(); });
   }
   bus.on('ui:research', () => { audio.start(); researchHub.open(); });
   bus.on('audio:mute', ({ muted }) => audio.setMuted(muted));
@@ -305,8 +323,8 @@ async function boot() {
   }
 
   showStart();
-  // the hub pack is small and the game may need it any time (a card pack won in a forest): bring it in once idle
-  setTimeout(() => { const go = () => getHub().catch(() => { /* retried when opened */ }); if (typeof requestIdleCallback === 'function') requestIdleCallback(go, { timeout: 4000 }); else go(); }, 1200);
+  // 1.3.1: nothing more is loaded in the background. The learning hub comes when it is opened (or when a forest grants a
+  // card pack: window.__wolLearn above loads it then), each zone with its click, the lab when the child enters it.
 
   // F key: small frame-rate readout (handy when reporting speed problems)
   let fpsEl = null, fpsN = 0, fpsT = performance.now();

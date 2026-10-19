@@ -33,7 +33,7 @@ export function createMissions(W) {
     m.started = true; m.t0 = W.simT;
     // a mission that was running before the game was saved keeps its starting point (restored from the save)
     if (!W.stats.missionStart[m.id]) W.stats.missionStart[m.id] = { pollinations: { ...W.stats.pollinations }, dispersals: W.stats.dispersals, experiments: W.stats.experiments, rescues: W.stats.rescues || 0, seeded: W.stats.seeded || 0,
-      toolUse: { ...(W.stats.toolUse || {}) }, uprooted: W.stats.uprooted || 0, moved: W.stats.moved || 0, letGo: W.stats.letGo || 0, t: W.simT };
+      toolUse: { ...(W.stats.toolUse || {}) }, uprooted: W.stats.uprooted || 0, moved: W.stats.moved || 0, letGo: W.stats.letGo || 0, transplants: W.stats.transplants || 0, scarsHealed: W.stats.scarsHealed || 0, t: W.simT };
     for (const e of events) if (!e.fired && e.trigger.type === 'mission' && e.trigger.id === m.id) fire(e, e.trigger.delay ?? 6);
   }
 
@@ -98,6 +98,10 @@ export function createMissions(W) {
       case 'toolSince': return Math.min(1, (((S.toolUse || {})[q.tool] || 0) - ((base.toolUse || {})[q.tool] || 0)) / q.count);
       case 'tool': return Math.min(1, ((S.toolUse || {})[q.tool] || 0) / q.count);
       case 'young': return Math.min(1, W.plants.filter(p => p.sp.id === q.species && p.alive && !p.removed && (p.bornT ?? -1) >= since && p.growth >= q.min).length / q.count);
+      // the coral nursery (reef): strong corals transplanted, planted where the reef was hurt (since the mission began), grown up
+      case 'transplant': return Math.min(1, ((S.transplants || 0) - (base.transplants || 0)) / q.count);
+      case 'scarHealed': return Math.min(1, ((S.scarsHealed || 0) - (base.scarsHealed || 0)) / q.count);
+      case 'strongGrown': return Math.min(1, W.plants.filter(p => p.strong && p.alive && !p.removed && p.growth >= (q.min || 0.95) && (p.bornT ?? -1) >= since).length / q.count);
       case 'sownBy': return Math.min(1, W.plants.filter(p => p.sp.id === q.species && p.alive && !p.removed && p.sownBy === q.by && (p.bornT ?? -1) >= since).length / q.count);
       case 'plantLight': return Math.min(1, W.plants.filter(p => p.sp.id === q.species && p.alive && !p.removed && p.growth > 0.15 && p.light >= q.min).length / q.count);
       case 'growTo': return Math.min(1, W.plants.filter(p => p.sp.id === q.species && p.alive && !p.removed && !p.wild && p.growth >= q.min).length / (q.count || 1));

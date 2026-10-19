@@ -6,6 +6,7 @@ import { PLANTS, releaseCaches as releasePlants } from '../models/reef-plants.js
 import { ANIMALS, releaseCaches as releaseAnimals } from '../models/reef-animals.js';
 import { withRigged, releaseRigged } from '../models/rigged.js';
 import { RIGGED } from '../data/rigged-reef.js';
+import { createReefEnvironment } from '../env/reef.js';   // the reef's own diorama (sea floor, water, its coral heads): only in this pack
 
-export const zone = { data: BIOME, plants: PLANTS, animals: withRigged(ANIMALS, RIGGED) };
+export const zone = { data: BIOME, plants: PLANTS, animals: withRigged(ANIMALS, RIGGED), env: createReefEnvironment };
 export function release() { releasePlants(); releaseAnimals(); releaseRigged(); }

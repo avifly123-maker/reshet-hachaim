@@ -7,7 +7,6 @@ import { GROUND_TEX } from '../data/ground-textures.js';
 import { TREE_SHADOW } from '../data/tree-shadow.js';
 import { bakeImpostors, patchImpostorMaterial, impostorQuad } from './impostors.js';
 import { propGeometry } from '../world/props.js';
-import { createReefEnvironment } from './reef.js';
 
 const R = 38;
 const MAX_SHAFTS = 20;
@@ -172,8 +171,11 @@ function patchMaterial(mat, key, uniforms, { vertexPre = '', vertexBegin = '', f
 // impostorTrees (optional): [{ id, role, build: () => PlantVisual }] – a few mature trees of the zone, baked into the far
 // forest's tree impostors (roles: amazon 'emergent' | 'canopy' | 'palm', grove 'tree' | 'bush'). Without them (or if the
 // bake fails) the far forest uses simple faceted crowns.
-export function createEnvironment(pipeline, biomeId = 'amazon', { quality = 'medium', seed = 1, impostorTrees = null } = {}) {
-  if (biomeId === 'reef') return createReefEnvironment(pipeline, { quality, seed });   // the reef has its own diorama (src/env/reef.js)
+// zoneEnv (optional): a zone pack's own environment factory (the reef's diorama, src/env/reef.js, comes in the reef pack
+// with its coral models, so the other zones and the start screen never load it).
+export function createEnvironment(pipeline, biomeId = 'amazon', { quality = 'medium', seed = 1, impostorTrees = null, zoneEnv = null } = {}) {
+  if (zoneEnv) return zoneEnv(pipeline, { quality, seed });
+  if (biomeId === 'reef') throw new Error('the reef environment comes with the reef pack (zone.env)');
   const isAmazon = biomeId !== 'grove';
   const biome = isAmazon ? 'amazon' : 'grove';
   const scene = pipeline.scene;

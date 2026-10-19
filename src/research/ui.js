@@ -2,7 +2,7 @@
 // (tools, ideas, budget, hints, lab), notes from the field notebook, "see what happens", the lab and the end.
 // Plain DOM inside #ui, styled by src/research/research.css (same field-kit look as the rest of the game).
 import { icon, esc } from '../ui/ui.js';
-import { TOOL_ICONS } from '../game/tools.js';
+import { TOOL_ICONS } from '../game/tool-defs.js';   // plain data (no 3D models)
 import { CASE_ICONS } from './case-icons.js';
 import { ADV_ICONS } from './icons-adv.js';
 import { CARD_ART } from '../data/card-art.js';

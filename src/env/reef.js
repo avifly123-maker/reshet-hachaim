@@ -601,6 +601,8 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
     scene.remove(root);
     scene.fog = prevFog; scene.background = prevBg;
     for (const d of disposables) d.dispose && d.dispose();
+    // whatever else hangs under the diorama (rock and coral-head instances built from the shared Blender shapes): free its GPU side too
+    root.traverse((o) => { if (o.geometry) o.geometry.dispose(); for (const m of [].concat(o.material || [])) if (m) m.dispose(); });
     rays.dispose();
     if (sunLight.shadow.map) sunLight.shadow.map.dispose();
   }

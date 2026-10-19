@@ -18,11 +18,12 @@ const CSS = `
 #ui.wol .tour-pick .tp-box { position: relative; width: min(680px, calc(100vw - 40px)); max-height: calc(100vh - 40px); overflow: auto; padding: 18px 22px 20px; text-align: center; }
 #ui.wol .tp-box h2 { font-family: var(--serif); font-size: 1.7em; color: #1f2c1a; }
 #ui.wol .tp-box > p { margin: 4px 0 14px; color: var(--ink2); font-weight: 600; }
-#ui.wol .tp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(132px, 1fr)); gap: 12px; }
+#ui.wol .tp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; }
+#ui.wol .tp-sec { grid-column: 1 / -1; margin: 6px 0 -2px; text-align: start; font-weight: 800; color: var(--ink2); font-size: .92em; }
 #ui.wol .tp-card { --c: #6a9; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 8px 12px; border-radius: 18px;
   background: rgba(255, 255, 255, .42); box-shadow: inset 0 0 0 1.5px rgba(60, 70, 40, .3); transition: transform .15s, box-shadow .15s, background .15s; }
 #ui.wol .tp-card:hover, #ui.wol .tp-card:focus-visible { transform: translateY(-2px); background: rgba(255, 255, 255, .7); box-shadow: inset 0 0 0 2.5px var(--leaf2), 0 6px 12px rgba(0, 0, 0, .15); }
-#ui.wol .tp-card .tp-img { width: 86px; height: 86px; border-radius: 50%; overflow: hidden; display: grid; place-items: center;
+#ui.wol .tp-card .tp-img { width: 72px; height: 72px; border-radius: 50%; overflow: hidden; display: grid; place-items: center;
   background: color-mix(in srgb, var(--c) 30%, #eef0dc); box-shadow: 0 0 0 3px #fff8, 0 3px 8px rgba(0, 0, 0, .2); }
 #ui.wol .tp-card .tp-img img { width: 100%; height: 100%; object-fit: cover; }
 #ui.wol .tp-card b { font-family: var(--serif); font-weight: 400; font-size: 1.2em; color: #1f2c1a; }
@@ -57,6 +58,7 @@ const CSS = `
 #ui.wol .tv-pad [data-k="fwd"] small { top: auto; bottom: calc(100% + 6px); }
 #ui.wol .tv-keys { margin-top: 8px; font-size: .8em; font-weight: 700; color: var(--ink2); opacity: .8; }
 #ui.wol .tour-view.m-climb .tv-alt, #ui.wol .tour-view.m-climb [data-k="back"], #ui.wol .tour-view.m-walk .tv-alt { display: none; }
+@media (max-height: 520px) { #ui.wol .tp-card .tp-img { width: 56px; height: 56px; } #ui.wol .tp-card { padding: 8px 6px; } #ui.wol .tp-box { padding: 12px 16px 14px; } #ui.wol .tp-box h2 { font-size: 1.4em; } }
 /* the toolbar button; it lights up when the missions are done */
 #ui.wol .tb[data-a="tour"] .ic { color: #f2d77e; }
 #ui.wol .tb[data-a="tour"].ready { background: var(--honey); color: #2e1d05; padding: 0 12px 0 10px; border-radius: 999px; animation: tour-glow 2.4s ease-in-out infinite; }
@@ -72,16 +74,23 @@ const CSS = `
 @media (max-height: 720px) { #ui.wol .tv-cross { grid-template: repeat(3, 64px) / repeat(3, 64px); } #ui.wol .tv-pad { bottom: 28px; } #ui.wol .tv-alt { gap: 26px; margin-bottom: 24px; } }
 @media (max-width: 1100px) { #ui.wol .tv-cap { width: min(420px, calc(100vw - 330px)); right: 16px; bottom: 16px; } #ui.wol .tv-pad { left: 18px; gap: 14px; } }
 @media (prefers-reduced-motion: reduce) { #ui.wol .tb[data-a="tour"].ready { animation: none; } }
+/* narrow screens: the caption goes to the top corner, so the animal (just below the middle of the view) stays visible */
+@media (max-width: 860px) { #ui.wol .tv-cap { top: 12px; bottom: auto; right: 12px; width: min(380px, calc(100vw - 236px)); padding: 9px 12px 10px; }
+  #ui.wol .tv-cap .tv-img { width: 46px; height: 46px; } #ui.wol .tv-cap .tv-keys { display: none; } }
 `;
 const TOUR_ICON = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="f" d="M2.5 12S6 6 12 6s9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/><path d="M2.5 12S6 6 12 6s9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>';
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const wrapA = (a) => { while (a > Math.PI) a -= Math.PI * 2; while (a < -Math.PI) a += Math.PI * 2; return a; };
 const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
-// favourite riders first (the picker shows up to six that live on the island right now)
+// favourite riders first (the picker shows every animal that lives on the island right now; the rest follow)
 const PREF = {
-  amazon: ['agouti', 'hummingbird', 'toucan', 'sloth', 'macaw', 'morpho', 'tapir', 'howler', 'capybara', 'coati', 'kinkajou', 'orchidbee', 'dartfrog', 'anteater', 'fruitbat'],
-  grove: ['gazelle', 'hoopoe', 'hedgehog', 'butterfly', 'jay', 'hyrax', 'blackbird', 'tortoise', 'chukar', 'honeybee', 'agama', 'porcupine', 'spinymouse', 'chameleon'],
+  amazon: ['agouti', 'hummingbird', 'toucan', 'sloth', 'macaw', 'morpho', 'tapir', 'howler', 'capybara', 'coati', 'kinkajou', 'orchidbee', 'dartfrog', 'anteater', 'fruitbat', 'jaguar', 'harpy'],
+  grove: ['gazelle', 'hoopoe', 'hedgehog', 'butterfly', 'jay', 'hyrax', 'blackbird', 'tortoise', 'chukar', 'honeybee', 'agama', 'porcupine', 'spinymouse', 'chameleon', 'fox', 'owl'],
+  reef: ['turtle', 'reefshark', 'clownfish', 'parrotfish', 'octopus', 'stingray', 'butterflyfish', 'surgeonfish', 'cleaner', 'grouper', 'moray', 'lionfish', 'jellyfish', 'goby', 'shrimp', 'hermit', 'urchin', 'starfish'],
 };
+// animals that stay in place (corals, the sponge, the anemone, the giant clam) and colonies / swarms get a close look
+// instead of a ride: the camera circles them slowly, and the caption tells who comes to visit
+const LOOK_KINDS = new Set(['coral', 'sessile']);
 const HOVERERS = new Set(['hummingbird', 'morpho', 'butterfly', 'orchidbee', 'honeybee']);
 const RELEASE_AFTER = 2.2;   // seconds without input before the animal goes on by itself
 
@@ -90,19 +99,28 @@ export function createTour({ W, env, reg, camera, canvas, ui, audio, imv, missio
   const root = document.getElementById('ui');
   const biomeId = W.biomeId;
 
-  // ── which animals can be ridden: real animals (not colonies / swarms), no hunters of other animals
+  // ── which animals can be ridden: every animal that moves (hunters and fish too; while the child rides a hunter it
+  // does not hunt). Animals that stay in place, colonies and swarms get a close look instead (lookable).
   const modeOf = (a) => a.loco === 'flying' ? 'fly' : a.loco === 'arboreal' ? 'climb' : 'walk';
   function tourableSp(sp) {
     if (!sp || sp.isPlant || sp.kind !== 'animal') return false;
-    if ((sp.diet2 || []).some(e => e.part === 'animals')) return false;
     return ['ground', 'flying', 'arboreal', 'water', undefined].includes(sp.locomotion);
   }
+  const lookableSp = (sp) => !!sp && (LOOK_KINDS.has(sp.kind) || sp.kind === 'colony' || sp.kind === 'swarm');
   const rideable = (a) => a.alive && !a.removed && !a.leaving && !a.injured && a.type === 'animal' && tourableSp(a.sp);
+  const lookable = (e) => e.alive && !e.removed && !e.dying && !e.leaving && !e.falling && lookableSp(e.sp) && (!e.isPlant || e.growth > 0.08);
+  const ordered = (ids) => { const order = PREF[biomeId] || []; return [...ids].sort((x, y) => ((order.indexOf(x) + 1 || 99) - (order.indexOf(y) + 1 || 99))); };
   function presentSpecies() {
     const ids = new Set(); for (const a of W.animals) if (rideable(a)) ids.add(a.sp.id);
-    const order = PREF[biomeId] || [];
-    return [...ids].sort((x, y) => ((order.indexOf(x) + 1 || 99) - (order.indexOf(y) + 1 || 99)));
+    return ordered(ids);
   }
+  function presentLook() {
+    const ids = new Set();
+    for (const p of W.plants) if (lookable(p)) ids.add(p.sp.id);
+    for (const a of W.animals) if (a.type !== 'animal' && lookable(a)) ids.add(a.sp.id);
+    return [...ids];
+  }
+  const anyTour = () => W.animals.some(rideable) || W.plants.some(lookable) || W.animals.some(a => a.type !== 'animal' && lookable(a));
   function bestOf(id) {
     let best = null, bs = Infinity;
     for (const a of W.animals) {
@@ -112,7 +130,12 @@ export function createTour({ W, env, reg, camera, canvas, ui, audio, imv, missio
     }
     return best;
   }
-  const locoText = (id, loco) => loco === 'flying' ? gw(id, 'עף', 'עפה') : loco === 'arboreal' ? gw(id, 'מטפס על עצים', 'מטפסת על עצים') : gw(id, 'הולך על הקרקע', 'הולכת על הקרקע');
+  const locoText = (id, loco) => {
+    const sp = reg.byId.get(id);
+    if (sp && lookableSp(sp)) return 'מבט מקרוב';
+    if (sp && sp.swims) return gw(id, 'שוחה', 'שוחה');
+    return loco === 'flying' ? gw(id, 'עף', 'עפה') : loco === 'arboreal' ? gw(id, 'מטפס על עצים', 'מטפסת על עצים') : biomeId === 'reef' ? gw(id, 'הולך על הקרקעית', 'הולכת על הקרקעית') : gw(id, 'הולך על הקרקע', 'הולכת על הקרקע');
+  };
   const imgHTML = (id, cls) => { const src = art(id); const sp = reg.byId.get(id); return `<span class="${cls}" style="--c:${esc(sp?.color || '#6a9')}">${src ? `<img src="${esc(src)}" alt="" draggable="false">` : ''}</span>`; };
 
   // ── toolbar button
@@ -135,8 +158,9 @@ export function createTour({ W, env, reg, camera, canvas, ui, audio, imv, missio
   root.appendChild(pick);
   const grid = pick.querySelector('.tp-grid');
   function openPicker() {
-    const ids = presentSpecies().slice(0, 6);
-    grid.innerHTML = ids.length ? ids.map(id => { const sp = reg.byId.get(id); return `<button type="button" class="tp-card" data-id="${esc(id)}">${imgHTML(id, 'tp-img')}<b>${esc(sp.name)}</b><small>${esc(locoText(id, sp.locomotion))}</small></button>`; }).join('')
+    const ids = presentSpecies(), look = presentLook();
+    const card = (id) => { const sp = reg.byId.get(id); return `<button type="button" class="tp-card" data-id="${esc(id)}">${imgHTML(id, 'tp-img')}<b>${esc(sp.name)}</b><small>${esc(locoText(id, sp.locomotion))}</small></button>`; };
+    grid.innerHTML = ids.length || look.length ? ids.map(card).join('') + (look.length ? `<p class="tp-sec">${ids.length ? 'ויש גם מי שנשאר במקום. אפשר להסתכל עליו מקרוב:' : 'אלה נשארים במקום. אפשר להסתכל עליהם מקרוב:'}</p>` + look.map(card).join('') : '')
       : `<p class="tp-none">עוד אין ${zoneWord('in')} בעלי חיים שאפשר לטייל איתם. הביאו בעלי חיים מהמגש, ונסו שוב.</p>`;
     pick.classList.add('on'); audio && audio.play && audio.play('click');
     const first = grid.querySelector('button'); if (first) requestAnimationFrame(() => { try { first.focus({ preventScroll: true }); } catch (e) { } });
@@ -190,6 +214,7 @@ export function createTour({ W, env, reg, camera, canvas, ui, audio, imv, missio
   const _v = new THREE.Vector3(), _head = new THREE.Vector3(), _want = new THREE.Vector3(), _look = new THREE.Vector3();
 
   function start(id) {
+    if (lookableSp(reg.byId.get(id))) { startLook(id); return; }
     const a = bestOf(id);
     if (!a) { ui.toast(`לא מצאתי עכשיו חיה כזאת ${zoneWord('in')}`, 'info'); return; }
     if (R) releaseAnimal();
@@ -197,9 +222,10 @@ export function createTour({ W, env, reg, camera, canvas, ui, audio, imv, missio
     R = { a, mode, camYaw: a.heading, lookOff: 0, lookV: 0, turnV: 0, spd: 0, altV: 0, idle: 99, pos: new THREE.Vector3(), look: new THREE.Vector3(), fresh: true,
       note: null, noteT: 0, noteSince: -99, stateT: 0, climbing: false };
     a.touring = true;
+    if (a.state === 'hunt' || a.prey) { a.prey = null; a.food = null; a.state = 'idle'; a.timer = 0.5; }   // a hunter on tour only looks around (game.js findFood skips prey while touring)
     if (imv.active !== 'tour') imv.enter('tour', { driver, onExit, onKey, onBlur: clearInput });
     camera.fov = 60; camera.near = 0.05; camera.updateProjectionMatrix();
-    el.classList.add('on'); el.classList.remove('m-walk', 'm-fly', 'm-climb'); el.classList.add('m-' + mode);
+    el.classList.add('on'); el.classList.remove('m-walk', 'm-fly', 'm-climb', 'm-look'); el.classList.add('m-' + mode);
     const sp = a.sp;
     nameEl.textContent = sp.name; imgW.innerHTML = imgHTML(sp.id, 'tv-img');
     const K = (t) => `<bdi dir="ltr">${t}</bdi>`;
@@ -209,13 +235,65 @@ export function createTour({ W, env, reg, camera, canvas, ui, audio, imv, missio
     $('[data-k="left"] small').textContent = mode === 'climb' ? 'להסתכל שמאלה' : 'שמאלה';
     $('[data-k="right"] small').textContent = mode === 'climb' ? 'להסתכל ימינה' : 'ימינה';
     $('[data-k="back"] small').textContent = mode === 'fly' ? 'לאט יותר' : 'לעצור';
+    $('[data-k="rise"] small').textContent = 'למעלה'; $('[data-k="sink"] small').textContent = 'למטה';
     setNote(pickNote(a), true);
     audio && audio.play && audio.play('select');
   }
-  function onExit() { releaseAnimal(); R = null; el.classList.remove('on'); clearInput(); }
+  // ── a close look at one that stays in place: the camera circles it slowly; the arrows go round, closer, farther, up, down
+  function bestLook(id) {
+    let best = null, bs = Infinity;
+    for (const e of [...W.plants, ...W.animals]) {
+      if (e.sp.id !== id || !lookable(e) || (!e.isPlant && e.type === 'animal')) continue;
+      e.focusPoint(_v);
+      const s = _v.distanceTo(camera.position) * 0.05 - (e.isPlant ? e.growth * 2 + e.health : 0);
+      if (s < bs) { bs = s; best = e; }
+    }
+    return best;
+  }
+  function startLook(id) {
+    const e = bestLook(id);
+    if (!e) { ui.toast(`לא מצאתי עכשיו ${zoneWord('in')} את ${defName(id, reg.byId.get(id)?.name)}`, 'info'); return; }
+    if (R) releaseAnimal();
+    let size = 1;
+    if (e.isPlant) { const c = e.vis.crown(), s = e.obj.scale.x; size = Math.max(0.5, (c.top - c.bottom) * s, c.radius * s * 2); }
+    else size = Math.max(1, (e.vis.length || 1) * e.obj.scale.x * 3);
+    const ex = e.isPlant ? e.x : e.pos.x, ez = e.isPlant ? e.z : e.pos.z;
+    R = { a: null, e, mode: 'look', size, yaw: Math.atan2(camera.position.x - ex, camera.position.z - ez), pitch: 0.32, dist: clamp(size * 2.1, 1.6, 9), yawV: 0, idle: 99,
+      pos: new THREE.Vector3(), look: new THREE.Vector3(), fresh: true, note: null, noteT: 0, noteSince: -99, stateT: 0, factI: 0 };
+    if (imv.active !== 'tour') imv.enter('tour', { driver, onExit, onKey, onBlur: clearInput });
+    camera.fov = 55; camera.near = 0.05; camera.updateProjectionMatrix();
+    el.classList.add('on'); el.classList.remove('m-walk', 'm-fly', 'm-climb'); el.classList.add('m-look');
+    const sp = e.sp;
+    nameEl.textContent = sp.name; imgW.innerHTML = imgHTML(sp.id, 'tv-img');
+    const K = (t) => `<bdi dir="ltr">${t}</bdi>`;
+    keysEl.innerHTML = `במקלדת: ${K('← →')} – להקיף · ${K('↑ ↓')} – קרוב ורחוק · ${K('E Q')} – מלמעלה ומלמטה`;
+    $('[data-k="fwd"] small').textContent = 'קרוב יותר'; $('[data-k="back"] small').textContent = 'רחוק יותר';
+    $('[data-k="left"] small').textContent = 'להקיף'; $('[data-k="right"] small').textContent = 'להקיף';
+    $('[data-k="rise"] small').textContent = 'מלמעלה'; $('[data-k="sink"] small').textContent = 'מלמטה';
+    setNote(pickLookNote(e), true);
+    audio && audio.play && audio.play('select');
+  }
+  // who comes by: a living neighbour linked to it (the anemonefish in its anemone, a fish under the table coral), else its facts
+  function pickLookNote(e) {
+    const id = e.sp.id, ex = e.isPlant ? e.x : e.pos.x, ez = e.isPlant ? e.z : e.pos.z;
+    let best = null, bd = 9;
+    for (const ed of reg.edges) {
+      const other = ed.from === id ? ed.to : ed.to === id ? ed.from : null; if (!other || other === id) continue;
+      for (const b of W.animals) {
+        if (b.sp.id !== other || !b.alive || b.removed || b.leaving) continue;
+        const d = Math.hypot(b.pos.x - ex, b.pos.z - ez); if (d >= bd) continue;
+        bd = d; best = { b, ed };
+      }
+    }
+    if (best) return { key: 'visit:' + best.ed.key, prio: 1, title: `${defName(best.b.sp.id, best.b.sp.name)} ${gw(best.b.sp.id, 'קרוב', 'קרובה', 'קרובים', 'קרובות')}`, text: best.ed.text };
+    const facts = [e.sp.fact, ...String(e.sp.more || '').split(/(?<=[.!?])\s+/)].filter(Boolean);
+    const i = R && R.factI ? R.factI % facts.length : 0;
+    return { key: 'fact:' + i, prio: 4, title: i === 0 ? 'הידעתם?' : 'ועוד משהו', text: facts[i] || '' };
+  }
+  function onExit() { releaseAnimal(); R = null; el.classList.remove('on', 'm-look'); clearInput(); }
   function stop() { closePicker(); if (imv.active === 'tour') imv.exit(); }
   function releaseAnimal() {
-    if (!R) return; const a = R.a;
+    if (!R || !R.a) return; const a = R.a;
     a.touring = false;
     if (a.driver) letGo(a);
   }
@@ -235,7 +313,7 @@ export function createTour({ W, env, reg, camera, canvas, ui, audio, imv, missio
     if (R.mode === 'fly' && a.pos.y < env.heightAt(a.pos.x, a.pos.z) + 0.8) a.pos.y = env.heightAt(a.pos.x, a.pos.z) + 0.8;
   }
   function onPress(k) {
-    if (!R) return;
+    if (!R || R.mode === 'look') return;
     if (R.mode === 'climb' && k === 'fwd') climbNext();
   }
 
@@ -307,6 +385,7 @@ export function createTour({ W, env, reg, camera, canvas, ui, audio, imv, missio
     if (y < floor) y = floor;
     if (over > y) y += (over - y) * Math.min(1, dt * 2.5);   // rise smoothly over a crown in the way
     y = Math.min(y, 30);
+    if (env.surfaceY != null) y = Math.min(y, env.surfaceY - 0.9);   // a fish stays under the water
     a.pos.set(x, y, z);
     a.bank += (clamp(-R.turnV * 0.35, -0.45, 0.45) - a.bank) * Math.min(1, dt * 4);
     a.action = hover && R.spd < 0.8 ? 'hover' : (R.altV < -0.8 && !hover ? 'glide' : 'fly');
@@ -422,6 +501,7 @@ export function createTour({ W, env, reg, camera, canvas, ui, audio, imv, missio
     if (act === 'swim') return g('שוחה', 'שוחה');
     if (act === 'run') return g('רץ', 'רצה');
     if (act === 'walk') return g('הולך', 'הולכת');
+    if (a.sp.swims && (act === 'hover' || act === 'glide' || act === 'fly' || st === 'fly')) return act === 'hover' ? g('מרחף במים', 'מרחפת במים') : g('שוחה', 'שוחה');
     if (act === 'hover') return g('מרחף', 'מרחפת');
     if (act === 'glide') return g('דואה', 'דואה');
     if (act === 'fly' || st === 'fly') return g('עף', 'עפה');
@@ -435,7 +515,7 @@ export function createTour({ W, env, reg, camera, canvas, ui, audio, imv, missio
     if (tbT <= 0) {
       tbT = 1;
       if (tbBtn) {
-        const any = W.animals.some(rideable);
+        const any = anyTour();
         tbBtn.hidden = !any;
         const all = missions.missions.length > 0 && missions.missions.every(m => m.done);
         tbBtn.classList.toggle('ready', all);
@@ -444,6 +524,7 @@ export function createTour({ W, env, reg, camera, canvas, ui, audio, imv, missio
       }
     }
     if (!R) return;
+    if (R.mode === 'look') { updateLook(rdt); return; }
     const a = R.a;
     if (!a.alive || a.removed || a.leaving || a.injured) {
       const name = defName(a.sp.id, a.sp.name);
@@ -482,13 +563,14 @@ export function createTour({ W, env, reg, camera, canvas, ui, audio, imv, missio
   // camera: behind and a little above the head, looking ahead; smoothed, no roll
   function driver(dt) {
     if (!R) return;
+    if (R.mode === 'look') { lookDriver(dt); return; }
     const a = R.a, o = a.obj, s = o.scale.y;
     const size = clamp((a.vis.length || 1) * o.scale.x, 0.25, 3);
     _head.copy(o.position); _head.y += (a.vis.height || 0.5) * s * 0.85;
     const back = clamp(size * 2.3, 1.4, 5.5), up = clamp(size * 0.8, 0.5, 2.4);
     // sitting in a crown (a resting sloth, a perched toucan): a chase camera would end up inside the leaves,
     // so look at the animal from just outside its tree instead (left / right walk around it)
-    const pp = a.perch && a.perch.plant && a.state !== 'fly' && a.state !== 'climb' && !a.driver ? a.perch.plant : null;
+    const pp = !a.sp.swims && a.perch && a.perch.plant && a.state !== 'fly' && a.state !== 'climb' && !a.driver ? a.perch.plant : null;   // a fish resting by a coral keeps the chase view
     const c = pp ? pp.crown() : null;
     let od = 0, yawT;
     if (c) {
@@ -512,12 +594,62 @@ export function createTour({ W, env, reg, camera, canvas, ui, audio, imv, missio
     const k = 1 - Math.exp(-dt * (c ? 2.5 : 5)), kl = 1 - Math.exp(-dt * 6);
     R.pos.lerp(_want, k); R.look.lerp(_look, kl);
     const gy2 = env.heightAt(R.pos.x, R.pos.z) + 0.3; if (R.pos.y < gy2) R.pos.y = gy2;
+    if (env.surfaceY != null && R.pos.y > env.surfaceY - 0.4) R.pos.y = env.surfaceY - 0.4;   // under the water, the camera stays under it too
     camera.up.set(0, 1, 0); camera.position.copy(R.pos); camera.lookAt(R.look);
+  }
+  // the close look: circle round the one that stays in place; without input it goes round slowly by itself
+  function lookDriver(dt) {
+    const e = R.e;
+    e.focusPoint(_head);
+    const turn = held('left') - held('right'), zoom = held('fwd') - held('back'), tilt = held('rise') - held('sink');
+    R.idle = turn || zoom || tilt ? 0 : R.idle + dt;
+    const auto = R.idle > RELEASE_AFTER ? 0.14 : 0;
+    R.yawV += ((turn * 1.1 + auto) - R.yawV) * Math.min(1, dt * 4);
+    R.yaw = wrapA(R.yaw + R.yawV * dt);
+    R.dist = clamp(R.dist * (1 - zoom * dt * 0.8), Math.max(0.8, R.size * 0.7), Math.max(4, R.size * 5));
+    R.pitch = clamp(R.pitch + tilt * dt * 0.7, -0.05, 1.15);
+    const ch = Math.cos(R.pitch) * R.dist;
+    _want.set(_head.x + Math.sin(R.yaw) * ch, _head.y + Math.sin(R.pitch) * R.dist, _head.z + Math.cos(R.yaw) * ch);
+    for (let i = 0; i < 4 && trunkHit(_want.x, _want.z, 0.25, _want.y); i++) _want.lerp(_head, 0.35);
+    // never inside a neighbour (a big coral right behind the clam): rise over it instead
+    for (const p of W.plants) {
+      if (p === e || !p.alive || p.removed || p.isTree) continue;
+      const c = p.vis.crown(), s = p.obj.scale.x, r = Math.max(0.3, c.radius * s * 0.9);
+      if (Math.abs(p.x - _want.x) > r || Math.abs(p.z - _want.z) > r || Math.hypot(p.x - _want.x, p.z - _want.z) > r) continue;
+      const top = p.y + c.top * s + 0.35; if (_want.y < top) _want.y = top;
+    }
+    const gy = env.heightAt(_want.x, _want.z) + 0.3; if (_want.y < gy) _want.y = gy;
+    if (env.surfaceY != null && _want.y > env.surfaceY - 0.5) _want.y = env.surfaceY - 0.5;
+    if (R.fresh) { R.pos.copy(_want); R.look.copy(_head); R.fresh = false; }
+    R.pos.lerp(_want, 1 - Math.exp(-dt * 4)); R.look.lerp(_head, 1 - Math.exp(-dt * 6));
+    camera.up.set(0, 1, 0); camera.position.copy(R.pos); camera.lookAt(R.look);
+  }
+  function updateLook(rdt) {
+    const e = R.e;
+    if (!lookable(e)) { const name = defName(e.sp.id, e.sp.name); stop(); ui.toast(`המבט על ${name} הסתיים`, 'info'); return; }
+    for (const k in taps) if (taps[k] > 0) taps[k] -= rdt;
+    R.stateT -= rdt;
+    if (R.stateT <= 0) {
+      R.stateT = 0.5;
+      const id = e.sp.id;
+      doEl.textContent = !e.isPlant ? gw(id, 'עסוק', 'עסוקה', 'עסוקים', 'עסוקות') : e.health < 0.55 ? gw(id, 'חלש', 'חלשה', 'חלשים', 'חלשות')
+        : e.growth < 0.95 ? gw(id, 'גדל', 'גדלה', 'גדלים', 'גדלות') : gw(id, 'בוגר', 'בוגרת', 'בוגרים', 'בוגרות');
+      whoEl.textContent = e.isPlant ? gw(id, 'נשאר במקום', 'נשארת במקום', 'נשארים במקום', 'נשארות במקום') : 'מבט מקרוב'; whoEl.classList.remove('you');
+    }
+    R.noteT -= rdt;
+    if (R.noteT <= 0) {
+      R.noteT = 1;
+      const age = W.simT - R.noteSince;
+      if (R.note && R.note.prio === 4 && age > 9) R.factI++;   // read one fact, then the next one
+      const n = pickLookNote(e), cur = R.note;
+      if (!cur || (n.key !== cur.key && (age > 7 || n.prio < cur.prio))) setNote(n);
+    }
   }
 
   /** label for the species panel button, or '' when this species cannot be toured now */
   function labelFor(id) {
     const sp = reg.byId.get(id);
+    if (lookableSp(sp)) return [...W.plants, ...W.animals].some(e => e.sp.id === id && lookable(e)) ? 'מבט מקרוב על ' + defName(id, sp.name) : '';
     if (!tourableSp(sp) || !W.animals.some(a => a.sp.id === id && rideable(a))) return '';
     return 'סיור בעיניים של ' + defName(id, sp.name);
   }
@@ -525,5 +657,5 @@ export function createTour({ W, env, reg, camera, canvas, ui, audio, imv, missio
     stop(); window.removeEventListener('keydown', onPickKey, true);
     el.remove(); pick.remove(); if (tbBtn) tbBtn.remove();
   }
-  return { start, stop, openPicker, closePicker, update, labelFor, dispose, presentSpecies, get riding() { return R ? R.a : null; } };
+  return { start, stop, openPicker, closePicker, update, labelFor, dispose, presentSpecies, presentLook, get riding() { return R ? (R.a || R.e) : null; }, get mode() { return R ? R.mode : null; } };
 }

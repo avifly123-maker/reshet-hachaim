@@ -669,6 +669,13 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     // the pictures leave the GPU (they stay decoded and go up again on the next visit)
     if (room) { room.dispose(); walk = null; room.S.drag = null; room.S.hold = 0; }
     for (const k in tex) tex[k].dispose();
+    // 1.3.1: nothing of the lab stays on the graphics card while it is closed (the robot, the fish, the furniture depth and
+    // their materials and pictures go up again by themselves on the next visit; the objects stay ready in memory)
+    group.traverse((o) => {
+      if (o.geometry) o.geometry.dispose();
+      if (o.isSkinnedMesh && o.skeleton) o.skeleton.dispose();   // the fish's bone textures (made again when drawn)
+      for (const m of [].concat(o.material || [])) { for (const k in m) { const v = m[k]; if (v && v.isTexture && v !== envTex) v.dispose(); } m.dispose(); }
+    });
     renderer.toneMapping = prevState.tone; scene.environment = prevState.env || null; scene.background = prevState.bg || null; scene.fog = prevState.fog || null;
     if (pipe.setBloom) pipe.setBloom(0.38);
     pipe.resize();

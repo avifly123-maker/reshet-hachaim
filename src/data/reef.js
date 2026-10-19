@@ -112,7 +112,8 @@ export const BIOME = {
       color: '#9ad06a', sources: [W + 'Heteractis_magnifica', W + 'Amphiprion_bicinctus'],
     },
     {
-      id: 'clam', name: 'צדפת ענק', nameEn: 'Giant clam (Tridacna maxima)', kind: 'sessile', kindLabel: 'בעל חיים שלא זז',
+      // showAs 'animal': it stays in place like a coral (kind 'sessile'), but the tray and the album list it with the animals (Avi, 19.10)
+      id: 'clam', name: 'צדפת ענק', nameEn: 'Giant clam (Tridacna maxima)', kind: 'sessile', kindLabel: 'בעל חיים שלא זז', showAs: 'animal',
       layer: 'shallow', lightNeed: 0.85, shadeTolerant: false, growth: 'slow',
       diet: [{ id: 'plankton', part: 'plankton' }],
       relations: [], cost: 18, groupSize: [1, 1], maxCount: 4, unlock: 'r10',
@@ -394,13 +395,16 @@ export const BIOME = {
     { id: 'r13', title: 'שונית מלאה חיים', text: 'האתגר הגדול: הגיעו ל-20 מינים שחיים ביחד בשונית אחת.', hint: 'בדקו בדוח של רחפן הניטור מי חסר למי.', after: 'r12', goal: { type: 'speciesAlive', count: 20 }, reward: { points: 120, unlock: [] } },
 
     // ───── משימות מומחים (expert missions): see the note in amazon.js
-    { id: 'rx1', expert: true, after: 'r13', title: 'שונית מחדש', text: 'אחרי סערות ועוגנים, שוניות צריכות עזרה כדי לגדול מחדש. הציבו משתלת אלמוגים ושונית מלאכותית, ושתלו 4 אלמוגי שיח חדשים שיגדלו עד הסוף.',
-      hint: 'בשונית יכולים לחיות עד 9 אלמוגי שיח. אם כבר יש הרבה, אין מקום לחדשים, ואז צריך לפנות מקום. אלמוגים צריכים הרבה אור.',
-      how: 'איך עושים: המשתלה והשונית המלאכותית נמצאות בלשונית "טכנולוגיה" במגש. אחר כך גררו אלמוגי שיח למים הרדודים.',
+    // 1.3.1: the nursery is the only source of strong corals (src/game/tools.js); the child transplants them from the
+    // tray, best where the reef was hurt (a storm at the start of the mission, event r_storm, leaves such places)
+    { id: 'rx1', expert: true, after: 'r13', title: 'שונית מחדש', text: 'אחרי סערות ועוגנים, שוניות צריכות עזרה כדי לגדול מחדש. הציבו משתלת אלמוגים, חכו שיגדלו בה אלמוגים חזקים, ושתלו 3 מהם בשונית. לפחות אחד צריך להיות במקום שבו השונית נפגעה.',
+      hint: 'בכל משתלה גדל אלמוג חזק אחד בכל פעם, והוא מחכה במגש עם האלמוגים. כמה משתלות מגדלות יותר. בזמן הגרירה, המקומות שנפגעו מסומנים בוורוד.',
+      how: 'איך עושים: המשתלה נמצאת בלשונית "טכנולוגיה" במגש. חכו שיגדל בה אלמוג, ואז גררו את "אלמוג חזק" מהמגש אל השונית.',
       goal: { type: 'all', parts: [
-        { type: 'toolSince', tool: 'nursery', count: 1, label: 'משתלת אלמוגים חדשה' },
-        { type: 'toolSince', tool: 'reefball', count: 1, label: 'שונית מלאכותית חדשה' },
-        { type: 'young', species: 'branching', min: 0.95, count: 4, label: '4 אלמוגי שיח חדשים שגדלו עד הסוף' },
+        { type: 'tool', tool: 'nursery', count: 1, label: 'משתלת אלמוגים בשונית' },
+        { type: 'transplant', count: 3, label: '3 אלמוגים חזקים מהמשתלה נשתלו' },
+        { type: 'scarHealed', count: 1, label: 'אלמוג חזק במקום שבו השונית נפגעה' },
+        { type: 'strongGrown', min: 0.95, count: 2, label: '2 אלמוגים חזקים שגדלו עד הסוף' },
       ] },
       reward: { points: 120, unlock: [] } },
     { id: 'rx2', expert: true, after: 'rx1', title: 'אצות במידה', text: 'קצת אצות זה טוב: הן מזון לדגים. יותר מדי אצות מכסות את האלמוגים. שמרו בשונית בין 2 ל־5 אצות, עם תוכינון ומנתחן, במשך 60 שניות.',
@@ -423,7 +427,7 @@ export const BIOME = {
       ] },
       reward: { points: 120, unlock: [] } },
     { id: 'rx4', expert: true, after: 'rx3', title: 'השונית שורדת חום', text: 'גל חום ארוך מתקרב, ויש לכם זמן קצר להתכונן. הציבו מצוף חיישנים שיתריע על המים החמים, ועברו את גל החום כך שיישארו לפחות 4 אלמוגי שיח ואלמוג מוח אחד.',
-      hint: 'מצוף החיישנים מתריע מוקדם, והנזק קטן יותר. שונית נקייה, עם דגים שאוכלים אצות, מתאוששת מהר יותר.',
+      hint: 'מצוף החיישנים מתריע מוקדם, והנזק קטן יותר. שונית נקייה, עם דגים שאוכלים אצות, מתאוששת מהר יותר. ואלמוגים חזקים מהמשתלה מלבינים פחות.',
       how: 'איך עושים: מצוף החיישנים נמצא בלשונית "טכנולוגיה" במגש. הציבו אותו לפני שגל החום מגיע.',
       goal: { type: 'all', parts: [
         { type: 'tool', tool: 'weather', count: 1, label: 'מצוף חיישנים בשונית' },
@@ -444,7 +448,7 @@ export const BIOME = {
       start: [{ type: 'heat', seconds: 60 }],
       choices: [
         { id: 'clean', label: 'לשמור על מים נקיים ועל דגים שאוכלים אצות', outcome: 'השונית נשארה נקייה, והאצות לא כיסו את האלמוגים שנחלשו. כשהמים התקררו, רוב האלמוגים התאוששו.', effects: [{ type: 'boost', species: 'branching', amount: 0.25 }, { type: 'points', amount: 15 }] },
-        { id: 'nursery', label: 'להכין אלמוגים צעירים במשתלה', outcome: 'האלמוגים מהמשתלה נשתלו אחרי שהחום עבר, ומילאו מקומות ריקים בשונית.', effects: [{ type: 'plant', species: 'branching', count: 2, where: 'any' }] },
+        { id: 'nursery', label: 'להכין אלמוגים חזקים במשתלה', outcome: 'האלמוגים החזקים מהמשתלה נשתלו אחרי שהחום עבר, ומילאו מקומות ריקים בשונית. הם גדלו משברים של אלמוגים שעמדו בחום, ולכן בגל החום הבא הם ילבינו פחות.', effects: [{ type: 'plant', species: 'branching', count: 2, where: 'scar', strong: true }] },
       ],
     },
     {
@@ -454,7 +458,7 @@ export const BIOME = {
       start: [{ type: 'heat', seconds: 45 }],
       choices: [
         { id: 'clean', label: 'לשמור על מים נקיים ועל דגים שאוכלים אצות', outcome: 'כשהמים חזרו להיות קרירים, האצות הזעירות חזרו לאלמוגים והם התאוששו. האלמוגים של אילת עמידים לחום יותר מרוב האלמוגים בעולם, ושונית נקייה ומאוזנת מתאוששת מהר יותר.', effects: [{ type: 'boost', species: 'branching', amount: 0.3 }, { type: 'points', amount: 15 }] },
-        { id: 'nursery', label: 'לשתול אלמוגים צעירים ממשתלה', outcome: 'שתלתם שברי אלמוג שגדלו במשתלה. במקומות רבים בעולם משקמים כך שוניות שנפגעו.', effects: [{ type: 'plant', species: 'branching', count: 2, where: 'any' }] },
+        { id: 'nursery', label: 'לשתול אלמוגים חזקים ממשתלה', outcome: 'שתלתם אלמוגים שגדלו במשתלה משברים של אלמוגים שעמדו בחום. אלמוגים כאלה מלבינים פחות. במקומות רבים בעולם משקמים כך שוניות שנפגעו.', effects: [{ type: 'plant', species: 'branching', count: 2, where: 'scar', strong: true }] },
       ],
     },
     {
@@ -495,6 +499,16 @@ export const BIOME = {
       choices: [
         { id: 'watch', label: 'להסתכל ולחכות', outcome: 'רוב הביצים נאכלו בידי דגים או נסחפו. אבל כמה מהן הפכו לאלמוגים זעירים, שנאחזו בסלע והתחילו לגדול.', effects: [{ type: 'plant', species: 'branching', count: 1, where: 'any' }, { type: 'points', amount: 10 }] },
         { id: 'collect', label: 'לאסוף כמה ביצים למשתלה', outcome: 'חוקרים באמת אוספים ביצי אלמוגים בלילות כאלה, מגדלים אותם במשתלה, ושותלים אחר כך בשונית. האלמוגים הצעירים נשתלו!', effects: [{ type: 'plant', species: 'branching', count: 2, where: 'any' }] },
+      ],
+    },
+    {
+      id: 'r_storm', title: 'סערה בשונית',
+      text: 'גלים חזקים של סערה שברו כמה אלמוגים. במקומות שבהם הם עמדו נשאר עכשיו סלע חשוף. מה עושים?',
+      trigger: { type: 'mission', id: 'rx1', delay: 20 },
+      start: [{ type: 'breakCorals', count: 2 }],
+      choices: [
+        { id: 'nursery', label: 'לגדל במשתלה אלמוגים חזקים ולשתול אותם במקום השברים', outcome: 'זה מה שחוקרים עושים באמת. משתלה צריכה זמן: כל אלמוג גדל בה קצת, ורק אז שותלים אותו. כשגוררים אלמוג חזק מהמגש, המקומות שנפגעו מסומנים בוורוד.', effects: [{ type: 'points', amount: 10 }] },
+        { id: 'wait', label: 'לחכות ולראות אם השונית תתאושש לבד', outcome: 'שונית יכולה להתאושש לבד, אבל לאט מאוד, כי אלמוגים גדלים לאט. לכן חוקרים עוזרים לה בעזרת משתלות.', effects: [{ type: 'points', amount: 5 }] },
       ],
     },
     {

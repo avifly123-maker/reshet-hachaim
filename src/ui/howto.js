@@ -1,101 +1,95 @@
-// "איך משחקים": a few short cards (a picture and one sentence each) shown the first time a child enters a place, and
-// again from a replay button. Small and reusable: the research centre uses it, and so can the building zones and the lab.
-//
-//   import { howto, howtoSeen, howtoButton } from '../ui/howto.js';
-//   howto(el, cards, { key: 'research' })              shows the cards unless this key was seen; returns a handle or null
-//   howto(el, cards, { key: 'research', force: true }) shows them again (the replay button)
-//   cards: [{ img: <url>, text: 'one sentence', title?: 'short heading' }]
-//   options: { key, force, onDone, labels: { next, back, skip, done, title }, kids }
-//   handle: { close() }
-//   howtoButton(label) → the HTML of a small round "?" replay button (class "howto-replay")
-//
-// "Seen" is kept per device under its own storage key, web-of-life-howto ({ <key>: <time> }); a blocked or full storage
-// only means the cards show again. Fully RTL. The default labels are vocalised, so beginners can read them too.
-
+// "איך משחקים": a few short cards (a picture from the game's own paintings and one sentence each), shown the first time
+// a child enters a place (a zone, the lab) and again from an "איך משחקים" button. Skippable at any card.
+// Seen-state lives in localStorage 'web-of-life-howto' ({ [key]: 1 }); storage errors are ignored (the cards then show
+// once per visit at most).
+//   howto(el, cards, { key, force, onClose, labels }) → { close } | null   (null: this key was seen and force is not set)
+//   cards: [{ img, title, text }]   labels: { next, done, skip, close } for vocalised beginner words
+//   howtoSeen(key) → boolean
 const STORE = 'web-of-life-howto';
-const LABELS = { next: 'הַבָּא', back: 'הַקּוֹדֵם', skip: 'דִּלּוּג', done: 'מַתְחִילִים!', title: 'אֵיךְ מְשַׂחֲקִים?' };
-
-function readSeen() { try { const o = JSON.parse(localStorage.getItem(STORE) || '{}'); return o && typeof o === 'object' ? o : {}; } catch (e) { return {}; } }
-export function howtoSeen(key) { return !!readSeen()[key]; }
-export function markHowto(key, on = true) {
-  try { const o = readSeen(); if (on) o[key] = Date.now(); else delete o[key]; localStorage.setItem(STORE, JSON.stringify(o)); } catch (e) { /* storage blocked: shown again next time */ }
-}
-
-const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const CSS_ID = 'howto-css';
 const CSS = `
-.howto { position: absolute; inset: 0; z-index: 90; display: grid; place-items: center; pointer-events: auto; direction: rtl; font-family: inherit; opacity: 0; transition: opacity .25s; }
-.howto.on { opacity: 1; }
-.howto-scrim { position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(8, 18, 12, .5), rgba(4, 10, 6, .82)); }
-.howto-card { position: relative; width: min(440px, calc(100vw - 32px)); max-height: calc(100vh - 24px); overflow: auto; padding: 16px 18px 14px; border-radius: 10px; text-align: center; color: #2a2418;
-  background: radial-gradient(circle at 50% 0, #fffaf0, #f3e8cc 75%); box-shadow: 0 18px 40px rgba(0, 0, 0, .5), inset 0 0 0 1px #c9b98a, inset 0 0 0 5px #f8f0d8, inset 0 0 0 6px #d8c79a; }
-.howto-head { margin: 0 0 8px; font-size: 1.05em; color: #6a5a30; letter-spacing: .02em; }
-.howto-pic { display: block; width: min(220px, 52vw, 34vh); aspect-ratio: 1; margin: 0 auto 10px; border-radius: 50%; object-fit: cover; border: 4px solid #fff; box-shadow: 0 4px 14px rgba(0, 0, 0, .25); background: #efe3c4; }
-.howto-title { margin: 0 0 4px; font-size: 1.35em; color: #2c4f26; line-height: 1.4; }
-.howto-text { margin: 0 0 12px; font-size: 1.15em; line-height: 1.8; min-height: 2.4em; }
-.howto-dots { display: flex; justify-content: center; gap: 6px; margin: 0 0 12px; }
-.howto-dots i { width: 9px; height: 9px; border-radius: 50%; background: #d8c9a2; }
-.howto-dots i.on { background: #4f8a3f; transform: scale(1.25); }
-.howto-btns { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-.howto-btns button { min-height: 36px; padding: 6px 16px; border-radius: 18px; font: inherit; font-size: 1em; cursor: pointer; border: 0; }
-.howto-btns .howto-next { color: #f1f6e2; background: linear-gradient(180deg, #4f8a3f, #2c5a24); box-shadow: 0 3px 0 #173512; }
-.howto-btns .howto-back { color: #4a3a20; background: #efe2bf; box-shadow: 0 2px 0 #b9a77a; }
-.howto-btns .howto-back[disabled] { visibility: hidden; }
-.howto-btns .howto-skip { color: #6a5a40; background: transparent; text-decoration: underline; text-underline-offset: 3px; }
-.howto-replay.howto-replay { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 16px; border: 0; cursor: pointer; font: inherit; color: #f6edd0; background: rgba(0, 0, 0, .3); box-shadow: inset 0 0 0 1.5px rgba(240, 220, 160, .45); }
-.howto-replay b { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: #f6cf72; color: #3a2410; font-size: .9em; }
-@media (max-height: 520px) { .howto-pic { width: min(150px, 30vh); margin-bottom: 6px; } .howto-text { font-size: 1.05em; line-height: 1.6; margin-bottom: 8px; } .howto-card { padding: 10px 14px; } }
+#howto { position: absolute; inset: 0; z-index: 62; display: grid; place-items: center; pointer-events: auto; direction: rtl; font-family: var(--sans, sans-serif);
+  background: rgba(6, 14, 9, .5); animation: howto-in .25s ease-out; }
+#howto .howto-box { position: relative; width: min(600px, calc(100vw - 32px)); max-height: calc(100vh - 32px); overflow: auto; box-sizing: border-box; padding: 18px 20px 16px;
+  border-radius: 18px; background: #f3ecd6; color: #24301f; box-shadow: 0 0 0 2px rgba(120, 100, 60, .35), 0 14px 34px rgba(0, 0, 0, .45); }
+#howto h2.howto-head { margin: 0 0 12px; font-family: var(--serif, serif); font-weight: 400; font-size: 1.5em; color: #1f2c1a; text-align: center; }
+#howto .howto-card { display: flex; gap: 18px; align-items: center; min-height: 170px; }
+#howto .howto-img { flex: none; width: 170px; height: 170px; border-radius: 16px; overflow: hidden; background: #dfe6cf; box-shadow: 0 0 0 3px #fff8, 0 4px 10px rgba(0, 0, 0, .2); }
+#howto .howto-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+#howto .howto-txt { flex: 1; min-width: 0; }
+#howto .howto-txt b { display: block; font-size: 1.2em; margin-bottom: 6px; color: #1f2c1a; }
+#howto .howto-txt p { margin: 0; font-size: 1.08em; line-height: 1.6; font-weight: 600; color: #33402c; }
+#howto .howto-foot { display: flex; align-items: center; gap: 10px; margin-top: 14px; }
+#howto .howto-dots { display: flex; gap: 6px; flex: 1; justify-content: center; }
+#howto .howto-dots i { width: 9px; height: 9px; border-radius: 50%; background: rgba(60, 70, 40, .25); }
+#howto .howto-dots i.on { background: #4f8a3a; width: 22px; border-radius: 6px; }
+#howto .howto-foot button.howto-btn { min-height: 44px; padding: 6px 20px; border-radius: 999px; border: 0; font: inherit; font-weight: 800; cursor: pointer; }
+#howto .howto-foot button.howto-next { background: #4f8a3a; color: #fff; box-shadow: 0 3px 0 #2f5f22; }
+#howto .howto-foot button.howto-next:hover { filter: brightness(1.07); }
+#howto .howto-foot button.howto-skip { background: transparent; color: #5a5a40; }
+#howto .howto-foot button.howto-skip:hover { background: rgba(0, 0, 0, .06); }
+#howto .howto-foot button.howto-btn:focus-visible { outline: 3px solid #e6a93c; outline-offset: 2px; }
+@media (max-width: 560px), (max-height: 470px) {
+  #howto .howto-box { padding: 12px 14px 12px; } #howto h2.howto-head { font-size: 1.25em; margin-bottom: 8px; }
+  #howto .howto-card { min-height: 120px; gap: 12px; } #howto .howto-img { width: 120px; height: 120px; }
+  #howto .howto-txt p { font-size: 1em; line-height: 1.5; } #howto .howto-foot { margin-top: 10px; } }
+@media (max-width: 420px) { #howto .howto-card { flex-direction: column; text-align: center; } }
+@keyframes howto-in { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { #howto { animation: none; } }
 `;
-function ensureCss() {
-  if (typeof document === 'undefined' || document.getElementById('howto-css')) return;
-  // every rule also comes with "#ui " in front, so the game's own button styles (#ui.wol button) do not win over it
-  const css = CSS.replace(/(^|[{}]\s*)(\.howto[^{}]*)\{/gm, (_, pre, sel) => `${pre}${sel.split(',').map((x) => `#ui ${x.trim()}, ${x.trim()}`).join(', ')} {`);
-  const s = document.createElement('style'); s.id = 'howto-css'; s.textContent = css; document.head.appendChild(s);
+
+function read() { try { return JSON.parse(localStorage.getItem(STORE) || '{}') || {}; } catch (e) { return {}; } }
+function mark(key) { try { const s = read(); s[key] = 1; localStorage.setItem(STORE, JSON.stringify(s)); } catch (e) { /* no storage: fine */ } }
+export const howtoSeen = (key) => !!read()[key];
+export function markHowto(key, on = true) {
+  if (on) { mark(key); return; }
+  try { const s = read(); delete s[key]; localStorage.setItem(STORE, JSON.stringify(s)); } catch (e) { /* no storage: fine */ }
 }
+// a small round "?" replay button (the research centre uses it)
+const REPLAY_CSS = `.howto-replay.howto-replay { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 16px; border: 0; cursor: pointer; font: inherit; color: #f6edd0; background: rgba(0, 0, 0, .3); box-shadow: inset 0 0 0 1.5px rgba(240, 220, 160, .45); }
+.howto-replay b { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: #f6cf72; color: #3a2410; font-size: .9em; }`;
+export function howtoButton(label = 'אֵיךְ מְשַׂחֲקִים') {
+  if (!document.getElementById('howto-replay-css')) { const st = document.createElement('style'); st.id = 'howto-replay-css'; st.textContent = REPLAY_CSS; document.head.appendChild(st); }
+  return `<button type="button" class="howto-replay"><b>?</b><span>${esc(label)}</span></button>`;
+}
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-export function howtoButton(label = 'אֵיךְ מְשַׂחֲקִים') { ensureCss(); return `<button type="button" class="howto-replay"><b>?</b><span>${esc(label)}</span></button>`; }
-
-export function howto(el, cards, opts = {}) {
-  const { key, force = false, onDone } = opts;
-  const L = { ...LABELS, ...(opts.labels || {}) };
+export function howto(el, cards, { key = 'general', force = false, onClose = null, onDone = null, labels = {}, title = null } = {}) {
+  if (!onClose && onDone) onClose = onDone;
+  if (!title) title = labels.title || 'איך משחקים?';
   if (!el || !cards || !cards.length) return null;
-  if (!force && key && howtoSeen(key)) return null;
-  ensureCss();
-  const root = document.createElement('div');
-  root.className = 'howto'; root.setAttribute('dir', 'rtl'); root.setAttribute('role', 'dialog'); root.setAttribute('aria-modal', 'true');
-  el.appendChild(root);
+  if (!force && howtoSeen(key)) return null;
+  if (!document.getElementById(CSS_ID)) { const st = document.createElement('style'); st.id = CSS_ID; st.textContent = CSS; document.head.appendChild(st); }
+  const L = { next: 'הבא', done: 'מתחילים!', skip: 'דלגו', ...labels };
+  const wrap = document.createElement('div');
+  wrap.className = 'howto'; wrap.id = 'howto'; wrap.lang = 'he'; wrap.dir = 'rtl';
+  wrap.setAttribute('role', 'dialog'); wrap.setAttribute('aria-modal', 'true'); wrap.setAttribute('aria-label', title);
+  el.appendChild(wrap);
   let i = 0, closed = false;
-  function render() {
+  function paint() {
     const c = cards[i], last = i === cards.length - 1;
-    root.innerHTML = `<div class="howto-scrim"></div><div class="howto-card">
-      <p class="howto-head">${esc(L.title)}</p>
-      ${c.img ? `<img class="howto-pic" src="${c.img}" alt="" draggable="false">` : ''}
-      ${c.title ? `<h3 class="howto-title">${esc(c.title)}</h3>` : ''}
-      <p class="howto-text">${esc(c.text)}</p>
-      <div class="howto-dots">${cards.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('')}</div>
-      <div class="howto-btns"><button type="button" class="howto-back"${i ? '' : ' disabled'}>${esc(L.back)}</button>
-        ${last ? '<span></span>' : `<button type="button" class="howto-skip">${esc(L.skip)}</button>`}
-        <button type="button" class="howto-next">${esc(last ? L.done : L.next)}</button></div></div>`;
+    wrap.innerHTML = `<div class="howto-box"><h2 class="howto-head">${esc(title)}</h2>
+      <div class="howto-card">${c.img ? `<span class="howto-img"><img src="${esc(c.img)}" alt="" draggable="false"></span>` : ''}
+        <div class="howto-txt">${c.title ? `<b>${esc(c.title)}</b>` : ''}<p>${esc(c.text)}</p></div></div>
+      <div class="howto-foot"><button type="button" class="howto-btn howto-skip" data-h="skip">${esc(L.skip)}</button>
+        <span class="howto-dots" aria-hidden="true">${cards.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('')}</span>
+        <button type="button" class="howto-btn howto-next" data-h="next">${esc(last ? L.done : L.next)}</button></div></div>`;
+    const b = wrap.querySelector('[data-h="next"]'); if (b) requestAnimationFrame(() => { try { b.focus({ preventScroll: true }); } catch (e) { } });
   }
   function close() {
     if (closed) return; closed = true;
-    if (key) markHowto(key);
-    document.removeEventListener('keydown', onKey, true);
-    root.classList.remove('on'); setTimeout(() => root.remove(), 260);
-    if (onDone) onDone();
+    mark(key); wrap.remove(); removeEventListener('keydown', onKey, true);
+    if (onClose) { try { onClose(); } catch (e) { console.error(e); } }
   }
-  function go(d) { const n = i + d; if (n < 0) return; if (n >= cards.length) { close(); return; } i = n; render(); }
+  function next() { if (i < cards.length - 1) { i++; paint(); } else close(); }
+  wrap.addEventListener('click', (e) => { const b = e.target.closest('[data-h]'); if (!b) return; if (b.dataset.h === 'skip') close(); else next(); });
+  ['pointerdown', 'pointerup', 'wheel'].forEach((ev) => wrap.addEventListener(ev, (e) => e.stopPropagation()));   // the island under it stays still
   function onKey(e) {
-    // RTL: the left arrow goes forward
-    if (e.key === 'Escape') { e.stopPropagation(); close(); } else if (e.key === 'ArrowLeft' || e.key === 'Enter') { e.stopPropagation(); go(1); } else if (e.key === 'ArrowRight') { e.stopPropagation(); go(-1); }
+    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'Enter') { if (e.key === 'ArrowLeft' || !e.target.closest || !e.target.closest('button')) { e.preventDefault(); e.stopPropagation(); next(); } }
+    else if (e.key === 'ArrowRight' && i > 0) { e.preventDefault(); e.stopPropagation(); i--; paint(); }
   }
-  root.addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (e.target.closest('.howto-next')) go(1);
-    else if (e.target.closest('.howto-back')) go(-1);
-    else if (e.target.closest('.howto-skip')) close();
-  });
-  document.addEventListener('keydown', onKey, true);
-  render();
-  requestAnimationFrame(() => root.classList.add('on'));
-  return { close };
+  addEventListener('keydown', onKey, true);
+  paint();
+  return { close, get open() { return !closed; } };
 }

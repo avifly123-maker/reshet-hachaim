@@ -99,6 +99,10 @@ export class Plant {
     if (W.flood > 0 && sp.kind !== 'water-plant' && sp.id !== 'acai' && W.nearWater(this.x, this.z, 7)) water -= 0.25 * W.flood;
     if (sp.kind === 'water-plant') water = 1;
     if (W.waterBonusAt) water = Math.min(1, water + W.waterBonusAt(this.x, this.z));
+    // the reef in a heat wave: corals (and the anemone and the clam, which also hold tiny algae) bleach; they turn pale and
+    // come back when the water cools. A strong coral from the nursery (its parents stood the heat) bleaches much less:
+    // clones of heat-tolerant parents resisted bleaching 20 to 85% better (docs/sources.md, "Coral nursery").
+    if (W.heat > 0 && !W.research && (sp.kind === 'coral' || sp.id === 'seaanemone' || sp.id === 'clam')) water -= W.heat * 0.5 * (this.strong ? 0.35 : 1);
     let target = clamp(0.2 + 0.85 * lightOK) * clamp(water + 0.15, 0, 1);
     if (dormant) target = Math.max(target, 0.6);
     if (sp.kind === 'fungus') target = W.rain > 0.3 || W.season === 'winter' || W.season === 'autumn' || !grove ? 1 : 0.75 - W.drought * 0.3;

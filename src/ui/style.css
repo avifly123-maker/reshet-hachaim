@@ -425,6 +425,19 @@
 #ui.wol .c-new { position: absolute; top: -8px; right: -6px; display: flex; align-items: center; gap: 2px; padding: 1px 7px 2px 5px; border-radius: 2px; font-size: .72em; font-weight: 700; color: #2e1d05;
   background: var(--honey); transform: rotate(4deg); box-shadow: 0 2px 4px rgba(0, 0, 0, .3); }
 #ui.wol .c-new .ic { width: 12px; height: 12px; }
+/* the "drag to move" handle under the selected plant (game.js placeMoveHandle) */
+#ui.wol .mv-handle { position: absolute; left: 0; top: 0; z-index: 14; pointer-events: auto; touch-action: none; display: inline-flex; align-items: center; gap: 6px;
+  min-height: 40px; padding: 4px 14px 4px 10px; border-radius: 999px; background: rgba(17, 36, 26, .9); color: var(--chalk); font-weight: 800; font-size: .92em; white-space: nowrap;
+  box-shadow: 0 0 0 2px rgba(180, 203, 102, .55), 0 5px 12px rgba(0, 0, 0, .35); cursor: grab; -webkit-user-select: none; user-select: none; }
+#ui.wol .mv-handle svg { width: 20px; height: 20px; flex: none; color: var(--lichen, #b4cb66); }
+#ui.wol .mv-handle:hover { background: rgba(27, 54, 38, .96); }
+#ui.wol .mv-handle[hidden] { display: none; }
+#ui.wol.imv-on .mv-handle { display: none; }
+/* a strong young coral waiting in the coral nursery (reef): pink frame, "מהמשתלה", the count of those waiting */
+#ui.wol .c-nur { font-size: .78em; font-weight: 800; color: #9a3a5a; white-space: nowrap; }
+#ui.wol .card.nursery { box-shadow: inset 0 0 0 3px var(--paper), inset 0 0 0 4px rgba(125, 111, 72, .35), 0 3px 0 rgba(0, 0, 0, .35), 0 0 0 2px #e889a8; }
+#ui.wol .card.nursery .c-alive { background: #c8557a; }
+#ui.wol .sp-one .sp-strong { padding: 6px 10px; border-radius: 10px; background: rgba(232, 137, 168, .18); color: #6a2a40; font-weight: 700; }
 #ui.wol .card.new { box-shadow: inset 0 0 0 3px var(--paper), inset 0 0 0 4px rgba(125, 111, 72, .35), 0 3px 0 rgba(0, 0, 0, .35), 0 0 0 2px var(--honey); }
 #ui.wol .card.poor .thumb { filter: grayscale(.6) opacity(.7); }
 #ui.wol .card.poor .c-name { color: #6f6a55; }

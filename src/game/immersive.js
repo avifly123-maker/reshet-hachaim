@@ -35,6 +35,8 @@ const CSS = `
 #ui.wol .imv-dock .tb .tb-lab { display: none; }
 .q-low#ui.wol .imv-dock { filter: none; }
 @media (max-height: 720px) { #ui.wol .imv-round { width: 64px; height: 64px; } #ui.wol .imv-round svg { width: 32px; height: 32px; } }
+/* small screens: the HUD sits low there (above the tray) and would cover the view's big buttons */
+@media (max-width: 860px) { #ui.wol.imv-on .hud { opacity: 0; visibility: hidden; pointer-events: none; } }
 @media (prefers-reduced-motion: reduce) { #ui.wol .imv, #ui.wol .imv * { transition-duration: .01ms !important; animation: none !important; } }
 `;
 
