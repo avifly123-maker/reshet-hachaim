@@ -2,17 +2,31 @@
 // It owns the population model and keeps the island showing it: the model decides how many mice, owls and shrubs
 // there are; this file brings animals in, sends them away, plants seedlings and lets old shrubs wither, so the island
 // always looks like the numbers. It also runs the research table (tools, ideas, hints), the balance meter, the
-// fast-forward after an experiment, the lab and the end of the mystery.
+// fast-forward after an experiment, the researcher's notebook and the end of the mystery.
+// 1.3.1 (Avi: "the research game is excellent but very unclear"): the five steps of a researcher at the top (look,
+// measure, guess, try, conclude) with "what now?"; after every run a window says what happened and why (built from the
+// model's own account, plus the missed link of each idea, explain-data.js); the notebook holds the measurements (one
+// line at a time), the hypotheses and the links; the first beginner mystery can be guided by רובו־דע (tutorial.js);
+// a badge for every mystery, every level and good research habits.
 import * as THREE from 'three';
 import { createRunner } from './runner.js';
 import { textsFor } from './texts.js';
-import { createResearchUI } from './ui.js';
+import { createResearchUI, R_ICONS } from './ui.js';
 import { saveCaseResult, researchProgress } from './progress.js';
 import { CASES } from './cases/index.js';
 import { grant as grantBadge } from '../core/badges-store.js';
 import { TORAH } from '../core/edition.js';
 import { grantSource } from '../core/sources-store.js';
 import { SOURCE_CARDS } from '../data/torah.js';
+import { CARD_ART } from '../data/card-art.js';
+import { loadPack } from '../core/packs.js';
+import { createExplainer } from './explain.js';
+import { createTutorial } from './tutorial.js';
+import { howtoSeen, markHowto } from '../ui/howto.js';
+
+const SEASON_NAMES = ['winter', 'spring', 'summer', 'autumn'];
+const LOOK_SEASON = 270;      // the look ahead after a run: one season per game day, as in the tests
+export const TUTORIAL_CASE = 'mice-owl';   // the guided mystery (the first beginner mystery)
 
 const FF_SECONDS = 90;        // model seconds shown by "see what happens"
 const FF_MODEL_RATE = 3;      // during it the model runs this much faster than the island (on top of the fast speed)
@@ -50,6 +64,19 @@ export function createResearchSession(ctx) {
   let dilemmaQuiet = 0, dilemmaAgainAt = 0, dilemmaAsked = 0;   // real seconds to wait after a fast run; the model time to ask again
   const measuring = {};   // the "measuring..." note of each tool, closed when its count arrives
   const zoneWord = T('zone_' + C.zone);
+  // card paintings first (Avi: paintings, not drawings), the rendered portraits where there is no painting
+  const arts = { ...thumbs, ...CARD_ART };
+  // the five steps and what happened and why
+  let X = null, E = createExplainer(C, null);   // the prepared words come with the research pack
+  let introClosed = false, phase = 'look';      // 'look' → 'trying' (an idea is on the island) → 'concluded' (after a run)
+  let batch = null;            // the ideas since the last run: { ids: [], before: { id: value } } (the account runs in model.state.acc)
+  let runs = 0, lastConcl = null;   // finished runs; the last "what happened and why" ({ data, heals })
+  const ruled = new Set();     // hypotheses the child ruled out in the notebook
+  const guessHist = [];        // every hypothesis chosen, in order (the first one counts for a badge)
+  let hintsUsed = 0, orderly = null;   // orderly: measured and wrote a hypothesis before the first idea
+  let actSnaps = [];           // [{ t, id, before, after }] the numbers just before and after each idea (the graphs)
+  let tut = null;              // the guided mystery
+  let packTimer = 0;
 
   // game.js and tools.js only ask whether a mystery is running, and call these two hooks
   W.research = { case: C, onSurvey: () => C.tools.filter((t) => (t.kind || t.id) === 'drone').forEach((t) => reveal(t.id)), onSeeds: () => { } };
@@ -58,20 +85,31 @@ export function createResearchSession(ctx) {
   const offSpeed = ctx.bus ? ctx.bus.on('time:speed', ({ speed }) => { if (speed > 0) baseSpeed = speed; }) : null;   // the child's own choice wins after a fast run
 
   const R = createResearchUI(document.getElementById('ui'), {
-    T, C, thumbs, zoneWord,
+    T, C, thumbs: arts, zoneWord,
     onIdea: (id, n) => applyIdea(id, n),
     onTool: (id) => useTool(id),
     onHint: () => giveHint(),
-    onLab: () => openLab(),
+    onLab: (tab) => openNotebook(tab || 'measure'),
     onSee: () => startFF(),
     onToNight: () => startToNight(),
-    onGuess: (id) => { guess = id; R.note(T('guessSaved'), { kind: 'good' }); },
+    onGuess: (id) => chooseGuess(id),
+    onRule: (id, on) => { if (on) { ruled.add(id); if (guess === id) guess = null; } else ruled.delete(id); },
     onExit: () => exit(),
     onStay: () => R.closeSolved(),
     onMore: () => exit(),
-    onLog: () => R.openLog(logs, attempt),
+    onLog: () => openNotebook('log'),
     onRetry: () => retry(),
+    onIntroClosed: () => { introClosed = true; },
+    onStep: (i) => stepTapped(i),
+    onWhatNow: () => R.say(whatNow()),
   });
+  // the prepared words (what each idea leaves unmended, the hypothesis pictures, the guided mystery): a lazy pack
+  loadPack('research').then((m) => { if (disposed) return; X = m.EXPLAIN[C.id] || null; E = createExplainer(C, X); startTutorial(m.TUTORIAL); }).catch(() => { /* the mystery works without them */ });
+  function chooseGuess(id) {
+    guess = id; ruled.delete(id);
+    if (guessHist[guessHist.length - 1] !== id) guessHist.push(id);
+    R.note(T('guessSaved'), { kind: 'good' });
+  }
 
   // ─────────────────────────────────────── the island at the start
   function start() {
@@ -235,7 +273,7 @@ export function createResearchSession(ctx) {
     const def = C.tools.find((t) => t.id === toolId);
     const kind = def ? kindOf(def) : toolId;
     const head = kind === 'nightcam' ? T('camCounted') : kind === 'daycam' ? T('dayCamCounted') : kind === 'drone' ? T('droneCounted') : kind === 'probe' ? T('probeCounted') : T('quadratCounted');
-    R.note(head, { icon: def && def.icon, counts: rows.map((b) => ({ name: b.name, value: shown(b), thumb: b.species ? thumbs[b.species] : null, icon: b.icon })) });
+    R.note(head, { icon: def && def.icon, counts: rows.map((b) => ({ name: b.name, value: shown(b), thumb: b.species ? arts[b.species] : null, icon: b.icon })) });
     audio.play('discover');
     R.setBoard(boardState());
   }
@@ -252,10 +290,19 @@ export function createResearchSession(ctx) {
     const want = runner.ideaOf(id);
     if (want && want.place && want.place !== 'nestbox' && !placeDevice(want.place)) { R.note(T('noRoom'), { kind: 'warn' }); audio.play('invalid'); return; }
     if (id === 'seed-drone') { const a = W.plants.find((p) => alive(p) && p._adult); const hit = a ? { x: a.x, z: a.z, y: 0 } : { x: 0, z: 0, y: 0 }; const chk = tools.check('seeddrone', hit); if (chk.ok) tools.use('seeddrone', hit, chk); }
+    if (orderly == null) orderly = known.size > 0 && !!guess;   // measured and guessed before the first idea (a badge)
+    const before = { ...model.state.v };
+    record();
     runner.apply(id, n);
+    record();   // the line jumps where the idea changed a number
+    actSnaps.push({ t: model.state.t, id, before, after: { ...model.state.v } });
+    // the account of why the numbers move starts with the first idea since the last run
+    if (!batch) { batch = { ids: [], before: { ...model.state.v } }; model.track(); }
+    if (!batch.ids.includes(id)) batch.ids.push(id);
+    phase = 'trying';
     const idea = runner.ideaOf(id);
     lastAct = { id, n };
-    log('idea', idea.title + (n > 1 && idea.amounts.length > 1 ? ' (פי ' + n + ')' : ''), { icon: idea.icon, thumb: idea.icon.startsWith('species:') ? thumbs[idea.icon.slice(8)] : null });
+    log('idea', idea.title + (n > 1 && idea.amounts.length > 1 ? ' (פי ' + n + ')' : ''), { icon: idea.icon, thumb: idea.icon.startsWith('species:') ? arts[idea.icon.slice(8)] : null });
     audio.play('place');
     R.setTable(tableState());
     R.offerSee(idea);
@@ -293,6 +340,7 @@ export function createResearchSession(ctx) {
   function startFF() {
     if (ff) return;
     if (!toNight) baseSpeed = W.speed || 1;
+    if (!batch) { batch = { ids: [], before: { ...model.state.v } }; model.track(); }
     ff = { left: FF_SECONDS, act: lastAct };
     W.speed = FF_SPEED;
     R.setFF({ on: true, p: 0 });
@@ -302,12 +350,47 @@ export function createResearchSession(ctx) {
     dilemmaQuiet = 6;   // the child reads the result first; a dilemma may come a few seconds later
     W.speed = toNight ? 6 : baseSpeed;
     R.setFF({ on: false });
-    const a = f.act; if (!a) return;
-    let line = C.after && C.after[a.id];
+    const a = f.act;
+    let line = a && C.after && C.after[a.id];
     // a line that depends on the numbers: { test, below, no, ok } (or the first case's { noNest, ok })
     if (line && typeof line === 'object') line = line.test ? (model.get(line.test) < (line.below ?? 0.5) ? line.no : line.ok) : (model.get('nests') < 0.5 ? line.noNest : line.ok);
-    if (line) { R.note(line, { action: { label: T('lab'), id: 'lab' } }); log('result', line); }
+    if (line) log('result', line);
+    conclude(line || '');
     lastAct = null;
+  }
+  // will the place heal from here if nothing more is done? a quiet copy of the model runs ahead (the same rules)
+  function healsFromHere() {
+    if (runner.solved) return true;
+    const f = runner.fork();
+    const s0 = SEASON_NAMES.indexOf(W.season);
+    const horizon = Math.max(300, (C.tests && C.tests.within) || 600);
+    for (let t = 0; t < horizon; t += 0.5) {
+      f.step(0.5, s0 >= 0 ? SEASON_NAMES[(s0 + Math.floor(t / LOOK_SEASON)) % 4] : null);
+      if (f.solved) return true;
+    }
+    return false;
+  }
+  // "what happened and why": the numbers that moved most since the ideas went in, each with its reason; then either
+  // "it seems to work" or the link each idea left unmended; then the child's hypothesis
+  function conclude(story) {
+    const b = batch; batch = null;
+    const acc = model.state.acc; model.track(false);
+    runs++;
+    const heals = healsFromHere();
+    const ids = b ? b.ids : [];
+    const rows = b ? E.changes(b.before, model.state.v, acc, known) : [];
+    const why = heals ? [] : ids.slice(-2).map((id) => E.why(id)).filter(Boolean);
+    for (const w of why) log('why', w);
+    const g = guess && C.guesses.find((x) => x.id === guess);
+    const data = {
+      ideas: ids.map((id) => { const i = runner.ideaOf(id); return { title: i.title, icon: i.icon, thumb: i.icon.startsWith('species:') ? arts[i.icon.slice(8)] : null }; }),
+      story, heals, why,
+      rows: rows.map((r) => ({ ...r, name: r.b.name, thumb: r.b.species ? arts[r.b.species] : null, icon: r.b.icon })),
+      guess: g ? { id: g.id, text: g.text } : null,
+    };
+    lastConcl = { data, heals };
+    phase = 'concluded';
+    if (!finished) R.showConclusion(data);
   }
   function startToNight() {
     if (toNight || W.nightGlow > 0.6) return;
@@ -321,16 +404,49 @@ export function createResearchSession(ctx) {
     if (hintI >= C.hints.length) { R.note(T('noMoreHints')); return; }
     if (bulbs.n <= 0) { R.note(T('hintWait')); audio.play('invalid'); return; }
     bulbs.n--; R.setBulbs(bulbs.n, bulbs.max);
+    hintsUsed++;
     R.note(C.hints[hintI++], { kind: 'hint' });
     audio.play('select');
   }
 
-  // ─────────────────────────────────────── the lab
-  function openLab() {
-    const series = C.board.filter((b) => known.has(b.id)).map((b) => ({ id: b.id, name: b.name, thumb: b.species ? thumbs[b.species] : null, icon: b.icon,
-      from: known.get(b.id), points: hist.filter((h) => h.t >= known.get(b.id)).map((h) => [h.t, h.v[b.id] * (b.scale ?? 1)]) }));
-    R.openLab({ series, acts: acts.map((a) => ({ ...a, idea: C.ideas.find((i) => i.id === a.id) })), now: model.state.t, guess, guesses: C.guesses });
+  // ─────────────────────────────────────── the researcher's notebook (notebook.js)
+  const ideaArt = (i) => (i.icon.startsWith('species:') ? arts[i.icon.slice(8)] : CARD_ART[i.icon] || R_ICONS[i.icon] || null);
+  // a picture reference for a hypothesis: a board id, 'species:<id>' or an icon name
+  const picRef = (p) => {
+    const b = C.board.find((x) => x.id === p);
+    if (b) return { thumb: b.species ? arts[b.species] : null, icon: b.icon };
+    if (p.startsWith('species:')) return { thumb: arts[p.slice(8)] || null, icon: p };
+    return { thumb: null, icon: p };
+  };
+  function notebookData() {
+    const now = model.state.t;
+    const bs = boardState();
+    const rows = C.board.map((b) => {
+      const sc = b.scale ?? 1, k = known.has(b.id), from = k ? known.get(b.id) : now;
+      const points = k ? hist.filter((h) => h.t >= from).map((h) => [h.t, h.v[b.id] * sc]) : [];
+      if (k && (!points.length || points[points.length - 1][0] < now)) points.push([now, model.get(b.id) * sc]);
+      const value = shown(b), first = points.length ? points[0][1] : value;
+      // the last idea since it was measured: the bars and the sentence count from just after it
+      // the idea that moved this very number (bringing a jaguar for the jaguars), else simply the last one
+      const since = actSnaps.filter((s) => s.t >= from);
+      const snap = [...since].reverse().find((s) => Math.abs((s.after[b.id] || 0) - (s.before[b.id] || 0)) > 1e-6) || since[since.length - 1];
+      const ref = snap ? { before: snap.before[b.id] * sc, after: snap.after[b.id] * sc, ideaShort: T('afterIdea'), pic: ideaArt(runner.ideaOf(snap.id)) } : null;
+      const say = !k ? '' : E.trend(b, Math.round(ref ? ref.after : first), value, snap ? runner.ideaOf(snap.id).title : null);
+      const row = bs.find((r) => r.id === b.id);
+      return { id: b.id, name: b.name, thumb: b.species ? arts[b.species] : null, icon: b.icon, known: k, value, trend: row ? row.trend : 0,
+        tool: C.tools.find((t) => t.id === b.tool), points, first, ref, say, change: (value - (ref ? ref.after : first)) / Math.max(1, Math.abs(ref ? ref.after : first)) };
+    });
+    const linkRow = (id) => rows.find((r) => r.id === id);
+    return {
+      now, rows,
+      acts: actSnaps.map((s) => { const i = runner.ideaOf(s.id); return { t: s.t, title: i.title, pic: ideaArt(i) }; }),
+      guess, ruled,
+      guesses: C.guesses.map((g) => ({ ...g, pics: (E.hyp(g.id) || [g.icon]).map(picRef) })),
+      links: E.links().map((l) => ({ ...l, ra: linkRow(l.a), rb: linkRow(l.b) })),
+      logs,
+    };
   }
+  function openNotebook(tab) { R.openNotebook(notebookData, tab); }
   function record() { const v = {}; for (const id in model.state.v) v[id] = model.state.v[id]; hist.push({ t: model.state.t, v }); if (hist.length > 2000) hist.splice(0, hist.length - 2000); }
 
   // ─────────────────────────────────────── board & table data for the UI
@@ -340,13 +456,13 @@ export function createResearchSession(ctx) {
       const k = known.has(b.id);
       const v = shown(b);
       const was = prev ? Math.round(prev.v[b.id] * (b.scale ?? 1)) : v;
-      return { id: b.id, name: b.name, thumb: b.species ? thumbs[b.species] : null, icon: b.icon, known: k, value: v, trend: !k ? 0 : v > was * 1.06 + 0.5 ? 1 : v < was * 0.94 - 0.5 ? -1 : 0, tool: C.tools.find((t) => t.id === b.tool) };
+      return { id: b.id, name: b.name, thumb: b.species ? arts[b.species] : null, icon: b.icon, known: k, value: v, trend: !k ? 0 : v > was * 1.06 + 0.5 ? 1 : v < was * 0.94 - 0.5 ? -1 : 0, tool: C.tools.find((t) => t.id === b.tool) };
     });
   }
   function tableState() {
     return {
       tools: C.tools.map((t) => ({ ...t, placed: placedTools.has(t.id) })),
-      ideas: C.ideas.map((i) => ({ ...i, thumb: i.icon.startsWith('species:') ? thumbs[i.icon.slice(8)] : null, used: ideaCount(i.id), full: !!(i.max && ideaCount(i.id) >= i.max), cost: i.cost })),
+      ideas: C.ideas.map((i) => ({ ...i, thumb: i.icon.startsWith('species:') ? arts[i.icon.slice(8)] : null, used: ideaCount(i.id), full: !!(i.max && ideaCount(i.id) >= i.max), cost: i.cost })),
       budget: budgetLeft(), budgetMax: C.budget ?? 0,
       // nothing left to try with what is left of the budget: even beginners get "try again" then
       stuck: !finished && !C.ideas.some((i) => !(i.max && ideaCount(i.id) >= i.max) && runner.costOf(i, (i.amounts && i.amounts[0]) || 1) <= budgetLeft()),
@@ -370,8 +486,8 @@ export function createResearchSession(ctx) {
     surpriseT -= rdt;
     if (surpriseT <= 0) { surpriseT = 0.5; for (const S of runner.surprises()) { R.note(S.text, { kind: 'surprise', action: { label: T('lab'), id: 'lab' } }); log('surprise', S.text); audio.play('discover'); } }
     // a case may show a number on the island as embers by the road (the summer fire): scene.embers = { id, above, angle }
-    const E = C.scene && C.scene.embers;
-    if (E) { emberT -= rdt; const v = model.get(E.id); if (emberT <= 0 && v > E.above) { emberT = 0.4; const a = E.angle ?? 0.6, r = env.radius * 0.8; _v.set(Math.cos(a) * r, 0, Math.sin(a) * r); _v.y = env.heightAt(_v.x, _v.z) + 0.3; markers.burst(_v, '#ff8a3a', Math.min(14, 3 + Math.round(v * 20)), { speed: 0.7, size: 0.5, life: 1.5, up: 1.8 }); } }
+    const EM = C.scene && C.scene.embers;
+    if (EM) { emberT -= rdt; const v = model.get(EM.id); if (emberT <= 0 && v > EM.above) { emberT = 0.4; const a = EM.angle ?? 0.6, r = env.radius * 0.8; _v.set(Math.cos(a) * r, 0, Math.sin(a) * r); _v.y = env.heightAt(_v.x, _v.z) + 0.3; markers.burst(_v, '#ff8a3a', Math.min(14, 3 + Math.round(v * 20)), { speed: 0.7, size: 0.5, life: 1.5, up: 1.8 }); } }
     // night for the camera
     if (pendingNight.length && W.nightGlow > 0.6) { const ids = pendingNight.splice(0); later(() => ids.forEach(reveal), 400); }
     if (toNight && W.nightGlow > 0.6) { toNight = null; if (!ff) W.speed = baseSpeed; }
@@ -392,6 +508,51 @@ export function createResearchSession(ctx) {
     // keep the island showing the numbers
     syncT -= rdt; if (syncT <= 0) { syncT = ff ? 0.25 : 0.5; for (const v of C.visual || []) syncOne(v, false); R.setBoard(boardState()); }
     plantSyncT -= rdt; if (plantSyncT <= 0) { plantSyncT = ff ? 0.4 : 1; syncPlants(false); }
+    // the five steps, and the guided mystery
+    R.setSteps(stepState());
+    if (tut && !tut.over) tut.tick(rdt || dt);
+  }
+
+  // ─────────────────────────────────────── the five steps of a researcher
+  // where the child is now (a step is never forced: one left out on the way shows hollow, and "what now?" suggests it)
+  function stepState() {
+    const done = [introClosed, known.size > 0, !!guess, runs > 0, runs > 0 && !R.modalIs('rs-concl') || finished];
+    let cur;
+    if (finished) cur = 4;
+    else if (!introClosed) cur = 0;
+    else if (ff || phase === 'trying') cur = 3;
+    else if (phase === 'concluded') cur = 4;
+    else if (!known.size) cur = 1;
+    else if (!guess) cur = 2;
+    else cur = 3;
+    return { cur, done };
+  }
+  function whatNow() {
+    if (finished) return T('nowSolved');
+    if (!introClosed) return T('now0');
+    if (ff) return T('nowRun');
+    if (phase === 'trying') return known.size ? T('now3see') : T('nowNoMeasure');
+    if (phase === 'concluded') return lastConcl && lastConcl.heals ? T('now4ok') : T('now4');
+    if (!known.size) return T('now1');
+    if (!guess) return T('now2');
+    return T('now3');
+  }
+  function stepTapped(i) {
+    if (i === 0) { R.showIntro(); return; }
+    if (i === 1) { R.pulse('.rs-sec-tools'); R.say(T('stepTools'), { ttl: 4000 }); return; }
+    if (i === 2) { openNotebook('hyp'); return; }
+    if (i === 3) { R.pulse('.rs-sec-ideas'); R.say(T('stepIdeas'), { ttl: 4000 }); return; }
+    if (lastConcl) R.showConclusion(lastConcl.data); else openNotebook('measure');
+  }
+
+  // ─────────────────────────────────────── the guided mystery (the first time, or from the research centre's "הדרכה")
+  function startTutorial(texts) {
+    if (!texts || C.id !== TUTORIAL_CASE || tut) return;
+    if (!C.tutorial && howtoSeen('rs-tutorial')) return;
+    markHowto('rs-tutorial');   // once: later it is the child's choice (the research centre's "הדרכה" button)
+    tut = createTutorial({ R, T, texts, onEnd: () => { tut = null; },
+      state: () => ({ introClosed, placed: placedTools, known, nbOpen: R.nbOpen(), nbTab: R.nbTab(), guess, modal: R.isOpen(), acts: acts.length,
+        ff: !!ff, runs, conclOpen: R.modalIs('rs-concl'), lastHeals: !!(lastConcl && lastConcl.heals) }) });
   }
 
   // ─────────────────────────────────────── the end of the mystery
@@ -410,6 +571,17 @@ export function createResearchSession(ctx) {
     if (other) grantBadge('research:other');
     const done = researchProgress().cases;
     if (CASES.every((c) => done[c.id])) grantBadge('research:all');
+    // 1.3.1: a badge for this mystery, for a whole level, and for good research habits
+    grantBadge('research:case:' + C.id);
+    if (CASES.filter((c) => c.level === C.level).every((c) => done[c.id])) grantBadge('research:level:' + C.level);
+    const firstGuess = guessHist.length ? C.guesses.find((g) => g.id === guessHist[0]) : null;
+    if (firstGuess && firstGuess.right) grantBadge('research:firstguess');
+    if (!hintsUsed) grantBadge('research:nohints');
+    if (thrift) grantBadge('research:thrift');
+    if (guess && ruled.size) grantBadge('research:notebook');
+    if (orderly) grantBadge('research:order');
+    if (tut) tut.end();
+    R.hideSay();
     log('solved', other ? T('otherWay') : T('solvedTitle'));
     let source = null;
     if (TORAH && C.source) { const card = SOURCE_CARDS.find((c) => c.id === C.source); if (card) { grantSource(card.id); source = card; } }
@@ -424,8 +596,10 @@ export function createResearchSession(ctx) {
     if (!sandbox && !tableState().stuck) return;
     if (ff) { ff = null; R.setFF({ on: false }); }
     W.speed = baseSpeed;
+    model.track(false);
     runner = createRunner(C); model = runner.model; acts = runner.acts;
     hist = []; histT = 0; record();
+    batch = null; actSnaps = []; phase = 'look'; lastConcl = null;
     for (const k of known.keys()) known.set(k, 0);
     finished = false; lastAct = null;
     // the devices the ideas put up come off the island (the measuring tools stay)
@@ -445,6 +619,8 @@ export function createResearchSession(ctx) {
 
   function dispose() {
     disposed = true;
+    if (tut) tut.end();
+    R.hi(null);
     if (offSpeed) offSpeed();
     for (const id of timers) clearTimeout(id); timers.clear();
     if (quadratMesh) { scene.remove(quadratMesh); const mats = new Set(); quadratMesh.traverse((o) => { if (o.geometry) o.geometry.dispose(); if (o.material) mats.add(o.material); }); mats.forEach((m) => m.dispose()); quadratMesh = null; }
@@ -452,7 +628,9 @@ export function createResearchSession(ctx) {
   }
 
   // test hooks
-  W.research.dbg = { get model() { return model; }, get runner() { return runner; }, known, reveal, applyIdea, useTool, startFF, finish, openLab, retry, logs,
-    openLog: () => R.openLog(logs, attempt), get held() { return runner.held; }, get spent() { return runner.spent; }, get solved() { return finished; } };
+  W.research.dbg = { get model() { return model; }, get runner() { return runner; }, known, reveal, applyIdea, useTool, startFF, finish, retry, logs,
+    openLab: (tab) => openNotebook(tab || 'measure'), openLog: () => openNotebook('log'), guess: (id) => chooseGuess(id), steps: () => stepState(), whatNow,
+    heals: () => healsFromHere(), get tut() { return tut; }, get concl() { return lastConcl; }, get explained() { return !!X; },
+    get held() { return runner.held; }, get spent() { return runner.spent; }, get solved() { return finished; } };
   return { start, update, dispose, get model() { return model; }, paused: () => R.isOpen() };
 }
