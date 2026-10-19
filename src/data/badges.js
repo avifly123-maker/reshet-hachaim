@@ -4,6 +4,7 @@
 //       | 'lab:<key>' (the lab of רובו־דע) | 'research:<key>' (חוקרי הטבע)
 // art: a CARD_ART key (the card painting inside the medallion)
 // Frames for the album cards open when a player has enough badges of a group (FRAMES).
+// `torah: true` (a group, a badge, a frame): the torah edition only, shown while "מקורות ופסוקים" is on (src/learn/hub.js).
 
 export const BADGE_GROUPS = [
   { id: 'amazon', name: 'יער הגשם של האמזונס', short: 'אמזונס', col: '#2f7a4a', col2: '#e8c050' },
@@ -12,6 +13,8 @@ export const BADGE_GROUPS = [
   { id: 'lab', name: 'הממציאים והמעבדה', short: 'מעבדה', col: '#5a4a8a', col2: '#f6cf72' },
   { id: 'deep', name: 'משלחת לעומק', short: 'משלחת', col: '#163a5a', col2: '#6fd0ff' },
   { id: 'research', name: 'חוקרי הטבע', short: 'חוקרים', col: '#3a5a2a', col2: '#f6cf72' },
+  // torah edition only (hidden in the general edition and while "מקורות ופסוקים" is off)
+  { id: 'sources', name: 'מה הפסוק מלמד?', short: 'מקורות', col: '#7a5420', col2: '#f6dfa0', torah: true },
 ];
 
 export const BADGES = [
@@ -77,6 +80,11 @@ export const BADGES = [
   { id: 'b_rs3', group: 'research', art: 'butterflyfish', name: 'שלושה כוכבים', how: 'תעלומה עם שלושה כוכבים', earn: 'research:stars' },
   { id: 'b_rsall', group: 'research', art: 'hoopoe', name: 'בלש הטבע', how: 'כל התעלומות נפתרו', earn: 'research:all' },
   { id: 'b_rsodd', group: 'research', art: 'chameleon', name: 'דרך משלכם', how: 'פותרים תעלומה בדרך שאינה הדרך הרגילה', earn: 'research:other' },
+  // ── מה הפסוק מלמד? (torah edition: src/learn/games/verse-match.js)
+  { id: 'b_vm1', group: 'sources', art: 'harvesterant', name: 'מבינים פסוק', how: 'מסיימים סבב ראשון של "מה הפסוק מלמד?"', earn: 'verse:first', torah: true },
+  { id: 'b_vmeye', group: 'sources', art: 'gazelle', name: 'עין טובה', how: 'סבב שלם שבו כל קלף נמצא כבר בניסיון הראשון', earn: 'verse:perfect', torah: true },
+  { id: 'b_vm5', group: 'sources', art: 'hyrax', name: 'מתמידים', how: 'חמישה סבבים של "מה הפסוק מלמד?"', earn: 'verse:five', torah: true },
+  { id: 'b_vmall', group: 'sources', art: 'carob', name: 'כל המקורות', how: 'פוגשים במשחק את כל קלפי המקור', earn: 'verse:all', torah: true },
 ];
 
 // card frames for the album: a group's frame opens with `need` of its badges ('all': badges of any group)
@@ -87,6 +95,8 @@ export const FRAMES = [
   { id: 'coral', name: 'אלמוגים', need: 2, group: 'reef' },
   { id: 'brass', name: 'פליז של ממציאים', need: 2, group: 'lab' },
   { id: 'deep', name: 'מעמקי הים', need: 2, group: 'deep' },
+  { id: 'silver', name: 'כסף של חוקרי הטבע', need: 2, group: 'research' },
+  { id: 'sources', name: 'קלף עתיק', need: 2, group: 'sources', torah: true },
   { id: 'gold', name: 'זהב', need: 12, group: 'all' },
 ];
 
