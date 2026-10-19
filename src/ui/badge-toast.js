@@ -21,12 +21,17 @@ export function startBadgeToasts(root, audio) {
 @keyframes bdg-out{to{opacity:0;transform:translate(-50%,-20px) scale(.92)}}
 @keyframes bdg-spin{from{transform:rotateY(180deg) scale(.6)}to{transform:none}}
 @keyframes bdg-rays{to{transform:rotate(360deg)}}
+/* low screens: a smaller medallion, high up, so the HUD and the middle of the forest stay free */
+@media (max-height:620px){#ui.wol .bdg-pop{top:10px;padding:.6em 1.3em .75em;gap:.25em}#ui.wol .bdg-pop .bdg{--bs:5.6em}#ui.wol .bdg-pop h4{font-size:1em}#ui.wol .bdg-pop p{font-size:.86em;max-width:19em}
+  #ui.wol .bdg-pop .rays{width:14em;height:14em;margin:-7em 0 0 -7em}}
 @media (prefers-reduced-motion: reduce){#ui.wol .bdg-pop,#ui.wol .bdg-pop .bdg-med,#ui.wol .bdg-pop .rays{animation:none}}`;
     document.head.appendChild(st);
   }
-  const queue = []; let busy = false;
+  const queue = []; let busy = false, waitT = 0;
   function next() {
     if (busy || !queue.length) return;
+    // a mission banner ("משימה הושלמה!") is showing: the badge waits until it is gone, so they never cover each other
+    if (root.querySelector('.mission-banner')) { if (!waitT) waitT = setTimeout(() => { waitT = 0; next(); }, 300); return; }
     const b = badgeById(queue.shift()); if (!b) { next(); return; }
     busy = true;
     const el = document.createElement('div'); el.className = 'bdg-pop'; el.setAttribute('role', 'status');
@@ -37,5 +42,6 @@ export function startBadgeToasts(root, audio) {
     const close = () => { if (done) return; done = true; el.classList.add('out'); setTimeout(() => { el.remove(); busy = false; next(); }, 360); };
     el.addEventListener('click', close); setTimeout(close, 5200);
   }
-  window.addEventListener('wol-badge', (e) => { queue.push(e.detail); next(); });
+  // a short pause first: the mission that gave the badge puts up its banner right after the grant
+  window.addEventListener('wol-badge', (e) => { queue.push(e.detail); setTimeout(next, 80); });
 }

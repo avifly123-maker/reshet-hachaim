@@ -502,6 +502,8 @@ const CSS_TEXT = `
 .wol-learn .ex-tag.tired{background:#f6cf72;color:#3a2608}.wol-learn .ex-tag.boat{background:#eaf6fa;color:#c8553a}
 /* summary */
 .wol-learn .ex-sum{display:flex;flex-direction:column;align-items:center;gap:.5em;max-width:46em;width:100%;padding:1em 1.4em;border-radius:1.2em;color:#22404f;overflow:auto}
+.wol-learn .ex-sum{flex:0 1 auto;min-height:0}
+.wol-learn .ex-sum>.wl-row{position:sticky;bottom:-1em;z-index:2;align-self:stretch;margin:0 -1.4em -1em;padding:.7em 1.4em .9em;background:linear-gradient(180deg,rgba(244,236,214,0),var(--paper) 38%)}
 .wol-learn .ex-sum .ex-radio{background:#163a4f}
 .wol-learn .ex-sum h2{margin:0;font-family:var(--serif);font-size:1.8em;color:#1f5a72}
 .wol-learn .ex-score{display:flex;align-items:baseline;gap:.4em}

@@ -1226,6 +1226,12 @@ ${BADGE_CSS}
 .wol-learn .wl-setr .wl-ic{color:#b96f12}
 .wol-learn .wl-setinfo.done .wl-setr{background:linear-gradient(180deg,#fff2c4,#f8d98a);box-shadow:0 0 .8em rgba(240,180,76,.5)}
 .wol-learn .wl-setinfo .wl-btn{min-height:2.4em;padding:.25em 1em;font-size:.95em}
+@media (max-height:660px){.wol-learn .wl-sets{flex-direction:row;align-items:center;gap:.5em;margin-top:0}.wol-learn .wl-setsh small{display:none}
+.wol-learn .wl-setrow{flex:1;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;scrollbar-color:rgba(246,240,220,.45) transparent;padding:.3em .2em .45em;-webkit-mask-image:linear-gradient(270deg,#000 92%,transparent);mask-image:linear-gradient(270deg,#000 92%,transparent)}
+.wol-learn .wl-set{flex:none}.wol-learn .wl-setinfo{padding:.3em .7em .3em .8em;gap:.6em}.wol-learn .wl-setinfo .wl-seti{width:2.1em;height:2.1em}.wol-learn .wl-sett b{font-size:1.15em}.wol-learn .wl-sett p{display:none}.wol-learn .wl-album{gap:.55em}.wol-learn .wl-abar{padding:.45em .8em}}
+@media (max-height:520px){.wol-learn .wl-packs{gap:.5em;padding-bottom:.5em}.wol-learn .wl-ptitle{font-size:1.7em}.wol-learn .wl-packs .wl-stage{font-size:.78em;margin-top:.9em}}
+@media (max-height:660px) and (max-width:900px){.wol-learn .wl-abar .wl-dlab{display:none}.wol-learn .wl-abar .wl-btn.go{padding-left:.6em;padding-right:.6em}.wol-learn .wl-count b{max-width:5.6em;line-height:1.1}.wol-learn .wl-tab{padding:.4em .55em}.wol-learn .wl-abar{gap:.4em}}
+@media (max-height:660px) and (max-width:1100px){.wol-learn .wl-legbtn span{display:none}.wol-learn .wl-legbtn{padding:.3em .55em}.wol-learn .wl-count{min-width:0}.wol-learn .wl-count b{font-size:1.05em}.wol-learn .wl-setr{padding:.25em .6em;font-size:.9em}}
 .wol-learn .wl-toast.set{gap:.7em;padding:.55em 1.6em .55em 1.1em;font-size:1.12em;line-height:1.25;box-shadow:0 0 0 .2em #fff6dc,0 0 2em rgba(246,207,114,.8),0 8px 24px rgba(0,0,0,.35)}
 .wol-learn .wl-toast.set .wl-seti{width:2.4em;height:2.4em}.wol-learn .wl-toast.set .wl-seti .wl-ic{width:1.4em;height:1.4em}
 .wol-learn .wl-toast.set b{display:block;font-family:var(--serif);font-size:1.15em}
@@ -1655,12 +1661,14 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
         <button class="wl-btn wl-legbtn" data-wl="legend">${IC.quest}<span>מה רואים על הקלף?</span></button>
         <span class="wl-sp"></span>
         <button class="wl-btn gold" data-wl="pack" ${S.packs ? '' : 'disabled'} title="${S.packs && !opensLeft() ? 'היום כבר פתחתם ' + OPEN_PER_DAY + ' חבילות. מחר אפשר לפתוח עוד' : 'אפשר לפתוח עד ' + OPEN_PER_DAY + ' חבילות ביום'}">${IC.pack} ${S.packs && !opensLeft() ? 'עוד חבילות מחר' : 'פתחו חבילה'} ${S.packs ? `<span class="wl-badgeN">${S.packs}</span>` : ''}</button>
-        <button class="wl-btn go" data-wl="duel" ${have >= 3 ? '' : 'disabled'} title="${have >= 3 ? '' : 'צריך לפחות 3 קלפים'}">${IC.versus} מי חזק ברשת?</button>
+        <button class="wl-btn go" data-wl="duel" ${have >= 3 ? '' : 'disabled'} title="${have >= 3 ? 'מי חזק ברשת?' : 'צריך לפחות 3 קלפים'}" aria-label="מי חזק ברשת?">${IC.versus} <span class="wl-dlab">מי חזק ברשת?</span></button>
       </div>
       ${setsHTML()}
       ${curSet ? setInfoHTML(curSet) : ''}
       ${filter === 'src' ? sourcePageHTML() : `<div class="wl-grid${curSet ? ' inset' : ''}">${list.map((c, i) => { const o = { style: `--d:${i}`, cls: (i < 24 ? 'anim' : '') + (frameCls ? ' ' + frameCls : '') }; return S.owned[c.id] ? cardHTML(c, { ...o, count: S.owned[c.id] }) : cardHTML(c, { ...o, cls: i < 24 ? 'anim' : '', locked: true }); }).join('')}${filter === 'all' && srcOn() ? `<div class="wl-srcall">${sourcePageHTML()}</div>` : ''}</div>`}
     </section>`;
+    const selSet = main.querySelector('.wl-set.sel'), setRow = selSet && selSet.parentElement;   // a scrolling row of chips: keep the chosen one in view
+    if (setRow && setRow.scrollWidth > setRow.clientWidth) { const r = selSet.getBoundingClientRect(), rr = setRow.getBoundingClientRect(); if (r.left < rr.left || r.right > rr.right) setRow.scrollLeft += (r.left + r.width / 2) - (rr.left + rr.width / 2); }
     if (!S.packs && have < 3) toast(`${IC.quest}<span>שחקו בחידון כדי להרוויח חבילות קלפים</span>`);
   }
   // torah edition: the album page of source cards ("מן המקורות")
@@ -2007,6 +2015,12 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     duel: () => { sfx('click'); go('duel'); }, play: (t) => playCard(+t.dataset.k), dnext: duelNext,
     badges: () => { sfx('click'); go('badges'); }, frame: (t) => { if (chooseFrame(t.dataset.f)) { sfx('select'); renderBadges(); } },
   };
+  // low screens: the set chips are one scrolling row; the mouse wheel moves it sideways
+  el.addEventListener('wheel', (e) => {
+    const row = e.target.closest && e.target.closest('.wl-setrow');
+    if (!row || row.scrollWidth <= row.clientWidth + 2 || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+    e.preventDefault(); row.scrollLeft -= e.deltaY;
+  }, { passive: false });
   el.addEventListener('click', (e) => {
     const t = e.target.closest('[data-wl]');
     if (t && el.contains(t) && !t.disabled) { ACT[t.dataset.wl] && ACT[t.dataset.wl](t, e); return; }

@@ -325,3 +325,27 @@
 /* a long board (many measurements) scrolls instead of running under the research table */
 #ui.wol .rs-board { max-height: calc(100% - 330px); overflow-y: auto; scrollbar-width: thin; }
 @media (max-height: 640px) { #ui.wol .rs-board { max-height: calc(100% - 270px); } }
+
+/* long light names (the advanced mysteries) wrap under their bulb, so the meter stays narrow and never reaches the board */
+#ui.wol .rs-light { max-width: 108px; }
+#ui.wol .rs-l-name { white-space: normal; text-align: center; line-height: 1.2; max-width: 108px; }
+/* the end of a mystery: the two buttons stay at the bottom of the sheet, also when a source card makes it long */
+#ui.wol .rs-solved .rs-btns { position: sticky; bottom: -18px; z-index: 2; margin: 12px -26px -18px; padding: 10px 26px 14px; background: linear-gradient(180deg, rgba(241, 230, 196, 0), #f1e6c4 34%); }
+@media (max-height: 640px) {
+  #ui.wol .rs-solved .rs-sheet { padding-top: 14px; }
+  #ui.wol .rs-solved h2 { font-size: 1.8em; margin: 0 0 4px; }
+  #ui.wol .rs-stars { margin: 2px 0 6px; } #ui.wol .rs-star svg { width: 40px; height: 40px; }
+  #ui.wol .rs-src p { line-height: 1.6; }
+}
+@media (max-height: 520px) {
+  #ui.wol .rs-meter { min-width: 0; }
+  #ui.wol .rs-lights { gap: 10px; }
+  #ui.wol .rs-bulb { width: 28px; height: 28px; } #ui.wol .rs-bulb .ic { width: 16px; height: 16px; }
+}
+/* the board takes clicks: its "?" buttons open the tool that measures, and a long board scrolls (#ui itself lets clicks through) */
+#ui.wol .rs-board { pointer-events: auto; }
+/* no cross shapes: what a way gives and what it costs are marked with a small up / down triangle, not "+" */
+#ui.wol .rs-dl-plus::before { content: "▲ "; font-size: .72em; vertical-align: .12em; }
+#ui.wol .rs-dl-minus::before { content: "▼ "; font-size: .72em; vertical-align: .12em; }
+/* a mystery window (intro, dilemma, lab, log, the end) takes the clicks: #ui lets clicks through, so without this a real click fell through to the desk below */
+#ui.wol .rs-modal { pointer-events: auto; }

@@ -416,6 +416,8 @@ const CSS = `
 @keyframes kf-blink{0%,94%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
 @keyframes kf-up{0%{opacity:0;transform:translate(-50%,0) scale(.6)}20%{opacity:1;transform:translate(-50%,-.4em) scale(1.1)}100%{opacity:0;transform:translate(-50%,-2.6em) scale(1)}}
 @media (max-height:820px){.kf-side.resolved .kf-evtop{display:none}}
+@media (max-height:520px){.kf-side{gap:.3em}.kf-evtop .wl-flip{--cw:min(4.8em,11vh)}.kf-evf .wl-ic{width:3.4em;height:3.4em}.kf-info{padding:.4em .6em;min-height:3.4em}.kf-info h3{font-size:1.05em}.kf-info p{font-size:.84em;line-height:1.3}
+  .kf-owlsvg{width:2.6em!important;height:2.9em!important}.kf-bub{margin-bottom:.2em;padding:.35em .6em;font-size:.82em;max-height:4.6em;overflow-y:auto;scrollbar-width:thin}}
 @media (max-height:720px){.kf-phead h1{font-size:2.1em}.kf-hsteps p{font-size:.9em}.kf-hp{height:5.6em}.kf-side{width:14.5em}.kf-owlsvg{width:3.8em;height:4.2em}}
 /* round 2: gentle colour – each forest card in its own paper */
 .kf-bt[data-b="amazon"]{--paper:#dbe5d6}.kf-bt[data-b="amazon"] h2{color:#1f5f58}

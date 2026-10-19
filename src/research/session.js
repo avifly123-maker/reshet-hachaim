@@ -46,7 +46,8 @@ export function createResearchSession(ctx) {
   let lastAct = null;
   const bulbs = { n: 1, max: 3, t: 0 }; let hintI = 0;
   let quadratMesh = null;
-  let dilemmaShown = !C.dilemma;   // a case may bring one dilemma, once
+  let dilemmaShown = !C.dilemma;   // a case may bring one dilemma, once (and once more later, after "עוד לא")
+  let dilemmaQuiet = 0, dilemmaAgainAt = 0, dilemmaAsked = 0;   // real seconds to wait after a fast run; the model time to ask again
   const measuring = {};   // the "measuring..." note of each tool, closed when its count arrives
   const zoneWord = T('zone_' + C.zone);
 
@@ -298,6 +299,7 @@ export function createResearchSession(ctx) {
   }
   function endFF() {
     const f = ff; ff = null;
+    dilemmaQuiet = 6;   // the child reads the result first; a dilemma may come a few seconds later
     W.speed = toNight ? 6 : baseSpeed;
     R.setFF({ on: false });
     const a = f.act; if (!a) return;
@@ -375,10 +377,16 @@ export function createResearchSession(ctx) {
     if (toNight && W.nightGlow > 0.6) { toNight = null; if (!ff) W.speed = baseSpeed; }
     // hint bulbs fill up again
     // the dilemma comes once the child has looked around (model seconds), and never over another window
-    if (!dilemmaShown && !ff && model.state.t >= (C.dilemma.at ?? 30) && !R.isOpen()) {
+    if (dilemmaQuiet > 0) dilemmaQuiet -= rdt;
+    if (!dilemmaShown && !ff && dilemmaQuiet <= 0 && model.state.t >= Math.max(C.dilemma.at ?? 30, dilemmaAgainAt) && !R.isOpen()) {
       dilemmaShown = true;
       // not when the child already tried one of the two ways
-      if (!C.dilemma.options.some((o) => runner.used(o.idea))) { R.showDilemma(C.dilemma, (id) => { const i = runner.ideaOf(id); if (i) applyIdea(id, i.amounts[0]); }); audio.play('select'); }
+      if (!C.dilemma.options.some((o) => runner.used(o.idea))) {
+        dilemmaAsked++;
+        // "עוד לא": it comes back once more, a while later (model seconds)
+        const onLater = dilemmaAsked < 2 ? () => { dilemmaShown = false; dilemmaAgainAt = model.state.t + (C.dilemma.again ?? 60); } : null;
+        R.showDilemma(C.dilemma, (id) => { const i = runner.ideaOf(id); if (i) applyIdea(id, i.amounts[0]); }, onLater); audio.play('select');
+      }
     }
     if (bulbs.n < bulbs.max && hintI < C.hints.length && !R.isOpen()) { bulbs.t += rdt; if (bulbs.t >= BULB_REFILL) { bulbs.t = 0; bulbs.n++; R.setBulbs(bulbs.n, bulbs.max); } }
     // keep the island showing the numbers

@@ -205,14 +205,14 @@ export function createResearchUI(root, o) {
   }
 
   // a dilemma: two (or three) ways, each with what it gives and what it costs; choosing one applies that idea
-  function showDilemma(D, onChoose) {
+  function showDilemma(D, onChoose, onLater) {
     const m = openModal('rs-intro rs-dilemma', `<div class="rs-tape"></div><div class="rs-case-tag">${icon('bulb')}<span>${esc(kids ? 'דִּילֶמָּה' : 'דילמה')}</span></div>
       <h2>${esc(D.title)}</h2><p class="rs-call">${esc(D.text)}</p>
       <div class="rs-dl-opts">${D.options.map((op) => { const i = C.ideas.find((x) => x.id === op.idea) || {}; return `<button class="rs-dl-opt" data-idea="${esc(op.idea)}">${ideaPic({ thumb: i.icon && i.icon.startsWith('species:') ? thumbs[i.icon.slice(8)] : null, icon: i.icon })}
         <b>${esc(op.title || i.title || '')}</b><span class="rs-dl-plus">${esc(op.plus)}</span><span class="rs-dl-minus">${esc(op.minus)}</span><small>${esc(T('budget'))}: ${i.perUnit ? i.cost * ((i.amounts && i.amounts[0]) || 1) : i.cost ?? ''}</small></button>`; }).join('')}</div>
       <button class="rs-dl-later">${esc(D.later || T('close'))}</button>`);
     m.querySelectorAll('.rs-dl-opt').forEach((b) => b.addEventListener('click', () => { closeModal(); onChoose(b.dataset.idea); }));
-    m.querySelector('.rs-dl-later').addEventListener('click', closeModal);
+    m.querySelector('.rs-dl-later').addEventListener('click', () => { closeModal(); if (onLater) onLater(); });
   }
 
   function openLab(d) {

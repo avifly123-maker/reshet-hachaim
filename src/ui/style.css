@@ -758,8 +758,18 @@
 }
 @media (max-width: 860px) {
   #ui.wol .hud { top: auto; bottom: calc(var(--trayH) + 10px); }
+  #ui.wol .mission-banner { top: 9%; }   /* the HUD is low here: the banner stays above it */
   #ui.wol .species { width: min(360px, calc(100vw - 28px)); z-index: 30; }
   #ui.wol .tr-filter { display: none; }
+  /* a species card is open: a narrower card, and the HUD (time buttons included) stays beside it, not under it */
+  #ui.wol.sp-open .species { width: min(310px, calc(100vw - 28px)); }
+  #ui.wol .species .sp-actions { gap: 5px; padding: 8px 22px 10px; }   /* the panel's frame hides ~10px on each side */
+  #ui.wol .species .sp-actions .btn { font-size: .84em; padding-inline: .45em; min-width: 0; }
+  #ui.wol .species .sp-actions .btn .ic { display: none; }
+  #ui.wol.sp-open .hud { left: calc(324px + (100vw - 324px - 8px) / 2); max-width: calc(100vw - 332px); }
+  #ui.wol.sp-open .vit-pc, #ui.wol.sp-open .bio-lab, #ui.wol.sp-open .h-season { display: none; }
+  #ui.wol.sp-open .vit-bar { width: 44px; }
+  #ui.wol.sp-open .h-item { padding: 0 6px; }
 }
 @media (max-height: 860px) {
   #ui.wol { font-size: 13.5px; }
@@ -1227,6 +1237,34 @@
   #ui.wol .st-info .bc-intro { font-size: .88em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   #ui.wol .st-info h2 { font-size: 1.7em; } #ui.wol .st-go { margin-top: 4px; padding-block: .45em; }
 }
+/* low screens (800x460 and down to ~440): everything, the go button and the dots included, stays on the screen */
+@media (max-height: 520px) {
+  #ui.wol .sp-art { height: 96px; margin-bottom: 8px; }
+  #ui.wol .st-inner.v13 { padding: 6px 16px 4px; gap: 5px; }
+  #ui.wol .v13 .st-title { font-size: 2.3em; }
+  #ui.wol .v13 .wax { width: 46px; }
+  #ui.wol .st-head { gap: 10px; }
+  #ui.wol .st-tabs { padding: 4px; gap: 6px; }
+  #ui.wol .st-tabs button { padding: 4px 12px; } #ui.wol .st-tabs button small { display: none; } #ui.wol .st-tabs button .ic { width: 22px; height: 22px; }
+  #ui.wol .st-pane { gap: 4px; }
+  #ui.wol .st-pane .st-modes { padding: 4px; } #ui.wol .st-pane .st-modes button { padding: 3px 12px; } #ui.wol .st-modes button .ic { width: 22px; height: 22px; }
+  #ui.wol .st-car { height: clamp(110px, 34vh, 190px); }
+  #ui.wol .st-isl { width: min(52%, 54vh); }
+  #ui.wol .st-arrow { width: 44px; height: 44px; margin-top: -22px; }
+  #ui.wol .st-info-in { gap: 2px; }
+  #ui.wol .st-info h2 { font-size: 1.45em; }
+  #ui.wol .st-info .bc-intro { -webkit-line-clamp: 1; }
+  #ui.wol .st-go { margin-top: 2px; padding-block: .36em; font-size: 1.05em; }
+  #ui.wol .st-pimg { height: clamp(100px, 26vh, 150px); }
+  #ui.wol .st-ptext { padding: 8px 14px 10px; } #ui.wol .st-ptext b { font-size: 1.4em; } #ui.wol .st-ptext em { margin-top: 2px; }
+  #ui.wol .st-learnwrap { grid-template-columns: minmax(150px, .8fr) 3fr; gap: 14px; }
+  #ui.wol .st-fan { height: 150px; } #ui.wol .st-fan img { width: 86px; border-width: 4px; }
+  #ui.wol .st-lgrid { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 7px; }
+  #ui.wol .st-lgrid button { padding: 7px 12px; gap: 9px; } #ui.wol .st-lgrid button .ic { width: 26px; height: 26px; }
+  #ui.wol .st-lgrid button b { font-size: 1.08em; } #ui.wol .st-lgrid button small { font-size: .78em; }
+}
+/* low and narrow: the card fan gives its place to the buttons (three in a row) */
+@media (max-height: 520px) and (max-width: 940px) { #ui.wol .st-learnwrap { grid-template-columns: 1fr; } #ui.wol .st-fan { display: none; } #ui.wol .st-lgrid { grid-template-columns: repeat(3, 1fr); } }
 @media (prefers-reduced-motion: reduce) { #ui.wol .st-isl img { animation: none; } }
 /* the side islands lean back in 3D and could reach over the level switch: keep the controls on top */
 #ui.wol .st-pane .st-modes, #ui.wol .st-info, #ui.wol .st-dots { position: relative; z-index: 6; }
