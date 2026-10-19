@@ -1,5 +1,6 @@
 import { genderOf } from '../../data/common.js';
-import { PROBLEMS, TRAIT, TRAITS, traitsOf, SAY, TRIALS, THEMES, WILD, problemNeeds } from '../../data/inventions.js';
+import { PROBLEMS, TRAIT as TRAIT0, TRAITS, traitsOf, SAY as SAY0, TRIALS as TRIALS0, THEMES as THEMES0, WILD as WILD0, problemNeeds } from '../../data/inventions.js';
+import { PROBLEMS_K, TRAIT_K, THEMES_K, WILD_K, SAY_K, TRIALS_K, INV_UI_K, nameK } from '../../data/inventions-kids.js';   // the beginners' words (ניקוד מלא)
 import { invent, markSolved } from '../../lab/progress.js';
 import { TORAH } from '../../core/edition.js';
 import { grantSource } from '../../core/sources-store.js';
@@ -194,11 +195,20 @@ function injectCss() {
 export function mountInventors(root, ctx, opts = {}) {
   injectCss();
   const esc = ctx.esc, kids = !!ctx.kids();
+  // beginners read every word fully vocalised (src/data/inventions-kids.js): the same data with their texts laid over it
+  const U = INV_UI_K, ui = (plain, key, vars) => (kids ? (vars ? String(U[key]).replace(/\{(\w+)\}/g, (m, x) => vars[x] ?? m) : U[key]) : plain);
+  const TRAIT = kids ? { ...TRAIT0, ...TRAIT_K } : TRAIT0;
+  const SAY = kids ? { ...SAY0, ...SAY_K } : SAY0;
+  const THEMES = kids ? THEMES0.map((t) => ({ ...t, name: THEMES_K[t.id] || t.name })) : THEMES0;
+  const WILD = kids ? WILD0.map((w, i) => ({ ...w, text: WILD_K[i] || w.text })) : WILD0;
+  const TRIALS = kids ? TRIALS0.map((t) => (TRIALS_K[t.id] ? { ...t, title: TRIALS_K[t.id].title, fun: { ...t.fun, ...TRIALS_K[t.id].fun } } : t)) : TRIALS0;
+  const kidsP = (p) => (kids && PROBLEMS_K[p.id] ? { ...p, ...PROBLEMS_K[p.id], show: { ...(p.show || {}), ...PROBLEMS_K[p.id].show } } : p);
+  const nm = (c) => (c ? (kids ? nameK(c.name) : c.name) : '');
   const ST = Object.assign({ solved: {}, tries: 0, fails: 0, robots: [], seen: {} }, ctx.store('inventors') || {});
   const save = () => ctx.store('inventors', ST);
   // the beginners' set: the eight first problems (as before) and a few simple new ones
   // (a research question of the lab may ask for another problem: it joins the list then)
-  const PLIST = kids ? PROBLEMS.filter((p) => p.kids || p.id === opts.problem) : PROBLEMS;
+  const PLIST = kids ? PROBLEMS.filter((p) => p.kids || p.id === opts.problem).map(kidsP) : PROBLEMS;
   const SHELVES = THEMES.filter((t) => PLIST.some((p) => p.theme === t.id));
   let view = opts.view === 'robots' ? 'robots' : 'problems';
   let pid = (PLIST.find((p) => p.id === opts.problem) || PLIST.find((p) => !ST.solved[p.id]) || PLIST[0]).id;
@@ -208,7 +218,7 @@ export function mountInventors(root, ctx, opts = {}) {
   const offs = [];
   const on = (t, ev, fn) => { t.addEventListener(ev, fn); offs.push(() => t.removeEventListener(ev, fn)); };
   const later = (fn, ms) => ctx.later(() => { if (alive) fn(); }, ms);
-  ctx.setTitle && ctx.setTitle('הממציאים');
+  ctx.setTitle && ctx.setTitle(ui('הממציאים', 'title'));
   // problems solved before this version live only in the hub's store: mirror them for the lab's research questions
   try { markSolved(Object.keys(ST.solved)); } catch (e) { /* */ }
 
@@ -218,7 +228,7 @@ export function mountInventors(root, ctx, opts = {}) {
   const traits = (c) => traitsOf({ id: c.id, type: c.type, skind: c.sp && c.sp.kind });
   const cardOfSp = (sp) => ['amazon', 'grove', 'reef'].map((b) => ctx.CARD.get(b + ':' + sp)).find(Boolean) || null;
   // {m|f|mp|fp} → the words for the card name's gender and number
-  const fill = (s, c, p) => String(s).replace(/\{n\}/g, c ? c.name : '').replace(/\{p\}/g, p ? p.title : '')
+  const fill = (s, c, p) => String(s).replace(/\{n\}/g, nm(c)).replace(/\{p\}/g, p ? p.title : '')
     .replace(/\{([^{}|]*\|[^{}]*)\}/g, (_, g) => { const o = g.split('|'); const k = c && !isTool(c) ? GI[genderOf(spId(c))] ?? 0 : (c && /ת$|ה$/.test(c.name.split(' ')[0]) ? 1 : 0); return o[Math.min(k, o.length - 1)]; });
   const pick = (arr, seed) => arr[Math.abs(seed) % arr.length];
   const hash = (s) => { let h = 7; for (const ch of String(s)) h = (h * 31 + ch.charCodeAt(0)) | 0; return h; };
@@ -286,8 +296,8 @@ export function mountInventors(root, ctx, opts = {}) {
     const show = p.show || {};
     if (r.level === 'win') return { face: r.wild ? 'wow' : 'happy', text: fill(pick(r.wild ? SAY.wild : r.combo ? SAY.combo : r.pair ? SAY.winPair : SAY.win, seed), c, p) };
     if (r.level === 'part') return { face: 'think', text: pick(SAY.part, seed), saw: (p.part && p.part[r.part]) || show.half || '' };
-    if (r.level === 'half') return { face: 'think', text: fill(pick(SAY.half, seed), c, p) + ` (${TRAIT[traits(c).find((t) => p.half.includes(t))]}: קרוב!)`, saw: show.half || '' };
-    if (r.level === 'odd') return { face: 'wow', text: pick(SAY.odd, seed) + ' ' + r.text, saw: show.fail || '' };
+    if (r.level === 'half') return { face: 'think', text: fill(pick(SAY.half, seed), c, p) + ` (${TRAIT[traits(c).find((t) => p.half.includes(t))]}: ${ui('קרוב!', 'close')})`, saw: show.half || '' };
+    if (r.level === 'odd') return { face: 'wow', text: kids ? r.text : pick(SAY.odd, seed) + ' ' + r.text, saw: show.fail || '' };
     let text;
     if (isTool(c)) text = fill(pick(SAY.failTool, seed), c, p);
     else if (!isPlant(c) && p.sea && c.biome !== 'reef') text = fill(pick(SAY.oddWater, seed), c, p);
@@ -353,19 +363,21 @@ export function mountInventors(root, ctx, opts = {}) {
     const stage = hintStage(), missing = missingNow(p);
     const hinted = (c) => (traits(c).some((t) => missing.includes(t)) ? 1 : 0);   // marked cards come first in the hand
     const need = problemNeeds(p);
-    const slot = (i) => slots[i] ? `<div class="iv-slot" data-iv="unslot" data-i="${i}" title="הורדה מהשולחן">${ctx.cardHTML(slots[i])}</div>`
-      : `<div class="iv-slot" data-iv="noop">${i === 0 ? 'בחרו קלף מלמטה' : p.need ? 'כאן שמים את הקלף השני' : 'אפשר להוסיף עוד אחד'}</div>`;
-    const clueText = stage >= 2 && missing.length ? `רמז: חפשו ${missing.map((t) => `"${esc(TRAIT[t])}"`).join(' וגם ')}. סימנתי לכם קלפים כאלה.`
-      : stage >= 1 && p.clue ? `רמז: ${esc(p.clue)}` : '';
+    const slot = (i) => slots[i] ? `<div class="iv-slot" data-iv="unslot" data-i="${i}" title="${ui('הורדה מהשולחן', 'unslot')}">${ctx.cardHTML(slots[i])}</div>`
+      : `<div class="iv-slot" data-iv="noop">${i === 0 ? ui('בחרו קלף מלמטה', 'slot0') : p.need ? ui('כאן שמים את הקלף השני', 'slot1need') : ui('אפשר להוסיף עוד אחד', 'slot1')}</div>`;
+    const traitList = missing.map((t) => `"${esc(TRAIT[t])}"`).join(kids ? U.and : ' וגם ');
+    const clueText = stage >= 2 && missing.length ? ui(`רמז: חפשו ${traitList}. סימנתי לכם קלפים כאלה.`, 'clueCards', { t: traitList })
+      : stage >= 1 && p.clue ? ui(`רמז: ${esc(p.clue)}`, 'clue', { t: esc(p.clue) }) : '';
     const clueLine = clueText ? `<span class="iv-clue">${clueText}</span>` : '';
     let res = '';
-    if (result === 'busy') res = `<div class="iv-radio">${face('think')}<p>בודקים... ${esc(slots.filter(Boolean).map((c) => c.name).join(' ו'))} על שולחן הניסוי.</p></div>`;
+    const robo = ui('רובו־דע:', 'robo');
+    if (result === 'busy') res = `<div class="iv-radio">${face('think')}<p>${kids ? U.busy : `בודקים... ${esc(slots.filter(Boolean).map((c) => c.name).join(' ו'))} על שולחן הניסוי.`}</p></div>`;
     else if (result && result.p && result.p.id === p.id) {
-      res = `<div class="iv-radio">${face(result.face)}<p><b>רובו־דע:</b> ${esc(result.text)}${result.saw ? `<span class="iv-saw">הניסוי הראה: ${esc(result.saw)}</span>` : ''}${result.level !== 'win' ? clueLine : ''}</p></div>`;
+      res = `<div class="iv-radio">${face(result.face)}<p><b>${robo}</b> ${esc(result.text)}${result.saw ? `<span class="iv-saw">${ui('הניסוי הראה:', 'saw')} ${esc(result.saw)}</span>` : ''}${result.level !== 'win' ? clueLine : ''}</p></div>`;
       if (result.level === 'win') {
         const r1 = cardOfSp(p.real), r2 = p.real2 ? cardOfSp(p.real2) : null;
-        const who = [r1, r2].filter(Boolean).map((c) => c.name).join(' ו');
-        res += `<div class="iv-fact"><h4>${I.check}${p.need ? 'מאיפה הרעיונות באו' : 'כך זה קרה באמת'}${who ? ` · ${esc(who)}` : ''}${p.need ? '<span class="iv-two">שילוב</span>' : ''}</h4><p>${esc(p.fact)}</p></div>`;
+        const who = [r1, r2].filter(Boolean).map(nm).join(kids ? ', ' : ' ו');
+        res += `<div class="iv-fact"><h4>${I.check}${p.need ? ui('מאיפה הרעיונות באו', 'howPair') : ui('כך זה קרה באמת', 'how')}${who ? ` · ${esc(who)}` : ''}${p.need ? `<span class="iv-two">${ui('שילוב', 'pair')}</span>` : ''}</h4><p>${esc(p.fact)}</p></div>`;
       }
     }
     const inTheme = PLIST.filter((x) => x.theme === theme);
@@ -374,28 +386,30 @@ export function mountInventors(root, ctx, opts = {}) {
       <div class="iv-side">
         <div class="iv-themes">${SHELVES.map((t) => { const all = PLIST.filter((x) => x.theme === t.id); const full = all.every((x) => ST.solved[x.id]);
           return `<button class="iv-th${t.id === theme ? ' on' : ''}${full ? ' full' : ''}" data-iv="theme" data-t="${t.id}" title="${esc(t.name)}">${I[t.icon] || I.flask}<span>${esc(t.name)}</span></button>`; }).join('')}</div>
-        <h4 class="iv-tname">${esc(th.name)}<small>${inTheme.filter((x) => ST.solved[x.id]).length} מתוך ${inTheme.length}</small></h4>
-        <nav class="iv-plist">${inTheme.map((x) => `<button class="iv-pbtn${x.id === p.id ? ' on' : ''}${ST.solved[x.id] ? ' done' : ''}" data-iv="prob" data-p="${x.id}">${I[x.icon] || I.flask}<span>${esc(x.title)}</span>${x.need ? '<i class="iv-tag">שילוב</i>' : ''}</button>`).join('')}</nav>
+        <h4 class="iv-tname">${esc(th.name)}<small>${ui(`${inTheme.filter((x) => ST.solved[x.id]).length} מתוך ${inTheme.length}`, 'of', { n: inTheme.filter((x) => ST.solved[x.id]).length, all: inTheme.length })}</small></h4>
+        <nav class="iv-plist">${inTheme.map((x) => `<button class="iv-pbtn${x.id === p.id ? ' on' : ''}${ST.solved[x.id] ? ' done' : ''}" data-iv="prob" data-p="${x.id}">${I[x.icon] || I.flask}<span>${esc(x.title)}</span>${x.need ? `<i class="iv-tag">${ui('שילוב', 'pair')}</i>` : ''}</button>`).join('')}</nav>
       </div>
       <div class="iv-bench">
         <div class="iv-plan"><h3>${I[p.icon] || I.flask}${esc(p.title)}</h3><p>${esc(p.ask)}</p>
-          ${p.need ? `<div class="iv-need">${need.map((t) => `<span class="${missing.includes(t) ? '' : 'ok'}">${stage >= 2 || !missing.includes(t) ? esc(TRAIT[t]) : 'תכונה ' + (need.indexOf(t) + 1)}</span>`).join('')}<span>שני קלפים, שתי תכונות</span></div>` : ''}</div>
-        <div class="iv-row">${slot(0)}<span class="iv-plus">וגם</span>${slot(1)}
-          <div class="iv-go"><button class="iv-test" data-iv="test" ${slots.some(Boolean) && result !== 'busy' ? '' : 'disabled'}>${I.flask}לבדוק בניסוי!</button>
+          ${p.need ? `<div class="iv-need">${need.map((t) => `<span class="${missing.includes(t) ? '' : 'ok'}">${stage >= 2 || !missing.includes(t) ? esc(TRAIT[t]) : ui('תכונה ' + (need.indexOf(t) + 1), 'trait', { n: need.indexOf(t) + 1 })}</span>`).join('')}<span>${ui('שני קלפים, שתי תכונות', 'twoCards')}</span></div>` : ''}</div>
+        <div class="iv-row">${slot(0)}<span class="iv-plus">${ui('וגם', 'plus')}</span>${slot(1)}
+          <div class="iv-go"><button class="iv-test" data-iv="test" ${slots.some(Boolean) && result !== 'busy' ? '' : 'disabled'}>${I.flask}${ui('לבדוק בניסוי!', 'test')}</button>
             <div class="iv-gauge"><i style="width:${result && result !== 'busy' && result.p && result.p.id === p.id ? result.score : 0}%"></i></div>
-            <button class="iv-hintb" data-iv="hint">${I.bulbHint}רמז</button></div></div>
-        ${res || `<div class="iv-radio">${face('happy')}<p><b>רובו־דע:</b> ${clueText || (p.need ? 'כאן צריך שילוב: שני קלפים, וכל אחד מביא תכונה אחרת. מותר לטעות, ככה ממציאים!' : 'שימו על השולחן קלף אחד או שניים, ונבדוק יחד. מותר לטעות, ככה ממציאים!')}</p></div>`}
+            <button class="iv-hintb" data-iv="hint">${I.bulbHint}${ui('רמז', 'hint')}</button></div></div>
+        ${res || `<div class="iv-radio">${face('happy')}<p><b>${robo}</b> ${clueText || (p.need ? ui('כאן צריך שילוב: שני קלפים, וכל אחד מביא תכונה אחרת. מותר לטעות, ככה ממציאים!', 'idleNeed') : ui('שימו על השולחן קלף אחד או שניים, ונבדוק יחד. מותר לטעות, ככה ממציאים!', 'idle'))}</p></div>`}
       </div></div>
-      <div class="iv-handbar">${[['all', 'הכול'], ['amazon', 'אמזונס'], ['grove', 'חורש'], ['reef', 'שונית'], ['tech', 'טכנולוגיה']].map(([v, t]) => `<button class="iv-f${filter === v ? ' on' : ''}" data-iv="filter" data-v="${v}">${t}</button>`).join('')}
-        ${lent ? '<small class="iv-lent">המעבדה השאילה לכם כמה קלפים</small>' : `<small>${shown.length} קלפים</small>`}</div>
+      <div class="iv-handbar">${filtersHTML()}
+        ${lent ? `<small class="iv-lent">${ui('המעבדה השאילה לכם כמה קלפים', 'lent')}</small>` : `<small>${ui(`${shown.length} קלפים`, 'cards', { n: shown.length })}</small>`}</div>
       <div class="iv-hand">${(stage >= 2 ? [...shown].sort((a, b) => hinted(b) - hinted(a)) : shown).map((c) => { const tr = traits(c); const hint = stage >= 2 && tr.some((t) => missing.includes(t));
         const chips = [...new Set([...(hint ? tr.filter((t) => missing.includes(t)) : []), ...tr])].slice(0, 2);
-        return `<div class="iv-hc${used.has(c.id) ? ' used' : ''}${hint ? ' hint' : ''}" data-iv="card" data-c="${esc(c.id)}" title="${esc(tr.map((t) => TRAIT[t]).join(' · '))}">${ctx.cardHTML(c)}<div class="iv-tr">${chips.map((t) => `<i class="${hint && missing.includes(t) ? 'k' : ''}">${esc(TRAIT[t])}</i>`).join('')}${lentIds.has(c.id) ? '<i class="iv-lb">מושאל</i>' : ''}</div></div>`; }).join('')}</div>`;
+        return `<div class="iv-hc${used.has(c.id) ? ' used' : ''}${hint ? ' hint' : ''}" data-iv="card" data-c="${esc(c.id)}" title="${esc(tr.map((t) => TRAIT[t]).join(' · '))}">${ctx.cardHTML(c)}<div class="iv-tr">${chips.map((t) => `<i class="${hint && missing.includes(t) ? 'k' : ''}">${esc(TRAIT[t])}</i>`).join('')}${lentIds.has(c.id) ? `<i class="iv-lb">${ui('מושאל', 'lentOne')}</i>` : ''}</div></div>`; }).join('')}</div>`;
   }
+  const filtersHTML = () => [['all', 'הכול'], ['amazon', 'אמזונס'], ['grove', 'חורש'], ['reef', 'שונית'], ['tech', 'טכנולוגיה']].map(([v, t]) => `<button class="iv-f${filter === v ? ' on' : ''}" data-iv="filter" data-v="${v}">${kids ? U.filters[v] : t}</button>`).join('');
   /* ───────────── robots */
   function robotName() {
     if (!R.body) return '';
     const mods = R.mods.filter(Boolean).map((m) => TRAIT[m.t]);
+    if (kids) return U.robotOf.replace('{name}', nm(R.body)) + (mods.length ? U.with + mods.join(U.and) : '');
     return `רובו־${R.body.name}${mods.length ? ' עם ' + mods.join(' ו') : ''}`;
   }
   function robotTraits() { return [...(R.body ? traits(R.body).slice(0, 2) : []), ...R.mods.filter(Boolean).map((m) => m.t)]; }
@@ -433,34 +447,35 @@ export function mountInventors(root, ctx, opts = {}) {
   function robotsHTML() {
     const { list, lent } = hand(null);
     const shown = list.filter((c) => filter === 'all' || (filter === 'tech' ? isTool(c) : c.biome === filter));
-    const stepName = ['בחרו גוף לרובוט: יצור מהקלפים', 'בחרו תכונה ראשונה: לחצו על קלף ואז על תכונה', 'בחרו תכונה שנייה'];
-    const mod = (i) => R.mods[i] ? `<span class="iv-mod" data-iv="unmod" data-i="${i}">${I.gear}${esc(TRAIT[R.mods[i].t])}</span>` : `<span class="iv-mod empty">תכונה ${i + 1}</span>`;
+    const stepName = kids ? U.steps : ['בחרו גוף לרובוט: יצור מהקלפים', 'בחרו תכונה ראשונה: לחצו על קלף ואז על תכונה', 'בחרו תכונה שנייה'];
+    const mod = (i) => R.mods[i] ? `<span class="iv-mod" data-iv="unmod" data-i="${i}">${I.gear}${esc(TRAIT[R.mods[i].t])}</span>` : `<span class="iv-mod empty">${ui('תכונה ' + (i + 1), 'trait', { n: i + 1 })}</span>`;
     let trials = '';
     if (R.run) trials = `<div class="iv-trials">${R.run.map((r) => `<div class="iv-trial">${I[r.tl.icon] || I.flask}<b>${esc(r.tl.title)}</b><span class="bar"><i${R.done ? ` style="width:${r.sc}%"` : ''}></i></span><small>${esc(r.line)}</small></div>`).join('')}</div>`
-      + (R.done ? `<div class="iv-radio">${face(R.done.wins >= 3 ? 'wow' : R.done.wins >= 1 ? 'happy' : 'oops')}<p><b>רובו־דע:</b> ${R.done.wins >= 4 ? 'רובוט אלוף! הוא עבר כמעט הכול.' : R.done.wins >= 2 ? `עבר ${R.done.wins} מתוך 5. לא רע בכלל! אולי תכונה אחרת תעזור בשאר?` : R.done.wins === 1 ? 'עבר ניסוי אחד. מצחיק, אבל עוד לא מוכן לשטח.' : 'הרובוט הלך לנוח... ננסה גוף אחר או תכונות אחרות?'}</p></div>` : '');
+      + (R.done ? `<div class="iv-radio">${face(R.done.wins >= 3 ? 'wow' : R.done.wins >= 1 ? 'happy' : 'oops')}<p><b>${ui('רובו־דע:', 'robo')}</b> ${kids ? (R.done.wins >= 4 ? U.champ : R.done.wins >= 2 ? U.some.replace('{n}', R.done.wins) : R.done.wins === 1 ? U.oneTrial : U.rest)
+        : R.done.wins >= 4 ? 'רובוט אלוף! הוא עבר כמעט הכול.' : R.done.wins >= 2 ? `עבר ${R.done.wins} מתוך 5. לא רע בכלל! אולי תכונה אחרת תעזור בשאר?` : R.done.wins === 1 ? 'עבר ניסוי אחד. מצחיק, אבל עוד לא מוכן לשטח.' : 'הרובוט הלך לנוח... ננסה גוף אחר או תכונות אחרות?'}</p></div>` : '');
     return `<div class="iv-rmain">
       <div class="iv-robot"><div class="iv-rbody">${robotSVG()}<div class="iv-port">${R.body && R.body.art ? `<img src="${R.body.art}" alt="">` : '<b>?</b>'}</div></div>
-        <div class="iv-rname">${esc(robotName() || 'הרובוט שלכם')}</div>
+        <div class="iv-rname">${esc(robotName() || ui('הרובוט שלכם', 'yourRobot'))}</div>
         <div class="iv-mods">${mod(0)}${mod(1)}</div>
-        <div class="iv-steps"><button class="${R.step === 0 ? 'on' : ''}" data-iv="step" data-s="0">גוף</button><button class="${R.step === 1 ? 'on' : ''}" data-iv="step" data-s="1">תכונה 1</button><button class="${R.step === 2 ? 'on' : ''}" data-iv="step" data-s="2">תכונה 2</button></div>
-        <button class="iv-test" data-iv="run" ${R.body && !R.run ? '' : 'disabled'}>${I.flask}לבדוק בשטח!</button>
-        ${R.run && R.done ? `<button class="iv-hintb" data-iv="again">${I.undo}רובוט חדש</button>` : ''}
+        <div class="iv-steps"><button class="${R.step === 0 ? 'on' : ''}" data-iv="step" data-s="0">${ui('גוף', 'body')}</button><button class="${R.step === 1 ? 'on' : ''}" data-iv="step" data-s="1">${ui('תכונה 1', 'trait', { n: 1 })}</button><button class="${R.step === 2 ? 'on' : ''}" data-iv="step" data-s="2">${ui('תכונה 2', 'trait', { n: 2 })}</button></div>
+        <button class="iv-test" data-iv="run" ${R.body && !R.run ? '' : 'disabled'}>${I.flask}${ui('לבדוק בשטח!', 'field')}</button>
+        ${R.run && R.done ? `<button class="iv-hintb" data-iv="again">${I.undo}${ui('רובוט חדש', 'newRobot')}</button>` : ''}
         ${(ST.robots || []).length ? `<div class="iv-best">${ST.robots.slice(0, 3).map((r) => `<span>${esc(r.name)} · ${r.total}</span>`).join('')}</div>` : ''}
       </div>
-      <div class="iv-bench">${trials || `<div class="iv-radio">${face('think')}<p><b>רובו־דע:</b> ${esc(stepName[R.step] || stepName[0])}. אחר כך נבדוק את הרובוט בחמישה ניסויים: מרוץ במים, חיפוש בלילה, טיפוס, הרמת משא ומחבואים.</p></div>`}
-        ${R.pickFor ? `<div class="iv-plan"><h3>${I.gear}איזו תכונה לקחת מ${esc(R.pickFor.name)}?</h3><div class="iv-row">${traits(R.pickFor).map((t) => `<button class="iv-mod" data-iv="trait" data-t="${t}">${esc(TRAIT[t])}</button>`).join('')}</div></div>` : ''}
+      <div class="iv-bench">${trials || `<div class="iv-radio">${face('think')}<p><b>${ui('רובו־דע:', 'robo')}</b> ${esc(stepName[R.step] || stepName[0])}. ${kids ? U.later : 'אחר כך נבדוק את הרובוט בחמישה ניסויים: מרוץ במים, חיפוש בלילה, טיפוס, הרמת משא ומחבואים.'}</p></div>`}
+        ${R.pickFor ? `<div class="iv-plan"><h3>${I.gear}${kids ? esc(U.pickTrait.replace('{name}', nm(R.pickFor))) : `איזו תכונה לקחת מ${esc(R.pickFor.name)}?`}</h3><div class="iv-row">${traits(R.pickFor).map((t) => `<button class="iv-mod" data-iv="trait" data-t="${t}">${esc(TRAIT[t])}</button>`).join('')}</div></div>` : ''}
       </div></div>
-      <div class="iv-handbar">${[['all', 'הכול'], ['amazon', 'אמזונס'], ['grove', 'חורש'], ['reef', 'שונית'], ['tech', 'טכנולוגיה']].map(([v, t]) => `<button class="iv-f${filter === v ? ' on' : ''}" data-iv="filter" data-v="${v}">${t}</button>`).join('')}
-        ${lent ? '<small class="iv-lent">המעבדה השאילה לכם כמה קלפים</small>' : ''}</div>
+      <div class="iv-handbar">${filtersHTML()}
+        ${lent ? `<small class="iv-lent">${ui('המעבדה השאילה לכם כמה קלפים', 'lent')}</small>` : ''}</div>
       <div class="iv-hand">${shown.map((c) => `<div class="iv-hc${(R.body && R.body.id === c.id) ? ' used' : ''}" data-iv="rcard" data-c="${esc(c.id)}" title="${esc(traits(c).map((t) => TRAIT[t]).join(' · '))}">${ctx.cardHTML(c)}<div class="iv-tr">${traits(c).slice(0, 2).map((t) => `<i>${esc(TRAIT[t])}</i>`).join('')}</div></div>`).join('')}</div>`;
   }
 
   function render() {
     if (!alive) return;
     const solved = PLIST.filter((p) => ST.solved[p.id]).length;
-    root.innerHTML = `<section class="wl-screen iv">
-      <div class="iv-top"><div class="iv-tabs"><button class="${view === 'problems' ? 'on' : ''}" data-iv="view" data-v="problems">${I.bulb}בעיות להמציא</button><button class="${view === 'robots' ? 'on' : ''}" data-iv="view" data-v="robots">${I.gear}סדנת הרובוטים</button></div>
-        <span class="iv-score">${I.check}${solved} מתוך ${PLIST.length} המצאות</span></div>
+    root.innerHTML = `<section class="wl-screen iv${kids ? ' kids' : ''}">
+      <div class="iv-top"><div class="iv-tabs"><button class="${view === 'problems' ? 'on' : ''}" data-iv="view" data-v="problems">${I.bulb}${ui('בעיות להמציא', 'problems')}</button><button class="${view === 'robots' ? 'on' : ''}" data-iv="view" data-v="robots">${I.gear}${ui('סדנת הרובוטים', 'robots')}</button></div>
+        <span class="iv-score">${I.check}${ui(`${solved} מתוך ${PLIST.length} המצאות`, 'score', { n: solved, all: PLIST.length })}</span></div>
       ${view === 'problems' ? problemsHTML() : robotsHTML()}</section>`;
   }
   function onClick(e) {

@@ -5,14 +5,19 @@
 import { esc } from '../ui/ui.js';
 import { SAMPLES, sampleById, ZOOMS } from './samples.js';
 import { labProgress, markFound, addTry, invent } from './progress.js';
+import { labKids } from './level.js';
+import { SCOPE_K, SAMPLES_K } from './kids-text.js';
 
 // ───────────────────────────────────────────── the microscope
 export function openMicroscope(root, { say, thumbs, audio, onDone, onClose, start }) {
-  const el = document.createElement('div'); el.className = 'lb-panel lb-scope'; root.appendChild(el);
+  // beginners: the samples' words fully vocalised and short (src/lab/kids-text.js); the drawings are the same
+  const kids = labKids(), K = SCOPE_K;
+  const txt = (s) => (kids ? { ...s, ...(SAMPLES_K[s.id] || {}) } : s);
+  const el = document.createElement('div'); el.className = 'lb-panel lb-scope' + (kids ? ' kids' : ''); root.appendChild(el);
   let cur = (start && sampleById(start)) || SAMPLES[0], level = 0, focus = 18, hintI = 0;   // start: a sample asked for by a research question
   const prog = () => labProgress();
   function render() {
-    const P = prog(); const found = new Set(P.found[cur.id] || []);
+    const P = prog(); const found = new Set(P.found[cur.id] || []); const T = txt(cur);
     const svgBody = cur.view(level);
     const sharp = Math.abs(focus - cur.focus);
     const blur = Math.min(9, sharp * 0.3);
@@ -20,28 +25,28 @@ export function openMicroscope(root, { say, thumbs, audio, onDone, onClose, star
     const n = Math.min(3, found.size);
     el.innerHTML = `
       <section class="lb-side">
-        <h2>המיקרוסקופ</h2>
-        <div class="lb-card"><small>הדגימה: ${esc(cur.name)}</small><p>${esc(cur.task)}</p>
-          <div class="lb-dots">${[0, 1, 2].map((i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}<b>${n} מתוך 3</b></div></div>
-        ${P.seen[cur.id] ? `<div class="lb-card lb-found"><small>גילוי</small><p>${esc(cur.found)}</p></div>` : ''}
-        <button class="lb-btn lb-hint">רמז מרובו־דע</button>
+        <h2>${kids ? K.title : 'המיקרוסקופ'}</h2>
+        <div class="lb-card"><small>${kids ? K.sample : 'הדגימה:'} ${esc(T.name)}</small><p>${esc(T.task)}</p>
+          <div class="lb-dots">${[0, 1, 2].map((i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}<b>${n} ${kids ? K.of3 : 'מתוך'} 3</b></div></div>
+        ${P.seen[cur.id] ? `<div class="lb-card lb-found"><small>${kids ? K.found : 'גילוי'}</small><p>${esc(T.found)}</p></div>` : ''}
+        <button class="lb-btn lb-hint">${kids ? K.hint : 'רמז מרובו־דע'}</button>
       </section>
       <div class="lb-eye-wrap">
         <div class="lb-eye"><svg viewBox="0 0 400 400" style="filter:blur(${blur.toFixed(1)}px)">${svgBody}</svg>
           <svg class="lb-eye-marks" viewBox="0 0 400 400">${marks}</svg><div class="lb-eye-vig"></div></div>
-        <div class="lb-zooms" role="group" aria-label="הגדלה">${ZOOMS.map((z, i) => `<button data-z="${i}" class="${i === level ? 'on' : ''}">${z}</button>`).join('')}</div>
+        <div class="lb-zooms" role="group" aria-label="הגדלה">${(kids ? K.zooms : ZOOMS).map((z, i) => `<button data-z="${i}" class="${i === level ? 'on' : ''}">${z}</button>`).join('')}</div>
       </div>
       <section class="lb-side">
-        <label class="lb-focus">מיקוד<input type="range" min="0" max="100" value="${focus}"></label>
-        <h3>מגש הדגימות</h3>
-        <div class="lb-tray">${SAMPLES.map((s) => `<button data-s="${s.id}" class="${s === cur ? 'on' : ''} ${P.seen[s.id] ? 'done' : ''}">${thumbs[s.species] ? `<img src="${thumbs[s.species]}" alt="">` : ''}<span>${esc(s.name)}</span></button>`).join('')}
-          <div class="lb-locked"><span>עוד דגימות יגיעו מהתעלומות ומהסביבות</span></div></div>
-        <button class="lb-btn lb-back">חזרה לחדר</button>
+        <label class="lb-focus">${kids ? K.focus : 'מיקוד'}<input type="range" min="0" max="100" value="${focus}"></label>
+        <h3>${kids ? K.tray : 'מגש הדגימות'}</h3>
+        <div class="lb-tray">${SAMPLES.map((s) => `<button data-s="${s.id}" class="${s === cur ? 'on' : ''} ${P.seen[s.id] ? 'done' : ''}">${thumbs[s.species] ? `<img src="${thumbs[s.species]}" alt="">` : ''}<span>${esc(txt(s).name)}</span></button>`).join('')}
+          <div class="lb-locked"><span>${kids ? K.more : 'עוד דגימות יגיעו מהתעלומות ומהסביבות'}</span></div></div>
+        <button class="lb-btn lb-back">${kids ? K.back : 'חזרה לחדר'}</button>
       </section>`;
     el.querySelector('.lb-back').onclick = close;
-    el.querySelector('.lb-hint').onclick = () => { say(cur.hints[hintI++ % cur.hints.length], 'curious'); };
+    el.querySelector('.lb-hint').onclick = () => { const h = txt(cur).hints; say(h[hintI++ % h.length], 'curious'); };
     el.querySelectorAll('[data-z]').forEach((b) => b.onclick = () => { level = +b.dataset.z; audio && audio.play('click'); render(); });
-    el.querySelectorAll('[data-s]').forEach((b) => b.onclick = () => { cur = sampleById(b.dataset.s); level = 0; focus = 18; hintI = 0; audio && audio.play('click'); render(); say('דגימה חדשה. קודם מכוונים את המיקוד עד שהתמונה חדה.', 'happy'); });
+    el.querySelectorAll('[data-s]').forEach((b) => b.onclick = () => { cur = sampleById(b.dataset.s); level = 0; focus = 18; hintI = 0; audio && audio.play('click'); render(); say(kids ? K.newSample : 'דגימה חדשה. קודם מכוונים את המיקוד עד שהתמונה חדה.', 'happy'); });
     const rg = el.querySelector('input[type=range]');
     rg.oninput = () => { focus = +rg.value; const s = el.querySelector('.lb-eye svg'); const d = Math.abs(focus - cur.focus); s.style.filter = `blur(${Math.min(9, d * 0.3).toFixed(1)}px)`; };
     el.querySelector('.lb-eye').onclick = (e) => click(e);
@@ -49,22 +54,22 @@ export function openMicroscope(root, { say, thumbs, audio, onDone, onClose, star
   function click(e) {
     const box = e.currentTarget.getBoundingClientRect();
     const x = (e.clientX - box.left) / box.width * 400, y = (e.clientY - box.top) / box.height * 400;
-    if (Math.abs(focus - cur.focus) > 7) { say('התמונה מטושטשת. סובבו את כפתור המיקוד.', 'curious'); audio && audio.play('invalid'); return; }
-    if (level < cur.zoom) { say('צריך להגדיל עוד.', 'curious'); return; }
+    if (Math.abs(focus - cur.focus) > 7) { say(kids ? K.blurry : 'התמונה מטושטשת. סובבו את כפתור המיקוד.', 'curious'); audio && audio.play('invalid'); return; }
+    if (level < cur.zoom) { say(kids ? K.zoomMore : 'צריך להגדיל עוד.', 'curious'); return; }
     const P = prog(); const found = new Set(P.found[cur.id] || []);
     const i = cur.targets.findIndex((t, k) => !found.has(k) && Math.hypot(t.x - x, t.y - y) < t.r);
-    if (i < 0) { if (found.size < 3) say('לא כאן. חפשו עוד.', 'curious'); return; }
+    if (i < 0) { if (found.size < 3) say(kids ? K.notHere : 'לא כאן. חפשו עוד.', 'curious'); return; }
     if (found.size >= 3) return;
     const was = !!P.seen[cur.id];
     const O = markFound(cur.id, i, 3);
     audio && audio.play('discover');
-    if (!was && O.seen[cur.id]) { say(cur.found + ' ' + cur.idea, 'wow'); onDone && onDone(cur); }
-    else say(['יפה! עוד אחד.', 'מצאתם! נשאר עוד קצת.'][found.size % 2], 'happy');
+    if (!was && O.seen[cur.id]) { const T = txt(cur); say(kids ? [T.found, T.idea] : cur.found + ' ' + cur.idea, 'wow'); onDone && onDone(cur); }
+    else say((kids ? K.good : ['יפה! עוד אחד.', 'מצאתם! נשאר עוד קצת.'])[found.size % 2], 'happy');
     render();
   }
   function close() { el.remove(); onClose && onClose(); }
   render();
-  say('ברוכים הבאים למיקרוסקופ. בחרו דגימה, הגדילו, וסובבו את המיקוד עד שהתמונה חדה.', 'happy');
+  say(kids ? K.welcome : 'ברוכים הבאים למיקרוסקופ. בחרו דגימה, הגדילו, וסובבו את המיקוד עד שהתמונה חדה.', 'happy');
   return { close };
 }
 
