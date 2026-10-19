@@ -97,7 +97,11 @@ All 13 mysteries are built (4 beginner, 4 middle, 5 advanced); no "בקרוב" e
 - Small screens (800x460): start screen, species card vs HUD, album set chips, expedition summary, mystery solved screen (sticky buttons), light names, badge toast queued after the mission banner, pack opening, dilemma timing (6 s after a run, once more after "עוד לא", `dilemma.again`).
 - Lab beginners: `src/lab/level.js` (`labKids()` reads `web-of-life-mode`), beginner texts in `src/lab/kids-text.js` and `src/data/inventions-kids.js`, short bubbles (`say()` / `talk()` take a list); `node tools/validate-lab.mjs`.
 - The six new source cards have paintings (art/sources/*.webp, `SRC_FOCUS` in learn/hub.js).
-- Test installers: `installer\1.3.0-test3` on Avi's PC.
+- Test installers: `installer\1.3.0-test4` on Avi's PC (Avi, 19.10: keep only the latest two test builds of a version; older folders are removed).
+- Album (19.10): one slim bar `.wl-abar`, sets in a side panel (`.wl-setlayer`, `setsOpen`), section headings `.wl-gsec` from `ALBUM_PARTS`, torah source cards as ordinary grid items `.wl-grid .wl-scard` (`sourcePageHTML` is gone). The grid takes about 80% of the screen; Avi wants at least 70 to 75%.
+- Lab station worlds (19.10): the aquarium, greenhouse and cabinet open a menu (`openStationMenu` in `src/lab/station-kit.js`) with activities in `aquarium.js`, `greenhouse.js` and `cabinet.js`. Texts are `{f,k}` pairs in `src/lab/station-text.js`, checked by `validate-lab`. Progress is in `labProgress().st`; badges are `lab:minireef|night|grow|seeds|collect|sort|clues`. Activities must be open (several ways, several endings), not step-by-step (Avi).
+- Room hotspots are orange dots from `HOT` in `lab.js`, projected through the camera (a name on hover or touch, a click enters); a station outside the room picture gets an edge dot with an arrow. `toRoom` always returns to the room's main view; `.lb-home` is the big orange back button at stations. Microscope, atlas and questions panels are wrapped by `framed()`, and `say()` writes into the frame's `.lb-pv` strip so the robot never covers captions.
+- Headless: `__labDebug.act(id)`, `__labDebug.hots()`; `play.py` has `move`, `key`, `clickSel`, `hoverSel` (real mouse on an element).
 
 ## The lab of רובו־דע (1.3.0, branch claude/research-1.3)
 
@@ -137,7 +141,7 @@ Plan and Avi's decisions: `docs/LAB.md` (Hebrew). Code: `src/lab/` (pack `lab`, 
 - Two Blender bees (`honeybee.py`, `orchidbee.py`, one model in two colours).
 - "Where?" beacons for a species, mission how-to hints, done-by-itself notes and the completed-missions list, zone names instead of "the island" (`src/core/place.js`), game controller support (`src/ui/gamepad.js`).
 
-`claude/research-1.3` (version 1.3.0, the research world "חוקרי היער", still in development and not published: no public release, the owner tests it on his PC; test installers are in `installer\1.3.0-test3` (19.10; earlier ones in 1.3.0-dev, 1.3.0-test and 1.3.0-test2)) has everything from 1.2.3 merged in; merge each 1.2.x fix into it as well. It installs over 1.2 and keeps all data (see the upgrade rule above).
+`claude/research-1.3` (version 1.3.0, the research world "חוקרי היער", still in development and not published: no public release, the owner tests it on his PC; test installers are in `installer\1.3.0-test4` (19.10) and the one before, `1.3.0-test3`; older test folders were removed at Avi's request) has everything from 1.2.3 merged in; merge each 1.2.x fix into it as well. It installs over 1.2 and keeps all data (see the upgrade rule above).
 
 At the end of a Blender session: stop the queue and keep-awake timers, save the scene to `blend\` and quit Blender (the owner asked that nothing keeps running on his PC). The scripts are the source; the saved `.blend` is only a convenience.
 
