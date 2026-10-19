@@ -1673,7 +1673,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   }
   // torah edition: the album page of source cards ("מן המקורות")
   // where the subject of each painting sits (0 = top, 1 = bottom): the album card shows a wide strip of it
-  const SRC_FOCUS = { lion: 0.42, tzvi: 0.42, small4: 0.55, ant: 0.6, rashbi: 0.45, choni: 0.42, spider: 0.5 };
+  const SRC_FOCUS = { lion: 0.42, tzvi: 0.42, small4: 0.55, ant: 0.6, rashbi: 0.45, choni: 0.42, spider: 0.5, lashevet: 0.45, tikva: 0.62, shnayim: 0.72, kfirim: 0.6, efes: 0.62, tzvaim: 0.64 };
   // a card that has no painting yet: a strip in the card's colour with its sign, so it sits well among the painted ones
   const srcNoArt = (c, own) => `<span class="wl-sart none"><i>${own ? (IC[c.icon] || IC_SCROLL) : IC_SCROLL}</i></span>`;
   function sourceCardHTML(c, own, i) {
