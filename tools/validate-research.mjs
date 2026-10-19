@@ -34,7 +34,7 @@ function kidStrings(C) {
   return out;
 }
 // every device a mystery places must exist in the game (tools.js TOOL_DEFS), or using it throws
-const TOOL_IDS = new Set([...(await import('node:fs')).readFileSync(new URL('../src/game/tools.js', import.meta.url), 'utf8').matchAll(/^\s*\{ id: '([a-z]+)'/gm)].map((m) => m[1]));
+const TOOL_IDS = new Set([...(await import('node:fs')).readFileSync(new URL('../src/game/tool-defs.js', import.meta.url), 'utf8').matchAll(/^\s*\{ id: '([a-z]+)'/gm)].map((m) => m[1]));
 for (const C of CASES) for (const x of [...(C.tools || []), ...(C.ideas || [])]) if (x.place && !TOOL_IDS.has(x.place)) err(C.id, `"${x.id}" places "${x.place}", which is not a device of the game`);
 for (const C of CASES) {
   const B = zones[C.zone]; if (!B) { err(C.id, `unknown zone ${C.zone}`); continue; }

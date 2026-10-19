@@ -23,7 +23,7 @@ function vocalised(s) {
 }
 const CARD_IDS = new Set();
 for (const B of [AMAZON, GROVE, REEF]) for (const s of B.species) CARD_IDS.add(B.id + ':' + s.id);
-for (const m of fs.readFileSync(new URL('../src/game/tools.js', import.meta.url), 'utf8').matchAll(/^\s*\{ id: '([a-z]+)'/gm)) CARD_IDS.add('tool:' + m[1]);
+for (const m of fs.readFileSync(new URL('../src/game/tool-defs.js', import.meta.url), 'utf8').matchAll(/^\s*\{ id: '([a-z]+)'/gm)) CARD_IDS.add('tool:' + m[1]);
 const W = ['אישה', 'אשה', 'נשים', 'ילדה', 'ילדות', 'נערה', 'דינוזאור', 'דינוזאורים', 'אבולוציה'];
 const BAD = new RegExp(`(^|[^א-ת])[והבלכמש]{0,2}(${W.join('|')})(?=$|[^א-ת])`);
 function text(where, s) {
