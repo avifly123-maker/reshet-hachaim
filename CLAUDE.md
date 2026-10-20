@@ -4,8 +4,8 @@ This file is the hand-off between development sessions. Read it first, then `doc
 
 ## Start here (state on 20.10.2026, end of the 1.3.1 session)
 
-- **1.3.1 is built and ready to publish**, torah edition only (Avi's choice): `release-files/1.3.1/` here and `Documents\reshet-hachaim-blender\installer\1.3.1` on Avi's PC (exe, one Mac zip for Intel that runs on Apple chips through Rosetta, the one-file html; sha256 checked on the PC). The release page text and the create link (tag `v1.3.1`, target `claude/research-1.3`, no merge to main needed) are at the top of `docs/RELEASE.md`. Avi publishes it himself. Build it again with `tools/pack-torah.sh`.
-- Version series: 1.2.x lives on `main` (last: 1.2.3, general + torah). 1.3.x lives on `claude/research-1.3` (Avi 19.10: "the second number makes a series that is not replaced"). Same appId, so 1.3 installs over 1.2 and keeps all data.
+- **1.3.1 is built and ready to publish**, torah edition only (Avi's choice): `release-files/1.3.1/` here and `Documents\reshet-hachaim-blender\installer\1.3.1` on Avi's PC (exe, one Mac zip for Intel that runs on Apple chips through Rosetta, the one-file html; sha256 checked on the PC). The release page text and the create link (tag `v1.3.1`, target `main`) are at the top of `docs/RELEASE.md`. Avi publishes it himself after merging. Build it again with `tools/pack-torah.sh`.
+- Branches (Avi 20.10: "1.3 becomes the official version from the main branch, and we have two versions, 1.2 and 1.3"): **`main` = the 1.3 series** (merged from `claude/research-1.3` by pull request); **`claude/1.2` = the 1.2 series**, frozen at 1.2.3 (tag `v1.2.3`), for fixes to 1.2 only. New 1.3 work goes on a new `claude/*` branch from `main` and comes back by pull request. Same appId in both series, so 1.3 installs over 1.2 and keeps all data.
 - The night of 1.3.1: CHANGELOG "1.3.1", DEVLOG "לילה של 1.3.1", and the 1.3.1 section below. Avi's fix list with estimates: the Docs page "רשת החיים 1.3.1: רשימת התיקונים".
 - Things Avi should still check by eye: beginner nikud in the research world's new texts, the verse-to-card links in "מה הפסוק מלמד?", the two music pieces. Known small leftovers (QA, 20.10): the microscope's sample list is cut off for beginners at 800x460; the reef island thumbnail in the research hub looks pale; three inventors problems (hover, camo, heal) have only one trait route.
 - Next: cosmetic fixes from Avi's testing, then 1.4 (desert, see docs/ROADMAP.md). Talk to Avi only in Hebrew. Gemini: switch to the Pro model before painting (Avi asked).
@@ -49,10 +49,10 @@ Headless notes: SwiftShader is slow and makes the game start on the 'min' tier; 
 
 Blender runs on the owner's PC and is reached through the Blender MCP bridge. After Blender starts, run `animals\session.py` there once (see `tools/blender/bridge/session.py`); it loads the kits and sets up a gentle one-at-a-time job queue. The owner's PC is also his work computer: one job at a time, never call Blender while a job runs, check progress by listing `animals\pv` and `animals\out` with the device tools. How we work, decisions and dilemmas: `docs/WORKFLOW.md` (Hebrew). `tools/blender/animal_kit.py` is the toolkit; `tools/blender/animals/<id>.py` is one spec per animal (33: 31 animals and two bees). Exports are written by Blender to `animals\out\<id>.json`, staged back with the device tools and copied to `art/rigged/<zone>/<id>.json`, then packed by `tools/build-rigged.py` into `src/data/rigged-*.js`. Each upload of a changed script must use a new staged file name (`tools/blender/bridge/push.sh`), or the cached old content arrives. Panoramas, ground textures, props and the card pack also come from Blender (`tools/build-*.py`).
 
-## Two lines of work (decided 2026-10-16)
+## Two lines of work (decided 2026-10-16, changed 2026-10-20)
 
-- **1.2.x** (branch `main`): the finished product. Only bug fixes and small improvements (1.2.2, 1.2.3, ...).
-- **1.3.0** (branch `claude/research-1.3`): **חוקרי היער**, the research world. Built on its own branch; merge `main` into it now and then so fixes reach it. Released as 1.3.0 when it is ready.
+- **1.3.x** (branch `main` since 20.10): the current product, with חוקרי הטבע, the reef and the lab.
+- **1.2.x** (branch `claude/1.2`, from the old `main` at 1.2.3): kept for fixes to 1.2 only. A fix that matters to both goes to `claude/1.2` and is merged into `main` too.
 
 ## חוקרי היער (research world, renamed חוקרי הטבע on 19.10; 1.3.0 in progress)
 
@@ -165,7 +165,7 @@ Plan and Avi's decisions: `docs/LAB.md` (Hebrew). Code: `src/lab/` (pack `lab`, 
 - Two Blender bees (`honeybee.py`, `orchidbee.py`, one model in two colours).
 - "Where?" beacons for a species, mission how-to hints, done-by-itself notes and the completed-missions list, zone names instead of "the island" (`src/core/place.js`), game controller support (`src/ui/gamepad.js`).
 
-`claude/research-1.3` (version 1.3.0, the research world "חוקרי היער", still in development and not published: no public release, the owner tests it on his PC; test installers are in `installer\1.3.1-test1` (20.10) and the one before, `1.3.0-test5`; older test folders were removed at Avi's request) has everything from 1.2.3 merged in; merge each 1.2.x fix into it as well. It installs over 1.2 and keeps all data (see the upgrade rule above).
+`claude/research-1.3` (the 1.3 series, merged into `main` on 20.10 as the official version; test installers are in `installer\1.3.1-test1` (20.10) and the one before, `1.3.0-test5`; older test folders were removed at Avi's request) has everything from 1.2.3 merged in; merge each 1.2.x fix into it as well. It installs over 1.2 and keeps all data (see the upgrade rule above).
 
 At the end of a Blender session: stop the queue and keep-awake timers, save the scene to `blend\` and quit Blender (the owner asked that nothing keeps running on his PC). The scripts are the source; the saved `.blend` is only a convenience.
 
