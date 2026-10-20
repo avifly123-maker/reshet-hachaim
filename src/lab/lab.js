@@ -267,7 +267,7 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
   function updateFishVisible() { const on = view === 'room' || station === 'aquarium'; for (const f of fish) f.holder.visible = on; }
 
   // ── the screen
-  let open_ = false, station = 'home', prevSt = null, move = 0, panel = null, sayT = 0, greeted = false;
+  let open_ = false, station = 'home', prevSt = null, move = 0, panel = null, sayT = 0, greeted = false, topDock = false;
   // view: 'room' = the look-around panorama (the room), 'pic' = a station's own picture with its Blender camera
   let view = room ? 'room' : 'pic';
   const prevState = {};
@@ -286,7 +286,7 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     <div class="lb-look" hidden><svg viewBox="0 0 32 16" aria-hidden="true"><path d="M3 8h26M8 3L3 8l5 5M24 3l5 5-5 5"/></svg><span></span></div>
     <nav class="lb-bar">${ORDER.map((id) => `<button data-st="${id}" class="${id === 'home' ? 'on' : ''}">${icon(STATION_INFO[id].ic || 'leaf')}<span></span></button>`).join('')}</nav>
     <div class="lb-panels"></div><div class="lb-say" hidden><i class="lb-face"></i><p></p></div>`;
-  const hots = el.querySelector('.lb-hots'), sayEl = el.querySelector('.lb-say'), panels = el.querySelector('.lb-panels');
+  const hots = el.querySelector('.lb-hots'), sayEl = el.querySelector('.lb-say'), panels = el.querySelector('.lb-panels'), topEl = el.querySelector('.lb-top');
   el.querySelector('.lb-exit').onclick = () => { close(); onExit && onExit(); };
   el.querySelector('.lb-talk').onclick = () => openTalk();
   el.querySelector('.lb-think').onclick = () => thinkMenu();
@@ -364,7 +364,7 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
       if (rest.length) sayQT = setTimeout(() => { if (open_) say(rest, expr); }, readMs(text));
       return;
     }
-    sayEl.hidden = false; sayEl.querySelector('p').textContent = text;
+    sayEl.hidden = false; sayEl.querySelector('p').textContent = text; topDock = false;
     sayEl.classList.remove('pop'); void sayEl.offsetWidth; sayEl.classList.add('pop');
     robot.say(expr, Math.min(4, 0.8 + text.length * 0.045)); sayT = 6 + text.length * 0.06;
     if (rest.length) { sayT += 2; sayQT = setTimeout(() => { if (open_) say(rest, expr); }, readMs(text)); }
@@ -634,8 +634,12 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
       sayT -= dt; if (sayT <= 0) sayEl.hidden = true;
       // over a panel the robot is hidden: his words sit in a corner, with his face
       const hp = robot.root.position.clone(); hp.y = 1.22; const p = project(hp);
-      const dock = !!panel || !p.ok || p.x < 12 || p.x > 88 || p.y < 14 || !robot.root.visible;
-      sayEl.classList.toggle('dock', dock);
+      let dock = !!panel || !p.ok || p.x < 12 || p.x > 88 || p.y < 14 || !robot.root.visible;
+      // a bubble over his head must not cover the top bar (the way back, "?"): then it goes to the corner as well
+      // (once docked for this reason it stays docked while these words show: the docked bubble is shorter, it must not flap)
+      if (!dock && !topDock) { const H = el.clientHeight || innerHeight, top = (Math.max(16, p.y - 2) / 100) * H - sayEl.offsetHeight; if (top < topEl.offsetTop + topEl.offsetHeight + 4) topDock = true; }
+      if (topDock) dock = true;
+      sayEl.classList.toggle('dock', dock); sayEl.classList.toggle('lift', dock && !panel);
       if (!dock) { const hw = (sayEl.offsetWidth / (el.clientWidth || innerWidth)) * 50 + 1; sayEl.style.left = (hw < 49 ? Math.max(hw, Math.min(100 - hw, p.x)) : p.x) + '%'; sayEl.style.top = Math.max(16, p.y - 2) + '%'; }
       else { sayEl.style.left = ''; sayEl.style.top = ''; }
     }

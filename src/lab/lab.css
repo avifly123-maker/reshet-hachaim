@@ -242,11 +242,16 @@
    the turning arrows and the spots of the stations out of sight); the dragging hint sits under the top bar */
 #ui.wol .lb.pano:not(.at-st) .lb-say.dock { right: auto; left: 50% !important; bottom: 92px; transform: translateX(-50%); max-width: min(600px, 74vw); }
 #ui.wol .lb.pano .lb-look { bottom: auto; top: 78px; }
+/* at a station with no panel open (the inventors table) his docked words sit above the stations bar, not on it */
+#ui.wol .lb.at-st .lb-say.dock.lift { bottom: 92px; }
 @media (max-width: 860px), (max-height: 520px) {
   #ui.wol .lb.pano:not(.at-st) .lb-say.dock { bottom: 84px; }
+  #ui.wol .lb.at-st .lb-say.dock.lift { bottom: 84px; }
   #ui.wol .lb.pano .lb-look { top: 70px; }
 }
 /* his bubble above his head stays readable over the stations' spots (they still take clicks through it) */
 #ui.wol .lb.pano .lb-say:not(.dock) { z-index: 3; }
 /* the orange spots stay above the robot's words in the look-around room (the words never hide a station) */
 #ui.wol .lb.pano .lb-hots { z-index: 4; }
+/* the music switch sits in the bottom-left corner over the lab: the robot's strip at a panel's foot leaves it room */
+#ui.wol .lb .ls-voice, #ui.wol .lb .lt-voice, #ui.wol .lb .lb-pv { padding-left: 56px; }

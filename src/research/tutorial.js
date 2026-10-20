@@ -36,7 +36,8 @@ export function createTutorial({ R, T, texts, state, onEnd }) {
     const st = STEPS[i];
     const key = st.end ? (s.lastHeals ? 'endOk' : 'endTry') : st.id;
     // a step inside a window (the notebook, the conclusion) speaks from the bottom, so it never covers the window's top
-    const low = !!s.modal;
+    // (so does a step whose button sits in a note at the top: on a small screen the bubble would cover that button)
+    const low = !!s.modal || /rs-note/.test(st.hi || '');
     if (key !== cur || low !== R._tutLow) {
       cur = key; R._tutLow = low;
       const buttons = st.manual ? [{ id: 'next', label: T('tutNext'), primary: true }] : st.end ? [{ id: 'done', label: T('tutDone'), primary: true }] : [];

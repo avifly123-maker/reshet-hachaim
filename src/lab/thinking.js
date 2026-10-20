@@ -13,7 +13,7 @@ import { grant as grantBadge } from '../core/badges-store.js';
 import { labKids, fmt, readMs } from './level.js';
 import { THINK_K } from './kids-text.js';   // the beginners' words: fully vocalised, short bubbles
 import { OBS_CASES, OBS_T } from './observe-cases.js';   // ראינו או חשבנו? (1.3.1: 19 finds)
-import { picHTML, PICS_CSS } from './lab-pics.js';
+import { picHTML, hasPic, PICS_CSS } from './lab-pics.js';
 
 export const THINK = [
   { id: 'fair', name: 'הניסוי ההוגן', habit: 'משנים רק דבר אחד בכל פעם', st: 'greenhouse', where: 'בחממה', ic: 'sprout' },
@@ -93,11 +93,36 @@ function growPot(p) {
 }
 // a pot: the painting of the seedling it grew (art/lab-items/fair-<result>.webp; before growing, the seed), what it gets
 // as small signs on the picture, and a ruler with the height. No colour says "good" before the plants have grown.
+// Until those paintings exist (art/lab-items/manifest.json lists them), the pot is drawn as before 1.3.1 (potSVG), not
+// left as an empty tile with its name.
+function potSVG(p, g) {
+  const soil = p.soil === 'sand' ? '#e2c48a' : '#5a3b22';
+  const bg = p.light === 'dark' ? '<rect x="8" y="6" width="144" height="196" rx="10" fill="#2a2420"/>' : '<circle cx="132" cy="28" r="14" fill="#ffd45a"/><circle cx="132" cy="28" r="22" fill="#ffd45a" opacity=".25"/>';
+  const wet = p.water === 'much' ? '<path d="M48 160h64v6H48z" fill="#6fb6e8" opacity=".85"/>' : '';
+  let plant = '';
+  if (g) {
+    const len = Math.min(150, g.h * 6.2), top = 160 - len;
+    const col = g.pale ? '#d9d27a' : `hsl(${Math.round(70 + 45 * g.green)},${Math.round(30 + 35 * g.green)}%,${Math.round(46 - 8 * g.green)}%)`;
+    const bend = g.droop ? 22 : 0;
+    plant = `<path d="M80 160 Q${80 + bend * 0.4} ${top + len * 0.5} ${80 + bend} ${top + bend * 0.5}" stroke="${g.pale ? '#cfc77a' : '#4a8a3a'}" stroke-width="${g.pale ? 2.2 : 4}" fill="none" stroke-linecap="round"/>`;
+    for (let i = 0; i < g.leaves; i++) {
+      const kk = 0.35 + 0.65 * (i + 1) / g.leaves, y = 160 - len * kk + (g.droop ? bend * kk * 0.5 : 0), x = 80 + bend * kk * kk;
+      const s = (g.pale ? 0.5 : 1) * (0.7 + 0.3 * kk), side = i % 2 ? 1 : -1, tilt = side * (g.droop ? 70 : 35);
+      plant += `<ellipse cx="${x + side * 12 * s}" cy="${y}" rx="${13 * s}" ry="${5.5 * s}" fill="${col}" transform="rotate(${tilt} ${x} ${y})"/>`;
+    }
+  } else plant = '<ellipse cx="80" cy="151" rx="8" ry="5" fill="#efe6c8" stroke="#8a6a3a" stroke-width="1.5"/>';
+  return `<svg class="lp-ph" viewBox="0 0 160 210" role="img" aria-label="עציץ" style="--lph:40;width:100%;height:100%">${bg}${plant}
+    <path d="M44 160h72l-8 44H52z" fill="#c8693a"/><path d="M40 156h80v10H40z" fill="#d97a48"/><path d="M46 158h68v4H46z" fill="${soil}"/>${wet}</svg>`;
+}
 function potHTML(p, g, k, label) {
   const ref = g ? 'fair-' + g.nk : 'fair-seed';
+  if (!hasPic(ref)) return potHTML0(p, g, potSVG(p, g));
+  return potHTML0(p, g, picHTML(ref, label));
+}
+function potHTML0(p, g, pic) {
   const drops = { little: 1, mid: 2, much: 3 }[p.water] || 2;
   const H = 25, h = g ? Math.max(0, Math.min(H, g.h)) : 0;
-  return `<div class="lt-potpic ${p.light === 'dark' ? 'dark' : ''} ${g ? 'grown' : ''}">${picHTML(ref, label)}
+  return `<div class="lt-potpic ${p.light === 'dark' ? 'dark' : ''} ${g ? 'grown' : ''}">${pic}
     <span class="lt-cond"><i class="${p.light}">${icon(p.light === 'dark' ? 'moon' : 'sun')}</i><i class="w">${[...Array(drops)].map(() => icon('drop')).join('')}</i><i class="s ${p.soil}"></i></span>
     ${g ? `<span class="lt-ruler" aria-hidden="true"><i style="height:${(h / H * 100).toFixed(0)}%"></i></span>` : ''}</div>`;
 }
