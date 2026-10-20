@@ -2,6 +2,14 @@
 
 This file is the hand-off between development sessions. Read it first, then `docs/ROADMAP.md` (the owner's way of thinking and the ideas he wants developed, in Hebrew), `CONTRACT.md` (architecture), `CHANGELOG.md` (what each version did) and `docs/DEVLOG.md` (how it was built).
 
+## Start here (state on 20.10.2026, end of the 1.3.1 session)
+
+- **1.3.1 is built and ready to publish**, torah edition only (Avi's choice): `release-files/1.3.1/` here and `Documents\reshet-hachaim-blender\installer\1.3.1` on Avi's PC (exe, one Mac zip for Intel that runs on Apple chips through Rosetta, the one-file html; sha256 checked on the PC). The release page text and the create link (tag `v1.3.1`, target `claude/research-1.3`, no merge to main needed) are at the top of `docs/RELEASE.md`. Avi publishes it himself. Build it again with `tools/pack-torah.sh`.
+- Version series: 1.2.x lives on `main` (last: 1.2.3, general + torah). 1.3.x lives on `claude/research-1.3` (Avi 19.10: "the second number makes a series that is not replaced"). Same appId, so 1.3 installs over 1.2 and keeps all data.
+- The night of 1.3.1: CHANGELOG "1.3.1", DEVLOG "לילה של 1.3.1", and the 1.3.1 section below. Avi's fix list with estimates: the Docs page "רשת החיים 1.3.1: רשימת התיקונים".
+- Things Avi should still check by eye: beginner nikud in the research world's new texts, the verse-to-card links in "מה הפסוק מלמד?", the two music pieces. Known small leftovers (QA, 20.10): the microscope's sample list is cut off for beginners at 800x460; the reef island thumbnail in the research hub looks pale; three inventors problems (hover, camo, heal) have only one trait route.
+- Next: cosmetic fixes from Avi's testing, then 1.4 (desert, see docs/ROADMAP.md). Talk to Avi only in Hebrew. Gemini: switch to the Pro model before painting (Avi asked).
+
 ## The project in one paragraph
 
 An offline 3D educational biodiversity game in Hebrew for Baba Da (בבא דע), for Haredi children aged 6 to 12. Two zones (Amazon rainforest: the struggle for light; Israeli Mediterranean grove: the seasons), two levels (מתחילים / מתקדמים), a learning hub (quiz, card album, "חוט הקשר", "מחזיקים את היער", "מי חזק ברשת?"), two editions (general, and torah with source cards). Plain JS + three.js r186, esbuild → one offline HTML; Electron for Windows and macOS.
