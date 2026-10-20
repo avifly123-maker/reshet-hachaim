@@ -15,6 +15,7 @@ SIZE = 512
 SETS = {
     'amazon': {'a': 'litter', 'b': 'moss', 'tile': [3.2, 2.6], 'nk': 0.85},
     'grove': {'a': 'grass', 'b': 'lime', 'tile': [2.8, 4.2], 'nk': 0.8},
+    'reef': {'a': 'reefsand', 'b': 'reefrubble', 'tile': [3.4, 2.6], 'nk': 0.9},
 }
 
 def url(im, q):

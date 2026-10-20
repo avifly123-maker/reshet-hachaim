@@ -83,8 +83,9 @@ function makePuffTexture(size = 128, seed = 3) {
 const SKY = {
   amazon: [
     // e = sin(sun elevation)
-    { e: -1.0, zen: '#030814', hor: '#0e1a30', gnd: '#0a1424', fog: '#0f1c30' },
-    { e: -0.22, zen: '#050d22', hor: '#14243e', gnd: '#0d182a', fog: '#15243c' },
+    // night (Avi, 19.10: too dark to play): a deep blue moonlit sky and a faintly luminous haze instead of black
+    { e: -1.0, zen: '#071534', hor: '#1f3558', gnd: '#172640', fog: '#223a5c' },
+    { e: -0.22, zen: '#0a1a3e', hor: '#253d62', gnd: '#1a2a46', fog: '#28405f' },
     { e: -0.08, zen: '#1a2a52', hor: '#6a5a78', gnd: '#2a2c40', fog: '#3e4058' },
     { e: 0.0, zen: '#33508a', hor: '#e2875a', gnd: '#5a5050', fog: '#b98a74' },
     { e: 0.12, zen: '#4d78b8', hor: '#f0bf8e', gnd: '#8a8a78', fog: '#d5c0a0' },
@@ -92,8 +93,8 @@ const SKY = {
     { e: 1.0, zen: '#3e7cc2', hor: '#cadfd6', gnd: '#a4b8ac', fog: '#bad2c6' },
   ],
   grove: [
-    { e: -1.0, zen: '#030816', hor: '#0f1c34', gnd: '#0b1426', fog: '#101d34' },
-    { e: -0.22, zen: '#050e26', hor: '#172844', gnd: '#0e182c', fog: '#172742' },
+    { e: -1.0, zen: '#081638', hor: '#22385e', gnd: '#182844', fog: '#263e62' },
+    { e: -0.22, zen: '#0b1b42', hor: '#284068', gnd: '#1b2c4a', fog: '#2c4568' },
     { e: -0.08, zen: '#1e2d5a', hor: '#7a5e7a', gnd: '#2e2c42', fog: '#47425c' },
     { e: 0.0, zen: '#3a5a98', hor: '#f08a52', gnd: '#6a5048', fog: '#c88e6c' },
     { e: 0.12, zen: '#4a7cc4', hor: '#f6c48a', gnd: '#9a8e74', fog: '#e0c8a0' },
@@ -170,7 +171,11 @@ function patchMaterial(mat, key, uniforms, { vertexPre = '', vertexBegin = '', f
 // impostorTrees (optional): [{ id, role, build: () => PlantVisual }] – a few mature trees of the zone, baked into the far
 // forest's tree impostors (roles: amazon 'emergent' | 'canopy' | 'palm', grove 'tree' | 'bush'). Without them (or if the
 // bake fails) the far forest uses simple faceted crowns.
-export function createEnvironment(pipeline, biomeId = 'amazon', { quality = 'medium', seed = 1, impostorTrees = null } = {}) {
+// zoneEnv (optional): a zone pack's own environment factory (the reef's diorama, src/env/reef.js, comes in the reef pack
+// with its coral models, so the other zones and the start screen never load it).
+export function createEnvironment(pipeline, biomeId = 'amazon', { quality = 'medium', seed = 1, impostorTrees = null, zoneEnv = null } = {}) {
+  if (zoneEnv) return zoneEnv(pipeline, { quality, seed });
+  if (biomeId === 'reef') throw new Error('the reef environment comes with the reef pack (zone.env)');
   const isAmazon = biomeId !== 'grove';
   const biome = isAmazon ? 'amazon' : 'grove';
   const scene = pipeline.scene;
@@ -2241,8 +2246,8 @@ export function createEnvironment(pipeline, biomeId = 'amazon', { quality = 'med
   const Y = V3(0, 1, 0); const _down = V3();
   const night = { v: 0 };
   const cZen = C('#000'), cHor = C('#000'), cGnd = C('#000'), cFog = C('#000');
-  const sunWarm = C('#ff8a40'), sunGold = C('#ffc98a'), sunNoon = C('#fff3e0'), moonCol = C('#a8bcff');
-  const greyRain = C('#7c8590');
+  const sunWarm = C('#ff8a40'), sunGold = C('#ffc98a'), sunNoon = C('#fff3e0'), moonCol = C('#b6c8ff');
+  const greyRain = C('#8a939e');   // a soft grey winter sky, not a gloomy one
 
   function computeSun(dayFrac) {
     const th = TAU * (dayFrac - 0.25);
@@ -2300,14 +2305,15 @@ export function createEnvironment(pipeline, biomeId = 'amazon', { quality = 'med
     skyU.uCloudCol.value.copy(cHor).lerp(CC('#ffffff'), 0.5 * (1 - night.v)).multiplyScalar(lerp(1, 0.55, rn));
     {   // distant landscape lighting: daylight tinted by the sun, dim blue at night, hazier in rain and morning mist
       const day = smoothstep(-0.05, 0.16, e);
-      skyU.uPanoTint.value.setRGB(1, 1, 1).lerp(sc, 0.3 * day).multiplyScalar(0.16 + 0.84 * day * (1 - 0.4 * rn)).lerp(CC('#33416a'), 0.35 * night.v);
+      skyU.uPanoTint.value.setRGB(1, 1, 1).lerp(sc, 0.3 * day).multiplyScalar(0.16 + 0.84 * day * (1 - 0.3 * rn)).lerp(CC('#4a5d8e'), 0.5 * night.v);
       skyU.uPanoHazeAdd.value = clamp(rn * 0.55 + (isAmazon ? 0.12 : 0.05) * bump(dayFrac, 0.19, 0.25, 0.32, 0.42) + 0.15 * night.v);
     }
 
     // lights
     const dayAmt = smoothstep(-0.05, 0.16, e);
-    const sunI = (isAmazon ? 3.0 : 3.35) * dayAmt * (1 - 0.72 * rn);
-    const moonI = 1.5 * night.v * (1 - 0.6 * rn);
+    const sunI = (isAmazon ? 3.0 : 3.35) * dayAmt * (1 - 0.6 * rn);
+    // moonlight: bright enough to read the plants and animals at the darkest hour, still clearly night (Avi, 19.10)
+    const moonI = (isAmazon ? 2.2 : 1.9) * night.v * (1 - 0.5 * rn);
     const useSun = e > -0.04;
     const ld = useSun ? sunDir : moonDir;
     sunLight.position.copy(ld).multiplyScalar(130);
@@ -2317,10 +2323,12 @@ export function createEnvironment(pipeline, biomeId = 'amazon', { quality = 'med
     // hemisphere
     const hemiSky = tmpC.copy(cZen).lerp(cHor, 0.45);
     hemi.color.copy(hemiSky).lerp(CC('#ffffff'), 0.15 * dayAmt);
-    hemi.groundColor.set(isAmazon ? '#56622a' : '#a0623e').multiplyScalar(0.25 + 0.75 * dayAmt).lerp(CC('#1a2438'), night.v * 0.7);
+    hemi.groundColor.set(isAmazon ? '#56622a' : '#a0623e').multiplyScalar(0.25 + 0.75 * dayAmt).lerp(CC('#34436a'), night.v * 0.75);
     if (isAmazon) hemi.color.lerp(CC('#cfe0b0'), 0.18 * dayAmt);   // humid golden-green skylight
-    hemi.intensity = lerp(1.35 + 0.4 * bump(e, -0.05, 0.02, 0.1, 0.25), 2.1, night.v) * (isAmazon ? 1.0 : 1.05) * (1 - 0.15 * rn);
-    if (night.v > 0) hemi.color.lerp(CC('#5a7ad0'), night.v * 0.85);
+    // an overcast sky gives soft light from everywhere: the sky light grows a little as the sun hides (winter rain stays grey, not gloomy)
+    hemi.intensity = lerp((1.35 + 0.4 * bump(e, -0.05, 0.02, 0.1, 0.25)) * (isAmazon ? 1.0 : 1.05), isAmazon ? 3.0 : 2.5, night.v) * (1 + 0.22 * rn * dayAmt - 0.1 * rn * night.v);
+    // night: a bluish-silver glow in the air, so the island never goes black
+    if (night.v > 0) hemi.color.lerp(CC('#8aa4e6'), night.v * 0.85);
 
     // lightning
     if (ctx.lightning) { flashT = 0; makeBolt(cam); }
@@ -2351,7 +2359,7 @@ export function createEnvironment(pipeline, biomeId = 'amazon', { quality = 'med
     { const k = (mistSea.position.y + 4) / Math.max(sunDir.y, 0.15); mistSeaU.uIsland.value.set(sunDir.x * k, sunDir.z * k, 44 * (1 + (1 - Math.max(sunDir.y, 0.15)) * 0.4)); if (sunDir.y < 0) mistSeaU.uIsland.value.z = 0.001; }
 
     // light level for unlit shaders
-    const lightLvl = 0.22 + 0.95 * dayAmt * (1 - 0.5 * rn) + 0.2 * night.v;
+    const lightLvl = 0.22 + 0.95 * dayAmt * (1 - 0.4 * rn) + 0.4 * night.v;
     U.uLightCol.value.copy(hemiSky).lerp(sc, 0.4 * dayAmt).multiplyScalar(lightLvl).lerp(_cWhite.setRGB(lightLvl, lightLvl, lightLvl), 0.4);
     U.uSkyCol.value.copy(cHor).lerp(cZen, 0.4).multiplyScalar(0.95);
     waterU.uNight.value = night.v;
@@ -2460,7 +2468,7 @@ export function createEnvironment(pipeline, biomeId = 'amazon', { quality = 'med
     const mistTarget = isAmazon ? 0.08 + morning * 0.75 + rn * 0.5 + night.v * 0.25 : 0.05 + morning * (ctx.season === 'winter' ? 0.5 : 0.15) + rn * 0.4;
     state.mistAmt = damp(state.mistAmt, mistTarget, 0.5, dt);
     mistU.uAmt.value = state.mistAmt;
-    mistU.uCol.value.copy(cHor).lerp(CC('#ffffff'), 0.35 * dayAmt).lerp(sc, 0.2 * dayAmt).multiplyScalar(0.55 + 0.5 * dayAmt);
+    mistU.uCol.value.copy(cHor).lerp(CC('#ffffff'), 0.35 * dayAmt).lerp(sc, 0.2 * dayAmt).multiplyScalar(0.55 + 0.5 * dayAmt).lerp(CC('#7088c0'), 0.4 * night.v);   // moonlit mist
 
     // rain
     rainU.uAmt.value = rn; rainMesh.visible = rn > 0.01;

@@ -94,3 +94,19 @@ Running it: Blender calls must answer within 60 s, so builds run in a background
   the head and chest, and its white throat band has soft edges.
 - `session.py`: when a species has no `idle` clip (the fruit bat), the preview uses its `meta['map']`.
 - How it was measured: for each species, how far the trunk reaches past the head bone's base, and the head-chain weight at the head's base, quarter and middle (the porcupine had 0.10, 0.32, 0.67 before).
+
+## The reef (October 2026)
+
+- `reef_kit.py` (exec'd by `bridge/session.py` after the two kits): `fish_spec(sid, P)` builds a fish from a side profile
+  table `prof=[(t, half-height, half-width, centre-y)…]` (t = 0 tail base … 1 snout, fractions of L): an SDF body of
+  overlapping ellipsoids, fins as pleated plates (`fin_plate`: resampled outline, rings toward the middle, thinner to
+  the edge) on bones body / head / tail1-3 / pl / pr, a fish eye with an iris ring, skin `fishscale` (fine overlapping
+  scales; `_detail` and `_tone` are wrapped). `fish_actions`: a travelling body wave for fly / glide, pectoral sculling
+  for hover / perch. Other sea animals are ordinary specs in `animals/` (moray, turtle, jellyfish, octopus, urchin,
+  starfish, stingray, shrimp, hermit).
+- `reef_flora.py`: corals and other fixed life as static vertex-coloured meshes (voxel union, displacement, BVH ambient
+  occlusion, decimate); `flora_job(id)` → `reef/flora/<id>.json` + `reef/pv/f_<id>.jpg`. Exec it into its own copy of the
+  namespace (it defines its own `tube` / `sphere`).
+- `reef_props.py`: the underwater devices → `reef/props_reef.json`. `reef_ground.py`: sand and rubble textures.
+- Copying a file inside the PC folder from the device shell makes a hard link that the transfer tool refuses: always
+  stage the file Blender wrote.

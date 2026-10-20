@@ -1,0 +1,18 @@
+[{"wait":2},
+{"js":"window.__noRender=true; document.getElementById('game').style.display='none'; const st=document.createElement('style'); st.textContent='#wol-learn .wl-toast,#wol-learn .wl-fx{display:none!important} #wol-learn,#wol-learn *{animation:none!important}'; document.head.appendChild(st); localStorage.setItem(window.__profiles.key('web-of-life-mode'),'kids'); 1"},
+{"js":"window.__wolLearn.open(); 1"},{"wait":2},
+{"js":"window.__wolLearn._go('versematch'); 1"},{"wait":1.5},
+{"shot":"shots/hub/kids-vm-start.png"},
+{"clickSel":"#wol-learn [data-vm=start]"},{"wait":1.5},
+{"js":"JSON.stringify(window.__vmDebug.state())"},
+{"js":"const k=window.__vmDebug.find(false); const b=document.querySelectorAll('#wol-learn .vm-opt')[k]; const r=b.getBoundingClientRect(); window.__k=[r.x+r.width/2, r.y+r.height/2]; JSON.stringify(window.__k)"},
+{"shot":"shots/hub/kids-vm-round.png"},
+{"js":"window.__vmDebug.pick(window.__vmDebug.find(false)); 1"},{"wait":0.8},
+{"shot":"shots/hub/kids-vm-less.png"},
+{"js":"window.__vmDebug.pick(window.__vmDebug.find(true)); JSON.stringify(window.__vmDebug.state())"},{"wait":0.8},
+{"shot":"shots/hub/kids-vm-right.png"},
+{"js":"[...document.querySelectorAll('#wol-learn .vm *')].map(e=>e.childNodes).flat().length && [...document.querySelectorAll('#wol-learn .vm p, #wol-learn .vm span, #wol-learn .vm b, #wol-learn .vm small, #wol-learn .vm button')].filter(e=>!e.closest('.wl-card')).map(e=>e.textContent.trim()).filter(t=>/[א-ת]/.test(t)).join(' || ').slice(0,1500)"},
+{"js":"(async()=>{ const d=window.__vmDebug, sleep=(ms)=>new Promise(r=>setTimeout(r,ms)); for (let i=0;i<5;i++){ d.next(); await sleep(60); d.pick(d.find(false)); await sleep(40); d.pick(d.find(true)); await sleep(60);} d.next(); await sleep(200); return JSON.stringify(d.state()); })()"},{"wait":1},
+{"shot":"shots/hub/kids-vm-end.png"},
+{"js":"localStorage.setItem(window.__profiles.key('web-of-life-mode'),'full'); 1"}
+]

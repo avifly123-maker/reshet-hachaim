@@ -2,6 +2,7 @@
 // Usage: node tools/validate-content.mjs   (exit code 1 on errors)
 import { BIOME as AMAZON } from '../src/data/amazon.js';
 import { BIOME as GROVE } from '../src/data/grove.js';
+import { BIOME as REEF } from '../src/data/reef.js';
 import * as COMMON from '../src/data/common.js';
 
 const SPECIES = {
@@ -15,17 +16,23 @@ const SPECIES = {
     'honeybee', 'butterfly', 'harvesterant', 'firefly', 'jay', 'blackbird', 'chameleon', 'agama', 'spinymouse', 'porcupine',
     'hedgehog', 'hyrax', 'gazelle', 'fox', 'owl', 'hoopoe', 'tortoise', 'chukar',
   ],
+  reef: [
+    'branching', 'brain', 'table', 'firecoral', 'softcoral', 'seafan', 'sponge', 'seaanemone', 'clam', 'seagrass', 'algae', 'plankton',
+    'clownfish', 'parrotfish', 'surgeonfish', 'cleaner', 'butterflyfish', 'lionfish', 'moray', 'grouper', 'goby', 'shrimp', 'turtle',
+    'octopus', 'urchin', 'starfish', 'stingray', 'hermit', 'jellyfish', 'reefshark',
+  ],
 };
 const LAYER_IDS = {
   amazon: ['emergent', 'canopy', 'understory', 'floor', 'water'],
   grove: ['canopy', 'understory', 'floor'],
+  reef: ['shallow', 'slope', 'sand', 'open'],
 };
-const KINDS = ['tree', 'palm', 'shrub', 'herb', 'epiphyte', 'vine', 'fungus', 'water-plant', 'animal', 'colony', 'swarm'];
+const KINDS = ['tree', 'palm', 'shrub', 'herb', 'epiphyte', 'vine', 'fungus', 'water-plant', 'animal', 'colony', 'swarm', 'coral', 'sessile', 'seaplant'];
 const ANIMAL_KINDS = ['animal', 'colony', 'swarm'];
-const LOCOMOTION = ['ground', 'arboreal', 'flying', 'water'];
+const LOCOMOTION = ['ground', 'arboreal', 'flying', 'water', 'swim'];
 const ACTIVE = ['day', 'night', 'both'];
 const GROWTH = ['fast', 'medium', 'slow'];
-const PARTS = ['leaves', 'fruit', 'nectar', 'seeds', 'insects', 'animals', 'fungus', 'dead', 'roots'];
+const PARTS = ['leaves', 'fruit', 'nectar', 'seeds', 'insects', 'animals', 'fungus', 'dead', 'roots', 'algae', 'plankton', 'polyps'];
 const REL_TYPES = ['pollinates', 'disperses', 'home', 'shelter', 'decomposes', 'partner', 'climbs', 'eats'];
 const SEASONS = ['winter', 'spring', 'summer', 'autumn'];
 const GOALS = {
@@ -33,12 +40,22 @@ const GOALS = {
   health: ['min', 'seconds'], grow: ['species', 'count'], floorLight: ['min'], pollinate: ['species', 'count'],
   disperse: ['count'], discover: ['count'], observeNight: [], survive: ['event'], bloom: ['species', 'season'], experiment: [],
   tool: ['tool', 'count'], photos: ['count'], rescue: ['count'], seeded: ['count'],
+  all: ['parts'],   // expert missions: every part at once (src/game/missions.js evalPart), optional hold / holdLabel
 };
+// the parts of an expert mission's 'all' goal (each also needs a label for the checklist)
+const GOAL_PARTS = {
+  alive: ['species', 'count'], atMost: ['species', 'max'], fed: ['species', 'min'], did: ['stat', 'count'],
+  toolSince: ['tool', 'count'], tool: ['tool', 'count'], young: ['species', 'min', 'count'], sownBy: ['species', 'by', 'count'],
+  plantLight: ['species', 'min', 'count'], growTo: ['species', 'min', 'count'], pollinate: ['species', 'count'],
+  swimKinds: ['count'], kinds: ['count'], link: ['from', 'to'], calm: ['seconds'], eventDone: ['event'], seasons: ['count', 'kinds'],
+  transplant: ['count'], scarHealed: ['count'], strongGrown: ['min', 'count'],   // the coral nursery (reef, 1.3.1)
+};
+const DID_STATS = ['uprooted', 'moved', 'letGo', 'reshaped'];
 const EFFECTS = {
   treeFall: ['target'], rain: ['seconds'], drought: ['seconds', 'strength'], fire: ['strength'], heat: ['seconds'],
   flood: ['seconds'], points: ['amount'], add: ['species', 'count'], remove: ['species', 'count'], unlock: ['species'],
   boost: ['species', 'amount'], plant: ['species', 'count', 'where'],
-  logging: ['count'], protect: [], road: [], ecoBridge: [], removeRoad: [],
+  logging: ['count'], anchor: ['count'], breakCorals: ['count'], protect: [], road: [], ecoBridge: [], removeRoad: [],
 };
 // Forbidden content (hard content rules). Matched as substrings on all Hebrew/English text.
 const FORBIDDEN = [
@@ -197,6 +214,24 @@ function validateBiome(B, id) {
     if (m.after !== null && !missionIds.has(m.after)) err(id, `${p}: after "${m.after}" invalid`);
     const g = m.goal || {};
     if (!GOALS[g.type]) err(id, `${p}: goal type "${g.type}" invalid`);
+    else if (g.type === 'all') {
+      if (!m.expert) err(id, `${p}: an 'all' goal is for expert missions`);
+      if (!Array.isArray(g.parts) || !g.parts.length) err(id, `${p}: goal all needs parts`);
+      for (const k of Object.keys(g)) if (!['type', 'parts', 'hold', 'holdLabel'].includes(k)) err(id, `${p}: goal all unknown param ${k}`);
+      if (g.hold !== undefined && !(Number.isInteger(g.hold) && g.hold > 0)) err(id, `${p}: hold must be positive int`);
+      for (const q of g.parts || []) {
+        const req = GOAL_PARTS[q.type];
+        if (!req) { err(id, `${p}: part type "${q.type}" invalid`); continue; }
+        if (typeof q.label !== 'string' || !q.label) err(id, `${p}: part ${q.type} needs a label`);
+        for (const k of req) if (q[k] === undefined) err(id, `${p}: part ${q.type} missing ${k}`);
+        const opt = q.type === 'eventDone' ? ['after'] : [];
+        for (const k of Object.keys(q)) if (k !== 'type' && k !== 'label' && !req.includes(k) && !opt.includes(k)) err(id, `${p}: part ${q.type} unknown param ${k}`);
+        for (const k of ['species', 'from', 'to', 'by']) if (q[k] !== undefined && !idSet.has(q[k])) err(id, `${p}: part ${k} "${q[k]}" not in biome`);
+        if (q.event !== undefined && !eventIds.has(q.event)) err(id, `${p}: part event "${q.event}" not an event id`);
+        if (q.stat !== undefined && !DID_STATS.includes(q.stat)) err(id, `${p}: part stat "${q.stat}" invalid`);
+        if (q.min !== undefined && !(isNum(q.min) && q.min > 0 && q.min <= 1)) err(id, `${p}: part min must be 0..1`);
+      }
+    }
     else {
       for (const k of GOALS[g.type]) if (g[k] === undefined) err(id, `${p}: goal ${g.type} missing ${k}`);
       for (const k of Object.keys(g)) if (k !== 'type' && !GOALS[g.type].includes(k)) err(id, `${p}: goal ${g.type} unknown param ${k}`);
@@ -245,6 +280,7 @@ function validateBiome(B, id) {
   for (const m of order) {
     const g = m.goal || {};
     for (const k of ['species', 'from', 'to']) if (g[k] && !avail.has(g[k])) err(id, `mission ${m.id}: needs "${g[k]}" which is not unlocked yet`);
+    for (const q of g.parts || []) for (const k of ['species', 'from', 'to', 'by']) if (q[k] && !avail.has(q[k])) err(id, `mission ${m.id}: needs "${q[k]}" which is not unlocked yet`);
     for (const u of m.reward?.unlock || []) avail.add(u);
   }
   if (starters.length < 5 || starters.length > 8) warn(id, `starter set size ${starters.length}`);
@@ -266,12 +302,12 @@ function validateBiome(B, id) {
         const req = EFFECTS[ef.type];
         if (!req) { err(id, `${p}: ${where} effect type "${ef.type}" invalid`); continue; }
         for (const k of req) if (ef[k] === undefined) err(id, `${p}: ${where} ${ef.type} missing ${k}`);
-        for (const k of Object.keys(ef)) if (k !== 'type' && !req.includes(k)) err(id, `${p}: ${where} ${ef.type} unknown param ${k}`);
+        for (const k of Object.keys(ef)) if (k !== 'type' && !req.includes(k) && !(ef.type === 'plant' && k === 'strong')) err(id, `${p}: ${where} ${ef.type} unknown param ${k}`);
         if (ef.species !== undefined && !idSet.has(ef.species)) err(id, `${p}: ${where} species "${ef.species}" not in biome`);
         if (ef.type === 'treeFall' && ef.target !== 'tallest' && !idSet.has(ef.target)) err(id, `${p}: treeFall target invalid`);
         if (ef.type === 'remove' && !(ef.count === 'all' || (Number.isInteger(ef.count) && ef.count > 0))) err(id, `${p}: remove count`);
         if ((ef.type === 'add' || ef.type === 'plant') && !(Number.isInteger(ef.count) && ef.count > 0)) err(id, `${p}: ${ef.type} count`);
-        if (ef.type === 'plant' && !['gap', 'any'].includes(ef.where)) err(id, `${p}: plant where`);
+        if (ef.type === 'plant' && !['gap', 'any', 'scar'].includes(ef.where)) err(id, `${p}: plant where`);
         for (const k of ['seconds']) if (ef[k] !== undefined && !(isNum(ef[k]) && ef[k] > 0)) err(id, `${p}: ${ef.type}.${k}`);
         for (const k of ['strength']) if (ef[k] !== undefined && !(isNum(ef[k]) && ef[k] > 0 && ef[k] <= 1)) err(id, `${p}: ${ef.type}.${k} must be 0..1`);
         if (ef.type === 'boost' && !(isNum(ef.amount) && ef.amount > 0 && ef.amount <= 1)) err(id, `${p}: boost amount 0..1`);
@@ -300,7 +336,11 @@ function validateBiome(B, id) {
   if (!Array.isArray(B.tips) || B.tips.length < 10) err(id, `need 10+ tips (have ${B.tips?.length})`);
 
   // counts
-  if ((B.missions || []).length < 10 || B.missions.length > 12) warn(id, `${B.missions.length} missions (want 10–12)`);
+  // the expert missions come after the regular ones and are counted apart
+  const regular = (B.missions || []).filter((m) => !m.expert), expert = (B.missions || []).filter((m) => m.expert);
+  if (regular.length < 10 || regular.length > 21) warn(id, `${regular.length} regular missions (want 10–21)`);
+  if (expert.length && expert.length !== 4) warn(id, `${expert.length} expert missions (want 4)`);
+  if (expert.some((m) => regular.indexOf(B.missions.find((x) => x.id === m.after)) < 0 && !expert.some((x) => x.id === m.after))) err(id, 'expert missions must follow the regular chain');
   if ((B.events || []).length < 6 || B.events.length > 8) warn(id, `${B.events.length} events (want 6–8)`);
 
   checkForbidden(id, B);
@@ -308,6 +348,7 @@ function validateBiome(B, id) {
 
 validateBiome(AMAZON, 'amazon');
 validateBiome(GROVE, 'grove');
+validateBiome(REEF, 'reef');
 
 // common.js
 for (const t of REL_TYPES) if (!COMMON.RELATION_TYPES?.[t]?.name) err('common', `RELATION_TYPES.${t} missing`);
@@ -324,8 +365,8 @@ checkForbidden('common', COMMON);
   const fs = await import('node:fs'), path = await import('node:path');
   const files = [];
   const walk = (d) => { for (const f of fs.readdirSync(d)) { const q = path.join(d, f); if (fs.statSync(q).isDirectory()) walk(q); else if (/\.js$/.test(f)) files.push(q); } };
-  for (const d of ['src/learn', 'src/ui']) if (fs.existsSync(d)) walk(d);
-  for (const f of fs.readdirSync('src/data')) if (/torah|source/i.test(f)) files.push(path.join('src/data', f));
+  for (const d of ['src/learn', 'src/ui', 'src/research', 'src/lab']) if (fs.existsSync(d)) walk(d);
+  for (const f of fs.readdirSync('src/data')) if (/torah|source|invention|expedition|badge|quiz|lab-questions/i.test(f)) files.push(path.join('src/data', f));
   const W = ['אישה', 'אשה', 'נשים', 'ילדה', 'ילדות', 'נערה', 'דינוזאור', 'דינוזאורים', 'אבולוציה'];
   const re = new RegExp(`(^|[^\u05d0-\u05ea])[והבלכמש]{0,2}(${W.join('|')})(?=$|[^\u05d0-\u05ea])`);
   const en = /\b(girls?|wom[ae]n|dinosaurs?|millions of years)\b/i;

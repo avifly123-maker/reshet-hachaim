@@ -6,6 +6,7 @@
 //   audio.update(ctx);                      // every frame (internally throttled)
 //   audio.play(name, { pan, volume });      // UI / game one-shots
 //   audio.setMuted(b); audio.muted; audio.setVolume(v)
+//   audio.musicOut()                        // the bus background music plays into (audio/music.js); null until start()
 //
 // Design notes
 // - Graph: [sfxBus] ─┐
@@ -31,7 +32,7 @@ const MIN_GAP = { hover: 0.05, points: 0.06, click: 0.03, pop: 0.05, grow: 0.12,
 
 export function createAudio(options = {}) {
   let ac = null, offline = false, ready = false;
-  let master, sfxBus, ambBus, duck, globalGain;
+  let master, sfxBus, ambBus, duck, globalGain, musicBus;
   let bufW, bufP, bufB, srcW, srcP, srcB;
   const curves = {};
   let muted = !!options.muted;
@@ -91,6 +92,7 @@ export function createAudio(options = {}) {
     master = ac.createGain(); master.gain.value = muted ? 0 : volume;
     master.connect(comp); comp.connect(ac.destination);
     sfxBus = ac.createGain(); sfxBus.gain.value = 0.8; sfxBus.connect(master);
+    musicBus = ac.createGain(); musicBus.gain.value = 0.9; musicBus.connect(master);   // background music (audio/music.js)
     duck = ac.createGain(); duck.gain.value = 1; duck.connect(master);
     ambBus = ac.createGain(); ambBus.gain.value = 1; ambBus.connect(duck);
     globalGain = ac.createGain(); globalGain.gain.value = 0; globalGain.connect(ambBus);
@@ -297,6 +299,38 @@ export function createAudio(options = {}) {
     ];
     return { id: 'grove', f, out, cic, bees, trickle, night, leaves, emitters, levels: groveLevels };
   }
+  // the reef (1.3): the slow surge of the sea heard from under the water, the crackle of snapping shrimp, bubbles
+  function buildReef() {
+    const f = P();
+    const out = f.gain(0, ambBus);
+    const surge = f.gain(0, out);
+    const sw = f.gain(0.55, surge); f.lfo(0.075, 0.35, sw.gain); f.lfo(0.031, 0.15, sw.gain);
+    const lp = f.filter('lowpass', 320, 0.7, sw); f.lfo(0.06, 90, lp.frequency); f.tap(srcB, lp);
+    const hiss = f.gain(0, f.pan(-0.2, out));
+    f.tap(srcP, f.filter('bandpass', 900, 0.6, hiss));
+    const emitters = [
+      emitter(() => 3.5 * (0.5 + 0.5 * S.rich), shrimpSnap, 0.03),
+      emitter(() => 0.25 * (0.4 + 0.6 * S.rich), bubbles, 1.5),
+    ];
+    return { id: 'reef', f, out, surge, hiss, emitters, levels: reefLevels };
+  }
+  function reefLevels(b, set) {
+    set(b.surge.gain, 0.16 * (1 - 0.25 * S.night));
+    set(b.hiss.gain, 0.025 * (0.5 + 0.5 * S.day));
+  }
+  function shrimpSnap(t) {
+    if (!AMB()) return;
+    const v = voice('amb', globalGain, rand(-0.9, 0.9), rand(0.2, 0.7)); if (!v) return;
+    noiseHit(v, t, bufW, 'highpass', rand(2500, 5000), 0.7, 0.0005, rand(0.004, 0.01), rand(0.03, 0.08));
+    done(v);
+  }
+  function bubbles(t) {
+    const d = AMB(); if (!d) return;
+    const v = voice('amb', globalGain, rand(-0.6, 0.6), rand(0.3, 0.8)); if (!v) return;
+    let tt = t; const n = 2 + ((Math.random() * 4) | 0);
+    for (let i = 0; i < n; i++) { const f = rand(380, 700); tone(v, tt, f, f * 1.9, 0.004, 0.07, 0.03); tt += rand(0.05, 0.16); }
+    done(v);
+  }
   function groveBirdSeason() {
     return { winter: 0.45, spring: 1.2, summer: 0.7, autumn: 0.75 }[S.season] || 1;
   }
@@ -316,7 +350,7 @@ export function createAudio(options = {}) {
     const now = ac.currentTime;
     for (const k in beds) if (k !== id) closeBed(k);
     if (!beds[id]) {
-      beds[id] = id === 'amazon' ? buildAmazon() : id === 'grove' ? buildGrove() : null;
+      beds[id] = id === 'amazon' ? buildAmazon() : id === 'grove' ? buildGrove() : id === 'reef' ? buildReef() : null;
       if (!beds[id]) { delete beds[id]; return; }
     }
     const b = beds[id];
@@ -812,7 +846,7 @@ export function createAudio(options = {}) {
 
   // ------------------------------------------------------------- controls
   function setBiome(id) {
-    id = id === 'amazon' || id === 'grove' ? id : null;
+    id = id === 'amazon' || id === 'grove' || id === 'reef' ? id : null;
     if (id === biome) return;
     biome = id;
     if (!ready) return;
@@ -850,6 +884,7 @@ export function createAudio(options = {}) {
 
   return {
     start, setBiome, update, play, setMuted, setVolume,
+    musicOut: () => (ready ? musicBus : null),
     get muted() { return muted; },
     get volume() { return volume; },
     get context() { return ac; },

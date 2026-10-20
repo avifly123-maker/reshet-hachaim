@@ -51,14 +51,14 @@ const ICONS = {
   rotR: sv('<g transform="matrix(-1 0 0 1 24 0)"><ellipse cx="12" cy="9.5" rx="8.5" ry="3.6" stroke-width="2"/><path d="M18.5 15.2Q12 19.6 5.2 16.2"/><path d="m8.6 14.6-3.4 1.6 1.7 3.4"/></g>'),
   up: sv('<ellipse cx="12" cy="18" rx="8" ry="2.6"/><path d="M12 13V3.5"/><path d="m8.2 7.2 3.8-3.7 3.8 3.7"/>'),
   side: sv('<ellipse cx="12" cy="17" rx="8" ry="2.6"/><path d="M3 9.5h12"/><path d="m11.3 5.8 3.7 3.7-3.7 3.7"/>'),
-  plus: sv('<path d="M12 5v14M5 12h14"/>'),
+  plus: sv('<path d="M12 5v7.5M5 12.5h14"/>'),   // the stem stops at the bar: no cross
   minus: sv('<path d="M5 12h14"/>'),
   compass: sv('<circle cx="12" cy="12" r="9" stroke-width="2"/><path d="M12 6.5l2.2 5.5L12 17.5 9.8 12z" fill="currentColor" stroke-width="1.4"/>'),
-  fold: sv('<path d="M7 7l10 10M17 7L7 17" stroke-width="2.2"/>'),
+  fold: sv('<circle cx="12" cy="12" r="7.5" stroke-width="2"/><path d="M8.5 12h7" stroke-width="2.2"/>'),
 };
 // visual order left → right (spatial controls stay spatial even in an RTL page)
 const GROUPS = [
-  [{ id: 'home', tip: 'מבט על כל היער', cls: 'cp-home' }],
+  [{ id: 'home', tip: 'מבט על הכול', cls: 'cp-home' }],
   [{ id: 'rotL', tip: 'סובב שמאלה', kind: 'rot', dir: 1 }, { id: 'rotR', tip: 'סובב ימינה', kind: 'rot', dir: -1 }],
   [{ id: 'up', tip: 'מבט מלמעלה', kind: 'tilt', dir: 1 }, { id: 'side', tip: 'מבט מהצד', kind: 'tilt', dir: -1 }],
   [{ id: 'minus', tip: 'התרחק', kind: 'zoom', dir: -1 }, { id: 'plus', tip: 'התקרב', kind: 'zoom', dir: 1 }],

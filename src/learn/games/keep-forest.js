@@ -1,4 +1,6 @@
 import { relVerb, dietVerb, notTogether, gw, genderOf, defName, prefName, joinObj } from '../../data/common.js';
+import { icon } from '../../ui/ui.js';
+import { tileIcon } from '../../ui/icons-hub.js';
 // "מחזיקים את היער" – solitaire mini-game for the learning hub (single player, gentle, cooperative).
 // The player builds a small forest (3 layers × 3 slots) from album cards; every 2 turns "nature" flips an
 // event card (drought, heat, flood...). A forest that is ready holds on; otherwise its weakest card wilts a little.
@@ -10,14 +12,24 @@ import { relVerb, dietVerb, notTogether, gw, genderOf, defName, prefName, joinOb
 // Debug hook: window.__kfDebug = { state(), place(handIdx, slot), tool(handIdx), cont(), auto(n), start(biome), hint() }
 
 const CSS_ID = 'wl-keepforest-css';
-const BIOMES = ['amazon', 'grove'];
-const BNAME = { amazon: 'אמזונס', grove: 'חורש' };
+const BIOMES = ['amazon', 'grove', 'reef'];
+const BNAME = { amazon: 'אמזונס', grove: 'חורש', reef: 'שונית' };
 const ROWS = ['חופה', 'קומת ביניים', 'קרקע'];
 const ROW_SHORT = ['חופה', 'ביניים', 'קרקע'];
-const ROW_SUB = { amazon: ['עצים גבוהים ומטפסים', 'דקלים ושיחים', 'שרכים, פטריות ומים'], grove: ['עצי החורש', 'שיחים', 'פרחים ופטריות'] };
-const LAYER_ROW = { emergent: 0, canopy: 0, understory: 1, floor: 2, water: 2 };
+// the reef has its own three rows: shallow water (corals that love light), the slope, the sea floor
+const ROWS_REEF = ['מים רדודים', 'מדרון השונית', 'קרקעית'];
+const ROW_SHORT_REEF = ['רדודים', 'מדרון', 'קרקעית'];
+const ROW_SUB = { amazon: ['עצים גבוהים ומטפסים', 'דקלים ושיחים', 'שרכים, פטריות ומים'], grove: ['עצי החורש', 'שיחים', 'פרחים ופטריות'], reef: ['אלמוגים שאוהבים הרבה אור', 'אלמוגים רכים ומניפות ים', 'עשב ים, אצות וספוגים'] };
+const LAYER_ROW = { emergent: 0, canopy: 0, understory: 1, floor: 2, water: 2, shallow: 0, open: 0, slope: 1, sand: 2 };
+// a few reef species get a row of their own in this game, so every row has a few fixed cards (all of these do live there)
+const KF_ROW = { 'reef:brain': 1, 'reef:seaanemone': 1, 'reef:sponge': 2, 'reef:algae': 2 };
+const layerRow = (sp) => KF_ROW[sp.key] ?? LAYER_ROW[sp.layer];
 const BIRDS = new Set(['toucan', 'macaw', 'hummingbird', 'harpy', 'jay', 'blackbird', 'owl', 'hoopoe', 'chukar']);
 const INSECTS = new Set(['leafcutter', 'orchidbee', 'morpho', 'honeybee', 'butterfly', 'harvesterant', 'firefly']);
+const FISH = new Set(['clownfish', 'parrotfish', 'surgeonfish', 'cleaner', 'butterflyfish', 'lionfish', 'moray', 'grouper', 'goby', 'stingray', 'reefshark']);
+// the shared devices have a reef look of their own (רובוט צולל, מצלמה תת־ימית, מצוף חיישנים), so the dry-land ones stay out of the reef
+const LAND_TWIN = new Set(['drone', 'camera', 'weather']);
+const toolOk = (c, b) => (c.tool.zones ? c.tool.zones.includes(b) : !(b === 'reef' && LAND_TWIN.has(c.tool.id)));
 // vitality needed at the end: [1 star (= the forest held on), 2 stars, 3 stars]. Below the first one the run is lost.
 const STAR_T = { full: [10, 15, 21], kids: [6, 10, 15] }; // raised with the rarity powers (keystones + rare bonus), see sim()
 const MIN_DECK = 12, TOPUP = 14, HAND = 4, HAND_MAX = 6;
@@ -51,6 +63,7 @@ const I = {
   gear: sv('<circle cx="12" cy="12" r="3.4" fill="currentColor"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>'),
   target: sv('<circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/>'),
   key: sv('<circle cx="8.2" cy="8.2" r="5" fill="none" stroke="currentColor" stroke-width="2.7"/><path d="M11.8 11.8l8.6 8.6M16.4 16.4l2.7-2.7M18.9 18.9l2.3-2.3" stroke="currentColor" stroke-width="2.7" stroke-linecap="round"/>'),
+  anchor: sv('<circle cx="12" cy="4.6" r="2.4" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M12 7v13.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M4.2 13.5c.4 4.4 3.8 7 7.8 7s7.4-2.6 7.8-7" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M2.6 15.4l1.6-2.4 2.3 1.7M21.4 15.4l-1.6-2.4-2.3 1.7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'),
   deck: sv('<rect x="4" y="5" width="12" height="16" rx="2" fill="currentColor" opacity=".55"/><rect x="8" y="3" width="12" height="16" rx="2" fill="currentColor"/>'),
 };
 // the owl companion "שומר היער" (no human figures)
@@ -72,6 +85,8 @@ const rnd = (n) => Math.floor(Math.random() * n);
 function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = rnd(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 const dn = (c) => defName(c.sp ? c.sp.id : c.id, c.name); // definite name of a card / species: "הקפוק"
 const pk = (a, b) => (a < b ? a + '|' + b : b + '|' + a);
+// the middle number of a card: מים on land, מחסה at the reef (in the sea there is always water)
+const mid = (c) => c.stats.water ?? c.stats.shelter ?? 0;
 
 // every real relation between two species of a biome (both directions), one sentence per pair
 const LINKS = new Map();
@@ -106,39 +121,46 @@ const EV = {
   drought: { ic: 'sun', kind: 'water', name: { amazon: 'שנה יבשה', grove: 'בצורת' },
     story: { amazon: 'הגשם מתעכב והנהר יורד.', grove: 'קיץ ארוך בלי טיפת גשם.' }, need: (n) => `מים ${n} ומעלה`,
     tip: 'כדאי לשים משהו שאוהב מים – בצורת בדרך!' },
-  clouds: { ic: 'cloud', kind: 'light', name: { amazon: 'עננים כבדים', grove: 'חורף קר ומעונן' },
-    story: { amazon: 'שבועות של עננים מסתירים את השמש.', grove: 'ימים קרים ואפורים, מעט שמש.' }, need: (n) => `אור ${n} ומעלה`,
-    tip: 'בקרוב יהיו עננים. צמחים ויצורים שאוהבים אור יעזרו!' },
-  heat: { ic: 'heat', kind: 'canopy', name: { amazon: 'חום כבד', grove: 'חום כבד' },
-    story: { amazon: 'שמש חזקה במיוחד. עצי החופה נותנים צל לכולם.', grove: 'שרב חם! עצי החורש נותנים צל לכולם.' }, need: (n) => `${n === 1 ? 'צמח אחד' : n + ' צמחים'} בחופה`,
-    tip: 'חם מאוד בדרך. צמח בחופה ייתן צל לכל היער.' },
-  storm: { ic: 'wind', kind: 'threads', name: { amazon: 'סערה חזקה', grove: 'שריפה קטנה בחורש' },
-    story: { amazon: 'רוח חזקה מטלטלת את היער. יער עם הרבה קשרים מתאושש מהר.', grove: 'אש קטנה בקצה החורש. כשיש הרבה קשרים – החורש מתחדש מהר.' },
-    need: (n) => `${n === 1 ? 'חוט זהב אחד' : n + ' חוטי זהב'}`, tip: 'כדאי לחבר עוד חוטי זהב – הם יעזרו ליער להתאושש.' },
-  flood: { ic: 'rain', kind: 'floor', name: { amazon: 'הנהר עלה על גדותיו', grove: 'גשם זלעפות' },
-    story: { amazon: 'הרבה מים זורמים בבת אחת. שורשים בקרקע מחזיקים את האדמה.', grove: 'מבול של גשם! שורשים בקרקע מחזיקים את האדמה.' },
-    need: (n) => `${n === 1 ? 'צמח אחד' : n + ' צמחים'} בקרקע`, tip: 'הרבה מים בדרך. צמח בקומת הקרקע יחזיק את האדמה.' },
-  logging: { ic: 'stump', kind: 'watch', name: { amazon: 'עצים נכרתו', grove: 'עצים נכרתו' },
-    story: { amazon: 'בקצה היער כורתים עצים. כלי שמירה מזעיק עזרה בזמן.', grove: 'בקצה החורש כורתים עצים. כלי שמירה מזעיק עזרה בזמן.' },
-    need: (n) => `כלי שמירה, או חִיּוּת ${n}`, tip: 'מאזין יער, רחפן או מצלמה יכולים לשמור – או יער מלא חִיּוּת.' },
-  road: { ic: 'road', kind: 'watchThreads', name: { amazon: 'כביש חדש', grove: 'כביש חדש' },
-    story: { amazon: 'מתכננים כביש ליד היער. כשרואים כמה קשרים יש בו – משנים את התוכנית.', grove: 'מתכננים כביש ליד החורש. כשרואים כמה קשרים יש בו – משנים את התוכנית.' },
-    need: (n) => `כלי שמירה, או ${n} חוטי זהב`, tip: 'כביש בתכנון. כלי שמירה או הרבה חוטי זהב ישכנעו לסלול אותו במקום אחר.' },
-  treefall: { ic: 'fall', kind: 'mid', name: { amazon: 'עץ ענק נפל', grove: 'עץ זקן נפל' },
-    story: { amazon: 'עץ זקן נפל ופתח חור בחופה. מי שבקומת הביניים יכול לגדול ולמלא אותו.', grove: 'עץ זקן נפל ופתח חור בחורש. מי שבקומת הביניים יכול לגדול ולמלא אותו.' },
-    need: (n) => `${n === 1 ? 'קלף אחד' : n + ' קלפים'} בקומת הביניים`, tip: 'עץ זקן מתנדנד... קלפים בקומת הביניים יעזרו למלא את החור.' },
-  rain: { ic: 'rain', good: true, name: { amazon: 'שנה גשומה', grove: 'שנה גשומה' },
-    story: { amazon: 'גשם טוב ונעים. היער מקבל 2 חִיּוּת!', grove: 'גשמי ברכה בזמן. החורש מקבל 2 חִיּוּת!' }, need: () => 'מתנה: 2 חִיּוּת', tip: 'אני מרגיש ריח של גשם טוב...' },
-  bloom: { ic: 'flower', good: true, name: { amazon: 'פריחה', grove: 'פריחה' },
-    story: { amazon: 'היער פורח! שולפים 2 קלפים.', grove: 'החורש פורח! שולפים 2 קלפים.' }, need: () => 'מתנה: 2 קלפים', tip: 'הפרחים עומדים להיפתח!' },
+  hunters: { ic: 'eye', kind: 'shelter', name: { amazon: '', grove: '', reef: 'להקת ציידים' },
+    story: { amazon: '', grove: '', reef: 'דקרים וזהרונים יצאו לצוד. דגים קטנים מסתתרים בין ענפי האלמוגים ובשושנות הים.' },
+    need: (n) => `מחסה ${n} ומעלה`, tip: '', rtip: 'ציידים מתקרבים! אלמוגים ושושנות ים נותנים מחסה לדגים הקטנים.' },
+  clouds: { ic: 'cloud', kind: 'light', name: { amazon: 'עננים כבדים', grove: 'חורף קר ומעונן', reef: 'מים עכורים' },
+    story: { amazon: 'שבועות של עננים מסתירים את השמש.', grove: 'ימים קרים ואפורים, מעט שמש.', reef: 'רוח חזקה העלתה חול מהקרקעית, והמים נעשו עכורים. מעט אור מגיע לשונית.' }, need: (n) => `אור ${n} ומעלה`,
+    rtip: 'בקרוב המים יהיו עכורים. יצורים שאוהבים אור יעזרו!', tip: 'בקרוב יהיו עננים. צמחים ויצורים שאוהבים אור יעזרו!' },
+  heat: { ic: 'heat', kind: 'canopy', name: { amazon: 'חום כבד', grove: 'חום כבד', reef: 'גל חום בים' },
+    story: { amazon: 'שמש חזקה במיוחד. עצי החופה נותנים צל לכולם.', grove: 'שרב חם! עצי החורש נותנים צל לכולם.', reef: 'המים התחממו. אלמוגי אילת עמידים לחום, ושונית עם הרבה אלמוגים במים הרדודים מחזיקה מעמד.' }, need: (n, b) => (b === 'reef' ? `${n === 1 ? 'אלמוג אחד' : n + ' אלמוגים'} במים הרדודים` : `${n === 1 ? 'צמח אחד' : n + ' צמחים'} בחופה`),
+    rtip: 'גל חום בדרך. אלמוגים במים הרדודים יעזרו לשונית.', tip: 'חם מאוד בדרך. צמח בחופה ייתן צל לכל היער.' },
+  storm: { ic: 'wind', kind: 'threads', name: { amazon: 'סערה חזקה', grove: 'שריפה קטנה בחורש', reef: 'סערה בים' },
+    story: { amazon: 'רוח חזקה מטלטלת את היער. יער עם הרבה קשרים מתאושש מהר.', grove: 'אש קטנה בקצה החורש. כשיש הרבה קשרים – החורש מתחדש מהר.', reef: 'גלים גבוהים שוברים ענפים של אלמוגים. שונית עם הרבה קשרים מתאוששת מהר.' },
+    need: (n) => `${n === 1 ? 'חוט זהב אחד' : n + ' חוטי זהב'}`, rtip: 'כדאי לחבר עוד חוטי זהב. הם יעזרו לשונית להתאושש.', tip: 'כדאי לחבר עוד חוטי זהב – הם יעזרו ליער להתאושש.' },
+  flood: { ic: 'rain', kind: 'floor', name: { amazon: 'הנהר עלה על גדותיו', grove: 'גשם זלעפות', reef: 'שיטפון מהוואדי' },
+    story: { amazon: 'הרבה מים זורמים בבת אחת. שורשים בקרקע מחזיקים את האדמה.', grove: 'מבול של גשם! שורשים בקרקע מחזיקים את האדמה.', reef: 'שיטפון ירד מההרים והביא בוץ לים. עשב הים מחזיק את החול, והספוגים מסננים את המים.' },
+    need: (n, b) => (b === 'reef' ? `${n === 1 ? 'קלף אחד' : n + ' קלפים'} של עשב ים, אצות או ספוג בקרקעית` : `${n === 1 ? 'צמח אחד' : n + ' צמחים'} בקרקע`), rtip: 'שיטפון בדרך. עשב ים, אצות או ספוג בקרקעית יעזרו.', tip: 'הרבה מים בדרך. צמח בקומת הקרקע יחזיק את האדמה.' },
+  logging: { ic: 'stump', ric: 'anchor', kind: 'watch', name: { amazon: 'עצים נכרתו', grove: 'עצים נכרתו', reef: 'עוגן על השונית' },
+    story: { amazon: 'בקצה היער כורתים עצים. כלי שמירה מזעיק עזרה בזמן.', grove: 'בקצה החורש כורתים עצים. כלי שמירה מזעיק עזרה בזמן.', reef: 'סירה רוצה להטיל עוגן על האלמוגים. כלי שמירה מכוון אותה למקום אחר.' },
+    need: (n) => `כלי שמירה, או חִיּוּת ${n}`, rtip: 'מצוף עגינה, רובוט צולל או מצלמה יכולים לשמור. גם שונית מלאה חִיּוּת מחזיקה מעמד.', tip: 'מאזין יער, רחפן או מצלמה יכולים לשמור – או יער מלא חִיּוּת.' },
+  road: { ic: 'road', kind: 'watchThreads', name: { amazon: 'כביש חדש', grove: 'כביש חדש', reef: 'מזח חדש' },
+    story: { amazon: 'מתכננים כביש ליד היער. כשרואים כמה קשרים יש בו – משנים את התוכנית.', grove: 'מתכננים כביש ליד החורש. כשרואים כמה קשרים יש בו – משנים את התוכנית.', reef: 'מתכננים מזח חדש ליד השונית. כשרואים כמה קשרים יש בה, בונים אותו במקום אחר.' },
+    need: (n) => `כלי שמירה, או ${n} חוטי זהב`, rtip: 'מזח בתכנון. כלי שמירה או הרבה חוטי זהב ישכנעו לבנות אותו במקום אחר.', tip: 'כביש בתכנון. כלי שמירה או הרבה חוטי זהב ישכנעו לסלול אותו במקום אחר.' },
+  treefall: { ic: 'fall', kind: 'mid', name: { amazon: 'עץ ענק נפל', grove: 'עץ זקן נפל', reef: 'אלמוג גדול נשבר' },
+    story: { amazon: 'עץ זקן נפל ופתח חור בחופה. מי שבקומת הביניים יכול לגדול ולמלא אותו.', grove: 'עץ זקן נפל ופתח חור בחורש. מי שבקומת הביניים יכול לגדול ולמלא אותו.', reef: 'אלמוג שולחן ישן נשבר והשאיר מקום פנוי. מי שבמדרון יכול לגדול ולמלא אותו.' },
+    need: (n, b) => `${n === 1 ? 'קלף אחד' : n + ' קלפים'} ${b === 'reef' ? 'במדרון' : 'בקומת הביניים'}`, rtip: 'אלמוג ישן נסדק... קלפים במדרון יעזרו למלא את המקום.', tip: 'עץ זקן מתנדנד... קלפים בקומת הביניים יעזרו למלא את החור.' },
+  rain: { ic: 'rain', ric: 'drop', good: true, name: { amazon: 'שנה גשומה', grove: 'שנה גשומה', reef: 'ים שקט' },
+    story: { amazon: 'גשם טוב ונעים. היער מקבל 2 חִיּוּת!', grove: 'גשמי ברכה בזמן. החורש מקבל 2 חִיּוּת!', reef: 'ים שקט ומים צלולים. השונית מקבלת 2 חִיּוּת!' }, need: () => 'מתנה: 2 חִיּוּת', rtip: 'הים נרגע, המים נעשים צלולים...', tip: 'אני מרגיש ריח של גשם טוב...' },
+  bloom: { ic: 'flower', good: true, name: { amazon: 'פריחה', grove: 'פריחה', reef: 'לילה של הטלה' },
+    story: { amazon: 'היער פורח! שולפים 2 קלפים.', grove: 'החורש פורח! שולפים 2 קלפים.', reef: 'בלילה אחד בקיץ האלמוגים משחררים ביצים קטנות למים. שולפים 2 קלפים.' }, need: () => 'מתנה: 2 קלפים', rtip: 'הלילה האלמוגים יטילו ביצים!', tip: 'הפרחים עומדים להיפתח!' },
 };
 const CHALLENGES = ['drought', 'clouds', 'heat', 'storm', 'flood', 'logging', 'road', 'treefall'];
+// in the sea there is always water: no drought at the reef
+const challengesFor = (b) => (b === 'reef' ? CHALLENGES.map((id) => (id === 'drought' ? 'hunters' : id)) : CHALLENGES);
 
 /* ───────────────────────────── tools */
 const TOOL_FX = {
   watergen: '\u2066+4\u2069 מים לאירוע הבא', weather: 'מגלה את האירוע הבא', drone: 'שולף 2 קלפים ושומר על היער',
   seeddrone: 'מחזיר צמח נובל', rescue: 'מחזיר בעל חיים נובל', listener: 'שומר מכריתה ומכביש',
   nestbox: 'חוטי ציפורים שווים פי 2', insecthotel: 'חוטי חרקים שווים פי 2', camera: 'מגלה 3 אירועים ושומרת',
+  rov: 'שולף 2 קלפים ושומר על השונית', uwcam: 'מגלה 3 אירועים ושומרת', sensor: 'מגלה את האירוע הבא',
+  nursery: 'מחזירה אלמוג או צמח נובל', reefball: 'חוטי דגים שווים פי 2', buoy: 'שומר מעוגן וממזח',
 };
 
 /* ───────────────────────────── CSS */
@@ -149,7 +171,7 @@ const CSS = `
 .kf-phead h1 .wl-ic{width:.9em;height:.9em;color:var(--leaf)}
 .kf-phead p{margin-top:.4em;font-family:var(--serif);font-size:1.15em;color:#e2dcbd}
 .kf-biomes{display:flex;gap:1.4em;justify-content:center}
-.kf-bt{width:min(21em,40vw);border-radius:20px;padding:.8em 1em .9em;display:flex;flex-direction:column;align-items:center;gap:.4em;border:3px solid transparent!important;transition:transform .15s,border-color .2s}
+.kf-bt{width:min(19em,30vw);border-radius:20px;padding:.8em 1em .9em;display:flex;flex-direction:column;align-items:center;gap:.4em;border:3px solid transparent!important;transition:transform .15s,border-color .2s}
 .kf-bt:hover{transform:translateY(-3px)}
 .kf-bt.on{border-color:var(--leaf2)!important;box-shadow:0 0 0 4px rgba(143,208,103,.5),var(--shadow)}
 .kf-bt h2{font-family:var(--serif);font-size:1.9em;line-height:1;color:#1f2c1a}
@@ -396,10 +418,14 @@ const CSS = `
 @keyframes kf-blink{0%,94%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
 @keyframes kf-up{0%{opacity:0;transform:translate(-50%,0) scale(.6)}20%{opacity:1;transform:translate(-50%,-.4em) scale(1.1)}100%{opacity:0;transform:translate(-50%,-2.6em) scale(1)}}
 @media (max-height:820px){.kf-side.resolved .kf-evtop{display:none}}
+@media (max-height:520px){.kf-side{gap:.3em}.kf-evtop .wl-flip{--cw:min(4.8em,11vh)}.kf-evf .wl-ic{width:3.4em;height:3.4em}.kf-info{padding:.4em .6em;min-height:3.4em}.kf-info h3{font-size:1.05em}.kf-info p{font-size:.84em;line-height:1.3}
+  .kf-owlsvg{width:2.6em!important;height:2.9em!important}.kf-bub{margin-bottom:.2em;padding:.35em .6em;font-size:.82em;max-height:4.6em;overflow-y:auto;scrollbar-width:thin}}
 @media (max-height:720px){.kf-phead h1{font-size:2.1em}.kf-hsteps p{font-size:.9em}.kf-hp{height:5.6em}.kf-side{width:14.5em}.kf-owlsvg{width:3.8em;height:4.2em}}
 /* round 2: gentle colour – each forest card in its own paper */
 .kf-bt[data-b="amazon"]{--paper:#dbe5d6}.kf-bt[data-b="amazon"] h2{color:#1f5f58}
 .kf-bt[data-b="grove"]{--paper:#ece0c4}.kf-bt[data-b="grove"] h2{color:#55601f}
+.kf-bt[data-b="reef"]{--paper:#d3e7ec}.kf-bt[data-b="reef"] h2{color:#1d6680}
+.kf-bt[data-b="reef"].on{border-color:#2a8ac0!important;box-shadow:0 0 0 4px rgba(64,160,210,.45),var(--shadow)}
 .kf-bt[data-b="amazon"].on{border-color:#3f8f84!important;box-shadow:0 0 0 4px rgba(79,163,154,.45),var(--shadow)}
 .kf-bt[data-b="grove"].on{border-color:#b07a12!important;box-shadow:0 0 0 4px rgba(236,199,126,.55),var(--shadow)}
 .kf-goalbox{--paper:#ece6d0}
@@ -428,11 +454,21 @@ export function mountKeepForest(root, ctx, opts = {}) {
   const $ = (s) => root.querySelector(s);
   const later = (fn, ms) => ctx.later(() => { if (alive) fn(); }, ms);
   const C = (ref) => ctx.CARD.get(ref.id);
+  // words that follow the place: the forest (יער, masculine) or the reef (שונית, feminine)
+  const reef = () => (S ? S.biome : biome) === 'reef';
+  const Y = (f, r) => (reef() ? r : f);
+  const ROWN = () => (reef() ? ROWS_REEF : ROWS);
+  const ROWSH = () => (reef() ? ROW_SHORT_REEF : ROW_SHORT);
+  const icOf = (D) => I[(reef() && D.ric) || D.ic];
+  const tipOf = (id) => (reef() && EV[id].rtip) || EV[id].tip;
+  const needOf = (ev) => EV[ev.id].need(ev.need, S ? S.biome : biome);
+  // the 'canopy' of the reef is its corals in the shallow water
+  const canopyCard = (c) => !c.sp.animal && (!reef() || c.sp.kind === 'coral');
 
   /* ── deck building */
   function usable(b) {
     const owned = ctx.owned() || {};
-    const all = ctx.CARDS.filter((c) => owned[c.id] > 0 && (c.biome === b || c.type === 'tool'));
+    const all = ctx.CARDS.filter((c) => owned[c.id] > 0 && (c.biome === b || (c.type === 'tool' && toolOk(c, b))));
     if (all.length <= DECK_MAX) return all;
     // trim: up to 4 tools + the species with the most links to the rest of the collection (a little random each run)
     const L = linksFor(ctx, b);
@@ -440,7 +476,7 @@ export function mountKeepForest(root, ctx, opts = {}) {
     const tools = shuffle(all.filter((c) => c.type === 'tool')).slice(0, 4);
     const sc = new Map(sp.map((c) => [c, sp.reduce((s, d) => s + (d !== c && L.get(c.sp.id, d.sp.id) ? 1 : 0), 0) + Math.random() * 3]));
     const keep = [];
-    for (let r = 0; r < 3; r++) keep.push(...sp.filter((c) => !c.sp.animal && LAYER_ROW[c.sp.layer] === r).sort((x, y) => sc.get(y) - sc.get(x)).slice(0, LAYER_NEED[r]));
+    for (let r = 0; r < 3; r++) keep.push(...sp.filter((c) => !c.sp.animal && layerRow(c.sp) === r).sort((x, y) => sc.get(y) - sc.get(x)).slice(0, LAYER_NEED[r]));
     const rest = sp.filter((c) => !keep.includes(c)).sort((x, y) => sc.get(y) - sc.get(x));
     while (keep.length < DECK_MAX - tools.length && rest.length) keep.push(rest.shift());
     return [...keep, ...tools];
@@ -450,7 +486,7 @@ export function mountKeepForest(root, ctx, opts = {}) {
     const have = new Set(mine.map((c) => c.id));
     const out = [];
     const tools = mine.filter((c) => c.type === 'tool').length;
-    if (!layersOnly) for (const id of ['tool:watergen', 'tool:listener', 'tool:seeddrone']) {
+    if (!layersOnly) for (const id of (b === 'reef' ? ['tool:buoy', 'tool:nursery', 'tool:rov'] : ['tool:watergen', 'tool:listener', 'tool:seeddrone'])) {
       if (out.length >= Math.max(0, Math.min(n, 2 - tools))) break;
       if (!have.has(id) && ctx.CARD.get(id)) { out.push(ctx.CARD.get(id)); have.add(id); }
     }
@@ -461,8 +497,8 @@ export function mountKeepForest(root, ctx, opts = {}) {
     // make sure every forest layer has at least a plant or two
     const need = LAYER_NEED;
     for (let r = 0; r < 3; r++) {
-      while (out.length < n && inDeck().filter((c) => !c.sp.animal && LAYER_ROW[c.sp.layer] === r).length < need[r]) {
-        const list = cand().filter((c) => !c.sp.animal && LAYER_ROW[c.sp.layer] === r).sort((x, y) => score(y) - score(x));
+      while (out.length < n && inDeck().filter((c) => !c.sp.animal && layerRow(c.sp) === r).length < need[r]) {
+        const list = cand().filter((c) => !c.sp.animal && layerRow(c.sp) === r).sort((x, y) => score(y) - score(x));
         if (!list.length) break; take(list[0]);
       }
     }
@@ -475,7 +511,7 @@ export function mountKeepForest(root, ctx, opts = {}) {
   function biomeInfo(b) {
     const mine = usable(b);
     // a deck needs plants in every layer, or whole events can't be met: borrow the missing ones
-    const deficit = [0, 1, 2].reduce((s, r) => s + Math.max(0, LAYER_NEED[r] - mine.filter((c) => c.type === 'species' && !c.sp.animal && LAYER_ROW[c.sp.layer] === r).length), 0);
+    const deficit = [0, 1, 2].reduce((s, r) => s + Math.max(0, LAYER_NEED[r] - mine.filter((c) => c.type === 'species' && !c.sp.animal && layerRow(c.sp) === r).length), 0);
     const small = mine.length < MIN_DECK;
     const add = small ? Math.max(TOPUP - mine.length, deficit) : deficit;
     return { mine, add, layersOnly: !small };
@@ -485,14 +521,14 @@ export function mountKeepForest(root, ctx, opts = {}) {
   function buildEvents(b) {
     const N = kids ? 5 : 8;
     const nGood = kids ? 1 : 2;
-    let ch = shuffle(CHALLENGES).slice(0, N - nGood);
-    const firstI = ch.findIndex((id) => ['drought', 'clouds', 'heat'].includes(id));
+    let ch = shuffle(challengesFor(b)).slice(0, N - nGood);
+    const firstI = ch.findIndex((id) => ['drought', 'hunters', 'clouds', 'heat'].includes(id));
     if (firstI > 0) { const [f] = ch.splice(firstI, 1); ch.unshift(f); }
     const goods = shuffle(['rain', 'bloom']).slice(0, nGood);
     const list = ch.slice();
     if (kids) list.splice(2, 0, goods[0]); else { list.splice(2, 0, goods[0]); list.splice(5, 0, goods[1]); }
     const sp = ctx.CARDS.filter((c) => c.biome === b && c.type === 'species');
-    const avgW = sp.reduce((s, c) => s + c.stats.water, 0) / sp.length;
+    const avgW = sp.reduce((s, c) => s + mid(c), 0) / sp.length;
     const avgL = sp.reduce((s, c) => s + c.stats.light, 0) / sp.length;
     return list.map((id, i) => ({ id, i, need: reqOf(id, i, avgW, avgL) }));
   }
@@ -501,6 +537,7 @@ export function mountKeepForest(root, ctx, opts = {}) {
     const k = kids ? 0.6 : 1;
     switch (id) {
       case 'drought': return Math.max(2, Math.round(E * avgW * 0.7 * k));
+      case 'hunters': return Math.max(2, Math.round(E * avgW * 0.7 * k));
       case 'clouds': return Math.max(2, Math.round(E * avgL * 0.7 * k));
       case 'heat': return kids ? 1 : (i < 3 ? 1 : 2);
       case 'flood': return kids ? 1 : (i < 4 ? 1 : 2);
@@ -524,7 +561,7 @@ export function mountKeepForest(root, ctx, opts = {}) {
     }
     S = { biome: b, L: linksFor(ctx, b), deck, discard: [], used: [], hand: [], board: Array(9).fill(null), turn: 0,
       events: buildEvents(b), evIdx: 0, results: [], revealed: new Set(), bonus: 0, watch: false, waterBoost: 0, nest: false, insect: false,
-      phase: 'play', cur: null, lost: null, swaps: 0, keyUsed: new Set(), keyIntro: new Set(), rareDone: new Set(), keySaves: 0, rareBonus: 0, stars: 0, borrowed: refs.filter((r) => r.borrowed).length, owned: mine.length, says: null };
+      fish: false, phase: 'play', cur: null, lost: null, swaps: 0, keyUsed: new Set(), keyIntro: new Set(), rareDone: new Set(), keySaves: 0, rareBonus: 0, stars: 0, borrowed: refs.filter((r) => r.borrowed).length, owned: mine.length, says: null };
     seenThreads = new Set();
     draw(HAND);
   }
@@ -537,7 +574,7 @@ export function mountKeepForest(root, ctx, opts = {}) {
   }
 
   /* ── board helpers */
-  const rowOfCard = (c) => (c && c.type === 'species' ? (LAYER_ROW[c.sp.layer] ?? 2) : -1);
+  const rowOfCard = (c) => (c && c.type === 'species' ? (layerRow(c.sp) ?? 2) : -1);
   const slotRow = (k) => Math.floor(k / 3);
   const healthy = (k) => S.board[k] && !S.board[k].wilted;
   const free = (k) => !S.board[k] || S.board[k].wilted;
@@ -559,13 +596,14 @@ export function mountKeepForest(root, ctx, opts = {}) {
       let w = 1;
       if (S.nest && (BIRDS.has(ca.sp.id) || BIRDS.has(cb.sp.id))) w++;
       if (S.insect && (INSECTS.has(ca.sp.id) || INSECTS.has(cb.sp.id))) w++;
+      if (S.fish && (FISH.has(ca.sp.id) || FISH.has(cb.sp.id))) w++;
       out.push({ i, j, e, w, key: a.ref.uid + '-' + b.ref.uid });
     }
     return out;
   }
   function totals(board = S.board) {
     let light = 0, water = 0;
-    board.forEach((b) => { if (b && !b.wilted) { const c = C(b.ref); light += c.stats.light; water += c.stats.water; } });
+    board.forEach((b) => { if (b && !b.wilted) { const c = C(b.ref); light += c.stats.light; water += mid(c); } });
     const th = threadsOf(board);
     const tw = th.reduce((s, t) => s + t.w, 0);
     return { light, water, threads: th.length, tw, life: Math.max(0, tw + S.bonus), th };
@@ -588,6 +626,7 @@ export function mountKeepForest(root, ctx, opts = {}) {
   }
   const plantsIn = (r) => rowSlots(r).filter((k) => healthy(k) && !C(S.board[k].ref).sp.animal).length;
   const cardsIn = (r) => rowSlots(r).filter(healthy).length;
+  const canopyIn = () => rowSlots(0).filter((k) => healthy(k) && canopyCard(C(S.board[k].ref))).length;
   const evName = (ev) => EV[ev.id].name[S.biome];
   const turnsToEvent = () => 2 - (S.turn % 2);
 
@@ -596,9 +635,10 @@ export function mountKeepForest(root, ctx, opts = {}) {
     switch (EV[ev.id].kind) {
       case 'water': { const have = T.water + S.waterBoost; return { ok: have >= n, have: `מים: ${have}` }; }
       case 'light': return { ok: T.light >= n, have: `אור: ${T.light}` };
-      case 'canopy': { const h = plantsIn(0); return { ok: h >= n, have: `צמחים בחופה: ${h}` }; }
-      case 'floor': { const h = plantsIn(2); return { ok: h >= n, have: `צמחים בקרקע: ${h}` }; }
-      case 'mid': { const h = cardsIn(1); return { ok: h >= n, have: `קלפים בביניים: ${h}` }; }
+      case 'shelter': return { ok: T.water >= n, have: `מחסה: ${T.water}` };
+      case 'canopy': { const h = canopyIn(); return { ok: h >= n, have: `${Y('צמחים בחופה', 'אלמוגים במים הרדודים')}: ${h}` }; }
+      case 'floor': { const h = plantsIn(2); return { ok: h >= n, have: `${Y('צמחים בקרקע', 'בקרקעית')}: ${h}` }; }
+      case 'mid': { const h = cardsIn(1); return { ok: h >= n, have: `${Y('קלפים בביניים', 'קלפים במדרון')}: ${h}` }; }
       case 'threads': return { ok: T.threads >= n, have: `חוטי זהב: ${T.threads}` };
       case 'watch': return S.watch ? { ok: true, have: 'כלי שמירה פעיל', guard: true } : { ok: T.life >= n, have: `חִיּוּת: ${T.life}` };
       case 'watchThreads': return S.watch ? { ok: true, have: 'כלי שמירה פעיל', guard: true } : { ok: T.threads >= n, have: `חוטי זהב: ${T.threads}` };
@@ -609,7 +649,7 @@ export function mountKeepForest(root, ctx, opts = {}) {
     let best = -1, bs = Infinity;
     for (let k = 0; k < 9; k++) {
       if (!healthy(k) || (rows && !rows.includes(slotRow(k)))) continue;
-      const c = C(S.board[k].ref); const s = c.stats.light + c.stats.water + c.stats.links + Math.random() * 0.1;
+      const c = C(S.board[k].ref); const s = c.stats.light + mid(c) + c.stats.links + Math.random() * 0.1;
       if (s < bs) { bs = s; best = k; }
     }
     return best;
@@ -637,28 +677,29 @@ export function mountKeepForest(root, ctx, opts = {}) {
       const gain = fresh.reduce((s, t) => s + t.w, 0) + rb;
       msg('ok', `${I.thread}<span>${esc(fresh.slice(0, 2).map((t) => t.e.text).join(' '))} <b>\u2066+${gain}\u2069 חִיּוּת</b>${rb ? ' <span class="kf-rbm">(כולל <bdi dir="ltr">+1</bdi> לקלף נדיר)</span>' : ''}</span>`);
       const o = fresh[0]; const other = C(S.board[o.i === k ? o.j : o.i].ref);
-      say(`יפה! <b>${esc(dn(c))}</b> ו<b>${esc(dn(other))}</b> ${genderOf(c.sp.id)[0] === 'f' && genderOf(other.sp.id)[0] === 'f' ? 'קשורות' : 'קשורים'} – היער מתחזק.`);
+      say(`יפה! <b>${esc(dn(c))}</b> ו<b>${esc(dn(other))}</b> ${genderOf(c.sp.id)[0] === 'f' && genderOf(other.sp.id)[0] === 'f' ? 'קשורות' : 'קשורים'} – ${Y('היער מתחזק', 'השונית מתחזקת')}.`);
     } else {
       ctx.sfx('click');
-      msg('tip', `${I.life}<span>${esc(dn(c))} ${c.sp.animal ? gw(c.sp.id, 'הגיע', 'הגיעה', 'הגיעו', 'הגיעו') + ' ליער' : gw(c.sp.id, 'נשתל', 'נשתלה', 'נשתלו', 'נשתלו') + ' ביער'}. ${old && !old.wilted ? 'הקלף הקודם חזר לחפיסה.' : ''}</span>`);
-      say(old && old.wilted ? 'הקלף הנובל פינה מקום לחדש. כל הכבוד!' : 'גם זה טוב. נסו למצוא קלף שקשור למי שכבר ביער – כך נמתח חוט זהב.');
+      msg('tip', `${I.life}<span>${esc(dn(c))} ${c.sp.animal ? gw(c.sp.id, 'הגיע', 'הגיעה', 'הגיעו', 'הגיעו') + Y(' ליער', ' לשונית') : reef() ? gw(c.sp.id, 'גדל', 'גדלה', 'גדלים', 'גדלות') + ' בשונית' : gw(c.sp.id, 'נשתל', 'נשתלה', 'נשתלו', 'נשתלו') + ' ביער'}. ${old && !old.wilted ? 'הקלף הקודם חזר לחפיסה.' : ''}</span>`);
+      say(old && old.wilted ? 'הקלף הנובל פינה מקום לחדש. כל הכבוד!' : `גם זה טוב. נסו למצוא קלף שקשור למי שכבר ${Y('ביער', 'בשונית')} – כך נמתח חוט זהב.`);
     }
     // first time a keystone comes to the forest: the owl tells what it can do
     const intro = isKey(ref) && !S.keyIntro.has(ref.uid);
     if (intro) S.keyIntro.add(ref.uid);
     endTurn(fresh);
-    if (intro && S.phase === 'play' && keyCharged(ref)) say(`<small>${I.key} מין מפתח!</small><b>${esc(dn(c))}</b> ${gw(c.sp.id, 'הוא מין מפתח: הרבה יצורים צריכים אותו', 'היא מין מפתח: הרבה יצורים צריכים אותה', 'הם מין מפתח: הרבה יצורים צריכים אותם', 'הן מין מפתח: הרבה יצורים צריכים אותן')}. אם היער לא יהיה מוכן לאירוע – ${gw(c.sp.id, 'הוא ישמור', 'היא תשמור', 'הם ישמרו', 'הן ישמרו')} עליו, פעם אחת.`);
+    if (intro && S.phase === 'play' && keyCharged(ref)) say(`<small>${I.key} מין מפתח!</small><b>${esc(dn(c))}</b> ${gw(c.sp.id, 'הוא מין מפתח: הרבה יצורים צריכים אותו', 'היא מין מפתח: הרבה יצורים צריכים אותה', 'הם מין מפתח: הרבה יצורים צריכים אותם', 'הן מין מפתח: הרבה יצורים צריכים אותן')}. ${Y('אם היער לא יהיה מוכן', 'אם השונית לא תהיה מוכנה')} לאירוע – ${gw(c.sp.id, 'הוא ישמור', 'היא תשמור', 'הם ישמרו', 'הן ישמרו')} ${Y('עליו', 'עליה')}, פעם אחת.`);
     return true;
   }
   function canUse(ref) {
     const c = C(ref); if (!c || c.type !== 'tool') return { ok: false };
     const t = c.tool.id;
     const wilt = (animal) => S.board.some((b) => b && b.wilted && !!C(b.ref).sp.animal === animal);
-    if (t === 'seeddrone' && !wilt(false)) return { ok: false, why: 'אין עכשיו צמח נובל' };
+    if ((t === 'seeddrone' || t === 'nursery') && !wilt(false)) return { ok: false, why: 'אין עכשיו צמח נובל' };
     if (t === 'rescue' && !wilt(true)) return { ok: false, why: 'אין עכשיו בעל חיים נובל' };
-    if ((t === 'weather' || t === 'camera') && S.evIdx >= S.events.length) return { ok: false, why: 'אין עוד אירועים' };
+    if ((t === 'weather' || t === 'camera' || t === 'sensor' || t === 'uwcam') && S.evIdx >= S.events.length) return { ok: false, why: 'אין עוד אירועים' };
     if (t === 'nestbox' && S.nest) return { ok: false, why: 'תיבת קינון כבר פועלת' };
     if (t === 'insecthotel' && S.insect) return { ok: false, why: 'מלון חרקים כבר פועל' };
+    if (t === 'reefball' && S.fish) return { ok: false, why: 'שונית מלאכותית כבר מונחת' };
     return { ok: true };
   }
   function useTool(hi) {
@@ -674,7 +715,13 @@ export function mountKeepForest(root, ctx, opts = {}) {
       return '';
     };
     if (t === 'watergen') { S.waterBoost += 4; text = 'המחולל אוסף מים מהאוויר: \u2066+4\u2069 מים לאירוע הבא.'; }
-    else if (t === 'weather') { S.revealed.add(S.evIdx); const ev = S.events[S.evIdx]; text = `תחנת מזג האוויר מזהירה: ${evName(ev)}! ${EV[ev.id].good ? '' : 'צריך: ' + EV[ev.id].need(ev.need)}`; }
+    else if (t === 'weather') { S.revealed.add(S.evIdx); const ev = S.events[S.evIdx]; text = `תחנת מזג האוויר מזהירה: ${evName(ev)}! ${EV[ev.id].good ? '' : 'צריך: ' + needOf(ev)}`; }
+    else if (t === 'sensor') { S.revealed.add(S.evIdx); const ev = S.events[S.evIdx]; text = `מצוף החיישנים מזהיר: ${evName(ev)}! ${EV[ev.id].good ? '' : 'צריך: ' + needOf(ev)}`; }
+    else if (t === 'uwcam') { for (let i = S.evIdx; i < Math.min(S.events.length, S.evIdx + 3); i++) S.revealed.add(i); S.watch = true; text = 'המצלמה התת־ימית מגלה מה מחכה לשונית, ושומרת עליה.'; }
+    else if (t === 'rov') { draw(2); S.watch = true; text = 'הרובוט הצולל שוחה לאורך השונית: שלפתם 2 קלפים, והוא שומר עליה.'; }
+    else if (t === 'buoy') { S.watch = true; text = 'מצוף העגינה במקום: סירות ייקשרו אליו ולא יטילו עוגן על האלמוגים.'; }
+    else if (t === 'nursery') { text = `משתלת האלמוגים החזירה לחיים את ${revive(false)}!`; }
+    else if (t === 'reefball') { S.fish = true; text = 'שונית מלאכותית הונחה על החול: מעכשיו חוטים של דגים שווים פי 2.'; }
     else if (t === 'camera') { for (let i = S.evIdx; i < Math.min(S.events.length, S.evIdx + 3); i++) S.revealed.add(i); S.watch = true; text = 'המצלמה מגלה מה מחכה ליער, ושומרת עליו.'; }
     else if (t === 'drone') { draw(2); S.watch = true; text = 'הרחפן טס מעל היער: שלפתם 2 קלפים, והוא שומר על היער.'; }
     else if (t === 'listener') { S.watch = true; text = 'מאזין היער מקשיב. אם יבואו לכרות או לסלול כביש – הוא יזעיק עזרה.'; }
@@ -684,7 +731,7 @@ export function mountKeepForest(root, ctx, opts = {}) {
     else if (t === 'insecthotel') { S.insect = true; text = 'מלון חרקים נפתח: מעכשיו חוטים של חרקים שווים פי 2.'; }
     ctx.sfx('discover');
     msg('ok', `${I.check}<span>${esc(text)}</span>`);
-    say('כלי הוא עזרה מהירה – אחריו עדיין אפשר לשים קלף ביער.');
+    say(`כלי הוא עזרה מהירה – אחריו עדיין אפשר לשים קלף ${Y('ביער', 'בשונית')}.`);
     render();
     return true;
   }
@@ -706,11 +753,11 @@ export function mountKeepForest(root, ctx, opts = {}) {
     const ev = S.events[S.evIdx];
     if (turnsToEvent() === 1 || kids) {
       const known = S.revealed.has(S.evIdx);
-      if (turnsToEvent() === 1) say(`<small>${known ? 'אני יודע מה בא:' : 'הרוח לוחשת לי...'}</small>${esc(EV[ev.id].tip)}`);
+      if (turnsToEvent() === 1) say(`<small>${known ? 'אני יודע מה בא:' : Y('הרוח לוחשת לי...', 'הגלים לוחשים לי...')}</small>${esc(tipOf(ev.id))}`);
     }
     if (kids) { const h = bestMove(); if (h && turnsToEvent() !== 1) say(hintText(h)); }
     const left = S.events.length - S.evIdx, t1 = thresholds()[0], life = totals().life;
-    if (left <= 2 && life < t1) say(`<small>שימו לב!</small>ליער יש עכשיו ${life} חִיּוּת. כדי שיחזיק מעמד צריך לפחות <b>${t1}</b> בסוף – חברו חוטי זהב!`);
+    if (left <= 2 && life < t1) say(`<small>שימו לב!</small>${Y('ליער', 'לשונית')} יש עכשיו ${life} חִיּוּת. כדי ${Y('שיחזיק', 'שתחזיק')} מעמד צריך לפחות <b>${t1}</b> בסוף – חברו חוטי זהב!`);
   }
   function startEvent(fresh) {
     S.phase = 'event';
@@ -730,35 +777,35 @@ export function mountKeepForest(root, ctx, opts = {}) {
     const ev = S.cur.ev; const D = EV[ev.id];
     let res;
     if (D.good) {
-      if (ev.id === 'rain') { S.bonus += 2; res = { ok: true, good: true, text: 'היער שמח בגשם: \u2066+2\u2069 חִיּוּת!' }; }
-      else { draw(2); res = { ok: true, good: true, text: 'פריחה! שלפתם 2 קלפים.' }; }
+      if (ev.id === 'rain') { S.bonus += 2; res = { ok: true, good: true, text: Y('היער שמח בגשם', 'השונית שמחה במים הצלולים') + ': \u2066+2\u2069 חִיּוּת!' }; }
+      else { draw(2); res = { ok: true, good: true, text: Y('פריחה!', 'לילה של הטלה!') + ' שלפתם 2 קלפים.' }; }
     } else {
       const c = check(ev);
       if (c.ok) {
         S.bonus += 1;
         if (c.guard) S.watch = false;
-        res = { ok: true, have: c.have, text: c.guard ? 'כלי השמירה הזעיק עזרה בזמן. היער החזיק מעמד! \u2066+1\u2069 חִיּוּת' : 'היער החזיק מעמד! \u2066+1\u2069 חִיּוּת' };
+        res = { ok: true, have: c.have, text: (c.guard ? 'כלי השמירה הזעיק עזרה בזמן. ' : '') + Y('היער החזיק מעמד!', 'השונית החזיקה מעמד!') + ' \u2066+1\u2069 חִיּוּת' };
       } else if (keystone() >= 0) {
         // a keystone species holds the forest together: nothing wilts, no −1 (once per keystone card)
         const k = keystone(); const b = S.board[k]; const kc = C(b.ref);
         S.keyUsed.add(b.ref.uid); S.keySaves++; b.fx = 'key';
-        const head = `${dn(kc)} ${gw(kc.sp.id, 'הוא', 'היא', 'הם', 'הן')} מין מפתח – ${gw(kc.sp.id, 'הוא שמר', 'היא שמרה', 'הם שמרו', 'הן שמרו')} על היער!`;
-        res = { ok: true, key: k, have: c.have, head, text: `${dn(kc)} ${gw(kc.sp.id, 'שמר', 'שמרה', 'שמרו', 'שמרו')} על היער.` };
+        const head = `${dn(kc)} ${gw(kc.sp.id, 'הוא', 'היא', 'הם', 'הן')} מין מפתח – ${gw(kc.sp.id, 'הוא שמר', 'היא שמרה', 'הם שמרו', 'הן שמרו')} על ${Y('היער', 'השונית')}!`;
+        res = { ok: true, key: k, have: c.have, head, text: `${dn(kc)} ${gw(kc.sp.id, 'שמר', 'שמרה', 'שמרו', 'שמרו')} על ${Y('היער', 'השונית')}.` };
       } else {
         const k = ev.id === 'treefall' ? (weakest([0]) >= 0 ? weakest([0]) : weakest()) : weakest();
         S.bonus -= 1;
         let nm = '';
         if (k >= 0) { S.board[k].wilted = true; const wc = C(S.board[k].ref); nm = `${dn(wc)} ${gw(wc.sp.id, 'נבל', 'נבלה', 'נבלו', 'נבלו')} קצת`; }
-        res = { ok: false, have: c.have, wilted: k, text: nm ? `${nm}. \u2066−1\u2069 חִיּוּת` : 'היער עוד קטן – \u2066−1\u2069 חִיּוּת' };
+        res = { ok: false, have: c.have, wilted: k, text: nm ? `${nm}. \u2066−1\u2069 חִיּוּת` : Y('היער עוד קטן', 'השונית עוד קטנה') + ' – \u2066−1\u2069 חִיּוּת' };
       }
     }
     S.waterBoost = 0;
     S.cur.res = res;
     S.results.push(res.good ? 'gd' : res.key != null ? 'key' : res.ok ? 'ok' : 'no');
     ctx.sfx(res.ok ? 'mission' : 'click');
-    if (res.key != null) say(`<small>${I.key} מין מפתח</small>הרבה יצורים ביער צריכים אותו – לכן הוא מחזיק את כל היער.`);
-    else if (res.ok) say(res.good ? 'איזו מתנה מהטבע!' : '<b>היער החזיק מעמד!</b> כל הכבוד ששמרתם עליו.');
-    else say(res.wilted >= 0 ? `לא נורא! קלף נובל אפשר להחזיר לחיים עם <b>רחפן זריעה</b> או <b>רובוט הצלה</b> – או לשים עליו קלף חדש.` : 'לא נורא, ממשיכים לבנות.');
+    if (res.key != null) say(`<small>${I.key} מין מפתח</small>הרבה יצורים ${Y('ביער', 'בשונית')} צריכים אותו – לכן הוא מחזיק את כל ${Y('היער', 'השונית')}.`);
+    else if (res.ok) say(res.good ? 'איזו מתנה מהטבע!' : Y('<b>היער החזיק מעמד!</b> כל הכבוד ששמרתם עליו.', '<b>השונית החזיקה מעמד!</b> כל הכבוד ששמרתם עליה.'));
+    else say(res.wilted >= 0 ? `לא נורא! קלף נובל אפשר להחזיר לחיים עם <b>${Y('רחפן זריעה', 'משתלת אלמוגים')}</b> או <b>רובוט הצלה</b> – או לשים עליו קלף חדש.` : 'לא נורא, ממשיכים לבנות.');
     render();
     if (res.key != null && !quiet) {
       ctx.toast(`${I.key}<span>${esc(res.head)}</span>`);
@@ -801,10 +848,10 @@ export function mountKeepForest(root, ctx, opts = {}) {
         const nb = S.board.slice(); nb[k] = { ref, wilted: false };
         const T = totals(nb);
         const rb = rareGain(ref, T.th.filter((t) => t.i === k || t.j === k));
-        let sc = (T.tw - base.tw + rb) * 3 + (c.stats.light + c.stats.water + c.stats.links) * 0.15;
-        if (kind === 'water') sc += c.stats.water * 0.5;
+        let sc = (T.tw - base.tw + rb) * 3 + (c.stats.light + mid(c) + c.stats.links) * 0.15;
+        if (kind === 'water' || kind === 'shelter') sc += mid(c) * 0.5;
         if (kind === 'light') sc += c.stats.light * 0.5;
-        if (kind === 'canopy' && !c.sp.animal && slotRow(k) === 0 && !healthy(k)) sc += 3;
+        if (kind === 'canopy' && canopyCard(c) && slotRow(k) === 0 && !healthy(k)) sc += 3;
         if (kind === 'floor' && !c.sp.animal && slotRow(k) === 2 && !healthy(k)) sc += 3;
         if (kind === 'mid' && slotRow(k) === 1 && !healthy(k)) sc += 2.5;
         if (S.board[k] && !S.board[k].wilted) sc -= 1.5;
@@ -817,7 +864,7 @@ export function mountKeepForest(root, ctx, opts = {}) {
   }
   function hintText(h) {
     const c = C(h.ref);
-    const r = ROWS[slotRow(h.k)];
+    const r = ROWN()[slotRow(h.k)];
     if (h.link) { const o = C(S.board[h.link.i === h.k ? h.link.j : h.link.i].ref); return `נסו לשים את <b>${esc(dn(c))}</b> ב${esc(r)} – ${gw(c.sp.id, 'הוא קשור', 'היא קשורה', 'הם קשורים', 'הן קשורות')} <b>${esc(prefName('ל', o.sp.id, o.name))}</b>!`; }
     return `נסו לשים את <b>${esc(dn(c))}</b> ב${esc(r)}.`;
   }
@@ -846,7 +893,7 @@ export function mountKeepForest(root, ctx, opts = {}) {
       const t = c.tool.id;
       const soon = turnsToEvent() === 1 && nextEv;
       if (t === 'watergen' && !(soon && nextEv.id === 'drought')) continue;
-      if (t === 'listener' && S.watch) continue;
+      if ((t === 'listener' || t === 'buoy') && S.watch) continue;
       useTool(i); return true;
     }
     const m = bestMove();
@@ -862,11 +909,11 @@ export function mountKeepForest(root, ctx, opts = {}) {
   }
   function loseTip(T) {
     const fails = S.results.filter((r) => r === 'no').length, hard = S.results.filter((r) => r !== 'gd').length;
-    if (S.lost === 'wilted') return 'כשקלף נובל, שימו עליו קלף חדש – כך היער נשאר חי.';
+    if (S.lost === 'wilted') return `כשקלף נובל, שימו עליו קלף חדש – כך ${Y('היער נשאר חי', 'השונית נשארת חיה')}.`;
     if ((S.swaps || 0) >= 2) return 'לא כדאי להחליף קלף שכבר מחובר בחוט זהב – שימו קלפים חדשים במקומות ריקים.';
-    if (T.threads < 4) return 'חפשו קלפים שקשורים למי שכבר ביער – כל חוט זהב נותן חִיּוּת.';
-    if (fails * 2 >= hard) return 'הסתכלו בצד מה האירוע הבא צריך, והכינו את היער מראש.';
-    return 'נסו לחבר עוד חוטי זהב, ולהכין את היער לפני כל אירוע.';
+    if (T.threads < 4) return `חפשו קלפים שקשורים למי שכבר ${Y('ביער', 'בשונית')} – כל חוט זהב נותן חִיּוּת.`;
+    if (fails * 2 >= hard) return `הסתכלו בצד מה האירוע הבא צריך, והכינו את ${Y('היער', 'השונית')} מראש.`;
+    return `נסו לחבר עוד חוטי זהב, ולהכין את ${Y('היער', 'השונית')} לפני כל אירוע.`;
   }
   function finish() {
     S.phase = 'end';
@@ -887,30 +934,30 @@ export function mountKeepForest(root, ctx, opts = {}) {
     const held = S.results.filter((r) => r === 'ok').length, hard = S.results.filter((r) => r !== 'gd').length;
     const nextT = stars === 1 ? t2 : stars === 2 ? t3 : 0;
     const d = $('.kf-done'); if (!d) return;
-    const sum = `<div class="kf-sum"><span>${I.life} חִיּוּת ${T.life}</span><span>${I.thread} ${T.threads} חוטי זהב</span><span>${ctx.STAT_ICON.light} אור ${T.light}</span><span>${ctx.STAT_ICON.water} מים ${T.water}</span>${S.keySaves ? `<span class="kf-skey">${I.key} מין מפתח שמר ${S.keySaves === 1 ? 'פעם אחת' : S.keySaves + ' פעמים'}</span>` : ''}</div>`;
+    const sum = `<div class="kf-sum"><span>${I.life} חִיּוּת ${T.life}</span><span>${I.thread} ${T.threads} חוטי זהב</span><span>${ctx.STAT_ICON.light} אור ${T.light}</span><span>${Y(ctx.STAT_ICON.water, ctx.STAT_ICON.shelter)} ${Y('מים', 'מחסה')} ${T.water}</span>${S.keySaves ? `<span class="kf-skey">${I.key} מין מפתח שמר ${S.keySaves === 1 ? 'פעם אחת' : S.keySaves + ' פעמים'}</span>` : ''}</div>`;
     d.innerHTML = lost ? `<div class="kf-dbox paper lost">
       <div class="kf-stars">${[0, 1, 2].map(() => `<span>${I.star}</span>`).join('')}</div>
-      <h2>היער נחלש מדי – נסו שוב!</h2>
-      <p>${S.lost === 'wilted' ? 'כל הקלפים ביער נבלו, והיער לא החזיק מעמד.' : `בסוף היו ליער ${T.life} חִיּוּת. כדי שהיער יחזיק מעמד צריך לפחות ${t1}.`}</p>
+      <h2>${Y('היער נחלש', 'השונית נחלשה')} מדי – נסו שוב!</h2>
+      <p>${S.lost === 'wilted' ? Y('כל הקלפים ביער נבלו, והיער לא החזיק מעמד.', 'כל הקלפים בשונית נבלו, והשונית לא החזיקה מעמד.') : `בסוף היו ${Y('ליער', 'לשונית')} ${T.life} חִיּוּת. כדי ${Y('שהיער יחזיק', 'שהשונית תחזיק')} מעמד צריך לפחות ${t1}.`}</p>
       ${sum}
       <div class="kf-tip">${I.bulb}<span><b>טיפ:</b> ${esc(loseTip(T))}</span></div>
       <div class="kf-btns">
-        <button class="wl-btn go" data-a="again">נסו שוב</button>
+        <button class="wl-btn go" data-a="again">${icon('again')}נסו שוב</button>
         <button class="wl-btn" data-a="how">${I.quest}<span>איך משחקים?</span></button>
-        <button class="wl-btn" data-a="setup">בחירת יער</button>
+        <button class="wl-btn" data-a="setup">${icon('place')}בחירת מקום</button>
       </div></div>`
       : `<div class="kf-dbox paper">
       <div class="kf-stars">${[0, 1, 2].map((k) => `<span class="${k < stars ? 'on' : ''}">${I.star}</span>`).join('')}</div>
-      <h2>${stars === 3 ? 'ניצחתם! יער חזק ומלא חיים!' : stars === 2 ? 'ניצחתם! היער שלכם פורח!' : 'ניצחתם! היער החזיק מעמד!'}</h2>
-      <p>היער עבר את כל ${S.events.length} האירועים, והיה מוכן ל-${held} מתוך ${hard} אתגרים.</p>
+      <h2>${stars === 3 ? Y('ניצחתם! יער חזק ומלא חיים!', 'ניצחתם! שונית חזקה ומלאה חיים!') : stars === 2 ? Y('ניצחתם! היער שלכם פורח!', 'ניצחתם! השונית שלכם פורחת!') : Y('ניצחתם! היער החזיק מעמד!', 'ניצחתם! השונית החזיקה מעמד!')}</h2>
+      <p>${Y('היער עבר', 'השונית עברה')} את כל ${S.events.length} האירועים, ${Y('והיה מוכן', 'והייתה מוכנה')} ל-${held} מתוך ${hard} אתגרים.</p>
       ${sum}
       <p>${nextT ? `ל-${stars + 1} כוכבים צריך ${nextT} חִיּוּת – עוד ${nextT - T.life}. נסו לחבר עוד חוטי זהב!` : 'שלושה כוכבים – כל הכבוד!'}</p>
-      ${gotPack ? `<div class="kf-pack">${I.star}<span>שלושה כוכבים ראשונים ביער הזה – קיבלתם חבילת קלפים!</span></div>` : ''}
+      ${gotPack ? `<div class="kf-pack">${I.star}<span>שלושה כוכבים ראשונים ${Y('ביער הזה', 'בשונית')} – קיבלתם חבילת קלפים!</span></div>` : ''}
       ${S.borrowed ? `<p style="font-size:.95em">הקלפים השאולים חזרו לערכת ההתחלה. קלפים משלכם מקבלים בחידון ובחבילות.</p>` : ''}
       <div class="kf-btns">
-        <button class="wl-btn go" data-a="again">עוד סיבוב</button>
-        <button class="wl-btn" data-a="setup">בחירת יער</button>
-        <button class="wl-btn gold" data-a="album">לאלבום</button>
+        <button class="wl-btn go" data-a="again">${icon('again')}עוד סיבוב</button>
+        <button class="wl-btn" data-a="setup">${icon('place')}בחירת מקום</button>
+        <button class="wl-btn gold" data-a="album">${icon('album')}לאלבום</button>
       </div></div>`;
     d.hidden = false;
     if (!lost) ctx.confetti(d.querySelector('.kf-dbox'), stars * 12);
@@ -926,42 +973,42 @@ export function mountKeepForest(root, ctx, opts = {}) {
     let pair = null;
     for (const a of sp) { if (pair) break; if (!a.art) continue; for (const c of sp) if (c !== a && c.art && L.get(a.sp.id, c.sp.id) && a.sp.animal !== c.sp.animal) { pair = [a, c]; break; } }
     pair = pair || sp.slice(0, 2);
-    const plant = sp.find((c) => !c.sp.animal && LAYER_ROW[c.sp.layer] === 0 && c.art) || sp[0];
-    const tool = ctx.CARD.get('tool:watergen') || ctx.CARDS.find((c) => c.type === 'tool');
+    const plant = sp.find((c) => !c.sp.animal && layerRow(c.sp) === 0 && c.art) || sp[0];
+    const tool = ctx.CARD.get(b === 'reef' ? 'tool:buoy' : 'tool:watergen') || ctx.CARDS.find((c) => c.type === 'tool');
     const st = (n) => `<span class="kf-hst">${Array.from({ length: n }, () => I.star).join('')}</span>`;
     const pics = {
-      place: `<div class="kf-hp kf-hp-rows"><i>חופה</i><i>ביניים</i><i>קרקע</i><div class="kf-hcard">${ctx.cardHTML(plant)}</div></div>`,
+      place: `<div class="kf-hp kf-hp-rows">${ROWSH().map((w) => `<i>${w}</i>`).join('')}<div class="kf-hcard">${ctx.cardHTML(plant)}</div></div>`,
       thread: `<div class="kf-hp kf-hp-pair">${ctx.cardHTML(pair[0])}<svg viewBox="0 0 60 30" aria-hidden="true"><path d="M2 20Q30 -4 58 20" stroke="#f0b44c" stroke-width="4" fill="none" stroke-linecap="round"/></svg>${ctx.cardHTML(pair[1])}<b dir="ltr">+1</b></div>`,
-      event: `<div class="kf-hp kf-hp-ev"><div class="kf-hev">${I.sun}<small>בצורת</small></div><div class="kf-hneed"><span>${I.drop}מים</span><span>${I.sun}אור</span><span>${I.thread}קשרים</span></div></div>`,
-      tool: `<div class="kf-hp kf-hp-tool">${tool ? ctx.cardHTML(tool) : ''}<b dir="ltr">×1</b></div>`,
+      event: `<div class="kf-hp kf-hp-ev"><div class="kf-hev">${Y(I.sun, I.cloud)}<small>${Y('בצורת', 'מים עכורים')}</small></div><div class="kf-hneed"><span>${Y(I.drop + 'מים', ctx.STAT_ICON.shelter + 'מחסה')}</span><span>${I.sun}אור</span><span>${I.thread}קשרים</span></div></div>`,
+      tool: `<div class="kf-hp kf-hp-tool">${tool ? ctx.cardHTML(tool) : ''}<b>1</b></div>`,
       stars: `<div class="kf-hp kf-hp-stars"><span>${st(1)}<b>${t1}</b></span><span>${st(2)}<b>${t2}</b></span><span>${st(3)}<b>${t3}</b></span></div>`,
     };
     const steps = kids ? [
-      ['place', 'שמים קלף', 'בכל תור שמים קלף אחד ביער. צמח גדל רק בקומה שלו.'],
+      ['place', 'שמים קלף', Y('בכל תור שמים קלף אחד ביער. צמח גדל רק בקומה שלו.', 'בכל תור שמים קלף אחד בשונית. אלמוג או צמח גדל רק בשורה שלו.')],
       ['thread', 'חוט זהב', 'יצורים שקשורים זה לזה מקבלים חוט זהב. כל חוט = \u2066+1\u2069 חִיּוּת.'],
       ['stars', 'כוכבים', `כל 2 תורות הטבע מביא אירוע. בסוף מקבלים כוכבים לפי החִיּוּת.`],
     ] : [
-      ['place', 'שמים קלף', 'בכל תור שמים קלף אחד ביער. צמח גדל רק בקומה שלו: חופה, ביניים או קרקע.'],
+      ['place', 'שמים קלף', Y('בכל תור שמים קלף אחד ביער. צמח גדל רק בקומה שלו: חופה, ביניים או קרקע.', 'בכל תור שמים קלף אחד בשונית. אלמוג או צמח גדל רק בשורה שלו: מים רדודים, מדרון או קרקעית.')],
       ['thread', 'חוט זהב', 'יצורים שקשורים בטבע מקבלים חוט זהב. כל חוט = \u2066+1\u2069 חִיּוּת.'],
-      ['event', 'הטבע מביא אירוע', 'כל 2 תורות הטבע הופך קלף ומראה מה היער צריך. יער מוכן מקבל \u2066+1\u2069, ואם לא – קלף אחד נובל.'],
+      ['event', 'הטבע מביא אירוע', Y('כל 2 תורות הטבע הופך קלף ומראה מה היער צריך. יער מוכן מקבל \u2066+1\u2069, ואם לא – קלף אחד נובל.', 'כל 2 תורות הטבע הופך קלף ומראה מה השונית צריכה. שונית מוכנה מקבלת \u2066+1\u2069, ואם לא – קלף אחד נובל.')],
       ['tool', 'כלים עוזרים', 'קלפי טכנולוגיה עוזרים פעם אחת, ולא תופסים את התור.'],
-      ['stars', 'כוכבים בסוף', 'בסוף מקבלים כוכבים לפי החִיּוּת של היער.'],
+      ['stars', 'כוכבים בסוף', `בסוף מקבלים כוכבים לפי החִיּוּת של ${Y('היער', 'השונית')}.`],
     ];
     const first = !ST.seenHow;
     return `<div class="kf-how" role="dialog" aria-label="איך משחקים">
       <div class="kf-hbox paper${kids ? ' kids' : ''}">
-        <div class="kf-hgoal">${I.target}<div><small>המטרה</small><b>לשמור על היער חי ובריא במשך ${N} אירועים של הטבע</b></div></div>
+        <div class="kf-hgoal">${I.target}<div><small>המטרה</small><b>${Y('לשמור על היער חי ובריא', 'לשמור על השונית חיה ובריאה')} במשך ${N} אירועים של הטבע</b></div></div>
         <ol class="kf-hsteps">${steps.map(([p, t, x], i) => `<li>${pics[p]}<h4><span>${i + 1}</span>${t}</h4><p>${x}</p></li>`).join('')}</ol>
         <div class="kf-hrar">
-          <span class="kf-hr e"><i class="kf-key">${I.key}</i><span><b>נדיר מאוד = מין מפתח.</b> אם היער לא מוכן לאירוע – הוא שומר עליו, פעם אחת.</span></span>
+          <span class="kf-hr e"><i class="kf-key">${I.key}</i><span><b>נדיר מאוד = מין מפתח.</b> ${Y('אם היער לא מוכן לאירוע – הוא שומר עליו', 'אם השונית לא מוכנה לאירוע – הוא שומר עליה')}, פעם אחת.</span></span>
           <span class="kf-hr r"><i class="kf-rb">+1</i><span><b>נדיר:</b> אם הוא מתחבר בחוט זהב כשמניחים אותו – עוד <bdi dir="ltr">+1</bdi> חִיּוּת.</span></span>
         </div>
-        <div class="kf-hlose">${I.wilt}<span><b>אפשר גם להפסיד:</b> ${kids ? `אם בסוף יש ליער פחות מ-${t1} חִיּוּת – היער לא החזיק מעמד, ומנסים שוב.` : `אם החִיּוּת של היער יורדת מתחת ל-${t1} בסוף, או שכל היער נובל – היער לא החזיק מעמד. לא נורא, מנסים שוב!`}</span></div>
+        <div class="kf-hlose">${I.wilt}<span><b>אפשר גם להפסיד:</b> ${kids ? `אם בסוף יש ${Y('ליער', 'לשונית')} פחות מ-${t1} חִיּוּת – ${Y('היער לא החזיק', 'השונית לא החזיקה')} מעמד, ומנסים שוב.` : `אם החִיּוּת של ${Y('היער', 'השונית')} יורדת מתחת ל-${t1} בסוף, או ש${Y('כל היער נובל – היער לא החזיק', 'כל השונית נובלת – השונית לא החזיקה')} מעמד. לא נורא, מנסים שוב!`}</span></div>
         <div class="kf-hleg">
           <span><i class="kf-borrow kf-lb">שאול</i>קלף שקיבלתם בהשאלה לסיבוב הזה (עוד אין לכם אותו באלבום)</span>
           ${kids ? `<span><i class="kf-lt">${I.bulb}רמז</i>שומר היער מראה קלף טוב</span>` : `<span><i class="kf-lt">${I.skip}דילוג</i>מחזירים קלף אחד לחפיסה ומוותרים על התור</span><span><i class="kf-lt w">${I.wilt}נובל</i>קלף חלש שלא נותן חִיּוּת – אפשר לשים עליו קלף חדש</span>`}
         </div>
-        <button class="wl-btn go" data-a="howok">${first && S ? 'הבנתי – מתחילים!' : 'הבנתי'}</button>
+        <button class="wl-btn go" data-a="howok">${icon('check')}${first && S ? 'הבנתי – מתחילים!' : 'הבנתי'}</button>
       </div></div>`;
   }
   function showHow() {
@@ -993,21 +1040,21 @@ export function mountKeepForest(root, ctx, opts = {}) {
       const show = (sp.length >= 3 ? sp : ctx.CARDS.filter((c) => c.biome === b && c.art)).slice(0, 3);
       const best = ST.best[b] || 0;
       return `<button class="kf-bt paper${b === biome ? ' on' : ''}" data-b="${b}">
-        <h2>${BNAME[b]}</h2>
+        <h2>${tileIcon(b, 'wl-tic')}${BNAME[b]}</h2>
         <div class="kf-fan">${show.map((c) => ctx.cardHTML(c)).join('')}</div>
-        <p>${mine.length ? `<b>${mine.length}</b> קלפים שלכם מתאימים` : 'עוד אין לכם קלפים מהיער הזה'}${add ? `<br>ועוד ${add} קלפים שאולים מתוך ערכת ההתחלה` : ''}</p>
+        <p>${mine.length ? `<b>${mine.length}</b> קלפים שלכם מתאימים` : 'עוד אין לכם קלפים מהמקום הזה'}${add ? `<br>ועוד ${add} קלפים שאולים מתוך ערכת ההתחלה` : ''}</p>
         <span class="kf-best">${[0, 1, 2].map((k) => `<span class="${k < best ? 'on' : ''}">${I.star}</span>`).join('')}</span>
       </button>`;
     };
     root.innerHTML = `<section class="wl-screen kf-pick">
-      <div class="kf-phead"><h1>${I.life}מחזיקים את היער</h1><p>בונים יער מהקלפים שלכם, ועוזרים לו לעבור את מה שהטבע מביא.</p></div>
+      <div class="kf-phead"><h1>${tileIcon('keep', 'wl-tic')}מחזיקים את היער</h1><p>בונים יער מהקלפים שלכם, ועוזרים לו לעבור את מה שהטבע מביא.</p></div>
       <div class="kf-biomes">${BIOMES.map(tile).join('')}</div>
       <div class="kf-goalbox paper">
-        <div class="kf-hgoal">${I.target}<div><small>המטרה</small><b>לשמור על היער חי ובריא במשך ${kids ? 5 : 8} אירועים של הטבע</b></div></div>
-        <div class="kf-gline">${goalStars()}<span class="kf-glose">${I.wilt}פחות מ-${thresholds()[0]} חִיּוּת בסוף – היער לא החזיק מעמד</span></div>
+        <div class="kf-hgoal">${I.target}<div><small>המטרה</small><b>${Y('לשמור על היער חי ובריא', 'לשמור על השונית חיה ובריאה')} במשך ${kids ? 5 : 8} אירועים של הטבע</b></div></div>
+        <div class="kf-gline">${goalStars()}<span class="kf-glose">${I.wilt}פחות מ-${thresholds()[0]} חִיּוּת בסוף – ${Y('היער לא החזיק', 'השונית לא החזיקה')} מעמד</span></div>
       </div>
       <div class="kf-pbtns"><button class="wl-btn" data-a="how">${I.quest}<span>איך משחקים?</span></button>
-      <button class="wl-btn go" data-a="start">יוצאים ל${BNAME[biome]}!</button></div>
+      <button class="wl-btn go" data-a="start">יוצאים ל${BNAME[biome]}!${icon('arrowL')}</button></div>
     </section>`;
   }
 
@@ -1016,7 +1063,7 @@ export function mountKeepForest(root, ctx, opts = {}) {
     root.innerHTML = `<section class="wl-screen kf-game">
       <div class="kf-bar"></div>
       <div class="kf-mid">
-        <div class="kf-board paper">${[0, 1, 2].map((r) => `<div class="kf-row" data-r="${r}"><div class="kf-rl"><b>${ROWS[r]}</b><small>${ROW_SUB[S.biome][r]}</small></div><div class="kf-slots">${rowSlots(r).map((k) => `<div class="kf-slot" data-s="${k}"></div>`).join('')}</div></div>`).join('')}<svg class="kf-svg" xmlns="http://www.w3.org/2000/svg"></svg></div>
+        <div class="kf-board paper">${[0, 1, 2].map((r) => `<div class="kf-row" data-r="${r}"><div class="kf-rl"><b>${ROWN()[r]}</b><small>${ROW_SUB[S.biome][r]}</small></div><div class="kf-slots">${rowSlots(r).map((k) => `<div class="kf-slot" data-s="${k}"></div>`).join('')}</div></div>`).join('')}<svg class="kf-svg" xmlns="http://www.w3.org/2000/svg"></svg></div>
         <aside class="kf-side"><div class="kf-evhead"></div><div class="kf-evtop"></div><div class="kf-info paper"></div><div class="kf-cont"></div>
           <div class="kf-owl">${OWL}<div class="kf-bub"></div></div></aside>
       </div>
@@ -1025,9 +1072,10 @@ export function mountKeepForest(root, ctx, opts = {}) {
       <div class="kf-done" hidden></div>
     </section>`;
     if (typeof ResizeObserver !== 'undefined') { if (ro) ro.disconnect(); ro = new ResizeObserver(() => drawThreads(false)); ro.observe($('.kf-board')); }
-    msg('tip', `${I.life}<span>${kids ? 'בחרו קלף מלמטה ושימו אותו ביער' : 'גררו קלף מהיד אל היער, או לחצו על קלף ואחר כך על מקום'}</span>`);
-    say(kids ? 'שלום! אני שומר היער. בואו נבנה יער חזק – כל חוט זהב נותן לו חִיּוּת.' : 'שלום! אני שומר היער. כל חוט זהב בין יצורים נותן ליער חִיּוּת. בעוד 2 תורות הטבע יהפוך קלף ראשון.');
-    if (kids) { const h = bestMove(); if (h) say('שלום! אני שומר היער. ' + hintText(h)); }
+    msg('tip', `${I.life}<span>${kids ? `בחרו קלף מלמטה ושימו אותו ${Y('ביער', 'בשונית')}` : `גררו קלף מהיד אל ${Y('היער', 'השונית')}, או לחצו על קלף ואחר כך על מקום`}</span>`);
+    const hello = Y('שלום! אני שומר היער.', 'שלום! אני שומר היער, והיום אני שומר גם על השונית.');
+    say(kids ? `${hello} בואו נבנה ${Y('יער חזק – כל חוט זהב נותן לו', 'שונית חזקה – כל חוט זהב נותן לה')} חִיּוּת.` : `${hello} כל חוט זהב בין יצורים נותן ${Y('ליער', 'לשונית')} חִיּוּת. בעוד 2 תורות הטבע יהפוך קלף ראשון.`);
+    if (kids) { const h = bestMove(); if (h) say(hello + ' ' + hintText(h)); }
     render();
   }
 
@@ -1036,14 +1084,15 @@ export function mountKeepForest(root, ctx, opts = {}) {
     const T = totals();
     // top bar
     const flags = [];
-    if (S.watch) flags.push(`<span class="kf-flag">${I.eye} שומרים על היער</span>`);
-    if (S.nest) flags.push(`<span class="kf-flag">ציפורים ×2</span>`);
-    if (S.insect) flags.push(`<span class="kf-flag">חרקים ×2</span>`);
+    if (S.watch) flags.push(`<span class="kf-flag">${I.eye} שומרים על ${Y('היער', 'השונית')}</span>`);
+    if (S.nest) flags.push(`<span class="kf-flag">ציפורים פי 2</span>`);
+    if (S.insect) flags.push(`<span class="kf-flag">חרקים פי 2</span>`);
+    if (S.fish) flags.push(`<span class="kf-flag">דגים פי 2</span>`);
     $('.kf-bar').innerHTML = `
-      <span class="kf-stat s-light" title="סכום האור של היער">${ctx.STAT_ICON.light}<small>אור</small><b>${T.light}</b></span>
-      <span class="kf-stat s-water" title="סכום המים של היער">${ctx.STAT_ICON.water}<small>מים</small><b>${T.water}</b>${S.waterBoost ? `<span class="kf-boost">+${S.waterBoost}</span>` : ''}</span>
+      <span class="kf-stat s-light" title="סכום האור של ${Y('היער', 'השונית')}">${ctx.STAT_ICON.light}<small>אור</small><b>${T.light}</b></span>
+      <span class="kf-stat s-water" title="${Y('סכום המים של היער', 'סכום המחסה של השונית')}">${Y(ctx.STAT_ICON.water, ctx.STAT_ICON.shelter)}<small>${Y('מים', 'מחסה')}</small><b>${T.water}</b>${S.waterBoost ? `<span class="kf-boost">+${S.waterBoost}</span>` : ''}</span>
       <span class="kf-stat s-thr" title="חוטי זהב בין יצורים קשורים">${I.thread}<small>קשרים</small><b>${T.threads}</b></span>
-      <span class="kf-goal${T.life < thresholds()[0] && S.events.length - S.evIdx <= 2 ? ' low' : ''}" title="המטרה: לעבור ${S.events.length} אירועים עם יער חי. הכוכבים נקבעים לפי החִיּוּת בסוף.">
+      <span class="kf-goal${T.life < thresholds()[0] && S.events.length - S.evIdx <= 2 ? ' low' : ''}" title="המטרה: לעבור ${S.events.length} אירועים עם ${Y('יער חי', 'שונית חיה')}. הכוכבים נקבעים לפי החִיּוּת בסוף.">
         <span class="kf-gev">אירוע ${Math.min(S.evIdx + 1, S.events.length)} מתוך ${S.events.length}</span>
         <span class="kf-stat s-life${fresh && fresh.length ? ' bump' : ''}">${I.life}<small>חִיּוּת</small><b>${T.life}</b></span>
         ${goalStars(T.life)}
@@ -1052,7 +1101,7 @@ export function mountKeepForest(root, ctx, opts = {}) {
       <span class="kf-sp"></span>
       ${kids && S.phase === 'play' ? `<button class="wl-btn gold" data-a="hint">${I.bulb}<span>רמז</span></button>` : ''}
       <button class="wl-btn kf-q" data-a="how" title="איך משחקים?" aria-label="איך משחקים?">${I.quest}</button>
-      <button class="wl-btn" data-a="setup">יער אחר</button>`;
+      <button class="wl-btn" data-a="setup">${icon('place')}<span>מקום אחר</span></button>`;
     renderBoard(fresh);
     renderSide();
     renderHand();
@@ -1062,7 +1111,7 @@ export function mountKeepForest(root, ctx, opts = {}) {
     const c = C(ref);
     if (c.rarity === 'epic') {
       const on = keyCharged(ref) && !wilted;
-      return `<span class="kf-key${on ? '' : ' used'}" title="${on ? 'מין מפתח: אם היער לא מוכן לאירוע – שומר עליו פעם אחת' : 'מין מפתח: כבר שמר על היער בסיבוב הזה'}">${I.key}</span>`;
+      return `<span class="kf-key${on ? '' : ' used'}" title="${on ? `מין מפתח: אם ${Y('היער לא מוכן לאירוע – שומר עליו', 'השונית לא מוכנה לאירוע – שומר עליה')} פעם אחת` : `מין מפתח: כבר שמר על ${Y('היער', 'השונית')} בסיבוב הזה`}">${I.key}</span>`;
     }
     if (c.rarity === 'rare' && rareReady(ref) && !wilted) return '<span class="kf-rb" title="קלף נדיר: אם הוא מתחבר בחוט זהב כשמניחים אותו – עוד \u2066+1\u2069 חִיּוּת">+1</span>';
     return '';
@@ -1122,7 +1171,7 @@ export function mountKeepForest(root, ctx, opts = {}) {
     const top = $('.kf-evtop'), info = $('.kf-info'), cont = $('.kf-cont');
     cont.innerHTML = '';   // the continue button sits outside the info box so the owl below can never cover it
     const side = $('.kf-side'); side.classList.remove('resolved');
-    const face = (ev) => { const D = EV[ev.id]; return `<div class="kf-evf${D.good ? ' good' : ''}"><div>${I[D.ic]}<b>${esc(D.name[S.biome])}</b></div></div>`; };
+    const face = (ev) => { const D = EV[ev.id]; return `<div class="kf-evf${D.good ? ' good' : ''}"><div>${icOf(D)}<b>${esc(D.name[S.biome])}</b></div></div>`; };
     const flip = (ev, up) => `<div class="wl-flip${up ? ' is-up' : ''}"><div class="wl-fin"><div class="wl-face wl-fback">${ctx.backHTML()}</div><div class="wl-face wl-ffront">${ev ? face(ev) : ''}</div></div></div>`;
     if (S.phase === 'event' && S.cur) {
       const ev = S.cur.ev, D = EV[ev.id], r = S.cur.res;
@@ -1130,15 +1179,15 @@ export function mountKeepForest(root, ctx, opts = {}) {
       if (!existing || top.dataset.ev !== String(ev.i)) { top.innerHTML = flip(ev, false) + `<div class="kf-peek"><span class="kf-when">הטבע הופך קלף...</span></div>`; top.dataset.ev = String(ev.i); }
       else if (r) { existing.classList.add('is-up'); }
       if (r) {
-        const pk = top.querySelector('.kf-peek'); if (pk) pk.innerHTML = `<span class="kf-when">${r.good ? 'מתנה מהטבע' : r.key != null ? 'מין מפתח עזר!' : r.ok ? 'היער מוכן!' : 'היער ילמד מזה'}</span>`;
+        const pk = top.querySelector('.kf-peek'); if (pk) pk.innerHTML = `<span class="kf-when">${r.good ? 'מתנה מהטבע' : r.key != null ? 'מין מפתח עזר!' : r.ok ? Y('היער מוכן!', 'השונית מוכנה!') : Y('היער ילמד מזה', 'השונית תלמד מזה')}</span>`;
         // the outcome first: on small screens the story below may need scrolling, the result never does
-        info.innerHTML = `<h3>${I[D.ic]}${esc(D.name[S.biome])}</h3>
+        info.innerHTML = `<h3>${icOf(D)}${esc(D.name[S.biome])}</h3>
           <div class="kf-res ${r.key != null ? 'key' : r.ok ? 'ok' : 'no'}">${r.key != null ? I.key : r.ok ? I.check : I.wilt}<span>${r.key != null ? '<b>מין מפתח!</b> ' : ''}${esc(r.text)}</span></div>
-          ${D.good ? '' : `<div class="kf-need">${I.bulb}<span>צריך: ${esc(D.need(ev.need))}${r.have ? ` · יש: ${esc(r.have.split(': ').pop())}` : ''}</span></div>`}
+          ${D.good ? '' : `<div class="kf-need">${I.bulb}<span>צריך: ${esc(needOf(ev))}${r.have ? ` · יש: ${esc(r.have.split(': ').pop())}` : ''}</span></div>`}
           <p>${esc(D.story[S.biome])}</p>`;
         // small screens: once the card has turned over, fold it away so the outcome has room (its name is the heading)
         later(() => { if (S && S.phase === 'event' && S.cur && S.cur.res) side.classList.add('resolved'); }, 1000);
-        cont.innerHTML = `<button class="wl-btn go" data-a="cont">${S.evIdx + 1 >= N ? 'לסיכום' : 'ממשיכים'}</button>`;
+        cont.innerHTML = `<button class="wl-btn go" data-a="cont">${S.evIdx + 1 >= N ? 'לסיכום' : 'ממשיכים'}${icon('arrowL')}</button>`;
       } else info.innerHTML = `<h3>${I.deck}<span>הטבע הופך קלף...</span></h3>`;
       return;
     }
@@ -1149,13 +1198,13 @@ export function mountKeepForest(root, ctx, opts = {}) {
     top.dataset.ev = '';
     const t2 = turnsToEvent();
     const peeks = [];
-    for (let i = S.evIdx + 1; i < N; i++) if (S.revealed.has(i)) peeks.push(`<span class="kf-pk">${I[EV[S.events[i].id].ic]}<span>אחר כך: ${esc(evName(S.events[i]))}</span></span>`);
+    for (let i = S.evIdx + 1; i < N; i++) if (S.revealed.has(i)) peeks.push(`<span class="kf-pk">${icOf(EV[S.events[i].id])}<span>אחר כך: ${esc(evName(S.events[i]))}</span></span>`);
     top.innerHTML = flip(known ? ev : null, known) + `<div class="kf-peek"><span class="kf-when">${t2 === 1 ? 'האירוע הבא – אחרי התור הזה!' : 'האירוע הבא בעוד 2 תורות'}</span>${peeks.join('')}</div>`;
     if (known) {
       const D = EV[ev.id];
-      info.innerHTML = `<h3>${I[D.ic]}${esc(D.name[S.biome])}</h3><p>${esc(D.story[S.biome])}</p>${D.good ? '' : `<div class="kf-need">${I.bulb}<span>צריך: ${esc(D.need(ev.need))}</span></div>`}`;
+      info.innerHTML = `<h3>${icOf(D)}${esc(D.name[S.biome])}</h3><p>${esc(D.story[S.biome])}</p>${D.good ? '' : `<div class="kf-need">${I.bulb}<span>צריך: ${esc(needOf(ev))}</span></div>`}`;
     } else {
-      info.innerHTML = `<h3>${I.eye}<span>מה יביא הטבע?</span></h3><p>${t2 === 1 ? 'הקלף ייהפך אחרי התור הזה. שומר היער רומז מה בא.' : 'תחנת מזג אוויר או מצלמת שטח יכולות לגלות מראש.'}</p>`;
+      info.innerHTML = `<h3>${I.eye}<span>מה יביא הטבע?</span></h3><p>${t2 === 1 ? 'הקלף ייהפך אחרי התור הזה. שומר היער רומז מה בא.' : Y('תחנת מזג אוויר או מצלמת שטח יכולות לגלות מראש.', 'מצוף חיישנים או מצלמה תת־ימית יכולים לגלות מראש.')}</p>`;
     }
   }
   function renderHand() {
@@ -1164,7 +1213,7 @@ export function mountKeepForest(root, ctx, opts = {}) {
       const c = C(ref);
       let chip;
       if (c.type === 'tool') chip = `<span class="kf-chip tool">${esc(TOOL_FX[c.tool.id] || 'כלי עזר')}</span>`;
-      else chip = `<span class="kf-chip">${c.sp.animal ? ctx.IC.paw : ctx.IC.leaf}<span>${c.sp.animal ? 'בעל חיים · ' : 'צמח · '}${ROW_SHORT[rowOfCard(c)]}</span></span>`;
+      else chip = `<span class="kf-chip">${c.sp.animal ? ctx.IC.paw : ctx.IC.leaf}<span>${c.sp.animal || (reef() && c.sp.kind === 'sessile') ? 'בעל חיים · ' : reef() && c.sp.kind === 'coral' ? 'אלמוג · ' : 'צמח · '}${ROWSH()[rowOfCard(c)]}</span></span>`;
       const off = c.type === 'tool' && !canUse(ref).ok;
       return `<div class="kf-hc${sel === i ? ' sel' : ''}${off ? ' off' : ''}" data-i="${i}" role="button" aria-label="${esc(c.name)}">${chip}${ctx.cardHTML(c)}${c.type === 'species' ? rarBadge(ref, false) : ''}${ref.borrowed ? '<span class="kf-borrow" title="קלף שאול: קיבלתם אותו בהשאלה לסיבוב הזה. עוד אין לכם אותו באלבום.">שאול</span>' : ''}${sel === i && c.type === 'tool' && !off ? '<button class="wl-btn gold kf-use" data-a="use">הפעלה</button>' : ''}</div>`;
     }).join('');
@@ -1182,7 +1231,7 @@ export function mountKeepForest(root, ctx, opts = {}) {
     if (sel != null) {
       const c = C(S.hand[sel]);
       if (c.type === 'tool') { const u = canUse(S.hand[sel]); msg('tip', `${I.bulb}<span>${esc(c.name)}: ${esc(TOOL_FX[c.tool.id])}. ${u.ok ? 'לחצו "הפעלה".' : esc(u.why)}</span>`); }
-      else { const lg = legal(S.hand[sel]); msg('tip', `${I.life}<span>${lg.swap ? `הקומה מלאה – לחצו על קלף ב${ROWS[rowOfCard(c)]} כדי להחליף אותו` : 'עכשיו לחצו על מקום מסומן ביער'}</span>`); }
+      else { const lg = legal(S.hand[sel]); msg('tip', `${I.life}<span>${lg.swap ? `הקומה מלאה – לחצו על קלף ב${ROWN()[rowOfCard(c)]} כדי להחליף אותו` : `עכשיו לחצו על מקום מסומן ${Y('ביער', 'בשונית')}`}</span>`); }
     }
     renderBoard(); renderHand();
   }
@@ -1233,7 +1282,7 @@ export function mountKeepForest(root, ctx, opts = {}) {
     cleanupDrag();
     if (c && c.type === 'tool') { if (overBoard(e.clientX, e.clientY)) useTool(d.hi); else renderBoard(); return; }
     if (s) place(d.hi, +s.dataset.s);
-    else { renderBoard(); renderHand(); msg('tip', `${I.life}<span>${c && !c.sp.animal ? `${esc(dn(c))} ${gw(c.sp.id, 'גדל', 'גדלה', 'גדלים', 'גדלות')} רק ב${ROWS[rowOfCard(c)]}` : 'גררו אל מקום מסומן ביער'}</span>`); }
+    else { renderBoard(); renderHand(); msg('tip', `${I.life}<span>${c && !c.sp.animal ? `${esc(dn(c))} ${gw(c.sp.id, 'גדל', 'גדלה', 'גדלים', 'גדלות')} רק ב${ROWN()[rowOfCard(c)]}` : `גררו אל מקום מסומן ${Y('ביער', 'בשונית')}`}</span>`); }
   }
   function onClick(e) {
     if (e.target.classList && e.target.classList.contains('kf-how')) { hideHow(); return; }
@@ -1246,7 +1295,7 @@ export function mountKeepForest(root, ctx, opts = {}) {
       if (S.phase === 'play' && sel != null) {
         const c = C(S.hand[sel]);
         if (c.type === 'tool') { useTool(sel); return; }
-        if (!place(sel, k)) msg('tip', `${I.life}<span>${!c.sp.animal ? `${esc(dn(c))} ${gw(c.sp.id, 'גדל', 'גדלה', 'גדלים', 'גדלות')} רק ב${ROWS[rowOfCard(c)]}` : 'בחרו מקום מסומן'}</span>`);
+        if (!place(sel, k)) msg('tip', `${I.life}<span>${!c.sp.animal ? `${esc(dn(c))} ${gw(c.sp.id, 'גדל', 'גדלה', 'גדלים', 'גדלות')} רק ב${ROWN()[rowOfCard(c)]}` : 'בחרו מקום מסומן'}</span>`);
         return;
       }
       const b = S.board[k];

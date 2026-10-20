@@ -8,4 +8,8 @@ __pycache__/
 *.pyc
 .DS_Store
 Thumbs.db
+shots/
 release-files/
+
+# local agent worktrees
+.claude/

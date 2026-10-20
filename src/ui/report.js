@@ -3,6 +3,7 @@
 // createReportUI(root, { describe(day) → model, onNote(day, text), onClose(), onExport(model) }) →
 //   { open(day), close(), isOpen(), prompt(text, onOpen), dispose() }
 // The model comes from src/game/report.js (describe). This module owns its own CSS (injected once).
+import { zoneWord } from '../core/place.js';
 
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pct = (v) => Math.round((+v || 0) * 100);
@@ -10,7 +11,7 @@ const pct = (v) => Math.round((+v || 0) * 100);
 // two-tone ink icons, same drawing language as ui.js (soft fill .f under a hand-weight outline)
 const I = {
   notebook: '<path class="f" d="M6 3.5h12a1.5 1.5 0 0 1 1.5 1.5v14a1.5 1.5 0 0 1-1.5 1.5H6z"/><path d="M6 3.5h12a1.5 1.5 0 0 1 1.5 1.5v14a1.5 1.5 0 0 1-1.5 1.5H6z"/><path d="M4 7h4M4 12h4M4 17h4"/><path d="M10.5 8.5h6M10.5 12h6M10.5 15.5h4"/>',
-  close: '<path d="M6 6l12 12M18 6L6 18"/>',
+  close: '<circle cx="12" cy="12" r="8"/><path d="M8.2 12h7.6"/>',
   prev: '<path d="M9 5l7 7-7 7"/>',
   next: '<path d="M15 5l-7 7 7 7"/>',
   print: '<path class="f" d="M5 10h14a2 2 0 0 1 2 2v5h-3v3H6v-3H3v-5a2 2 0 0 1 2-2z"/><path d="M7 10V4h10v6"/><path d="M5 10h14a2 2 0 0 1 2 2v5h-3M6 17H3v-5a2 2 0 0 1 2-2"/><path d="M6 14h12v6H6z"/>',
@@ -61,6 +62,7 @@ const CSS = `
   box-shadow: 0 2px 0 #b9b08a, 0 4px 0 #cfc7a2, 0 6px 0 #b0a77f, 0 24px 48px rgba(0, 0, 0, .5);
   animation: rep-in .38s cubic-bezier(.2, .8, .3, 1.15) both; }
 #ui.wol .rep-page[data-biome="grove"] { --acc: #55601f; --acc2: #9a5e16; --tint: #ece0c4; --pin: #b8414a; }
+#ui.wol .rep-page[data-biome="reef"] { --acc: #1d6680; --acc2: #2a8ac0; --tint: #d8eaef; --pin: #e0794a; }
 /* spiral binding on the right edge (the spine side of a Hebrew notebook) */
 #ui.wol .rep-rings { position: absolute; top: 22px; bottom: 22px; right: 0; width: 40px; pointer-events: none;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='36' viewBox='0 0 40 36'%3E%3Ccircle cx='17' cy='18' r='3.6' fill='%233a3426' fill-opacity='.75'/%3E%3Crect x='15.5' y='14.6' width='30' height='6.8' rx='3.4' fill='%23a49d86' stroke='%23615a49' stroke-width='1'/%3E%3Cpath d='M18 16.6h20' stroke='%23e8e3d0' stroke-width='1.3' stroke-linecap='round' stroke-opacity='.8'/%3E%3C/svg%3E") 0 0 / 40px 36px repeat-y; }
@@ -235,7 +237,7 @@ function sparkSVG(pts) {
   const line = pts.map((p, i) => `${x(i).toFixed(1)},${y(p.v).toFixed(1)}`).join(' ');
   const area = n > 1 ? `<path class="area" d="M${x(0).toFixed(1)},${(H - bot).toFixed(1)} L${line.replace(/ /g, ' L')} L${x(n - 1).toFixed(1)},${(H - bot).toFixed(1)}Z"/>` : '';
   const sel = pts.findIndex((p) => p.sel);
-  return `<svg class="rep-spark" viewBox="0 0 ${W} ${H}" role="img" aria-label="חיוניות היער בימים האחרונים">
+  return `<svg class="rep-spark" viewBox="0 0 ${W} ${H}" role="img" aria-label="החיוניות בימים האחרונים">
     <line class="grid" x1="0" x2="${W}" y1="${y(0.5)}" y2="${y(0.5)}"/><line class="grid" x1="0" x2="${W}" y1="${y(1)}" y2="${y(1)}"/>
     ${area}${n > 1 ? `<polyline class="line" points="${line}"/>` : ''}
     ${pts.map((p, i) => `<g><title>יום ${p.d}: ${pct(p.v)}%</title><circle class="hit" cx="${x(i)}" cy="${y(p.v)}" r="11"/><circle class="dot${i === sel ? ' sel' : ''}" cx="${x(i)}" cy="${y(p.v)}" r="${i === sel ? 5.5 : 4}"/>
@@ -253,7 +255,7 @@ export function createReportUI(root, { describe, onNote, onClose, onExport }) {
   function chipsHTML(m) {
     const max = m.kids ? 10 : 18;
     const list = m.chips.slice(0, max);
-    const html = list.map((c) => `<span class="rep-chip ${c.plant ? 'pl' : 'an'}${c.isNew ? ' nw' : ''}" style="--c:${esc(c.color || '#8a6')}"><i>${c.thumb ? `<img src="${esc(c.thumb)}" alt="" draggable="false">` : ''}</i>${esc(c.name)}${c.count > 1 ? ` <em dir="ltr">×${c.count}</em>` : ''}</span>`).join('');
+    const html = list.map((c) => `<span class="rep-chip ${c.plant ? 'pl' : 'an'}${c.isNew ? ' nw' : ''}" style="--c:${esc(c.color || '#8a6')}"><i>${c.thumb ? `<img src="${esc(c.thumb)}" alt="" draggable="false">` : ''}</i>${esc(c.name)}${c.count > 1 ? ` <em>(${c.count})</em>` : ''}</span>`).join('');
     return html + (m.chips.length > max ? `<span class="rep-more">ועוד ${m.chips.length - max}</span>` : '');
   }
 
@@ -266,7 +268,7 @@ export function createReportUI(root, { describe, onNote, onClose, onExport }) {
     const P = (n) => `<bdi dir="ltr">${n}%</bdi>`;
     const vitWords = v1 > v0 + 2 ? `עלתה מ־${P(v0)} ל־<b>${P(v1)}</b>` : v1 < v0 - 2 ? `ירדה מ־${P(v0)} ל־<b>${P(v1)}</b>` : `נשארה בערך <b>${P(v1)}</b>`;
     const sections = [];
-    sections.push(`<section class="rep-sec rep-who"><h3>${icon('who')}מי גר ביער</h3>
+    sections.push(`<section class="rep-sec rep-who"><h3>${icon('who')}מי גר ${zoneWord('in')}</h3>
       <div class="rep-counts"><div><b>${m.counts.plants}</b><span>צמחים</span></div><div><b>${m.counts.animals}</b><span>בעלי חיים</span></div>
       <div><b>${m.counts.species}<small>מתוך ${m.counts.total}</small></b><span>מינים</span></div></div>
       <div class="rep-chips">${chipsHTML(m)}</div></section>`);
@@ -274,9 +276,9 @@ export function createReportUI(root, { describe, onNote, onClose, onExport }) {
     if (!kids) sections.push(`<section class="rep-sec rep-chal${ch.good ? ' good' : ''}"><h3>${icon(ch.good ? 'ok' : 'chal')}האתגר המרכזי</h3><h4>${esc(ch.t)}</h4><p>${esc(ch.p)}</p>${ch.tip ? `<div class="rep-tip">${icon('fact')}<span>${esc(ch.tip)}</span></div>` : ''}</section>`);
     if (m.fact) sections.push(`<section class="rep-sec rep-fact"><h3>${icon('fact')}${kids ? 'הידעתם?' : 'תגלית'}</h3><div class="rep-factbox"><span class="art" style="--c:${esc(m.fact.color || '#8a6')}">${m.fact.art || m.fact.thumb ? `<img src="${esc(m.fact.art || m.fact.thumb)}" alt="">` : ''}</span><div><b>${esc(m.fact.name)}</b><p>${esc(m.fact.text)}</p></div></div></section>`);
     if (m.source) sections.push(`<section class="rep-sec rep-src"><h3>${icon('fact')}מקור היום</h3><div class="rep-srcbox"><p class="t">${esc(m.source.text)}</p><small>${esc(m.source.ref)}</small>${m.source.q ? `<p class="q"><b>שאלה לשיחה בבית:</b> ${esc(m.source.q)}</p>` : ''}</div></section>`);
-    if (!kids) sections.push(`<section class="rep-sec rep-vit"><h3>${icon('vit')}חיוניות היער</h3><div class="rep-vitline">${m.live ? 'מתחילת היום החיוניות ' : 'במשך היום החיוניות '}${vitWords}</div>${sparkSVG(m.vit.spark)}</section>`);
+    if (!kids) sections.push(`<section class="rep-sec rep-vit"><h3>${icon('vit')}חיוניות ${zoneWord('the')}</h3><div class="rep-vitline">${m.live ? 'מתחילת היום החיוניות ' : 'במשך היום החיוניות '}${vitWords}</div>${sparkSVG(m.vit.spark)}</section>`);
     sections.push(`<section class="rep-sec rep-notes"><h3>${icon('pencil')}${kids ? 'מה ראיתי היום' : 'הערות החוקר'}</h3>
-      <textarea rows="${kids ? 4 : 3}" maxlength="800" dir="rtl" spellcheck="false" placeholder="${kids ? 'מה ראיתם היום ביער? כתבו כאן…' : 'מה ראיתם היום ביער? מה הפתיע אתכם? איזו שאלה הייתם רוצים לבדוק מחר? כתבו כאן…'}">${esc(m.note)}</textarea>
+      <textarea rows="${kids ? 4 : 3}" maxlength="800" dir="rtl" spellcheck="false" placeholder="${kids ? `מה ראיתם היום ${zoneWord('in')}? כתבו כאן…` : `מה ראיתם היום ${zoneWord('in')}? מה הפתיע אתכם? איזו שאלה הייתם רוצים לבדוק מחר? כתבו כאן…`}">${esc(m.note)}</textarea>
       <div class="rep-note-print${m.note ? '' : ' empty'}">${esc(m.note)}</div></section>`);
     const isDesk = !!(window.wolDesktop && window.wolDesktop.saveReportPDF);
     layer.innerHTML = `<div class="rep-backdrop"></div>
@@ -289,7 +291,7 @@ export function createReportUI(root, { describe, onNote, onClose, onExport }) {
           ${m.player ? `<div class="rep-by">החוקרים: ${esc(m.player)}</div>` : '<div class="rep-by"></div>'}
           <div class="rep-date">
             <div class="rep-nav"><button data-r="prev" title="יום קודם" aria-label="יום קודם" ${m.prev == null ? 'disabled' : ''}>${icon('prev')}</button>
-              <span class="rep-dayno">יום ${m.day} ביער</span>
+              <span class="rep-dayno">יום ${m.day} ${zoneWord('in')}</span>
               <button data-r="next" title="יום הבא" aria-label="יום הבא" ${m.next == null ? 'disabled' : ''}>${icon('next')}</button></div>
             <div class="rep-meta">${m.season ? `<span class="rep-tag season">${icon('season')}עונת ה${esc(m.season)}</span>` : ''}${wx}${m.live ? '<span class="rep-tag live">היום עדיין נמשך</span>' : ''}</div>
           </div>

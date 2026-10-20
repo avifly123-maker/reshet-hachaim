@@ -244,7 +244,7 @@ window.selfTest = function () {
   ok(log.some((l) => l[0] === 'coach:next') && log.some((l) => l[0] === 'coach:skip'), 'coach'); ui.hideCoach();
   ui.setExperiment({ active: true, name: 'דבורים', secondsLeft: 5 }); document.querySelector('.experiment button').click(); ok(log.some((l) => l[0] === 'experiment:end'), 'experiment:end');
   ui.setExperiment({ active: false });
-  ui.showStart(BIOMES); document.querySelector('.biome-card').click(); ok(log.some((l) => l[0] === 'start:biome' && l[1].id === 'amazon'), 'start');
+  ui.showStart(BIOMES); document.querySelector('.st-go').click(); ok(log.some((l) => l[0] === 'start:biome' && l[1].id === 'amazon'), 'start');
   // tray re-render keeps DOM nodes
   const el1 = document.querySelector('.card[data-id="kapok"]'); ui.setTray(CARDS.map((c) => c.id === 'kapok' ? { ...c, alive: 5 } : c));
   ok(document.querySelector('.card[data-id="kapok"]') === el1 && el1.querySelector('.c-alive').textContent === '5', 'tray diff');

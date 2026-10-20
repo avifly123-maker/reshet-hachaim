@@ -1,0 +1,257 @@
+/* ===================================================== מעבדת רובו־דע
+   The room is a Cycles render that fills the screen; the controls sit on it like labels in a museum: dark glass plates,
+   herbarium paper for the working panels (the microscope, the inventors table, the atlas), honey accents. */
+#ui.wol .lb { position: absolute; inset: 0; z-index: 40; display: none; pointer-events: none; }
+#ui.wol .lb.on { display: block; }
+#ui.wol .lb > * { pointer-events: auto; }
+#ui.wol .lb .lb-btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border: 0; border-radius: 22px; background: #fbf6e4; color: #2a1a0e; font: inherit; font-weight: 700; cursor: pointer; box-shadow: 0 3px 0 #c9b98a, 0 6px 16px rgba(0, 0, 0, .25); transition: transform .15s; }
+#ui.wol .lb .lb-btn:hover { transform: translateY(-2px); }
+#ui.wol .lb .lb-btn .ic { width: 18px; height: 18px; }
+#ui.wol .lb-top { position: absolute; top: 14px; right: 18px; left: 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; pointer-events: none; }
+#ui.wol .lb-top > * { pointer-events: auto; }
+#ui.wol .lb-title { padding: 8px 18px 10px; border-radius: 14px; background: rgba(14, 26, 20, .62); color: var(--chalk); text-align: center; backdrop-filter: blur(2px); }
+#ui.wol .lb-title small { color: var(--honey); font-size: .82em; letter-spacing: .03em; }
+#ui.wol .lb-title h1 { margin: 0; font-family: var(--serif); font-size: 1.55em; line-height: 1.05; }
+/* hotspots over the stations (home view): a soft orange dot on each piece of furniture; hover, focus or a first touch
+   shows two words; a station outside the picture gets its dot on that edge of the screen, with an arrow */
+#ui.wol .lb-hots { position: absolute; inset: 0; pointer-events: none; opacity: 0; visibility: hidden; z-index: 2; }
+#ui.wol .lb-hots.on { opacity: 1; visibility: visible; transition: opacity .4s; }
+#ui.wol .lb-hots.on .lb-hot { pointer-events: auto; }
+#ui.wol .lb-hot { position: absolute; transform: translate(-50%, -50%); width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; background: transparent; cursor: pointer; display: grid; place-items: center; }
+#ui.wol .lb-dot { display: block; width: 22px; height: 22px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #ffc27a, #f08a24 55%, #d86a10); box-shadow: 0 0 0 3px rgba(255, 255, 255, .9), 0 2px 8px rgba(0, 0, 0, .35); animation: lbDot 2.4s ease-in-out infinite; }
+@keyframes lbDot { 0%, 100% { box-shadow: 0 0 0 3px rgba(255, 255, 255, .9), 0 0 0 6px rgba(240, 138, 36, .35), 0 2px 8px rgba(0, 0, 0, .35); } 50% { box-shadow: 0 0 0 3px rgba(255, 255, 255, .9), 0 0 0 14px rgba(240, 138, 36, 0), 0 2px 8px rgba(0, 0, 0, .35); } }
+#ui.wol .lb-hot:hover .lb-dot, #ui.wol .lb-hot:focus-visible .lb-dot, #ui.wol .lb-hot.show .lb-dot { animation: none; transform: scale(1.18); }
+#ui.wol .lb-hot:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+#ui.wol .lb-tip { position: absolute; bottom: calc(100% + 4px); left: 50%; transform: translateX(-50%) translateY(4px); padding: 5px 12px; border-radius: 12px; background: rgba(20, 34, 26, .9); color: #fff6dc; font-weight: 800; font-size: .95em; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity .18s, transform .18s; box-shadow: 0 4px 12px rgba(0, 0, 0, .35); }
+#ui.wol .lb-hot:hover .lb-tip, #ui.wol .lb-hot:focus-visible .lb-tip, #ui.wol .lb-hot.show .lb-tip { opacity: 1; transform: translateX(-50%); }
+#ui.wol .lb-hot.edge-l .lb-tip { left: 0; transform: translateY(4px); } #ui.wol .lb-hot.edge-r .lb-tip { left: auto; right: 0; transform: translateY(4px); }
+#ui.wol .lb-hot.edge-l:hover .lb-tip, #ui.wol .lb-hot.edge-l:focus-visible .lb-tip, #ui.wol .lb-hot.edge-l.show .lb-tip,
+#ui.wol .lb-hot.edge-r:hover .lb-tip, #ui.wol .lb-hot.edge-r:focus-visible .lb-tip, #ui.wol .lb-hot.edge-r.show .lb-tip { transform: none; }
+#ui.wol .lb-hot[hidden], #ui.wol .lb-arrow[hidden] { display: none; }
+#ui.wol .lb-arrow { position: absolute; top: 50%; margin-top: -7px; width: 0; height: 0; border-top: 7px solid transparent; border-bottom: 7px solid transparent; }
+#ui.wol .lb-hot.edge-l .lb-arrow { left: -3px; border-right: 9px solid #f08a24; }
+#ui.wol .lb-hot.edge-r .lb-arrow { right: -3px; border-left: 9px solid #f08a24; }
+/* the station bar */
+#ui.wol .lb-bar { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; padding: 6px; border-radius: 18px; background: rgba(14, 26, 20, .7); max-width: calc(100% - 24px); overflow-x: auto; }
+#ui.wol .lb-bar button { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 76px; padding: 6px 8px; border: 0; border-radius: 12px; background: transparent; color: #e8e2c8; font: inherit; font-size: .8em; cursor: pointer; }
+#ui.wol .lb-bar button .ic { width: 22px; height: 22px; }
+#ui.wol .lb-bar button.on { background: #fbf6e4; color: #2a1a0e; }
+#ui.wol .lb-bar button:hover:not(.on) { background: rgba(255, 255, 255, .1); }
+/* Robo-Da speaks: a bubble above his head */
+#ui.wol .lb-say { position: absolute; z-index: 1; transform: translate(-50%, -100%); max-width: min(420px, 60vw); padding: 12px 16px; border-radius: 16px; background: #263440; color: #eaf6fa; font-size: 1.02em; line-height: 1.45; box-shadow: 0 8px 22px rgba(0, 0, 0, .35); pointer-events: none; }
+#ui.wol .lb-say::after { content: ''; position: absolute; bottom: -9px; left: 50%; margin-left: -9px; border: 9px solid transparent; border-bottom: 0; border-top-color: #263440; }
+#ui.wol .lb-say p { margin: 0; }
+#ui.wol .lb-say.pop { animation: lbPop .3s ease-out; }
+@keyframes lbPop { from { opacity: 0; transform: translate(-50%, -90%) scale(.92); } to { opacity: 1; transform: translate(-50%, -100%); } }
+/* panels */
+#ui.wol .lb-panels { position: absolute; inset: 0; pointer-events: none; }
+#ui.wol .lb-panel { position: absolute; inset: 72px 18px 86px; pointer-events: auto; border-radius: 18px; padding: 18px 22px; color: #2a1a0e; animation: lbIn .35s ease-out; overflow: auto; }
+@keyframes lbIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+#ui.wol .lb-panel h2 { margin: 0; font-family: var(--serif); font-weight: 900; font-size: 1.9em; }
+#ui.wol .lb-panel h3 { margin: 0 0 4px; font-family: var(--serif); font-size: 1.3em; }
+#ui.wol .lb-card { padding: 12px 14px; border-radius: 14px; background: #fbf6e4; box-shadow: 0 4px 0 #c9b98a; color: #2a1a0e; }
+#ui.wol .lb-card small { font-weight: 700; color: #1d6680; }
+#ui.wol .lb-card p { margin: 4px 0 6px; font-size: 1.05em; line-height: 1.45; }
+#ui.wol .lb-card.lb-found { background: #eaf6dc; box-shadow: 0 4px 0 #a8c48a; }
+#ui.wol .lb-card.lb-found small { color: #3a6a2a; }
+/* the microscope */
+#ui.wol .lb-scope { display: grid; grid-template-columns: minmax(220px, 300px) minmax(0, 1fr) minmax(220px, 280px); gap: 22px; align-items: center; background: radial-gradient(circle at 55% 50%, rgba(35, 64, 44, .96), rgba(12, 26, 18, .97) 72%); color: #f6eed0; }
+#ui.wol .lb-scope .lb-side { display: flex; flex-direction: column; gap: 12px; }
+#ui.wol .lb-scope h2 { color: #f6eed0; }
+#ui.wol .lb-scope h3 { color: #f6eed0; font-size: 1.15em; margin: 6px 0 0; }
+#ui.wol .lb-dots { display: flex; align-items: center; gap: 7px; }
+#ui.wol .lb-dots i { width: 22px; height: 22px; border-radius: 50%; border: 3px dashed #8a7a50; box-sizing: border-box; }
+#ui.wol .lb-dots i.on { border: 0; background: #4f8a3f; box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .2); }
+#ui.wol .lb-dots b { margin-inline-start: 6px; }
+#ui.wol .lb-eye-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; min-width: 0; }
+#ui.wol .lb-eye { position: relative; width: min(52vh, 100%); aspect-ratio: 1; border-radius: 50%; overflow: hidden; cursor: zoom-in; background: #c9d6c0;
+  box-shadow: 0 0 0 14px #1c2328, 0 0 0 17px #4a5560, 0 22px 50px rgba(0, 0, 0, .6); }
+#ui.wol .lb-eye svg { position: absolute; inset: 0; width: 100%; height: 100%; transition: filter .15s; }
+#ui.wol .lb-eye-marks { pointer-events: none; }
+#ui.wol .lb-eye-vig { position: absolute; inset: 0; border-radius: 50%; box-shadow: inset 0 0 70px rgba(0, 0, 0, .7); pointer-events: none; }
+#ui.wol .lb-mark { animation: lbMark .45s ease-out; transform-box: fill-box; transform-origin: center; }
+@keyframes lbMark { from { transform: scale(1.6); opacity: 0; } to { transform: none; opacity: 1; } }
+#ui.wol .lb-zooms { display: flex; gap: 10px; }
+#ui.wol .lb-zooms button, #ui.wol .lb-tray button, #ui.wol .lb-choices button { border-radius: 20px; border: 2px solid #8a9aa6; background: transparent; color: #f6eed0; font: inherit; font-weight: 700; padding: 8px 18px; cursor: pointer; }
+#ui.wol .lb-zooms button.on { background: #e0a43a; border-color: #e0a43a; color: #2a1a0e; }
+#ui.wol .lb-focus { display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 1.05em; }
+#ui.wol .lb-focus input { width: 100%; accent-color: #e0a43a; height: 26px; }
+#ui.wol .lb-tray { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-height: min(52vh, 420px); overflow-y: auto; padding: 2px 4px 2px 2px; }   /* 17 samples: the tray scrolls */
+#ui.wol .lb-tray button { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px; border-radius: 12px; background: #fbf6e4; color: #2a1a0e; border: 2px solid #c9b98a; font-weight: 600; font-size: .88em; }
+#ui.wol .lb-tray button img { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; }
+#ui.wol .lb-tray button.on { border: 3px solid #e0a43a; }
+#ui.wol .lb-tray button.done { background: #eaf6dc; }
+#ui.wol .lb-locked { grid-column: span 2; padding: 8px; border-radius: 12px; border: 2px dashed #8a7a50; color: #d8cfa8; font-size: .85em; text-align: center; }
+/* the inventors table */
+#ui.wol .lb-inv { background: linear-gradient(180deg, rgba(138, 90, 50, .97), rgba(107, 68, 34, .97)); display: flex; flex-direction: column; gap: 14px; }
+#ui.wol .lb-inv header { display: flex; align-items: center; gap: 16px; color: #fbf6e4; }
+#ui.wol .lb-inv header h2 { color: #fbf6e4; }
+#ui.wol .lb-inv header p { flex: 1; margin: 0; color: #f0dfb8; }
+#ui.wol .lb-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+#ui.wol .lb-steps li { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 12px; background: rgba(251, 246, 228, .5); }
+#ui.wol .lb-steps li span { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #8a7a50; color: #fbf6e4; font-weight: 700; }
+#ui.wol .lb-steps li.done { background: #fbf6e4; } #ui.wol .lb-steps li.done span { background: #2c4f26; }
+#ui.wol .lb-steps li.on { background: #e0a43a; } #ui.wol .lb-steps li.on span { background: #2a1a0e; }
+#ui.wol .lb-cols { flex: 1; display: grid; grid-template-columns: minmax(200px, 280px) minmax(0, 1fr) minmax(220px, 300px); gap: 16px; min-height: 0; }
+#ui.wol .lb-cols > section { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+#ui.wol .lb-red { color: #a0402a !important; }
+#ui.wol .lb-pick { display: flex; gap: 10px; align-items: center; }
+#ui.wol .lb-pick img { width: 72px; height: 72px; border-radius: 12px; object-fit: cover; }
+#ui.wol .lb-pick b { display: block; font-family: var(--serif); font-size: 1.2em; }
+#ui.wol .lb-board { flex: 1; display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 14px; background: #fbf6e4; box-shadow: 0 4px 0 #c9b98a; }
+#ui.wol .lb-board .lb-big { font-size: 1.15em; line-height: 1.5; margin: 0; }
+#ui.wol .lb-board.lb-blue { background: #e9eef6; background-image: linear-gradient(rgba(60, 110, 170, .14) 1px, transparent 1px); background-size: 100% 22px; box-shadow: 0 4px 0 #9fb0c8; }
+#ui.wol .lb-board.lb-patent { border: 3px dashed #e0a43a; }
+#ui.wol .lb-board.lb-patent small { font-weight: 700; color: #8a5a12; }
+#ui.wol .lb-creatures { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+#ui.wol .lb-creatures button { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px; border-radius: 14px; border: 2px solid #c9b98a; background: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+#ui.wol .lb-creatures button:hover { border-color: #4f8a3f; transform: translateY(-2px); }
+#ui.wol .lb-creatures img { width: 84px; height: 84px; border-radius: 12px; object-fit: cover; }
+#ui.wol .lb-sketch { width: 100%; max-height: 190px; }
+#ui.wol .lb-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+#ui.wol .lb-choices button { color: #1a3a66; border-color: #9fb0c8; background: #fff; font-size: .95em; }
+#ui.wol .lb-choices button.on { border: 3px solid #2f5f9a; background: #dbe8f6; }
+#ui.wol .lb-test-box { padding: 14px; border-radius: 14px; background: #263440; color: #e7f2f8; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 4px 0 #111a20; }
+#ui.wol .lb-test-box b { font-family: var(--serif); font-size: 1.2em; }
+#ui.wol .lb-tank { width: 100%; }
+#ui.wol .lb-tank.run .lb-flow { animation: lbFlow .6s linear infinite; }
+@keyframes lbFlow { to { stroke-dashoffset: -18; } }
+#ui.wol .lb-row { display: flex; justify-content: space-between; gap: 8px; font-size: .92em; }
+#ui.wol .lb-row .good { color: #8fd067; font-weight: 700; } #ui.wol .lb-row .bad { color: #ff9a7a; }
+#ui.wol .lb-meter { height: 10px; border-radius: 6px; background: #3c4f5c; }
+#ui.wol .lb-meter i { display: block; height: 100%; border-radius: 6px; background: #9fb4c4; } #ui.wol .lb-meter i.good { background: #8fd067; } #ui.wol .lb-meter i.bad { background: #e0786a; }
+#ui.wol .lb-test-box small { color: #9fd8ff; }
+/* the atlas */
+#ui.wol .lb-atlas { background: linear-gradient(180deg, rgba(251, 246, 228, .97), rgba(239, 230, 200, .97)); display: flex; flex-direction: column; gap: 14px; }
+#ui.wol .lb-atlas header { display: flex; align-items: center; gap: 16px; } #ui.wol .lb-atlas header p { flex: 1; margin: 0; }
+#ui.wol .lb-a-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+#ui.wol .lb-a-card { display: flex; gap: 12px; padding: 12px; border-radius: 14px; background: #fff; box-shadow: 0 3px 0 #d8c79a; }
+#ui.wol .lb-a-card.dim { opacity: .7; }
+#ui.wol .lb-a-card img { width: 86px; height: 86px; border-radius: 50%; object-fit: cover; border: 4px solid #fff; box-shadow: 0 2px 8px rgba(0, 0, 0, .2); }
+#ui.wol .lb-a-card b { font-family: var(--serif); font-size: 1.2em; color: #2c4f26; }
+#ui.wol .lb-a-card p { margin: 6px 0 0; font-size: .92em; line-height: 1.4; }
+#ui.wol .lb-stamps { display: flex; gap: 6px; margin-top: 4px; }
+#ui.wol .lb-stamps span { padding: 2px 8px; border-radius: 8px; border: 2px dashed #b9a77a; color: #8a7a50; font-size: .8em; font-weight: 700; }
+#ui.wol .lb-stamps span.on.z { border: 2px solid #8a5ab8; background: #f0e8f8; color: #5a3a88; transform: rotate(-3deg); }
+#ui.wol .lb-stamps span.on.i { border: 2px solid #e0a43a; background: #fff3d8; color: #8a5a12; transform: rotate(2deg); }
+@media (max-width: 1100px), (max-height: 680px) {
+  #ui.wol .lb-scope, #ui.wol .lb-cols { grid-template-columns: 1fr; }
+  #ui.wol .lb-panel { inset: 64px 8px 80px; }
+  #ui.wol .lb-eye { width: min(46vh, 80vw); }
+}
+/* the microscope on small screens (1024x600, 800x460): the eye stays in view, the two side panels stack beside it */
+@media (max-width: 1100px), (max-height: 680px) {
+  #ui.wol .lb-scope { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "s1 eye" "s2 eye"; align-items: start; gap: 10px 18px; }
+  #ui.wol .lb-scope > .lb-side:first-child { grid-area: s1; } #ui.wol .lb-scope > .lb-eye-wrap { grid-area: eye; align-self: start; position: sticky; top: 0; } #ui.wol .lb-scope > .lb-side:last-child { grid-area: s2; }
+  #ui.wol .lb-scope .lb-eye { width: min(40vh, 40vw); box-shadow: 0 0 0 9px #1c2328, 0 0 0 11px #4a5560, 0 14px 30px rgba(0, 0, 0, .55); }
+  #ui.wol .lb-scope .lb-eye-wrap { gap: 18px; }
+  #ui.wol .lb-scope .lb-tray { grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); max-height: none; }
+  #ui.wol .lb-scope .lb-tray button img { width: 38px; height: 38px; }
+}
+#ui.wol .lb-say .lb-face { display: none; }
+/* docked while a panel is open: down on the station bar, below the panel, so it never hides the panel's own buttons */
+#ui.wol .lb-say.dock { left: auto !important; right: 18px; top: auto !important; bottom: 6px; transform: none; display: flex; align-items: center; gap: 10px; max-width: min(620px, 62vw); max-height: 72px; overflow: hidden; padding: 6px 14px; font-size: .92em; line-height: 1.35; z-index: 3; }
+#ui.wol .lb-say.dock .lb-face { width: 44px !important; height: 44px !important; }
+#ui.wol .lb-say.dock::after { display: none; }
+#ui.wol .lb-say.dock.pop { animation: lbPopD .3s ease-out; }
+@keyframes lbPopD { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+#ui.wol .lb-say.dock .lb-face { display: block; flex: 0 0 auto; width: 54px; height: 54px; border-radius: 50%; background: radial-gradient(circle at 50% 40%, #f6f4ee 0 58%, #2c9a92 59% 64%, #f6f4ee 65%); box-shadow: inset 0 -4px 0 rgba(0, 0, 0, .12);
+  background-image: radial-gradient(ellipse 7px 10px at 38% 44%, #8ff2ff 60%, transparent 62%), radial-gradient(ellipse 7px 10px at 62% 44%, #8ff2ff 60%, transparent 62%), radial-gradient(ellipse 22px 16px at 50% 50%, #0a1016 96%, transparent 100%), radial-gradient(circle, #f6f4ee 0 70%, #2c9a92 71%); }
+/* talking with רובו־דע */
+#ui.wol .lb-talk { display: inline-flex; align-items: center; gap: 8px; }
+#ui.wol .lb-tface { width: 26px; height: 22px; border-radius: 8px; background: #1d2b36; box-shadow: inset 0 0 0 3px #e9eef2; position: relative; }
+#ui.wol .lb-tface::before, #ui.wol .lb-tface::after { content: ""; position: absolute; top: 8px; width: 5px; height: 5px; border-radius: 50%; background: #7ff0ff; box-shadow: 0 0 6px #7ff0ff; }
+#ui.wol .lb-tface::before { right: 6px; } #ui.wol .lb-tface::after { left: 6px; }
+#ui.wol .lb-chat { inset: auto 18px 86px auto; width: min(420px, calc(100vw - 36px)); background: #f3ead0; }
+#ui.wol .lb-chat header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+#ui.wol .lb-chat h2 { margin: 0; font-family: var(--serif); }
+#ui.wol .lb-chat-sub { margin: 6px 0 10px; color: #5a4a30; }
+#ui.wol .lb-qs { display: flex; flex-wrap: wrap; gap: 8px; }
+#ui.wol .lb-qs button { padding: 9px 14px; border-radius: 999px; background: #263440; color: #eaf6fa; font-weight: 700; min-height: 36px; }
+#ui.wol .lb-qs button:hover { background: #33495a; }
+
+/* beginners (מתחילים): fully vocalised text needs a little more room between lines, so the nikud does not touch */
+#ui.wol .lb.kids .lb-say { line-height: 1.65; }
+#ui.wol .lb.kids .lb-say.dock { max-height: 90px; line-height: 1.55; }
+#ui.wol .lb.kids .lb-title h1 { line-height: 1.3; }
+#ui.wol .lb.kids .lb-panel p, #ui.wol .lb.kids .lb-card small, #ui.wol .lb.kids .lb-tray span, #ui.wol .lb.kids .lb-q-list button span { line-height: 1.55; }
+#ui.wol .lb.kids .lb-panel h2, #ui.wol .lb.kids .lb-q-head h3 { line-height: 1.35; }
+#ui.wol .lb.kids .lt-ttl h2 { line-height: 1.3; }
+
+/* at a station: a big, clear way back to the room's main view (top left), and no way out of the lab from the corner */
+#ui.wol .lb .lb-home { display: none; padding: 11px 22px; font-size: 1.12em; background: linear-gradient(180deg, #ffe08a, #e8a43a); color: #2a1a06; box-shadow: 0 4px 0 #9c6519, 0 8px 18px rgba(0, 0, 0, .3); }
+#ui.wol .lb .lb-home .ic { width: 22px; height: 22px; }
+#ui.wol .lb.at-st .lb-home { display: inline-flex; }
+#ui.wol .lb.at-st .lb-title, #ui.wol .lb.at-st .lb-exit { display: none; }
+#ui.wol .lb.at-st .lb-top { justify-content: flex-start; }
+#ui.wol .lb.at-st .lb-home { margin-inline-start: auto; }
+/* a working panel in a frame, with רובו־דע's voice on a strip at its foot (never over a caption) */
+#ui.wol .lb-frame { position: absolute; inset: 72px 18px 86px; display: flex; flex-direction: column; gap: 6px; pointer-events: auto; animation: lbIn .35s ease-out; }
+#ui.wol .lb-frame-in { position: relative; flex: 1; min-height: 0; }
+#ui.wol .lb-frame-in > .lb-panel { inset: 0; }
+#ui.wol .lb-frame-in > .lb-atlas { display: flex; flex-direction: column; }
+#ui.wol .lb-frame-in > .lb-atlas .lb-a-grid { flex: 1; min-height: 0; overflow: auto; padding: 2px; }
+#ui.wol .lb-pv { flex: none; display: flex; align-items: center; gap: 10px; padding: 6px 12px; border-radius: 14px; background: #263440; color: #eaf6fa; min-height: 40px; box-shadow: 0 4px 12px rgba(0, 0, 0, .25), inset 0 0 0 1px rgba(127, 240, 255, .25); }
+#ui.wol .lb-pv:empty { visibility: hidden; }
+#ui.wol .lb-pv p { margin: 0; line-height: 1.4; }
+#ui.wol .lb-pv b { color: #7ff0ff; }
+#ui.wol .lb-pv .ls-face { width: 36px; height: 36px; flex: none; }
+#ui.wol .lb-pv.pop { animation: lbPopD .3s ease-out; }
+#ui.wol .lb-frame.kids .lb-pv p, #ui.wol .lb-chat.kids .lb-pv p { line-height: 1.65; }
+#ui.wol .lb-chat-pv { margin-top: 10px; }
+@media (max-width: 1100px), (max-height: 680px) {
+  #ui.wol .lb-frame { inset: 64px 8px 80px; }
+  #ui.wol .lb .lb-home { padding: 8px 16px; font-size: 1em; }
+}
+@media (max-height: 520px) {
+  #ui.wol .lb-frame { inset: 58px 6px 94px; }
+  #ui.wol .lb-pv { min-height: 34px; padding: 4px 10px; font-size: .9em; }
+  #ui.wol .lb-pv .ls-face { width: 28px; height: 28px; }
+  #ui.wol .lb-dot { width: 20px; height: 20px; }
+}
+/* the microscope inside its frame: the tray scrolls on its own, so the panel's own buttons stay in view */
+#ui.wol .lb-frame .lb-scope .lb-tray { max-height: min(36vh, 330px); }
+#ui.wol .lb-frame .lb-scope .lb-side { max-height: 100%; }
+/* the look-around room (19.10): drag the room itself, two round turning arrows at the sides (the left one turns to
+   the left: a direction in the room, not in the text), a quiet hint about dragging until the child has turned once */
+#ui.wol .lb-drag { position: absolute; inset: 0; z-index: 0; display: none; cursor: grab; touch-action: none; }
+#ui.wol .lb.pano .lb-drag { display: block; }
+#ui.wol .lb.busy .lb-drag { display: none; }
+#ui.wol .lb-drag.grab { cursor: grabbing; }
+#ui.wol .lb-turn { position: absolute; top: 50%; z-index: 2; display: none; place-items: center; width: 56px; height: 56px; margin-top: -28px; padding: 0; border: 0; border-radius: 50%; background: rgba(14, 26, 20, .6); box-shadow: 0 0 0 3px rgba(251, 246, 228, .85), 0 6px 16px rgba(0, 0, 0, .3); cursor: pointer; touch-action: none; transition: transform .15s, background .15s; backdrop-filter: blur(2px); }
+#ui.wol .lb-turn svg { width: 30px; height: 30px; fill: none; stroke: #fbf6e4; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+#ui.wol .lb-turn-l { left: 14px; }
+#ui.wol .lb-turn-r { right: 14px; }
+#ui.wol .lb.pano:not(.at-st):not(.busy) .lb-turn { display: grid; }
+#ui.wol .lb-turn:hover { background: rgba(14, 26, 20, .82); transform: scale(1.06); }
+#ui.wol .lb-turn:active { transform: scale(.95); }
+#ui.wol .lb-turn:focus-visible { outline: 3px solid #ffc27a; outline-offset: 3px; }
+#ui.wol .lb-look { position: absolute; left: 50%; bottom: 96px; transform: translateX(-50%); z-index: 1; display: flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 16px; background: rgba(14, 26, 20, .62); color: #fbf6e4; font-weight: 700; font-size: .92em; white-space: nowrap; pointer-events: none; transition: opacity .8s; }
+#ui.wol .lb-look svg { width: 30px; height: 15px; fill: none; stroke: #ffc27a; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+#ui.wol .lb-look.gone, #ui.wol .lb.at-st .lb-look, #ui.wol .lb.busy .lb-look, #ui.wol .lb:not(.pano) .lb-look { opacity: 0; }
+#ui.wol .lb-look[hidden] { display: none; }
+#ui.wol .lb.pano .lb-hot.edge-l .lb-dot, #ui.wol .lb.pano .lb-hot.edge-r .lb-dot { width: 18px; height: 18px; }
+@media (max-width: 860px), (max-height: 520px) {
+  #ui.wol .lb-turn { width: 46px; height: 46px; margin-top: -23px; }
+  #ui.wol .lb-turn svg { width: 25px; height: 25px; }
+  #ui.wol .lb-turn-l { left: 10px; }
+  #ui.wol .lb-turn-r { right: 10px; }
+  #ui.wol .lb-look { bottom: 86px; font-size: .85em; }
+}
+/* in the look-around room his words, when he is out of sight, sit in the middle above the stations bar (the sides keep
+   the turning arrows and the spots of the stations out of sight); the dragging hint sits under the top bar */
+#ui.wol .lb.pano:not(.at-st) .lb-say.dock { right: auto; left: 50% !important; bottom: 92px; transform: translateX(-50%); max-width: min(600px, 74vw); }
+#ui.wol .lb.pano .lb-look { bottom: auto; top: 78px; }
+/* at a station with no panel open (the inventors table) his docked words sit above the stations bar, not on it */
+#ui.wol .lb.at-st .lb-say.dock.lift { bottom: 92px; }
+@media (max-width: 860px), (max-height: 520px) {
+  #ui.wol .lb.pano:not(.at-st) .lb-say.dock { bottom: 84px; }
+  #ui.wol .lb.at-st .lb-say.dock.lift { bottom: 84px; }
+  #ui.wol .lb.pano .lb-look { top: 70px; }
+}
+/* his bubble above his head stays readable over the stations' spots (they still take clicks through it) */
+#ui.wol .lb.pano .lb-say:not(.dock) { z-index: 3; }
+/* the orange spots stay above the robot's words in the look-around room (the words never hide a station) */
+#ui.wol .lb.pano .lb-hots { z-index: 4; }
+/* the music switch sits in the bottom-left corner over the lab: the robot's strip at a panel's foot leaves it room */
+#ui.wol .lb .ls-voice, #ui.wol .lb .lt-voice, #ui.wol .lb .lb-pv { padding-left: 56px; }

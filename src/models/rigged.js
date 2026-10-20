@@ -42,7 +42,7 @@ function geoV2(d) {
   g.setAttribute('skinWeight', new THREE.BufferAttribute(bytes(d.sw), 4, true));
   const ib = bytes(d.idx), ix = n < 65536 ? new Uint16Array(ib.buffer, 0, ib.length >> 1) : new Uint32Array(ib.buffer, 0, ib.length >> 2);
   g.setIndex(new THREE.BufferAttribute(ix, 1));
-  const rough = new Float32Array(n).fill(0.82);
+  const rough = new Float32Array(n).fill((d.meta && d.meta.rough) || 0.82);   // wet skins (fish, the octopus) are glossier
   for (const [s0, cnt, m] of d.groups) if (m === 1) for (let i = s0; i < s0 + cnt; i++) rough[ix[i]] = 0.16;
   g.setAttribute('aRough', new THREE.BufferAttribute(rough, 1));
   return g;
@@ -124,8 +124,11 @@ function roughPatch(m) {
   m.customProgramCacheKey = () => 'rigged-rough';
   return m;
 }
-function materialV2(id, tex) {
-  return cachedMaterial('rigged:hd:' + id, () => roughPatch(new THREE.MeshStandardMaterial({ map: tex.map, normalMap: tex.normalMap, roughness: 0.82, metalness: 0 })));
+function materialV2(id, tex, meta = {}) {
+  // meta.opacity: see-through animals (the moon jellyfish)
+  const see = meta.opacity && meta.opacity < 1;
+  return cachedMaterial('rigged:hd:' + id, () => roughPatch(new THREE.MeshStandardMaterial({ map: tex.map, normalMap: tex.normalMap, roughness: 0.82, metalness: 0,
+    ...(see ? { transparent: true, opacity: meta.opacity, depthWrite: false, side: THREE.DoubleSide } : {}) })));
 }
 function materials() {
   return cachedMaterial('rigged:skin', () => {
@@ -147,7 +150,7 @@ export function makeRigged(id, data, opts = {}) {
   const object = new THREE.Group(); object.name = id;
   const bones = P.bones.map((b) => { const o = new THREE.Bone(); o.name = b.n; o.position.fromArray(b.t); o.quaternion.fromArray(b.q); return o; });
   P.bones.forEach((b, i) => { if (b.p >= 0) bones[b.p].add(bones[i]); });
-  const mat = P.tex ? materialV2(id, P.tex) : materials();
+  const mat = P.tex ? materialV2(id, P.tex, meta) : materials();
   const mesh = new THREE.SkinnedMesh(P.geo, mat);
   const meshes = [mesh];
   if (P.lod) {

@@ -3,11 +3,15 @@
 import { artPos } from '../data/art-focus.js';
 import { TORAH, sourcesOn, setSourcesOn, EDITION_NAME } from '../core/edition.js';
 import { ISLAND_ART } from '../data/island-art.js';
+import { CARD_ART } from '../data/card-art.js';
+import { badgesFor } from '../data/badges.js';
+import { badgeHTML } from './badge-art.js';
 import { avatarHTML, avatarName, AVATAR_IDS } from './avatars.js';
 import { zoneWord } from '../core/place.js';
+import { HUB_ICONS, tileIcon } from './icons-hub.js';   // the learning hub's icons: icon() draws them too
 
 /* ------------------------------------------------------------------ helpers */
-const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+export const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const clamp01 = (x) => Math.max(0, Math.min(1, +x || 0));
 function h(tag, cls, html, parent) {
   const e = document.createElement(tag);
@@ -35,7 +39,7 @@ const I = {
   leaf: '<path class="f" d="M5 19C5 10 10 5 20 4c0 10-5 15-14 15z"/><path d="M5 19C5 10 10 5 20 4c0 10-5 15-14 15z"/><path d="M5 19c3-5 6-8 10-10"/>',
   sprout: '<path class="f" d="M12 12C12 8 9 6 5 6c0 4 3 6 7 6zM12 10c0-4 3-6 7-6 0 4-3 6-7 6z"/><path d="M12 21v-9"/><path d="M12 12C12 8 9 6 5 6c0 4 3 6 7 6z"/><path d="M12 10c0-4 3-6 7-6 0 4-3 6-7 6z"/><path d="M8 21h8"/>',
   paw: '<circle cx="6.5" cy="10" r="1.9"/><circle cx="10" cy="6" r="1.9"/><circle cx="14.5" cy="6" r="1.9"/><circle cx="18" cy="10" r="1.9"/><path class="f" d="M12.2 11.5c-2.8 0-5.2 3.1-5.2 5.4 0 1.5 1.2 2.3 2.5 2.3 1 0 1.7-.6 2.7-.6s1.7.6 2.7.6c1.3 0 2.5-.8 2.5-2.3 0-2.3-2.4-5.4-5.2-5.4z"/><path d="M12.2 11.5c-2.8 0-5.2 3.1-5.2 5.4 0 1.5 1.2 2.3 2.5 2.3 1 0 1.7-.6 2.7-.6s1.7.6 2.7.6c1.3 0 2.5-.8 2.5-2.3 0-2.3-2.4-5.4-5.2-5.4z"/>',
-  web: '<circle class="f" cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="2.2"/><circle cx="5" cy="6" r="1.6"/><circle cx="19" cy="6" r="1.6"/><circle cx="5" cy="18" r="1.6"/><circle cx="19" cy="18" r="1.6"/><path d="M6.3 7.2l4.1 3.4M17.7 7.2l-4.1 3.4M6.3 16.8l4.1-3.4M17.7 16.8l-4.1-3.4M6.6 6h10.8M5 7.6v8.8"/>',
+  web: '<circle class="f" cx="12" cy="13" r="4.6"/><circle cx="12" cy="13" r="2"/><circle cx="12" cy="3.8" r="1.6"/><circle cx="4" cy="18.6" r="1.6"/><circle cx="20" cy="18.6" r="1.6"/><path d="M12 5.4V11M5.4 17.8l4.9-3.4M18.6 17.8l-4.9-3.4M10.6 4.6L4.8 17.2M13.4 4.6l5.8 12.6M5.6 18.8h12.8"/>',
   lock: '<rect class="f" x="5" y="11" width="14" height="9.5" rx="2.2"/><rect x="5" y="11" width="14" height="9.5" rx="2.2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
   pause: '<path d="M9 6v12M15 6v12" stroke-width="2.8"/>',
   play: '<path d="M8 5.5l11 6.5-11 6.5z" fill="currentColor"/>',
@@ -47,15 +51,18 @@ const I = {
   help: '<circle class="f" cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="9"/><path d="M9.5 9.6a2.6 2.6 0 1 1 3.7 2.3c-.8.4-1.2 1-1.2 1.8v.4"/><circle cx="12" cy="17.2" r=".7" fill="currentColor"/>',
   // a little forest hut instead of a generic house
   home: '<path class="f" d="M6 10.5l6-6 6 6V20H6z"/><path d="M3 12.5L12 4l9 8.5"/><path d="M6 10.5V20h12v-9.5"/><path d="M10 20v-5h4v5"/><path d="M15.5 6.5V4h2v4.3"/>',
-  target: '<circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="2" fill="currentColor"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/>',
+  target: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/>',
   sound: '<path class="f" d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9.2a4 4 0 0 1 0 5.6M18 6.8a7.4 7.4 0 0 1 0 10.4"/>',
-  mute: '<path class="f" d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/>',
-  lightmap: '<circle class="f" cx="12" cy="7" r="2.6"/><circle cx="12" cy="7" r="2.6"/><path d="M12 1.8v1.3M7.4 3.4l.9.9M16.6 3.4l-.9.9M6 7h1.2M16.8 7H18"/><path class="f" d="M2.5 15.5L12 12l9.5 3.5L12 19z"/><path d="M2.5 15.5L12 12l9.5 3.5L12 19z"/><path d="M7.2 13.8l9.5 3.4M16.8 13.8l-9.5 3.4"/>',
+  mute: '<path class="f" d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 12h5"/>',
+  // background music: two beamed notes; off = one note and a bar (like mute: no slash across a stem)
+  music: '<ellipse class="f" cx="7" cy="17.5" rx="2.8" ry="2.2"/><ellipse class="f" cx="17" cy="15.5" rx="2.8" ry="2.2"/><ellipse cx="7" cy="17.5" rx="2.8" ry="2.2"/><ellipse cx="17" cy="15.5" rx="2.8" ry="2.2"/><path d="M9.8 17.3V6.2l10-2.2v11.3"/>',
+  musicOff: '<ellipse class="f" cx="7" cy="17.5" rx="2.8" ry="2.2"/><ellipse cx="7" cy="17.5" rx="2.8" ry="2.2"/><path d="M9.8 17.3V5c1.2 2.4 4.5 3 4.5 6"/><path d="M16 14.5h5"/>',
+  lightmap: '<circle class="f" cx="12" cy="7" r="2.6"/><circle cx="12" cy="7" r="2.6"/><path d="M12 1.8v1.3M7.4 3.4l.9.9M16.6 3.4l-.9.9M6 7h1.2M16.8 7H18"/><path class="f" d="M2.5 15.5L12 12l9.5 3.5L12 19z"/><path d="M2.5 15.5L12 12l9.5 3.5L12 19z"/><path d="M5.5 15.5h13"/>',
   sliders: '<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/>',
-  close: '<path d="M6 6l12 12M18 6L6 18"/>',
+  close: '<circle cx="12" cy="12" r="8"/><path d="M8.2 12h7.6"/>',   // no X anywhere: a circle with a bar
   binoc: '<circle class="f" cx="6.5" cy="15.5" r="3.8"/><circle class="f" cx="17.5" cy="15.5" r="3.8"/><circle cx="6.5" cy="15.5" r="3.8"/><circle cx="17.5" cy="15.5" r="3.8"/><path d="M4 12.5L6.2 5h3l.8 7M20 12.5L17.8 5h-3l-.8 7M10.3 15h3.4"/>',
   flask: '<path class="f" d="M7.2 15h9.6l2.6 3.4A1.8 1.8 0 0 1 17.8 21H6.2a1.8 1.8 0 0 1-1.6-2.6z"/><path d="M9 3h6M10 3v6.2L4.6 18.4A1.8 1.8 0 0 0 6.2 21h11.6a1.8 1.8 0 0 0 1.6-2.6L14 9.2V3"/><path d="M7.2 15h9.6"/>',
-  sparkle: '<path d="M12 2.5l2 7.5 7.5 2-7.5 2-2 7.5-2-7.5L2.5 12 10 10z" fill="currentColor" stroke="none"/>',
+  sparkle: '<path d="M12.0 3.1 L14.4 9.3 L21.0 9.7 L15.9 13.9 L17.6 20.3 L12.0 16.7 L6.4 20.3 L8.1 13.9 L3.0 9.7 L9.6 9.3z" fill="currentColor" stroke="none" stroke-linejoin="round"/>',   // a five-point star (a four-point sparkle looks like a cross)
   drop: '<path class="f" d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/><path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/>',
   flower: '<circle cx="12" cy="12" r="2.3" fill="currentColor"/><circle class="f" cx="12" cy="6.3" r="2.6"/><circle class="f" cx="17.4" cy="10.2" r="2.6"/><circle class="f" cx="15.3" cy="16.6" r="2.6"/><circle class="f" cx="8.7" cy="16.6" r="2.6"/><circle class="f" cx="6.6" cy="10.2" r="2.6"/><circle cx="12" cy="6.3" r="2.6"/><circle cx="17.4" cy="10.2" r="2.6"/><circle cx="15.3" cy="16.6" r="2.6"/><circle cx="8.7" cy="16.6" r="2.6"/><circle cx="6.6" cy="10.2" r="2.6"/>',
   autumn: '<path class="f" d="M12 16l-6-2 1.5-2-3-3 3.5-.5L7 5l3.5 1.5L12 3l1.5 3.5L17 5l-1 3.5 3.5.5-3 3 1.5 2z"/><path d="M12 21v-5"/><path d="M12 16l-6-2 1.5-2-3-3 3.5-.5L7 5l3.5 1.5L12 3l1.5 3.5L17 5l-1 3.5 3.5.5-3 3 1.5 2z"/>',
@@ -66,18 +73,22 @@ const I = {
   chevron: '<path d="M8 10l4 4 4-4"/>',
   bulb: '<path class="f" d="M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1 2V16h5.2v-.2c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1 2V16h5.2v-.2c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/>',
   arrowL: '<path d="M19 12H5M11 6l-6 6 6 6"/>',
+  arrowR: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+  search: '<circle class="f" cx="10.5" cy="10.5" r="6"/><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5.5 5.5"/>',
+  cards: '<rect class="f" x="8" y="4" width="11" height="15" rx="2"/><rect x="8" y="4" width="11" height="15" rx="2"/><path d="M5.5 7.5v11a2 2 0 0 0 2 2h8"/>',
+  versus: '<rect class="f" x="3" y="5" width="8" height="12" rx="1.6" transform="rotate(-8 7 11)"/><rect x="3" y="5" width="8" height="12" rx="1.6" transform="rotate(-8 7 11)"/><rect x="13" y="7" width="8" height="12" rx="1.6" transform="rotate(8 17 13)"/>',
   undo: '<path d="M9 7L4 12l5 5"/><path d="M4 12h10a6 6 0 0 1 0 12h-2" transform="translate(0 -6)"/>',
   bang: '<path d="M12 6v8" stroke-width="2.6"/><circle cx="12" cy="18" r="1.3" fill="currentColor" stroke="none"/>',
-  hourglass: '<path d="M6 3h12M6 21h12M7 3c0 5 10 6 10 9s-10 4-10 9M17 3c0 5-10 6-10 9s10 4 10 9"/>',
+  hourglass: '<circle cx="12" cy="13" r="8"/><path d="M12 8.5V13l3 2M9.5 2.5h5"/>',
   pencil: '<path class="f" d="M5 16.5L15.8 5.7l2.5 2.5L7.5 19H5z"/><path d="M5 16.5L15.8 5.7l2.5 2.5L7.5 19H5z"/><path d="M13.8 7.7l2.5 2.5"/>',
-  plus: '<path d="M12 5v14M5 12h14" stroke-width="2.4"/>',
+  plus: '<path d="M12 5v7.5M5 12.5h14" stroke-width="2.4"/>',   // the plus of the children's schools: the stem stops at the bar
   trash: '<path d="M5 7h14"/><path d="M9.5 7V5h5v2"/><path class="f" d="M6.5 7l1 12.5h9l1-12.5"/><path d="M6.5 7l1 12.5h9l1-12.5"/><path d="M10.3 10.5v6M13.7 10.5v6"/>',
   // the naturalist's satchel: the game menu
   satchel: '<path class="f" d="M4 9h16v10.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19.5z"/><path d="M4 9h16v10.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19.5z"/><path d="M4 9l2-4h12l2 4"/><path d="M9.5 9v4.2a2.5 2.5 0 0 0 5 0V9"/><circle cx="12" cy="13.3" r=".8" fill="currentColor"/>',
   info: '<circle class="f" cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".9" fill="currentColor"/>',
   quality: '<path class="f" d="M3 18l5.5-8 4 5.5 2.5-3.5L21 18z"/><path d="M3 18l5.5-8 4 5.5 2.5-3.5L21 18z"/><circle cx="16.5" cy="6.5" r="2"/>',
 };
-const icon = (n, cls) => `<svg class="ic${cls ? ' ' + cls : ''}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${I[n] || ''}</svg>`;
+export const icon = (n, cls) => `<svg class="ic${cls ? ' ' + cls : ''}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${I[n] || HUB_ICONS[n] || ''}</svg>`;
 
 const ANIMAL_KINDS = new Set(['animal', 'colony', 'swarm']);
 const TYPE_COLORS = {
@@ -88,10 +99,10 @@ const typeColor = (t) => TYPE_COLORS[t] || '#9fc7a0';
 const SEASON_ICON = { winter: 'drop', spring: 'flower', summer: 'sun', autumn: 'autumn' };
 const LAYER_TINT = {
   all: '#5d8f52', emergent: '#a8cf7a', canopy: '#6aa84f', understory: '#46803f', shrubs: '#5f8a3e',
-  floor: '#7a5636', ground: '#7a5636', water: '#3f86a8', air: '#9ccbe6', sky: '#9ccbe6',
+  floor: '#7a5636', ground: '#7a5636', water: '#3f86a8', air: '#9ccbe6', sky: '#9ccbe6', nursery: '#e889a8',
 };
 const DEFAULT_TIPS = [
-  'כל צמח וכל בעל חיים ביער קשורים זה לזה – זאת רשת החיים.',
+  'כל צמח וכל בעל חיים בטבע קשורים זה לזה – זאת רשת החיים.',
   'עצים גבוהים מסתירים את האור. צמחים קטנים צריכים פתח של שמש.',
   'דבורים ופרפרים עוברים מפרח לפרח, וכך הפרחים יכולים להפוך לפירות.',
   'ציפורים שאוכלות פירות מפזרות את הזרעים למקומות חדשים.',
@@ -162,6 +173,16 @@ function biomeArt(b) {
     let flowers = '';
     for (let i = 0; i < 26; i++) flowers += `<circle cx="${(rnd() * W).toFixed(0)}" cy="${(204 + rnd() * 24).toFixed(0)}" r="${(1.6 + rnd() * 1.6).toFixed(1)}" fill="${i % 3 ? '#e4473b' : '#f6e9f0'}"/>`;
     art += `<g class="ba-near">${ridge(198, 14, 70, near)}${rocks}${crown(40, 196, 20, near, 7)}${crown(372, 190, 24, near, 7)}${flowers}</g>` + birds();
+  } else if (/reef/.test(b.id)) {
+    // the reef: a band of sea surface, the blue water below with light rays, coral heads and a few fish
+    art += `<rect y="96" width="${W}" height="${H - 96}" fill="${mix('#1f86b0', c1, 0.25)}"/><rect y="96" width="${W}" height="10" fill="#bfeaf5" opacity=".7"/>`;
+    for (let i = 0; i < 5; i++) { const x = 30 + i * 85 + rnd() * 20; art += `<path d="M${x} 106 L${x + 26} 106 L${x + 60} ${H} L${x + 10} ${H} Z" fill="#e8fbff" opacity=".12"/>`; }
+    let reef = '';
+    for (let i = 0; i < 7; i++) { const x = 20 + i * 60 + rnd() * 20, y = 200 + rnd() * 16, r = 16 + rnd() * 14; reef += `<ellipse cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" rx="${r.toFixed(0)}" ry="${(r * 0.7).toFixed(0)}" fill="${['#e8a0b4', '#c9b46a', '#9fc27a', '#c7a3d9'][i % 4]}"/>`; }
+    for (let i = 0; i < 4; i++) { const x = 50 + rnd() * 300; reef += `<path d="M${x} 214 l0 -28 m0 10 l-10 -14 m10 6 l12 -16" stroke="#d9603a" stroke-width="3" fill="none" stroke-linecap="round"/>`; }
+    let fish = '';
+    for (let i = 0; i < 6; i++) { const x = 40 + rnd() * 320, y = 130 + rnd() * 60, sz = 6 + rnd() * 5; fish += `<g transform="translate(${x.toFixed(0)} ${y.toFixed(0)})"><ellipse rx="${sz.toFixed(1)}" ry="${(sz * 0.55).toFixed(1)}" fill="${i % 2 ? '#f08a24' : '#f2d04a'}"/><path d="M${sz.toFixed(1)} 0 l${(sz * 0.7).toFixed(1)} -${(sz * 0.5).toFixed(1)} l0 ${sz.toFixed(1)} z" fill="${i % 2 ? '#f08a24' : '#f2d04a'}"/></g>`; }
+    art += `<path d="M0 ${H} L0 212 C80 204 160 214 240 208 S360 204 400 210 L400 ${H} Z" fill="#efe2bf"/>` + `<g class="ba-near">${reef}</g>` + `<g class="ba-mid">${fish}</g>`;
   } else {
     art += `<g class="ba-far">${ridge(140, 26, 60, far)}${umbrella(90, 150, 64, 34, far)}${umbrella(250, 150, 52, 40, far)}</g>`;
     let canopy = ''; for (let i = 0; i < 12; i++) canopy += crown(i * 36 + rnd() * 10, 150 + rnd() * 14, 18 + rnd() * 6, mid, 5);
@@ -297,34 +318,112 @@ export function createUI(root, bus) {
   }
 
   /* ================================================================ START */
+  // the start screen (1.3): three tabs – the game's environments (a carousel of the three islands, with the level),
+  // the science centre (חוקרי הטבע and the lab of רובו־דע) and the learning hub
   function renderStart(biomes) {
-    startEl.innerHTML = `<div class="st-bg">${canopySVG('top')}${canopySVG('bottom')}<i class="st-shaft s1"></i><i class="st-shaft s2"></i></div>
+    biomes = biomes || [];
+    S.stTab = S.stTab || 'env';
+    if (S.stCur == null || S.stCur >= biomes.length) S.stCur = 0;
+    const isl = (id) => ISLAND_ART['c_' + id] || ISLAND_ART[id] || '';
+    const fan = ['amazon:jaguar', 'grove:owl', 'reef:clownfish', 'amazon:toucan', 'reef:turtle'].map((k) => CARD_ART[k.split(':')[1]]).filter(Boolean).slice(0, 4);
+    startEl.innerHTML = `<div class="st-bg">${canopySVG('top')}${canopySVG('bottom')}<i class="st-shaft s1"></i><i class="st-shaft s2"></i><i class="st-tint"></i></div>
       ${S.logo ? `<div class="st-logo"><img src="${S.logo}" alt="בבא דע"></div>` : ''}
       <button class="st-who" aria-haspopup="dialog" aria-expanded="false" hidden></button>
       <div class="st-pp-layer" hidden><div class="st-pp-scrim"></div><div class="st-pp paper" role="dialog" aria-modal="true" aria-label="מי משחק?"></div></div>
-      <div class="st-inner">
+      <div class="st-inner v13">
       <header class="st-head"><div class="st-seal">${waxSeal(124)}</div>
         <div class="st-titles"><h1 class="st-title">רשת החיים</h1>${EDITION_NAME ? `<span class="st-edition">${EDITION_NAME}</span>` : ''}${VINE}<p class="st-sub">בונים יער חי, מגלים מי צריך את מי</p></div></header>
-      <div class="st-row">
+      <nav class="st-tabs" role="tablist">
+        <button role="tab" data-tab="env">${icon('leaf')}<span><b>סביבות משחק</b><small>אמזונס, חורש ושונית</small></span></button>
+        <button role="tab" data-tab="sci" data-research-tab="1">${icon('flask')}<span><b>המרכז המדעי</b><small>חוקרי הטבע ומעבדת רובו־דע</small></span></button>
+        <button role="tab" data-tab="learn">${icon('book')}<span><b>מרכז הלמידה</b><small>חידון, אלבום ומשחקי קלפים</small></span></button>
+      </nav>
+      <section class="st-pane" data-pane="env">
         <div class="st-modes" role="radiogroup" aria-label="רמת משחק">
           <button data-mode="kids" role="radio">${icon('sprout')}<span><b>מתחילים</b><small>מעט מינים, משימות קצרות</small></span></button>
           <button data-mode="full" role="radio">${icon('web')}<span><b>מתקדמים</b><small>כל המינים, אירועים וטכנולוגיה</small></span></button>
         </div>
-        <button class="st-learn" data-learn="1"><span class="st-book">${icon('book')}</span><span><b>מרכז הלמידה</b><small>חידון ואלבום קלפים</small></span></button>
-      </div>
-      <div class="st-cards"></div>
-      <ol class="st-how">
-        <li><span class="st-n">1</span><span><b>גוררים</b> צמח או בעל חיים אל היער</span></li>
-        <li><span class="st-n">2</span><span><b>מגלים</b> את הקשרים שביניהם</span></li>
-        <li><span class="st-n">3</span><span><b>שומרים</b> על יער מלא חיים ואור</span></li>
-      </ol></div>`;
+        <div class="st-car" aria-roledescription="קרוסלה">
+          <button class="st-arrow prev" data-car="-1" aria-label="הסביבה הקודמת">${icon('arrowR')}</button>
+          <div class="st-ring">${biomes.map((b, i) => `<button class="st-isl" data-i="${i}" data-id="${esc(b.id)}" style="--zc:${(b.palette && b.palette[1]) || '#6a9'};--zc2:${(b.palette && b.palette[2]) || '#f0b44c'}" aria-label="${esc(b.name)}">
+            <i class="st-glow"></i><img src="${isl(b.id)}" alt="" draggable="false"></button>`).join('')}</div>
+          <button class="st-arrow next" data-car="1" aria-label="הסביבה הבאה">${icon('arrowL')}</button>
+        </div>
+        <div class="st-info"></div>
+        <div class="st-dots">${biomes.map((b, i) => `<button data-dot="${i}" aria-label="${esc(b.name)}"></button>`).join('')}</div>
+      </section>
+      <section class="st-pane" data-pane="sci">
+        <div class="st-big2">
+          <button class="st-panel" data-research="1"><span class="st-pimg rs">${biomes.slice(0, 3).map((b) => `<img src="${isl(b.id)}" alt="" draggable="false">`).join('')}<i class="st-lens">${icon('search')}</i></span>
+            <span class="st-ptext"><b>חוקרי הטבע</b><small>תעלומות בטבע: מודדים, משערים, מנסים ומאזנים. שלוש רמות, משלוש הסביבות.</small><em>${icon('arrowL')}לתעלומות</em></span></button>
+          <button class="st-panel" data-lab="1"><span class="st-pimg lab">${ISLAND_ART.lab ? `<img src="${ISLAND_ART.lab}" alt="" draggable="false">` : ''}</span>
+            <span class="st-ptext"><b>המעבדה של רובו־דע</b><small>מיקרוסקופ, שולחן ממציאים ואטלס. ממציאים בעזרת הטבע ומשדרגים את הכלים.</small><em>${icon('arrowL')}למעבדה</em></span></button>
+        </div>
+      </section>
+      <section class="st-pane" data-pane="learn">
+        <div class="st-learnwrap">
+          <div class="st-fan">${fan.map((src, i) => `<img src="${src}" alt="" draggable="false" style="--k:${i - (fan.length - 1) / 2}">`).join('')}</div>
+          <div class="st-lgrid">
+            <button data-learn="home">${tileIcon('learn', 'st-lic')}<span><b>מרכז הלמידה</b><small>כל המשחקים במקום אחד</small></span></button>
+            <button data-learn="setup">${tileIcon('quiz', 'st-lic')}<span><b>חידון</b><small>שאלות על היער והשונית</small></span></button>
+            <button data-learn="album">${tileIcon('album', 'st-lic')}<span><b>אלבום הקלפים</b><small>חבילות, סדרות ואוסף</small></span></button>
+            <button data-learn="duel">${tileIcon('strong', 'st-lic')}<span><b>מי חזק ברשת?</b><small>קלף מול קלף</small></span></button>
+            <button data-learn="keepforest">${tileIcon('keep', 'st-lic')}<span><b>מחזיקים את היער</b><small>משחק קלפים ואירועים</small></span></button>
+            <button data-learn="webpuzzle">${tileIcon('thread', 'st-lic')}<span><b>חוט הקשר</b><small>מחברים את הרשת</small></span></button>
+            <button data-learn="inventors">${tileIcon('invent', 'st-lic')}<span><b>הממציאים</b><small>פותרים בעיות בעזרת הטבע</small></span></button>
+            <button data-learn="expedition">${tileIcon('dive', 'st-lic')}<span><b>משלחת לעומק</b><small>צוללים עם הקלפים לשונית</small></span></button>
+            <button data-learn="badges">${tileIcon('medal', 'st-lic')}<span><b>התגים שלי</b><small>תגים ומסגרות לקלפים</small></span></button>
+          </div>
+        </div>
+      </section>
+      </div>`;
     const paintModes = () => startEl.querySelectorAll('[data-mode]').forEach(b => b.setAttribute('aria-checked', String(b.dataset.mode === S.mode)));
     S.mode = S.mode || 'full';
-    startEl.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => { S.mode = b.dataset.mode; paintModes(); emit('start:mode', { mode: S.mode }); renderStartIntros(); }));
-    startEl.querySelector('[data-learn]').addEventListener('click', () => emit('ui:learn'));
-    paintModes();
-    const renderStartIntros = () => (biomes || []).forEach((b, i) => { const el = startEl.querySelectorAll('.bc-intro')[i]; if (el) el.textContent = (S.mode === 'kids' && b.kidsIntro) ? b.kidsIntro : b.intro; });
-    setTimeout(renderStartIntros, 0);
+    startEl.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => { S.mode = b.dataset.mode; paintModes(); emit('start:mode', { mode: S.mode }); paintInfo(); }));
+    startEl.querySelectorAll('[data-learn]').forEach((b) => b.addEventListener('click', () => emit('ui:learn', { screen: b.dataset.learn })));
+    startEl.querySelector('[data-research]').addEventListener('click', () => emit('ui:research'));
+    startEl.querySelector('[data-lab]').addEventListener('click', () => emit('ui:lab'));
+    // tabs
+    const paintTab = () => {
+      startEl.querySelectorAll('[data-tab]').forEach((b) => { const on = b.dataset.tab === S.stTab; b.classList.toggle('on', on); b.setAttribute('aria-selected', String(on)); });
+      startEl.querySelectorAll('[data-pane]').forEach((p) => p.classList.toggle('on', p.dataset.pane === S.stTab));
+      startEl.dataset.tab = S.stTab;
+    };
+    startEl.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', () => { if (S.stTab !== b.dataset.tab) { S.stTab = b.dataset.tab; paintTab(); emit('ui:click'); } }));
+    // the carousel: the chosen island in front, the other two behind it on a slow ring
+    const isls = [...startEl.querySelectorAll('.st-isl')], n = isls.length, info = startEl.querySelector('.st-info');
+    const paintInfo = () => {
+      const b = biomes[S.stCur]; if (!b) return;
+      info.style.setProperty('--zc', (b.palette && b.palette[0]) || '#2d5a35'); info.style.setProperty('--zc2', (b.palette && b.palette[2]) || '#f0b44c');
+      info.innerHTML = `<div class="st-info-in" key="${S.stCur}"><h2>${esc(b.name)}</h2><p class="bc-sub">${esc(b.subtitle)}</p>
+        <p class="bc-intro">${esc((S.mode === 'kids' && b.kidsIntro) ? b.kidsIntro : b.intro)}</p>
+        <button class="st-go" data-id="${esc(b.id)}">${S.mode === 'kids' ? 'יוצאים לדרך · מתחילים' : 'יוצאים לדרך'}${icon('arrowL')}</button></div>`;
+      info.querySelector('.st-go').addEventListener('click', () => emit('start:biome', { id: b.id }));
+      startEl.style.setProperty('--zc', (b.palette && b.palette[1]) || '#2d5a35');
+      startEl.dataset.zone = b.id;   // the background takes the chosen environment's light and colours (style.css)
+    };
+    const paintCar = () => {
+      isls.forEach((el, i) => {
+        let k = ((i - S.stCur) % n + n) % n; if (k > n / 2) k -= n;   // -1 left, 0 front, 1 right
+        el.dataset.k = String(k); el.tabIndex = k === 0 ? 0 : -1;
+      });
+      startEl.querySelectorAll('[data-dot]').forEach((d, i) => d.classList.toggle('on', i === S.stCur));
+      paintInfo();
+    };
+    const turn = (d) => { S.stCur = ((S.stCur + d) % n + n) % n; paintCar(); emit('ui:click'); };
+    startEl.querySelectorAll('[data-car]').forEach((b) => b.addEventListener('click', () => turn(+b.dataset.car)));
+    startEl.querySelectorAll('[data-dot]').forEach((b) => b.addEventListener('click', () => { S.stCur = +b.dataset.dot; paintCar(); }));
+    isls.forEach((el) => el.addEventListener('click', () => { const i = +el.dataset.i; if (i === S.stCur) emit('start:biome', { id: biomes[i].id }); else { S.stCur = i; paintCar(); emit('ui:click'); } }));
+    // swipe / drag the ring
+    const car = startEl.querySelector('.st-car'); let sx = null;
+    car.addEventListener('pointerdown', (e) => { sx = e.clientX; });
+    car.addEventListener('pointerup', (e) => { if (sx == null) return; const dx = e.clientX - sx; sx = null; if (Math.abs(dx) > 50) turn(dx > 0 ? 1 : -1); });
+    // the start screen is drawn again after every visit: one listener at a time, or the arrows would jump several islands
+    if (startEl._kd) startEl.removeEventListener('keydown', startEl._kd);
+    startEl._kd = (e) => { if (S.stTab !== 'env' || e.target.closest('input,textarea')) return; if (e.key === 'ArrowLeft') turn(1); else if (e.key === 'ArrowRight') turn(-1); };
+    startEl.addEventListener('keydown', startEl._kd);
+    paintModes(); paintTab(); paintCar();
+    const renderStartIntros = () => paintInfo();
     S.repaintStartMode = () => { paintModes(); renderStartIntros(); };   // another player was chosen: show their level
     PP.open = false;
     startEl.querySelector('.st-who').addEventListener('click', () => (PP.open ? ppClose() : ppOpen()));
@@ -341,20 +440,6 @@ export function createUI(root, bus) {
       if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); } else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); }
     });
     paintWho();
-    const wrap = startEl.querySelector('.st-cards');
-    (biomes || []).forEach((b, i) => {
-      // a Blender render of the island when there is one (src/data/island-art.js), else the drawn landscape
-      const art = ISLAND_ART[b.id] ? `<img class="bc-render" src="${ISLAND_ART[b.id]}" alt="" draggable="false">` : biomeArt(b);
-      const c = h('button', 'biome-card', `<div class="bc-art">${art}</div>
-        <div class="bc-body"><h2>${esc(b.name)}</h2><p class="bc-sub">${esc(b.subtitle)}</p><p class="bc-intro">${esc(b.intro)}</p>
-        <span class="bc-go">יוצאים לדרך${icon('arrowL')}</span></div>`, wrap);
-      c.dataset.id = b.id || '';
-      c.style.setProperty('--bc', (b.palette && b.palette[0]) || '#2d5a35');
-      c.style.setProperty('--bc2', (b.palette && b.palette[2]) || '#f0b44c');
-      c.style.setProperty('--tilt', (i % 2 ? 0.6 : -0.6) + 'deg');
-      c.style.animationDelay = 0.15 + i * 0.12 + 's';
-      c.addEventListener('click', () => emit('start:biome', { id: b.id }));
-    });
   }
 
   /* ================================================================ PLAYERS ("מי משחק?") */
@@ -469,8 +554,8 @@ export function createUI(root, bus) {
   /* ================================================================ HUD */
   hud.innerHTML = `
     <div class="h-item h-pts" title="נקודות חיים"><span class="coin">${icon('leaf')}</span><b class="pts-num">0</b><small>נקודות</small></div>
-    <div class="h-item h-vit" title="חיוניות היער"><span class="vit-ic">${icon('sprout')}</span><div class="vit-bar"><i></i></div><small class="vit-pc"></small></div>
-    <div class="h-item h-bio" title="מינים חיים ביער"><span>${icon('web')}</span><b class="bio-num">0</b><small class="bio-lab"></small></div>
+    <div class="h-item h-vit" title="חיוניות"><span class="vit-ic">${icon('sprout')}</span><div class="vit-bar"><i></i></div><small class="vit-pc"></small></div>
+    <div class="h-item h-bio" title="מינים חיים ${zoneWord('in')}"><span>${icon('web')}</span><b class="bio-num">0</b><small class="bio-lab"></small></div>
     <div class="h-item h-day" title="שעה ביום"><svg class="dial" viewBox="0 0 48 48" aria-hidden="true">
       <defs><clipPath id="dialclip"><circle cx="24" cy="24" r="21"/></clipPath></defs>
       <circle class="d-sky" cx="24" cy="24" r="21" fill="#86c6ee"/>
@@ -520,12 +605,14 @@ export function createUI(root, bus) {
         <div class="km-group">
           <button class="km-row" data-a="home" role="menuitem">${icon('home')}<span>מסך הפתיחה</span></button>
           <button class="km-row" data-a="help" role="menuitem">${icon('help')}<span>איך משחקים</span></button>
+          <button class="km-row" data-a="coach" role="menuitem">${icon('sprout')}<span>הדרכה צעד אחר צעד</span></button>
           <button class="km-row" data-a="save" role="menuitem">${icon('save')}<span>שמירת היער</span></button>
           <button class="km-row" data-a="report" role="menuitem">${icon('pencil')}<span>דוח יומי</span></button>
           <button class="km-row" data-a="reset" role="menuitem">${icon('target')}<span>מבט על ${zoneWord('all')}</span></button>
         </div>
         <div class="km-set"><h4>הגדרות</h4>
           <button class="km-row km-switch" data-a="sound" role="menuitemcheckbox">${icon('sound')}<span>צלילים</span><i class="sw"></i></button>
+          <button class="km-row km-switch" data-a="music" role="menuitemcheckbox" title="מוזיקה רכה במסך הפתיחה ובמעבדה">${icon('music')}<span>מוזיקה</span><i class="sw"></i></button>
           ${TORAH ? `<button class="km-row km-switch" data-a="sources" role="menuitemcheckbox">${icon('book')}<span>מקורות ופסוקים</span><i class="sw"></i></button>` : ''}
           <div class="km-q">${icon('quality')}<span>איכות תמונה</span></div>
           <div class="km-seg" role="radiogroup" aria-label="איכות תמונה">
@@ -549,9 +636,10 @@ export function createUI(root, bus) {
     const b = e.target.closest('[data-a]'); if (!b) return;
     const a = b.dataset.a;
     if (a === 'menu') { setKit(!qWrap.classList.contains('open')); return; }
-    if (a === 'home' || a === 'help' || a === 'save' || a === 'reset' || a === 'report') setKit(false);
+    if (a === 'home' || a === 'help' || a === 'coach' || a === 'save' || a === 'reset' || a === 'report') setKit(false);
     if (a === 'home') emit('ui:home');
     else if (a === 'help') emit('ui:help');
+    else if (a === 'coach') emit('ui:coach');
     else if (a === 'journal') emit('ui:journal');
     else if (a === 'save') emit('ui:save');
     else if (a === 'report') emit('ui:report');
@@ -560,6 +648,7 @@ export function createUI(root, bus) {
     else if (a === 'web') { S.toggles.web = !S.toggles.web; paintToggles(); emit('toggle:web', { on: S.toggles.web }); }
     else if (a === 'sources') { setSourcesOn(!sourcesOn()); paintToggles(); emit('sources:toggle', { on: sourcesOn() }); }
     else if (a === 'sound') { S.toggles.sound = !(S.toggles.sound !== false); paintToggles(); emit('audio:mute', { muted: !S.toggles.sound }); }
+    else if (a === 'music') { S.toggles.music = !(S.toggles.music !== false); paintToggles(); emit('music:toggle', { on: S.toggles.music }); }
   });
   document.addEventListener('pointerdown', (e) => { if (!qWrap.contains(e.target)) setKit(false); }, true);
   function paintToggles() {
@@ -571,7 +660,14 @@ export function createUI(root, bus) {
     toolbar.querySelectorAll('[data-q]').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.q === (t.quality || 'medium'))));
     const srcB = tbBtn('sources'); if (srcB) { const on = sourcesOn(); srcB.setAttribute('aria-checked', String(on)); srcB.classList.toggle('off', !on); }
     root.classList.toggle('q-low', t.quality === 'low');
+    const mOn = t.music !== false;
+    for (const b of [tbBtn('music'), musicBtn]) { b.setAttribute('aria-checked', String(mOn)); b.querySelector('.ic').outerHTML = icon(mOn ? 'music' : 'musicOff'); b.classList.toggle('off', !mOn); }
+    musicBtn.setAttribute('aria-label', mOn ? 'מוזיקה: פועלת' : 'מוזיקה: כבויה'); musicBtn.title = mOn ? 'לכבות את המוזיקה' : 'להדליק את המוזיקה';
   }
+  // the music switch where music plays (the start screen, the lab): a small round button, shown only there
+  const musicBtn = h('button', 'mus-btn', icon('music'), root);
+  musicBtn.setAttribute('role', 'switch'); musicBtn.hidden = true;
+  musicBtn.addEventListener('click', () => { S.toggles.music = !(S.toggles.music !== false); paintToggles(); emit('music:toggle', { on: S.toggles.music }); });
   paintToggles();
 
   /* ================================================================ MISSIONS */
@@ -605,7 +701,7 @@ export function createUI(root, bus) {
       <div class="tr-filter"></div>
       <button class="tr-info" title="מה רואים בקלף?" aria-label="מה רואים בקלף?" aria-expanded="false">${icon('info')}</button>
       <button class="tr-fold" title="הסתר/הצג" aria-label="הסתר או הצג את הקלפים">${icon('chevron')}</button></div>
-    <div class="tr-help" role="note"><p><span class="lg-dot">3</span>כמה יש ביער עכשיו</p><p><span class="lg-cost">${icon('leaf')}20</span>המחיר בנקודות חיים</p><p><span class="lg-drag">${icon('arrowL')}</span>גוררים את הקלף ${zoneWord('to')}</p></div>
+    <div class="tr-help" role="note"><p><span class="lg-dot">3</span>כמה יש ${zoneWord('in')} עכשיו</p><p><span class="lg-cost">${icon('leaf')}20</span>המחיר בנקודות חיים</p><p><span class="lg-drag">${icon('arrowL')}</span>גוררים את הקלף ${zoneWord('to')}</p></div>
     <div class="tr-scroll"><div class="tr-cards"></div></div>
     <div class="tr-cancel">${icon('close')}שחררו כאן כדי לבטל</div>`;
   const trTabs = [...tray.querySelectorAll('[data-tab]')], trFilter = tray.querySelector('.tr-filter');
@@ -615,22 +711,22 @@ export function createUI(root, bus) {
   tray.querySelector('.tr-info').addEventListener('click', (e) => { const on = tray.classList.toggle('help-open'); e.currentTarget.setAttribute('aria-expanded', String(on)); });
   tray.querySelector('.tr-fold').addEventListener('click', () => { S.trayCollapsed = !S.trayCollapsed; tray.classList.toggle('collapsed', S.trayCollapsed); syncTrayH(); });
   trScroll.addEventListener('wheel', (e) => { if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { trScroll.scrollBy({ left: -e.deltaY }); e.preventDefault(); } }, { passive: false });
-  const isAnimal = (c) => ANIMAL_KINDS.has(c.kind);
+  const isAnimal = (c) => c.tab === 'animals' || ANIMAL_KINDS.has(c.kind);   // tab: a species that stays in place but is an animal (the giant clam)
   function cardSig(c) { return [c.name, c.cost, c.locked, c.lockText, c.canAfford, c.alive, c.isNew, c.color, c.layerName, c.thumb ? c.thumb.length + c.thumb.slice(-24) : 0].join('|'); }
   const lockMsg = (c) => { const t = c.lockText || ''; return /^משימה:\s*/.test(t) ? 'נפתח במשימה: ' + t.replace(/^משימה:\s*/, '') : (t || 'עוד נעול'); };
   const lockShort = (c) => (c.lockText || 'נעול').replace(/^משימה:\s*/, '');
   function fillCard(el, c) {
-    el.className = 'card k-' + (ANIMAL_KINDS.has(c.kind) ? 'animal' : c.kind === 'tool' ? 'tech' : 'plant') + (c.locked ? ' locked' : '') + (!c.locked && !c.canAfford ? ' poor' : '') + (c.isNew ? ' new' : '') + (c.alive ? ' has-alive' : '');
+    el.className = 'card k-' + (isAnimal(c) ? 'animal' : c.kind === 'tool' ? 'tech' : 'plant') + (c.locked ? ' locked' : '') + (!c.locked && !c.canAfford ? ' poor' : '') + (c.isNew ? ' new' : '') + (c.alive ? ' has-alive' : '') + (c.nursery ? ' nursery' : '');
     el.style.setProperty('--c', c.color || '#6a9');
     el.innerHTML = `${thumbHTML(c.thumb, c.color, c.kind)}
       <span class="c-name">${esc(c.name)}</span>
-      <span class="c-meta">${c.locked ? `<span class="c-lock">${icon('lock')}<span>${esc(lockShort(c))}</span></span>` :
+      <span class="c-meta">${c.nursery ? '<span class="c-nur">מהמשתלה</span>' : c.locked ? `<span class="c-lock">${icon('lock')}<span>${esc(lockShort(c))}</span></span>` :
         `<span class="c-cost" title="מחיר: ${fmt(c.cost || 0)} נקודות חיים">${icon('leaf')}${fmt(c.cost || 0)}</span>${c.layerName ? `<span class="c-layer" title="${esc(c.layerName)}" style="--lt:${LAYER_TINT[c.layer] || '#7a9a5a'}"></span>` : ''}`}</span>
-      ${c.alive ? `<span class="c-alive" title="יש ${fmt(c.alive)} כאלה ביער עכשיו">${fmt(c.alive)}</span>` : ''}
+      ${c.alive ? `<span class="c-alive" title="${c.nursery ? `${fmt(c.alive)} מחכים במשתלה` : `יש ${fmt(c.alive)} כאלה ${zoneWord('in')} עכשיו`}">${fmt(c.alive)}</span>` : ''}
       ${c.isNew ? `<span class="c-new">${icon('sparkle')}חדש</span>` : ''}
       ${c.locked ? `<span class="c-lockbig">${icon('lock')}</span>` : ''}`;
     el.title = c.locked ? lockMsg(c) : '';
-    el.setAttribute('aria-label', c.name + (c.locked ? '. ' + lockMsg(c) : `. מחיר ${fmt(c.cost || 0)} נקודות חיים` + (c.alive ? `. יש ${fmt(c.alive)} ביער` : '')));
+    el.setAttribute('aria-label', c.name + (c.nursery ? `. מהמשתלה, ${fmt(c.alive || 0)} מחכים. גררו אל השונית` : c.locked ? '. ' + lockMsg(c) : `. מחיר ${fmt(c.cost || 0)} נקודות חיים` + (c.alive ? `. יש ${fmt(c.alive)} ${zoneWord('in')}` : '')));
   }
   function renderTray(force) {
     const isTech = (c) => c.kind === 'tool';
@@ -730,6 +826,15 @@ export function createUI(root, bus) {
     else if (act === 'locate') emit('species:locate', { id });
     else if (act === 'exp') { if (!t.disabled) emit('species:experiment', { id }); }
     else if (act === 'tour') emit('species:tour', { id });
+    else if (act === 'uproot') {   // two steps: the first click asks, the second takes it out
+      if (!(S.sureUntil > performance.now())) {
+        S.sureUntil = performance.now() + 3500; t.classList.add('sure'); t.querySelector('span').textContent = 'בטוח? לחצו שוב';
+        setTimeout(() => { const b = panel.querySelector('.sp-uproot'); if (b && !(S.sureUntil > performance.now())) { b.classList.remove('sure'); b.querySelector('span').textContent = b.dataset.label; } }, 3600);
+        return;
+      }
+      S.sureUntil = 0; emit('species:uproot', { id });
+    }
+    else if (act === 'move') emit('species:move', { id });
     else if (act === 'select') emit('species:select', { id: t.dataset.id });
     else if (act === 'reveal') { t.classList.add('busy'); emit('relation:reveal', { from: id, to: t.dataset.to, type: t.dataset.type }); }
     else if (act === 'more') { S.moreOpen = !S.moreOpen; panel.classList.toggle('more-open', S.moreOpen); }
@@ -752,7 +857,7 @@ export function createUI(root, bus) {
     }
     return `<li class="rel${r.present ? ' present' : ' absent'}" style="--rc:${col}"><span class="rel-type">${esc(r.typeName || '')}</span>
       <div class="rel-main"><button class="rel-target" data-act="select" data-id="${esc(r.targetId)}">${esc(r.targetName)}</button>
-      ${r.present ? '' : '<span class="rel-away">לא נמצא ביער</span>'}<p>${esc(r.text)}</p></div></li>`;
+      ${r.present ? '' : `<span class="rel-away">לא נמצא ${zoneWord('in')}</span>`}<p>${esc(r.text)}</p></div></li>`;
   }
   function renderSpecies(force) {
     const s = S.species; if (!s) return;
@@ -781,7 +886,7 @@ export function createUI(root, bus) {
         <div><h2>${esc(s.name)}</h2>${s.nameEn ? `<p class="en" dir="ltr">${esc(s.nameEn)}</p>` : ''}
         <div class="chips">${s.kindName ? `<span>${esc(s.kindName)}</span>` : ''}${s.layerName ? `<span>${esc(s.layerName)}</span>` : ''}${s.activeName ? `<span>${icon(/לילה/.test(s.activeName) ? 'moon' : 'sun')}${esc(s.activeName)}</span>` : ''}</div></div></header>
       <div class="sp-status">
-        <div class="st-alive"><b>${fmt(s.alive != null ? s.alive : s.count || 0)}</b><small>ביער עכשיו</small></div>
+        <div class="st-alive"><b>${fmt(s.count || 0)}</b><small>${zoneWord('in')} עכשיו</small></div>
         ${health != null ? `<div class="st-health"><div class="hb"><i style="width:${(health * 100).toFixed(0)}%;background:hsl(${(health * 110).toFixed(0)} 60% 45%)"></i></div><small>${esc(s.status || 'בריאות')}</small></div>` : (s.status ? `<div class="st-health"><small>${esc(s.status)}</small></div>` : '')}
       </div>
       ${s.fact ? `<blockquote class="sp-fact">${esc(s.fact)}</blockquote>` : ''}
@@ -789,15 +894,40 @@ export function createUI(root, bus) {
       ${s.more ? `<div class="sp-more"><p>${esc(s.more)}</p></div><button class="sp-more-btn" data-act="more"><span class="m1">עוד עליו</span><span class="m2">פחות</span></button>` : ''}
       ${rels.length ? `<section class="sp-rels"><h4>${icon('web')}קשרים ברשת <small>${found}/${rels.length}</small></h4><ul>${rels.map(relRow).join('')}</ul></section>` : ''}
       ${quiz}
+      ${s.one ? oneHTML(s) : ''}
       </div>
       <footer class="sp-actions">
         ${s.tour ? `<button class="btn sp-tour" data-act="tour">${icon('binoc')}${esc(s.tour)}</button>` : ''}
-        <button class="btn ghosty sp-locate" data-act="locate" title="סמנו את כולם ביער">${icon('target')}איפה?</button>
+        <button class="btn ghosty sp-locate" data-act="locate" title="סמנו את כולם ${zoneWord('in')}">${icon('target')}איפה?</button>
         <button class="btn ghosty" data-act="follow">${icon('binoc')}עקוב</button>
         <button class="btn amber" data-act="exp" ${s.canRemove === false ? 'disabled title="אין עכשיו מה לבדוק"' : ''}>${icon('flask')}מה יקרה אם ייעלם?</button>
       </footer>`;
     panel.classList.toggle('more-open', S.moreOpen);
     const sc = panel.querySelector('.sp-scroll'); if (sc) sc.scrollTop = top;
+  }
+
+  // the one plant or animal that was clicked: take it out, move it, let it go
+  function oneHTML(s) {
+    const o = s.one, back = o.refund ? ` <small>+${o.refund}</small>` : '';
+    if (o.kind === 'plant' && /בעל חיים/.test(s.kindName || '')) {   // a coral, a sponge, an anemone: an animal that stays in place
+      const lb = 'להוציא אותו מהשונית';
+      return `<section class="sp-one"><h4>${icon('sprout')}מה שבחרתם</h4>${o.strong ? '<p class="sp-strong">זה אלמוג חזק מהמשתלה. הוא גדל משבר של אלמוג שעמד בחום, ולכן בגל חום הוא מלבין פחות.</p>' : ''}<p>יותר מדי ממנו, או שהוא במקום לא טוב? גררו אותו למקום אחר (לוחצים עליו וגוררים, או גוררים את הידית שמתחתיו), או הוציאו אותו ופנו מקום.</p>
+        <div class="sp-one-btns">${o.canMove ? `<button class="btn ghosty" data-act="move">${icon('target')}<span>להעביר למקום אחר</span></button>` : ''}
+        ${upBtn(lb, 'leaf', back)}</div></section>`;
+    }
+    if (o.kind === 'plant') {
+      const lb = 'לעקור את הצמח הזה';
+      return `<section class="sp-one"><h4>${icon('sprout')}הצמח שבחרתם</h4><p>מוצל מדי, או שיש יותר מדי ממנו? גררו אותו למקום אחר (לוחצים עליו וגוררים, או גוררים את הידית שמתחתיו), או עקרו אותו ופנו מקום.</p>
+        <div class="sp-one-btns">${o.canMove ? `<button class="btn ghosty" data-act="move">${icon('target')}<span>להעביר למקום אחר</span></button>` : ''}
+        ${upBtn(lb, 'leaf', back)}</div></section>`;
+    }
+    const lb = 'להוציא אותו מהמקום';
+    return `<section class="sp-one"><h4>${icon('paw')}בעל החיים שבחרתם</h4><p>יותר מדי מהם? אפשר לתת לו לצאת ולחפש בית אחר.</p>
+      <div class="sp-one-btns">${upBtn(lb, 'arrowL', back)}</div></section>`;
+  }
+  function upBtn(lb, ic, back) {
+    const sure = S.sureUntil > performance.now();
+    return `<button class="btn ghosty sp-uproot${sure ? ' sure' : ''}" data-act="uproot" data-label="${lb}">${icon(ic)}<span>${sure ? 'בטוח? לחצו שוב' : lb}</span>${back}</button>`;
   }
 
   /* ================================================================ MODALS */
@@ -920,7 +1050,11 @@ export function createUI(root, bus) {
   });
 
   /* tray height → CSS var so side panels end above it */
-  function syncTrayH() { const r = tray.getBoundingClientRect(), t = tray.querySelector('.tr-top').getBoundingClientRect(); root.style.setProperty('--trayH', (tray.offsetParent ? Math.round(innerHeight - Math.min(r.top, t.top || r.top)) : 0) + 'px'); layoutCoach(); }
+  function syncTrayH() {
+    // a mystery (חוקרי הטבע) has its research desk where the tray was: the island frames itself above it
+    const desk = root.classList.contains('research') && root.querySelector('.rs-desk');
+    if (desk) { root.style.setProperty('--trayH', Math.round(innerHeight - desk.getBoundingClientRect().top) + 'px'); layoutCoach(); return; }
+    const r = tray.getBoundingClientRect(), t = tray.querySelector('.tr-top').getBoundingClientRect(); root.style.setProperty('--trayH', (tray.offsetParent ? Math.round(innerHeight - Math.min(r.top, t.top || r.top)) : 0) + 'px'); layoutCoach(); }
   if (typeof ResizeObserver !== 'undefined') new ResizeObserver(syncTrayH).observe(tray);
   window.addEventListener('resize', () => { syncTrayH(); layoutCoach(); });
 
@@ -964,6 +1098,7 @@ export function createUI(root, bus) {
     showStart(biomes) {
       // nothing from the last forest should linger over the start screen
       toastsEl.innerHTML = ''; bannerQ.length = 0; root.querySelectorAll('.mission-banner').forEach((b) => b.remove()); bannerBusy = false; fxEl.innerHTML = '';
+      for (const k of Object.keys(open)) closeModal(k);   // a journal or list left open must not cover the start screen
       renderStart(biomes); root.classList.remove('ingame');
       startEl.classList.remove('off'); S.startTok = (S.startTok || 0) + 1; const tok = S.startTok; requestAnimationFrame(() => { if (S.startTok === tok) startEl.classList.add('on'); });
     },
@@ -974,6 +1109,12 @@ export function createUI(root, bus) {
       root.dataset.biome = S.biome.id || '';
       root.classList.add('ingame');
       seasonBox.hidden = !S.biome.hasSeasons;
+      // words that depend on the zone (the menu and the tray help were written once, before the zone was known)
+      const reef = S.biome.id === 'reef';
+      const pt = tray.querySelector('[data-tab="plants"]');
+      if (pt) for (const n of pt.childNodes) if (n.nodeType === 3 && n.textContent.trim()) n.textContent = reef ? 'אלמוגים וצמחים' : 'צמחים';   // corals are animals
+      const kr = root.querySelector('.km-row[data-a="reset"] span'); if (kr) kr.textContent = `מבט על ${zoneWord('all')}`;
+      const th = tray.querySelector('.tr-help'); if (th) th.innerHTML = `<p><span class="lg-dot">3</span>כמה יש ${zoneWord('in')} עכשיו</p><p><span class="lg-cost">${icon('leaf')}20</span>המחיר בנקודות חיים</p><p><span class="lg-drag">${icon('arrowL')}</span>גוררים את הקלף ${zoneWord('to')}</p>`;
       S.layerFilter = 'all';
       syncTrayH();
     },
@@ -1001,14 +1142,14 @@ export function createUI(root, bus) {
           o.vitality = v;
           const col = `hsl(${(v * 112).toFixed(0)} 62% 48%)`;
           vitBar.style.width = (v * 100).toFixed(1) + '%'; vitBar.style.background = col; vitIc.style.color = `hsl(${(v * 112).toFixed(0)} 65% 62%)`;
-          vitPc.textContent = Math.round(v * 100) + '%'; vitPc.parentElement.title = `חיוניות היער: ${Math.round(v * 100)}%`;
+          vitPc.textContent = Math.round(v * 100) + '%'; vitPc.parentElement.title = `החיוניות של ${zoneWord('the')}: ${Math.round(v * 100)}%`;
           hud.classList.toggle('vit-low', v < 0.3);
         }
       }
       if (d.speciesAlive != null && (d.speciesAlive !== o.speciesAlive || d.speciesTotal !== o.speciesTotal)) {
         if (o.speciesAlive != null && d.speciesAlive > o.speciesAlive) { const bx = bioNum.parentElement.parentElement; bx.classList.remove('up'); void bx.offsetWidth; bx.classList.add('up'); }
         o.speciesAlive = d.speciesAlive; o.speciesTotal = d.speciesTotal;
-        bioNum.textContent = fmt(d.speciesAlive); bioLab.textContent = d.speciesTotal ? `מתוך ${fmt(d.speciesTotal)}` : ''; bioLab.parentElement.title = d.speciesTotal ? `${fmt(d.speciesAlive)} מינים חיים ביער, מתוך ${fmt(d.speciesTotal)}` : 'מינים חיים ביער';
+        bioNum.textContent = fmt(d.speciesAlive); bioLab.textContent = d.speciesTotal ? `מתוך ${fmt(d.speciesTotal)}` : ''; bioLab.parentElement.title = d.speciesTotal ? `${fmt(d.speciesAlive)} מינים חיים ${zoneWord('in')}, מתוך ${fmt(d.speciesTotal)}` : `מינים חיים ${zoneWord('in')}`;
       }
       if (d.dayFrac != null && (o.dayFrac == null || Math.abs(d.dayFrac - o.dayFrac) > 0.0015)) {
         if (o.dayFrac != null && d.dayFrac + 0.5 < o.dayFrac) o.day = (o.day || 1) + 1;
@@ -1034,17 +1175,23 @@ export function createUI(root, bus) {
 
     setMissions(list) {
       list = Array.isArray(list) ? list : [];
-      const sig = JSON.stringify(list.map((m) => [m.id, m.title, m.text, m.hint, m.how, m.note, Math.round(clamp01(m.progress) * 100), !!m.done]));
+      const sig = JSON.stringify(list.map((m) => [m.id, m.title, m.text, m.hint, m.how, m.note, Math.round(clamp01(m.progress) * 100), !!m.done, m.checks]));
       if (sig === S.missionsSig) return;
       S.missionsSig = sig;
       const hintsOpen = new Set([...mList.querySelectorAll('li.hint-open')].map((x) => x.dataset.id));
       mList.innerHTML = list.map((m) => {
         const p = m.done ? 1 : clamp01(m.progress);
-        return `<li data-id="${esc(m.id)}" class="${m.done ? 'done' : ''}${S.openMission === m.id ? ' open' : ''}${hintsOpen.has(m.id) ? ' hint-open' : ''}">
+        // an expert mission (משימת מומחים): a gold tag, its badge, and a checklist of its parts
+        const bd = m.expert ? badgesFor('mission:' + m.id)[0] : null;
+        const xp = m.expert ? `<div class="m-expert">${bd ? badgeHTML(bd, { cls: 'mini' }) : ''}<span><b>משימת מומחים</b><small>${bd ? 'הפרס: התג "' + esc(bd.name) + '"' : 'משימה קשה במיוחד'}</small></span></div>` : '';
+        const ck = m.checks && !m.done ? `<ul class="m-checks">${m.checks.map((c) => `<li class="${c.ok ? 'ok' : ''}"><i>${c.ok ? icon('check') : ''}</i><span>${esc(c.label)}${c.hold != null && !c.ok && c.hold > 0 ? ` <em>${c.hold}%</em>` : ''}</span></li>`).join('')}</ul>` : '';
+        return `<li data-id="${esc(m.id)}" class="${m.done ? 'done' : ''}${m.expert ? ' expert' : ''}${S.openMission === m.id ? ' open' : ''}${hintsOpen.has(m.id) ? ' hint-open' : ''}">
           <div class="m-row"><span class="m-check" style="--p:${(p * 100).toFixed(1)}%">${m.done ? icon('check') : ''}</span><b>${esc(m.title)}</b><span class="m-pc">${m.done ? '' : Math.round(p * 100) + '%'}</span></div>
-          <div class="m-detail"><p>${esc(m.text || '')}</p>${m.done && m.note ? `<p class="m-note">${icon('check')}בוצע: ${esc(m.note)}</p>` : ''}${(m.hint || m.how) && !m.done ? `<button class="m-hint-btn">${icon('bulb')}רמז</button><div class="m-hint">${m.hint ? `<p>${esc(m.hint)}</p>` : ''}${m.how ? `<p class="m-how">${esc(m.how)}</p>` : ''}</div>` : ''}</div></li>`;
+          <div class="m-detail">${xp}<p>${esc(m.text || '')}</p>${ck}${m.done && m.note ? `<p class="m-note">${icon('check')}בוצע: ${esc(m.note)}</p>` : ''}${(m.hint || m.how) && !m.done ? `<button class="m-hint-btn">${icon('bulb')}רמז</button><div class="m-hint">${m.hint ? `<p>${esc(m.hint)}</p>` : ''}${m.how ? `<p class="m-how">${esc(m.how)}</p>` : ''}</div>` : ''}</div></li>`;
       }).join('');
       const d = list.filter((m) => m.done).length;
+      // the current mission is always in view (on a low screen the list shows only a line or two)
+      const cur = mList.querySelector('li:not(.done)'); if (cur && (cur.offsetTop < mList.scrollTop || cur.offsetTop + 24 > mList.scrollTop + mList.clientHeight)) mList.scrollTop = Math.max(0, cur.offsetTop - mList.offsetTop - 2);
       mCount.textContent = list.length ? `${d}/${list.length}` : '';
       missions.hidden = !list.length;
     },
@@ -1053,7 +1200,7 @@ export function createUI(root, bus) {
     showSpecies(info) {
       if (!info) return;
       if (!S.species || S.species.id !== info.id) { S.moreOpen = false; if (!S.quiz || S.quiz.id !== info.id) S.quiz = null; const sc = panel.querySelector('.sp-scroll'); if (sc) sc.scrollTop = 0; S.speciesSig = ''; }
-      S.species = info; renderSpecies(true);
+      S.sureUntil = 0; S.species = info; renderSpecies(true);
       const sc = panel.querySelector('.sp-scroll'); if (sc && S.speciesSig && panel.dataset.id !== info.id) sc.scrollTop = 0;
       panel.dataset.id = info.id;
       root.classList.add('sp-open'); panel.classList.add('on'); setKit(false);
@@ -1067,7 +1214,7 @@ export function createUI(root, bus) {
 
     showEvent(ev) {
       if (!ev) return;
-      const w = makeModal('event', `<div class="ev-badge">${icon('bang')}</div><small class="ev-kicker">קורה ביער</small><h2>${esc(ev.title)}</h2><p class="ev-text">${esc(ev.text)}</p>
+      const w = makeModal('event', `<div class="ev-badge">${icon('bang')}</div><small class="ev-kicker">קורה ${zoneWord('in')}</small><h2>${esc(ev.title)}</h2><p class="ev-text">${esc(ev.text)}</p>
         <div class="ev-choices">${(ev.choices || []).map((c, i) => `<button class="btn ${i === 0 ? 'primary' : 'soft'}" data-id="${esc(c.id)}">${esc(c.label)}</button>`).join('')}</div>`, 'ev');
       w.querySelector('.ev-choices').addEventListener('click', (e) => {
         const b = e.target.closest('button[data-id]'); if (!b) return;
@@ -1117,7 +1264,7 @@ export function createUI(root, bus) {
       S.layers = Array.isArray(layers) ? layers.filter((l) => l.id !== 'all') : [];
       S.activeLayer = activeId || 'all';
       const n = S.layers.length;
-      layersEl.innerHTML = `<button class="ly-all" data-id="all" title="כל היער" aria-label="כל היער">${icon('tree')}<span>כל היער</span></button><div class="strata">` +
+      layersEl.innerHTML = `<button class="ly-all" data-id="all" title="${zoneWord('all')}" aria-label="${zoneWord('all')}">${icon('tree')}<span>${zoneWord('all')}</span></button><div class="strata">` +
         S.layers.map((l, i) => `<button data-id="${esc(l.id)}" aria-label="${esc(l.name)}" style="--lt:${LAYER_TINT[l.id] || mix('#a8cf7a', '#7a5636', n > 1 ? i / (n - 1) : 0)}"><span>${esc(l.name)}</span></button>`).join('') + `</div>`;
       layersEl.setAttribute('aria-label', 'קומות היער');
       layersEl.hidden = !n;
@@ -1125,6 +1272,9 @@ export function createUI(root, bus) {
     },
 
     setToggles(t) { Object.assign(S.toggles, t || {}); paintToggles(); },
+    // where music could play now ('start' | 'lab' | null): shows the music switch there (main.js calls it every frame)
+    setMusicPlace(p) { p = p || ''; if (musicBtn.dataset.place === p) return; musicBtn.dataset.place = p; musicBtn.hidden = !p; },
+    isStartShown() { return startEl.classList.contains('on') && !loadEl.classList.contains('on'); },
 
     showDoneMissions(list) {
       list = Array.isArray(list) ? list : [];

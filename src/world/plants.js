@@ -99,12 +99,17 @@ export class Plant {
     if (W.flood > 0 && sp.kind !== 'water-plant' && sp.id !== 'acai' && W.nearWater(this.x, this.z, 7)) water -= 0.25 * W.flood;
     if (sp.kind === 'water-plant') water = 1;
     if (W.waterBonusAt) water = Math.min(1, water + W.waterBonusAt(this.x, this.z));
+    // the reef in a heat wave: corals (and the anemone and the clam, which also hold tiny algae) bleach; they turn pale and
+    // come back when the water cools. A strong coral from the nursery (its parents stood the heat) bleaches much less:
+    // clones of heat-tolerant parents resisted bleaching 20 to 85% better (docs/sources.md, "Coral nursery").
+    if (W.heat > 0 && !W.research && (sp.kind === 'coral' || sp.id === 'seaanemone' || sp.id === 'clam')) water -= W.heat * 0.5 * (this.strong ? 0.35 : 1);
     let target = clamp(0.2 + 0.85 * lightOK) * clamp(water + 0.15, 0, 1);
     if (dormant) target = Math.max(target, 0.6);
     if (sp.kind === 'fungus') target = W.rain > 0.3 || W.season === 'winter' || W.season === 'autumn' || !grove ? 1 : 0.75 - W.drought * 0.3;
     if (W.fireAt(this.x, this.z) > 0) { this.burnFire(W); return; }
     const rate = target < this.health ? 0.018 : 0.03;
     this.health = damp(this.health, target, rate * 3, dt);
+    if (this.healthCap != null && this.health > this.healthCap) this.health = damp(this.health, this.healthCap, 0.6, dt);   // a mystery shows this one sick (a bleached coral)
     if (this.health < 0.05) { this.die('weak'); return; }
     if (!dormant) {
       const g = dt / this.growTime * (0.15 + 0.85 * lightOK) * (0.3 + 0.7 * this.health) * W.growBoost;
@@ -150,7 +155,7 @@ export class Plant {
 
   // visual update every frame (dt real seconds, simDt)
   frame(dt, t, W) {
-    if (this.pop < 1) { this.pop = Math.min(1, this.pop + dt * 2.2); const p = this.pop; const s = 1 + Math.sin(p * Math.PI) * 0.25; this.obj.scale.setScalar(this.dying ? this.obj.scale.x : Math.max(0.001, s * Math.min(1, p * 3))); }
+    if (this.pop < 1) { this.pop = Math.min(1, this.pop + dt * 2.2); const p = this.pop; const s = 1 + Math.sin(p * Math.PI) * 0.25; this.obj.scale.setScalar(this.dying ? this.obj.scale.x : Math.max(0.001, s * Math.min(1, p * 3)) * (this.baseScale ?? 1)); }
     if (this.dying) {
       this.dying += dt;
       const s = Math.max(0.001, 1 - this.dying / 1.6);

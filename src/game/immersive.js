@@ -35,6 +35,8 @@ const CSS = `
 #ui.wol .imv-dock .tb .tb-lab { display: none; }
 .q-low#ui.wol .imv-dock { filter: none; }
 @media (max-height: 720px) { #ui.wol .imv-round { width: 64px; height: 64px; } #ui.wol .imv-round svg { width: 32px; height: 32px; } }
+/* small screens: the HUD sits low there (above the tray) and would cover the view's big buttons */
+@media (max-width: 860px) { #ui.wol.imv-on .hud { opacity: 0; visibility: hidden; pointer-events: none; } }
 @media (prefers-reduced-motion: reduce) { #ui.wol .imv, #ui.wol .imv * { transition-duration: .01ms !important; animation: none !important; } }
 `;
 
@@ -46,7 +48,7 @@ export const ARROW = {
   down: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg>',
   rise: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V6"/><path d="M7 10l5-5 5 5"/><path d="M5 21h14" stroke-width="2"/></svg>',
   sink: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v13"/><path d="M7 13l5 5 5-5"/><path d="M5 21h14" stroke-width="2"/></svg>',
-  close: '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  close: '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M8.2 12h7.6"/></svg>',
 };
 
 /** press-and-hold wiring for a big button: onPress(dir) once, onHold(on) while held (after a short delay) */
