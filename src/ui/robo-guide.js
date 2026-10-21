@@ -25,6 +25,9 @@ const CSS = `
 #ui #rguide.center .rg-wrap { right: 50%; bottom: 50%; transform: translate(50%, 50%); }
 #ui #rguide .rg-fig { position: relative; flex: none; width: clamp(92px, 13vw, 150px); aspect-ratio: 200 / 240; animation: rg-bob 3.2s ease-in-out infinite; filter: drop-shadow(0 6px 10px rgba(0,0,0,.35)); }
 #ui #rguide .rg-fig svg, #rguide .rg-fig img.rg-pic { position: absolute; inset: 0; width: 100%; height: 100%; }
+#ui #rguide .rg-fig.art { width: clamp(104px, 13.5vw, 168px); aspect-ratio: 300 / 446; }
+#ui #rguide .rg-fig .rg-fr { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; }
+#ui #rguide .rg-fig .rg-fr.on { opacity: 1; }
 #ui #rguide .rg-fig canvas { position: absolute; left: ${(VISOR.x / 200 * 100).toFixed(2)}%; top: ${(VISOR.y / 240 * 100).toFixed(2)}%; width: ${(VISOR.w / 200 * 100).toFixed(2)}%; height: ${(VISOR.h / 240 * 100).toFixed(2)}%; border-radius: 22%; }
 #ui #rguide .rg-fig.talk { animation: rg-bob 3.2s ease-in-out infinite, rg-talk .35s ease-in-out infinite; }
 #ui #rguide .rg-bub { position: relative; margin-bottom: clamp(30px, 6vh, 60px); min-width: 240px; max-width: 520px; padding: 14px 18px 12px; border-radius: 20px; background: #fbf6e6; color: #1f2c1a;
@@ -60,7 +63,9 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
   if (!document.getElementById(CSS_ID)) { const st = document.createElement('style'); st.id = CSS_ID; st.textContent = CSS; document.head.appendChild(st); }
   const el = document.createElement('div'); el.id = 'rguide'; el.hidden = true; root.appendChild(el);
   const queue = []; let cur = null, raf = 0, blinkT = 0, nextBlink = 2.5, last = 0, synthTalk = 0, tipTimer = 0;
-  let pic = portrait;
+  let pic = portrait, art = null;
+  // his rendered portraits (src/data/robo-art.js, made from the lab's model): loaded the first time he appears
+  const artP = import('../data/robo-art.js').then((m) => { art = m.ROBO_ART; if (cur) render(); }, () => { });
   const kidsNow = () => playMode() === 'kids';
   const words = (ln) => (kidsNow() && ln.k ? ln.k : ln.f);
 
@@ -70,7 +75,7 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
     el.className = (c.opts.modal ? 'modal ' : '') + (c.opts.place === 'center' ? 'center ' : '') + (c.opts.tip ? 'tip' : '');
     const acts = lastOne && c.opts.actions && c.opts.actions.length ? c.opts.actions : null;
     el.innerHTML = `<div class="rg-wrap" role="dialog" aria-live="polite" aria-label="רובו־דע">
-      <div class="rg-fig">${pic ? `<img class="rg-pic" src="${pic}" alt="">` : ROBO_SVG}<canvas width="512" height="256"></canvas></div>
+      <div class="rg-fig${art ? ' art' : ''}">${art ? Object.entries(art.frames).map(([k, src]) => `<img class="rg-fr" data-fr="${k}" src="${src}" alt="" draggable="false">`).join('') : `${pic ? `<img class="rg-pic" src="${pic}" alt="">` : ROBO_SVG}<canvas width="512" height="256"></canvas>`}</div>
       <div class="rg-bub"><span class="rg-name">${kids ? 'רוֹבּוֹ־דַּע' : 'רובו־דע'}</span><p class="rg-txt">${esc(words(ln))}</p>
         <div class="rg-foot">${c.lines.length > 1 ? `<span class="rg-dots">${c.lines.map((_, j) => `<i class="${j === c.i ? 'on' : ''}"></i>`).join('')}</span>` : '<span class="rg-dots"></span>'}
           ${ln.id ? `<button class="rg-say" data-g="say" aria-label="${kids ? 'לִשְׁמֹעַ שׁוּב' : 'לשמוע שוב'}" title="${kids ? 'לִשְׁמֹעַ שׁוּב' : 'לשמוע שוב'}">${SPEAKER}</button>` : ''}
@@ -79,7 +84,7 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
           ${!lastOne && !c.opts.tip ? `<button class="rg-skip" data-g="skip">${kids ? 'דַּלֵּג' : 'דלג'}</button>` : ''}</div></div></div>`;
     placeRing(ln.at);
     synthTalk = Math.min(4, 0.9 + words(ln).length / 22);   // the mouth moves a little even without sound
-    if (voice && ln.id) voice.say(ln.id).catch(() => { });
+    if (voice && ln.id && c.spokenI !== c.i) { c.spokenI = c.i; voice.say(ln.id).catch(() => { }); }
     const btn = el.querySelector('.rg-next, .rg-act'); try { btn && btn.focus({ preventScroll: true }); } catch (e) { }
   }
   function placeRing(at) {
@@ -94,7 +99,8 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
   function loop(now) {
     raf = requestAnimationFrame(loop);
     const dt = last ? Math.min(0.1, (now - last) / 1000) : 0; last = now;
-    const cv = el.querySelector('.rg-fig canvas'); if (!cv || !cur) return;
+    const fig = el.querySelector('.rg-fig'); if (!fig || !cur) return;
+    const cv = fig.querySelector('canvas');
     blinkT += dt; let blink = 0;
     if (blinkT > nextBlink) { const k = (blinkT - nextBlink) / 0.16; blink = k < 1 ? Math.sin(k * Math.PI) : 0; if (k >= 1) { blinkT = 0; nextBlink = 2 + Math.random() * 3; } }
     synthTalk = Math.max(0, synthTalk - dt);
@@ -102,7 +108,14 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
     const talk = vl > 0 ? vl : (synthTalk > 0 && !(voice && voice.speaking) ? (0.5 + 0.5 * Math.sin(now / 70)) * 0.6 : 0);
     el.querySelector('.rg-fig').classList.toggle('talk', talk > 0.05);
     const ln = cur.lines[cur.i] || {};
-    drawRoboFace(cv.getContext('2d'), ln.expr || (cur.i === 0 ? 'happy' : 'normal'), blink, talk);
+    const expr = ln.expr || (cur.i === 0 ? 'happy' : 'normal');
+    if (cv) { drawRoboFace(cv.getContext('2d'), expr, blink, talk); return; }
+    // the rendered portraits: he waves on the first bubble of a set, blinks, and his mouth follows the voice
+    const pose = cur.i === 0 && !cur.opts.tip && (now - cur.t0) < 2600 ? 'wave' : 'idle';
+    let k = blink > 0.5 ? 'blink' : talk > 0.05 ? (talk > 0.55 ? 'talk2' : 'talk1') : expr;
+    if (pose === 'wave' && !['blink', 'talk1', 'talk2'].includes(k)) k = 'happy';
+    const want = art.frames[pose + '-' + k] ? pose + '-' + k : 'idle-' + (art.frames['idle-' + k] ? k : 'normal');
+    if (fig.dataset.on !== want) { fig.dataset.on = want; fig.querySelectorAll('.rg-fr').forEach((im) => im.classList.toggle('on', im.dataset.fr === want)); }
   }
   function finish(result) {
     const c = cur; if (!c) return;
@@ -116,7 +129,7 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
   }
   function pump() {
     if (cur || !queue.length) return;
-    cur = queue.shift(); cur.i = 0; el.hidden = false; last = 0; render();
+    cur = queue.shift(); cur.i = 0; cur.t0 = performance.now(); el.hidden = false; last = 0; render();
     if (!raf) raf = requestAnimationFrame(loop);
     if (cur.opts.tip) { clearTimeout(tipTimer); tipTimer = setTimeout(() => finish('done'), cur.opts.ms || 9000); }
   }
