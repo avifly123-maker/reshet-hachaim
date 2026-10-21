@@ -13,6 +13,7 @@ export function saveCaseResult(id, stars, info = {}) {
   const best = was && Array.isArray(was.stars) ? was.stars.map((s, i) => s || !!stars[i]) : stars.slice();
   o.cases[id] = { stars: best, at: Date.now(), spent: info.spent, tries: ((was && was.tries) || 0) + 1 };
   try { localStorage.setItem(profileKey(K), JSON.stringify(o)); } catch (e) { /* a full or blocked storage only loses the stars */ }
+  try { window.dispatchEvent(new CustomEvent('wol-progress', { detail: { kind: 'case', id } })); } catch (e) { }
   return !was;
 }
 export const starsOf = (id) => { const c = researchProgress().cases[id]; return c && Array.isArray(c.stars) ? c.stars.filter(Boolean).length : 0; };

@@ -963,6 +963,9 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     ui.missionDone({ title: m.title, note: m.autoNote || '', rewardText: `+${m.reward?.points || 0} נקודות חיים${names.length ? ' · נפתחו: ' + names.join(', ') : ''}${srcText}${badges.length ? ' · תג חדש: ' + badges.map(b => b.name).join(', ') : ''}` });
     refreshTray();
     if (W.experiment) W._saveAfterExperiment = true; else saveGame(true);
+    if (!W.research) saveProgress();
+    // מסע החוקר (core/journey.js) counts missions from the saved progress: tell it, after the mission banner
+    if (!W.research) setTimeout(() => { try { window.dispatchEvent(new CustomEvent('wol-progress', { detail: { kind: 'mission', id: m.id } })); } catch (e) { } }, 2500);
   };
 
   // ─────────────────────────────────────────── experiment ("what if it disappears?")

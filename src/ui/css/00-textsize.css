@@ -1,0 +1,5 @@
+/* 1.3.2 – text size (core/journey.js applyTextSize sets html.ts-normal | ts-large | ts-xlarge). --ts multiplies the
+   size of the words a child must read in the forests (missions, tray names, species card); each area uses it. */
+html { --ts: 1; }
+html.ts-large { --ts: 1.18; }
+html.ts-xlarge { --ts: 1.36; }

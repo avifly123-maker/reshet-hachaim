@@ -7,6 +7,7 @@
 //   audio.play(name, { pan, volume });      // UI / game one-shots
 //   audio.setMuted(b); audio.muted; audio.setVolume(v)
 //   audio.musicOut()                        // the bus background music plays into (audio/music.js); null until start()
+//   audio.voiceOut(), audio.duckMusic(on)   // the bus רובו־דע speaks into (audio/voice.js), and the music stepping back meanwhile
 //
 // Design notes
 // - Graph: [sfxBus] ─┐
@@ -32,7 +33,7 @@ const MIN_GAP = { hover: 0.05, points: 0.06, click: 0.03, pop: 0.05, grow: 0.12,
 
 export function createAudio(options = {}) {
   let ac = null, offline = false, ready = false;
-  let master, sfxBus, ambBus, duck, globalGain, musicBus;
+  let master, sfxBus, ambBus, duck, globalGain, musicBus, voiceBus;
   let bufW, bufP, bufB, srcW, srcP, srcB;
   const curves = {};
   let muted = !!options.muted;
@@ -93,6 +94,7 @@ export function createAudio(options = {}) {
     master.connect(comp); comp.connect(ac.destination);
     sfxBus = ac.createGain(); sfxBus.gain.value = 0.8; sfxBus.connect(master);
     musicBus = ac.createGain(); musicBus.gain.value = 0.9; musicBus.connect(master);   // background music (audio/music.js)
+    voiceBus = ac.createGain(); voiceBus.gain.value = 1.15; voiceBus.connect(master);   // the voice of רובו־דע (audio/voice.js)
     duck = ac.createGain(); duck.gain.value = 1; duck.connect(master);
     ambBus = ac.createGain(); ambBus.gain.value = 1; ambBus.connect(duck);
     globalGain = ac.createGain(); globalGain.gain.value = 0; globalGain.connect(ambBus);
@@ -885,6 +887,9 @@ export function createAudio(options = {}) {
   return {
     start, setBiome, update, play, setMuted, setVolume,
     musicOut: () => (ready ? musicBus : null),
+    voiceOut: () => (ready ? voiceBus : null),
+    // while רובו־דע speaks the music steps back (audio/voice.js)
+    duckMusic(on) { if (!ready || !musicBus) return; const t = ac.currentTime; musicBus.gain.cancelScheduledValues(t); musicBus.gain.setTargetAtTime(on ? 0.35 : 0.9, t, on ? 0.08 : 0.4); },
     get muted() { return muted; },
     get volume() { return volume; },
     get context() { return ac; },

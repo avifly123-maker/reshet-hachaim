@@ -17,6 +17,10 @@ import { initGamepad } from './ui/gamepad.js';
 import { startBadgeToasts } from './ui/badge-toast.js';
 import { howto } from './ui/howto.js';
 import { labHowto, HOWTO_LABELS } from './data/howto-cards.js';
+import * as journey from './core/journey.js';
+import { createVoice } from './audio/voice.js';
+import { createGuide } from './ui/robo-guide.js';
+import { STAGE_LINES, LEGACY_LINES } from './data/guide-lines.js';
 
 // Zones (biomes): the start screen draws them from the registry (data/zones.js); a zone's content and species models
 // arrive in its pack – { zone: { data, plants, animals }, release() } – loaded when the zone is chosen (core/packs.js).
@@ -86,6 +90,25 @@ async function boot() {
   const music = createMusic(audio);   // soft music on the start screen and in the lab only (see musicWanted below)
   ui.setToggles({ music: music.enabled });
   startBadgeToasts(root, audio);   // a badge (תג) earned anywhere drops in over whatever is open
+  // מסע החוקר (1.3.2): the game opens stage by stage (core/journey.js); רובו־דע presents each new part and speaks
+  journey.applyTextSize();
+  const voice = createVoice(audio);
+  const guide = createGuide(root, { voice });
+  // a stage was reached: its short scene (ui/stage-scenes.js, when present), then רובו־דע says what opened
+  const stageMoment = (n) => {
+    const scene = window.__stageScene ? Promise.resolve(window.__stageScene(n)).catch(() => { }) : Promise.resolve();
+    return scene.then(() => guide.say(STAGE_LINES[n] || [], { key: 'stage:' + n, modal: true, place: 'center' }))
+      .then((r) => { try { window.dispatchEvent(new CustomEvent('wol-stage-done', { detail: { stage: n, result: r } })); } catch (e) { } return r; });
+  };
+  window.addEventListener('wol-stage', (e) => { if (!e.detail || e.detail.legacy) return; stageMoment(e.detail.stage); });
+  // the first visit of a player: hello from רובו־דע (a new player), or one word about what is new (a player from before)
+  const greetPlayer = () => {
+    const st = journey.state();
+    if (st.legacy) guide.say(LEGACY_LINES, { key: 'legacy', place: 'center', modal: true });
+    else if (st.stage === 1) guide.say(STAGE_LINES[1], { key: 'stage:1', place: 'center', modal: true });
+    journey.check();
+  };
+  window.__app_journey = { stageMoment, greetPlayer };
   let quality = pickQuality();
   let pipe;
   try { pipe = createPipeline(canvas, { quality }); }
@@ -114,6 +137,7 @@ async function boot() {
     pendingBiome = null;
     ui.hideLoading();
     root.classList.remove('kids');
+    try { journey.check(); } catch (e) { console.error(e); }   // a stage reached in a forest, the lab or a game is announced here at the latest
     ui.showStart(Object.values(ZONES).map((z) => ({ id: z.id, name: z.name, subtitle: z.subtitle, intro: z.intro, kidsIntro: KIDS[z.id]?.intro, palette: z.palette, dev: !!z.dev })));
   }
 
@@ -195,7 +219,7 @@ async function boot() {
   });
   bus.on('start:mode', ({ mode }) => { MODE = mode; try { localStorage.setItem(profiles.key('web-of-life-mode'), mode); } catch (e) { } });
   // players ("מי משחק?") – only reachable from the start screen, so no forest is running while the player changes
-  const playerChanged = () => { readMode(); ui.setMode(MODE); ui.setProfiles(profiles.state()); };
+  const playerChanged = () => { readMode(); journey.reload(); ui.setMode(MODE); ui.setProfiles(profiles.state()); guide.close(); try { window.dispatchEvent(new CustomEvent('wol-journey')); } catch (e) { } setTimeout(greetPlayer, 600); };
   bus.on('profile:switch', ({ id }) => { if (game || loading) return; if (profiles.setCurrent(id)) playerChanged(); });
   bus.on('profile:add', ({ name, animal }) => { if (game || loading) return; const p = profiles.add(name, animal); if (p) profiles.setCurrent(p.id); playerChanged(); });
   bus.on('profile:edit', ({ id, name, animal }) => { if (name != null) profiles.rename(id, name); if (animal) profiles.setAnimal(id, animal); ui.setProfiles(profiles.state()); });
@@ -323,6 +347,7 @@ async function boot() {
   }
 
   showStart();
+  setTimeout(greetPlayer, 900);
   // 1.3.1: nothing more is loaded in the background. The learning hub comes when it is opened (or when a forest grants a
   // card pack: window.__wolLearn above loads it then), each zone with its click, the lab when the child enters it.
 
@@ -357,7 +382,7 @@ async function boot() {
     if (fpsEl) { fpsN++; const now = performance.now(); if (now - fpsT > 1000) { const i = pipe.renderer.info.render; fpsEl.textContent = `${Math.round(fpsN * 1000 / (now - fpsT))} fps · ${quality} · x${pipe.resScale.toFixed(2)} · ${i.calls} calls · ${Math.round(i.triangles / 1000)}k tris`; fpsN = 0; fpsT = now; } }
   }
   frame();
-  window.__app = { bus, ui, audio, music, pipe, loadBiome, researchHub, openLab: () => openLab(), openCase: (id, opts) => { let C = caseById(id); if (C && opts && opts.tutorial) C = { ...C, tutorial: true }; if (C) loadBiome(C.zone, null, C); }, get game() { return game; } };
+  window.__app = { bus, ui, audio, music, pipe, voice, guide, journey, loadBiome, researchHub, openLab: () => openLab(), openCase: (id, opts) => { let C = caseById(id); if (C && opts && opts.tutorial) C = { ...C, tutorial: true }; if (C) loadBiome(C.zone, null, C); }, get game() { return game; } };
 }
 
 boot();

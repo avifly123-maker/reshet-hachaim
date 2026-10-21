@@ -18,7 +18,10 @@ export function labProgress() {
     return { found: obj(o.found), seen: obj(o.seen), inventions: obj(o.inventions), tries: obj(o.tries), solved: obj(o.solved), qs: obj(o.qs), think: obj(o.think), st: obj(o.st) };
   } catch (e) { return EMPTY(); }
 }
-function save(o) { try { localStorage.setItem(profileKey(K), JSON.stringify(o)); } catch (e) { /* storage full or blocked: the lab still works */ } }
+function save(o) {
+  try { localStorage.setItem(profileKey(K), JSON.stringify(o)); } catch (e) { /* storage full or blocked: the lab still works */ }
+  try { window.dispatchEvent(new CustomEvent('wol-progress', { detail: { kind: 'lab' } })); } catch (e) { }   // מסע החוקר counts lab activities
+}
 export function markFound(sample, idx, total) {
   const o = labProgress(); const f = new Set(o.found[sample] || []); f.add(idx); o.found[sample] = [...f];
   if (f.size >= total) o.seen[sample] = true;
