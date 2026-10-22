@@ -7,7 +7,7 @@
 import { K, readDeviceRaw, writeDeviceRaw } from './storage.js';
 export const EDITION = typeof __EDITION__ !== 'undefined' ? __EDITION__ : 'general';
 export const TORAH = EDITION === 'torah';
-export const EDITION_NAME = TORAH ? 'מהדורה תורנית' : '';
+export const EDITION_NAME = '';   // 1.3.2 (Avi): one edition, "רשת החיים – המסע"; the sources are a switch, not an edition name
 
 if (TORAH && typeof window !== 'undefined' && !window.wolDesktop && typeof Storage !== 'undefined') {
   try {
