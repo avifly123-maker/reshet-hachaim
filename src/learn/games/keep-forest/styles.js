@@ -1,6 +1,7 @@
 // מחזיקים את היער – the game's CSS, injected once into <head> and scoped under #wol-learn.wol-learn (the hub's id-weighted
 // rules win otherwise).
 // Exports: injectCss(). Needs nothing.
+
 const CSS_ID = 'wl-keepforest-css';
 
 /* ───────────────────────────── CSS */

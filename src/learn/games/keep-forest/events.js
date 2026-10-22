@@ -2,6 +2,7 @@
 // wording, nature is not an enemy), the challenges of each place (no drought at the reef: hunters instead) and the line
 // under each tool card in the hand (TOOL_FX).
 // Exports: EV, challengesFor, TOOL_FX. Needs nothing.
+
 /* ───────────────────────────── events */
 // kind: what the forest needs. All wording is gentle: nature is not an enemy.
 export const EV = {

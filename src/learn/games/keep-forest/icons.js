@@ -1,5 +1,6 @@
 // מחזיקים את היער – inline SVG icons (I.sun, I.thread, I.key, ...) and the owl companion "שומר היער" (no human figures).
 // Exports: I, OWL. Needs nothing.
+
 /* ───────────────────────────── icons (inline SVG) */
 const sv = (body) => `<svg class="wl-ic" viewBox="0 0 24 24" aria-hidden="true">${body}</svg>`;
 export const I = {
