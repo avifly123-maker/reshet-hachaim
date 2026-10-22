@@ -16,6 +16,7 @@
 // thrown away after 2.6 s. No cross shapes: sparks are dots and rings.
 import * as THREE from 'three';
 import { PARTS } from '../core/journey.js';
+import { current as currentPlayer } from '../core/profiles.js';
 import { loadPack, loadedPack } from '../core/packs.js';
 import { makeRng } from '../core/util.js';
 
@@ -93,7 +94,9 @@ function labDoors() {
 // open tiles of the learning hub carry their action (data-wl), the start screen and the map their part (data-part)
 const HUB_SEL = { album: '[data-wl="album"]', quiz: '[data-wl="setup"]', badges: '#wol-learn .wl-home [data-wl="badges"]', frames: '#wol-learn .wl-home [data-wl="frames"]' };
 for (const p of ['webpuzzle', 'keepforest', 'inventors', 'expedition', 'duel', 'versematch']) HUB_SEL[p] = `[data-wl="game"][data-g="${p}"]`;
-const pending = new Map();   // part → time it was announced
+const pending = new Map();   // part → { at: time it was announced, who: the player it was announced to }
+const PENDING_MS = 20 * 60e3;   // a part not seen in 20 minutes: never mind
+const who = () => { try { return currentPlayer().id; } catch (e) { return ''; } };
 function tilesOf(part) {
   const sel = [`[data-part="${part}"]:not(.jv):not(.is-veiled):not(.jm-part)`];
   if (HUB_SEL[part]) sel.push(HUB_SEL[part]);
@@ -103,8 +106,9 @@ let scanT = 0;
 function scan() {
   scanT = 0;
   if (document.querySelector('.ss, #rguide.modal')) { later(600); return; }   // a film or רובו־דע's words first
-  for (const [part, at] of pending) {
-    if (Date.now() - at > 20 * 60e3) { pending.delete(part); continue; }   // not seen in 20 minutes: never mind
+  const me = who();
+  for (const [part, p] of pending) {
+    if (Date.now() - p.at > PENDING_MS || p.who !== me) { pending.delete(part); continue; }   // too old, or another player's
     const els = tilesOf(part).filter(visible);
     if (!els.length) continue;
     els.slice(0, 2).forEach((el, i) => setTimeout(() => tile(el), i * 160));
@@ -113,14 +117,17 @@ function scan() {
   if (pending.size) later(900);
 }
 function later(ms) { if (!scanT) scanT = setTimeout(scan, ms); }
-function part(id) { if (!id || !PARTS[id]) return; pending.set(id, Date.now()); later(350); }
+function part(id) { if (!id || !PARTS[id]) return; pending.set(id, { at: Date.now(), who: who() }); later(350); }
 addEventListener('wol-stage-done', (e) => {
   const n = e.detail && e.detail.stage; if (!n) return;
   for (const [id, P] of Object.entries(PARTS)) if (P.stage === n && !P.after) part(id);
 });
 // tabs, screens and the hub change what is visible: look again soon after a click or a repaint
 addEventListener('click', () => { if (pending.size) { clearTimeout(scanT); scanT = 0; later(450); } }, true);
-addEventListener('wol-journey', () => { if (pending.size) { clearTimeout(scanT); scanT = 0; later(450); } });
+addEventListener('wol-journey', () => {   // (a player switch fires it too: the other player's parts are dropped)
+  const me = who(); for (const [k, p] of pending) if (p.who !== me) pending.delete(k);
+  if (pending.size) { clearTimeout(scanT); scanT = 0; later(450); }
+});
 
 // ───────────────────────────────────────── the album of the learning hub opens
 let lastScreen = '', hubObs = null;

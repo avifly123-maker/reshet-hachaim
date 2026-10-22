@@ -106,7 +106,10 @@ export function mountMapThreads(jm, { emit } = {}) {
   });
   box.addEventListener('pointerover', (e) => { const c = e.target.closest('[data-th]'); if (c) setFocus(c.dataset.th); });
   box.addEventListener('focusin', (e) => { const c = e.target.closest('[data-th]'); if (c) setFocus(c.dataset.th); });
-  const onResize = () => { if (jm.isConnected) { cancelAnimationFrame(raf); raf = requestAnimationFrame(lines); } else removeEventListener('resize', onResize); };
+  // one resize listener per map: the map repaints (and mounts this again) on every journey change
+  if (jm._thResize) removeEventListener('resize', jm._thResize);
+  const onResize = () => { if (jm.isConnected) { cancelAnimationFrame(raf); raf = requestAnimationFrame(lines); } else { removeEventListener('resize', onResize); if (jm._thResize === onResize) jm._thResize = null; } };
+  jm._thResize = onResize;
   addEventListener('resize', onResize);
   // the threads that opened since רובו־דע last spoke: their lines glow and he says them, one bubble each (at most three)
   async function announceFresh() {
