@@ -103,7 +103,7 @@ export function createUiBus(ctx) {
   // "מה עושים עכשיו?" next to the missions: רובו־דע answers in one bubble with the current mission's how-to
   on('mission:whatnow', () => {
     if (W.research) return;
-    const c = W.missionsOn ? missions.list().find(m => !m.done && !m.locked) : null;
+    const c = missions.list().find(m => !m.done && !m.locked);   // also in the first seconds, before the missions panel opens
     if (!c) { robo('zone:alldone', { key: null, force: true }); return; }
     const how = String(c.how || '').replace(/^איך עושים:\s*/, '');
     const f = W.kids ? c.text : `${c.title}: ${how || c.text}`;
