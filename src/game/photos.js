@@ -257,7 +257,7 @@ export function createPhotos({ W, reg, camera, canvas, pipe, ui, audio, imv, bus
     if (imv.active) { close(); return; }
     if (W.selected) {
       const e = W.selected; try { bus.emit('species:close'); ui.hideSpecies(); } catch (err) { }
-      if (e.alive) { rig.stopFollow && rig.stopFollow(); rig.focusOn(e.focusPoint(_f), e.isPlant ? Math.max(14, (e.topY() - e.y) * 2.2) : Math.max(7, (e.vis.length || 1) * e.obj.scale.x * 6)); }
+      if (e.alive) { if (e.isPlant) rig.focusOn(e.focusPoint(_f), Math.max(14, (e.topY() - e.y) * 2.2)); else rig.followEntity(e, Math.max(7, (e.vis.length || 1) * e.obj.scale.x * 6)); }   // an animal moves: the view keeps it
     }
     tagT -= rdt; if (tagT > 0) return; tagT = 0.3;
     const info = analyse(frameEl.getBoundingClientRect());

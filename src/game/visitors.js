@@ -58,8 +58,7 @@ export function createVisitors({ W, env, reg, ui, audio, markers, rig, imv, spaw
   const _f = new THREE.Vector3();
   function focus() {
     const a = cur && cur.a; if (!a || !a.alive) return;
-    rig.stopFollow && rig.stopFollow();
-    rig.focusOn(a.focusPoint(_f), Math.max(9, (a.vis.length || 1) * a.obj.scale.x * 7));
+    rig.followEntity(a, Math.max(9, (a.vis.length || 1) * a.obj.scale.x * 7));   // it moves: the view keeps it
     audio && audio.play && audio.play('click');
   }
 

@@ -101,7 +101,7 @@
 
 /* ---------- "שומרי האי": the panel in the right column (it takes the place of the finished missions list) */
 #ui.wol.af-done .rightcol .missions, #ui.wol.af-done .rightcol .m-whatnow { display: none; }
-#ui.wol .af-panel { pointer-events: auto; width: 100%; flex: 0 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 4px; padding: 0 2px 2px; overflow: hidden; color: var(--chalk); direction: rtl; }
+#ui.wol .af-panel { pointer-events: auto; width: 100%; flex: 0 0 auto; min-height: 0; display: flex; flex-direction: column; gap: 4px; padding: 0 2px 2px; overflow: hidden; color: var(--chalk); direction: rtl; }
 #ui.wol .af-panel[hidden] { display: none; }
 #ui.wol .af-head { display: flex; align-items: center; gap: 8px; padding: 2px 2px 4px; }
 #ui.wol .af-head .af-emb { width: 34px; height: 34px; flex: none; }
