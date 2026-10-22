@@ -11,6 +11,7 @@ import { KIDS } from './data/kids.js';
 import { ZONES } from './data/zones.js';
 import { loadPack, loadedPack, releasePack } from './core/packs.js';
 import * as profiles from './core/profiles.js';
+import { K, saveKey, readPlayer, writePlayerRaw, removePlayer, readDevice, readDeviceRaw, writeDevice, writeDeviceRaw, removeDevice, playerMode } from './core/storage.js';
 import { createResearchHub } from './research/hub.js';
 import { caseById } from './research/cases/index.js';
 import { initGamepad } from './ui/gamepad.js';
@@ -39,10 +40,10 @@ function kidsBiome(base) {
 }
 // Everything a child saves (mode, forests, cards, tutorial) belongs to the current player – see core/profiles.js.
 let MODE = 'full';
-const readMode = () => { try { MODE = localStorage.getItem(profiles.key('web-of-life-mode')) || 'full'; } catch (e) { MODE = 'full'; } return MODE; };
+const readMode = () => { MODE = playerMode(); return MODE; };
 readMode();
 const biomeFor = (id) => MODE === 'kids' ? kidsBiome(zoneOf(id).data) : zoneOf(id).data;
-const saveKey = (id) => profiles.key('web-of-life-save-' + id + (MODE === 'kids' ? '-kids' : ''));
+const slotOf = (id) => saveKey(id, MODE === 'kids');   // the forest of this level (per player, core/storage.js)
 
 // Some computers draw 3D without a graphics driver (e.g. "Microsoft Basic Render Driver") – everything runs on the CPU.
 function detectSoftwareGL() {
@@ -59,10 +60,10 @@ const SOFTWARE_GL = detectSoftwareGL();
 
 function pickQuality() {
   if (SOFTWARE_GL) return 'min';
-  try { const q = localStorage.getItem('web-of-life-quality'); if (q) return q; } catch (e) { }
+  const q = readDeviceRaw(K.quality); if (q) return q;
   // what the automatic adjustment learned last time on this computer: start there instead of stuttering again
   // (kept for two weeks only, so one slow session – an antivirus scan, an update – does not pin the computer low for good)
-  try { const a = JSON.parse(localStorage.getItem('web-of-life-autoq') || 'null'); if (a && ['min', 'low', 'medium'].includes(a.q) && Date.now() - a.t < 14 * 864e5) return a.q; } catch (e) { }
+  const a = readDevice(K.autoq, null); if (a && ['min', 'low', 'medium'].includes(a.q) && Date.now() - a.t < 14 * 864e5) return a.q;
   const cores = navigator.hardwareConcurrency || 4;
   const mobile = /Mobi|Android|iPad|iPhone/i.test(navigator.userAgent);
   if (mobile || cores <= 2) return 'low';
@@ -221,14 +222,14 @@ async function boot() {
       ui.setLoading(0, hasSave ? 'משהו השתבש בטעינה של היער השמור. אפשר לחזור, או להתחיל יער חדש.' : 'משהו השתבש בטעינה. אפשר לחזור למסך הפתיחה ולנסות שוב.');
       ui.setLoadingActions([
         { label: 'חזרה למסך הפתיחה', onClick: () => showStart() },
-        ...(hasSave ? [{ label: 'להתחיל יער חדש (היער השמור יימחק)', onClick: () => { try { localStorage.removeItem(saveKey(id)); } catch (err) { } loadBiome(id); } }] : []),
+        ...(hasSave ? [{ label: 'להתחיל יער חדש (היער השמור יימחק)', onClick: () => { removePlayer(slotOf(id)); loadBiome(id); } }] : []),
       ]);
     }
     loading = false;
   }
 
   // a saved forest? offer to continue it
-  const readSave = (id) => { try { const t = localStorage.getItem(saveKey(id)); return t ? JSON.parse(t) : null; } catch (e) { return null; } };
+  const readSave = (id) => readPlayer(slotOf(id), null);
   function askSaved(id) {
     const sv = readSave(id);
     if (!sv || !Array.isArray(sv.plants) || !sv.plants.length) { pendingBiome = null; loadBiome(id); return; }
@@ -250,7 +251,7 @@ async function boot() {
       ui.showDialog({ title: 'בטוח?', text: 'היער השמור יימחק, ואי אפשר יהיה להחזיר אותו.',
         buttons: [{ id: 'save-new-yes', label: 'כן, להתחיל יער חדש' }, { id: 'save-new-no', label: 'לא, חזרה' }], dismiss: 'save-new-no' });
     }
-    else if (id === 'save-new-yes') { pendingBiome = null; try { localStorage.removeItem(saveKey(b)); } catch (e) { } loadBiome(b); }
+    else if (id === 'save-new-yes') { pendingBiome = null; removePlayer(slotOf(b)); loadBiome(b); }
     else if (id === 'save-new-no') askSaved(b);
     else pendingBiome = null;   // 'save-back', Escape or a click outside the box
   });
@@ -258,7 +259,7 @@ async function boot() {
   // old level first, then looks again under the new one (a stage reached now is announced)
   bus.on('start:mode', ({ mode }) => {
     try { journey.check(); } catch (e) { console.error(e); }
-    MODE = mode; try { localStorage.setItem(profiles.key('web-of-life-mode'), mode); } catch (e) { }
+    MODE = mode; writePlayerRaw(K.mode, mode);
     try { journey.check(); } catch (e) { console.error(e); }
   });
   // players ("מי משחק?") – only reachable from the start screen, so no forest is running while the player changes
@@ -346,13 +347,13 @@ async function boot() {
     } else { try { r.compile(scene, camera); } catch (e) { } finish(); }
   }
   function applyQuality(q, remember) {
-    quality = q; if (remember) { try { localStorage.setItem('web-of-life-quality', q); } catch (e) { } }
+    quality = q; if (remember) writeDeviceRaw(K.quality, q);
     pipe.setQuality(q); setRes(pipe.resScale); if (game && game.W.env.setQuality) game.W.env.setQuality(q);
     ui.setToggles({ quality: q === 'min' ? 'low' : q });
     if (game) precompileShaders();
     resetAutoQ(Math.max(autoQ.settle, 1));   // the recompile stall must not count as slow frames
   }
-  bus.on('quality', ({ q }) => { autoQ.manual = true; pipe.shadowEvery = 1; applyQuality(q, true); setRes(SOFTWARE_GL ? 0.6 : 1); try { localStorage.removeItem('web-of-life-autoq'); } catch (e) { } });
+  bus.on('quality', ({ q }) => { autoQ.manual = true; pipe.shadowEvery = 1; applyQuality(q, true); setRes(SOFTWARE_GL ? 0.6 : 1); removeDevice(K.autoq); });
 
   // automatic quality: measure the real frame rate while playing and step down only when the slowness is sustained.
   // Order of measures: 1) render slightly fewer pixels (hardly visible), 2) medium → low after ~12 s of slow play,
@@ -360,7 +361,7 @@ async function boot() {
   // Tier steps need < 20 fps for ~12 s; between 20 and 24 fps only the pixel count is trimmed (floor 80%).
   const autoQ = { t: 0, n: 0, last: 0, manual: false, settle: 2, slow: 0, verySlow: 0, cool: 0 };
   function resetAutoQ(settle) { autoQ.last = 0; autoQ.t = 0; autoQ.n = 0; autoQ.settle = settle; autoQ.slow = 0; autoQ.slowRes = 0; autoQ.verySlow = 0; }
-  try { autoQ.manual = !!localStorage.getItem('web-of-life-quality'); } catch (e) { }
+  autoQ.manual = !!readDeviceRaw(K.quality);
   const WIN = 3;                                   // seconds per measuring window
   function autoQuality() {
     const now = performance.now(); const rdt = autoQ.last ? Math.min(1, (now - autoQ.last) / 1000) : 0; autoQ.last = now;
@@ -386,7 +387,7 @@ async function boot() {
     else if (autoQ.verySlow >= 6 && quality === 'low') { applyQuality('min'); changed = true; }
     if (!changed) return;
     autoQ.slow = 0; autoQ.slowRes = 0; autoQ.verySlow = 0; autoQ.cool = changed === true ? 15 : 4; autoQ.t = 0; autoQ.n = 0;   // the quiet steps (pixels, shadow rate) prove themselves faster
-    if (changed === true) { ui.toast('התאמתי את הגרפיקה כדי שהמשחק ירוץ חלק יותר', 'info'); try { localStorage.setItem('web-of-life-autoq', JSON.stringify({ q: quality, t: Date.now() })); } catch (e) { } }
+    if (changed === true) { ui.toast('התאמתי את הגרפיקה כדי שהמשחק ירוץ חלק יותר', 'info'); writeDevice(K.autoq, { q: quality, t: Date.now() }); }
   }
 
   showStart();
