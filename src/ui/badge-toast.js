@@ -38,6 +38,7 @@ export function startBadgeToasts(root, audio) {
     el.innerHTML = `<i class="rays"></i><h4>תג חדש!</h4>${badgeHTML(b)}<p>${b.how}</p>`;
     root.appendChild(el);
     try { audio && audio.play('mission'); } catch (e) { /* */ }
+    try { window.__flourish && window.__flourish.badge(el); } catch (e) { /* */ }   // round sparks round the medallion (src/ui/flourish.js)
     let done = false;
     const close = () => { if (done) return; done = true; el.classList.add('out'); setTimeout(() => { el.remove(); busy = false; next(); }, 360); };
     el.addEventListener('click', close); setTimeout(close, 5200);

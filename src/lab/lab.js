@@ -761,8 +761,9 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     robot.root.visible = true; updateFishVisible();
     // warm up the other pictures in the background
     setTimeout(() => ORDER.forEach(texOf), 300);
+    try { window.__flourish && window.__flourish.labDoors(); } catch (e) { }   // 1.3.2: the doors part as the child comes in (src/ui/flourish.js)
     if (!greeted) { greeted = true; setTimeout(() => { robot.wave(); say(kids ? ROOM_K.hello : 'שלום! אני רובו־דע. כאן במעבדה מגלים איך הטבע עובד, וממציאים בעזרתו. במה נתחיל?', 'happy'); }, 600); }
-    else say(kids ? ROOM_K.back : 'ברוכים השבים למעבדה!', 'happy');
+    else { setTimeout(() => robot.wave(), 700); say(kids ? ROOM_K.back : 'ברוכים השבים למעבדה!', 'happy'); }
   }
   function close() {
     if (!open_) return; open_ = false; el.classList.remove('on'); clearTimeout(sayQT); cancelIntro();

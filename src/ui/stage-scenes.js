@@ -186,12 +186,16 @@ function sea(S, { deep = '#1c6f96', shallow = '#3f9fbe', horizon = '#cfe8ef', gl
     uniforms: u, toneMapped: false,
     vertexShader: 'varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }',
     fragmentShader: `uniform float uT, uFar; uniform vec3 cD, cS, cH, cG, uCam; varying vec3 vW;
+      float hs(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
       void main(){ float d = length(vW.xz - uCam.xz); float f = smoothstep(uFar * 0.18, uFar, d);
         vec3 c = mix(cS, cD, smoothstep(0.0, uFar * 0.3, d));
         float w = sin(vW.x * 0.9 + uT * 1.2) * sin(vW.z * 1.1 - uT * 0.9) + 0.6 * sin(vW.x * 2.1 - vW.z * 1.6 + uT * 1.7);
         c *= 1.0 + 0.06 * w;
-        float g = pow(max(0.0, sin(vW.x * 5.0 + uT * 2.3 + w) * sin(vW.z * 6.0 - uT * 1.9)), 30.0);
-        c += cG * g * 0.7 * (1.0 - f);
+        // glitter: a few cells twinkle at random times (no regular pattern)
+        vec2 q = vW.xz * vec2(2.2, 3.4); vec2 cell = floor(q); float h = hs(cell);
+        vec2 o = vec2(hs(cell + 1.7), hs(cell + 5.3)) - 0.5; float r = length(fract(q) - 0.5 - o * 0.6);
+        float tw = pow(max(0.0, sin(uT * (1.5 + h * 2.0) + h * 60.0)), 6.0) * step(0.86, h);
+        c += cG * tw * smoothstep(0.22, 0.0, r) * 0.9 * (1.0 - f) * (1.0 - smoothstep(4.0, 60.0, d) * 0.5);
         c = mix(c, cH, f);
         gl_FragColor = vec4(c, 1.0);
         #include <colorspace_fragment>
@@ -404,12 +408,12 @@ SCENES[1] = async (S, { low }) => {
   const drops = dots(S, low ? 30 : 70, { size: 0.12, color: '#eaffff' }); scene.add(drops);
   const dropR = makeRng(3); const dropSeed = Array.from({ length: low ? 30 : 70 }, () => [dropR(), dropR(), dropR()]);
   // the drone and רובו־דע
-  const drone = tool(S, 'drone', 1.9) || new THREE.Group(); scene.add(drone);
-  const robo = makeRobo(S, R, { low }); robo.root.scale.setScalar(2); scene.add(robo.root); robo.shadow.visible = false;
+  const drone = tool(S, 'drone', 1.5) || new THREE.Group(); scene.add(drone);
+  const robo = makeRobo(S, R, { low }); robo.root.scale.setScalar(1.55); scene.add(robo.root); robo.shadow.visible = false;
   const droneTop = () => boxOf(drone).max.y;
   const landFx = burst(S, low ? 10 : 18, '#bff6ff', { speed: 1.3, size: 0.14, gravity: -0.6 }); scene.add(landFx);
   let landed = false, waved = false, rose = [false, false];
-  const camA = V(0, 3.7, 8.6), camB = V(0, 2.55, 7.4), camC = V(0, 2.9, 8.7), atA = V(0, 3.4, 0), atB = V(0, 1.55, -2), cp = V(0, 0, 0), ca = V(0, 0, 0);
+  const camA = V(0, 3.7, 8.8), camB = V(0, 2.6, 8.0), camC = V(0, 2.95, 9.2), atA = V(0, 3.4, 0), atB = V(0, 1.55, -2), cp = V(0, 0, 0), ca = V(0, 0, 0);
   return {
     dur: 6.6,
     update(t, dt) {
@@ -418,7 +422,7 @@ SCENES[1] = async (S, { low }) => {
       cp.lerpVectors(camA, camB, k1).lerp(camC, k2); ca.lerpVectors(atA, atB, k1); lookCam(camera, cp, ca);
       water.userData.tick(t, camera);
       // the drone flies in from the right and hovers
-      const dp = pathAt([[0, 7, 3.6, -0.5], [0.7, 3.2, 2.1, 1.2], [1.3, 0, 1.15, 2.2], [6.6, 0, 1.15, 2.2]], t);
+      const dp = pathAt([[0, 7, 3.6, -0.5], [0.7, 3.2, 2.1, 1.2], [1.3, 0, 1.25, 1.6], [6.6, 0, 1.25, 1.6]], t);
       dp.y += Math.sin(t * 2.1) * 0.05 + (landed ? -0.08 * Math.exp(-(t - 1.62) * 4) * Math.sin((t - 1.62) * 14) : 0);
       drone.position.copy(dp); drone.rotation.y = lerp(-0.9, 0, E.out(seg(t, 0, 1.3))); drone.rotation.z = lerp(0.25, 0, E.out(seg(t, 0, 1.3)));
       spinRotors(drone, t);
@@ -431,7 +435,7 @@ SCENES[1] = async (S, { low }) => {
       const look = t < 1.9 ? 0 : t < 3.4 ? lerp(0, Math.sin((t - 1.9) * 2.1) * 0.55, seg(t, 1.9, 2.3)) : lerp(0.3, 0, seg(t, 3.4, 3.8));
       robo.expr = t > 2.1 && t < 3.6 ? 'wow' : 'happy';
       if (!waved && t >= 3.7) { waved = true; robo.wave(1.6); sfx('pop'); }
-      robo.update(t, dt, { hover: t < 1.6 ? 0.06 : 0.0, look, bob: t < 1.6 ? 1 : 0.4 });
+      robo.update(t, dt, { hover: t < 1.6 ? 0.06 : -0.035, look, bob: t < 1.6 ? 1 : 0.3 });
       landFx.userData.tick(t);
       // the islands rise (a little overshoot, then they settle)
       isl.forEach((I, i) => {
@@ -467,7 +471,7 @@ SCENES[2] = async (S, { low }) => {
   const [tBody, tStrip, imgs, T] = await Promise.all([
     S.imgTex(PA && PA.body), S.imgTex(PA && PA.strip),
     Promise.all(picks.map((id) => loadImg(CARD_ART[id]))),
-    animal('amazon', 'toucan', { seed: 11, len: 1.25 }),
+    animal('amazon', 'toucan', { seed: 11, len: 1.5 }),
   ]);
   // bokeh lights floating in the warm air
   const nb = low ? 14 : 30; const bok = dots(S, nb, { size: 0.9, color: '#ffd9a0', opacity: 0.35 }); scene.add(bok);
@@ -500,7 +504,7 @@ SCENES[2] = async (S, { low }) => {
   const spine = new THREE.Mesh(S.own(new THREE.CylinderGeometry(0.05, 0.05, 1.3, 12)), S.own(new THREE.MeshStandardMaterial({ color: '#c9a24a', roughness: 0.35, metalness: 0.6 })));
   spine.rotation.x = Math.PI / 2; album.add(cover, spine);
   pageMeshes.forEach((m) => { m.scale.set(1, 1, 1); });
-  album.position.set(-2.05, -0.75, 0.4); album.rotation.set(0.95, 0.32, 0.0);
+  album.position.set(-1.75, -0.7, 1.1); album.rotation.set(1.12, 0.22, 0.0); album.scale.setScalar(1.12);
   // the empty place on the right page (RTL: the album's first page), in the world
   const sl = pg[1].slot(0);
   const slotLocal = V((sl.u - 0.5) * 1.68, (0.5 - sl.v) * 1.26, 0.01);
@@ -510,7 +514,7 @@ SCENES[2] = async (S, { low }) => {
   if (T) { scene.add(T.holder); }
   const slotW = new THREE.Vector3(), slotQ = new THREE.Quaternion(), tp = new THREE.Vector3(), tp2 = new THREE.Vector3(), cardQ = new THREE.Quaternion(), fanQ = new THREE.Quaternion();
   let popped = false, placed = false, grabbed = false;
-  const toucanKeys = [[1.9, 6.2, 2.7, -1.5], [2.5, 3.6, 2.85, 0.4], [3.0, 1.95, 2.35, 0.35], [3.55, 0.2, 2.25, 0.8], [4.15, -1.92, 0.95, 0.7], [4.6, -2.6, 1.9, 0.2], [5.6, -6.5, 3.4, -1.8]];
+  const toucanKeys = [[1.9, 6.4, 2.4, -0.6], [2.5, 3.8, 2.3, 0.3], [3.0, 1.95, 2.3, 0.3], [3.55, 0.3, 2.0, 0.9], [4.15, -1.5, 1.05, 1.15], [4.6, -2.4, 1.7, 0.9], [5.6, -6.5, 2.6, -0.5]];
   return {
     dur: 6.6,
     update(t, dt) {
@@ -524,7 +528,7 @@ SCENES[2] = async (S, { low }) => {
       pack.rotation.set(0, lerp(1.2, -0.22, kin), shiver);
       shine.material.opacity = 0.9 * Math.sin(Math.PI * seg(t, 0.9, 1.5)); shine.position.set(lerp(-0.6, 0.6, seg(t, 0.9, 1.5)), lerp(0.8, -0.4, seg(t, 0.9, 1.5)), 0.05);
       const ks = E.out(seg(t, 1.38, 2.1));
-      strip.position.set(ks * 0.5, ks * 1.6, 0.005 + ks * 0.3); strip.rotation.z = -ks * 0.9; strip.material.opacity = 1 - seg(t, 1.6, 2.1);
+      strip.position.set(ks * 0.5, ks * 1.6, 0.005 + ks * 0.3); strip.rotation.z = -ks * 0.9; strip.material.opacity = 1 - seg(t, 1.45, 1.85); strip.visible = t < 1.9;
       if (!popped && t >= 1.4) { popped = true; sfx('pop'); opened.userData.fire(t, V(1.9, 1.35, 0.2)); }
       opened.userData.tick(t);
       // the cards come out and fan above the pack
@@ -591,7 +595,7 @@ SCENES[3] = async (S, { low }) => {
   scene.add(rays);
   const pop = burst(S, low ? 14 : 28, '#ffe39a', { speed: 1.7, size: 0.13, gravity: -0.5 }); scene.add(pop);
   if (O) scene.add(O.holder);
-  const owlKeys = [[0, -7.5, 4.6, -5], [1.0, -4.2, 3.6, -2.6], [2.0, -1.2, 2.75, -0.2], [2.6, -0.5, 2.55, 0.3], [6.6, -0.35, 2.45, 0.4]];
+  const owlKeys = [[0, -7.5, 4.6, -5], [1.0, -4.6, 3.6, -2.6], [2.0, -2.0, 2.75, -0.4], [2.6, -1.45, 2.6, 0.1], [6.6, -1.3, 2.5, 0.2]];
   let gave = false, shone = false;
   return {
     dur: 6.6,
@@ -605,8 +609,8 @@ SCENES[3] = async (S, { low }) => {
         const p = pathAt(owlKeys, t), q = pathAt(owlKeys, t + 0.08);
         O.holder.position.copy(p); O.holder.position.y += Math.sin(t * 1.6) * 0.06 * seg(t, 2.4, 3);
         const head = Math.atan2(q.x - p.x, q.z - p.z);
-        const face = lerp(head, -0.25, E.io(seg(t, 1.9, 2.8)));
-        O.holder.rotation.set(lerp(0.15, -0.12, seg(t, 1.8, 2.6)), t < 1.9 ? head : face, Math.sin(t * 1.1) * 0.06);
+        const face = lerp(head, 0.15, E.io(seg(t, 1.9, 2.8)));
+        O.holder.rotation.set(lerp(0.15, 0.62, E.io(seg(t, 1.8, 2.8))), t < 1.9 ? head : face, Math.sin(t * 1.1) * 0.06);
         O.v.update(dt, { action: t < 2.0 ? 'fly' : 'glide' });
       }
       // רובו־דע floats in from the right, raises the badge
@@ -621,7 +625,7 @@ SCENES[3] = async (S, { low }) => {
       robo.root.updateMatrixWorld(true);
       const hand = V(0, 0.82, 0.32); robo.root.localToWorld(hand);
       const kc = E.io(seg(t, 3.75, 4.5));
-      const target = V(0.95, 1.55, 4.1);
+      const target = V(0.55, 1.75, 4.1);
       coin.position.lerpVectors(hand, target, kc);
       coin.visible = t > 3.05;
       coin.scale.setScalar(lerp(0.5, 1.0, E.back(seg(t, 3.05, 3.6))) * lerp(1, 1.12, kc));
@@ -874,6 +878,15 @@ SCENES[6] = async (S, { low }) => {
   };
 };
 
+// a test stand for the models (headless checks of size and facing): __stageScene(0, { at: 0, probe: { zone, id, action, yaw } })
+SCENES[0] = async (S, { probe = {} }) => {
+  const { scene, camera } = S;
+  scene.add(skyDome(S, '#8aa', '#cdd', '#777')); scene.add(lights(S));
+  const A = await animal(probe.zone || 'amazon', probe.id || 'toucan', { len: 1.2 });
+  if (A) scene.add(A.holder);
+  return { dur: 99, update(t, dt) { lookCam(camera, V(0, 0.4, 3.2), V(0, 0, 0)); if (A) { A.holder.rotation.y = probe.yaw || 0; A.holder.rotation.x = probe.pitch || 0; A.v.update(dt, { action: probe.action || 'idle' }); } } };
+};
+
 // ───────────────────────────────────────── the player
 let running = null;   // { promise, finish }
 function endCardHTML(n, kids) {
@@ -887,7 +900,7 @@ function endCardHTML(n, kids) {
 }
 
 export function playStageScene(n, opts = {}) {
-  n = Math.max(1, Math.min(6, Math.round(+n) || 1));
+  n = opts.probe ? 0 : Math.max(1, Math.min(6, Math.round(+n) || 1));
   if (running) return running.promise;
   const kids = isKids(), q = tier(), low = q === 'min' || q === 'low';
   const host = document.getElementById('ui') || document.body;
@@ -928,7 +941,7 @@ export function playStageScene(n, opts = {}) {
         S = makeStage(cv, low);
         const pr = low ? (q === 'min' ? 0.5 : 0.7) : Math.min(window.devicePixelRatio || 1, q === 'high' ? 1.5 : 1);
         S.renderer.setPixelRatio(pr); onResize();
-        sc = await SCENES[n](S, { low, kids });
+        sc = await SCENES[n](S, { low, kids, probe: opts.probe });
         S.scene.traverse((o) => { if (o.userData && o.userData.__v) animals.push({ v: o.userData.__v }); });
         if (done) return;
         try { S.renderer.compile(S.scene, S.camera); } catch (e) { }

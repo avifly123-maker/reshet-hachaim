@@ -22,6 +22,7 @@ import { createVoice } from './audio/voice.js';
 import { createGuide } from './ui/robo-guide.js';
 import { STAGE_LINES, LEGACY_LINES } from './data/guide-lines.js';
 import './ui/stage-scenes.js';   // window.__stageScene(n): the short film of a new stage (area I)
+import './ui/flourish.js';   // window.__flourish: short flourishes (a part opening, a badge, a thread, the lab's doors, a mission's animal)
 
 // Zones (biomes): the start screen draws them from the registry (data/zones.js); a zone's content and species models
 // arrive in its pack – { zone: { data, plants, animals }, release() } – loaded when the zone is chosen (core/packs.js).
