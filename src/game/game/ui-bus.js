@@ -10,7 +10,7 @@
 import * as THREE from 'three';
 import { CARD_ART } from '../../data/card-art.js';
 import { toolDef } from '../tools.js';
-import { key as profileKey } from '../../core/profiles.js';
+import { K, writePlayerRaw } from '../../core/storage.js';
 import { zoneWord } from '../../core/place.js';
 import { late } from './common.js';
 
@@ -116,7 +116,7 @@ export function createUiBus(ctx) {
     const a = W.animals.find(x => x.injured && x.injured.uid === uid && alive(x)); if (!a) return;
     rig.stopFollow(); rig.focusOn(a.focusPoint(new THREE.Vector3()), 20); audio.play('click');
   });
-  on('coach:next', () => coachNext()); on('coach:skip', () => { ctx.coachStep = -1; ui.hideCoach(); try { localStorage.setItem(profileKey('web-of-life-coach'), '1'); } catch (e) { } });
+  on('coach:next', () => coachNext()); on('coach:skip', () => { ctx.coachStep = -1; ui.hideCoach(); writePlayerRaw(K.coach, '1'); });
   on('dialog:button', () => { });
   on('ui:home', () => { onExit && onExit(); });
 

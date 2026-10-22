@@ -4,7 +4,7 @@
 // Takes from ctx: the names destructured at the top of createIntro.
 // Shared state it reads or changes: ctx.howtoBox, ctx.disposed, ctx.coachStep.
 import { CARD_ART } from '../../data/card-art.js';
-import { key as profileKey } from '../../core/profiles.js';
+import { K, readPlayerRaw, writePlayerRaw } from '../../core/storage.js';
 import { howto } from '../../ui/howto.js';
 import { zoneHowto, HOWTO_LABELS } from '../../data/howto-cards.js';
 import { zoneWord } from '../../core/place.js';
@@ -34,11 +34,11 @@ export function createIntro(ctx) {
   ];
   ctx.coachStep = -1;
   function startCoach(force) {
-    let done = false; try { done = localStorage.getItem(profileKey('web-of-life-coach')) === '1'; } catch (e) { }
+    const done = readPlayerRaw(K.coach) === '1';
     if (done && !force) return;
     ctx.coachStep = 0; showCoach();
   }
-  function showCoach() { const c = COACH[ctx.coachStep]; if (!c) { ui.hideCoach(); ctx.coachStep = -1; try { localStorage.setItem(profileKey('web-of-life-coach'), '1'); } catch (e) { } return; } ui.coach({ ...c, step: ctx.coachStep + 1, total: COACH.length }); }
+  function showCoach() { const c = COACH[ctx.coachStep]; if (!c) { ui.hideCoach(); ctx.coachStep = -1; writePlayerRaw(K.coach, '1'); return; } ui.coach({ ...c, step: ctx.coachStep + 1, total: COACH.length }); }
   function coachNext() { if (ctx.coachStep < 0) return; ctx.coachStep++; showCoach(); }
 
   // the points counter explains how life points are earned
@@ -59,7 +59,7 @@ export function createIntro(ctx) {
   on('drag:denied', ({ reason }) => { if (reason === 'cost') setTimeout(() => ui.toast('לחצו על מונה נקודות החיים למעלה כדי לראות איך צוברים עוד', 'info'), 1200); });
 
   // the first minute in a zone: "איך משחקים" cards, the coach (a player who never saw it), or רובו־דע (1.3.2)
-  const coachSeen = () => { try { return localStorage.getItem(profileKey('web-of-life-coach')) === '1'; } catch (e) { return false; } };
+  const coachSeen = () => readPlayerRaw(K.coach) === '1';
   function startIntro() {
     const fresh = missions.doneCount === 0;
     if (W.xp) { if (fresh) robo('zone:' + biome.id, { tip: false }); return; }   // חוויה: רובו־דע instead of the cards and the coach
