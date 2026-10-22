@@ -1,0 +1,97 @@
+/* 1.3.2 – animations (area I): the stage scenes of מסע החוקר (src/ui/stage-scenes.js, a full-screen film over
+   everything) and the short flourishes (src/ui/flourish.js: a part opening, a thread drawn, a badge, the album, the
+   lab's doors, the animal of a finished mission). Sparkles are round: no stars with arms, no cross shapes. */
+
+/* ===================================================== the stage scene */
+#ui.wol .ss { position: fixed; inset: 0; z-index: 900; pointer-events: auto; direction: rtl; overflow: hidden;
+  background: radial-gradient(ellipse at 50% 40%, #1d3a3a, #0b1714 70%); animation: ss-in .35s ease-out both;
+  font-family: var(--sans, "Segoe UI", Arial, sans-serif); color: #fbf3d8; user-select: none; -webkit-user-select: none; }
+#ui.wol .ss.out { animation: ss-out .42s ease-in both; }
+#ui.wol .ss-cv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity .5s ease-out; }
+#ui.wol .ss.ready .ss-cv { opacity: 1; }
+#ui.wol .ss-vig { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 50% 46%, transparent 58%, rgba(4, 10, 8, .42)); }
+/* a soft round "breathing" light while the models are prepared (a fraction of a second on most computers) */
+#ui.wol .ss-wait { position: absolute; left: 50%; top: 50%; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%;
+  border: 3px solid rgba(159, 246, 255, .25); border-top-color: #9ff6ff; animation: ss-spin 1s linear infinite; transition: opacity .3s; }
+#ui.wol .ss.ready .ss-wait { opacity: 0; animation: none; }
+#ui.wol .ss-skip { position: absolute; left: max(14px, 2vw); bottom: max(12px, 2.2vh); z-index: 3; cursor: pointer;
+  padding: .5em 1.25em; border-radius: 999px; border: 1.5px solid rgba(251, 243, 216, .45); background: rgba(10, 22, 18, .55);
+  color: #fbf3d8; font: 800 calc(15px * var(--ts, 1)) var(--sans, "Segoe UI", Arial, sans-serif); letter-spacing: .02em;
+  backdrop-filter: blur(4px); transition: background .2s, border-color .2s, transform .2s; }
+#ui.wol .ss-skip:hover, #ui.wol .ss-skip:focus-visible { background: rgba(30, 60, 48, .8); border-color: #f6cf72; transform: translateY(-1px); outline: none; }
+
+/* the end: the stage's medallion, its name, and the Baba Da logo, small */
+#ui.wol .ss-end { position: absolute; left: 50%; bottom: max(26px, 6.5vh); z-index: 2; display: flex; align-items: center; gap: 14px;
+  padding: 10px 26px 10px 14px; border-radius: 999px; transform: translateX(-50%); white-space: nowrap; opacity: 0; pointer-events: none;
+  background: linear-gradient(180deg, rgba(20, 30, 26, .78), rgba(10, 16, 14, .86)); box-shadow: 0 14px 34px rgba(0, 0, 0, .45), inset 0 0 0 1.5px rgba(246, 207, 114, .38); }
+#ui.wol .ss.end .ss-end { animation: ss-end-in .9s cubic-bezier(.2, 1.3, .4, 1) both; }
+#ui.wol .ss-med { flex: none; width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; color: #fffbe9;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--sc) 70%, #fff), var(--sc) 62%); box-shadow: 0 0 0 3px #e2b247, 0 0 0 5px rgba(168, 116, 28, .6), 0 0 24px color-mix(in srgb, var(--sc) 70%, #ffd27a); }
+#ui.wol .ss.end .ss-med { animation: ss-med 1.1s .15s ease-out both; }
+#ui.wol .ss-med svg { width: 30px; height: 30px; }
+#ui.wol .ss-tx { display: flex; flex-direction: column; line-height: 1.05; }
+#ui.wol .ss-tx small { font-size: calc(14px * var(--ts, 1)); font-weight: 700; color: #e6dcbc; }
+#ui.wol .ss-tx b { font-family: var(--serif, "Segoe UI", Arial, serif); font-size: calc(clamp(30px, 4.4vw, 46px) * var(--ts, 1)); color: #f6cf72; letter-spacing: .01em; text-shadow: 0 2px 10px rgba(246, 180, 80, .35); }
+#ui.wol .ss-logo { flex: none; height: 40px; width: auto; margin-inline-start: 10px; padding-inline-start: 14px; border-inline-start: 1px solid rgba(246, 207, 114, .3); opacity: .95; }
+@media (max-height: 520px) { #ui.wol .ss-end { bottom: 14px; padding: 6px 18px 6px 10px; gap: 10px; } #ui.wol .ss-med { width: 42px; height: 42px; } #ui.wol .ss-med svg { width: 24px; height: 24px; } #ui.wol .ss-tx b { font-size: calc(28px * var(--ts, 1)); } #ui.wol .ss-logo { height: 30px; } }
+@keyframes ss-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ss-out { to { opacity: 0; } }
+@keyframes ss-spin { to { transform: rotate(360deg); } }
+@keyframes ss-end-in { from { opacity: 0; transform: translate(-50%, 26px) scale(.9); } to { opacity: 1; transform: translate(-50%, 0) scale(1); } }
+@keyframes ss-med { from { transform: rotateY(180deg) scale(.6); } to { transform: none; } }
+
+/* ===================================================== flourishes (1 to 2 s) */
+/* a part that just opened: its tile lifts, a band of light runs over it, a soft ring of light breathes once */
+#ui.wol .fl-lift { animation: fl-lift 1.7s cubic-bezier(.3, 1.4, .5, 1) both; }
+@keyframes fl-lift { 0% { translate: 0 0; scale: 1; } 30% { translate: 0 -7px; scale: 1.05; } 70% { translate: 0 -4px; scale: 1.03; } 100% { translate: 0 0; scale: 1; } }
+#ui.wol .fl-shine { position: absolute; inset: 0; z-index: 6; pointer-events: none; overflow: hidden; border-radius: inherit; }
+#ui.wol .fl-shine::before { content: ""; position: absolute; top: -20%; bottom: -20%; width: 45%; left: -60%;
+  background: linear-gradient(100deg, transparent, rgba(255, 246, 210, .75), transparent); animation: fl-sweep 1.1s .15s ease-in-out both; }
+#ui.wol .fl-shine::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 2px rgba(246, 207, 114, .9), 0 0 22px rgba(246, 207, 114, .6); animation: fl-ring 1.6s ease-out both; }
+@keyframes fl-sweep { to { left: 120%; } }
+@keyframes fl-ring { 0% { opacity: 0; } 25% { opacity: 1; } 100% { opacity: 0; } }
+
+/* round sparks (dots and small rings) flying out from a point */
+#ui.wol .fl-sparks { position: fixed; z-index: 905; width: 0; height: 0; pointer-events: none; }
+#ui.wol .fl-sparks i { position: absolute; left: 0; top: 0; width: var(--s, 8px); height: var(--s, 8px); margin: calc(var(--s, 8px) / -2) 0 0 calc(var(--s, 8px) / -2); border-radius: 50%;
+  background: radial-gradient(circle, #fffbe9 0 30%, var(--c, #f6cf72) 55%, transparent 72%); animation: fl-spark var(--d, 1s) cubic-bezier(.15, .7, .3, 1) both; }
+#ui.wol .fl-sparks i.r { background: none; border: 2px solid var(--c, #f6cf72); }
+@keyframes fl-spark { 0% { transform: translate(0, 0) scale(.3); opacity: 0; } 15% { opacity: 1; } 100% { transform: translate(var(--x), var(--y)) scale(1); opacity: 0; } }
+#ui.wol .fl-pulse { position: fixed; z-index: 904; pointer-events: none; border-radius: 50%; border: 3px solid var(--c, #f6cf72); animation: fl-pulse 1s ease-out both; }
+@keyframes fl-pulse { from { transform: scale(.4); opacity: .9; } to { transform: scale(1.6); opacity: 0; } }
+
+/* a new thread: a glowing line drawn from one part to another, a light running along it */
+#ui.wol .fl-thread { position: fixed; inset: 0; z-index: 903; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+#ui.wol .fl-thread path { fill: none; stroke-linecap: round; }
+#ui.wol .fl-thread .g { stroke: rgba(246, 207, 114, .35); stroke-width: 10; filter: blur(3px); }
+#ui.wol .fl-thread .l { stroke: #ffe39a; stroke-width: 3; }
+#ui.wol .fl-thread.out { animation: ss-out .5s ease-in both; }
+
+/* the album opens: the cards come up one after the other (only while it opens; hover keeps its own movement) */
+#wol-learn .wl-album.fl-open .wl-grid > * { animation: fl-card-in .5s cubic-bezier(.2, 1.3, .4, 1) backwards; animation-delay: calc(var(--fi, 0) * 35ms + 120ms); }
+#wol-learn .wl-album.fl-open .wl-abar { animation: fl-bar-in .5s ease-out backwards; }
+@keyframes fl-card-in { from { opacity: 0; translate: 0 18px; scale: .86; } }
+@keyframes fl-bar-in { from { opacity: 0; translate: 0 -10px; } }
+
+/* the lab's doors: two panels part in the middle as the child comes in (רובו־דע waves behind them) */
+#ui.wol .fl-doors { position: fixed; inset: 0; z-index: 880; pointer-events: none; display: flex; direction: rtl; }
+#ui.wol .fl-doors i { flex: 1; position: relative; background: linear-gradient(180deg, #f6f4ee, #dcdcd2); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .08); }
+#ui.wol .fl-doors i:first-child { border-left: 3px solid #2c9a92; animation: fl-door-r 1.1s .25s cubic-bezier(.6, 0, .3, 1) both; }
+#ui.wol .fl-doors i:last-child { border-right: 3px solid #2c9a92; animation: fl-door-l 1.1s .25s cubic-bezier(.6, 0, .3, 1) both; }
+#ui.wol .fl-doors i::before { content: ""; position: absolute; top: 34%; width: 13vh; height: 13vh; border-radius: 50%; border: 1.4vh solid #2c9a92;
+  background: radial-gradient(circle at 40% 35%, #c9f2fb, #6fc7dc); box-shadow: inset 0 0 1.6vh rgba(0, 60, 80, .35); }
+#ui.wol .fl-doors i:first-child::before { left: 18%; }
+#ui.wol .fl-doors i:last-child::before { right: 18%; }
+@keyframes fl-door-r { to { transform: translateX(102%); } }
+@keyframes fl-door-l { to { transform: translateX(-102%); } }
+
+/* the animal of a finished mission celebrates beside the banner */
+#ui.wol .fl-hero { position: fixed; z-index: 45; pointer-events: none; width: 210px; height: 190px; border-radius: 50%;
+  background: radial-gradient(circle at 50% 55%, rgba(255, 236, 170, .38), rgba(255, 236, 170, 0) 68%); animation: fl-hero 2.6s ease-in-out both; }
+#ui.wol .fl-hero canvas { width: 100%; height: 100%; display: block; }
+@keyframes fl-hero { 0% { opacity: 0; transform: scale(.6) translateY(16px); } 14% { opacity: 1; transform: scale(1.04); } 22% { transform: scale(1); } 84% { opacity: 1; } 100% { opacity: 0; transform: scale(.92) translateY(-8px); } }
+@media (max-height: 620px) { #ui.wol .fl-hero { width: 150px; height: 136px; } }
+
+@media (prefers-reduced-motion: reduce) {
+  #ui.wol .fl-lift, #ui.wol .fl-shine::before, #ui.wol .fl-sparks i, #ui.wol .fl-pulse, #wol-learn .wl-album.fl-open .wl-grid > *, #ui.wol .fl-doors i { animation-duration: .01s !important; animation-delay: 0s !important; }
+}
