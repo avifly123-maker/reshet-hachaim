@@ -12,7 +12,7 @@ import { BABA_DA_LOGO } from '../data/logo.js';
 import { isOpen, introSeen } from '../core/journey.js';
 import { lockWords, lockTip } from '../ui/journey-map.js';
 import { recommended } from '../core/threads.js';   // חוטים: an event lived on the island → רובו־דע recommends its mystery
-import { markHTML } from '../ui/threads-ui.js';
+import { markHTML, W } from '../ui/threads-ui.js';
 
 // "איך משחקים": four short cards the first time the research centre opens (replay with the "?" button). Vocalised,
 // so beginners read them too. Pictures: the card paintings.
@@ -46,14 +46,17 @@ export function createResearchHub(root, { onPick, onClose, onLab }) {
     // מסע החוקר (1.3.2): the mysteries open with the part 'research', the lab entry with 'lab'; veiled, never hidden
     const rsOpen = isOpen('research'), labOpen = isOpen('lab');
     const veil = (open, part) => (open ? '' : ` jv" data-part="${part}" title="${esc(lockWords(part))}`);
-    let rec = new Set(); try { rec = new Set(recommended().map((r) => r.caseId)); } catch (e) { console.error(e); }
+    let recs = []; try { recs = recommended(); } catch (e) { console.error(e); }
+    const rec = new Set(recs.map((r) => r.caseId));
+    // רובו־דע's recommendation on top (the mystery itself may be far down the page): why, and the mystery's name
+    const recHTML = rsOpen && recs.length ? `<div class="rs-h-rec">${markHTML('recommend')}${recs.slice(0, 2).map((r) => { const c = CASES.find((x) => x.id === r.caseId); return c ? `<button class="rs-h-recgo" data-case="${c.id}"><small>${esc(W(r.thread.name))}</small><b>${esc(c.title)}</b>${icon('arrowL')}</button>` : ''; }).join('')}</div>` : '';
     const starRow = (id) => { const s = (prog[id] && prog[id].stars) || []; return `<span class="rs-h-stars">${[0, 1, 2].map((i) => `<i class="${s[i] ? 'on' : ''}">★</i>`).join('')}</span>`; };
     el.innerHTML = `<div class="rs-h-bg"></div><div class="rs-h-inner">
       <header class="rs-h-head"><button class="rs-h-back">${icon('arrowR')}<span>חזרה</span></button>
         <div><small class="rs-h-centre">המרכז המדעי</small><h1>${esc(RESEARCH_NAME)}</h1><p>תעלומות בטבע: מודדים, משערים, מנסים ומאזנים</p>
           <div class="rs-h-help">${howtoButton()}<button class="rs-h-tut${veil(rsOpen, 'research')}">${icon('play')}<span>הַדְרָכָה: תַּעֲלוּמָה עִם רוֹבּוֹ־דַּע</span></button></div></div>
         <div class="rs-h-logo"><img src="${BABA_DA_LOGO}" alt="בבא דע"></div></header>
-      ${rsOpen ? '' : `<p class="rs-h-veil">${icon('sprout')}<span>${esc(lockWords('research'))}</span></p>`}
+      ${rsOpen ? '' : `<p class="rs-h-veil">${icon('sprout')}<span>${esc(lockWords('research'))}</span></p>`}${recHTML}
       ${LEVELS.map((L) => {
         const mine = CASES.filter((c) => c.level === L.id).sort((a, b) => a.order - b.order);
         const soon = SOON[L.id] || [];

@@ -43,5 +43,13 @@
 /* the research centre: a mystery רובו־דע recommends */
 #ui.wol .rs-h-case.th-rec { position: relative; box-shadow: 0 0 0 3px #2c9a92, 0 0 18px rgba(44, 154, 146, .55), 0 8px 18px rgba(0, 0, 0, .35); }
 #ui.wol .rs-h-case .th-mark { position: absolute; top: 6px; right: 6px; z-index: 2; }
+#ui.wol .rs-h-rec { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px; margin: 2px auto 10px; }
+#ui.wol .rs-h-rec > .th-mark { font-size: 12.5px; padding: 3px 10px 3px 8px; }
+#ui.wol .rs-h-recgo { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 4px 14px 4px 10px; border-radius: 999px; color: #fbf6e6; text-align: right;
+  background: rgba(17, 36, 26, .86); box-shadow: inset 0 0 0 2px #2c9a92, 0 4px 10px rgba(0, 0, 0, .35); transition: transform .15s; }
+#ui.wol .rs-h-recgo:hover { transform: translateY(-1px); }
+#ui.wol .rs-h-recgo small { font-weight: 700; color: #9fd8cf; font-size: calc(.82em * var(--ts, 1)); }
+#ui.wol .rs-h-recgo b { font-weight: 800; font-size: calc(1em * var(--ts, 1)); }
+#ui.wol .rs-h-recgo .ic { width: 18px; height: 18px; color: var(--honey, #e6a93c); }
 @keyframes th-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.3); } }
 @media (prefers-reduced-motion: reduce) { #ui.wol .iv-pbtn.th-wait::after { animation: none; } }
