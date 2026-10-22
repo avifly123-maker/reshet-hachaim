@@ -36,17 +36,11 @@ const EMB = {
 export const mapIcon = (cls = '') => `<svg class="ic${cls ? ' ' + cls : ''}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="f" d="M3 6.6l5.6-2.4 6.8 2.4L21 4.2v13.2l-5.6 2.4-6.8-2.4L3 19.8z" fill="currentColor" fill-opacity=".18" stroke="none"/><path d="M3 6.6l5.6-2.4 6.8 2.4L21 4.2v13.2l-5.6 2.4-6.8-2.4L3 19.8z"/><path d="M8.6 4.2v13.2M15.4 6.6v13.2"/></svg>`;
 export const stageEmblem = (n) => `<svg class="jm-emb" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${EMB[n] || EMB[1]}</svg>`;
 
-const stageName = (n) => { const S = J.STAGES[n - 1]; return S ? t(S.name, S.kname) : ''; };
 export function partLabel(part) { const P = J.PARTS[part]; return P ? t(P.name, P.kname) : ''; }
 const quoted = (s) => (/[?!]$/.test(s) ? `"${s}"` : s);
 
-// short words on a veiled thing (gender-neutral: "פותחים", so they fit every part's name)
-export function lockWords(part) {
-  const L = J.lockInfo(part); if (!L) return '';
-  const P = J.PARTS[part];
-  if (P && P.after && J.stageNow() >= P.stage) return t(`פותחים אחרי ${J.PARTS[P.after].name}`, `פּוֹתְחִים אַחֲרֵי ${J.PARTS[P.after].kname}`);
-  return t(`פותחים בשלב ${L.stage}: ${stageName(L.stage)}`, `פּוֹתְחִים בְּשָׁלָב ${L.stage}: ${stageName(L.stage)}`);
-}
+// short words on a veiled thing (gender-neutral: "פותחים", so they fit every part's name): core/journey.js lockWords
+export const lockWords = (part) => J.lockWords(part);
 // one bubble of רובו־דע: what opens it, and how far it is
 export function lockTip(part, opts = {}) {
   const g = window.__guide; const P = J.PARTS[part]; if (!g || !P) return;
@@ -68,9 +62,14 @@ export function lockTip(part, opts = {}) {
 // the parts on the map (the verse game belongs to the torah edition only)
 const partsOf = (n) => J.partsOf(n).filter((p) => p !== 'versematch' || TORAH);
 
-// the trail through the six medallions, right to left, in a 600 x 60 box (one column of 100 per stage)
+// a stage with many parts gets two columns of tiles (the map never scrolls on 800x460): its grid span
+const MANY_PARTS = 5;   // more parts than this: two columns
+const spanOf = (n) => (partsOf(n).length > MANY_PARTS ? 2 : 1);
+// the trail through the six medallions, right to left, in a 600 x 60 box (each stage at the middle of its columns)
 function trailSVG(stage, progress) {
-  const X = (i) => 600 - (i + 0.5) * 100, Y = (i) => (i % 2 ? 36 : 24);
+  const spans = J.STAGES.map((S) => spanOf(S.n)), cols = spans.reduce((a, b) => a + b, 0);
+  const mid = spans.map((sp, i) => spans.slice(0, i).reduce((a, b) => a + b, 0) + sp / 2);
+  const X = (i) => 600 - mid[i] * (600 / cols), Y = (i) => (i % 2 ? 36 : 24);
   const seg = (i) => `M${X(i)} ${Y(i)} C${X(i) - 50} ${Y(i)}, ${X(i + 1) + 50} ${Y(i + 1)}, ${X(i + 1)} ${Y(i + 1)}`;
   let walked = '', ahead = '', part = '';
   for (let i = 0; i < 5; i++) { if (i + 1 < stage) walked += seg(i) + ' '; else ahead += seg(i) + ' '; }
@@ -107,10 +106,10 @@ export function openJourneyMap(host, { onPart, emit, onClose } = {}) {
         </header>
         <div class="jm-path">
           ${trailSVG(cur, next ? next.progress : 1)}
-          <ol class="jm-stages">${J.STAGES.map((S) => {
+          <ol class="jm-stages" style="--cols:${J.STAGES.reduce((a, S) => a + spanOf(S.n), 0)}">${J.STAGES.map((S) => {
             const n = S.n, cls = n < cur ? 'done' : n === cur ? 'cur' : 'ahead';
-            const parts = partsOf(n);
-            return `<li class="jm-st ${cls}" data-n="${n}" style="--c:${STAGE_COLOR[n]}">
+            const parts = partsOf(n), many = spanOf(n) > 1;
+            return `<li class="jm-st ${cls}${many ? ' many' : ''}" data-n="${n}" style="--c:${STAGE_COLOR[n]};--span:${spanOf(n)}">
               <div class="jm-medw"><span class="jm-med">${stageEmblem(n)}</span><i class="jm-num">${n}</i>
                 ${n <= cur ? `<button class="jm-replay" data-replay="${n}" aria-label="${esc(t(`לראות שוב את שלב ${n}`, `לִרְאוֹת שׁוּב אֶת שָׁלָב ${n}`))}" title="${esc(t('לראות שוב', 'לִרְאוֹת שׁוּב'))}">${icon('play')}</button>` : ''}</div>
               <b class="jm-name">${esc(t(S.name, S.kname))}</b>

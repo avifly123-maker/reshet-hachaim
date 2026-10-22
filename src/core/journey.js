@@ -15,7 +15,7 @@
 // API
 //   PARTS, STAGES                      the registry (ids below are used by every screen that locks something)
 //   state() → { stage, stageId, metrics, next: { stage, need: [text], progress 0..1 } | null, legacy, allOpen }
-//   isOpen(part) → bool                 lockInfo(part) → { stage, name, text } (the words for a veiled part)
+//   isOpen(part) → bool                 lockInfo(part) → { stage, name, text } (the words for a veiled part); lockWords(part) → text
 //   check() → [newly reached stages]    fires window 'wol-stage' ({ detail: { stage, parts } }) once per stage
 //   markUsed(part), wasUsed(part), markIntro(part), introSeen(part)
 //   playMode() / setPlayMode(m)         'experience' | 'full'   (beginners always play their own simple mode)
@@ -166,12 +166,16 @@ export function isOpen(part) {
   if (P.after && !s.used[P.after] && !s.used[part]) return false;
   return true;
 }
+// text: what opens a veiled part, in words that fit every part's name ("פותחים בשלב 4: חוקר": no verb that has to agree
+// with a masculine or feminine name). Every screen uses these words: the start screen and the map (lockWords), the
+// learning hub's veils and tips, the lab's stations.
 export function lockInfo(part) {
   const P = PARTS[part]; if (!P) return null;
-  const kids = isKids(), st = STAGES[P.stage - 1];
-  if (stageNow() >= P.stage && P.after) { const A = PARTS[P.after]; return { stage: P.stage, name: kids ? P.kname : P.name, text: kids ? `נִפְתָּח אַחֲרֵי ${A.kname}` : `נפתח אחרי ${A.name}` }; }
-  return { stage: P.stage, name: kids ? P.kname : P.name, text: kids ? `נִפְתָּח בַּשָּׁלָב ${st.kname}` : `נפתח בשלב ${P.stage}: ${st.name}` };
+  const kids = isKids(), st = STAGES[P.stage - 1], name = kids ? P.kname : P.name;
+  if (stageNow() >= P.stage && P.after) { const A = PARTS[P.after]; return { stage: P.stage, name, text: kids ? `פּוֹתְחִים אַחֲרֵי ${A.kname}` : `פותחים אחרי ${A.name}` }; }
+  return { stage: P.stage, name, text: kids ? `פּוֹתְחִים בְּשָׁלָב ${P.stage}: ${st.kname}` : `פותחים בשלב ${P.stage}: ${st.name}` };
 }
+export const lockWords = (part) => { const L = lockInfo(part); return L ? L.text : ''; };
 export const partsOf = (stage) => Object.keys(PARTS).filter((p) => PARTS[p].stage === stage);
 
 // newly reached stages, announced once each (oldest first)

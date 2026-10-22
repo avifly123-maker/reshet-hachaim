@@ -165,7 +165,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     const now = Date.now(); if (now - tipAt < 1200) return;
     let st = null; try { st = journeyState(); } catch (e) { /* */ }
     const kids = !!(st && st.kids);
-    let txt = `"${info.name}" ${info.text}.`;
+    let txt = `${kids ? 'אֶת' : 'את'} "${info.name}" ${info.text}.`;   // "את "משלחת לעומק" פותחים בשלב 6: מומחה." (core/journey.js lockInfo)
     if (st && st.next && st.next.stage === info.stage && st.next.need && st.next.need.length) txt += ' ' + st.next.need.join(kids ? ' אוֹ ' : ' או ') + '.';
     const g = guide();
     if (!g) { toast(`${IC_CURTAIN}<span>${esc(txt)}</span>`, 3200); tipAt = now; return; }
