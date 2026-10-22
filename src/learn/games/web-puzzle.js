@@ -410,7 +410,7 @@ export function mountWebPuzzle(root, ctx, opts = {}) {
     const pack = levelsFor(ctx, biome, kids);
     G = pack.G; lv = pack.levels[i]; if (!lv) return renderPicker();
     filled = {}; mistakes = 0; busy = false; sel = null; done = false; cleanupDrag();
-    ST.biome = biome; save();
+    ST.biome = biome; save(); ctx.markUsed && ctx.markUsed('webpuzzle');   // מסע החוקר: a puzzle is being played
     ctx.setTitle(`חוט הקשר · ${BNAME[biome]} · שלב ${lv.idx + 1}`);
     root.innerHTML = `<section class="wl-screen wp-game">
       <div class="wp-bar">

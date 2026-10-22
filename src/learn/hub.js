@@ -1625,15 +1625,13 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     grantPack: (n) => grantPack(n), sfx: (n) => sfx(n), toast: (h) => toast(h), confetti: (t, n, p) => confetti(t, n, p),
     later: (fn, ms) => later(fn, ms), reduced, setTitle: (t) => { $('.wl-crumb').textContent = t; },
     exit: () => go('home'), toAlbum: (f) => { if (f) filter = f; go('album'); }, root: () => el,
-    badge: (earn) => { played(); return grantBadge(earn); }, tally: (key, add) => badgeTally(key, add), hasBadge: (id) => hasBadge(id),
+    badge: (earn) => { if (GAMES[screen]) played(); return grantBadge(earn); }, tally: (key, add) => badgeTally(key, add), hasBadge: (id) => hasBadge(id),
     // מסע החוקר: a game marks a part as used (e.g. inventors → 'robots'), asks whether a part is open, or lets רובו־דע say what opens it
     markUsed: (part) => { try { markUsed(part); } catch (e) { /* */ } }, isOpen: (part) => !locked(part), lockTip: (part) => lockTip(part),
   };
-  // a game is really being played when it saves its progress, gives a badge or cards: its journey part counts as used
-  function played() { const part = PART_OF[screen]; if (part && GAMES[screen]) { try { markUsed(part); } catch (e) { /* */ } } }
-  { const st0 = GAME_CTX.store, ac0 = GAME_CTX.addCards;
-    GAME_CTX.store = (key, val) => { if (val !== undefined) played(); return st0(key, val); };
-    GAME_CTX.addCards = (ids) => { played(); return ac0(ids); }; }
+  // a game is really being played (each game calls ctx.markUsed when a round starts); a badge or cards won count too
+  function played(part = PART_OF[screen]) { if (part) { try { markUsed(part); } catch (e) { /* */ } } }
+  { const ac0 = GAME_CTX.addCards; GAME_CTX.addCards = (ids) => { if (GAMES[screen]) played(); return ac0(ids); }; }
   const GAMES = { webpuzzle: mountWebPuzzle, keepforest: mountKeepForest, inventors: mountInventors, expedition: mountExpedition, versematch: mountVerseMatch };
   let gameInst = null;
   function go(name, opts = {}) {
@@ -1662,6 +1660,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     updateChip(false);
     ({ home: renderHome, setup: renderSetup, quiz: () => startQuiz(opts), end: renderEnd, album: renderAlbum, pack: renderPack, duel: () => startDuel(), badges: renderBadges, frames: renderFrames })[name]();
     main.scrollTop = 0;
+    if (screen === name && ['album', 'pack', 'badges', 'frames'].includes(name)) played();   // looking through them is using them
     if (screen === name) introFor(name);
   }
   // opened from the lab (the inventors table): "חזרה" on that screen goes straight back to the lab
@@ -1875,6 +1874,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   function answer(k) {
     if (!Q || Q.answered) return;
     const q = Q.qs[Q.i], o = q.options[k]; if (!o) return;
+    played('quiz');
     Q.answered = true;
     const ok = o.ok; Q.res.push(ok);
     const btns = [...main.querySelectorAll('.wl-opt')];
@@ -2301,6 +2301,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   function playCard(k) {
     if (!D || D.phase !== 'pick') return;
     const h = D.hand[k]; if (!h || h.used || !hasStat(h.c, D.stat)) return;
+    played('duel');
     sfx('place');
     h.used = true; D.mine = h.c; D.phase = 'wait';
     let left = D.cpu.filter((x) => !x.used && hasStat(x.c, D.stat));

@@ -189,7 +189,7 @@ export function mountExpedition(root, ctx, opts = {}) {
   function start(teamIds) {
     const team = (teamIds || pickSel.map((c) => c.id)).map(card).filter(Boolean).slice(0, TEAM);
     if (team.length < TEAM) return false;
-    ST.team = team.map((c) => c.id); save();
+    ST.team = team.map((c) => c.id); save(); ctx.markUsed && ctx.markUsed('expedition');   // מסע החוקר: a dive starts
     S = { team: team.map((c) => ({ c, st: 'ready' })), depth: 0, tiles: [], bag: [], banked: [], lost: [], phase: 'flip', pending: -1,
       shield: false, peeked: {}, log: [], rare: pick(RARE), rareAt: 1 + rnd(NDEP - 1), rareGot: false, reached: 0, done: false };
     S.tiles[0] = genDepth(0);

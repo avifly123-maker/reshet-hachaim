@@ -1307,7 +1307,7 @@ export function mountKeepForest(root, ctx, opts = {}) {
       return;
     }
     const a = t.dataset.a;
-    if (a === 'start') { ctx.sfx('click'); ST.biome = biome; save(); newRun(biome); renderGame(); if (!ST.seenHow) showHow(); }
+    if (a === 'start') { ctx.sfx('click'); ST.biome = biome; save(); ctx.markUsed && ctx.markUsed('keepforest'); newRun(biome); renderGame(); if (!ST.seenHow) showHow(); }
     else if (a === 'how') showHow();
     else if (a === 'howok') hideHow();
     else if (a === 'setup') { ctx.sfx('click'); if (ro) { ro.disconnect(); ro = null; } renderSetup(); }
