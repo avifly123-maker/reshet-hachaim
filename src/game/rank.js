@@ -30,6 +30,7 @@ const obj = (v) => (v && typeof v === 'object' && !Array.isArray(v) ? v : {});
 // ─────────────────────────────── photos
 export function readPhotos() { const p = readJSON(PHOTOS_KEY, []); return Array.isArray(p) ? p.filter((x) => x && typeof x === 'object') : []; }
 export function addPhoto(rec) {
+  phCache = null;
   const list = readPhotos(); list.push(rec);
   while (list.length > MAX_PHOTOS) list.shift();
   // a full storage: drop the oldest photos and try once more (the photos must never crowd out the saves)
@@ -100,10 +101,21 @@ function islandNumbers(zone, kids) {
   if (snap && snap.t && (!save.savedAt || snap.t >= save.savedAt - 60000)) return { kinds: snap.kinds || 0, links: snap.links || 0, days: Math.max(days, snap.days || 0), z };
   return { kinds: ids.size, links: Math.min(disc, Math.round(ids.size * 1.3)), days, z };
 }
+// the kinds photographed per zone: the photos are the biggest store here, so a forest's rank check (every few seconds)
+// reads them at most once a minute, or again after a new photo (addPhoto clears it); per player
+let phCache = null;
+function photoKinds(zone) {
+  const k = profileKey(PHOTOS_KEY), now = Date.now();
+  if (!phCache || phCache.k !== k || now - phCache.t > 60000) {
+    const m = {}; for (const p of readPhotos()) { (m[p.zone] || (m[p.zone] = new Set())).add(p.sp); }
+    phCache = { k, t: now, m };
+  }
+  return phCache.m[zone] ? phCache.m[zone].size : 0;
+}
 export function rankPoints(zone, kids, live = null) {
-  const n = live ? { ...islandNumbers(zone, kids), ...live } : islandNumbers(zone, kids);
+  // live numbers from an open forest replace the save's numbers: the save is not read then
+  const n = live ? { z: zoneAfter(zone), ...live } : islandNumbers(zone, kids);
   const z = n.z;
-  const ph = readPhotos().filter((p) => p.zone === zone);
   const vis = visitorsOf(zone).length;
   const parts = {
     kinds: Math.min(kids ? 32 : 50, n.kinds * (kids ? 4 : 2)),
@@ -111,7 +123,7 @@ export function rankPoints(zone, kids, live = null) {
     days: Math.min(30, n.days),
     challenges: z.cp,
     visitors: Math.min(24, vis * 8),
-    photos: Math.min(15, new Set(ph.map((p) => p.sp)).size) + Object.keys(z.pm).length * 5 + Math.min(10, Object.keys(z.pairs).length * 2),
+    photos: Math.min(15, photoKinds(zone)) + Object.keys(z.pm).length * 5 + Math.min(10, Object.keys(z.pairs).length * 2),
   };
   return { pts: Object.values(parts).reduce((a, b) => a + b, 0), parts };
 }

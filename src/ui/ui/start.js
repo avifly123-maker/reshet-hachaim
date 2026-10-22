@@ -117,7 +117,7 @@ export function createStart(ctx) {
       startEl.style.setProperty('--zc', (b.palette && b.palette[1]) || '#2d5a35');
       startEl.dataset.zone = b.id;   // the background takes the chosen environment's light and colours (style.css)
       /* H: each island's rank (src/game/rank.js), shown small under the island in front */
-      isls.forEach((el) => { const r = el.querySelector('.af-srank'); if (r) r.innerHTML = islandRankHTML(el.dataset.id, S.mode === 'kids', S.mode !== 'kids' && JR.playMode() === 'experience'); });
+      isls.forEach((el) => { const r = el.querySelector('.af-srank'), kd = S.mode === 'kids', sm = !kd && JR.playMode() === 'experience', key = kd + '|' + sm + '|' + ((S.profiles && S.profiles.current && S.profiles.current.id) || ''); if (r && r.dataset.rk !== key) { r.dataset.rk = key; r.innerHTML = islandRankHTML(el.dataset.id, kd, sm); } });   // once per paint of the start screen, not on every turn
     };
     const paintCar = () => {
       isls.forEach((el, i) => {
