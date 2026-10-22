@@ -12,27 +12,27 @@ const CSS = `
   background: rgba(6, 14, 9, .5); animation: howto-in .25s ease-out; }
 #howto .howto-box { position: relative; width: min(600px, calc(100vw - 32px)); max-height: calc(100vh - 32px); overflow: auto; box-sizing: border-box; padding: 18px 20px 16px;
   border-radius: 18px; background: #f3ecd6; color: #24301f; box-shadow: 0 0 0 2px rgba(120, 100, 60, .35), 0 14px 34px rgba(0, 0, 0, .45); }
-#howto h2.howto-head { margin: 0 0 12px; font-family: var(--serif, serif); font-weight: 400; font-size: 1.5em; color: #1f2c1a; text-align: center; }
+#howto h2.howto-head { margin: 0 0 12px; font-family: var(--serif, serif); font-weight: 400; font-size: calc(1.5em * var(--ts, 1)); color: #1f2c1a; text-align: center; }
 #howto .howto-card { display: flex; gap: 18px; align-items: center; min-height: 170px; }
 #howto .howto-img { flex: none; width: 170px; height: 170px; border-radius: 16px; overflow: hidden; background: #dfe6cf; box-shadow: 0 0 0 3px #fff8, 0 4px 10px rgba(0, 0, 0, .2); }
 #howto .howto-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
 #howto .howto-txt { flex: 1; min-width: 0; }
-#howto .howto-txt b { display: block; font-size: 1.2em; margin-bottom: 6px; color: #1f2c1a; }
-#howto .howto-txt p { margin: 0; font-size: 1.08em; line-height: 1.6; font-weight: 600; color: #33402c; }
+#howto .howto-txt b { display: block; font-size: calc(1.2em * var(--ts, 1)); margin-bottom: 6px; color: #1f2c1a; }
+#howto .howto-txt p { margin: 0; font-size: calc(1.08em * var(--ts, 1)); line-height: 1.6; font-weight: 600; color: #33402c; }
 #howto .howto-foot { display: flex; align-items: center; gap: 10px; margin-top: 14px; }
 #howto .howto-dots { display: flex; gap: 6px; flex: 1; justify-content: center; }
 #howto .howto-dots i { width: 9px; height: 9px; border-radius: 50%; background: rgba(60, 70, 40, .25); }
 #howto .howto-dots i.on { background: #4f8a3a; width: 22px; border-radius: 6px; }
-#howto .howto-foot button.howto-btn { min-height: 44px; padding: 6px 20px; border-radius: 999px; border: 0; font: inherit; font-weight: 800; cursor: pointer; }
+#howto .howto-foot button.howto-btn { min-height: 44px; padding: 6px 20px; border-radius: 999px; border: 0; font: inherit; font-size: calc(1em * var(--ts, 1)); font-weight: 800; cursor: pointer; }
 #howto .howto-foot button.howto-next { background: #4f8a3a; color: #fff; box-shadow: 0 3px 0 #2f5f22; }
 #howto .howto-foot button.howto-next:hover { filter: brightness(1.07); }
 #howto .howto-foot button.howto-skip { background: transparent; color: #5a5a40; }
 #howto .howto-foot button.howto-skip:hover { background: rgba(0, 0, 0, .06); }
 #howto .howto-foot button.howto-btn:focus-visible { outline: 3px solid #e6a93c; outline-offset: 2px; }
 @media (max-width: 560px), (max-height: 470px) {
-  #howto .howto-box { padding: 12px 14px 12px; } #howto h2.howto-head { font-size: 1.25em; margin-bottom: 8px; }
+  #howto .howto-box { padding: 12px 14px 12px; } #howto h2.howto-head { font-size: calc(1.25em * var(--ts, 1)); margin-bottom: 8px; }
   #howto .howto-card { min-height: 120px; gap: 12px; } #howto .howto-img { width: 120px; height: 120px; }
-  #howto .howto-txt p { font-size: 1em; line-height: 1.5; } #howto .howto-foot { margin-top: 10px; } }
+  #howto .howto-txt p { font-size: calc(1em * var(--ts, 1)); line-height: 1.5; } #howto .howto-foot { margin-top: 10px; } }
 @media (max-width: 420px) { #howto .howto-card { flex-direction: column; text-align: center; } }
 @keyframes howto-in { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { #howto { animation: none; } }

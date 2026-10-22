@@ -37,13 +37,13 @@ const CSS = `
 #ui #rguide .rg-bub { position: relative; pointer-events: auto; margin-bottom: clamp(30px, 6vh, 60px); min-width: 240px; max-width: 520px; padding: 14px 18px 12px; border-radius: 20px; background: #fbf6e6; color: #1f2c1a;
   box-shadow: 0 0 0 2px rgba(44, 154, 146, .55), 0 12px 28px rgba(0, 0, 0, .4); }
 #ui #rguide .rg-bub::after { content: ""; position: absolute; right: -10px; bottom: 26px; border: 10px solid transparent; border-left-color: #fbf6e6; border-right: 0; filter: drop-shadow(2px 0 0 rgba(44,154,146,.55)); }
-#ui #rguide .rg-name { display: block; font-size: .8em; font-weight: 800; color: #1f7f78; margin-bottom: 4px; letter-spacing: .02em; }
-#ui #rguide .rg-txt { margin: 0; font-size: 1.22em; line-height: 1.55; font-weight: 700; }
+#ui #rguide .rg-name { display: block; font-size: calc(.8em * var(--ts, 1)); font-weight: 800; color: #1f7f78; margin-bottom: 4px; letter-spacing: .02em; }
+#ui #rguide .rg-txt { margin: 0; font-size: calc(1.22em * var(--ts, 1)); line-height: 1.55; font-weight: 700; }
 #ui #rguide .rg-foot { display: flex; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
 #ui #rguide .rg-dots { display: flex; gap: 5px; flex: 1; }
 #ui #rguide .rg-dots i { width: 8px; height: 8px; border-radius: 50%; background: rgba(31, 127, 120, .25); }
 #ui #rguide .rg-dots i.on { width: 20px; border-radius: 6px; background: #1f7f78; }
-#ui #rguide button { font: inherit; cursor: pointer; border: 0; border-radius: 999px; min-height: 42px; padding: 6px 18px; font-weight: 800; }
+#ui #rguide button { font: inherit; font-size: calc(1em * var(--ts, 1)); cursor: pointer; border: 0; border-radius: 999px; min-height: 42px; padding: 6px 18px; font-weight: 800; }
 #ui #rguide .rg-act { background: #e9e2c8; color: #2c3a26; }
 #ui #rguide .rg-next, #ui #rguide .rg-act.primary { background: #2c9a92; color: #fff; box-shadow: 0 3px 0 #1d6b65; }
 #ui #rguide .rg-skip { background: transparent; color: #5a5a40; padding: 6px 10px; }
@@ -56,7 +56,7 @@ const CSS = `
 @keyframes rg-talk { 0%,100% { rotate: 0deg; } 50% { rotate: -1.5deg; } }
 @keyframes rg-pulse { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
 @keyframes rg-fade { from { opacity: 0; } to { opacity: 1; } }
-@media (max-height: 520px) { #ui #rguide .rg-txt { font-size: 1.05em; } #ui #rguide .rg-bub { padding: 10px 14px 9px; margin-bottom: 18px; } #ui #rguide .rg-fig, #ui #rguide .rg-fig.art { width: 84px; } }
+@media (max-height: 520px) { #ui #rguide .rg-txt { font-size: calc(1.05em * var(--ts, 1)); } #ui #rguide .rg-bub { padding: 10px 14px 9px; margin-bottom: 18px; } #ui #rguide .rg-fig, #ui #rguide .rg-fig.art { width: 84px; } }
 @media (max-width: 560px) { #ui #rguide .rg-bub { min-width: 0; } }
 @media (prefers-reduced-motion: reduce) { #ui #rguide .rg-fig, #ui #rguide .rg-fig.talk, #ui #rguide .rg-ring { animation: none; } }
 `;
