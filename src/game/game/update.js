@@ -154,7 +154,11 @@ export function createUpdate(ctx) {
   }
   W.onHurt = (kind) => {
     if (W.research) return;
-    if (kind === 'new') robo('zone:hurt');
+    if (kind === 'new') {
+      // his bubble rises above the tray while he explains, so the technology tab and the rescue robot stay clickable
+      const root = document.getElementById('ui'); if (root) root.classList.add('rg-lift');
+      Promise.resolve(robo('zone:hurt')).finally(() => { if (root) root.classList.remove('rg-lift'); });
+    }
     else if (kind === 'remind') robo('zone:hurtlate', { key: null, force: true });
   };
   let hurtArrowsOn = false; const _ha = new THREE.Vector3();
