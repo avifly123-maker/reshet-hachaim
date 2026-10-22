@@ -157,7 +157,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   const INTRO_OF = { home: 'learn', setup: 'quiz', album: 'album', duel: 'duel', webpuzzle: 'webpuzzle', keepforest: 'keepforest', inventors: 'inventors', expedition: 'expedition', badges: 'badges', frames: 'frames', versematch: 'versematch' };
   const locked = (part) => { try { return !isOpen(part); } catch (e) { return false; } };
   const guide = () => (typeof window !== 'undefined' && window.__guide) || null;
-  let tipAt = 0, guideMine = false, entered = null;
+  let tipAt = 0, guideMine = null, entered = null;   // guideMine: the hub's own bubble (the promise say() gave), closed alone
   // a click on a veiled part: רובו־דע says what opens it (one short bubble; a second click soon after does not stack another)
   function lockTip(part) {
     const info = lockInfo(part); if (!info) return;
@@ -169,16 +169,15 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     if (st && st.next && st.next.stage === info.stage && st.next.need && st.next.need.length) txt += ' ' + st.next.need.join(kids ? ' אוֹ ' : ' או ') + '.';
     const g = guide();
     if (!g) { toast(`${IC_CURTAIN}<span>${esc(txt)}</span>`, 3200); tipAt = now; return; }
-    if (now - tipAt < 9000 && g.isOpen()) g.close();   // our last tip may still be up: the new one replaces it
-    tipAt = now; guideMine = true;
-    g.tip({ f: txt, k: txt, expr: 'curious' }).then(() => { guideMine = false; });
+    if (guideMine) g.close(guideMine);   // our last tip may still be up: the new one replaces it (nothing else of רובו־דע closes)
+    tipAt = now;
+    const mine = guideMine = g.tip({ f: txt, k: txt, expr: 'curious' }); mine.then(() => { if (guideMine === mine) guideMine = null; });
   }
   function introFor(name) {
     const part = INTRO_OF[name], g = guide(); if (!part || !g || !g.intro) return;
     later(() => {
       if (!open_ || screen !== name) return;
-      guideMine = true;
-      g.intro(part, { modal: true }).then(() => { guideMine = false; });
+      const mine = guideMine = g.intro(part, { modal: true }); mine.then(() => { if (guideMine === mine) guideMine = null; });
     }, 450);
   }
   /* ── card mini-games (each lives in ./games/*.js and gets this context) */
@@ -350,7 +349,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   function close() {
     if (!open_) return;
     open_ = false; entered = null; clearTimers(); closeModal(); el.hidden = true; rootEl.classList.remove('wl-hubopen');
-    if (guideMine) { const g = guide(); try { g && g.isOpen() && g.close(); } catch (e) { /* */ } guideMine = false; }
+    if (guideMine) { const g = guide(); try { g && g.close(guideMine); } catch (e) { /* */ } guideMine = null; }
     window.removeEventListener('keydown', onKey, true);
     window.removeEventListener('resize', onResize);
     window.removeEventListener('wol-journey', onJourney);

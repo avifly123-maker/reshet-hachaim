@@ -11,7 +11,8 @@
 //              modal: dim the screen behind (a new part being presented); actions: buttons on the last bubble
 //   guide.intro(part, opts)       the lines of src/data/guide-lines.js GUIDE[part], once per player
 //   guide.tip(line, opts)         one bubble that closes by itself after a while (no buttons but a close)
-//   guide.close(), guide.isOpen()
+//   guide.close(match?), guide.isOpen()   close everything, or only one request (its promise, or { key }); a dropped
+//                                          request resolves with 'abort'
 // Several requests wait in a queue: one bubble set at a time. Everything is RTL; the figure sits at the bottom right.
 import { drawRoboFace, ROBO_SVG, VISOR } from './robo-face.js';
 import { introSeen, markIntro, playMode } from '../core/journey.js';
@@ -151,13 +152,23 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
     lines = (lines || []).filter((l) => l && (l.f || l.k)); if (!lines.length) return Promise.resolve('none');
     if (opts.key && !opts.force && introSeen(opts.key)) return Promise.resolve('seen');
     if (opts.key && (queue.some((q) => q.opts.key === opts.key) || (cur && cur.opts.key === opts.key))) return Promise.resolve('queued');
-    return new Promise((resolve) => { queue.push({ lines, opts, resolve }); pump(); });
+    const item = { lines, opts, resolve: null };
+    const p = new Promise((resolve) => { item.resolve = resolve; });
+    item.promise = p; queue.push(item); pump();
+    return p;
+  }
+  // close what matches (nothing given: everything). A match is the promise say() / intro() / tip() returned, or
+  // { key } – so a screen closes only its own bubble. Every dropped request resolves with 'abort'.
+  function close(match) {
+    const hit = (q) => match == null || q.promise === match || (match && match.key != null && q.opts.key === match.key);
+    for (let i = queue.length - 1; i >= 0; i--) if (hit(queue[i])) { const q = queue.splice(i, 1)[0]; try { q.resolve('abort'); } catch (e) { } }
+    if (cur && hit(cur)) finish('abort');
   }
   const intro = (part, opts = {}) => say(GUIDE[part] || [], { key: 'g:' + part, ...opts });
   const tip = (line, opts = {}) => say([line], { tip: true, ...opts });
   const G = {
     say, intro, tip,
-    close: () => { queue.length = 0; finish('abort'); },
+    close,
     isOpen: () => !!cur,
     setPortrait: (src) => { pic = src || null; if (cur) render(); },
     lines: (part) => GUIDE[part] || [],
