@@ -73,6 +73,7 @@ const T = {
   zones: { amazon: ['באמזונס', 'בָּאָמָזוֹנָס'], grove: ['בחורש', 'בַּחֹרֶשׁ'], reef: ['בשונית', 'בַּשּׁוּנִית'] },
   oldest: ['כשיש 24 תמונות, הישנה ביותר יוצאת', 'כְּשֶׁיֵּשׁ 24 תְּמוּנוֹת, הַיְּשָׁנָה בְּיוֹתֵר יוֹצֵאת'],
   visitor: ['מבקר נדיר', 'מְבַקֵּר נָדִיר'],
+  savedT: ['התמונה נשמרה באלבום', 'הַתְּמוּנָה נִשְׁמְרָה בָּאַלְבּוֹם'],
   full: ['האלבום מלא, והתמונה לא נשמרה', 'הָאַלְבּוֹם מָלֵא, וְהַתְּמוּנָה לֹא נִשְׁמְרָה'],
 };
 // a camera: a rounded body, a lens and a small flash window (no tripod, nothing that crosses)
@@ -223,7 +224,12 @@ export function createPhotos({ W, reg, camera, canvas, pipe, ui, audio, imv, bus
     printT = 3.6;
   }
   function showPrint(rec, info, res) {
-    if (!isOpen) return;   // the field camera's view: the toast of the game says it
+    if (!isOpen) {   // the field camera's view: a small toast says it was kept
+      const parts = [t('savedT')];
+      if (res.points) parts.push(kids ? `קִבַּלְתֶּם ${res.points} נְקֻדּוֹת` : `קיבלתם ${res.points} נקודות חיים`);
+      try { ui.toast(parts.join(' · '), 'good'); } catch (e) { }
+      return;
+    }
     printEl.querySelector('img').src = rec.img;
     printEl.querySelector('b').textContent = rec.sp ? nameOf(rec.sp) : t('landscape');
     const parts = [t('saved')];
