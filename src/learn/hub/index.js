@@ -171,7 +171,16 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     if (!g) { toast(`${IC_CURTAIN}<span>${esc(txt)}</span>`, 3200); tipAt = now; return; }
     if (now - tipAt < 9000 && g.isOpen()) g.close();   // our last tip may still be up: the new one replaces it
     tipAt = now; guideMine = true;
-    g.tip({ f: txt, k: txt, expr: 'curious' }).then(() => { guideMine = false; });
+    tipTxt = txt; g.tip({ f: txt, k: txt, expr: 'curious' }).then(() => { guideMine = false; });
+  }
+  // moving to another screen: our own lock tip (only ours: the bubble up now shows its words) goes away. Its own
+  // "הבנתי" button closes it, as a child would, so bubbles of others waiting after it stay in the queue.
+  let tipTxt = '';
+  function dropTip() {
+    if (!tipTxt) return; const words = tipTxt; tipTxt = '';
+    const g = guide(); if (!g || !g.isOpen()) return;
+    const box = document.querySelector('#rguide.tip'), t = box && box.querySelector('.rg-txt');
+    if (t && t.textContent === words) { const b = box.querySelector('[data-g="next"]'); if (b) b.click(); }
   }
   function introFor(name) {
     const part = INTRO_OF[name], g = guide(); if (!part || !g || !g.intro) return;
@@ -214,14 +223,16 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     // a part that is not open yet (מסע החוקר): רובו־דע says what opens it, and the screen stays as it is
     // (the hub itself was just opened into it: the home). opts.force (the _go test hook) opens it anyway.
     const part = PART_OF[name];
+    let tipNow = false;   // the tip just given stays up over the home it opens on
     if (part && !opts.force && locked(part)) {
       lockTip(part);
       if (main.firstElementChild && screen !== name) return;
-      name = 'home';
+      name = 'home'; tipNow = true;
     }
     if (name === 'versematch' && !srcOn()) name = 'home';   // the torah edition's game, only while the sources are on
     clearTimers(); closeModal(); ctx.setsOpen = false;
     const entering = entered !== name; entered = name;   // a repaint of the same screen does not present it again
+    if (entering && !tipNow) dropTip();
     if (name === 'home') returnTo = null;
     if (gameInst) { try { gameInst.destroy && gameInst.destroy(); } catch (e) { console.warn(e); } gameInst = null; }
     if (name === 'frames') PARENT.frames = screen === 'badges' ? 'badges' : 'home';
