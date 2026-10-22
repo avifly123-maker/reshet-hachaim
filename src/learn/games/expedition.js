@@ -431,7 +431,7 @@ const CSS_TEXT = `
 .wol-learn .ex-sea>*:not(.ex-rays):not(.ex-bub){position:relative;z-index:1}
 /* radio with רובו־דע */
 .wol-learn .ex-radio{display:flex;align-items:center;gap:.7em;max-width:52em;width:100%;padding:.45em .9em;border-radius:1em;background:rgba(10,30,44,.62);box-shadow:inset 0 0 0 1px rgba(111,240,255,.25)}
-.wol-learn .ex-radio p{margin:0;font-size:1.02em;line-height:1.45;color:#eaf6fa}
+.wol-learn .ex-radio p{margin:0;font-size:calc(1.02em * var(--tsr,1));line-height:1.45;color:#eaf6fa}
 .wol-learn .ex-robo{width:3.2em;height:3.2em;flex:none}
 .wol-learn .ex-robo .eyes{animation:ex-blink 5s infinite}
 @keyframes ex-blink{0%,94%,100%{transform:none}96%{transform:scaleY(.1)}}
@@ -523,7 +523,7 @@ const CSS_TEXT = `
 .wol-learn .ex-lost,.wol-learn .ex-none{margin:0;font-size:.9em;color:#6a7a82}
 .wol-learn .ex-sum h4{margin:.3em 0 0;color:#1f5a72}
 .wol-learn .ex-facts{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.35em;max-width:40em}
-.wol-learn .ex-facts li{display:flex;gap:.5em;align-items:flex-start;font-size:.95em;line-height:1.45}
+.wol-learn .ex-facts li{display:flex;gap:.5em;align-items:flex-start;font-size:calc(.95em * var(--tsr,1));line-height:1.45}
 .wol-learn .ex-facts .wl-ic{width:1.1em;height:1.1em;color:#d98e26;flex:none;margin-top:.2em}
 .wol-learn .ex-badges{margin:0;font-weight:700;color:#5a3a8a}.wol-learn .ex-badges .wl-ic{width:1.1em;height:1.1em;vertical-align:-.15em}
 /* beginners: bigger text */
@@ -531,7 +531,7 @@ const CSS_TEXT = `
 /* small screens */
 @media (max-height:620px){
   .wol-learn .ex-sea{gap:.35em;padding:.4em .8em .5em}
-  .wol-learn .ex-radio{padding:.3em .7em}.wol-learn .ex-radio p{font-size:.92em}.wol-learn .ex-robo{width:2.6em;height:2.6em}
+  .wol-learn .ex-radio{padding:.3em .7em}.wol-learn .ex-radio p{font-size:calc(.92em * var(--tsr,1))}.wol-learn .ex-robo{width:2.6em;height:2.6em}
   .wol-learn .ex-dname{font-size:1.15em}
   .wol-learn .ex-mem .wl-card{--cw:min(6em,13vh)}
   .wol-learn .ex-run .ex-mem .wl-card{--cw:min(7em,16.5vh)}

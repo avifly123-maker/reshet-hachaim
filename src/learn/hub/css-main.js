@@ -52,7 +52,7 @@ export const CSS_MAIN = `
 .wol-learn .wl-meter i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--leaf2),var(--leaf))}
 /* setup */
 .wol-learn .wl-setup{width:min(54em,94%);margin:auto;border-radius:24px;padding:1.6em 2em 1.8em;display:flex;flex-direction:column;gap:1.1em}
-.wol-learn .wl-setup h2{font-family:var(--serif);font-size:2.2em;line-height:1;color:#1f2c1a}
+.wol-learn .wl-setup h2{font-family:var(--serif);font-size:calc(2.2em * var(--tsd,1));line-height:1;color:#1f2c1a}
 .wol-learn .wl-step h3{font-size:1.1em;color:var(--ink2);margin-bottom:.5em}
 .wol-learn .wl-choices{display:grid;grid-template-columns:repeat(var(--n,2),1fr);gap:.9em}
 .wol-learn .wl-choice{display:flex;align-items:center;gap:.8em;padding:.8em 1.1em;border-radius:18px;background:#fbf6e5;border:2.5px solid var(--edge);box-shadow:0 3px 0 var(--edge);text-align:right;min-height:4.6em;transition:transform .12s,border-color .2s,background .2s}
@@ -61,8 +61,8 @@ export const CSS_MAIN = `
 .wol-learn .wl-choice .wl-cic{width:3em;height:3em;border-radius:50%;display:grid;place-items:center;flex:none;background:rgba(95,174,74,.18);color:var(--moss);overflow:hidden}
 .wol-learn .wl-choice .wl-cic .wl-ic{width:1.8em;height:1.8em}
 .wol-learn .wl-choice .wl-cic img{width:115%;height:115%;object-fit:contain}
-.wol-learn .wl-choice b{display:block;font-size:1.3em;color:#1f2c1a}
-.wol-learn .wl-choice small{display:block;color:var(--ink2);font-size:.92em}
+.wol-learn .wl-choice b{display:block;font-size:calc(1.3em * var(--tsr,1));color:#1f2c1a}
+.wol-learn .wl-choice small{display:block;color:var(--ink2);font-size:calc(.92em * var(--tsr,1))}
 .wol-learn .wl-setup .wl-btn.go{align-self:center;font-size:1.3em;padding:.5em 2.4em}
 /* quiz */
 .wol-learn .wl-quiz{gap:.9em;padding:0 1.6em 1.4em}
@@ -73,30 +73,30 @@ export const CSS_MAIN = `
 .wol-learn .wl-pl.no{color:#b98a55}
 .wol-learn .wl-pl.cur{color:var(--amber);animation:wl-pulse 1.4s ease-in-out infinite}
 .wol-learn .wl-pnum{margin-inline-start:.6em;font-weight:700;color:#e2dcbd;white-space:nowrap}
-.wol-learn .wl-qwrap{flex:0 1 31em;min-height:0;width:min(64em,100%);perspective:1600px;display:flex;margin-bottom:auto}
+.wol-learn .wl-qwrap{flex:0 1 calc(31em * var(--tsr,1));min-height:0;width:min(64em,100%);perspective:1600px;display:flex;margin-bottom:auto}
 .wol-learn .wl-qcard{flex:1;min-height:0;border-radius:24px;padding:1.5em 1.8em;display:grid;grid-template-columns:17em 1fr;gap:1.8em;align-items:stretch;transform-origin:50% 50%;animation:wl-flipin .55s cubic-bezier(.2,.8,.3,1.1) both}
 .wol-learn .wl-qcard.noart{grid-template-columns:1fr}
 .wol-learn .wl-qart{position:relative;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;box-shadow:inset 0 0 0 2px rgba(201,184,141,.6);min-height:0}
 .wol-learn .wl-qart img{width:100%;flex:1;min-height:0;object-fit:contain;filter:drop-shadow(0 8px 10px rgba(40,30,10,.25));animation:wl-pop .6s .15s cubic-bezier(.2,.9,.3,1.3) both}
 .wol-learn .wl-qart.tool img{width:72%}
-.wol-learn .wl-qart .wl-anm{margin:.2em 0 .7em;padding:.2em .9em;border-radius:99px;background:rgba(255,255,255,.75);font-family:var(--serif);font-weight:700;font-size:1.25em;color:#1f2c1a}
+.wol-learn .wl-qart .wl-anm{margin:.2em 0 .7em;padding:.2em .9em;border-radius:99px;background:rgba(255,255,255,.75);font-family:var(--serif);font-weight:700;font-size:calc(1.25em * var(--tsr,1));color:#1f2c1a}
 .wol-learn .wl-qbody{display:flex;flex-direction:column;justify-content:flex-start;gap:.9em;min-height:0;overflow:auto;padding:.2em}
 /* centred while it fits, and the question stays reachable when it does not (justify-content:center would clip the top) */
 .wol-learn .wl-qbody>:first-child{margin-top:auto}
 .wol-learn .wl-qbody>:last-child{margin-bottom:auto}
 .wol-learn .wl-quiz.torah .wl-qbody>:first-child{margin-top:0}
-.wol-learn .wl-qtag{align-self:flex-start;font-size:.9em;font-weight:800;color:var(--moss);background:rgba(95,174,74,.16);padding:.2em .8em;border-radius:99px}
-.wol-learn .wl-q{font-family:var(--serif);font-size:2em;line-height:1.15;color:#1f2c1a}
-.wol-learn .wl-quiz.easy .wl-q{font-size:2.9em}
-.wol-learn .wl-sub{font-family:var(--serif);font-size:1.3em;line-height:1.5;color:#2c3524;padding:.6em .9em;border-right:4px solid var(--amber);border-radius:4px 12px 12px 4px;background:rgba(240,180,76,.14)}
+.wol-learn .wl-qtag{align-self:flex-start;font-size:calc(.9em * var(--tsr,1));font-weight:800;color:var(--moss);background:rgba(95,174,74,.16);padding:.2em .8em;border-radius:99px}
+.wol-learn .wl-q{font-family:var(--serif);font-size:calc(2em * var(--tsd,1));line-height:1.15;color:#1f2c1a}
+.wol-learn .wl-quiz.easy .wl-q{font-size:calc(2.9em * var(--tsd,1))}
+.wol-learn .wl-sub{font-family:var(--serif);font-size:calc(1.3em * var(--tsd,1));line-height:1.5;color:#2c3524;padding:.6em .9em;border-right:4px solid var(--amber);border-radius:4px 12px 12px 4px;background:rgba(240,180,76,.14)}
 .wol-learn .wl-blank{display:inline-block;min-width:3.2em;border-bottom:3px dashed var(--amber2);text-align:center;color:var(--amber2);font-weight:800}
 .wol-learn .wl-opts{display:grid;grid-template-columns:repeat(var(--n),1fr);gap:.8em}
 .wol-learn .wl-opts.stack{grid-template-columns:1fr}
 .wol-learn .wl-opt{position:relative;display:flex;align-items:center;justify-content:center;gap:.55em;min-height:4.2em;padding:.5em .9em;border-radius:18px;background:#fbf6e5;border:2.5px solid var(--edge);box-shadow:0 4px 0 var(--edge);
-  font-size:1.22em;font-weight:800;color:var(--ink);text-align:center;line-height:1.2;transition:transform .12s,background .25s,border-color .25s,opacity .3s}
-.wol-learn .wl-opts.stack .wl-opt{justify-content:flex-start;text-align:right;min-height:3.3em;font-size:1.12em}
-.wol-learn .wl-quiz.easy .wl-opt{min-height:5.6em;font-size:1.6em}
-.wol-learn .wl-quiz.easy .wl-opts.stack .wl-opt{min-height:3em;font-size:1.4em}
+  font-size:calc(1.22em * var(--tsr,1));font-weight:800;color:var(--ink);text-align:center;line-height:1.2;transition:transform .12s,background .25s,border-color .25s,opacity .3s}
+.wol-learn .wl-opts.stack .wl-opt{justify-content:flex-start;text-align:right;min-height:3.3em;font-size:calc(1.12em * var(--tsd,1))}
+.wol-learn .wl-quiz.easy .wl-opt{min-height:5.6em;font-size:calc(1.6em * var(--tsd,1))}
+.wol-learn .wl-quiz.easy .wl-opts.stack .wl-opt{min-height:3em;font-size:calc(1.4em * var(--tsd,1))}
 .wol-learn .wl-opt:hover:not(:disabled){transform:translateY(-3px);border-color:#a99863}
 .wol-learn .wl-opt:active:not(:disabled){transform:translateY(1px)}
 .wol-learn .wl-opt img{width:2.4em;height:2.4em;object-fit:contain;flex:none;border-radius:50%;background:radial-gradient(circle,#fff 30%,rgba(255,255,255,0) 72%)}
@@ -119,9 +119,9 @@ export const CSS_MAIN = `
 .wol-learn .wl-fb.ok{background:rgba(95,174,74,.15);box-shadow:inset 0 0 0 2px rgba(95,174,74,.35)}
 .wol-learn .wl-fb.no{background:rgba(240,180,76,.16);box-shadow:inset 0 0 0 2px rgba(217,142,38,.35)}
 .wol-learn .wl-fbt{flex:1;min-width:0}
-.wol-learn .wl-fbt b{display:block;font-size:1.2em;color:#1f2c1a}
-.wol-learn .wl-fbt p{font-family:var(--serif);font-size:1.08em;line-height:1.45;color:#2c3524}
-.wol-learn .wl-quiz.easy .wl-fbt p{font-size:1.15em}
+.wol-learn .wl-fbt b{display:block;font-size:calc(1.2em * var(--tsr,1));color:#1f2c1a}
+.wol-learn .wl-fbt p{font-family:var(--serif);font-size:calc(1.08em * var(--tsr,1));line-height:1.45;color:#2c3524}
+.wol-learn .wl-quiz.easy .wl-fbt p{font-size:calc(1.15em * var(--tsr,1))}
 .wol-learn .wl-gotpack{display:inline-flex;align-items:center;gap:.35em;margin-top:.35em;padding:.2em .8em;border-radius:99px;background:linear-gradient(180deg,#f8d98a,#e8a43a);color:#3a2608;font-weight:800;font-size:.95em;animation:wl-bump .7s both}
 /* end */
 .wol-learn .wl-end{width:min(40em,92%);margin:auto;border-radius:26px;padding:1.8em 2em 2em;text-align:center;display:flex;flex-direction:column;align-items:center;gap:.9em}
@@ -130,8 +130,8 @@ export const CSS_MAIN = `
 .wol-learn .wl-stars span:nth-child(2){width:5.8em;height:5.8em}
 .wol-learn .wl-stars span .wl-ic{width:100%;height:100%}
 .wol-learn .wl-stars span.on{color:var(--amber);filter:drop-shadow(0 4px 10px rgba(217,142,38,.55));animation:wl-star .6s cubic-bezier(.2,.9,.3,1.4) both}
-.wol-learn .wl-end h2{font-family:var(--serif);font-size:2.4em;line-height:1.05;color:#1f2c1a}
-.wol-learn .wl-end p{font-size:1.2em;color:var(--ink2)}
+.wol-learn .wl-end h2{font-family:var(--serif);font-size:calc(2.4em * var(--tsd,1));line-height:1.05;color:#1f2c1a}
+.wol-learn .wl-end p{font-size:calc(1.2em * var(--tsr,1));color:var(--ink2)}
 .wol-learn .wl-row{display:flex;gap:.8em;flex-wrap:wrap;justify-content:center}
 /* album */
 /* album: one slim bar of navigation on top, the rest of the page is cards */

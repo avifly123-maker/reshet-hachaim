@@ -38,7 +38,7 @@
 #ui.wol .lb-bar button.on { background: #fbf6e4; color: #2a1a0e; }
 #ui.wol .lb-bar button:hover:not(.on) { background: rgba(255, 255, 255, .1); }
 /* Robo-Da speaks: a bubble above his head */
-#ui.wol .lb-say { position: absolute; z-index: 1; transform: translate(-50%, -100%); max-width: min(420px, 60vw); padding: 12px 16px; border-radius: 16px; background: #263440; color: #eaf6fa; font-size: 1.02em; line-height: 1.45; box-shadow: 0 8px 22px rgba(0, 0, 0, .35); pointer-events: none; }
+#ui.wol .lb-say { position: absolute; z-index: 1; transform: translate(-50%, -100%); max-width: min(420px, 60vw); padding: 12px 16px; border-radius: 16px; background: #263440; color: #eaf6fa; font-size: calc(1.02em * var(--tsr, 1)); line-height: 1.45; box-shadow: 0 8px 22px rgba(0, 0, 0, .35); pointer-events: none; }
 #ui.wol .lb-say::after { content: ''; position: absolute; bottom: -9px; left: 50%; margin-left: -9px; border: 9px solid transparent; border-bottom: 0; border-top-color: #263440; }
 #ui.wol .lb-say p { margin: 0; }
 #ui.wol .lb-say.pop { animation: lbPop .3s ease-out; }
@@ -47,11 +47,11 @@
 #ui.wol .lb-panels { position: absolute; inset: 0; pointer-events: none; }
 #ui.wol .lb-panel { position: absolute; inset: 72px 18px 86px; pointer-events: auto; border-radius: 18px; padding: 18px 22px; color: #2a1a0e; animation: lbIn .35s ease-out; overflow: auto; }
 @keyframes lbIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
-#ui.wol .lb-panel h2 { margin: 0; font-family: var(--serif); font-weight: 900; font-size: 1.9em; }
+#ui.wol .lb-panel h2 { margin: 0; font-family: var(--serif); font-weight: 900; font-size: calc(1.9em * var(--tsd, 1)); }
 #ui.wol .lb-panel h3 { margin: 0 0 4px; font-family: var(--serif); font-size: 1.3em; }
 #ui.wol .lb-card { padding: 12px 14px; border-radius: 14px; background: #fbf6e4; box-shadow: 0 4px 0 #c9b98a; color: #2a1a0e; }
 #ui.wol .lb-card small { font-weight: 700; color: #1d6680; }
-#ui.wol .lb-card p { margin: 4px 0 6px; font-size: 1.05em; line-height: 1.45; }
+#ui.wol .lb-card p { margin: 4px 0 6px; font-size: calc(1.05em * var(--tsr, 1)); line-height: 1.45; }
 #ui.wol .lb-card.lb-found { background: #eaf6dc; box-shadow: 0 4px 0 #a8c48a; }
 #ui.wol .lb-card.lb-found small { color: #3a6a2a; }
 /* the microscope */
@@ -99,7 +99,7 @@
 #ui.wol .lb-pick img { width: 72px; height: 72px; border-radius: 12px; object-fit: cover; }
 #ui.wol .lb-pick b { display: block; font-family: var(--serif); font-size: 1.2em; }
 #ui.wol .lb-board { flex: 1; display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 14px; background: #fbf6e4; box-shadow: 0 4px 0 #c9b98a; }
-#ui.wol .lb-board .lb-big { font-size: 1.15em; line-height: 1.5; margin: 0; }
+#ui.wol .lb-board .lb-big { font-size: calc(1.15em * var(--tsr, 1)); line-height: 1.5; margin: 0; }
 #ui.wol .lb-board.lb-blue { background: #e9eef6; background-image: linear-gradient(rgba(60, 110, 170, .14) 1px, transparent 1px); background-size: 100% 22px; box-shadow: 0 4px 0 #9fb0c8; }
 #ui.wol .lb-board.lb-patent { border: 3px dashed #e0a43a; }
 #ui.wol .lb-board.lb-patent small { font-weight: 700; color: #8a5a12; }
@@ -129,7 +129,7 @@
 #ui.wol .lb-a-card.dim { opacity: .7; }
 #ui.wol .lb-a-card img { width: 86px; height: 86px; border-radius: 50%; object-fit: cover; border: 4px solid #fff; box-shadow: 0 2px 8px rgba(0, 0, 0, .2); }
 #ui.wol .lb-a-card b { font-family: var(--serif); font-size: 1.2em; color: #2c4f26; }
-#ui.wol .lb-a-card p { margin: 6px 0 0; font-size: .92em; line-height: 1.4; }
+#ui.wol .lb-a-card p { margin: 6px 0 0; font-size: calc(.92em * var(--tsr, 1)); line-height: 1.4; }
 #ui.wol .lb-stamps { display: flex; gap: 6px; margin-top: 4px; }
 #ui.wol .lb-stamps span { padding: 2px 8px; border-radius: 8px; border: 2px dashed #b9a77a; color: #8a7a50; font-size: .8em; font-weight: 700; }
 #ui.wol .lb-stamps span.on.z { border: 2px solid #8a5ab8; background: #f0e8f8; color: #5a3a88; transform: rotate(-3deg); }
@@ -150,7 +150,7 @@
 }
 #ui.wol .lb-say .lb-face { display: none; }
 /* docked while a panel is open: down on the station bar, below the panel, so it never hides the panel's own buttons */
-#ui.wol .lb-say.dock { left: auto !important; right: 18px; top: auto !important; bottom: 6px; transform: none; display: flex; align-items: center; gap: 10px; max-width: min(620px, 62vw); max-height: 72px; overflow: hidden; padding: 6px 14px; font-size: .92em; line-height: 1.35; z-index: 3; }
+#ui.wol .lb-say.dock { left: auto !important; right: 18px; top: auto !important; bottom: 6px; transform: none; display: flex; align-items: center; gap: 10px; max-width: min(620px, 62vw); max-height: 72px; overflow: hidden; padding: 6px 14px; font-size: calc(.92em * var(--tsr, 1)); line-height: 1.35; z-index: 3; }
 #ui.wol .lb-say.dock .lb-face { width: 44px !important; height: 44px !important; }
 #ui.wol .lb-say.dock::after { display: none; }
 #ui.wol .lb-say.dock.pop { animation: lbPopD .3s ease-out; }
@@ -193,7 +193,7 @@
 #ui.wol .lb-frame-in > .lb-atlas .lb-a-grid { flex: 1; min-height: 0; overflow: auto; padding: 2px; }
 #ui.wol .lb-pv { flex: none; display: flex; align-items: center; gap: 10px; padding: 6px 12px; border-radius: 14px; background: #263440; color: #eaf6fa; min-height: 40px; box-shadow: 0 4px 12px rgba(0, 0, 0, .25), inset 0 0 0 1px rgba(127, 240, 255, .25); }
 #ui.wol .lb-pv:empty { visibility: hidden; }
-#ui.wol .lb-pv p { margin: 0; line-height: 1.4; }
+#ui.wol .lb-pv p { margin: 0; font-size: calc(1em * var(--tsr, 1)); line-height: 1.4; }
 #ui.wol .lb-pv b { color: #7ff0ff; }
 #ui.wol .lb-pv .ls-face { width: 36px; height: 36px; flex: none; }
 #ui.wol .lb-pv.pop { animation: lbPopD .3s ease-out; }
@@ -281,8 +281,8 @@
 #ui.wol .lb-door:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 #ui.wol .lb-dpic { display: grid; place-items: center; width: min(110px, 18vh); aspect-ratio: 1; border-radius: 50%; background: rgba(255, 255, 255, .55); box-shadow: inset 0 -4px 0 rgba(0, 0, 0, .08); }
 #ui.wol .lb-dpic svg { width: 72%; height: 72%; }
-#ui.wol .lb-door b { font-family: var(--serif); font-size: 1.6em; line-height: 1.15; }
-#ui.wol .lb-door small { font-weight: 700; font-size: .98em; line-height: 1.35; max-width: 18em; opacity: .9; }
+#ui.wol .lb-door b { font-family: var(--serif); font-size: calc(1.6em * var(--tsd, 1)); line-height: 1.15; }
+#ui.wol .lb-door small { font-weight: 700; font-size: calc(.98em * var(--tsr, 1)); line-height: 1.35; max-width: 18em; opacity: .9; }
 #ui.wol .lb-door.veil { cursor: help; filter: grayscale(.75) brightness(.86); }
 #ui.wol .lb-door.veil::after { content: ''; position: absolute; inset: 0; border-radius: inherit; background: repeating-linear-gradient(90deg, rgba(255, 255, 255, .16) 0 14px, rgba(255, 255, 255, 0) 14px 30px); pointer-events: none; }
 #ui.wol .lb.kids .lb-door small, #ui.wol .lb.kids .lb-doors header p { line-height: 1.6; }

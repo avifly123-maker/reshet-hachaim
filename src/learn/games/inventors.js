@@ -136,7 +136,7 @@ function injectCss() {
 .wol-learn .iv-gauge i{position:absolute;inset:0 auto 0 0;width:0;border-radius:999px;background:linear-gradient(90deg,#e05a3a,#f2c94c 50%,#5fc35a);transition:width 1.2s cubic-bezier(.3,.9,.3,1)}
 .wol-learn .iv-radio{display:flex;align-items:flex-start;gap:.7em;padding:.7em .9em;border-radius:.9em;background:#22303b;color:#e7f4f9;box-shadow:inset 0 0 0 1px rgba(127,240,255,.25);min-height:3.2em}
 .wol-learn .iv-face{width:2.8em;height:2.8em;flex:none}
-.wol-learn .iv-radio p{margin:0;line-height:1.45}
+.wol-learn .iv-radio p{margin:0;font-size:calc(1em * var(--tsr,1));line-height:1.45}
 .wol-learn .iv-radio b{color:#7ff0ff}
 .wol-learn .iv-fact{padding:.7em 1em;border-radius:.8em;background:var(--paper);color:var(--ink);box-shadow:0 .3em .7em rgba(0,0,0,.3);animation:iv-pop .5s both}
 .wol-learn .iv-fact h4{margin:0 0 .2em;font-family:var(--serif);color:#2f6a3a;display:flex;align-items:center;gap:.4em}
@@ -211,8 +211,8 @@ function injectCss() {
   .wol-learn .iv-pbtn{min-height:2.2em;padding:.35em .5em;font-size:.88em}.wol-learn .iv-pbtn .wl-ic{width:1.15em;height:1.15em}
   .wol-learn .iv-hc .wl-card{--cw:min(6em,12vh)}.wol-learn .iv-tr{max-width:min(7em,13vh)}.wol-learn .iv-tr i{font-size:.66em}}
 @media (max-width:600px){.wol-learn .iv-main{grid-template-columns:1fr}.wol-learn .iv-plist{flex-direction:row;overflow-x:auto}.wol-learn .iv-pbtn{flex:none}.wol-learn .iv-themes{grid-template-columns:repeat(8,1fr)}.wol-learn .iv-tname{display:none}}
-@media (max-height:660px){.wol-learn .iv-row{gap:.6em}.wol-learn .iv-plan{padding:.5em .9em}.wol-learn .iv-plan h3{font-size:1.2em}.wol-learn .iv-plan p{font-size:.88em;line-height:1.3}.wol-learn .iv-slot,.wol-learn .iv-slot .wl-card{--cw:min(7em,13vh)}.wol-learn .iv-bench{gap:.45em;padding:.7em .9em}}
-@media (max-height:500px){.wol-learn .iv-plan p{font-size:.8em;line-height:1.25}.wol-learn .iv-plan .iv-need{margin-top:.15em}.wol-learn .iv-plan h3{font-size:1.05em}
+@media (max-height:660px){.wol-learn .iv-row{gap:.6em}.wol-learn .iv-plan{padding:.5em .9em}.wol-learn .iv-plan h3{font-size:1.2em}.wol-learn .iv-plan p{font-size:calc(.88em * var(--tsr,1));line-height:1.3}.wol-learn .iv-slot,.wol-learn .iv-slot .wl-card{--cw:min(7em,13vh)}.wol-learn .iv-bench{gap:.45em;padding:.7em .9em}}
+@media (max-height:500px){.wol-learn .iv-plan p{font-size:calc(.8em * var(--tsr,1));line-height:1.25}.wol-learn .iv-plan .iv-need{margin-top:.15em}.wol-learn .iv-plan h3{font-size:1.05em}
   .wol-learn .iv-tabs button{padding:.3em .8em}.wol-learn .iv-handbar .iv-f{padding:.2em .7em}.wol-learn .iv-hand{padding:.2em .2em .3em}.wol-learn .iv-hc .wl-card{--cw:min(5.4em,11vh)}
   .wol-learn .iv-slot,.wol-learn .iv-slot .wl-card{--cw:min(5.4em,12vh)}.wol-learn .iv-test{padding:.5em 1.1em;font-size:1em}.wol-learn .iv-radio{padding:.45em .7em;min-height:0}.wol-learn .iv-face{width:2.2em;height:2.2em}}
 /* open inventions (1.3.1): stars, what works and what is missing, the creative idea */
@@ -240,7 +240,7 @@ function injectCss() {
 .wol-learn .iv-mhead{display:flex;align-items:center;gap:.6em;padding:.45em .7em;border-radius:.8em;background:#22507a;color:#eaf3fb}
 .wol-learn .iv-mhead img{width:2.6em;height:2.6em;border-radius:50%;object-fit:cover;flex:none}
 .wol-learn .iv-mhead b{font-family:var(--serif);font-size:1.08em}
-.wol-learn .iv-mhead p{margin:0;font-size:.86em;opacity:.92;line-height:1.3}
+.wol-learn .iv-mhead p{margin:0;font-size:calc(.86em * var(--tsr,1));opacity:.92;line-height:1.3}
 .wol-learn .iv-mhead .tl{display:flex;gap:.3em;flex-wrap:wrap;margin-top:.2em}
 .wol-learn .iv-mhead .tl span{display:flex;align-items:center;gap:.2em;font-size:.78em;padding:.05em .5em;border-radius:999px;background:rgba(255,255,255,.14)}
 .wol-learn .iv-mhead .tl .wl-ic{width:1.1em;height:1.1em}
@@ -259,7 +259,7 @@ function injectCss() {
 .wol-learn .iv-trial .lv{font-size:.78em;font-weight:800;padding:.05em .5em;border-radius:999px;text-align:center;white-space:nowrap}
 .wol-learn .iv-trial .lv.win{background:#5fc35a;color:#0d2a0a}.wol-learn .iv-trial .lv.half{background:#f2c94c;color:#3a2a04}.wol-learn .iv-trial .lv.fail{background:#e05a3a;color:#fff}
 .wol-learn .iv-trial.pending{opacity:.4}.wol-learn .iv-trial.pending .iv-why,.wol-learn .iv-trial.pending small,.wol-learn .iv-trial.pending .lv{visibility:hidden}
-.wol-learn .iv-why{grid-column:2 / 5;display:flex;flex-wrap:wrap;gap:.05em .8em;font-size:.84em;line-height:1.35}
+.wol-learn .iv-why{grid-column:2 / 5;display:flex;flex-wrap:wrap;gap:.05em .8em;font-size:calc(.84em * var(--tsr,1));line-height:1.35}
 .wol-learn .iv-why .ok{color:#b9ef9a}.wol-learn .iv-why .hurt{color:#ffb39a}.wol-learn .iv-why .miss{color:#f6e7b8}
 .wol-learn .iv-rbtns{display:flex;gap:.4em;flex-wrap:wrap;justify-content:center}
 .wol-learn .iv-hc.off .wl-card{opacity:.55}
@@ -267,7 +267,7 @@ function injectCss() {
 .wol-learn .iv-rtop{display:flex;flex-direction:column;align-items:center;gap:.4em}.wol-learn .iv-rcol{display:flex;flex-direction:column;align-items:center;gap:.35em}
 @media (max-height:660px){.wol-learn .iv-rtop{flex-direction:row;gap:.6em;justify-content:center}.wol-learn .iv-rbody{font-size:.42em}.wol-learn .iv-rcol{gap:.25em}.wol-learn .iv-robot .iv-test{font-size:1em;padding:.45em 1.1em}.wol-learn .iv-robot .iv-mod{font-size:.9em}.wol-learn .iv-rname{font-size:1.1em}}
 .wol-learn .iv-rmini{display:none;width:2em;height:2em;border-radius:50%;object-fit:cover;vertical-align:middle;margin-inline-end:.35em;box-shadow:0 0 0 .12em #7ff0ff}
-@media (max-height:500px){.wol-learn .iv-rbody,.wol-learn .iv-robot .iv-steps{display:none}.wol-learn .iv-rmini{display:inline-block}.wol-learn .iv-robot .iv-test{font-size:.95em;padding:.4em 1em}.wol-learn .iv-mod{padding:.25em .6em}.wol-learn .iv-mgrid{grid-template-columns:repeat(auto-fill,minmax(12em,1fr));gap:.35em}.wol-learn .iv-mhead p{display:none}.wol-learn .iv-why{font-size:.8em}.wol-learn .iv-trial{padding:.3em .6em}}
+@media (max-height:500px){.wol-learn .iv-rbody,.wol-learn .iv-robot .iv-steps{display:none}.wol-learn .iv-rmini{display:inline-block}.wol-learn .iv-robot .iv-test{font-size:.95em;padding:.4em 1em}.wol-learn .iv-mod{padding:.25em .6em}.wol-learn .iv-mgrid{grid-template-columns:repeat(auto-fill,minmax(12em,1fr));gap:.35em}.wol-learn .iv-mhead p{display:none}.wol-learn .iv-why{font-size:calc(.8em * var(--tsr,1))}.wol-learn .iv-trial{padding:.3em .6em}}
 `).replace(/\.wol-learn/g, '#wol-learn.wol-learn');
   document.head.appendChild(st);
 }

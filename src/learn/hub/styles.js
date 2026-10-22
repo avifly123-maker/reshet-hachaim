@@ -3,7 +3,15 @@
 import { CSS_MAIN } from './css-main.js';
 import { CSS_MORE } from './css-more.js';
 
-const CSS = CSS_MAIN + CSS_MORE;
+/* the text size (html.ts-*, --ts) on the other screens and in the games: reading words grow with --ts (--tsr), big display
+   words (a question, a heading) half as much (--tsd); on a low screen (800x460) the reading words grow half as much and
+   the display words keep their size, so every screen keeps its buttons in view */
+const TS_CSS = `
+.wol-learn{--tsr:var(--ts,1);--tsd:calc(1 + (var(--ts,1) - 1) / 2)}
+@media (max-height:540px){.wol-learn{--tsr:calc(1 + (var(--ts,1) - 1) / 2);--tsd:1}
+  html.ts-xlarge .wol-learn .wl-setup{gap:.8em;padding-top:1.1em;padding-bottom:1.2em}}
+`;
+const CSS = TS_CSS + CSS_MAIN + CSS_MORE;
 /* the hub's icons (src/ui/icons-hub.js): a coloured tile before each title, a line icon before each button's words */
 const ICON_CSS = `
 .wol-learn .wl-bgroup h3>span{display:inline-flex;align-items:center;gap:.45em}
