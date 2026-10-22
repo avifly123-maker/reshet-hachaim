@@ -1,5 +1,5 @@
 // Leaf confetti, the injured animals' bar and edge arrows (a click flies to the animal), and the toasts.
-// Exports: createFx(ctx) → { confetti, pushToast }.
+// Exports: createFx(ctx) → { confetti, pushToast, flushToasts }.
 // Needs from ctx (index.js and the parts made before it): emit, S, tray, toastsEl, hurtBar, hurtArrowsEl, fxEl,
 //   trScroll, renderTray.
 // Called through ctx because their parts are made later: syncTrayH (keys.js).
@@ -43,6 +43,11 @@ export function createFx(ctx) {
   function pushToast(node, ms) {
     // חוויה (1.3.2): one message at a time; the next waits for its turn (at most three wait, the oldest gives way)
     if (S.play === 'experience' && toastsEl.querySelector('.toast:not(.off)')) { S.toastQ.push([node, ms]); if (S.toastQ.length > 3) S.toastQ.shift(); return; }
+    showToast(node, ms);
+  }
+  // the waiting toasts all come out at once (the play mode left חוויה)
+  function flushToasts() { while (S.toastQ.length) { const [n2, ms2] = S.toastQ.shift(); showToast(n2, ms2 || 3400); } }
+  function showToast(node, ms) {
     toastsEl.appendChild(node);
     requestAnimationFrame(() => node.classList.add('on'));
     const kill = () => { if (!node.isConnected) return; node.classList.remove('on'); node.classList.add('off'); setTimeout(() => { node.remove(); if (S.toastQ.length) { const [n2, ms2] = S.toastQ.shift(); pushToast(n2, ms2); } }, 320); };
@@ -50,5 +55,5 @@ export function createFx(ctx) {
     setTimeout(kill, ms);
     while (toastsEl.children.length > 4) toastsEl.firstChild.remove();
   }
-  return { confetti, pushToast };
+  return { confetti, pushToast, flushToasts };
 }

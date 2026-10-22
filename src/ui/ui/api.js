@@ -7,7 +7,7 @@
 //   vitPc, bioNum, bioLab, dRot, dSky, dCut, dStars, dGround, dayPart, dayN, seasonBox, seasonIc, seasonName,
 //   paintSpeed, animatePts, setKit, paintToggles, musicBtn, mList, mCount, whatBtn, paintMissionLine, paintLayers,
 //   renderTray, endPress, renderSpecies, open, makeModal, dismissDialog, closeModal, journalCard, layoutCoach,
-//   confetti, pushToast, syncTrayH.
+//   confetti, pushToast, flushToasts, syncTrayH.
 import { zoneWord } from '../../core/place.js';
 import { badgesFor } from '../../data/badges.js';
 import { badgeHTML } from '../badge-art.js';
@@ -20,7 +20,7 @@ export function createApi(ctx) {
     coachEl, startEl, loadEl, ldFill, ldStatus, ldTip, rotateTip, renderStart, PP, paintWho, ppClose, ppFocus, ppRender, ptsNum, vitBar, vitIc, vitPc,
     bioNum, bioLab, dRot, dSky, dCut, dStars, dGround, dayPart, dayN, seasonBox, seasonIc, seasonName, paintSpeed, animatePts, setKit, paintToggles,
     musicBtn, mList, mCount, whatBtn, paintMissionLine, paintLayers, renderTray, endPress, renderSpecies, open, makeModal, dismissDialog, closeModal,
-    journalCard, layoutCoach, confetti, pushToast, syncTrayH } = ctx;
+    journalCard, layoutCoach, confetti, pushToast, flushToasts, syncTrayH } = ctx;
   // the loading tips' timer and the mission banners' queue: only the api uses them (they were declared with the
   // loading screen and the toasts)
   let tipTimer = 0;
@@ -329,7 +329,7 @@ export function createApi(ctx) {
       root.classList.toggle('play-xp', m === 'experience');
       whatBtn.querySelector('span').textContent = m === 'kids' ? 'מָה עוֹשִׂים עַכְשָׁו?' : 'מה עושים עכשיו?';
       whatBtn.hidden = !m;
-      if (m !== 'experience') { while (S.toastQ.length) { const [n2, ms2] = S.toastQ.shift(); toastsEl.appendChild(n2); requestAnimationFrame(() => n2.classList.add('on')); setTimeout(() => n2.remove(), ms2 || 3400); } }
+      if (m !== 'experience') flushToasts();
       S.missionsSig = ''; S.speciesSig = '';
       if (S.species) renderSpecies(true);
     },
