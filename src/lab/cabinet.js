@@ -71,9 +71,9 @@ export function expeditionFound() {
   const ids = Array.isArray(f) ? f : Object.keys(f).filter((k) => f[k]);
   return ids.filter((id) => JARS_T[id]);
 }
-// the robot workshop's builds: the hub keeps the last ones (games.inventors.robots); the lab's own record joins them
+// the robot workshop's builds: the hub already keeps the last eight (web-of-life-cards games.inventors.robots)
 export function robotsBuilt() {
-  const a = [].concat((hubGames().inventors || {}).robots || [], (labProgress().robots || []));
+  const a = [].concat((hubGames().inventors || {}).robots || []);
   const seen = new Set(); return a.filter((r) => r && r.name && !seen.has(r.name + '|' + r.at) && seen.add(r.name + '|' + r.at));
 }
 // a robot drawn from its name: the colours and the antenna change, the face is רובו־דע's visor
