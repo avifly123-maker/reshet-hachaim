@@ -471,6 +471,7 @@ export function createUI(root, bus) {
     let map = null;
     const goPart = (part) => {   // an open tile on the map: go there
       const showTab = (tab) => { S.stTab = tab; paintTab(); };
+      if (part === 'experts') { showTab('env'); return true; }   // the expert missions wait in the forests
       if (part.startsWith('zone:')) { const i = isls.findIndex((el) => el.dataset.part === part); showTab('env'); if (i >= 0) { S.stCur = i; paintCar(); } return true; }
       const LEARN = { learn: 'home', quiz: 'setup', album: 'album', webpuzzle: 'webpuzzle', keepforest: 'keepforest', badges: 'badges', frames: 'badges', inventors: 'inventors', expedition: 'expedition', duel: 'duel', versematch: 'versematch' };
       if (LEARN[part]) { emit('ui:learn', { screen: LEARN[part] }); return true; }
