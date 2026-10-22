@@ -23,7 +23,7 @@ import { ISLAND_ART } from '../data/island-art.js';
 import { CARD_ART } from '../data/card-art.js';
 import { BABA_DA_LOGO } from '../data/logo.js';
 import { STAGES } from '../core/journey.js';
-import { key as profileKey } from '../core/profiles.js';
+import { K, readDevice, readDeviceRaw, playerMode } from '../core/storage.js';
 import { loadPack } from '../core/packs.js';
 import { makeRng } from '../core/util.js';
 import { toolProp } from '../world/props.js';
@@ -43,12 +43,11 @@ const E = {
 };
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const ls = () => { try { return window.localStorage || null; } catch (e) { return null; } };
-const isKids = () => { try { return ls().getItem(profileKey('web-of-life-mode')) === 'kids'; } catch (e) { return false; } };
+const isKids = () => playerMode() === 'kids';
 function tier() {
   try { const q = window.__app && window.__app.pipe && window.__app.pipe.quality; if (q) return q; } catch (e) { }
-  try { const q = ls().getItem('web-of-life-quality'); if (q) return q; } catch (e) { }
-  try { const a = JSON.parse(ls().getItem('web-of-life-autoq') || 'null'); if (a && a.q) return a.q; } catch (e) { }
+  const q = readDeviceRaw(K.quality); if (q) return q;
+  const a = readDevice(K.autoq, null); if (a && a.q) return a.q;
   return 'medium';
 }
 const sfx = (name) => { try { const a = window.__app && window.__app.audio; if (a) a.play(name); } catch (e) { } };
