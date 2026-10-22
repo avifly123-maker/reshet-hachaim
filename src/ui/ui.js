@@ -9,6 +9,10 @@ import { badgeHTML } from './badge-art.js';
 import { avatarHTML, avatarName, AVATAR_IDS } from './avatars.js';
 import { zoneWord } from '../core/place.js';
 import { HUB_ICONS, tileIcon } from './icons-hub.js';   // the learning hub's icons: icon() draws them too
+// 1.3.2 start screen (מסע החוקר): veils, the journey bar, the map and the settings sheet
+import * as JR from '../core/journey.js';
+import { openJourneyMap, stageEmblem, STAGE_COLOR, lockWords, lockTip } from './journey-map.js';
+import { openSettings } from './settings.js';
 
 /* ------------------------------------------------------------------ helpers */
 export const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -328,15 +332,17 @@ export function createUI(root, bus) {
     const fan = ['amazon:jaguar', 'grove:owl', 'reef:clownfish', 'amazon:toucan', 'reef:turtle'].map((k) => CARD_ART[k.split(':')[1]]).filter(Boolean).slice(0, 4);
     startEl.innerHTML = `<div class="st-bg">${canopySVG('top')}${canopySVG('bottom')}<i class="st-shaft s1"></i><i class="st-shaft s2"></i><i class="st-tint"></i></div>
       ${S.logo ? `<div class="st-logo"><img src="${S.logo}" alt="בבא דע"></div>` : ''}
-      <button class="st-who" aria-haspopup="dialog" aria-expanded="false" hidden></button>
+      <div class="st-corner"><div class="st-corner-row"><button class="st-who" aria-haspopup="dialog" aria-expanded="false" hidden></button>
+        <button class="st-gear" aria-haspopup="dialog" aria-label="הגדרות" title="הגדרות">${icon('sliders')}</button></div>
+        <button class="st-jbar" data-part="journey" aria-haspopup="dialog"></button></div>
       <div class="st-pp-layer" hidden><div class="st-pp-scrim"></div><div class="st-pp paper" role="dialog" aria-modal="true" aria-label="מי משחק?"></div></div>
       <div class="st-inner v13">
       <header class="st-head"><div class="st-seal">${waxSeal(124)}</div>
         <div class="st-titles"><h1 class="st-title">רשת החיים</h1>${EDITION_NAME ? `<span class="st-edition">${EDITION_NAME}</span>` : ''}${VINE}<p class="st-sub">בונים יער חי, מגלים מי צריך את מי</p></div></header>
       <nav class="st-tabs" role="tablist">
         <button role="tab" data-tab="env">${icon('leaf')}<span><b>סביבות משחק</b><small>אמזונס, חורש ושונית</small></span></button>
-        <button role="tab" data-tab="sci" data-research-tab="1">${icon('flask')}<span><b>המרכז המדעי</b><small>חוקרי הטבע ומעבדת רובו־דע</small></span></button>
-        <button role="tab" data-tab="learn">${icon('book')}<span><b>מרכז הלמידה</b><small>חידון, אלבום ומשחקי קלפים</small></span></button>
+        <button role="tab" data-tab="sci" data-research-tab="1" data-part="science">${icon('flask')}<span><b>המרכז המדעי</b><small>חוקרי הטבע ומעבדת רובו־דע</small><small class="jv-note"></small></span></button>
+        <button role="tab" data-tab="learn" data-part="learn">${icon('book')}<span><b>מרכז הלמידה</b><small>חידון, אלבום ומשחקי קלפים</small><small class="jv-note"></small></span></button>
       </nav>
       <section class="st-pane" data-pane="env">
         <div class="st-modes" role="radiogroup" aria-label="רמת משחק">
@@ -345,8 +351,8 @@ export function createUI(root, bus) {
         </div>
         <div class="st-car" aria-roledescription="קרוסלה">
           <button class="st-arrow prev" data-car="-1" aria-label="הסביבה הקודמת">${icon('arrowR')}</button>
-          <div class="st-ring">${biomes.map((b, i) => `<button class="st-isl" data-i="${i}" data-id="${esc(b.id)}" style="--zc:${(b.palette && b.palette[1]) || '#6a9'};--zc2:${(b.palette && b.palette[2]) || '#f0b44c'}" aria-label="${esc(b.name)}">
-            <i class="st-glow"></i><img src="${isl(b.id)}" alt="" draggable="false"></button>`).join('')}</div>
+          <div class="st-ring">${biomes.map((b, i) => `<button class="st-isl" data-i="${i}" data-id="${esc(b.id)}" data-part="zone:${esc(b.id)}" style="--zc:${(b.palette && b.palette[1]) || '#6a9'};--zc2:${(b.palette && b.palette[2]) || '#f0b44c'}" aria-label="${esc(b.name)}">
+            <i class="st-glow"></i><img src="${isl(b.id)}" alt="" draggable="false"><i class="jv-curtain" aria-hidden="true"></i><span class="jv-note"></span></button>`).join('')}</div>
           <button class="st-arrow next" data-car="1" aria-label="הסביבה הבאה">${icon('arrowL')}</button>
         </div>
         <div class="st-info"></div>
@@ -354,51 +360,60 @@ export function createUI(root, bus) {
       </section>
       <section class="st-pane" data-pane="sci">
         <div class="st-big2">
-          <button class="st-panel" data-research="1"><span class="st-pimg rs">${biomes.slice(0, 3).map((b) => `<img src="${isl(b.id)}" alt="" draggable="false">`).join('')}<i class="st-lens">${icon('search')}</i></span>
-            <span class="st-ptext"><b>חוקרי הטבע</b><small>תעלומות בטבע: מודדים, משערים, מנסים ומאזנים. שלוש רמות, משלוש הסביבות.</small><em>${icon('arrowL')}לתעלומות</em></span></button>
-          <button class="st-panel" data-lab="1"><span class="st-pimg lab">${ISLAND_ART.lab ? `<img src="${ISLAND_ART.lab}" alt="" draggable="false">` : ''}</span>
-            <span class="st-ptext"><b>המעבדה של רובו־דע</b><small>מיקרוסקופ, שולחן ממציאים ואטלס. ממציאים בעזרת הטבע ומשדרגים את הכלים.</small><em>${icon('arrowL')}למעבדה</em></span></button>
+          <button class="st-panel" data-research="1" data-part="research"><span class="st-pimg rs">${biomes.slice(0, 3).map((b) => `<img src="${isl(b.id)}" alt="" draggable="false">`).join('')}<i class="st-lens">${icon('search')}</i><i class="jv-curtain" aria-hidden="true"></i></span>
+            <span class="st-ptext"><b>חוקרי הטבע</b><small>תעלומות בטבע: מודדים, משערים, מנסים ומאזנים. שלוש רמות, משלוש הסביבות.</small><em>${icon('arrowL')}לתעלומות</em><em class="jv-note"></em></span></button>
+          <button class="st-panel" data-lab="1" data-part="lab"><span class="st-pimg lab">${ISLAND_ART.lab ? `<img src="${ISLAND_ART.lab}" alt="" draggable="false">` : ''}<i class="jv-curtain" aria-hidden="true"></i></span>
+            <span class="st-ptext"><b>המעבדה של רובו־דע</b><small>מיקרוסקופ, שולחן ממציאים ואטלס. ממציאים בעזרת הטבע ומשדרגים את הכלים.</small><em>${icon('arrowL')}למעבדה</em><em class="jv-note"></em></span></button>
         </div>
       </section>
       <section class="st-pane" data-pane="learn">
         <div class="st-learnwrap">
           <div class="st-fan">${fan.map((src, i) => `<img src="${src}" alt="" draggable="false" style="--k:${i - (fan.length - 1) / 2}">`).join('')}</div>
           <div class="st-lgrid">
-            <button data-learn="home">${tileIcon('learn', 'st-lic')}<span><b>מרכז הלמידה</b><small>כל המשחקים במקום אחד</small></span></button>
-            <button data-learn="setup">${tileIcon('quiz', 'st-lic')}<span><b>חידון</b><small>שאלות על היער והשונית</small></span></button>
-            <button data-learn="album">${tileIcon('album', 'st-lic')}<span><b>אלבום הקלפים</b><small>חבילות, סדרות ואוסף</small></span></button>
-            <button data-learn="duel">${tileIcon('strong', 'st-lic')}<span><b>מי חזק ברשת?</b><small>קלף מול קלף</small></span></button>
-            <button data-learn="keepforest">${tileIcon('keep', 'st-lic')}<span><b>מחזיקים את היער</b><small>משחק קלפים ואירועים</small></span></button>
-            <button data-learn="webpuzzle">${tileIcon('thread', 'st-lic')}<span><b>חוט הקשר</b><small>מחברים את הרשת</small></span></button>
-            <button data-learn="inventors">${tileIcon('invent', 'st-lic')}<span><b>הממציאים</b><small>פותרים בעיות בעזרת הטבע</small></span></button>
-            <button data-learn="expedition">${tileIcon('dive', 'st-lic')}<span><b>משלחת לעומק</b><small>צוללים עם הקלפים לשונית</small></span></button>
-            <button data-learn="badges">${tileIcon('medal', 'st-lic')}<span><b>התגים שלי</b><small>תגים ומסגרות לקלפים</small></span></button>
+            <button data-learn="home" data-part="learn">${tileIcon('learn', 'st-lic')}<span><b>מרכז הלמידה</b><small>כל המשחקים במקום אחד</small><small class="jv-note"></small></span></button>
+            <button data-learn="setup" data-part="quiz">${tileIcon('quiz', 'st-lic')}<span><b>חידון</b><small>שאלות על היער והשונית</small><small class="jv-note"></small></span></button>
+            <button data-learn="album" data-part="album">${tileIcon('album', 'st-lic')}<span><b>אלבום הקלפים</b><small>חבילות, סדרות ואוסף</small><small class="jv-note"></small></span></button>
+            <button data-learn="duel" data-part="duel">${tileIcon('strong', 'st-lic')}<span><b>מי חזק ברשת?</b><small>קלף מול קלף</small><small class="jv-note"></small></span></button>
+            <button data-learn="keepforest" data-part="keepforest">${tileIcon('keep', 'st-lic')}<span><b>מחזיקים את היער</b><small>משחק קלפים ואירועים</small><small class="jv-note"></small></span></button>
+            <button data-learn="webpuzzle" data-part="webpuzzle">${tileIcon('thread', 'st-lic')}<span><b>חוט הקשר</b><small>מחברים את הרשת</small><small class="jv-note"></small></span></button>
+            <button data-learn="inventors" data-part="inventors">${tileIcon('invent', 'st-lic')}<span><b>הממציאים</b><small>פותרים בעיות בעזרת הטבע</small><small class="jv-note"></small></span></button>
+            <button data-learn="expedition" data-part="expedition">${tileIcon('dive', 'st-lic')}<span><b>משלחת לעומק</b><small>צוללים עם הקלפים לשונית</small><small class="jv-note"></small></span></button>
+            <button data-learn="badges" data-part="badges">${tileIcon('medal', 'st-lic')}<span><b>התגים שלי</b><small>תגים ומסגרות לקלפים</small><small class="jv-note"></small></span></button>
           </div>
         </div>
       </section>
       </div>`;
     const paintModes = () => startEl.querySelectorAll('[data-mode]').forEach(b => b.setAttribute('aria-checked', String(b.dataset.mode === S.mode)));
     S.mode = S.mode || 'full';
-    startEl.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => { S.mode = b.dataset.mode; paintModes(); emit('start:mode', { mode: S.mode }); paintInfo(); }));
-    startEl.querySelectorAll('[data-learn]').forEach((b) => b.addEventListener('click', () => emit('ui:learn', { screen: b.dataset.learn })));
-    startEl.querySelector('[data-research]').addEventListener('click', () => emit('ui:research'));
-    startEl.querySelector('[data-lab]').addEventListener('click', () => emit('ui:lab'));
+    startEl.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => { S.mode = b.dataset.mode; paintModes(); emit('start:mode', { mode: S.mode }); paintJourney(); paintInfo(); }));
+    // 1.3.2: a veiled part (core/journey.js isOpen) stays in place, dimmed; a click lets רובו־דע say what opens it
+    const veiled = (el) => !!(el && el.dataset.part && !JR.isOpen(el.dataset.part));
+    const gate = (el, fn) => () => { if (veiled(el)) lockTip(el.dataset.part, { emit }); else fn(); };
+    startEl.querySelectorAll('[data-learn]').forEach((b) => b.addEventListener('click', gate(b, () => emit('ui:learn', { screen: b.dataset.learn }))));
+    const rsBtn = startEl.querySelector('[data-research]'), labBtn = startEl.querySelector('[data-lab]');
+    rsBtn.addEventListener('click', gate(rsBtn, () => emit('ui:research')));
+    labBtn.addEventListener('click', gate(labBtn, () => emit('ui:lab')));
     // tabs
     const paintTab = () => {
       startEl.querySelectorAll('[data-tab]').forEach((b) => { const on = b.dataset.tab === S.stTab; b.classList.toggle('on', on); b.setAttribute('aria-selected', String(on)); });
       startEl.querySelectorAll('[data-pane]').forEach((p) => p.classList.toggle('on', p.dataset.pane === S.stTab));
       startEl.dataset.tab = S.stTab;
     };
-    startEl.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', () => { if (S.stTab !== b.dataset.tab) { S.stTab = b.dataset.tab; paintTab(); emit('ui:click'); } }));
+    // a veiled tab still opens (the child sees what waits there, veiled), and רובו־דע says when it opens
+    startEl.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', () => { if (S.stTab !== b.dataset.tab) { S.stTab = b.dataset.tab; paintTab(); emit('ui:click'); } if (veiled(b)) lockTip(b.dataset.part); }));
     // the carousel: the chosen island in front, the other two behind it on a slow ring
     const isls = [...startEl.querySelectorAll('.st-isl')], n = isls.length, info = startEl.querySelector('.st-info');
+    // the carousel starts on an open island
+    if (isls[S.stCur] && veiled(isls[S.stCur])) { const k = isls.findIndex((el) => !veiled(el)); if (k >= 0) S.stCur = k; }
     const paintInfo = () => {
       const b = biomes[S.stCur]; if (!b) return;
+      const shut = veiled(isls[S.stCur]);
       info.style.setProperty('--zc', (b.palette && b.palette[0]) || '#2d5a35'); info.style.setProperty('--zc2', (b.palette && b.palette[2]) || '#f0b44c');
       info.innerHTML = `<div class="st-info-in" key="${S.stCur}"><h2>${esc(b.name)}</h2><p class="bc-sub">${esc(b.subtitle)}</p>
         <p class="bc-intro">${esc((S.mode === 'kids' && b.kidsIntro) ? b.kidsIntro : b.intro)}</p>
-        <button class="st-go" data-id="${esc(b.id)}">${S.mode === 'kids' ? 'יוצאים לדרך · מתחילים' : 'יוצאים לדרך'}${icon('arrowL')}</button></div>`;
-      info.querySelector('.st-go').addEventListener('click', () => emit('start:biome', { id: b.id }));
+        ${shut ? `<button class="st-go jv" data-id="${esc(b.id)}">${icon('sprout')}<span>${esc(lockWords('zone:' + b.id))}</span></button>`
+          : `<button class="st-go" data-id="${esc(b.id)}">${S.mode === 'kids' ? 'יוצאים לדרך · מתחילים' : 'יוצאים לדרך'}${icon('arrowL')}</button>`}</div>`;
+      info.querySelector('.st-go').addEventListener('click', () => { if (veiled(isls[S.stCur])) lockTip('zone:' + b.id, { emit }); else emit('start:biome', { id: b.id }); });
       startEl.style.setProperty('--zc', (b.palette && b.palette[1]) || '#2d5a35');
       startEl.dataset.zone = b.id;   // the background takes the chosen environment's light and colours (style.css)
     };
@@ -413,7 +428,7 @@ export function createUI(root, bus) {
     const turn = (d) => { S.stCur = ((S.stCur + d) % n + n) % n; paintCar(); emit('ui:click'); };
     startEl.querySelectorAll('[data-car]').forEach((b) => b.addEventListener('click', () => turn(+b.dataset.car)));
     startEl.querySelectorAll('[data-dot]').forEach((b) => b.addEventListener('click', () => { S.stCur = +b.dataset.dot; paintCar(); }));
-    isls.forEach((el) => el.addEventListener('click', () => { const i = +el.dataset.i; if (i === S.stCur) emit('start:biome', { id: biomes[i].id }); else { S.stCur = i; paintCar(); emit('ui:click'); } }));
+    isls.forEach((el) => el.addEventListener('click', () => { const i = +el.dataset.i; if (i === S.stCur) { if (veiled(el)) lockTip(el.dataset.part, { emit }); else emit('start:biome', { id: biomes[i].id }); } else { S.stCur = i; paintCar(); emit('ui:click'); } }));
     // swipe / drag the ring
     const car = startEl.querySelector('.st-car'); let sx = null;
     car.addEventListener('pointerdown', (e) => { sx = e.clientX; });
@@ -422,9 +437,83 @@ export function createUI(root, bus) {
     if (startEl._kd) startEl.removeEventListener('keydown', startEl._kd);
     startEl._kd = (e) => { if (S.stTab !== 'env' || e.target.closest('input,textarea')) return; if (e.key === 'ArrowLeft') turn(1); else if (e.key === 'ArrowRight') turn(-1); };
     startEl.addEventListener('keydown', startEl._kd);
-    paintModes(); paintTab(); paintCar();
+    // ── מסע החוקר (1.3.2): veils on every part, the journey bar (opens the map), the settings gear
+    const jbar = startEl.querySelector('.st-jbar');
+    const jbarHTML = () => {
+      const st = JR.state(), kids = st.kids, nx = st.next, c = STAGE_COLOR[st.stage];
+      let need = '';
+      if (nx) {   // the closest way to the next stage (the map lists all of them)
+        const ways = (kids ? JR.STAGES[nx.stage - 1].kneed : JR.STAGES[nx.stage - 1].need) || [];
+        let bi = 0, bp = -1; ways.forEach((w, i) => { const p = Math.min(...Object.keys(w).map((k) => Math.min(1, (st.metrics[k] || 0) / w[k]))); if (p > bp) { bp = p; bi = i; } });
+        need = nx.need[bi] || nx.need[0] || '';
+      } else need = kids ? 'הִגַּעְתֶּם לַשָּׁלָב הָאַחֲרוֹן!' : 'הגעתם לשלב האחרון!';
+      jbar.style.setProperty('--c', c);
+      jbar.setAttribute('aria-label', `${kids ? 'מַפַּת הַמַּסָּע' : 'מפת המסע'}: ${st.name}. ${need}`);
+      return `<span class="jb-med">${stageEmblem(st.stage)}<i>${st.stage}</i></span>
+        <span class="jb-txt"><small>${kids ? `שָׁלָב ${st.stage} מִתּוֹךְ 6` : `שלב ${st.stage} מתוך 6`}</small><b>${esc(st.name)}</b></span>
+        <span class="jb-prog"><i style="width:${Math.round((nx ? nx.progress : 1) * 100)}%"></i></span>
+        <small class="jb-need">${esc(need)}</small>${icon('map', 'jb-map')}`;
+    };
+    const paintJourney = () => {
+      if (!startEl.contains(jbar)) return;
+      startEl.querySelectorAll('[data-part]').forEach((el) => {
+        if (el === jbar) return;
+        const shut = veiled(el); el.classList.toggle('jv', shut);
+        const note = el.querySelector('.jv-note'); if (note) note.textContent = shut ? lockWords(el.dataset.part) : '';
+        if (shut) el.setAttribute('aria-description', lockWords(el.dataset.part)); else el.removeAttribute('aria-description');
+      });
+      jbar.innerHTML = jbarHTML();
+      paintInfo();
+    };
+    S.paintJourney = paintJourney;
+    let map = null;
+    const goPart = (part) => {   // an open tile on the map: go there
+      const showTab = (tab) => { S.stTab = tab; paintTab(); };
+      if (part.startsWith('zone:')) { const i = isls.findIndex((el) => el.dataset.part === part); showTab('env'); if (i >= 0) { S.stCur = i; paintCar(); } return true; }
+      const LEARN = { learn: 'home', quiz: 'setup', album: 'album', webpuzzle: 'webpuzzle', keepforest: 'keepforest', badges: 'badges', frames: 'badges', inventors: 'inventors', expedition: 'expedition', duel: 'duel', versematch: 'versematch' };
+      if (LEARN[part]) { emit('ui:learn', { screen: LEARN[part] }); return true; }
+      if (part === 'science') { showTab('sci'); return true; }
+      if (part === 'research') { emit('ui:research'); return true; }
+      if (part === 'lab' || part === 'robots' || part.startsWith('lab:')) { emit('ui:lab'); return true; }
+      return false;
+    };
+    const openMap = () => { emit('ui:click'); map = openJourneyMap(root, { emit, onPart: goPart, onClose: () => { map = null; try { jbar.focus({ preventScroll: true }); } catch (e) { } } }); };
+    jbar.addEventListener('click', openMap);
+    S.openJourneyMap = openMap;
+    const gear = startEl.querySelector('.st-gear');
+    gear.addEventListener('click', () => {
+      emit('ui:click'); gear.setAttribute('aria-expanded', 'true');
+      openSettings(startEl, { emit, getMusic: () => S.toggles.music !== false, onClose: () => { gear.setAttribute('aria-expanded', 'false'); try { gear.focus({ preventScroll: true }); } catch (e) { } } });
+      // the first time: רובו־דע presents the rows that are on screen (beginners have no play mode row)
+      setTimeout(() => { const g = window.__guide; if (g && startEl.querySelector('.set-layer')) g.say(g.lines('start:settings').filter((l) => !l.at || startEl.querySelector(l.at)), { key: 'g:start:settings' }); }, 300);
+    });
+    // listen once (the start screen is drawn again after every visit)
+    if (!S.jListen) {
+      S.jListen = true;
+      const onStart = () => startEl.classList.contains('on') && !root.classList.contains('ingame') && !root.querySelector('.rs-hub.on') && !(window.__wolLearn && window.__wolLearn.isOpen && window.__wolLearn.isOpen());
+      // the first visit of a player: רובו־דע presents the journey bar (after his hello, which main.js queues first)
+      S.journeyIntro = () => { clearTimeout(S.jIntroT); S.jIntroT = setTimeout(() => { if (onStart() && window.__guide) window.__guide.intro('journey', { modal: true }); }, 1500); };
+      addEventListener('wol-journey', () => { if (S.paintJourney) S.paintJourney(); S.journeyIntro(); });
+      // a stage moment closed: offer to go to what opened ("בואו נלך!" / "אחר כך"), switch the tab and ring the new button
+      const GO = { 2: { tab: 'learn' }, 3: { tab: 'learn' }, 4: { tab: 'sci' }, 5: { tab: 'sci' }, 6: { tab: 'learn' } };
+      addEventListener('wol-stage-done', (e) => {
+        if (S.paintJourney) S.paintJourney();
+        const n = e.detail && e.detail.stage, g = window.__guide; const go = GO[n];
+        if (!go || !g || !onStart() || (e.detail && e.detail.result === 'abort')) return;
+        const kids = JR.playMode() === 'kids', ask = (g.lines('start:go') || []).find((l) => l.id === 'start.go.ask');
+        const ring = (g.lines('start:go') || []).find((l) => l.id === 'start.go.' + n);
+        if (!ask || !ring) return;
+        g.say([ask], { actions: [{ id: 'go', label: kids ? 'בּוֹאוּ נֵלֵךְ!' : 'בואו נלך!', kind: 'primary' }, { id: 'later', label: kids ? 'אַחַר כָּךְ' : 'אחר כך' }] }).then((r) => {
+          if (r !== 'go' || !onStart()) return;
+          if (S.stTab !== go.tab) startEl.querySelector(`[data-tab="${go.tab}"]`)?.click();
+          setTimeout(() => { if (onStart()) g.tip(ring, { ms: 9000 }); }, 520);   // after the pane's opening animation, so the ring sits right
+        });
+      });
+    }
+    paintModes(); paintTab(); paintCar(); paintJourney();
+    S.journeyIntro();
     const renderStartIntros = () => paintInfo();
-    S.repaintStartMode = () => { paintModes(); renderStartIntros(); };   // another player was chosen: show their level
+    S.repaintStartMode = () => { paintModes(); paintJourney(); renderStartIntros(); };   // another player was chosen: show their level
     PP.open = false;
     startEl.querySelector('.st-who').addEventListener('click', () => (PP.open ? ppClose() : ppOpen()));
     const layer = startEl.querySelector('.st-pp-layer');
