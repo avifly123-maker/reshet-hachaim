@@ -21,10 +21,11 @@ import { GUIDE } from '../data/guide-lines.js';
 
 const CSS_ID = 'robo-guide-css';
 const RING_CHECK_MS = 500;   // how often the ring looks whether its element is still there
+const TRAY_GAP_PX = 8;        // in a forest a tip sits this far above the tray (its cards stay free to click)
 const CSS = `
 #ui #rguide { position: absolute; inset: 0; z-index: 70; pointer-events: none; direction: rtl; font-family: var(--sans, sans-serif); }
 #ui #rguide.modal { pointer-events: auto; background: rgba(6, 14, 9, .55); animation: rg-fade .25s ease-out; }
-#ui #rguide .rg-wrap { position: absolute; right: max(12px, 2vw); bottom: max(10px, 2vh); display: flex; align-items: flex-end; gap: 10px; pointer-events: auto; max-width: min(760px, calc(100vw - 24px)); }
+#ui #rguide .rg-wrap { position: absolute; right: max(12px, 2vw); bottom: max(10px, 2vh); display: flex; align-items: flex-end; gap: 10px; pointer-events: none; max-width: min(760px, calc(100vw - 24px)); }
 #ui #rguide.center .rg-wrap { right: 50%; bottom: 50%; transform: translate(50%, 50%); }
 #ui #rguide .rg-fig { position: relative; flex: none; width: clamp(92px, 13vw, 150px); aspect-ratio: 200 / 240; animation: rg-bob 3.2s ease-in-out infinite; filter: drop-shadow(0 6px 10px rgba(0,0,0,.35)); }
 #ui #rguide .rg-fig svg, #ui #rguide .rg-fig img.rg-pic { position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -33,7 +34,7 @@ const CSS = `
 #ui #rguide .rg-fig .rg-fr.on { opacity: 1; }
 #ui #rguide .rg-fig canvas { position: absolute; left: ${(VISOR.x / 200 * 100).toFixed(2)}%; top: ${(VISOR.y / 240 * 100).toFixed(2)}%; width: ${(VISOR.w / 200 * 100).toFixed(2)}%; height: ${(VISOR.h / 240 * 100).toFixed(2)}%; border-radius: 22%; }
 #ui #rguide .rg-fig.talk { animation: rg-bob 3.2s ease-in-out infinite, rg-talk .35s ease-in-out infinite; }
-#ui #rguide .rg-bub { position: relative; margin-bottom: clamp(30px, 6vh, 60px); min-width: 240px; max-width: 520px; padding: 14px 18px 12px; border-radius: 20px; background: #fbf6e6; color: #1f2c1a;
+#ui #rguide .rg-bub { position: relative; pointer-events: auto; margin-bottom: clamp(30px, 6vh, 60px); min-width: 240px; max-width: 520px; padding: 14px 18px 12px; border-radius: 20px; background: #fbf6e6; color: #1f2c1a;
   box-shadow: 0 0 0 2px rgba(44, 154, 146, .55), 0 12px 28px rgba(0, 0, 0, .4); }
 #ui #rguide .rg-bub::after { content: ""; position: absolute; right: -10px; bottom: 26px; border: 10px solid transparent; border-left-color: #fbf6e6; border-right: 0; filter: drop-shadow(2px 0 0 rgba(44,154,146,.55)); }
 #ui #rguide .rg-name { display: block; font-size: .8em; font-weight: 800; color: #1f7f78; margin-bottom: 4px; letter-spacing: .02em; }
@@ -88,7 +89,7 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
           ${acts ? acts.map((a, j) => `<button class="rg-act${a.kind === 'primary' || (!a.kind && j === 0) ? ' primary' : ''}" data-act="${esc(a.id)}">${esc(a.label)}</button>`).join('')
             : `<button class="rg-next" data-g="next">${lastOne ? (c.opts.tip ? (kids ? 'הָבַנְתִּי' : 'הבנתי') : (kids ? 'סִיּוּם' : 'סיום')) : (kids ? 'הַבָּא' : 'הבא')}</button>`}
           ${!lastOne && !c.opts.tip ? `<button class="rg-skip" data-g="skip">${kids ? 'דַּלֵּג' : 'דלג'}</button>` : ''}</div></div></div>`;
-    placeRing(ln.at);
+    placeRing(ln.at); placeWrap();
     synthTalk = Math.min(4, 0.9 + words(ln).length / 22);   // the mouth moves a little even without sound
     if (voice && ln.id && c.spokenI !== c.i) { c.spokenI = c.i; voice.say(ln.id).catch(() => { }); }
     const btn = el.querySelector('.rg-next, .rg-act'); try { btn && btn.focus({ preventScroll: true }); } catch (e) { }
@@ -98,6 +99,15 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
     if (!t || !t.isConnected || !t.getBoundingClientRect || t.closest('[hidden]')) return false;
     const r = t.getBoundingClientRect(); if (!r.width && !r.height) return false;
     const cs = getComputedStyle(t); return cs.visibility !== 'hidden' && cs.display !== 'none';
+  }
+  // in a forest a tip (not a modal presentation) sits above the tray, so the cards and their prices stay free
+  function placeWrap() {
+    const w = el.querySelector('.rg-wrap'); if (!w || !cur) return;
+    w.style.bottom = '';
+    if (cur.scene !== 'game' || cur.opts.modal || cur.opts.place === 'center') return;
+    const tray = document.querySelector('#ui .tray'); if (!shown(tray)) return;
+    const top = tray.getBoundingClientRect().top; if (top <= 0 || top >= innerHeight) return;
+    w.style.bottom = Math.round(innerHeight - top + TRAY_GAP_PX) + 'px';
   }
   function placeRing(at) {
     const old = el.querySelector('.rg-ring'); if (old) old.remove();
@@ -161,7 +171,7 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
     // a stage film on top takes its own Escape (its listener comes after this one: it ends the film, not this bubble)
     if (e.key === 'Escape' && !document.querySelector('.ss')) { e.stopPropagation(); finish('skip'); }
   }, true);
-  addEventListener('resize', () => { if (cur) placeRing(cur.lines[cur.i].at); });
+  addEventListener('resize', () => { if (cur) { placeRing(cur.lines[cur.i].at); placeWrap(); } });
 
   function say(lines, opts = {}) {
     lines = (lines || []).filter((l) => l && (l.f || l.k)); if (!lines.length) return Promise.resolve('none');
