@@ -23,10 +23,9 @@
 //   voiceOn() / setVoice(on)            רובו־דע speaks his lines (src/audio/voice.js)
 //   allOpen() / unlockAll(code) / lockAgain()   the instructors' switch; INSTRUCTOR_CODE (Avi gives it to the instructors; docs/JOURNEY.md)
 // Events listened to: 'wol-badge' (a badge), 'wol-progress' (a mission, a lab activity, a solved mystery…) → check().
-import { key as profileKey } from './profiles.js';
+import { K as KEY, zoneKey, saveKey, readPlayer, writePlayer, readPlayerRaw, readDeviceRaw, writeDeviceRaw, removeDevice, playerKey, playerMode as levelNow } from './storage.js';
 
-const K = 'web-of-life-journey';
-const ALL_OPEN = 'web-of-life-allopen';
+const K = KEY.journey;
 export const INSTRUCTOR_CODE = '2580';
 
 // ─────────────────────────────── the parts of the game that open along the way
@@ -72,56 +71,52 @@ export const STAGES = [
   { n: 6, id: 'expert', name: 'מומחה', kname: 'מֻמְחֶה', need: [{ missions: 12 }, { badges: 10 }], kneed: [{ missions: 8 }, { badges: 7 }] },
 ];
 
-// storage helpers shared with core/threads.js (reading never throws; a write that fails keeps the visit going)
-export const ls = () => { try { return window.localStorage || null; } catch (e) { return null; } };
-export function readJSON(k, fb) { try { const s = ls(); const t = s && s.getItem(k); return t ? JSON.parse(t) : fb; } catch (e) { return fb; } }
-export function writeJSON(k, v) { try { const s = ls(); if (s) s.setItem(k, JSON.stringify(v)); } catch (e) { /* storage full or blocked: the journey still works this visit */ } }
-const pk = (base) => profileKey(base);
-const isKids = () => { try { return (ls() && ls().getItem(pk('web-of-life-mode'))) === 'kids'; } catch (e) { return false; } };
+// storage: core/storage.js (reading never throws; a write that fails keeps the visit going)
+const isKids = () => levelNow() === 'kids';
 
 // ─────────────────────────────── what the child has done (read from the game's own saves)
 export const ZONES = ['amazon', 'grove', 'reef'];   // the zones whose saves count (core/threads.js reads the same)
 // the missions done in a zone: what its save says now, joined with what this store remembers (a new forest, or the other
 // level, overwrites web-of-life-<zone>.done; a mission done once still counts)
 function doneIn(z, kept) {
-  const o = readJSON(pk('web-of-life-' + z), null);
+  const o = readPlayer(zoneKey(z), null);
   const ids = new Set(o && Array.isArray(o.done) ? o.done : []);
   for (const id of (kept && Array.isArray(kept[z]) ? kept[z] : [])) ids.add(id);
   return ids;
 }
 export function metrics() {
   let missions = 0;
-  const kept = (readJSON(pk(K), null) || {}).done;
+  const kept = (readPlayer(K, null) || {}).done;
   for (const z of ZONES) missions += doneIn(z, kept).size;
-  const b = readJSON(pk('web-of-life-badges'), {}); const badges = b && b.own ? Object.keys(b.own).length : 0;
-  const L = readJSON(pk('web-of-life-lab'), {}) || {};
+  const b = readPlayer(KEY.badges, {}); const badges = b && b.own ? Object.keys(b.own).length : 0;
+  const L = readPlayer(KEY.lab, {}) || {};
   const n = (o) => (o && typeof o === 'object' ? Object.keys(o).length : 0);
   let found = 0; for (const k in (L.found || {})) found += Array.isArray(L.found[k]) ? L.found[k].length : 0;
   const lab = found + n(L.inventions) + n(L.qs) + n(L.think) + n(L.st) + n(L.solved);
-  const R = readJSON(pk('web-of-life-research'), {}) || {}; const cases = n(R.cases);
-  const C = readJSON(pk('web-of-life-cards'), {}) || {}; const cards = n(C.owned);
+  const R = readPlayer(KEY.research, {}) || {}; const cases = n(R.cases);
+  const C = readPlayer(KEY.cards, {}) || {}; const cards = n(C.owned);
   return { missions, badges, lab, cases, cards };
 }
 
 // ─────────────────────────────── the store
 let mem = null;   // in memory too: the journey works when storage is blocked
 function store() {
-  const s = readJSON(pk(K), null);
+  const s = readPlayer(K, null);
   if (s && typeof s === 'object' && s.v === 1) { mem = s; return s; }
-  if (mem && mem._key === pk(K)) return mem;
+  if (mem && mem._key === playerKey(K)) return mem;
   // first visit of this player to 1.3.2: someone who already played keeps everything open and plays the full mode
   const m = metrics();
   // a saved forest counts too (a child who planted but never finished a mission or opened a pack)
   // (both slots: the full level's web-of-life-save-<zone> and the beginners' web-of-life-save-<zone>-kids, see game/game/save.js)
   let forest = false;
-  for (const z of ZONES) for (const slot of ['web-of-life-save-' + z, 'web-of-life-save-' + z + '-kids']) { try { if (ls() && ls().getItem(pk(slot))) forest = true; } catch (e) { } }
+  for (const z of ZONES) for (const kids of [false, true]) if (readPlayerRaw(saveKey(z, kids))) forest = true;
   const legacy = forest || m.missions + m.badges + m.lab + m.cases + m.cards > 0;
   const fresh = { v: 1, created: Date.now(), legacy, shown: {}, used: {}, intro: {}, mode: legacy ? 'full' : 'experience', text: 'large', voice: true };
   if (legacy) for (const st of STAGES) if (reached(st, m)) fresh.shown[st.id] = Date.now();   // no parade of old stages
-  writeJSON(pk(K), fresh); mem = { ...fresh, _key: pk(K) };
+  writePlayer(K, fresh); mem = { ...fresh, _key: playerKey(K) };
   return fresh;
 }
-function save(s) { const o = { ...s }; delete o._key; writeJSON(pk(K), o); mem = { ...o, _key: pk(K) }; }
+function save(s) { const o = { ...s }; delete o._key; writePlayer(K, o); mem = { ...o, _key: playerKey(K) }; }
 // the best stage this player ever reached: it never drops (the store's `best`, and every stage already announced)
 function bestStage(s) {
   let b = Math.max(1, +(s && s.best) || 1);
@@ -130,9 +125,9 @@ function bestStage(s) {
 }
 function reached(st, m) { const need = isKids() ? st.kneed : st.need; if (!need) return true; return need.some((w) => Object.keys(w).every((k) => (m[k] || 0) >= w[k])); }
 
-export const allOpen = () => { try { return (ls() && ls().getItem(ALL_OPEN)) === '1'; } catch (e) { return false; } };
-export function unlockAll(code) { if (String(code).trim() !== INSTRUCTOR_CODE) return false; try { ls() && ls().setItem(ALL_OPEN, '1'); } catch (e) { } notify(); return true; }
-export function lockAgain() { try { ls() && ls().removeItem(ALL_OPEN); } catch (e) { } notify(); }
+export const allOpen = () => readDeviceRaw(KEY.allopen) === '1';
+export function unlockAll(code) { if (String(code).trim() !== INSTRUCTOR_CODE) return false; writeDeviceRaw(KEY.allopen, '1'); notify(); return true; }
+export function lockAgain() { removeDevice(KEY.allopen); notify(); }
 
 export function stageNow(m = metrics()) { let s = 1; for (const st of STAGES) if (reached(st, m)) s = st.n; else break; return Math.max(s, bestStage(store())); }
 

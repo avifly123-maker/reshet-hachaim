@@ -36,50 +36,50 @@
 //   setSourceCheck(fn)                         the hub registers (spId, zone) → bool for the 'source' stamp (torah edition)
 //   fresh() → [thread]   opened since last shown;   markShown(ids?);   announce({ modal }) → id | null (one thread)
 // Events listened to: 'wol-progress', 'wol-badge' (announce a little later), 'wol-journey' (a player switch: re-read).
-import { key as profileKey } from './profiles.js';
-import { playMode, readJSON, writeJSON, ZONES } from './journey.js';
+import { K as KEY, zoneKey, saveKey, readPlayer, writePlayer, playerKey } from './storage.js';
+import { playMode, ZONES } from './journey.js';
 import { THREADS, SAMPLE_OF, PHOTO_SAMPLE, QUESTION_SPECIES, CASE_SPECIES, REGULAR, STAMPS } from '../data/threads.js';
 import { GUIDE } from '../data/guide-lines.js';
 
-const K = 'web-of-life-threads';
-const pk = (b) => profileKey(b);
+const K = KEY.threads;
+const pk = (b) => playerKey(b);
 const obj = (v) => (v && typeof v === 'object' && !Array.isArray(v) ? v : {});
 
 // ─────────────────────────────── the store (in memory too: threads work when storage is blocked)
 let mem = null;
 function store() {
   if (mem && mem._key === pk(K)) return mem;
-  const s = readJSON(pk(K), null);
+  const s = readPlayer(K, null);
   const o = s && typeof s === 'object' && s.v === 1 ? s : { v: 1 };
   mem = { v: 1, shown: obj(o.shown), open: obj(o.open), used: obj(o.used), ph: obj(o.ph), init: o.init || 0, _key: pk(K) };
   return mem;
 }
-function save() { const o = { ...store() }; delete o._key; writeJSON(pk(K), o); }
+function save() { const o = { ...store() }; delete o._key; writePlayer(K, o); }
 
 // ─────────────────────────────── what the child has done (a snapshot, kept for a moment: lists ask many times)
 let snapT = 0, snapK = '', snapV = null;
 function snap() {
   const now = Date.now();
   if (snapV && snapK === pk(K) && now - snapT < 400) return snapV;
-  const L = readJSON(pk('web-of-life-lab'), {}) || {};
+  const L = readPlayer(KEY.lab, {}) || {};
   const lab = { inventions: obj(L.inventions), solved: obj(L.solved), seen: obj(L.seen), think: obj(L.think) };
-  const cases = obj((readJSON(pk('web-of-life-research'), {}) || {}).cases);
-  const hub = obj((readJSON(pk('web-of-life-cards'), {}) || {}).games);
+  const cases = obj((readPlayer(KEY.research, {}) || {}).cases);
+  const hub = obj((readPlayer(KEY.cards, {}) || {}).games);
   const inv = obj(hub.inventors);
   const hubSolved = obj(inv.solved);
   const robots = (Array.isArray(inv.robots) ? inv.robots : []).filter((r) => r && r.name);
   const zones = {}, events = new Set();
   for (const z of ZONES) {
-    const o = readJSON(pk('web-of-life-' + z), null) || {};
+    const o = readPlayer(zoneKey(z), null) || {};
     zones[z] = { done: new Set(Array.isArray(o.done) ? o.done : []), discovered: Array.isArray(o.discovered) ? o.discovered : [], placed: new Set(Array.isArray(o.placed) ? o.placed : []) };
-    for (const sk of ['web-of-life-save-' + z, 'web-of-life-save-' + z + '-kids']) {
-      const sv = readJSON(pk(sk), null); if (!sv || typeof sv !== 'object') continue;
+    for (const kids of [false, true]) {
+      const sv = readPlayer(saveKey(z, kids), null); if (!sv || typeof sv !== 'object') continue;
       for (const e of Array.isArray(sv.events) ? sv.events : []) if (e && e.id) events.add(e.id);
       const rep = obj(sv.report); for (const d of [...(Array.isArray(rep.days) ? rep.days : []), rep.cur]) for (const p of (d && Array.isArray(d.ev) ? d.ev : [])) if (Array.isArray(p) && p[0]) events.add(p[0]);
     }
   }
   const S0 = store(); let phChanged = false;
-  const photos = readJSON(pk('web-of-life-photos'), null);
+  const photos = readPlayer(KEY.photos, null);
   for (const p of Array.isArray(photos) ? photos : []) { const sp = p && (p.sp || p.species); if (sp && !S0.ph[sp]) { S0.ph[sp] = 1; phChanged = true; } }
   if (phChanged) save();
   snapV = { lab, cases, hubSolved, robots, zones, events, ph: S0.ph, used: S0.used };
