@@ -11,7 +11,14 @@ const GOAL_FIELDS = {
   place: ['species', 'count'], pollinate: ['species', 'count'], link: ['from', 'to'], disperse: ['count'],
   grow: ['species', 'count'], tool: ['tool', 'count'], photos: ['count'], speciesAlive: ['count'],
 };
-const MISSION_FIELDS = ['id', 'title', 'text', 'hint', 'after', 'goal', 'reward'];
+const MISSION_FIELDS = ['id', 'title', 'text', 'hint', 'k', 'after', 'goal', 'reward'];   // k: what to do, full nikud
+const HEB = /[א-ת]/g, NIK = /[ְ-ׇּׁׂ]/g;
+function vocalised(s) {   // the same test as tools/validate-guide.mjs
+  const letters = (String(s).match(HEB) || []).length; if (!letters) return true;
+  const marks = (String(s).match(NIK) || []).length;
+  for (const w of String(s).split(/[\s,.?!:;"'()–-]+/)) { const l = (w.match(HEB) || []).length; if (l >= 2 && !(w.match(NIK) || []).length) return false; }
+  return marks * 2 >= letters * 0.8;
+}
 const BANNED_PARTS = ['אבולוציה', 'מיליוני', 'דינוזאור', 'אנשים', 'ציידים', 'טורף', 'הורג', 'חזיר'];   // anywhere in a word
 const BANNED_WORDS = ['אדם', 'מת', 'מתה', 'מתים'];   // whole words only
 const MAX_WORDS = 10;
@@ -98,6 +105,8 @@ for (const [bid, K] of Object.entries(KIDS)) {
     checkText(bid, `${w}.title`, m.title, 1);
     checkText(bid, `${w}.text`, m.text, 2);
     checkText(bid, `${w}.hint`, m.hint, 1);
+    checkText(bid, `${w}.k`, String(m.k || '').replace(NIK, ''), 2);
+    if (!vocalised(m.k || '')) err(bid, `${w}.k: without full nikud: "${m.k}"`);
 
     const g = m.goal || {};
     const want = GOAL_FIELDS[g.type];

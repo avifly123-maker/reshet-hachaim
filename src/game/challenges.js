@@ -70,7 +70,9 @@ export function createChallenges({ W, ctx, pickLast }) {
       case 'chain': return Math.min(1, W.longestChain() / g.n);
       case 'kinds': return Math.min(1, ctx.kinds() / g.n);
       case 'health': {
-        if (W.vitality >= g.p) c.holdT += W.lastTickDt; else c.holdT = Math.max(0, c.holdT - W.lastTickDt * 2);
+        // the simulation time since the last check (tick() runs about twice a second, not every frame)
+        const dts = Math.max(0, W.simT - (c.lastSimT == null ? W.simT : c.lastSimT)); c.lastSimT = W.simT;
+        if (W.vitality >= g.p) c.holdT += dts; else c.holdT = Math.max(0, c.holdT - dts * 2);
         return Math.min(1, c.holdT / g.s);
       }
       default: return 0;

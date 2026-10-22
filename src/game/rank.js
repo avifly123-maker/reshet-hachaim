@@ -3,12 +3,13 @@
 //
 // Storage (per player, core/profiles.js key()):
 //   'web-of-life-photos'   [{ id, sp, sps: [speciesId], zone, t, img (JPEG data URL ≤ 10 kB, 160x120), pair?: [a, b], visitor?: 1 }]
-//                          newest last, at most 24 (the oldest drops out; on a full storage the oldest go first and
-//                          the write is tried once more). Read by src/lab/cabinet.js (img, sp, zone, t, id) and
+//                          newest last, at most MAX_PHOTOS (the oldest drops out; on a full storage up to six older
+//                          ones go first and the write is tried once more; the newest is never dropped: null = not kept). Read by src/lab/cabinet.js (img, sp, zone, t, id) and
 //                          src/core/threads.js (sp, zone).
 //   'web-of-life-visitors' [{ id: speciesId, zone, t }]  one per species (no picture: the cabinet shows its card painting)
 //   'web-of-life-after'    { v: 1, z: { <zone>: { ch: [{ id, lv }] (the last 6), cn: challenges done, cp: their rank points,
-//                            pm: { <photoMissionId>: 1 }, pairs: { 'a>b': 1 } (at most 30), snap: { full|kids: { kinds, links, days, t } } } } }
+//                            pm: { <photoMissionId>: 1 }, pairs: { 'a>b': 1 } (at most 30), snap: { full|kids: { kinds, links, days, t } },
+//                            hi: { full|kids: the highest rank reached (only a new highest is announced) } } } }
 //                          challenges done, photo missions done, linked pairs photographed, and a snapshot of the island
 //                          taken when the child leaves it (kinds alive, active links, days lived). 6 players share
 //                          about 5 MB of storage: everything here stays small.
@@ -29,11 +30,14 @@ const obj = (v) => (v && typeof v === 'object' && !Array.isArray(v) ? v : {});
 // ─────────────────────────────── photos
 export function readPhotos() { const p = readJSON(PHOTOS_KEY, []); return Array.isArray(p) ? p.filter((x) => x && typeof x === 'object') : []; }
 export function addPhoto(rec) {
+  phCache = null;
   const list = readPhotos(); list.push(rec);
   while (list.length > MAX_PHOTOS) list.shift();
   // a full storage: drop the oldest photos and try once more (the photos must never crowd out the saves)
   let ok = writeJSON(PHOTOS_KEY, list);
-  if (!ok) { list.splice(0, Math.max(1, Math.min(list.length - 1, 6))); ok = writeJSON(PHOTOS_KEY, list); }
+  // never the newest: only older photos may make room (an empty album has none, so nothing is written)
+  const drop = Math.min(list.length - 1, 6);
+  if (!ok && drop > 0) { list.splice(0, drop); ok = writeJSON(PHOTOS_KEY, list); }
   if (ok) { try { window.dispatchEvent(new CustomEvent('wol-progress', { detail: { kind: 'photo', id: rec.sp, zone: rec.zone } })); } catch (e) { } }
   return ok ? list : null;
 }
@@ -60,7 +64,7 @@ export function afterStore() {
 export function zoneAfter(zone, S = afterStore()) {
   const z = obj(S.z[zone]);
   const ch = Array.isArray(z.ch) ? z.ch.filter((c) => c && c.id) : [];
-  return { ch, cn: Math.max(+z.cn || 0, ch.length), cp: Math.max(+z.cp || 0, ch.reduce((t, c) => t + (CH_POINTS[c.lv] || 5), 0)), pm: obj(z.pm), pairs: obj(z.pairs), snap: obj(z.snap) };
+  return { ch, cn: Math.max(+z.cn || 0, ch.length), cp: Math.max(+z.cp || 0, ch.reduce((t, c) => t + (CH_POINTS[c.lv] || 5), 0)), pm: obj(z.pm), pairs: obj(z.pairs), snap: obj(z.snap), hi: obj(z.hi) };
 }
 export function updateZone(zone, fn) {
   const S = afterStore(); const z = zoneAfter(zone, S);
@@ -97,10 +101,21 @@ function islandNumbers(zone, kids) {
   if (snap && snap.t && (!save.savedAt || snap.t >= save.savedAt - 60000)) return { kinds: snap.kinds || 0, links: snap.links || 0, days: Math.max(days, snap.days || 0), z };
   return { kinds: ids.size, links: Math.min(disc, Math.round(ids.size * 1.3)), days, z };
 }
+// the kinds photographed per zone: the photos are the biggest store here, so a forest's rank check (every few seconds)
+// reads them at most once a minute, or again after a new photo (addPhoto clears it); per player
+let phCache = null;
+function photoKinds(zone) {
+  const k = profileKey(PHOTOS_KEY), now = Date.now();
+  if (!phCache || phCache.k !== k || now - phCache.t > 60000) {
+    const m = {}; for (const p of readPhotos()) { (m[p.zone] || (m[p.zone] = new Set())).add(p.sp); }
+    phCache = { k, t: now, m };
+  }
+  return phCache.m[zone] ? phCache.m[zone].size : 0;
+}
 export function rankPoints(zone, kids, live = null) {
-  const n = live ? { ...islandNumbers(zone, kids), ...live } : islandNumbers(zone, kids);
+  // live numbers from an open forest replace the save's numbers: the save is not read then
+  const n = live ? { z: zoneAfter(zone), ...live } : islandNumbers(zone, kids);
   const z = n.z;
-  const ph = readPhotos().filter((p) => p.zone === zone);
   const vis = visitorsOf(zone).length;
   const parts = {
     kinds: Math.min(kids ? 32 : 50, n.kinds * (kids ? 4 : 2)),
@@ -108,7 +123,7 @@ export function rankPoints(zone, kids, live = null) {
     days: Math.min(30, n.days),
     challenges: z.cp,
     visitors: Math.min(24, vis * 8),
-    photos: Math.min(15, new Set(ph.map((p) => p.sp)).size) + Object.keys(z.pm).length * 5 + Math.min(10, Object.keys(z.pairs).length * 2),
+    photos: Math.min(15, photoKinds(zone)) + Object.keys(z.pm).length * 5 + Math.min(10, Object.keys(z.pairs).length * 2),
   };
   return { pts: Object.values(parts).reduce((a, b) => a + b, 0), parts };
 }

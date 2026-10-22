@@ -252,7 +252,8 @@ export function createTools(ctx) {
   };
 
   function count(id) { return placed.filter(p => p.id === id).length; }
-  function unlocked(def) { if (W.kids && !['drone', 'camera'].includes(def.id)) return false; return (W.missions?.doneCount || 0) >= def.needs || W.allToolsUnlocked; }
+  // W.rescueOpen: an animal was injured before the rescue robot's mission, so only the rescue robot opens early
+  function unlocked(def) { if (W.kids && !['drone', 'camera'].includes(def.id)) return false; return (W.missions?.doneCount || 0) >= def.needs || W.allToolsUnlocked || (def.id === 'rescue' && !!W.rescueOpen); }
 
   function cards() {
     return ISLAND_TOOLS.filter(d => (!W.kids || ['drone', 'camera'].includes(d.id)) && toolInZone(d, W.biomeId) && !(d.tech && W.research)).map(d0 => {
@@ -453,7 +454,7 @@ export function createTools(ctx) {
     if (W.missions?.current()?.goal?.type === 'rescue') injuryT = Math.min(injuryT, 25);
     injuryT -= dt; if (injuryT > 0) return;
     injuryT = 150 + Math.random() * 120;
-    const cand = W.animals.filter(a => a.alive && !a.leaving && !a.touring && a.type === 'animal' && a.visible && (a.loco === 'ground' || a.loco === 'flying') && !a.sp.isInsect && (a.loco !== 'flying' || !a.perch));
+    const cand = W.animals.filter(a => a.alive && !a.leaving && !a.touring && !a.visitor && a.type === 'animal' && a.visible && (a.loco === 'ground' || a.loco === 'flying') && !a.sp.isInsect && (a.loco !== 'flying' || !a.perch));
     if (!cand.length) return;
     const a = cand[(Math.random() * cand.length) | 0];
     let cause;
@@ -471,7 +472,7 @@ export function createTools(ctx) {
     audio.play('event');
     tech.roboAt(a.pos);   // רובו־דע flies to it while he tells
     if (W.onHurt) W.onHurt('new', a);
-    if (!unlocked(TOOL_DEFS.find(t => t.id === 'rescue'))) { W.allToolsUnlocked = true; }   // the rescue robot must be available when needed
+    if (!unlocked(TOOL_DEFS.find(t => t.id === 'rescue'))) { W.rescueOpen = true; }   // the rescue robot (only it) must be available when needed
   }
   function sendRobot(hit, a) {
     const mesh = makeRobot(); group.add(mesh);

@@ -47,7 +47,7 @@ const CHECK = 8;          // how often the island is looked at
 export function createVisitors({ W, env, reg, ui, audio, markers, rig, imv, spawnAnimal, art, Q, photoOpen, openPhoto }) {
   const kids = !!W.kids;
   const list = visitorsFor(W.biomeId, kids).filter((v) => reg.byId.has(v.id) && W.animalBuilders && W.animalBuilders[v.id]);
-  let cur = null, checkT = CHECK, nextAt = W.simT + FIRST, enabled = false;
+  let cur = null, checkT = CHECK, nextAt = W.simT + FIRST, enabled = false, disposed = false;
   const nameOf = (id) => { const n = reg.byId.get(id)?.name || ''; return kids ? nameK(n) : n; };
 
   // the round button in the dock: the visitor's painting, its name; a click flies the camera to it and opens the photo mode
@@ -104,7 +104,7 @@ export function createVisitors({ W, env, reg, ui, audio, markers, rig, imv, spaw
     cur.shot = true; btn.classList.add('shot');
     cur.until = Math.max(cur.until, W.simT + 20);   // a little more time to look at it
     const g = window.__guide, L = g && g.lines('after:fact:' + cur.v.id);
-    if (g && L && L.length) setTimeout(() => g.say(L, { tip: true, ms: 9000 }), 2600);
+    if (g && L && L.length) setTimeout(() => { if (!disposed) g.say(L, { tip: true, ms: 9000 }); }, 2600);
     return true;
   }
 
@@ -132,7 +132,7 @@ export function createVisitors({ W, env, reg, ui, audio, markers, rig, imv, spaw
     const pick = (fresh.length ? fresh : ok)[(Math.random() * (fresh.length || ok.length)) | 0];
     if (!start(pick)) nextAt = W.simT + 30;
   }
-  function dispose() { if (cur && cur.a && cur.a.alive) cur.a.leave(); cur = null; btn.remove(); }
+  function dispose() { disposed = true; if (cur && cur.a && cur.a.alive) cur.a.leave(); cur = null; btn.remove(); }
 
   return {
     update, dispose, photographedNow, list,

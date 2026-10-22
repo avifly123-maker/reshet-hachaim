@@ -107,7 +107,9 @@ export function createUiBus(ctx) {
     if (!c) { robo('zone:alldone', { key: null, force: true }); return; }
     const how = String(c.how || '').replace(/^איך עושים:\s*/, '');
     const f = W.kids ? c.text : `${c.title}: ${how || c.text}`;
-    roboSay(f, f, { ms: 16000, force: true, at: '#ui .missions' });
+    // beginners read full nikud: the mission's own k line (src/data/kids.js), else a general vocalised line
+    const k = W.kids ? (c.k || 'הִסְתַּכְּלוּ בַּמְּשִׂימָה לְמַעְלָה, וְנַסּוּ לַעֲשׂוֹת אוֹתָהּ.') : f;
+    roboSay(f, k, { ms: 16000, force: true, at: '#ui .missions' });
   });
   // the red bar of an injured animal: fly to it (the rescue robot's card in the tray pulses, ui.js)
   on('injured:focus', ({ uid }) => {

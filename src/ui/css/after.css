@@ -23,6 +23,8 @@
 
 /* ---------- the photo mode: everything else steps aside */
 #ui.wol.af-shoot > :not(.af-photo):not(#rguide):not(.mission-banner):not(.modal-layer) { opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; transition: none !important; }
+/* רובו־דע's bubble sits higher in the photo mode, so "צלמו" (bottom middle, 58 px + 10 px) stays free */
+#ui.wol.af-shoot #rguide:not(.center) .rg-wrap { bottom: 78px; }
 #ui.wol .af-photo.printing .af-tag { visibility: hidden; }
 #ui.wol .af-photo { position: absolute; inset: 0; z-index: 40; pointer-events: none; direction: rtl; }
 #ui.wol .af-photo[hidden] { display: none; }
@@ -72,7 +74,7 @@
 #ui.wol .af-print small { font-weight: 700; font-size: calc(.82em * var(--ts)); color: var(--ink2); line-height: 1.35; }
 @keyframes af-print { 0% { transform: translateY(40px) scale(.8); opacity: 0; } 100% { transform: none; opacity: 1; } }
 
-/* ---------- the album: one screen, no scrolling (40 photos at most) */
+/* ---------- the album: one screen, no scrolling (MAX_PHOTOS in src/game/rank.js, 24, at most) */
 #ui.wol .af-album { position: absolute; inset: 8px; z-index: 2; pointer-events: auto; display: flex; flex-direction: column; gap: 8px; padding: 10px 14px 12px; border-radius: 16px;
   background: #ece6cc; color: var(--ink); box-shadow: 0 0 0 2px rgba(125, 111, 72, .5), 0 18px 40px rgba(0, 0, 0, .5); overflow: hidden; }
 #ui.wol .af-album[hidden] { display: none; }

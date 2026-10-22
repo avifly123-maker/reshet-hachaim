@@ -69,10 +69,12 @@ const T = {
   inFrame: ['בתמונה:', 'בַּתְּמוּנָה:'], nobody: ['עוד אין אף אחד בתוך המסגרת', 'עוֹד אֵין אַף אֶחָד בְּתוֹךְ הַמִּסְגֶּרֶת'],
   linked: ['קשר ברשת!', 'קֶשֶׁר בָּרֶשֶׁת!'], saved: ['נשמר באלבום', 'נִשְׁמַר בָּאַלְבּוֹם'], landscape: ['נוף', 'נוֹף'],
   empty: ['עוד אין תמונות באלבום. צלמו משהו!', 'עוֹד אֵין תְּמוּנוֹת בָּאַלְבּוֹם. צַלְּמוּ מַשֶּׁהוּ!'],
-  count: ['{n} תמונות מתוך 24', '{n} תְּמוּנוֹת מִתּוֹךְ 24'], close: ['סגירה', 'סְגִירָה'], also: ['וגם:', 'וְגַם:'],
+  count: ['{n} תמונות מתוך {m}', '{n} תְּמוּנוֹת מִתּוֹךְ {m}'], close: ['סגירה', 'סְגִירָה'], also: ['וגם:', 'וְגַם:'],
   zones: { amazon: ['באמזונס', 'בָּאָמָזוֹנָס'], grove: ['בחורש', 'בַּחֹרֶשׁ'], reef: ['בשונית', 'בַּשּׁוּנִית'] },
-  oldest: ['כשיש 24 תמונות, הישנה ביותר יוצאת', 'כְּשֶׁיֵּשׁ 24 תְּמוּנוֹת, הַיְּשָׁנָה בְּיוֹתֵר יוֹצֵאת'],
+  oldest: ['כשיש {m} תמונות, הישנה ביותר יוצאת', 'כְּשֶׁיֵּשׁ {m} תְּמוּנוֹת, הַיְּשָׁנָה בְּיוֹתֵר יוֹצֵאת'],   // {m}: MAX_PHOTOS (rank.js)
   visitor: ['מבקר נדיר', 'מְבַקֵּר נָדִיר'],
+  savedT: ['התמונה נשמרה באלבום', 'הַתְּמוּנָה נִשְׁמְרָה בָּאַלְבּוֹם'],
+  full: ['האלבום מלא, והתמונה לא נשמרה', 'הָאַלְבּוֹם מָלֵא, וְהַתְּמוּנָה לֹא נִשְׁמְרָה'],
 };
 // a camera: a rounded body, a lens and a small flash window (no tripod, nothing that crosses)
 export const CAM_SVG = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="f" d="M4.5 8h3l1.6-2.4h5.8L16.5 8h3a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5v-8A1.5 1.5 0 0 1 4.5 8z"/><path d="M4.5 8h3l1.6-2.4h5.8L16.5 8h3a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5v-8A1.5 1.5 0 0 1 4.5 8z"/><circle cx="12" cy="13.2" r="3.4"/><circle cx="17.6" cy="10.6" r=".7" fill="currentColor" stroke="none"/></svg>';
@@ -80,7 +82,7 @@ export const CAM_SVG = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" f
 const _v = new THREE.Vector3(), _p = new THREE.Vector3();
 const PW = 160, PH = 120, MAX_BYTES = 10000;
 
-export function createPhotos({ W, reg, camera, canvas, pipe, ui, audio, imv, bus, rig, markers, onShot }) {
+export function createPhotos({ W, reg, camera, canvas, pipe, ui, audio, imv, bus, rig, markers, onShot, robo }) {
   const root = document.getElementById('ui');
   const kids = !!W.kids;
   const t = (k, o) => { let s = T[k][kids ? 1 : 0]; if (o) for (const x in o) s = s.replace('{' + x + '}', o[x]); return s; };
@@ -176,7 +178,11 @@ export function createPhotos({ W, reg, camera, canvas, pipe, ui, audio, imv, bus
 
   // ── the picture: draw a fresh frame, then copy the rectangle into a small JPEG
   function capture(rect) {
+    // רובו־דע's island model must not be in the picture (the field camera shoots outside the photo mode too)
+    const rr = robo && robo.root, rv = rr ? rr.visible : false;
+    if (rr) rr.visible = false;
     try { pipe.render(0.016); } catch (e) { }
+    if (rr) rr.visible = rv;
     const cr = canvas.getBoundingClientRect(); const kx = canvas.width / cr.width, ky = canvas.height / cr.height;
     const c = document.createElement('canvas'); c.width = PW; c.height = PH;
     const ctx = c.getContext('2d');
@@ -204,13 +210,26 @@ export function createPhotos({ W, reg, camera, canvas, pipe, ui, audio, imv, bus
     const rec = { id: 'ph' + Date.now().toString(36), sp: info.main || '', sps: info.ids.slice(0, 6), zone: W.biomeId, t: Date.now(), img };
     if (info.pairs.length) rec.pair = info.pairs[0];
     if (info.visitors.length) rec.visitor = 1;
-    if (!addPhoto(rec)) return;   // the storage is full even without the oldest photos: nothing is kept
+    if (!addPhoto(rec)) { showFull(rec); return; }   // the storage is full even without the older photos: nothing is kept, no points
     paintAlbumBtn();
     const res = onShot ? onShot(rec, info, from) || {} : {};
     showPrint(rec, info, res);
   }
+  function showFull(rec) {
+    if (!isOpen) { try { ui.toast(t('full'), 'warn'); } catch (e) { } return; }
+    printEl.querySelector('img').src = rec.img;
+    printEl.querySelector('b').textContent = rec.sp ? nameOf(rec.sp) : t('landscape');
+    printEl.querySelector('small').textContent = t('full');
+    printEl.hidden = false; el.classList.add('printing'); printEl.classList.remove('go'); void printEl.offsetWidth; printEl.classList.add('go');
+    printT = 3.6;
+  }
   function showPrint(rec, info, res) {
-    if (!isOpen) return;   // the field camera's view: the toast of the game says it
+    if (!isOpen) {   // the field camera's view: a small toast says it was kept
+      const parts = [t('savedT')];
+      if (res.points) parts.push(kids ? `קִבַּלְתֶּם ${res.points} נְקֻדּוֹת` : `קיבלתם ${res.points} נקודות חיים`);
+      try { ui.toast(parts.join(' · '), 'good'); } catch (e) { }
+      return;
+    }
     printEl.querySelector('img').src = rec.img;
     printEl.querySelector('b').textContent = rec.sp ? nameOf(rec.sp) : t('landscape');
     const parts = [t('saved')];
@@ -232,7 +251,7 @@ export function createPhotos({ W, reg, camera, canvas, pipe, ui, audio, imv, bus
     const z = zoomId && list.find((p) => p.id === zoomId);
     const zname = (p) => (T.zones[p.zone] ? T.zones[p.zone][kids ? 1 : 0] : '');
     const pname = (p) => (p.sp ? nameOf(p.sp) : t('landscape'));
-    albumEl.innerHTML = `<div class="af-ahead"><b>${icon('book')}${esc(t('album'))}</b><small>${esc(t('count', { n: list.length }))} · ${esc(t('oldest'))}</small>
+    albumEl.innerHTML = `<div class="af-ahead"><b>${icon('book')}${esc(t('album'))}</b><small>${esc(t('count', { n: list.length, m: MAX_PHOTOS }))} · ${esc(t('oldest', { m: MAX_PHOTOS }))}</small>
         <button type="button" class="af-aclose">${icon('close')}<span>${esc(t('close'))}</span></button></div>
       ${z ? `<div class="af-zoom"><img src="${z.img}" alt=""><div class="af-ztx"><b>${esc(pname(z))}</b><small>${esc(zname(z))}${z.visitor ? ' · ' + esc(t('visitor')) : ''}</small>
           ${(z.sps || []).length > 1 ? `<p>${esc(t('also'))} ${esc(z.sps.filter((s) => s !== z.sp).map(nameOf).join(', '))}</p>` : ''}

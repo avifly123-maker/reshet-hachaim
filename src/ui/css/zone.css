@@ -89,7 +89,11 @@
 #ui.wol .hb-chip.saving { background: linear-gradient(#3f8f5a, #2d6e44); box-shadow: 0 0 0 2px #c8f0d0, 0 6px 16px rgba(0, 40, 10, .4); }
 #ui.wol .hb-chip.saving .hb-bang { color: #2d6e44; animation: none; }
 #ui.wol.has-hurt .toasts { top: 128px; }
-#ui.wol.has-hurt.has-experiment .toasts { top: 180px; }
+/* רובו־דע explains an injury (update.js adds rg-lift): his bubble sits above the tray, which stays free to use */
+#ui.wol.rg-lift #rguide:not(.center) .rg-wrap { bottom: calc(var(--trayH, 170px) + 8px); }
+/* an experiment while an animal is injured: its banner goes under the red bar (the bar stays on top) */
+#ui.wol.has-hurt .experiment { top: 124px; }
+#ui.wol.has-hurt.has-experiment .toasts { top: 192px; }
 @keyframes hb-in { from { opacity: 0; transform: translateY(-10px) scale(.95); } to { opacity: 1; transform: none; } }
 @keyframes hb-throb { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
 @keyframes hb-late { 0%, 100% { box-shadow: 0 0 0 2px #ffd0c8, 0 6px 16px rgba(60, 0, 0, .45); } 50% { box-shadow: 0 0 0 5px #ffd166, 0 6px 22px rgba(255, 80, 40, .6); } }
@@ -128,6 +132,8 @@
   #ui.wol .m-whatnow { min-height: 28px; padding: 2px 10px 2px 8px; margin-top: 2px; }
   #ui.wol .m-xic { width: 28px; height: 28px; }
   #ui.wol.has-hurt .toasts { top: 104px; }
+  #ui.wol.has-hurt .experiment { top: 102px; }
+  #ui.wol.has-hurt.has-experiment .toasts { top: 164px; }
 }
 @media (prefers-reduced-motion: reduce) {
   #ui.wol .hb-bang, #ui.wol .hb-chip.late, #ui.wol .hurt-arrows .ha, #ui.wol .tray .card.help-pulse { animation: none; }
