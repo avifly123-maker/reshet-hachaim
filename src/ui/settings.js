@@ -18,6 +18,13 @@ import { TORAH, sourcesOn, setSourcesOn } from '../core/edition.js';
 
 const kids = () => J.playMode() === 'kids';
 const t = (f, k) => (kids() ? k : f);
+// the torah edition's sources switch: one name, one icon and one description here and in the learning hub's settings
+// (src/learn/hub/home.js openSettings) – [words, beginners' words]
+export const SOURCES_T = {
+  icon: 'scroll',
+  name: ['מקורות ופסוקים', 'מְקוֹרוֹת וּפְסוּקִים'],
+  about: ['פסוקים ומאמרי חז״ל בקלפים, במשימות, בחידון ובמשחק "מה הפסוק מלמד?"', 'פְּסוּקִים וּמַאַמְרֵי חֲזַ״ל בַּקְּלָפִים, בַּמְּשִׂימוֹת, בַּחִידוֹן וּבַמִּשְׂחָק "מָה הַפָּסוּק מְלַמֵּד?"'],
+};
 
 const SIZES = [
   { id: 'normal', f: 'רגיל', k: 'רָגִיל', em: 0.95 },
@@ -61,7 +68,7 @@ function rowHTML(id, o) {
   if (id === 'sources') {
     if (!TORAH) return '';
     const on = sourcesOn();
-    return `<button class="set-row set-tog" data-row="sources" data-set="sources" role="switch" aria-checked="${on}"><span class="set-lab">${icon('book')}<span><b>${t('מן המקורות', 'מִן הַמְּקוֹרוֹת')}</b><small>${t('פסוקים ומאמרי חז״ל בקלפים, במשימות ובחידון', 'פְּסוּקִים וּמַאַמְרֵי חֲזַ״ל')}</small></span></span>${sw(on)}</button>`;
+    return `<button class="set-row set-tog" data-row="sources" data-set="sources" role="switch" aria-checked="${on}"><span class="set-lab">${icon(SOURCES_T.icon)}<span><b>${t(...SOURCES_T.name)}</b><small>${t(...SOURCES_T.about)}</small></span></span>${sw(on)}</button>`;
   }
   if (id === 'music') {
     const on = o.getMusic ? !!o.getMusic() : true;

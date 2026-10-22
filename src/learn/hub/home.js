@@ -9,10 +9,11 @@ import { BADGES, BADGE_GROUPS, FRAMES } from '../../data/badges.js';
 import { CARD_ART } from '../../data/card-art.js';
 import { badgeHTML } from '../../ui/badge-art.js';
 import { TILE_TONE, tileIcon } from '../../ui/icons-hub.js';
+import { SOURCES_T } from '../../ui/settings.js';
 import { icon } from '../../ui/ui.js';
 import { IC, IC_CURTAIN, OPEN_PER_DAY, esc } from './base.js';
 import { cardHTML } from './card-html.js';
-import { CARD, IC_SCROLL, spOf } from './cards.js';
+import { CARD, spOf } from './cards.js';
 
 // the hub's icons (src/ui/icons-hub.js): the tile of each badge group
 const BGROUP_IC = { amazon: 'amazon', grove: 'grove', reef: 'reef', lab: 'invent', deep: 'dive', research: 'research', sources: 'scroll' };
@@ -20,6 +21,7 @@ const BGROUP_IC = { amazon: 'amazon', grove: 'grove', reef: 'reef', lab: 'invent
 export function createHomeScreens(ctx) {
   const { main, modal, S, sfx, locked, srcOn, collection } = ctx;
   const opensLeft = () => ctx.opensLeft();   // packs.js (made after this part)
+  const K = (f, k) => (ctx.MODE === 'kids' ? k : f);   // beginners read these screens' words fully vocalised
   /* ── home (1.3.2): one page. Right: the quiz, my badges, my frames; middle: the album; left: the card games.
      A part that is not open yet (core/journey.js) is veiled: dimmed, a curtain, and the words of what opens it. */
   const HOME_GAMES = [
@@ -46,7 +48,6 @@ export function createHomeScreens(ctx) {
     const sample = CARD.get(FRAME_SAMPLE.find((id) => S.owned[id]) || Object.keys(S.owned).find((id) => CARD.has(id)) || FRAME_SAMPLE[0]);
     const late = S.packs && !opensLeft();
     const games = HOME_GAMES.filter((g) => !g.torah || srcOn());
-    const K = (f, k) => (ctx.MODE === 'kids' ? k : f);   // beginners read the home's words fully vocalised
     const of = K('מתוך', 'מִתּוֹךְ');
     main.innerHTML = `<section class="wl-screen wl-home">
       <div class="wl-hside">
@@ -105,7 +106,7 @@ export function createHomeScreens(ctx) {
     sfx('select');
     const on = sourcesOn();
     modal.innerHTML = `<div class="wl-mtext paper wl-settings"><h3>${icon('sliders')}הגדרות</h3>
-      <button class="wl-srcsw${on ? ' on' : ''}" data-wl="srctoggle" role="switch" aria-checked="${on}">${IC_SCROLL}<span><b>מקורות ופסוקים</b><small>${on ? 'פועל: חידון "מן המקורות", קלפי מקור, המשחק "מה הפסוק מלמד?" ושירת הבריאה' : 'כבוי: המשחק בלי תוכן מן המקורות'}</small></span><i class="sw"></i></button>
+      <button class="wl-srcsw${on ? ' on' : ''}" data-wl="srctoggle" role="switch" aria-checked="${on}">${icon(SOURCES_T.icon, 'wl-ic')}<span><b>${K(...SOURCES_T.name)}</b><small>${K(...SOURCES_T.about)}</small></span><i class="sw"></i></button>
       <button class="wl-btn" data-wl="close">${icon('check')}סיום</button></div>`;
     modal.hidden = false;
   }
