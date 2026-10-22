@@ -916,7 +916,7 @@ export function playStageScene(n, opts = {}) {
     const animals = [];   // the rigged animals of the scene (their holders carry the visual), disposed at the end
     const tCall = performance.now(); let readyMs = -1;
     let S = null, sc = null, raf = 0, done = false, t = 0, last = 0, frames = 0, t0 = performance.now(), endShown = false;
-    const hold = opts.at != null ? +opts.at : null;
+    let hold = opts.at != null ? +opts.at : null;   // a fixed time (shots); seek() moves it (recording a film frame by frame)
     const onKey = (e) => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); finish(); } };
     const onResize = () => { if (!S) return; const w = el.clientWidth || innerWidth, h = el.clientHeight || innerHeight; S.renderer.setSize(w, h, false); fitCamera(S.camera, w, h); };
     finish = () => {
@@ -964,9 +964,10 @@ export function playStageScene(n, opts = {}) {
       } catch (e) { console.error('stage scene', n, e); finish(); }
     })();
   });
-  running = { promise, finish: () => finish() };
+  running = { promise, finish: () => finish(), seek: (x) => { hold = x == null ? null : +x; } };
   return promise;
 }
 
 window.__stageScene = (n, opts) => playStageScene(n, opts);
 window.__stageScene.stop = () => { if (running) running.finish(); };
+window.__stageScene.seek = (x) => { if (running) running.seek(x); };   // tools/record-scenes.py

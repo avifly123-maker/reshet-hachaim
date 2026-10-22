@@ -127,6 +127,7 @@ def main():
             if heard: man[vid]['heard'] = heard
             os.remove(wav)
             print(vid, '|', ipa, '|', heard)
+            manifest_p.write_text(json.dumps(man, ensure_ascii=False, indent=1))   # a killed run keeps what it made
     manifest_p.write_text(json.dumps(man, ensure_ascii=False, indent=1))
     # the asset module
     V = {}
