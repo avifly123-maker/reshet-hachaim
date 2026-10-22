@@ -33,3 +33,10 @@ export function farTreeSources(biomeId, plantBuilders) {
 
 // a function of a later part, looked up in ctx when it is called (all parts exist before the forest runs)
 export const late = (ctx, name) => (...args) => ctx[name](...args);
+
+// add a part's results to the shared ctx; a part must never replace a name another part already gave
+// (two parts with the same function name would silently override each other)
+export function addPart(ctx, part, name) {
+  for (const k of Object.keys(part || {})) if (k in ctx) throw new Error(`forest part "${name}" gives "${k}", which is already in ctx`);
+  return Object.assign(ctx, part);
+}

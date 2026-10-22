@@ -1,12 +1,83 @@
-[{"wait":2},
-{"js":"window.__app.bus.emit('start:biome',{id:'amazon'}); 1"},{"wait":8},
-{"js":"const d=window.__game.debug; d.auto&&d.auto(); d.unlockAll&&d.unlockAll(); ['kapok','fig','toucan','agouti','jaguar'].forEach(id=>{try{d.place(id)}catch(e){}}); d.ff&&d.ff(90); 'placed '+window.__game.plants.length+'/'+window.__game.animals.length"},
-{"js":"const d=window.__game.debug; try{d.startExperiment('fig')}catch(e){String(e)}; 'exp'"},{"wait":1},
-{"js":"window.__app.bus.emit('ui:home'); window.__app.bus.emit('ui:exit'); 1"},{"wait":2},
-{"js":"Object.keys(localStorage).join(',')"},
-{"js":"window.__app.bus.emit('start:biome',{id:'grove'}); 1"},{"wait":8},
-{"js":"document.querySelectorAll('.dialog button, .modal-layer button').length"},
-{"shot":"shots/integ1.png"},
-{"js":"window.__game.debug.ff&&window.__game.debug.ff(60); 'grove ok '+window.__game.plants.length"},
-{"js":"window.__wolLearn.open(); 1"},{"wait":4},
-{"js":"window.__wolLearn.open(); const r=window.__wolLearn._round('easy','both').length; window.__wolLearn._go('keepforest'); window.__kfDebug.start('amazon'); window.__kfDebug.auto(30); window.__wolLearn._go('webpuzzle'); window.__wpDebug.open('amazon',2); window.__wpDebug.solve(); 'hub ok '+r"},{"wait":2}]
+[
+{
+"wait": 2
+},
+{
+"js": "window.__app.bus.emit('start:biome',{id:'amazon'}); 1"
+},
+{
+"until": "window.__game && window.__game.biomeId==='amazon' && window.__game.debug"
+},
+{
+"wait": 3
+},
+{
+"js": "const d=window.__game.debug; d.auto&&d.auto(); d.unlockAll&&d.unlockAll(); ['kapok','fig','toucan','agouti','jaguar'].forEach(id=>{try{d.place(id)}catch(e){}}); d.ff&&d.ff(90); 'placed '+window.__game.plants.length+'/'+window.__game.animals.length"
+},
+{
+"js": "const d=window.__game.debug; try{d.startExperiment('fig')}catch(e){String(e)}; 'exp'"
+},
+{
+"wait": 1
+},
+{
+"js": "window.__app.bus.emit('ui:home'); window.__app.bus.emit('ui:exit'); 1"
+},
+{
+"wait": 2
+},
+{
+"js": "Object.keys(localStorage).join(',')"
+},
+{
+"js": "window.__app.bus.emit('start:biome',{id:'grove'}); 1"
+},
+{
+"until": "window.__game && window.__game.biomeId==='grove' && window.__game.debug"
+},
+{
+"wait": 3
+},
+{
+"js": "document.querySelectorAll('.dialog button, .modal-layer button').length"
+},
+{
+"shot": "shots/integ1.png"
+},
+{
+"js": "window.__game.debug.ff&&window.__game.debug.ff(60); 'grove ok '+window.__game.plants.length"
+},
+{
+"js": "window.__app.bus.emit('ui:home'); window.__app.bus.emit('ui:exit'); 1"
+},
+{
+"wait": 2
+},
+{
+"js": "window.__app.bus.emit('start:biome',{id:'reef'}); 1"
+},
+{
+"until": "window.__game && window.__game.biomeId==='reef' && window.__game.debug"
+},
+{
+"wait": 3
+},
+{
+"js": "const d=window.__game.debug; d.unlockAll&&d.unlockAll(); ['branching','seagrass','clownfish','parrotfish'].forEach(id=>{try{d.place(id)}catch(e){}}); d.ff&&d.ff(40); 'reef ok '+window.__game.plants.length+'/'+window.__game.animals.length"
+},
+{
+"js": "window.__app.bus.emit('ui:home'); window.__app.bus.emit('ui:exit'); window.__app.bus.emit('ui:learn', {}); 1"
+},
+{
+"until": "window.__wolLearn && window.__wolLearn._round"
+},
+{
+"wait": 2
+},
+{
+"js": "window.__wolLearn.open(); const r=window.__wolLearn._round('easy','both').length; window.__wolLearn._go('keepforest'); window.__kfDebug.start('amazon'); window.__kfDebug.auto(30); window.__wolLearn._go('webpuzzle'); window.__wpDebug.open('amazon',2); window.__wpDebug.solve(); 'hub ok '+r"
+},
+{
+"wait": 2
+}
+]

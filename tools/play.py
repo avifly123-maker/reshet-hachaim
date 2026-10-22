@@ -1,6 +1,6 @@
 # Scripted headless session: python3 tools/play.py page.html|app-folder script.json [w h]
 # An app folder (node build.mjs --desktop) is served as the desktop app serves it – see tools/apphost.py.
-# script: [{"js": "..."} | {"wait": seconds} | {"shot": "out.png"} | {"click": [x,y]} | {"move": [x,y]} | {"key": "Tab"} | {"clickSel": "css"} | {"hoverSel": "css"}
+# script: [{"js": "..."} | {"wait": seconds} | {"until": "js condition", "timeout": s} | {"shot": "out.png"} | {"click": [x,y]} | {"move": [x,y]} | {"key": "Tab"} | {"clickSel": "css"} | {"hoverSel": "css"}
 #          | {"drag": [x0,y0,x1,y1]} | {"dragJs": "js → [x0,y0,x1,y1]", "hold": s, "shotMid": "out.png"} ]
 import sys, json, asyncio, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
@@ -24,6 +24,9 @@ async def main():
                     if r is not None: print('eval:', str(r)[:2000])
                 except Exception as e: print('JS ERROR', e)
             if 'wait' in s: await pg.wait_for_timeout(int(s['wait']*1000))
+            if 'until' in s:   # wait for a condition instead of a fixed time (a busy machine loads forests slowly)
+                try: await pg.wait_for_function(s['until'], timeout=int(s.get('timeout', 240) * 1000))
+                except Exception as e: print('UNTIL TIMEOUT', s['until'][:120])
             if 'shot' in s: await pg.screenshot(path=s['shot']); print('shot', s['shot'])
             if 'click' in s: await pg.mouse.click(*s['click'])
             if 'move' in s: await pg.mouse.move(*s['move'], steps=4)   # hover

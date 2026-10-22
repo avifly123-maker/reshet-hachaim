@@ -11,7 +11,8 @@
 //
 // Everything is per player (core/journey.js). The play mode row is hidden for beginners: they always play their own
 // simple mode. The instructors' row never shows the code; it only takes it.
-import { icon, esc } from './ui.js';
+import { icon } from './ui/icons.js';
+import { esc } from './ui/helpers.js';   // not the ui.js barrel: it would close an import cycle (ui → start → settings → ui)
 import * as J from '../core/journey.js';
 import { TORAH, sourcesOn, setSourcesOn } from '../core/edition.js';
 

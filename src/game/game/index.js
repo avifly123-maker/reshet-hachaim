@@ -45,7 +45,7 @@ import { zoneWord, setPlace } from '../../core/place.js';
 import { playMode, introSeen } from '../../core/journey.js';
 import { GUIDE } from '../../data/guide-lines.js';
 import { createAfter } from '../after.js';   /* H: after the missions (visitors, photos, challenges, rank) */
-import { MAX_ANIMALS, MAX_ALL_PLANTS, farTreeSources } from './common.js';
+import { MAX_ANIMALS, MAX_ALL_PLANTS, farTreeSources, addPart } from './common.js';
 import { createEcology } from './ecology.js';
 import { createPlacement } from './placement.js';
 import { createSelection } from './selection.js';
@@ -165,18 +165,18 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   fitViewToUI(true);
   rig.setLayer('all');
 
-  Object.assign(ctx, createEcology(ctx));         // ─ queries used by entities, discovery & ecological events
-  Object.assign(ctx, createPlacement(ctx));       // ─ spawning & placement, crowns & light
-  Object.assign(ctx, createSelection(ctx));       // ─ selection, the species card, links, picking
-  Object.assign(ctx, createTrayDrag(ctx));        // ─ drag & drop from the tray
-  Object.assign(ctx, createEvents(ctx));          // ─ events (decisions), effects, a finished mission
-  Object.assign(ctx, createExperiment(ctx));      // ─ experiment ("what if it disappears?")
-  Object.assign(ctx, createTray(ctx));            // ─ tray / HUD
-  Object.assign(ctx, createUiBus(ctx));           // ─ UI bus wiring
-  Object.assign(ctx, createIntro(ctx));           // ─ "איך משחקים", the coach, the points counter
-  Object.assign(ctx, createPointer(ctx));         // ─ canvas pointer: hover, click-select, moving by dragging
-  Object.assign(ctx, createRoad(ctx));            // ─ human impact: stumps and roads
-  Object.assign(ctx, createSave(ctx));            // ─ save / restore the whole ecosystem
+  addPart(ctx, createEcology(ctx), 'Ecology');         // ─ queries used by entities, discovery & ecological events
+  addPart(ctx, createPlacement(ctx), 'Placement');       // ─ spawning & placement, crowns & light
+  addPart(ctx, createSelection(ctx), 'Selection');       // ─ selection, the species card, links, picking
+  addPart(ctx, createTrayDrag(ctx), 'TrayDrag');        // ─ drag & drop from the tray
+  addPart(ctx, createEvents(ctx), 'Events');          // ─ events (decisions), effects, a finished mission
+  addPart(ctx, createExperiment(ctx), 'Experiment');      // ─ experiment ("what if it disappears?")
+  addPart(ctx, createTray(ctx), 'Tray');            // ─ tray / HUD
+  addPart(ctx, createUiBus(ctx), 'UiBus');           // ─ UI bus wiring
+  addPart(ctx, createIntro(ctx), 'Intro');           // ─ "איך משחקים", the coach, the points counter
+  addPart(ctx, createPointer(ctx), 'Pointer');         // ─ canvas pointer: hover, click-select, moving by dragging
+  addPart(ctx, createRoad(ctx), 'Road');            // ─ human impact: stumps and roads
+  addPart(ctx, createSave(ctx), 'Save');            // ─ save / restore the whole ecosystem
   const { spawnPlant, spawnAnimal, findSpotNear, select, refreshPanel, refreshTray, randomPlaceSpot, addStump,
     restore, seedStartingNature, alive, updateLight } = ctx;
 
@@ -216,10 +216,10 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   if (research) { ui.setTray([]); try { ctx.session.start(); } catch (e) { ctx.session.dispose(); ctx.session = null; throw e; } } else refreshTray();
   ui.setLoading(1, 'מוכנים!');
   audio.setBiome(biome.id);
-  Object.assign(ctx, { camPad, onJourney });   // for dispose
+  addPart(ctx, { camPad, onJourney }, 'start');   // for dispose
 
-  Object.assign(ctx, createUpdate(ctx));          // ─ main update
-  Object.assign(ctx, createDispose(ctx));         // ─ dispose
+  addPart(ctx, createUpdate(ctx), 'Update');          // ─ main update
+  addPart(ctx, createDispose(ctx), 'Dispose');         // ─ dispose
   const { checkPlace, place, setView, applyEffect, groundHit, startExperiment, endExperiment, chooseEvent, update,
     openJournal, dispose } = ctx;
 

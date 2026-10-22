@@ -10,7 +10,8 @@
 //   partLabel(part)         the part's name (beginners: with nikud)
 // The threads between the parts (חוטים, wave 3: src/ui/threads-ui.js) are drawn over the trail (soft lines between the
 // part tiles, dashed while not open) and listed as chips in `.jm-threads`; new ones are announced when the map opens.
-import { icon, esc } from './ui.js';
+import { icon } from './ui/icons.js';
+import { esc } from './ui/helpers.js';   // not the ui.js barrel: it would close an import cycle (ui → start → settings → ui)
 import * as J from '../core/journey.js';
 import { TORAH } from '../core/edition.js';
 import { BABA_DA_LOGO } from '../data/logo.js';
