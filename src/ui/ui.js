@@ -477,11 +477,12 @@ export function createUI(root, bus) {
       const showTab = (tab) => { S.stTab = tab; paintTab(); };
       if (part === 'experts') { showTab('env'); return true; }   // the expert missions wait in the forests
       if (part.startsWith('zone:')) { const i = isls.findIndex((el) => el.dataset.part === part); showTab('env'); if (i >= 0) { S.stCur = i; paintCar(); } return true; }
-      const LEARN = { learn: 'home', quiz: 'setup', album: 'album', webpuzzle: 'webpuzzle', keepforest: 'keepforest', badges: 'badges', frames: 'badges', inventors: 'inventors', expedition: 'expedition', duel: 'duel', versematch: 'versematch' };
+      const LEARN = { learn: 'home', quiz: 'setup', album: 'album', webpuzzle: 'webpuzzle', keepforest: 'keepforest', badges: 'badges', frames: 'frames', inventors: 'inventors', expedition: 'expedition', duel: 'duel', versematch: 'versematch' };
       if (LEARN[part]) { emit('ui:learn', { screen: LEARN[part] }); return true; }
       if (part === 'science') { showTab('sci'); return true; }
       if (part === 'research') { emit('ui:research'); return true; }
-      if (part === 'lab' || part === 'robots' || part.startsWith('lab:')) { emit('ui:lab'); return true; }
+      if (part === 'robots') { emit('ui:learn', { screen: 'inventors', opts: { view: 'robots' } }); return true; }   // the robot workshop tab
+      if (part === 'lab' || part.startsWith('lab:')) { emit('ui:lab'); return true; }
       return false;
     };
     const openMap = () => { emit('ui:click'); map = openJourneyMap(root, { emit, onPart: goPart, onClose: () => { map = null; try { jbar.focus({ preventScroll: true }); } catch (e) { } } }); };
