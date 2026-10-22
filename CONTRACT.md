@@ -18,6 +18,8 @@ All 3D models, textures and sounds are generated procedurally in code. Must run 
 - Hebrew UI, fully RTL. Simple language (grades 3–5). Facts must be true (content agent verifies them).
 
 ## Directory layout
+
+**1.3.2: the up-to-date map of every folder is `docs/CODEMAP.md`.** The block below is the original 1.0 layout, kept for history.
 ```
 build.mjs                 bundler → single HTML (inlines src/ui/style.css); --desktop → desktop/app/ (core.js + packs/ + assets/, served as app://game/)
 tools/shot.py             headless WebGL screenshot: python3 tools/shot.py page.html out.png [wait] [w] [h] [js]

@@ -2,13 +2,13 @@
 
 This file is the hand-off between development sessions. Read it first, then `docs/ROADMAP.md` (the owner's way of thinking and the ideas he wants developed, in Hebrew), `CONTRACT.md` (architecture), `CHANGELOG.md` (what each version did) and `docs/DEVLOG.md` (how it was built).
 
-## Start here (state on 20.10.2026, end of the 1.3.1 session)
+## Start here (state on 22.10.2026, end of the 1.3.2 session)
 
-- **1.3.1 is built and ready to publish**, torah edition only (Avi's choice): `release-files/1.3.1/` here and `Documents\reshet-hachaim-blender\installer\1.3.1` on Avi's PC (exe, one Mac zip for Intel that runs on Apple chips through Rosetta, the one-file html; sha256 checked on the PC). The release page text and the create link (tag `v1.3.1`, target `main`) are at the top of `docs/RELEASE.md`. Avi publishes it himself after merging. Build it again with `tools/pack-torah.sh`.
-- Branches (Avi 20.10: "1.3 becomes the official version from the main branch, and we have two versions, 1.2 and 1.3"): **`main` = the 1.3 series** (merged from `claude/research-1.3` by pull request); **`claude/1.2` = the 1.2 series**, frozen at 1.2.3 (tag `v1.2.3`), for fixes to 1.2 only. New 1.3 work goes on a new `claude/*` branch from `main` and comes back by pull request. Same appId in both series, so 1.3 installs over 1.2 and keeps all data.
-- The night of 1.3.1: CHANGELOG "1.3.1", DEVLOG "לילה של 1.3.1", and the 1.3.1 section below. Avi's fix list with estimates: the Docs page "רשת החיים 1.3.1: רשימת התיקונים".
-- Things Avi should still check by eye: beginner nikud in the research world's new texts, the verse-to-card links in "מה הפסוק מלמד?", the two music pieces. Known small leftovers (QA, 20.10): the microscope's sample list is cut off for beginners at 800x460; the reef island thumbnail in the research hub looks pale; three inventors problems (hover, camo, heal) have only one trait route.
-- Next: cosmetic fixes from Avi's testing, then 1.4 (desert, see docs/ROADMAP.md). Talk to Avi only in Hebrew. Gemini: switch to the Pro model before painting (Avi asked).
+- **1.3.2 is finished** on branch `claude/1.3.2` (pull request to `main`). Test installer on Avi's PC in `Documents\reshet-hachaim-blender\installer\1.3.2-test1`. What it is: the 1.3.2 section below, CHANGELOG "1.3.2", DEVLOG "1.3.2", docs/JOURNEY.md (Hebrew, for Avi and the instructors).
+- **New developers start with `docs/CODEMAP.md`** (a map of every folder and "how to add…"). One command runs every check: `npm run check` (`tools/check-all.sh`; `npm run check:quick` = validators + builds).
+- Branches: `main` = the 1.3 series; `claude/1.2` = 1.2 fixes only. New work: a new `claude/*` branch from `main`, back by pull request. Same appId, so every version installs over the previous one and keeps all data.
+- **Next: 1.4.** Avi's vision for it is in `docs/VISION-1.4.md` (written at the end of the 1.3.2 session) and `docs/ROADMAP.md`. Talk to Avi only in Hebrew, plain language.
+- **How Avi wants to work (22.10):** careful with tokens; one task at a time, no swarm of parallel agents; precise and stable; prove every change (regression shots, check-all, old saves).
 
 ## The project in one paragraph
 
@@ -113,6 +113,20 @@ All 13 mysteries are built (4 beginner, 4 middle, 5 advanced); no "בקרוב" e
 - Lighting (19.10, Avi: too dark): night is deep blue but luminous, stronger moonlight and sky fill in `src/env/environment/` (night SKY keyframes in `palettes.js`, `moonI` and `hemi` in `update.js`) and `reef.js` (night colours, teal night tint in water, wall and sea-floor shaders); rain raises the sky light (`1 + 0.22*rn*dayAmt`); clear day unchanged. Start screen background follows the chosen zone (`startEl.dataset.zone`; CSS vars `--stbg`, `--stbg2`, `--stglow`, `--stleaf`), halo `.st-isl::before`. `tools/render-island.py` renders with `rd.render` (bloom had made the stills half transparent) and per-zone `EXPOSURE`; then `python3 tools/build-island-art.py`.
 - Hub icons (19.10): `src/ui/icons-hub.js` (`HUB_ICONS`, `TILE_TONE`, `hubIcon`, `tileIcon(name, cls)`); `ui.js` `icon()` falls back to it. Title tiles `wl-tic` (hub), `st-lic` (start screen), `rs-h-tic` (research hub); hub icon CSS is `ICON_CSS` in hub.js. Check new icons by eye: `node tools/icon-sheet.mjs && python3 tools/play.py shots/icon-sheet.html tests/play/shot-icons.json 1240 1100` (no cross shapes, nothing that reads as a figure).
 - Headless: `__labDebug.act(id)`, `__labDebug.hots()`; `play.py` has `move`, `key`, `clickSel`, `hoverSel` (real mouse on an element).
+
+## 1.3.2 (22.10.2026: מסע החוקר, רובו־דע's voice, the big clean-up)
+
+Avi's plan: the Docs page "רשת החיים 1.3.2: מפת פיתוח". Technical spec: docs/SPEC-1.3.2.md. How it was built: DEVLOG "1.3.2".
+- **מסע החוקר** (`src/core/journey.js`, docs/JOURNEY.md): six stages open the game step by step, read from the existing saves; a reached stage never closes (`best` and `done` in `web-of-life-journey`); a player with any progress from before 1.3.2 is `legacy` (all open, full mode). Lock words are neutral ("פותחים בשלב…"). Instructors' code `INSTRUCTOR_CODE` (5 wrong tries = 30 s wait). Map: `src/ui/journey-map.js`.
+- **רובו־דע's guide** (`src/ui/robo-guide.js`, lines in `src/data/guide/*.js`, checked by validate-guide): bubbles with rings on targets, `close(match)` closes only what it is asked to (a promise, `{key}` or `{scene}`) and resolves dropped requests with 'abort'. Portrait frames rendered from the Blender model (`tools/robo-portrait/`, `src/data/robo-art.js`).
+- **Voice** (`tools/voice/make.py`): the Phonikud "shaul" Piper voice (non-commercial licence; the model is in `Documents\reshet-hachaim-blender\voice\shaul.onnx` on Avi's PC), Piper's Hebrew G2P with our stress rules, holam fix and `tools/voice/lexicon.tsv`; plain voice, no effect (Avi, 22.10); `--check` runs the ivrit.ai recognizer; beginners get `<id>.k`. Output `art/voice/`, `src/data/voice.js` (lazy). Re-run after adding guide lines; it only records what changed.
+- **Stage films** (`src/ui/stage-scenes.js`, `window.__stageScene(n)`), flourishes (`src/ui/flourish.js`). Stage moments wait for the start screen or the hub home. `tools/record-scenes.py` films them frame by frame.
+- **Experience / full mode** in the forests (area C), injured-animal bar, text sizes (`--ts`, settings), six players (`profiles.MAX`), settings sheet behind the gear on the start screen (player rows and computer rows).
+- **Threads** (`src/core/threads.js`, `src/data/threads.js`, validate-threads): 29 links between the parts.
+- **Six technologies** and רובו־דע on the island (`src/world/tech.js`, `TECH_DEFS`); **after the missions** (`src/game/after.js`, visitors, photos (24 per player), challenges, island rank).
+- **Clean-up:** the big files became folders (`src/game/game/`, `src/ui/ui/`, `src/learn/hub/`, `src/env/environment/`, `src/learn/games/keep-forest/`, `src/models/*/`) as pure moves; one layer order (`src/ui/css/00-layers.css`); one storage module (`src/core/storage.js`, `KEYS`, validate-storage); how-to cards per player, the sound switch remembered (`web-of-life-sound`). A four-part code review (docs/REVIEW-1.3.2.md) and its fixes (docs/FIX-1.3.2.md).
+- **Checks:** `tools/check-all.sh` (validators, both editions, integration with amazon, grove, reef and the hub, old saves incl. the journey of every fixture player); `tools/regress.py` (screens before/after a change). Fixtures: saves-1.0.0, 1.2.3, 1.3.1, 1.3.2.
+- Left for 1.4 (from the review, not urgent): one shared רובו־דע model module (built three times today: lab.js, world/tech.js, stage-scenes.js), a services module instead of `window.__guide`/`__app`, CSS out of JS strings, merging the model kits (`models/*/extra/kit.js`), renaming `ui/ui` and `game/game`.
 
 ## 1.3.1 (20.10, the big fix round of 1.3; version 1.3.1 installs over 1.3.0 and 1.2, same appId)
 
