@@ -15,6 +15,7 @@ import { icon } from './ui/icons.js';
 import { esc } from './ui/helpers.js';   // not the ui.js barrel: it would close an import cycle (ui → start → settings → ui)
 import * as J from '../core/journey.js';
 import { TORAH, sourcesOn, setSourcesOn } from '../core/edition.js';
+import { resetHowto } from './howto.js';
 
 const kids = () => J.playMode() === 'kids';
 const t = (f, k) => (kids() ? k : f);
@@ -144,7 +145,7 @@ export function bindSettingsRows(el, opts = {}) {
     else if (k === 'sources') { setSourcesOn(!sourcesOn()); if (o.emit) o.emit('sources:toggle', { on: sourcesOn() }); after('sources'); }
     else if (k === 'music') { const on = !(o.getMusic ? o.getMusic() : true); if (o.emit) o.emit('music:toggle', { on }); setTimeout(() => after('music'), 0); }
     else if (k === 'again') {
-      J.resetIntros(); after('again');
+      J.resetIntros(); resetHowto(); after('again');
       const g = window.__guide; const ln = g && (g.lines('start:tips') || []).find((l) => l.id === 'start.again.1'); if (ln) g.tip(ln, { ms: 5000 });
     }
     else if (k === 'unlock') tryUnlock();

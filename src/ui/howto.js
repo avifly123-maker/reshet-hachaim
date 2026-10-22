@@ -5,8 +5,8 @@
 //   howto(el, cards, { key, force, onClose, labels }) → { close } | null   (null: this key was seen and force is not set)
 //   cards: [{ img, title, text }]   labels: { next, done, skip, close } for vocalised beginner words
 //   howtoSeen(key) → boolean
-import { K, readDevice, writeDevice } from '../core/storage.js';
-const STORE = K.howto;   // for the whole computer, not per player (core/storage.js)
+import { K, readPlayer, writePlayer, removePlayer } from '../core/storage.js';
+const STORE = K.howto;   // per player since 1.3.2: every child on the computer sees the cards once (core/storage.js)
 const CSS_ID = 'howto-css';
 const CSS = `
 #howto { position: absolute; inset: 0; z-index: var(--z-howto); display: grid; place-items: center; pointer-events: auto; direction: rtl; font-family: var(--sans, sans-serif);
@@ -39,12 +39,14 @@ const CSS = `
 @media (prefers-reduced-motion: reduce) { #howto { animation: none; } }
 `;
 
-function read() { return readDevice(STORE, {}) || {}; }
-function mark(key) { try { const s = read(); s[key] = 1; writeDevice(STORE, s); } catch (e) { /* no storage: fine */ } }
+function read() { return readPlayer(STORE, {}) || {}; }
+function mark(key) { try { const s = read(); s[key] = 1; writePlayer(STORE, s); } catch (e) { /* no storage: fine */ } }
 export const howtoSeen = (key) => !!read()[key];
+// "לשמוע שוב את ההסברים" (settings): the player sees every how-to card again
+export function resetHowto() { try { removePlayer(STORE); } catch (e) { /* no storage: fine */ } }
 export function markHowto(key, on = true) {
   if (on) { mark(key); return; }
-  try { const s = read(); delete s[key]; writeDevice(STORE, s); } catch (e) { /* no storage: fine */ }
+  try { const s = read(); delete s[key]; writePlayer(STORE, s); } catch (e) { /* no storage: fine */ }
 }
 // a small round "?" replay button (the research centre uses it)
 const REPLAY_CSS = `.howto-replay.howto-replay { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 16px; border: 0; cursor: pointer; font: inherit; color: #f6edd0; background: rgba(0, 0, 0, .3); box-shadow: inset 0 0 0 1.5px rgba(240, 220, 160, .45); }
