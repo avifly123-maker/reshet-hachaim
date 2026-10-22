@@ -2148,5 +2148,40 @@
   "h": "12b4d2c7e9f3",
   "text": "צַב הַיָּם נוֹשֵׁם אֲוִיר! הוּא עוֹלֶה אֶל פְּנֵי הַמַּיִם כְּדֵי לִנְשֹׁם.",
   "ipa": "tsˈav hajˈam noʃˈem avˈiʁ! hˈu ʔolˈe ˈel penˈej hamˈajim kedˈej linʃˈom."
+ },
+ "after.visit.stingray": {
+  "h": "1513775de2d6",
+  "text": "חָתוּל יָם בָּא לְבַקֵּר! הוּא מְחַפֵּשׂ אוֹכֶל בַּחוֹל. צַלְמוּ אוֹתוֹ.",
+  "ipa": "χatˈul jˈam bˈa levakˈeʁ! hˈu meχapˈes ʔˈoχel baχˈol. tsalmˈu ʔotˈo."
+ },
+ "after.visit.stingray.k": {
+  "h": "06bca7168182",
+  "text": "חֲתוּל יָם בָּא לְבַקֵּר! הוּא מְחַפֵּשׂ אֹכֶל בַּחוֹל. צַלְּמוּ אוֹתוֹ.",
+  "ipa": "χatˈul jˈam bˈa levakˈeʁ! hˈu meχapˈes ˈoχel baχˈol. tsalemˈu ʔotˈo."
+ },
+ "after.fact.stingray": {
+  "h": "99f4d9980fac",
+  "text": "לֶחָתוּל הַיָּם יֵשׁ גּוּף שָׁטוּחַ עִם נְקוּדּוֹת כְּחוּלּוֹת.",
+  "ipa": "leχatˈul hajˈam jˈeʃ gˈuf ʃatˈuaχ ˈim nekudˈot keχulˈot."
+ },
+ "after.fact.stingray.k": {
+  "h": "f345a39b43b6",
+  "text": "לַחֲתוּל הַיָּם יֵשׁ גּוּף שָׁטוּחַ עִם נְקֻדּוֹת כְּחֻלּוֹת.",
+  "ipa": "laχatˈul hajˈam jˈeʃ gˈuf ʃatˈuaχ ˈim nekudˈot keχulˈot."
+ },
+ "after.visit.parrotfish": {
+  "h": "8d0e9c842891",
+  "text": "תּוּכִינוֹן בָּא לְבַקֵּר! הוּא מְגָרֵד אַצּוֹת מֵהַסְּלָעִים. צַלְּמוּ אוֹתוֹ.",
+  "ipa": "tuχinˈon bˈa levakˈeʁ! hˈu megaʁˈed atsˈot mehaselaˈim. tsalemˈu ʔotˈo."
+ },
+ "after.fact.parrotfish": {
+  "h": "203b54c6d366",
+  "text": "לְתוֹכִינוֹן יֵשׁ שִׁינַּיִים שֶׁנִּרְאוֹת כְּמוֹ מָקוֹר שֶׁל תּוֹכִי!",
+  "ipa": "letoχinˈon jˈeʃ ʃinajˈim ʃeniʁʔˈot kemˈo makˈoʁ ʃˈel toχˈi!"
+ },
+ "after.fact.parrotfish.k": {
+  "h": "07de46c4cd26",
+  "text": "לַתּוּכִינוֹן יֵשׁ שִׁנַּיִם שֶׁנִּרְאוֹת כְּמוֹ מַקּוֹר שֶׁל תֻּכִּי!",
+  "ipa": "latuχinˈon jˈeʃ ʃinˈajim ʃeniʁʔˈot kemˈo makˈoʁ ʃˈel tukˈi!"
  }
 }
