@@ -222,6 +222,7 @@ export function createTour({ W, env, reg, camera, canvas, ui, audio, imv, missio
     R = { a, mode, camYaw: a.heading, lookOff: 0, lookV: 0, turnV: 0, spd: 0, altV: 0, idle: 99, pos: new THREE.Vector3(), look: new THREE.Vector3(), fresh: true,
       note: null, noteT: 0, noteSince: -99, stateT: 0, climbing: false };
     a.touring = true;
+    if (a.state === 'sleep') a.timer = Math.min(a.timer, 2.5);   // it wakes up for the tour (src/world/animals.js keeps it awake)
     if (a.state === 'hunt' || a.prey) { a.prey = null; a.food = null; a.state = 'idle'; a.timer = 0.5; }   // a hunter on tour only looks around (game.js findFood skips prey while touring)
     if (imv.active !== 'tour') imv.enter('tour', { driver, onExit, onKey, onBlur: clearInput });
     camera.fov = 60; camera.near = 0.05; camera.updateProjectionMatrix();
@@ -340,6 +341,63 @@ export function createTour({ W, env, reg, camera, canvas, ui, audio, imv, missio
     }
     return top;
   }
+  // under the sea: corals, the anemone, the clam, the scenery coral heads and the rock boulders are solid
+  // ({x, z, r, top}, rebuilt a few times a second). Seagrass, algae and plankton are soft: one swims through them.
+  let solidList = [], solidT = -1;
+  function solids() {
+    if (!env.underwater) return solidList;
+    const now = performance.now(); if (now - solidT < 250) return solidList;
+    solidT = now; solidList = [];
+    for (const p of W.plants) {
+      if (!p.alive || p.removed || p.isTree || (p.sp.kind !== 'coral' && p.sp.kind !== 'sessile')) continue;
+      const c = p.crown(); if (!c) continue;
+      solidList.push({ x: p.x, z: p.z, r: Math.max(0.3, c.radius * 0.8), top: c.top, ref: p });
+    }
+    for (const d of env.decor || []) solidList.push({ x: d.x, z: d.z, r: d.r, top: d.top });
+    for (const k of env.rocks || []) if (k.boulderTop != null) solidList.push({ x: k.x, z: k.z, r: k.r * 0.85, top: k.boulderTop });
+    return solidList;
+  }
+  // the solid a point is inside (pad: a margin around it), or null
+  function solidAt(x, y, z, pad = 0, skip = null) {
+    for (const o of solids()) {
+      if (o.ref && o.ref === skip) continue;
+      if (Math.abs(o.x - x) > o.r + pad || Math.abs(o.z - z) > o.r + pad || y > o.top + pad) continue;
+      if (Math.hypot(o.x - x, o.z - z) < o.r + pad) return o;
+    }
+    return null;
+  }
+  // a swimmer's next point: it slides along a coral or a rock (pushed out to its side), or rises over it near the top.
+  // One that starts inside (a clownfish in its anemone) eases out instead of jumping.
+  function keepOutOfSolids(a, p, pad, dt) {
+    for (const o of solids()) {
+      const R = o.r + pad, dx = p.x - o.x, dz = p.z - o.z, d = Math.hypot(dx, dz);
+      if (d >= R || p.y >= o.top + pad * 0.6) continue;
+      const was = Math.hypot(a.pos.x - o.x, a.pos.z - o.z) < R && a.pos.y < o.top + pad * 0.6;
+      if (p.y > o.top - 0.45) { p.y += (o.top + pad * 0.6 - p.y) * (was ? Math.min(1, dt * 4) : 1); continue; }
+      const ux = d > 1e-4 ? dx / d : Math.sin(a.heading + Math.PI), uz = d > 1e-4 ? dz / d : Math.cos(a.heading + Math.PI);
+      const ex = o.x + ux * R, ez = o.z + uz * R;
+      if (was) { p.x += (ex - p.x) * Math.min(1, dt * 3); p.z += (ez - p.z) * Math.min(1, dt * 3); }
+      else { p.x = ex; p.z = ez; }
+    }
+    return p;
+  }
+  // the chase camera: over a solid it is in, and over one that hides the animal (between the camera and the head)
+  function cameraOverSolids(want, head, skip) {
+    for (let i = 0; i < 3; i++) {
+      let lift = 0;
+      for (let k = 2; k <= 10; k++) {
+        const t = k / 10, sx = head.x + (want.x - head.x) * t, sy = head.y + (want.y - head.y) * t, sz = head.z + (want.z - head.z) * t;
+        const o = solidAt(sx, sy, sz, 0.3, skip); if (!o) continue;
+        lift = Math.max(lift, (o.top + 0.4 - sy) / t);
+      }
+      if (lift <= 0) break;
+      want.y += Math.min(lift, 6);
+    }
+    if (env.surfaceY != null && want.y > env.surfaceY - 0.4) {   // no room above: come in closer instead
+      want.y = env.surfaceY - 0.4;
+      for (let i = 0; i < 4 && solidAt(want.x, want.y, want.z, 0.25, skip); i++) want.lerp(head, 0.35);
+    }
+  }
 
   // ── steering: ground
   function driveWalk(a, rdt) {
@@ -356,7 +414,16 @@ export function createTour({ W, env, reg, camera, canvas, ui, audio, imv, missio
     const step = R.spd * dt;
     if (step > 1e-4) {
       const pad = 0.15 + a.len * 0.2;
-      const ok = (x, z) => a.canStand(x, z) && Math.hypot(x, z) < env.radius - 1.2 && !trunkHit(x, z, pad);
+      // a coral or a rock in the way is solid too; one that started inside may only move out of it
+      const outOf = (x, z) => {
+        for (const o of solids()) {
+          const R = o.r + pad * 0.5, dn = Math.hypot(x - o.x, z - o.z); if (dn >= R) continue;
+          if (Math.hypot(a.pos.x - o.x, a.pos.z - o.z) < R && dn >= Math.hypot(a.pos.x - o.x, a.pos.z - o.z) - 1e-4) continue;
+          return false;
+        }
+        return true;
+      };
+      const ok = (x, z) => a.canStand(x, z) && Math.hypot(x, z) < env.radius - 1.2 && !trunkHit(x, z, pad) && outOf(x, z);
       const nx = a.pos.x + Math.sin(a.heading) * step, nz = a.pos.z + Math.cos(a.heading) * step;
       if (ok(nx, nz)) { a.pos.x = nx; a.pos.z = nz; }
       else if (ok(nx, a.pos.z)) a.pos.x = nx;          // slide along the obstacle
@@ -386,6 +453,10 @@ export function createTour({ W, env, reg, camera, canvas, ui, audio, imv, missio
     if (over > y) y += (over - y) * Math.min(1, dt * 2.5);   // rise smoothly over a crown in the way
     y = Math.min(y, 30);
     if (env.surfaceY != null) y = Math.min(y, env.surfaceY - 0.9);   // a fish stays under the water
+    if (a.sp.swims || env.underwater) {   // corals and rocks: slide along them or rise over them, never into them
+      const p = keepOutOfSolids(a, _v.set(x, y, z), clamp(a.len * a.obj.scale.x * 0.35, 0.2, 0.9), dt);
+      x = p.x; z = p.z; y = Math.max(env.heightAt(p.x, p.z) + 0.5, Math.min(p.y, env.surfaceY != null ? env.surfaceY - 0.9 : 30));
+    }
     a.pos.set(x, y, z);
     a.bank += (clamp(-R.turnV * 0.35, -0.45, 0.45) - a.bank) * Math.min(1, dt * 4);
     a.action = hover && R.spd < 0.8 ? 'hover' : (R.altV < -0.8 && !hover ? 'glide' : 'fly');
@@ -567,7 +638,9 @@ export function createTour({ W, env, reg, camera, canvas, ui, audio, imv, missio
     const a = R.a, o = a.obj, s = o.scale.y;
     const size = clamp((a.vis.length || 1) * o.scale.x, 0.25, 3);
     _head.copy(o.position); _head.y += (a.vis.height || 0.5) * s * 0.85;
-    const back = clamp(size * 2.3, 1.4, 5.5), up = clamp(size * 0.8, 0.5, 2.4);
+    // under the sea the camera keeps at least 3 m back: a small fish is still easy to see, and the reef has room to show
+    const sea = !!(a.sp.swims || env.underwater);
+    const back = clamp(size * 2.3, sea ? 3.2 : 1.4, 5.5), up = clamp(size * 0.8, sea ? 0.9 : 0.5, 2.4);
     // sitting in a crown (a resting sloth, a perched toucan): a chase camera would end up inside the leaves,
     // so look at the animal from just outside its tree instead (left / right walk around it)
     const pp = !a.sp.swims && a.perch && a.perch.plant && a.state !== 'fly' && a.state !== 'climb' && !a.driver ? a.perch.plant : null;   // a fish resting by a coral keeps the chase view
@@ -590,10 +663,12 @@ export function createTour({ W, env, reg, camera, canvas, ui, audio, imv, missio
     // never inside a trunk (move in toward the head) and never under the ground
     for (let i = 0; i < 4 && trunkHit(_want.x, _want.z, 0.25, _want.y); i++) _want.lerp(_head, 0.35);
     const gy = env.heightAt(_want.x, _want.z) + 0.35; if (_want.y < gy) _want.y = gy;
+    if (sea) cameraOverSolids(_want, _head, null);   // rise over a coral or a rock in the way (as the close look does)
     if (R.fresh) { R.pos.copy(_want); R.look.copy(_look); R.fresh = false; }
     const k = 1 - Math.exp(-dt * (c ? 2.5 : 5)), kl = 1 - Math.exp(-dt * 6);
     R.pos.lerp(_want, k); R.look.lerp(_look, kl);
     const gy2 = env.heightAt(R.pos.x, R.pos.z) + 0.3; if (R.pos.y < gy2) R.pos.y = gy2;
+    if (sea) { const o = solidAt(R.pos.x, R.pos.y, R.pos.z, 0.2); if (o && (env.surfaceY == null || o.top + 0.3 < env.surfaceY - 0.4)) R.pos.y = o.top + 0.3; }   // the smoothed camera too
     if (env.surfaceY != null && R.pos.y > env.surfaceY - 0.4) R.pos.y = env.surfaceY - 0.4;   // under the water, the camera stays under it too
     camera.up.set(0, 1, 0); camera.position.copy(R.pos); camera.lookAt(R.look);
   }
@@ -618,6 +693,7 @@ export function createTour({ W, env, reg, camera, canvas, ui, audio, imv, missio
       if (Math.abs(p.x - _want.x) > r || Math.abs(p.z - _want.z) > r || Math.hypot(p.x - _want.x, p.z - _want.z) > r) continue;
       const top = p.y + c.top * s + 0.35; if (_want.y < top) _want.y = top;
     }
+    for (let i = 0; i < 3 && env.underwater; i++) { const o = solidAt(_want.x, _want.y, _want.z, 0.3, e); if (!o) break; _want.y = o.top + 0.4; }   // the scenery coral heads and rocks too
     const gy = env.heightAt(_want.x, _want.z) + 0.3; if (_want.y < gy) _want.y = gy;
     if (env.surfaceY != null && _want.y > env.surfaceY - 0.5) _want.y = env.surfaceY - 0.5;
     if (R.fresh) { R.pos.copy(_want); R.look.copy(_head); R.fresh = false; }

@@ -31,12 +31,13 @@
       if (q === skip || !q.alive || q.removed) continue;
       const s = q.obj.scale.x;
       if (q.isTree) { const r = Math.max(0.3, (q.vis.trunkRadius || 0.4) * s); const c = q.crown && q.crown(); if (Math.hypot(q.x - p.x, q.z - p.z) < r && (!c || p.y < c.bottom)) return 'trunk:' + q.sp.id; continue; }
-      if (env.biome !== 'reef') continue;
+      if (env.biome !== 'reef' || (q.sp.kind !== 'coral' && q.sp.kind !== 'sessile')) continue;   // seagrass, algae and plankton are soft
       const c = q.vis.crown(); if (!c) continue;
       const r = c.radius * s * 0.75, top = q.y + c.top * s;
       if (Math.hypot(q.x - p.x, q.z - p.z) < r && p.y < top && p.y > q.y) return 'plant:' + q.sp.id;
     }
     for (const q of env.decor || []) if (Math.hypot(q.x - p.x, q.z - p.z) < q.r * 0.8 && p.y < q.top) return 'decor';
+    for (const q of env.rocks || []) if (q.boulderTop != null && Math.hypot(q.x - p.x, q.z - p.z) < q.r * 0.8 && p.y < q.boulderTop) return 'rock';
     return '';
   };
   // ride one species for `secs` of game time; keys: a list of [code, from, to] (seconds)

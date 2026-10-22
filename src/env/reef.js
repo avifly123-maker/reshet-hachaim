@@ -216,6 +216,7 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
       o.position.set(m.x, heightAt(m.x, m.z) - m.h * 0.55, m.z);
       o.castShadow = true; o.receiveShadow = true; o.name = 'reef-rock';
       root.add(o); rockMeshes.push(o);
+      if (rocks[i]) rocks[i].boulderTop = o.position.y + (sh.H || 1.2) * o.scale.y;   // read-only: the animal-eye tour keeps out of it
     });
   }
 
