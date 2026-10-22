@@ -220,6 +220,21 @@ Effect types (core implements exactly these):
 `export function createUI(root, bus) → ui` — DOM overlay over the canvas, RTL Hebrew. Talks to core only through
 the methods below (core → UI) and `bus.emit(name, payload)` (UI → core). See the UI agent brief for the exact list.
 
+### Layers (z-index, 1.3.2)
+One ladder for everything that floats over the game: CSS custom properties on `:root` in `src/ui/css/00-layers.css`
+(loaded first), one line per rung saying what lives there. From the bottom: `--z-world` (technology cards, under the
+HUD) → the forest and mystery HUD pieces (`--z-panel` … `--z-hurt`) → things that open over the island (`--z-panels`
+… `--z-report`) → whole screens (`--z-start`, `--z-research`, `--z-map`, `--z-howto`, `--z-guide`, `--z-hub`,
+`--z-guide-over-hub`) → over every screen (`--z-badge`, `--z-scene` for a stage film, the flourishes). `#ui` itself is
+`--z-ui` on the page; the fps meter `--z-dev` and the game-controller cursor `--z-top` sit on the page above it.
+- An element that competes in `#ui`'s stacking context (a direct layer of the interface) uses `var(--z-…)`, also in CSS
+  strings inside JS and in `style.cssText`; never a number. A new floating thing gets its own line in 00-layers.css.
+- Inside a positioned parent with its own z-index (a card, a window, the hub, the lab, the film) small numbers stay:
+  they only compete inside that parent.
+- Fixed orders: a stage film over everything a child sees (a badge waits for it, badge-toast.js); רובו־דע over the
+  screen he talks about and over the hub while it is open; the how-to cards under him; the injured bar over the
+  experiment banner; technology cards under the HUD.
+
 ## 7. Audio — `src/audio/audio.js`
 `export function createAudio() → { start(), setBiome(id), update(ctx), play(name, opts), setMuted(b), muted }` – procedural Web Audio.
 
