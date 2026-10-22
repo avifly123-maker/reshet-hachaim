@@ -1447,7 +1447,7 @@ const HOME_CSS = `
 /* the frames screen (its own screen since 1.3.2; the badges screen links to it) */
 .wol-learn .wl-framesx{gap:.9em;padding:0 1.6em 1.2em;overflow-y:auto;overflow-x:hidden;min-height:0;scrollbar-width:thin}
 .wol-learn .wl-framesx .wl-frames{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:.4em 1.6em;margin:auto}
-.wol-learn .wl-fprev{grid-row:1 / 3;display:grid;place-items:center;padding:.6em 1em}
+.wol-learn .wl-fprev{grid-row:1 / 4;align-self:center;display:grid;place-items:center;padding:.6em 1em}
 .wol-learn .wl-fprev .wl-card{--cw:9em;transform:rotate(-3deg)}
 .wol-learn .wl-framesx .wl-frames h3{font-size:calc(1.5em * var(--ts,1))}
 .wol-learn .wl-framesx .wl-frames p{margin:0;font-size:calc(1em * var(--ts,1))}
@@ -2406,10 +2406,18 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   };
 
   // something opened or was used (מסע החוקר): repaint the screens that show locks (a game in play is left alone)
-  let journeyT = 0;
+  // (only when a lock really changed: a part marked as used must not make the screen rise in again)
+  let journeyT = 0, lockSig = '';
+  const HUB_PARTS = ['album', 'quiz', 'webpuzzle', 'keepforest', 'badges', 'frames', 'inventors', 'expedition', 'duel', 'versematch'];
+  const sigNow = () => HUB_PARTS.map((p) => (locked(p) ? 0 : 1)).join('');
   function onJourney() {
     clearTimeout(journeyT);
-    journeyT = setTimeout(() => { if (!open_ || !modal.hidden) return; if (screen === 'home') renderHome(); else if (screen === 'badges') renderBadges(); }, 60);
+    journeyT = setTimeout(() => {
+      if (!open_) return;
+      const sg = sigNow(); if (sg === lockSig) return; lockSig = sg;
+      if (!modal.hidden) return;
+      if (screen === 'home') renderHome(); else if (screen === 'badges') renderBadges();
+    }, 60);
   }
   function open() {
     if (open_) return;
@@ -2418,6 +2426,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     window.addEventListener('keydown', onKey, true);
     window.addEventListener('resize', onResize);
     window.addEventListener('wol-journey', onJourney);
+    lockSig = sigNow();
     go('home');
     try { $('.wl-back').focus({ preventScroll: true }); } catch (e) { /* */ }
   }
