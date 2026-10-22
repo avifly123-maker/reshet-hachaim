@@ -201,19 +201,20 @@ export function mountExpedition(root, ctx, opts = {}) {
   const ready = () => S.team.filter((m) => m.st === 'ready');
   const cur = () => S.tiles[S.depth];
   function setRadio(text, mood = 'happy') { radio = { text, mood }; }
-  function addSample(name, v, from) { S.bag.push({ name, v, from: from || 'sample' }); }
+  // id: the sample's own id (src/data/expedition.js SAMPLES, the rare find) – brought home, it is kept by id for the lab's cabinet
+  function addSample(name, v, from, id) { S.bag.push({ name, v, from: from || 'sample', id }); }
 
   function flip(i) {
     if (!S || S.done || S.phase !== 'flip') return;
     const t = cur()[i]; if (!t || t.open) return;
     t.open = true; flash = i; ctx.sfx('select');
     if (t.kind === 'sample') {
-      addSample(t.data.name, t.data.v); t.res = 'win';
+      addSample(t.data.name, t.data.v, null, t.data.id); t.res = 'win';
       setRadio(t.data.line, 'happy'); S.log.push({ ic: 'sample', text: t.data.name });
     } else if (t.kind === 'friend') {
       const f = t.data; t.res = 'win';
       if (f.effect === 'refresh') { const n = S.team.filter((m) => m.st === 'tired').length; S.team.forEach((m) => { if (m.st === 'tired') m.st = 'ready'; }); setRadio(f.line + (n ? '' : ' (אף אחד לא היה עייף, אבל ניקיון זה תמיד נעים.)'), 'happy'); }
-      else if (f.effect === 'guide') { const sm = pick(SAMPLES[DEPTHS[S.depth].id]); addSample(sm.name, sm.v); setRadio(f.line, 'wow'); }
+      else if (f.effect === 'guide') { const sm = pick(SAMPLES[DEPTHS[S.depth].id]); addSample(sm.name, sm.v, null, sm.id); setRadio(f.line, 'wow'); }
       else { S.shield = true; setRadio(f.line, 'wow'); }
       S.log.push({ ic: f.id, text: f.name });
     } else if (t.kind === 'challenge') {
@@ -236,7 +237,7 @@ export function mountExpedition(root, ctx, opts = {}) {
     const line = kids && rule.r === 'boat'
       ? say('{N} [[ניסה|ניסתה|ניסו|ניסו]] מאוד, אבל מתחת למים זה לא [[המקום שלו|המקום שלה|המקום שלהם|המקום שלהן]]. {P} [[נח|נחה|נחים|נחות]] קצת בצד, ואחר כך [[ימשיך|תמשיך|ימשיכו|ימשיכו]].', m.c)
       : say(rule.l, m.c);
-    if (t.kind === 'rare') { addSample(data.name, rule.v || data.v, 'rare'); S.rareGot = true; }
+    if (t.kind === 'rare') { addSample(data.name, rule.v || data.v, 'rare', data.id); S.rareGot = true; }
     else if (rule.v) addSample(PRIZE[data.id] || 'דגימה', rule.v, data.id);
     t.res = r; t.by = m.c.id;
     S.phase = 'flip'; S.pending = -1;
@@ -289,7 +290,11 @@ export function mountExpedition(root, ctx, opts = {}) {
     S.done = true; S.phase = 'end';
     const score = S.banked.reduce((s, x) => s + x.v, 0);
     const got = [];
-    ST.runs++; const newBest = score > ST.best; if (newBest) ST.best = score; ST.deepest = Math.max(ST.deepest, S.reached); save();
+    ST.runs++; const newBest = score > ST.best; if (newBest) ST.best = score; ST.deepest = Math.max(ST.deepest, S.reached);
+    // the samples brought home, by id ({ id: count }): the lab's cabinet shows them as jars (src/lab/cabinet.js expeditionFound)
+    const found = ST.found && typeof ST.found === 'object' && !Array.isArray(ST.found) ? ST.found : {};
+    for (const x of S.banked) if (x.id) found[x.id] = (found[x.id] || 0) + 1;
+    ST.found = found; save();
     const total = ctx.tally('deep:samples', S.banked.length);
     const g = (earn) => { const f = ctx.badge(earn) || []; got.push(...f); };
     if (safe) g('deep:first');

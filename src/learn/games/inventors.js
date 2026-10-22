@@ -105,7 +105,6 @@ function injectCss() {
 .wol-learn .iv-tabs .iv-rtab:not(.on) .wl-ic{animation:iv-rbob 2.4s ease-in-out infinite}
 .wol-learn .iv-tabs .iv-rtab.on{background:linear-gradient(180deg,#d9f6fb,#9fdbe8);color:#163c48;box-shadow:inset 0 0 0 2px #2c9a92,0 .2em 0 #1d6b65}
 .wol-learn .iv-tabs .iv-rtab.on .wl-ic{color:#256a80}
-.wol-learn .iv-tabs .iv-rtab.veiled{filter:grayscale(.7);opacity:.6;cursor:help}
 @keyframes iv-rbob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-2px) rotate(-6deg)}}
 .wol-learn .iv-score{margin-inline-start:auto;display:flex;align-items:center;gap:.5em;font-weight:800;color:#f6cf72}
 .wol-learn .iv-score .wl-ic{width:1.3em;height:1.3em}
@@ -640,7 +639,7 @@ export function mountInventors(root, ctx, opts = {}) {
     const solved = PLIST.filter((p) => ST.solved[p.id]).length;
     // the hub's screens rise in once (wl-rise); a re-render after a click must not rise again (it flickered)
     root.innerHTML = `<section class="wl-screen iv${kids ? ' kids' : ''}${shownOnce ? ' still' : ''}">
-      <div class="iv-top"><div class="iv-tabs"><button class="iv-ptab${view === 'problems' ? ' on' : ''}" data-iv="view" data-v="problems">${I.bulb}${ui('בעיות להמציא', 'problems')}</button><button class="iv-rtab${view === 'robots' ? ' on' : ''}${robotsOpen() ? '' : ' veiled'}" data-iv="view" data-v="robots" aria-pressed="${view === 'robots'}">${I.robot}${ui('סדנת הרובוטים', 'robots')}</button></div>
+      <div class="iv-top"><div class="iv-tabs"><button class="iv-ptab${view === 'problems' ? ' on' : ''}" data-iv="view" data-v="problems">${I.bulb}${ui('בעיות להמציא', 'problems')}</button><button class="iv-rtab${view === 'robots' ? ' on' : ''}" data-iv="view" data-v="robots" aria-pressed="${view === 'robots'}">${I.robot}${ui('סדנת הרובוטים', 'robots')}</button></div>
         <span class="iv-score">${I.check}${ui(`${solved} מתוך ${PLIST.length} המצאות`, 'score', { n: solved, all: PLIST.length })}</span></div>
       ${view === 'problems' ? problemsHTML() : robotsHTML()}</section>`;
   }
