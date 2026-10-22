@@ -24,7 +24,7 @@ tools/shot.py             headless WebGL screenshot: python3 tools/shot.py page.
 tests/rig.js              shared lighting rig for model galleries (ACES tone mapping, sun, sky, shadows)
 src/core/util.js          makeRng, hashString, clamp/lerp/smoothstep/damp, makeNoise2D, makeBus, cachedMaterial, jitterColor, mergeGeometries, paint, SEASONS
 src/env/pipeline.js       renderer + post-processing                         (ENV agent)
-src/env/environment.js    island, sky, sun/moon, fog, water, weather, shafts  (ENV agent)
+src/env/environment/      island, sky, sun/moon, fog, water, weather, shafts  (ENV agent; index.js + one file per part)
 src/models/amazon-plants.js   PLANTS map for amazon                          (AMAZON-PLANTS agent)
 src/models/grove-plants.js    PLANTS map for grove                           (GROVE-PLANTS agent)
 src/models/amazon-animals.js  ANIMALS map for amazon                         (AMAZON-ANIMALS agent)
@@ -95,7 +95,7 @@ export function createPipeline(canvas, { quality = 'medium' }) → {
 ACESFilmic tone mapping (exposure ≈1), sRGB output, PCFSoft shadows. Post: UnrealBloom (threshold high so only
 emissives/sun glow bloom) + OutputPass on medium/high; low = no composer. Optional gentle vignette / colour grade pass.
 
-## 2. Environment — `src/env/environment.js`
+## 2. Environment — `src/env/environment/` (index.js; the parts are listed in its header)
 ```js
 export function createEnvironment(pipeline, biomeId, { quality, seed = 1 }) → env
 env.radius            // 38 – placeable radius
