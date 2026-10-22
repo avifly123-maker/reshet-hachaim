@@ -285,6 +285,7 @@ export function createUI(root, bus) {
     press: null, drag: null, species: null, speciesSig: '', quiz: null, moreOpen: false,
     missionsSig: '', openMission: null, toggles: {}, tips: DEFAULT_TIPS.slice(), tipI: 0,
     coach: null, layers: [], activeLayer: 'all', trayCollapsed: false,
+    play: null, injured: [], toastQ: [], rescueHelp: false,   // 1.3.2: play mode in the forest ('experience' | 'full' | 'kids'), injured animals
   };
 
   /* ---------------- regions */
@@ -297,6 +298,9 @@ export function createUI(root, bus) {
   const tray = h('section', 'tray glass ui-in', null, root);
   const panel = h('aside', 'species paper', null, root);
   const toastsEl = h('div', 'toasts', null, root);
+  const hurtBar = h('div', 'hurtbar', null, root);          // 1.3.2: injured animals, a fixed red bar at the top
+  const hurtArrowsEl = h('div', 'hurt-arrows', null, root);  // …and an arrow at the screen's edge when one is out of view
+  hurtBar.setAttribute('role', 'status'); hurtBar.hidden = true;
   const expEl = h('div', 'experiment', null, root);
   const hoverEl = h('div', 'hover', null, root);
   const ghost = h('div', 'ghost', null, root);
@@ -704,6 +708,7 @@ export function createUI(root, bus) {
           <button class="km-row" data-a="reset" role="menuitem">${icon('target')}<span>מבט על ${zoneWord('all')}</span></button>
         </div>
         <div class="km-set"><h4>הגדרות</h4>
+          <div class="km-journey" hidden></div>
           <button class="km-row km-switch" data-a="sound" role="menuitemcheckbox">${icon('sound')}<span>צלילים</span><i class="sw"></i></button>
           <button class="km-row km-switch" data-a="music" role="menuitemcheckbox" title="מוזיקה רכה במסך הפתיחה ובמעבדה">${icon('music')}<span>מוזיקה</span><i class="sw"></i></button>
           ${TORAH ? `<button class="km-row km-switch" data-a="sources" role="menuitemcheckbox">${icon('book')}<span>מקורות ופסוקים</span><i class="sw"></i></button>` : ''}
@@ -728,7 +733,7 @@ export function createUI(root, bus) {
     if (qb) { const q = qb.dataset.q; S.toggles.quality = q; paintToggles(); emit('quality', { q }); return; }
     const b = e.target.closest('[data-a]'); if (!b) return;
     const a = b.dataset.a;
-    if (a === 'menu') { setKit(!qWrap.classList.contains('open')); return; }
+    if (a === 'menu') { const on = !qWrap.classList.contains('open'); if (on) fillJourneyRows(); setKit(on); return; }
     if (a === 'home' || a === 'help' || a === 'coach' || a === 'save' || a === 'reset' || a === 'report') setKit(false);
     if (a === 'home') emit('ui:home');
     else if (a === 'help') emit('ui:help');
@@ -744,6 +749,19 @@ export function createUI(root, bus) {
     else if (a === 'music') { S.toggles.music = !(S.toggles.music !== false); paintToggles(); emit('music:toggle', { on: S.toggles.music }); }
   });
   document.addEventListener('pointerdown', (e) => { if (!qWrap.contains(e.target)) setKit(false); }, true);
+  /* settings rows (journey) */
+  // 1.3.2: the satchel gets the same three rows as the start screen's settings (play mode חוויה / מלא, text size, the voice
+  // of רובו־דע) from src/ui/settings.js (area A): settingsRowsHTML({ place }) + bindSettingsRows(el). That file is not in this
+  // branch yet, so the rows come through window.__wolSettings = { settingsRowsHTML, bindSettingsRows } when it registers itself;
+  // after the merge this can become a plain `import { settingsRowsHTML, bindSettingsRows } from './settings.js'`.
+  // The forest repaints itself on 'wol-journey' (game.js onJourney), so a changed play mode applies at once.
+  function fillJourneyRows() {
+    const box = toolbar.querySelector('.km-journey'); if (!box) return;
+    const SR = window.__wolSettings;
+    if (!SR || typeof SR.settingsRowsHTML !== 'function') { box.hidden = true; box.innerHTML = ''; return; }
+    try { box.innerHTML = SR.settingsRowsHTML({ place: 'zone' }); box.hidden = !box.innerHTML; if (SR.bindSettingsRows) SR.bindSettingsRows(box); }
+    catch (e) { console.error(e); box.hidden = true; }
+  }
   function paintToggles() {
     const t = S.toggles;
     tbBtn('lightmap').setAttribute('aria-pressed', String(!!t.lightmap));
@@ -767,16 +785,38 @@ export function createUI(root, bus) {
   missions.innerHTML = `<header class="m-head"><span class="m-ic">${icon('flower')}</span><h3>משימות</h3><span class="m-count"></span><button class="m-hist" title="משימות שבוצעו" aria-label="משימות שבוצעו">${icon('check')}<span>בוצעו</span></button>
     <button class="m-fold" title="קפל/פתח" aria-label="קפל או פתח את המשימות" aria-expanded="true">${icon('chevron')}</button></header><ul class="m-list"></ul>`;
   const mList = missions.querySelector('.m-list'), mCount = missions.querySelector('.m-count');
+  // 1.3.2: "מה עושים עכשיו?" – רובו־דע answers in one bubble with the current mission's how-to (game.js 'mission:whatnow')
+  const whatBtn = h('button', 'm-whatnow', `${icon('robot')}<span>מה עושים עכשיו?</span>`);   // its own row under the panel: never cut off
+  rightCol.insertBefore(whatBtn, missions.nextSibling);
+  whatBtn.addEventListener('click', (e) => { e.stopPropagation(); emit('mission:whatnow'); });
   missions.querySelector('.m-hist').addEventListener('click', (e) => { e.stopPropagation(); emit('missions:history'); });
   missions.querySelector('.m-head').addEventListener('click', () => { const f = missions.classList.toggle('folded'); missions.querySelector('.m-fold').setAttribute('aria-expanded', String(!f)); });
   mList.addEventListener('click', (e) => {
     const hintB = e.target.closest('.m-hint-btn');
     const li = e.target.closest('li'); if (!li) return;
     if (hintB) { li.classList.add('hint-open'); e.stopPropagation(); return; }
+    if (li.classList.contains('xp-one')) { emit('mission:whatnow'); return; }   // חוויה: the one line has no details; רובו־דע tells
     const id = li.dataset.id;
     S.openMission = S.openMission === id ? null : id;
     mList.querySelectorAll('li').forEach((x) => x.classList.toggle('open', x.dataset.id === S.openMission));
   });
+
+  // חוויה (1.3.2): the mission panel is one line with an icon: the mission to do now (a click: רובו־דע explains it)
+  const KIND_ICON = { link: 'web', chain: 'web', discover: 'web', tool: 'bulb', photos: 'bulb', rescue: 'bulb', seeded: 'bulb', experiment: 'flask',
+    pollinate: 'flower', bloom: 'flower', grow: 'sprout', growTo: 'sprout', place: 'sprout', speciesAlive: 'paw', disperse: 'sprout', health: 'sprout',
+    survive: 'leaf', observeNight: 'moon', floorLight: 'sun', all: 'flower' };
+  function paintMissionLine(list) {
+    missions.classList.add('xp');
+    const c = list.find((m) => !m.done && !m.locked), m = c || list.find((x) => x.done);
+    if (!m) { mList.innerHTML = ''; mCount.textContent = ''; missions.hidden = true; return; }
+    const p = m.done ? 1 : clamp01(m.progress);
+    const art = m.sp && CARD_ART[m.sp];
+    const pic = art ? `<img src="${art}" alt="" draggable="false">` : icon(KIND_ICON[m.kind] || 'flower');
+    mList.innerHTML = `<li data-id="${esc(m.id)}" class="xp-one${m.done ? ' done' : ''}" title="${esc(m.text || '')}"><div class="m-row">
+      <span class="m-xic${art ? ' art' : ''}">${pic}</span><b>${esc(m.done ? 'כל המשימות הושלמו!' : m.title)}</b>
+      <span class="m-check" style="--p:${(p * 100).toFixed(1)}%">${m.done ? icon('check') : ''}</span></div></li>`;
+    mCount.textContent = ''; missions.hidden = false;
+  }
 
   /* ================================================================ LAYERS */
   layersEl.addEventListener('click', (e) => {
@@ -844,6 +884,7 @@ export function createUI(root, bus) {
       if (trCards.children[i] !== el) trCards.insertBefore(el, trCards.children[i] || null);
     });
     tray.classList.toggle('empty', !shown.length);
+    const rc = S.cardEls.get('tool:rescue'); if (rc) rc.classList.toggle('help-pulse', !!S.rescueHelp);   // 1.3.2: the injured bar was clicked
   }
   const cardById = (id) => S.cards.find((c) => c.id === id);
 
@@ -958,6 +999,8 @@ export function createUI(root, bus) {
     if (!force && sig === S.speciesSig) return;
     S.speciesSig = sig;
     const scroller = panel.querySelector('.sp-scroll'); const top = scroller ? scroller.scrollTop : 0;
+    if (s.xp) { panel.style.setProperty('--c', s.color || '#6a9'); panel.innerHTML = xpCardHTML(s); panel.classList.add('xp'); const sc = panel.querySelector('.sp-scroll'); if (sc) sc.scrollTop = top; return; }
+    panel.classList.remove('xp');
     const health = s.health == null ? null : clamp01(s.health);
     const rels = s.relations || [];
     const found = rels.filter((r) => r.discovered).length;
@@ -982,6 +1025,7 @@ export function createUI(root, bus) {
         <div class="st-alive"><b>${fmt(s.count || 0)}</b><small>${zoneWord('in')} עכשיו</small></div>
         ${health != null ? `<div class="st-health"><div class="hb"><i style="width:${(health * 100).toFixed(0)}%;background:hsl(${(health * 110).toFixed(0)} 60% 45%)"></i></div><small>${esc(s.status || 'בריאות')}</small></div>` : (s.status ? `<div class="st-health"><small>${esc(s.status)}</small></div>` : '')}
       </div>
+      ${s.hurt ? `<p class="sp-hurt">${icon('bang')}<span>${esc(s.hurt)}</span></p>` : ''}
       ${s.fact ? `<blockquote class="sp-fact">${esc(s.fact)}</blockquote>` : ''}
       ${s.shira ? `<section class="sp-shira src-box"><h4>${icon('book')}<span>בפרק שירה</span></h4><p class="src-text"><b>${esc(s.shira.who)}:</b> ${esc(s.shira.text)}</p><small class="src-ref">${esc(s.shira.ref)}</small>${s.shira.note ? `<p class="src-note">${esc(s.shira.note)}</p>` : ''}</section>` : ''}
       ${s.more ? `<div class="sp-more"><p>${esc(s.more)}</p></div><button class="sp-more-btn" data-act="more"><span class="m1">עוד עליו</span><span class="m2">פחות</span></button>` : ''}
@@ -997,6 +1041,32 @@ export function createUI(root, bus) {
       </footer>`;
     panel.classList.toggle('more-open', S.moreOpen);
     const sc = panel.querySelector('.sp-scroll'); if (sc) sc.scrollTop = top;
+  }
+
+  // חוויה (1.3.2): a short card: the painting, the name, one fact and who it lives with. No question, no long texts.
+  const firstSentence = (t) => { t = String(t || ''); if (t.length <= 110) return t; const m = t.match(/^.+?[.!?](?=\s|$)/); return m ? m[0] : t; };
+  function xpCardHTML(s) {
+    const seen = new Set(), rels = (s.relations || []).filter((r) => !seen.has(r.targetId) && seen.add(r.targetId)).slice(0, 8);
+    const lives = rels.map((r) => r.discovered
+      ? `<li style="--rc:${typeColor(r.type)}"><button class="lw-name" data-act="select" data-id="${esc(r.targetId)}">${esc(r.targetName)}</button><span class="lw-type">${esc(r.typeName || '')}</span></li>`
+      : `<li class="hid" style="--rc:${typeColor(r.type)}"><button class="lw-name" data-act="select" data-id="${esc(r.targetId)}">${esc(r.targetName)}</button><button class="lw-reveal" data-act="reveal" data-to="${esc(r.targetId)}" data-type="${esc(r.type)}">${icon('bulb')}<span>גלו את הקשר</span></button></li>`).join('');
+    const o = s.one;
+    const one = o ? `<div class="sp-one xp-one-btns">${o.canMove ? `<button class="btn ghosty" data-act="move">${icon('target')}<span>להעביר</span></button>` : ''}${upBtn(o.kind === 'plant' && !/בעל חיים/.test(s.kindName || '') ? 'לעקור' : 'להוציא', o.kind === 'plant' ? 'leaf' : 'arrowL', o.refund ? ` <small>+${o.refund}</small>` : '')}</div>` : '';
+    return `<button class="sp-close" data-act="close" title="סגור" aria-label="סגור">${icon('close')}</button>
+      <div class="sp-scroll">${s.art ? `<figure class="sp-art"><img src="${esc(s.art)}" alt="" draggable="false" style="${artPos(s.id, 2)}"></figure>` : ''}
+      <header class="sp-head${s.art ? ' has-art' : ''}">${s.art ? '' : thumbHTML(s.thumb, s.color, s.kindName === 'בעל חיים' ? 'animal' : s.kind || '', 'sp-thumb')}
+        <div><h2>${esc(s.name)}</h2><div class="chips"><span>${fmt(s.count || 0)} ${zoneWord('in')}</span></div></div></header>
+      ${s.hurt ? `<p class="sp-hurt">${icon('bang')}<span>${esc(s.hurt)}</span></p>` : ''}
+      ${s.fact ? `<blockquote class="sp-fact">${esc(firstSentence(s.fact))}</blockquote>` : ''}
+      ${s.shira ? `<section class="sp-shira src-box"><h4>${icon('book')}<span>בפרק שירה</span></h4><p class="src-text"><b>${esc(s.shira.who)}:</b> ${esc(s.shira.text)}</p><small class="src-ref">${esc(s.shira.ref)}</small></section>` : ''}
+      ${rels.length ? `<section class="sp-lives"><h4>${icon('web')}<span>השותפים ברשת</span></h4><ul>${lives}</ul></section>` : ''}
+      ${one}
+      </div>
+      <footer class="sp-actions">
+        ${s.tour ? `<button class="btn sp-tour" data-act="tour">${icon('binoc')}${esc(s.tour)}</button>` : ''}
+        <button class="btn ghosty sp-locate" data-act="locate" title="סמנו את כולם ${zoneWord('in')}">${icon('target')}איפה?</button>
+        ${s.expNeeded ? `<button class="btn amber" data-act="exp" ${s.canRemove === false ? 'disabled' : ''}>${icon('flask')}מה יקרה אם ייעלם?</button>` : ''}
+      </footer>`;
   }
 
   // the one plant or animal that was clicked: take it out, move it, let it go
@@ -1102,10 +1172,28 @@ export function createUI(root, bus) {
       setTimeout(() => l.remove(), 5200);
     }
   }
+  // the injured bar and the edge arrows: a click flies to the animal, and the rescue robot pulses in the tray
+  function focusInjured(uid) {
+    emit('injured:focus', { uid: +uid });
+    S.rescueHelp = true;
+    if (S.trayCollapsed) { S.trayCollapsed = false; tray.classList.remove('collapsed'); syncTrayH(); }
+    if (S.cards.some((c) => c.id === 'tool:rescue')) { S.tab = 'tech'; S.layerFilter = 'all'; }
+    renderTray(true);
+    requestAnimationFrame(() => {   // bring the robot's card into the tray's view (scrollIntoView could move the whole overlay)
+      const rc = S.cardEls.get('tool:rescue'); if (!rc || !rc.isConnected) return;
+      const r = rc.getBoundingClientRect(), sr = trScroll.getBoundingClientRect();
+      if (r.left < sr.left || r.right > sr.right) trScroll.scrollLeft += (r.left + r.width / 2) - (sr.left + sr.width / 2);
+    });
+  }
+  hurtBar.addEventListener('click', (e) => { const b = e.target.closest('.hb-chip'); if (b) focusInjured(b.dataset.uid); });
+  hurtArrowsEl.addEventListener('click', (e) => { const b = e.target.closest('.ha'); if (b) focusInjured(b.dataset.uid); });
+
   function pushToast(node, ms) {
+    // חוויה (1.3.2): one message at a time; the next waits for its turn (at most three wait, the oldest gives way)
+    if (S.play === 'experience' && toastsEl.querySelector('.toast:not(.off)')) { S.toastQ.push([node, ms]); if (S.toastQ.length > 3) S.toastQ.shift(); return; }
     toastsEl.appendChild(node);
     requestAnimationFrame(() => node.classList.add('on'));
-    const kill = () => { if (!node.isConnected) return; node.classList.remove('on'); node.classList.add('off'); setTimeout(() => node.remove(), 320); };
+    const kill = () => { if (!node.isConnected) return; node.classList.remove('on'); node.classList.add('off'); setTimeout(() => { node.remove(); if (S.toastQ.length) { const [n2, ms2] = S.toastQ.shift(); pushToast(n2, ms2); } }, 320); };
     node.addEventListener('click', kill);
     setTimeout(kill, ms);
     while (toastsEl.children.length > 4) toastsEl.firstChild.remove();
@@ -1190,7 +1278,7 @@ export function createUI(root, bus) {
     },
     showStart(biomes) {
       // nothing from the last forest should linger over the start screen
-      toastsEl.innerHTML = ''; bannerQ.length = 0; root.querySelectorAll('.mission-banner').forEach((b) => b.remove()); bannerBusy = false; fxEl.innerHTML = '';
+      toastsEl.innerHTML = ''; S.toastQ.length = 0; bannerQ.length = 0; root.querySelectorAll('.mission-banner').forEach((b) => b.remove()); bannerBusy = false; fxEl.innerHTML = '';
       for (const k of Object.keys(open)) closeModal(k);   // a journal or list left open must not cover the start screen
       renderStart(biomes); root.classList.remove('ingame');
       startEl.classList.remove('off'); S.startTok = (S.startTok || 0) + 1; const tok = S.startTok; requestAnimationFrame(() => { if (S.startTok === tok) startEl.classList.add('on'); });
@@ -1268,9 +1356,11 @@ export function createUI(root, bus) {
 
     setMissions(list) {
       list = Array.isArray(list) ? list : [];
-      const sig = JSON.stringify(list.map((m) => [m.id, m.title, m.text, m.hint, m.how, m.note, Math.round(clamp01(m.progress) * 100), !!m.done, m.checks]));
+      const sig = S.play + JSON.stringify(list.map((m) => [m.id, m.title, m.text, m.hint, m.how, m.note, Math.round(clamp01(m.progress) * 100), !!m.done, m.checks]));
       if (sig === S.missionsSig) return;
       S.missionsSig = sig;
+      if (S.play === 'experience') { paintMissionLine(list); return; }
+      missions.classList.remove('xp');
       const hintsOpen = new Set([...mList.querySelectorAll('li.hint-open')].map((x) => x.dataset.id));
       mList.innerHTML = list.map((m) => {
         const p = m.done ? 1 : clamp01(m.progress);
@@ -1434,6 +1524,53 @@ export function createUI(root, bus) {
       const sec = Math.max(0, Math.ceil(x.secondsLeft || 0));
       em.textContent = x.secondsLeft == null ? '' : `עוד ${sec} שניות`;
       expEl.classList.add('on');
+    },
+
+    // 1.3.2 – the play mode of the open forest: 'experience' (חוויה: less text), 'full', 'kids', or null (a mystery / no forest)
+    setPlayMode(m) {
+      S.play = m || null;
+      root.classList.toggle('play-xp', m === 'experience');
+      whatBtn.querySelector('span').textContent = m === 'kids' ? 'מָה עוֹשִׂים עַכְשָׁו?' : 'מה עושים עכשיו?';
+      whatBtn.hidden = !m;
+      if (m !== 'experience') { while (S.toastQ.length) { const [n2, ms2] = S.toastQ.shift(); toastsEl.appendChild(n2); requestAnimationFrame(() => n2.classList.add('on')); setTimeout(() => n2.remove(), ms2 || 3400); } }
+      S.missionsSig = ''; S.speciesSig = '';
+      if (S.species) renderSpecies(true);
+    },
+    // injured animals: [{ uid, id, name, cause, color, thumb, saving, left (0..1 of the time it still waits) }]
+    // a fixed red bar at the top, one chip per animal, until it is healed or gone. A click flies the camera to it
+    // ('injured:focus') and makes the rescue robot pulse in the tray's technology tab.
+    setInjured(list) {
+      list = Array.isArray(list) ? list : [];
+      S.injured = list;
+      const keep = new Set(list.map((x) => String(x.uid)));
+      hurtBar.querySelectorAll('.hb-chip').forEach((el) => { if (!keep.has(el.dataset.uid)) el.remove(); });
+      for (const x of list) {
+        let el = hurtBar.querySelector(`.hb-chip[data-uid="${x.uid}"]`);
+        if (!el) {
+          el = h('button', 'hb-chip', `<span class="hb-pic">${x.thumb ? `<img src="${esc(x.thumb)}" alt="" draggable="false">` : ''}<i class="hb-bang">!</i></span>
+            <span class="hb-txt"><b>${esc(x.name)}</b><small></small></span><span class="hb-time"><i></i></span>`, hurtBar);
+          el.dataset.uid = x.uid; el.style.setProperty('--c', x.color || '#e5483b');
+        }
+        const sm = el.querySelector('small'), t = x.saving ? 'רובוט ההצלה בדרך!' : x.cause;
+        if (sm.textContent !== t) sm.textContent = t;
+        el.classList.toggle('saving', !!x.saving); el.classList.toggle('late', !x.saving && x.left < 0.3);
+        el.querySelector('.hb-time i').style.width = (clamp01(x.left) * 100).toFixed(0) + '%';
+        el.setAttribute('aria-label', `${x.name}: ${t}. לחצו כדי להגיע אליו`);
+      }
+      const any = list.length > 0;
+      hurtBar.hidden = !any; root.classList.toggle('has-hurt', any);
+      if (!any && S.rescueHelp) { S.rescueHelp = false; renderTray(false); }
+    },
+    // arrows at the screen's edge pointing to injured animals out of view: [{ uid, x, y, ang (degrees, screen) }]
+    setHurtArrows(list) {
+      list = Array.isArray(list) ? list : [];
+      const keep = new Set(list.map((x) => String(x.uid)));
+      hurtArrowsEl.querySelectorAll('.ha').forEach((el) => { if (!keep.has(el.dataset.uid)) el.remove(); });
+      for (const a of list) {
+        let el = hurtArrowsEl.querySelector(`.ha[data-uid="${a.uid}"]`);
+        if (!el) { el = h('button', 'ha', '<i class="ha-pt"></i><b>!</b>', hurtArrowsEl); el.dataset.uid = a.uid; el.setAttribute('aria-label', 'בעל חיים פגוע: לחצו כדי להגיע אליו'); }
+        el.style.left = a.x + 'px'; el.style.top = a.y + 'px'; el.style.setProperty('--a', a.ang + 'deg');
+      }
     },
 
     isModalOpen() {

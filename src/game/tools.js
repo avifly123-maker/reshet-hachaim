@@ -276,7 +276,11 @@ export function createTools(ctx) {
     W.points -= d.cost;
     W.stats.toolUse = W.stats.toolUse || {}; W.stats.toolUse[id] = (W.stats.toolUse[id] || 0) + 1;
     audio.play('place');
-    if (!told.has(id) && !W.research) { told.add(id); ui.toast(d.fact, 'info'); }
+    // the first time: רובו־דע tells what the tool does (once per player); the full mode keeps its one fact toast per visit after that
+    if (!told.has(id) && !W.research) {
+      told.add(id); const r = W.roboTool ? W.roboTool(id) : null;
+      if (!W.xp) Promise.resolve(r).then((x) => { if (!r || x === 'seen' || x === 'none') ui.toast(d.fact, 'info'); });
+    }
     if (id === 'drone') return launchSurvey(hit);
     if (id === 'seeddrone') return launchSeeding(hit);
     if (id === 'rescue') return sendRobot(hit, chk.target);
@@ -322,7 +326,7 @@ export function createTools(ctx) {
     // invented in רובו־דע's lab: a shark-skin coat lets the underwater robot glide through the water faster
     const skin = W.biomeId === 'reef' && hasInvention('sharkskin');
     flights.push({ kind: 'survey', mesh, t: 0, dur: skin ? 7 : 11, start, a0: Math.atan2(hit.z, hit.x) });
-    ui.toast(W.biomeId === 'reef' ? (skin ? 'הרובוט הצולל עם ציפוי עור הכריש יצא לדרך, וסורק את השונית מהר...' : 'הרובוט הצולל יצא לדרך – סורק את השונית...') : 'רחפן הניטור המריא – סורק את היער...', 'info');
+    (W.amb || ui.toast)(W.biomeId === 'reef' ? (skin ? 'הרובוט הצולל עם ציפוי עור הכריש יצא לדרך, וסורק את השונית מהר...' : 'הרובוט הצולל יצא לדרך – סורק את השונית...') : 'רחפן הניטור המריא – סורק את היער...', 'info');
   }
   function surveyReport() {
     const lines = [], marks = [];
@@ -356,7 +360,7 @@ export function createTools(ctx) {
     const ok = lines.length === 0;
     const buttons = [{ id: 'ok', label: 'תודה, רחפן!' }];
     if (moveBtn) buttons.unshift({ id: 'move-shaded', label: 'העבירו את השתילים המוצלים לאור (10 נקודות)' });
-    ui.showDialog({ title: 'דוח רחפן הניטור', text: ok ? 'הרחפן סרק את כל היער – הכול נראה טוב! כל המינים מקבלים מה שהם צריכים.' : 'הרחפן מצא כמה דברים שכדאי לטפל בהם (הם מסומנים ב-! אדום):\n\n' + lines.slice(0, 9).join('\n'), buttons });
+    ui.showDialog({ title: 'דוח רחפן הניטור', text: ok ? 'הרחפן סרק את כל היער – הכול נראה טוב! כל המינים מקבלים מה שהם צריכים.' : 'הרחפן מצא כמה דברים שכדאי לטפל בהם (הם מסומנים ב-! אדום):\n\n' + lines.slice(0, W.xp ? 4 : 9).join('\n'), buttons });
     audio.play('discover');
   }
 
@@ -385,7 +389,9 @@ export function createTools(ctx) {
   }
 
   // ───── injured animals + rescue robot
-  let injuryT = 120;
+  let injuryT = 120, hurtN = 0;
+  // 1.3.2: an injured animal waits longer for help (Avi: the alert got lost), and רובו־דע reminds once before it leaves
+  const HURT_WAIT = 150, HURT_REMIND = 45;
   function injuredNear(x, z, r) { let best = null, bd = r; for (const a of W.animals) if (a.injured && !a.injured.saving && a.alive && !a.leaving) { const d = Math.hypot(a.pos.x - x, a.pos.z - z); if (d < bd) { bd = d; best = a; } } return best; }
   function maybeInjure(dt) {
     if (W.kids || W.research || W.day < 2 || W.animals.some(a => a.injured)) return;
@@ -401,13 +407,14 @@ export function createTools(ctx) {
     else if (a.loco === 'flying') cause = g('נתקע', 'נתקעה', 'נתקעו', 'נתקעו') + ` ברשת ישנה שמישהו השאיר ${zoneWord('in')}`;
     else cause = [g('נפצע', 'נפצעה', 'נפצעו', 'נפצעו') + ' ברגל מחתיכת זכוכית שנזרקה', g('נתקע', 'נתקעה', 'נתקעו', 'נתקעו') + ' בשקית ניילון'][(Math.random() * 2) | 0];
     if (a.loco === 'flying') { a.path = null; a.perch = null; a.pos.y = env.heightAt(a.pos.x, a.pos.z) + 0.3; }
-    a.injured = { t: 0, max: 80, cause };
+    a.injured = { t: 0, max: HURT_WAIT, cause, uid: ++hurtN, reminded: false };
     a.state = 'sleep'; a.action = 'sleep';
     removeBadge(a);   // a short-lived drone "!" on it would otherwise expire and take the alert with it
     addBadge(a, 999, true);
-    // the alert says plainly what happened and what to do; it stays long enough for a young reader
-    ui.toast(`${a.sp.name} ${cause}! שלחו רובוט הצלה: גררו אותו מלשונית טכנולוגיה אל סימן הקריאה האדום.`, 'warn', 9000);
+    // the alert is the red bar at the top (game.js → ui.setInjured), with the animal's picture, its name and what
+    // happened; it stays until the animal is healed or gone. One short sound; רובו־דע explains it the first time.
     audio.play('event');
+    if (W.onHurt) W.onHurt('new', a);
     if (!unlocked(TOOL_DEFS.find(t => t.id === 'rescue'))) { W.allToolsUnlocked = true; }   // the rescue robot must be available when needed
   }
   function sendRobot(hit, a) {
@@ -422,11 +429,12 @@ export function createTools(ctx) {
     if (!a.alive || a.leaving || a.dying) { a.injured = null; removeBadge(a); return; }
     addBadge(a, 999, true);   // e.g. after an experiment hid it, the badge comes back
     a.injured.t += W.lastTickDt;
+    if (!a.injured.reminded && !a.injured.saving && a.injured.t > a.injured.max - HURT_REMIND) { a.injured.reminded = true; if (W.onHurt) W.onHurt('remind', a); }
     a.obj.position.set(a.pos.x, a.groundY(a.pos.x, a.pos.z) + (a.loco === 'flying' ? 0.2 : 0), a.pos.z);
     a.vis.update(rdt, { action: 'sleep', speed: 0, t, night: W.nightGlow });
     if (a.injured.t > a.injured.max && !a.injured.saving) {
       a.injured = null; removeBadge(a); a.leave();
-      ui.toast(`${a.sp.name} ${gw(a.sp.id,'לא קיבל עזרה בזמן ועזב','לא קיבלה עזרה בזמן ועזבה','לא קיבלו עזרה בזמן ועזבו','לא קיבלו עזרה בזמן ועזבו')} את היער.`, 'bad');
+      ui.toast(`${a.sp.name} ${gw(a.sp.id,'לא קיבל עזרה בזמן ועזב','לא קיבלה עזרה בזמן ועזבה','לא קיבלו עזרה בזמן ועזבו','לא קיבלו עזרה בזמן ועזבו')} את ${zoneWord()}.`, 'bad');
     }
   }
 
@@ -572,7 +580,7 @@ export function createTools(ctx) {
           const fresh = !W.photos.has(key);
           if (fresh) {
             W.photos.add(key); W.points += 3; audio.play('points');
-            if (!W.research) ui.toast(`📷 מצלמת השטח צילמה: ${a.sp.name}${W.nightGlow > 0.5 ? ' – בלילה!' : ''} (+3)`, 'good');   // a mystery reports its counts in its own notebook
+            if (!W.research) (W.amb || ui.toast)(`📷 מצלמת השטח צילמה: ${a.sp.name}${W.nightGlow > 0.5 ? ' – בלילה!' : ''} (+3)`, 'good');   // a mystery reports its counts in its own notebook
           }
           if (hooks.onShot) hooks.onShot(p, a, fresh);
         }
@@ -604,7 +612,14 @@ export function createTools(ctx) {
       if (W.simT > b.until || !e.alive || e.removed) { disposeObject(b.sprite); badges.splice(i, 1); continue; }
       e.focusPoint(_v); const top = e.isPlant ? e.topY() + 1.2 : _v.y + 1.4;
       b.sprite.position.set(_v.x, top, _v.z);
-      const s = b.pulse ? 1.5 + Math.sin(t * 6) * 0.3 : 1.4; b.sprite.scale.setScalar(s);
+      let s = 1.4;
+      if (b.pulse) {   // an injured animal: a larger "!" that pulses, and keeps its size on the screen when the camera is far
+        const cam = ctx.camera; const d = cam ? cam.position.distanceTo(b.sprite.position) : 30;
+        const base = Math.min(8, Math.max(1.5, d * 0.08));
+        s = base * (1 + Math.sin(t * 6) * 0.16);
+        b.sprite.position.y += base * 0.4;   // a bigger badge floats a little higher, clear of the animal
+      }
+      b.sprite.scale.setScalar(s);
     }
     maybeInjure(dt);
   }
@@ -704,6 +719,6 @@ export function createTools(ctx) {
   }
   // does a device (nest box, forest listener) hang on this plant?
   function hostsDevice(plant) { return placed.some(p => p.host === plant && !p.dead); }
-  return { cards, hostsDevice, check, use, update, updateInjured, serialize, restore, dispose, removeDevices, model: toolModel, defs: TOOL_DEFS, humidity, nurseryStock, takeFromNursery, pickDevice, checkDeviceMove, placeDeviceAt,
+  return { debugInjure: () => { const d = W.day; W.day = Math.max(2, W.day); injuryT = 0; maybeInjure(0.01); W.day = d; return W.animals.filter((a) => a.injured).length; }, cards, hostsDevice, check, use, update, updateInjured, serialize, restore, dispose, removeDevices, model: toolModel, defs: TOOL_DEFS, humidity, nurseryStock, takeFromNursery, pickDevice, checkDeviceMove, placeDeviceAt,
     cameras: () => placed.filter(p => p.id === 'camera'), camEye, cameraSees, hooks };
 }

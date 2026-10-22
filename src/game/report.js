@@ -105,7 +105,7 @@ export function createFieldReport({ W, reg, biome, light, missions, thumbs, ui, 
     },
     dayBegan(ended) {
       cur = newDay();
-      if (ended != null) promptEnded(ended);
+      if (ended != null && !W.xp) promptEnded(ended);   // חוויה (1.3.2): no daily report prompt; רובו־דע says one line instead (game.js)
     },
     serialize() {
       const strip = (d) => { const o = { ...d }; delete o._live; return o; };
