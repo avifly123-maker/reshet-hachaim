@@ -86,19 +86,19 @@ export function createHomeScreens(ctx) {
   const visB = (x) => !x.torah || srcOn();
   const vBadges = () => { const own = ownedBadges(); return BADGES.filter((b) => visB(b) && (!b.retired || own[b.id])); };   /* a retired badge shows only to who earned it */
   // a badge you can point at: it grows, and shows its name and how it is earned; a click (or a touch) opens it big
-  const bzHTML = (b, own, cls = '') => `<button class="wl-bz ${cls}" data-wl="bzoom" data-b="${b.id}" aria-label="${esc(own ? b.name + ': ' + b.how : 'תג נעול: ' + b.how)}">${badgeHTML(b, { own, peek: !own && cls.includes('next') })}
-    <span class="wl-btip" aria-hidden="true"><b>${esc(own ? b.name : 'עוד לא: ' + b.name)}</b><small>${esc(b.how)}</small></span></button>`;
+  const bzHTML = (b, own, cls = '') => `<button class="wl-bz ${cls}" data-wl="bzoom" data-b="${b.id}" aria-label="${esc(own ? b.name + ': ' + b.how : K('תג נעול: ', 'תָּג נָעוּל: ') + b.how)}">${badgeHTML(b, { own, peek: !own && cls.includes('next') })}
+    <span class="wl-btip" aria-hidden="true"><b>${esc(own ? b.name : K('עוד לא: ', 'עוֹד לֹא: ') + b.name)}</b><small>${esc(b.how)}</small></span></button>`;
   function bzoom(id) {
     const b = BADGES.find((x) => x.id === id); if (!b) return;
     const own = ownedBadges(), g = BADGE_GROUPS.find((x) => x.id === b.group);
     sfx('select');
     const when = own[b.id] ? new Date(own[b.id]) : null;
     modal.innerHTML = `<div class="wl-bzbig">${badgeHTML(b, { own: !!own[b.id], peek: !own[b.id] })}</div>
-      <div class="wl-mtext paper wl-bzt"><h3>${esc(own[b.id] ? b.name : 'תג נעול: ' + b.name)}</h3>
-        <p><b>${own[b.id] ? 'קיבלתם אותו על:' : 'איך מקבלים אותו:'}</b> ${esc(b.how)}</p>
+      <div class="wl-mtext paper wl-bzt"><h3>${esc(own[b.id] ? b.name : K('תג נעול: ', 'תָּג נָעוּל: ') + b.name)}</h3>
+        <p><b>${own[b.id] ? K('קיבלתם אותו על:', 'קִבַּלְתֶּם אוֹתוֹ עַל:') : K('איך מקבלים אותו:', 'אֵיךְ מְקַבְּלִים אוֹתוֹ:')}</b> ${esc(b.how)}</p>
         ${g ? `<p class="wl-bzg">${tileIcon(BGROUP_IC[g.id] || 'medal', 'wl-tic')}${esc(g.name)}</p>` : ''}
-        ${when ? `<small>התקבל ב־${when.getDate()}.${when.getMonth() + 1}.${when.getFullYear()}</small>` : ''}
-        <button class="wl-btn" data-wl="close">${icon('close')}סגירה</button></div>`;
+        ${when ? `<small>${K('התקבל ב־', 'הִתְקַבֵּל בְּ־')}${when.getDate()}.${when.getMonth() + 1}.${when.getFullYear()}</small>` : ''}
+        <button class="wl-btn" data-wl="close">${icon('close')}${K('סגירה', 'סְגִירָה')}</button></div>`;
     modal.hidden = false;
   }
   /* ── settings (the gear in the top bar): the torah edition's "מקורות ופסוקים" switch lives here */
@@ -116,10 +116,10 @@ export function createHomeScreens(ctx) {
     const own = ownedBadges();
     const frV = locked('frames');
     main.innerHTML = `<section class="wl-screen wl-badges">
-      <div class="wl-bhead paper"><b>${tileIcon('medal', 'wl-tic')}התגים שלי</b><span>אספתם ${vBadges().filter((b) => own[b.id]).length} מתוך ${vBadges().length}</span>
-        <button class="wl-btn${frV ? ' is-veiled' : ''}" ${frV ? 'data-wl="locked" data-part="frames"' : 'data-wl="frames"'}>${icon('frame')}<span>המסגרות שלי</span></button></div>
+      <div class="wl-bhead paper"><b>${tileIcon('medal', 'wl-tic')}${K('התגים שלי', 'הַתָּגִים שֶׁלִּי')}</b><span>${K('אספתם', 'אֲסַפְתֶּם')} ${vBadges().filter((b) => own[b.id]).length} ${K('מתוך', 'מִתּוֹךְ')} ${vBadges().length}</span>
+        <button class="wl-btn${frV ? ' is-veiled' : ''}" ${frV ? 'data-wl="locked" data-part="frames"' : 'data-wl="frames"'}>${icon('frame')}<span>${K('המסגרות שלי', 'הַמִּסְגָּרוֹת שֶׁלִּי')}</span></button></div>
       ${BADGE_GROUPS.filter(visB).map((g) => { const list = vBadges().filter((b) => b.group === g.id); const have = list.filter((b) => own[b.id]).length;
-        return `<section class="wl-bgroup" style="--bg1:${g.col};--bg2:${g.col2}"><h3><span>${tileIcon(BGROUP_IC[g.id] || 'medal', 'wl-tic')}${esc(g.name)}</span><small>${have} מתוך ${list.length}</small></h3>
+        return `<section class="wl-bgroup" style="--bg1:${g.col};--bg2:${g.col2}"><h3><span>${tileIcon(BGROUP_IC[g.id] || 'medal', 'wl-tic')}${esc(g.name)}</span><small>${have} ${K('מתוך', 'מִתּוֹךְ')} ${list.length}</small></h3>
           <div class="wl-bgrid">${list.map((b) => bzHTML(b, !!own[b.id])).join('')}</div></section>`; }).join('')}
     </section>`;
   }
@@ -131,10 +131,10 @@ export function createHomeScreens(ctx) {
     main.innerHTML = `<section class="wl-screen wl-framesx">
       <section class="wl-frames paper">
         <div class="wl-fprev">${sample ? cardHTML(sample, { cls: cur !== 'none' ? 'fr-' + cur : '' }) : ''}</div>
-        <h3>${icon('frame')}מסגרות לקלפים באלבום</h3>
-        <p>כל קבוצת תגים פותחת מסגרת. בחרו מסגרת, והיא תופיע על כל הקלפים שלכם באלבום. פתוחות: ${list.filter((f) => open.has(f.id)).length} מתוך ${list.length}</p>
+        <h3>${icon('frame')}${K('מסגרות לקלפים באלבום', 'מִסְגָּרוֹת לַקְּלָפִים בָּאַלְבּוֹם')}</h3>
+        <p>${K('כל קבוצת תגים פותחת מסגרת. בחרו מסגרת, והיא תופיע על כל הקלפים שלכם באלבום. פתוחות:', 'כָּל קְבוּצַת תָּגִים פּוֹתַחַת מִסְגֶּרֶת. בַּחֲרוּ מִסְגֶּרֶת, וְהִיא תּוֹפִיעַ עַל כָּל הַקְּלָפִים שֶׁלָּכֶם בָּאַלְבּוֹם. פְּתוּחוֹת:')} ${list.filter((f) => open.has(f.id)).length} ${K('מתוך', 'מִתּוֹךְ')} ${list.length}</p>
         <div class="wl-frow">${list.map((f) => { const g = BADGE_GROUPS.find((x) => x.id === f.group);
-          return `<button class="wl-frame fr-${f.id}${cur === f.id ? ' sel' : ''}" data-wl="frame" data-f="${f.id}" ${open.has(f.id) ? '' : 'disabled'}><span class="wl-fsw"></span><b>${esc(f.name)}</b><small>${open.has(f.id) ? (cur === f.id ? 'נבחרה' : 'אפשר לבחור') : f.group === 'all' ? `נפתחת עם ${f.need} תגים` : `נפתחת עם ${f.need} תגים של ${esc(g ? g.short : '')}`}</small></button>`; }).join('')}</div>
+          return `<button class="wl-frame fr-${f.id}${cur === f.id ? ' sel' : ''}" data-wl="frame" data-f="${f.id}" ${open.has(f.id) ? '' : 'disabled'}><span class="wl-fsw"></span><b>${esc(f.name)}</b><small>${open.has(f.id) ? (cur === f.id ? K('נבחרה', 'נִבְחֲרָה') : K('אפשר לבחור', 'אֶפְשָׁר לִבְחֹר')) : f.group === 'all' ? K(`נפתחת עם ${f.need} תגים`, `נִפְתַּחַת עִם ${f.need} תָּגִים`) : K(`נפתחת עם ${f.need} תגים של ${esc(g ? g.short : '')}`, `נִפְתַּחַת עִם ${f.need} תָּגִים שֶׁל ${esc(g ? g.short : '')}`)}</small></button>`; }).join('')}</div>
       </section>
     </section>`;
   }
