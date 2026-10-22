@@ -2,7 +2,7 @@
 // Colours, materials, geometry helpers, spec cache and makeAnimal, lookAround, pulser, quadAnim, birdAnim.
 // It is the extra file's own copy of the helpers (kept as they were in the 1.3.2 pure-move split: merging it with
 // ../kit.js would share caches and change small details, see the 1.3.2 report); keep the two in step by hand.
-// Exports the helpers and TAU, V3, SPECS (cleared by releaseCaches in index.js).
+// Exports the helpers the species need and TAU, SPECS (cleared by releaseCaches in index.js).
 import * as THREE from 'three';
 import { makeRng, hashString, clamp, lerp, damp, cachedMaterial, mergeGeometries } from '../../../core/util.js';
 
