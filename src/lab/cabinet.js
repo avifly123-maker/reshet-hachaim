@@ -146,9 +146,9 @@ export function collection(kids, thumbs = {}) {
   shelves.push({ id: 'cases', items: solved.map((c) => {
     const st = (R[c.id].stars || []).filter(Boolean).length, F = FINDS_T[c.id];
     const title = kids ? c.title : (c.plainTitle || c.title);
-    if (!F) return { key: 'case:' + c.id, name: title, fact: O(COLL_T.caseText, { stars: st }), img: svgUrl(folder(ZONE_COL[c.zone] || '#5a4a8a')), svg: true };
+    if (!F) return { key: 'case:' + c.id, name: title, fact: O(st === 1 ? COLL_T.caseText1 : st ? COLL_T.caseText : COLL_T.caseText0, { stars: st }), img: svgUrl(folder(ZONE_COL[c.zone] || '#5a4a8a')), svg: true };
     const src = picSrc('find-' + c.id);
-    return { key: 'case:' + c.id, name: O(F.name), sub: title, from: O(F.from), fact: O(COLL_T.caseText, { stars: st }), learn: T2(F.learn), pic: 'find-' + c.id, img: src || '', zone: c.zone };
+    return { key: 'case:' + c.id, name: O(F.name), sub: title, from: O(F.from), fact: O(st === 1 ? COLL_T.caseText1 : st ? COLL_T.caseText : COLL_T.caseText0, { stars: st }), learn: T2(F.learn), pic: 'find-' + c.id, img: src || '', zone: c.zone };
   }), ghosts: CASES.length - solved.length, gshapes: CASES.filter((c) => !R[c.id]).map((c) => FIND_SHAPE[c.id] || 'pod') });
   // the expedition's jars: by sample when the expedition keeps them (rendered jars art/lab-items/jar-<id>), else by count
   const byId = expeditionFound();
@@ -510,7 +510,7 @@ const CB_CSS = PICS_CSS + `
 #ui.wol .cb-it:hover img,#ui.wol .cb-it:focus-visible img{transform:scale(1.12) rotate(-3deg)}
 #ui.wol .cb-gbtn{display:grid;place-items:center;padding:0;border:0;background:transparent;cursor:help;border-radius:12px}
 #ui.wol .cb-gbtn:focus-visible{outline:3px solid #e0a43a}
-#ui.wol .cb-ghost{display:grid;place-items:center;width:60px;height:60px;border-radius:14px;color:rgba(90,66,30,.2);background:radial-gradient(circle at 50% 60%,rgba(90,66,30,.08),transparent 70%);font-style:normal}
+#ui.wol .cb-ghost{display:grid;place-items:center;width:60px;height:60px;border-radius:14px;color:rgba(90,66,30,.26);background:radial-gradient(circle at 50% 60%,rgba(90,66,30,.08),transparent 70%);font-style:normal}
 #ui.wol .cb-ghost svg{width:84%;height:84%;filter:blur(.6px)}
 #ui.wol .cb-gbtn:hover .cb-ghost{color:rgba(90,66,30,.32)}
 #ui.wol .cb-ghost.pt{width:92px;height:120px;border-radius:6px}

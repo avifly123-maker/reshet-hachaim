@@ -416,7 +416,10 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
   function maybeIntro(st) {
     const part = partOf(st), lines = LAB_GUIDE[part];
     if (!lines || !lines.length || introSeen(part)) return;
-    clearTimeout(introWait); introWait = setTimeout(() => { if (open_ && station === st && !walk) { markIntro(part); sayLines(lines); } }, 650);
+    // (while the big guide speaks over the lab, a stage moment for instance, he waits for it to finish)
+    const busy = () => { try { return !!(window.__guide && window.__guide.isOpen()); } catch (e) { return false; } };
+    const begin = () => { if (!open_ || station !== st || walk) return; if (busy()) { introWait = setTimeout(begin, 1000); return; } markIntro(part); sayLines(lines); };
+    clearTimeout(introWait); introWait = setTimeout(begin, 650);
   }
 
   // a list is a few short bubbles (the beginners' texts), shown one after the other
@@ -598,7 +601,8 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     const d = document.createElement('div'); d.className = 'lb-panel lb-doors' + (kids ? ' kids' : ''); panels.appendChild(d);
     d.innerHTML = `<header><h2>${esc(O(DOORS_T.title))}</h2><p>${esc(O(DOORS_T.sub))}</p></header>
       <div class="lb-drow"><button class="lb-door d-inv" data-door="inv"><span class="lb-dpic">${BULB}</span><b>${esc(O(DOORS_T.inv))}</b><small>${esc(O(DOORS_T.invLine))}</small></button>
-        <button class="lb-door d-robot${robOpen ? '' : ' veil'}" data-door="robot"><span class="lb-dpic">${ROBO}</span><b>${esc(O(DOORS_T.robot))}</b><small>${esc(rl ? rl.text : O(DOORS_T.robotLine))}</small></button></div>`;
+        <button class="lb-door d-robot${robOpen ? '' : ' veil'}" data-door="robot"><span class="lb-dpic">${ROBO}</span><b>${esc(O(DOORS_T.robot))}</b><small>${esc(rl ? rl.text : O(DOORS_T.robotLine))}</small></button></div>
+      <div class="lb-pv" aria-live="polite"></div>`;
     d.querySelectorAll('[data-door]').forEach((b) => b.onclick = () => {
       const rob = b.dataset.door === 'robot';
       if (rob && !partOpen('robots')) { sayLocked('robots'); return; }
