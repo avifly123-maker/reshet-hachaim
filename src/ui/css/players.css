@@ -23,3 +23,25 @@
   #ui.wol .pp-list:has(> li:nth-child(4)) .pp-pick .av { width: 40px; height: 40px; }
   #ui.wol .pp-list:has(> li:nth-child(4)) .pp-name { font-size: 1.15em; }
 }
+
+/* the satchel menu in a forest (1.3.2, Avi 23.10: it ran under the tray): two columns – actions on the right, settings
+   on the left – and, while it is open, the toolbar sits above the tray so nothing of the menu is hidden */
+#ui.wol .toolbar:has(.kit.open) { z-index: var(--z-panels); }
+#ui.wol .kit-menu { width: min(500px, calc(100vw - 40px)); grid-template-columns: 1fr 1fr; column-gap: 12px; row-gap: 6px; align-items: start;
+  max-height: calc(100vh - 70px); overflow-y: auto; overscroll-behavior: contain; }
+#ui.wol .kit.open .kit-menu { display: grid; }
+#ui.wol .kit-menu .km-who { grid-column: 1 / -1; }
+#ui.wol .kit-menu .km-set { border-top: 0; padding-top: 0; border-right: 1px dashed rgba(92, 59, 34, .4); padding-right: 10px; }
+@media (max-height: 620px) {
+  #ui.wol .kit-menu .km-row { min-height: 32px; padding-block: 2px; }
+  #ui.wol .kit-menu .km-seg button { height: 28px; }
+  #ui.wol .kit-menu .km-set h4 { font-size: 1em; }
+  #ui.wol .kit-menu .km-journey small { display: none; }   /* the rows' small explanations: the sheet on the start screen has them */
+  #ui.wol .kit-menu .km-journey .set-row { padding: 3px 6px; min-height: 0; gap: 4px; }
+  #ui.wol .kit-menu .km-journey .set-seg button { min-height: 0; padding: 3px 4px; }
+  #ui.wol .kit-menu .km-journey .set-rows { gap: 4px; }
+}
+#ui.wol .kit-menu .km-col { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+#ui.wol .kit-menu .km-pc { display: flex; flex-direction: column; gap: 2px; border-top: 1px dashed rgba(92, 59, 34, .4); padding-top: 6px; }
+#ui.wol .kit-menu .km-pc h4 { font-family: var(--serif); font-size: 1.05em; color: var(--bark); padding: 0 8px 2px; }
+@media (max-height: 620px) { #ui.wol .kit-menu .km-pc h4 { font-size: 1em; } }
