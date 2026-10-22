@@ -500,7 +500,8 @@ export class Animal {
     const drain = (this.state === 'sleep' ? 0.0013 : pred ? 0.0022 : 0.0034) * (this.sp.diet2.length ? 1 : 0.2);
     this.energy = clamp(this.energy - drain * dt, 0, 1);
     if (!this.sp.diet2.length) this.energy = Math.max(this.energy, 0.6);
-    if (this.energy <= 0.001) W.animalLeaves(this, 'hunger');
+    if (this.sp.roams) this.energy = Math.max(this.energy, 0.3);   // a roaming hunter (the reef shark) also feeds beyond the reef edge: it does not leave hungry
+    else if (this.energy <= 0.001) W.animalLeaves(this, 'hunger');
   }
 
   leave() { if (!this.leaving) this.leaving = 0.0001; }

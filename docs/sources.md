@@ -126,6 +126,7 @@ Every species in src/data/reef.js carries its own Wikipedia link (`sources`). Th
 - **Giant clams host algae in their mantle** — https://en.wikipedia.org/wiki/Tridacna
 - **Moon jellyfish are mostly water, drift and eat plankton; sea turtles eat jellyfish** — https://en.wikipedia.org/wiki/Aurelia_aurita , https://en.wikipedia.org/wiki/Green_sea_turtle
 - **Blacktip reef shark** (black fin tips, reef edges, eats small fish and octopus) — https://en.wikipedia.org/wiki/Blacktip_reef_shark
+  - 1.3.2, its diet in the game (surgeonfish, grouper, octopus, shrimp): "small teleost fishes, including mullet, groupers, grunters, jacks, mojarras, wrasses, surgeonfish, and smelt-whitings. Squid, octopus, cuttlefish, other molluscs, shrimp, crabs, and mantis shrimp are also taken" (Wikipedia, Feeding, checked 22.10.2026). It stays on the reef (`roams`, never leaves hungry): "extremely small home ranges and ... strong site fidelity, remaining within the same local area for up to several years"; "most of their time swimming back and forth along reef ledges" (same article).
 - **Crown-of-thorns sea star (in the game: קוצנון)**: eats coral polyps; outbreaks strip reefs; divers remove them — https://en.wikipedia.org/wiki/Crown-of-thorns_starfish
 - **Artificial reefs (reef balls)**: concrete domes with holes that fish use and corals settle on — https://en.wikipedia.org/wiki/Reef_ball
 - **Underwater robots (ROVs) and underwater cameras for reef monitoring** — https://en.wikipedia.org/wiki/Remotely_operated_underwater_vehicle

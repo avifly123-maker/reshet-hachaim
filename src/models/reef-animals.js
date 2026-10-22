@@ -239,8 +239,46 @@ const hermit = crawler((rng, obj) => {
   const m = new THREE.Mesh(g, bodyMat()); m.castShadow = true; obj.add(m); return { m };
 }, { length: 0.35, height: 0.3, walk: 0.25, anim: (p, ph, mv) => { p.m.position.y = Math.abs(Math.sin(ph * 2)) * 0.01 * mv; } });
 
+// 1.3.2: simple stand-ins for the two that had only a Blender model, so a missing or broken model never stops the reef
+// blacktip reef shark: a long grey body, white belly, a tall dorsal fin and a tail with a longer upper lobe, black tips
+FISH.reefshark = { L: 1.7, H: 0.2, W: 0.1, fin: '#6a7078', tailCol: '#5a6068', speed: 3.2, eye: 0.025,
+  prof: (t) => { const k = Math.sin(Math.PI * Math.pow(t, 0.7)); return [Math.max(0.01, 0.1 * 1.7 * k), Math.max(0.01, 0.2 * 1.7 * 0.5 * k), 0]; },
+  color: (t, up, c) => { c.set('#8a9098').lerp(col('#f2f0ea'), smoothstep(-0.1, -0.6, up)); if (t > 0.94) c.lerp(col('#5a6068'), 0.4); },
+  dorsal: [[0.12, -0.2], [0.42, -0.1], [0.14, 0.06]],
+  tail: [[0, 0], [0.42, -0.5], [0.1, -0.24], [-0.22, -0.4]],
+  pec: [[0, 0], [-0.24, -0.32], [-0.02, -0.08]],
+  extra(body, L) {   // the black fin tips that give it its name
+    const m = new THREE.MeshStandardMaterial({ color: '#16181c', roughness: 0.6, side: THREE.DoubleSide });
+    const d = new THREE.Mesh(fin([[0.36, -0.12], [0.42, -0.1], [0.34, -0.06]]), m); body.add(d);
+  } };
+// moon jellyfish: a see-through bell that pulses, four pale rings and short soft tentacles
+function makeJelly(opts) {
+  const rng = opts.rng || makeRng(opts.seed || 1);
+  const object = new THREE.Group(), body = new THREE.Group(); object.add(body);
+  const bellG = new THREE.SphereGeometry(0.3, 18, 10, 0, TAU, 0, Math.PI * 0.5); bellG.scale(1, 0.6, 1);
+  const bellM = new THREE.MeshStandardMaterial({ color: '#d8ccf0', roughness: 0.3, transparent: true, opacity: 0.55, side: THREE.DoubleSide, depthWrite: false });
+  const bell = new THREE.Mesh(bellG, bellM); body.add(bell);
+  const ringM = new THREE.MeshStandardMaterial({ color: '#b48ad8', roughness: 0.4, transparent: true, opacity: 0.8 });
+  for (let i = 0; i < 4; i++) { const r = new THREE.Mesh(new THREE.TorusGeometry(0.05, 0.012, 6, 12), ringM); const a = i * Math.PI / 2 + 0.6; r.rotation.x = Math.PI / 2; r.position.set(Math.cos(a) * 0.09, 0.12, Math.sin(a) * 0.09); body.add(r); }
+  const tm = new THREE.MeshStandardMaterial({ color: '#e8e0f8', roughness: 0.5, transparent: true, opacity: 0.45, depthWrite: false });
+  const tents = [];
+  for (let i = 0; i < 10; i++) { const a = (i / 10) * TAU, g = new THREE.CylinderGeometry(0.004, 0.008, 0.36, 4); g.translate(0, -0.18, 0); const t = new THREE.Mesh(g, tm); t.position.set(Math.cos(a) * 0.26, 0.01, Math.sin(a) * 0.26); body.add(t); tents.push(t); }
+  const st = { ph: rng() * TAU };
+  return {
+    type: 'animal', object, height: 0.55, length: 0.6, speeds: { fly: 0.8 }, actions: ['idle', 'fly', 'hover', 'glide', 'perch', 'eat', 'sleep'],
+    update(dt, s) {
+      st.ph += dt * (s.action === 'sleep' ? 0.8 : 2.4);
+      const p = Math.sin(st.ph);
+      bell.scale.set(1 + 0.08 * p, 1 - 0.12 * p, 1 + 0.08 * p);
+      tents.forEach((t, i) => { t.rotation.x = Math.sin(st.ph - 0.8 + i) * 0.18; t.rotation.z = Math.cos(st.ph * 0.7 + i) * 0.12; });
+      body.position.y = 0.2 + p * 0.02;
+    },
+    dispose() { object.traverse((o) => { if (o.material) o.material.dispose(); if (o.geometry) o.geometry.dispose(); }); object.removeFromParent(); },
+  };
+}
+
 export const ANIMALS = {
   ...Object.fromEntries(Object.entries(FISH).map(([id, spec]) => [id, (opts) => makeFish(spec, opts)])),
-  moray: makeMoray, turtle: makeTurtle, goby, shrimp, octopus, urchin, starfish, stingray, hermit,
+  moray: makeMoray, turtle: makeTurtle, goby, shrimp, octopus, urchin, starfish, stingray, hermit, jellyfish: makeJelly,
 };
 export function releaseCaches() { /* each animal owns its geometry (procedural stand-ins until the Blender models) */ }

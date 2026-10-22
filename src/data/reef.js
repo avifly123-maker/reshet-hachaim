@@ -367,9 +367,13 @@ export const BIOME = {
     {
       id: 'reefshark', name: 'כריש שונית', nameEn: 'Blacktip reef shark (Carcharhinus melanopterus)', kind: 'animal',
       layer: 'open', locomotion: 'swim', active: 'day',
-      diet: [{ id: 'surgeonfish', part: 'animals' }, { id: 'octopus', part: 'animals' }],
+      // small reef fish (groupers and surgeonfish among them), octopus and shrimp: docs/sources.md (Blacktip reef shark)
+      diet: [{ id: 'surgeonfish', part: 'animals' }, { id: 'grouper', part: 'animals' }, { id: 'octopus', part: 'animals' }, { id: 'shrimp', part: 'animals' }],
       relations: [],
-      cost: 35, groupSize: [1, 1], maxCount: 1, unlock: 'r11',
+      // roams: it swims back and forth along the reef edge and finds much of its food there, so it never leaves the reef
+      // hungry (src/world/animals.js); 1.3.2: it comes with mission r6 instead of r11
+      roams: true,
+      cost: 35, groupSize: [1, 1], maxCount: 1, unlock: 'r6',
       fact: 'כריש השונית מכירים לפי הקצוות השחורים של הסנפירים. הוא שוחה בשקט לאורך שפת השונית.',
       more: 'כריש השונית הוא טורף שנמצא בראש שרשרת המזון. הוא תופס בעיקר דגים חלשים או חולים, ' +
         'וכך עוזר לשמור על להקות דגים בריאות. בשונית שיש בה כרישים, יש בדרך כלל גם הרבה דגים אחרים.',
@@ -385,12 +389,12 @@ export const BIOME = {
     { id: 'r3', title: 'רועי האצות', text: 'אצות גדלות מהר, ובלי מי שיאכל אותן הן מכסות את האלמוגים. הביאו תוכינון, וגלו את הקשר בינו לבין האצות.', hint: 'הציבו את התוכינון ליד אצות שגדלות על השונית.', after: 'r2', goal: { type: 'link', from: 'parrotfish', to: 'algae' }, reward: { points: 30, unlock: ['softcoral', 'sponge', 'surgeonfish', 'turtle'] } },
     { id: 'r4', title: 'אחו מתחת למים', text: 'צב הים הירוק רועה בעשב ים. שתלו מרבד של עשב ים על החול, והביאו צב.', hint: 'עשב הים גדל על החול, בין גושי השונית.', after: 'r3', goal: { type: 'link', from: 'turtle', to: 'seagrass' }, reward: { points: 35, unlock: ['cleaner', 'grouper'] } },
     { id: 'r5', title: 'תחנת ניקוי', text: 'הנקאי פותח תחנת ניקוי לדגים גדולים. הביאו נקאי ודקר, וגלו את השותפות ביניהם.', hint: 'הציבו את הנקאי ליד המקום שבו הדקר שוחה.', after: 'r4', goal: { type: 'link', from: 'cleaner', to: 'grouper' }, reward: { points: 35, unlock: ['brain', 'moray'] } },
-    { id: 'r6', title: 'צדים ביחד', text: 'בים סוף גילו חוקרים שהדקר והמורנה צדים ביחד. שתלו אלמוג מוח שתהיה בו מחבוא למורנה, וגלו את הקשר בין הדקר למורנה.', hint: 'המורנה גרה בחורים של אלמוג המוח. הציבו אותה לידו.', after: 'r5', goal: { type: 'link', from: 'grouper', to: 'moray' }, reward: { points: 40, unlock: ['goby', 'shrimp'] } },
+    { id: 'r6', title: 'צדים ביחד', text: 'בים סוף גילו חוקרים שהדקר והמורנה צדים ביחד. שתלו אלמוג מוח שתהיה בו מחבוא למורנה, וגלו את הקשר בין הדקר למורנה.', hint: 'המורנה גרה בחורים של אלמוג המוח. הציבו אותה לידו.', after: 'r5', goal: { type: 'link', from: 'grouper', to: 'moray' }, reward: { points: 40, unlock: ['goby', 'shrimp', 'reefshark'] } },
     { id: 'r7', title: 'שומר ובונה', text: 'הגובי והחסילון גרים באותה מחילה. הביאו את שניהם אל החול, וגלו את השותפות ביניהם.', hint: 'הציבו אותם על החול, קרוב זה לזה.', after: 'r6', goal: { type: 'link', from: 'goby', to: 'shrimp' }, reward: { points: 40, unlock: ['plankton', 'lionfish', 'firecoral'] } },
     { id: 'r8', title: 'השונית בלילה', text: 'בלילה השונית מתעוררת: הפלנקטון עולה, והאלמוגים פותחים את הפוליפים. הביאו פלנקטון וחכו ללילה.', hint: 'בלילה חפשו את האור הכחול של הפלנקטון.', after: 'r7', goal: { type: 'observeNight' }, reward: { points: 40, unlock: ['octopus', 'hermit', 'stingray', 'seafan', 'jellyfish'] } },
     { id: 'r9', title: 'שרשרת מזון בים', text: 'פלנקטון מאכיל חסילון, וחסילון מאכיל טורף. בנו שרשרת מזון של 3 חוליות.', hint: 'למשל: פלנקטון ← חסילון ← תמנון.', after: 'r8', goal: { type: 'chain', length: 3 }, reward: { points: 45, unlock: ['table', 'butterflyfish', 'starfish'] } },
     { id: 'r10', title: 'שונית בריאה', text: 'שמרו על שונית בריאה, עם הרבה מינים וקשרים, במשך דקה אחת.', hint: 'בדקו שיש מי שאוכל את האצות, ושלאלמוגים יש אור.', after: 'r9', goal: { type: 'health', min: 0.7, seconds: 60 }, reward: { points: 80, unlock: ['clam'] } },
-    { id: 'r11', title: 'עין מתחת למים', text: 'שלחו רובוט צולל לסרוק את השונית ולמצוא מה צריך תיקון.', hint: 'פתחו את לשונית "טכנולוגיה" במגש וגררו את הרובוט הצולל אל השונית.', after: 'r10', goal: { type: 'tool', tool: 'drone', count: 1 }, reward: { points: 30, unlock: ['reefshark'] } },
+    { id: 'r11', title: 'עין מתחת למים', text: 'שלחו רובוט צולל לסרוק את השונית ולמצוא מה צריך תיקון.', hint: 'פתחו את לשונית "טכנולוגיה" במגש וגררו את הרובוט הצולל אל השונית.', after: 'r10', goal: { type: 'tool', tool: 'drone', count: 1 }, reward: { points: 30, unlock: [] } },
     { id: 'r12', title: 'צלמים מתחת למים', text: 'הציבו מצלמות שטח ליד השונית. צלמו 4 מינים שונים.', hint: 'מצלמה ליד שושנת ים או ליד אלמוג גדול תצלם יותר דגים.', after: 'r11', goal: { type: 'photos', count: 4 }, reward: { points: 35, unlock: [] } },
     { id: 'r13', title: 'שונית מלאה חיים', text: 'האתגר הגדול: הגיעו ל-20 מינים שחיים ביחד בשונית אחת.', hint: 'בדקו בדוח של רחפן הניטור מי חסר למי.', after: 'r12', goal: { type: 'speciesAlive', count: 20 }, reward: { points: 120, unlock: [] } },
 

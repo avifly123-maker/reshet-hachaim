@@ -29,6 +29,13 @@ const CSS = `
 #ui.wol .tp-card b { font-family: var(--serif); font-weight: 400; font-size: 1.2em; color: #1f2c1a; }
 #ui.wol .tp-card small { color: var(--ink2); font-weight: 700; }
 #ui.wol .tp-none { padding: 18px; color: var(--ink2); font-weight: 600; }
+/* an animal that is not here yet: its shadow, and one line on how to bring it */
+#ui.wol .tp-card.tp-shade { cursor: default; background: rgba(255, 255, 255, .22); box-shadow: inset 0 0 0 1.5px rgba(60, 70, 40, .16); }
+#ui.wol .tp-card.tp-shade:hover { transform: none; background: rgba(255, 255, 255, .3); box-shadow: inset 0 0 0 1.5px rgba(60, 70, 40, .22); }
+#ui.wol .tp-card.tp-shade .tp-img { background: rgba(60, 70, 50, .14); box-shadow: 0 0 0 3px #fff6; }
+#ui.wol .tp-card.tp-shade .tp-img img { filter: brightness(0) opacity(.32); }
+#ui.wol .tp-card.tp-shade b { color: #4a5442; }
+#ui.wol .tp-card.tp-shade small { font-weight: 600; font-size: .82em; line-height: 1.3; color: #55604a; }
 #ui.wol .tp-close { position: absolute; top: 6px; left: 6px; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: var(--ink2); }
 #ui.wol .tp-close:hover { background: rgba(0, 0, 0, .06); }
 #ui.wol .tp-close svg { width: 22px; height: 22px; }
@@ -160,12 +167,29 @@ export function createTour({ W, env, reg, camera, canvas, ui, audio, imv, missio
   function openPicker() {
     const ids = presentSpecies(), look = presentLook();
     const card = (id) => { const sp = reg.byId.get(id); return `<button type="button" class="tp-card" data-id="${esc(id)}">${imgHTML(id, 'tp-img')}<b>${esc(sp.name)}</b><small>${esc(locoText(id, sp.locomotion))}</small></button>`; };
-    grid.innerHTML = ids.length || look.length ? ids.map(card).join('') + (look.length ? `<p class="tp-sec">${ids.length ? 'ויש גם מי שנשאר במקום. אפשר להסתכל עליו מקרוב:' : 'אלה נשארים במקום. אפשר להסתכל עליהם מקרוב:'}</p>` + look.map(card).join('') : '')
-      : `<p class="tp-none">עוד אין ${zoneWord('in')} בעלי חיים שאפשר לטייל איתם. הביאו בעלי חיים מהמגש, ונסו שוב.</p>`;
+    const away = absentSpecies(ids);
+    grid.innerHTML = (ids.length || look.length ? ids.map(card).join('') + (look.length ? `<p class="tp-sec">${ids.length ? 'ויש גם מי שנשאר במקום. אפשר להסתכל עליו מקרוב:' : 'אלה נשארים במקום. אפשר להסתכל עליהם מקרוב:'}</p>` + look.map(card).join('') : '')
+      : `<p class="tp-none">עוד אין ${zoneWord('in')} בעלי חיים שאפשר לטייל איתם. הביאו בעלי חיים מהמגש, ונסו שוב.</p>`)
+      + (away.length ? `<p class="tp-sec">${W.kids ? 'עוֹד בַּעֲלֵי חַיִּים שֶׁאֶפְשָׁר לְהָבִיא:' : 'ועוד בעלי חיים שאפשר להביא:'}</p>` + away.map(shadeCard).join('') : '');
     pick.classList.add('on'); audio && audio.play && audio.play('click');
     const first = grid.querySelector('button'); if (first) requestAnimationFrame(() => { try { first.focus({ preventScroll: true }); } catch (e) { } });
   }
   function closePicker() { pick.classList.remove('on'); }
+  // animals of this zone that could be toured but are not here now: shown as a shadow with how to bring them
+  function absentSpecies(present) {
+    const have = new Set(present);
+    return ordered((reg.biome?.species || []).filter(sp => tourableSp(sp) && !have.has(sp.id)).map(sp => sp.id));
+  }
+  function bringLine(id) {
+    if (W.unlocked && W.unlocked.has(id)) return W.kids ? 'הָבִיאוּ מֵהַמַּגָּשׁ' : `הביאו מהמגש ${zoneWord('to')}`;
+    if (W.kids) return 'הַשְׁלִימוּ עוֹד מְשִׂימוֹת';
+    const m = missions.missions.find(q => !q.done && (q.reward?.unlock || []).includes(id));
+    return m ? `השלימו את המשימה "${m.title}"` : 'השלימו עוד משימות';
+  }
+  function shadeCard(id) {
+    const sp = reg.byId.get(id);
+    return `<div class="tp-card tp-shade" data-shade="${esc(id)}" aria-disabled="true">${imgHTML(id, 'tp-img')}<b>${esc(sp.name)}</b><small>${esc(bringLine(id))}</small></div>`;
+  }
   pick.querySelector('.tp-back').addEventListener('click', closePicker);
   pick.querySelector('.tp-close').addEventListener('click', closePicker);
   grid.addEventListener('click', (e) => { const b = e.target.closest('[data-id]'); if (!b) return; closePicker(); start(b.dataset.id); });
@@ -733,5 +757,5 @@ export function createTour({ W, env, reg, camera, canvas, ui, audio, imv, missio
     stop(); window.removeEventListener('keydown', onPickKey, true);
     el.remove(); pick.remove(); if (tbBtn) tbBtn.remove();
   }
-  return { start, stop, openPicker, closePicker, update, labelFor, dispose, presentSpecies, presentLook, get riding() { return R ? (R.a || R.e) : null; }, get mode() { return R ? R.mode : null; } };
+  return { start, stop, openPicker, closePicker, update, labelFor, dispose, presentSpecies, presentLook, absentSpecies: () => absentSpecies(presentSpecies()), bringLine, get riding() { return R ? (R.a || R.e) : null; }, get mode() { return R ? R.mode : null; } };
 }

@@ -171,12 +171,15 @@ export const KIDS = {
     intro: 'מתחת למים יש שונית צבעונית של אלמוגים ודגים. בואו נבנה יחד שונית קטנה!',
     // "plants": branching coral, sea anemone, seagrass, algae
     // animals: anemonefish (lives in the anemone), parrotfish (eats algae), green turtle (eats seagrass), sea urchin
-    species: ['branching', 'seaanemone', 'seagrass', 'algae', 'clownfish', 'parrotfish', 'turtle', 'urchin'],
+    // 1.3.2: the reef shark swims by as a visitor (roamers: it finds its food along the reef edge, outside the set,
+    // so it hunts nobody here and never leaves hungry); it comes with k3
+    species: ['branching', 'seaanemone', 'seagrass', 'algae', 'clownfish', 'parrotfish', 'turtle', 'urchin', 'reefshark'],
+    roamers: ['reefshark'],
     start: ['branching', 'seaanemone', 'seagrass', 'clownfish'],
     missions: [
       { id: 'k1', title: 'אלמוגים ורודים', text: 'האלמוג הוא בעל חיים שבונה את השונית. שתלו 2 אלמוגי שיח.', hint: 'גררו אלמוג שיח מהמגש אל השונית, פעמיים.', after: null, goal: { type: 'place', species: 'branching', count: 2 }, reward: { points: 20, unlock: ['algae'] } },
       { id: 'k2', title: 'בית בתוך שושנה', text: 'השושנון גר בתוך שושנת ים. הביאו שושנון ליד שושנת הים.', hint: 'גררו שושנון אל השונית, ממש ליד שושנת הים.', after: 'k1', goal: { type: 'link', from: 'clownfish', to: 'seaanemone' }, reward: { points: 25, unlock: ['parrotfish'] } },
-      { id: 'k3', title: 'דג אוכל אצות', text: 'התוכינון אוכל אצות ושומר על האלמוגים. שתלו אצות והביאו תוכינון.', hint: 'גררו תוכינון אל השונית, ליד האצות.', after: 'k2', goal: { type: 'link', from: 'parrotfish', to: 'algae' }, reward: { points: 25, unlock: ['turtle'] } },
+      { id: 'k3', title: 'דג אוכל אצות', text: 'התוכינון אוכל אצות ושומר על האלמוגים. שתלו אצות והביאו תוכינון.', hint: 'גררו תוכינון אל השונית, ליד האצות.', after: 'k2', goal: { type: 'link', from: 'parrotfish', to: 'algae' }, reward: { points: 25, unlock: ['turtle', 'reefshark'] } },
       { id: 'k4', title: 'הצב רועה בעשב', text: 'צב הים אוכל עשב ים. שתלו עשב ים והביאו צב.', hint: 'גררו צב ים אל השונית, ליד עשב הים.', after: 'k3', goal: { type: 'link', from: 'turtle', to: 'seagrass' }, reward: { points: 30, unlock: ['urchin'] } },
       { id: 'k5', title: 'קיפוד שמגרד אצות', text: 'קיפוד הים מגרד אצות מהסלע. הביאו קיפוד ים אל האצות.', hint: 'גררו קיפוד ים אל השונית, ליד האצות.', after: 'k4', goal: { type: 'link', from: 'urchin', to: 'algae' }, reward: { points: 30, unlock: [] } },
       { id: 'k6', title: 'רובוט צולל עוזר', text: 'הרובוט הצולל שוחה לאורך השונית ובודק שהכול בסדר. שלחו רובוט צולל אחד.', hint: 'גררו רובוט צולל מהלשונית "טכנולוגיה" אל השונית.', after: 'k5', goal: { type: 'tool', tool: 'drone', count: 1 }, reward: { points: 40, unlock: [] } },
