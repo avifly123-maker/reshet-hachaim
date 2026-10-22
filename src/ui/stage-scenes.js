@@ -162,7 +162,7 @@ function picture(S, t, height, opts = {}) {
   const asp = t && t.image ? t.image.width / t.image.height : 1.6;
   const g = S.own(new THREE.PlaneGeometry(height * asp, height));
   if (opts.bottom != null) g.translate(0, height / 2 + opts.bottom, 0);
-  const m = S.own(new THREE.MeshBasicMaterial({ map: t, transparent: opts.opaque ? false : true, toneMapped: false, depthWrite: !!opts.depthWrite, color: opts.color || '#ffffff', side: THREE.DoubleSide }));
+  const m = S.own(new THREE.MeshBasicMaterial({ map: t, transparent: opts.opaque ? false : true, toneMapped: false, depthWrite: !!(opts.depthWrite || opts.opaque), color: opts.color || '#ffffff', side: THREE.DoubleSide }));
   const mesh = new THREE.Mesh(g, m); mesh.renderOrder = opts.order || 0; return mesh;
 }
 function skyDome(S, top, mid, bottom, sunDir = null, sunCol = '#fff2c8') {
@@ -313,6 +313,8 @@ function makeRobo(S, R, { low = false, accent = null, accentDark = null } = {}) 
     const h = new THREE.Mesh(S.own(new THREE.SphereGeometry(0.15, 20, 14)), M.shell); h.position.set(0, 0.08, 0); G.head.add(h);
   }
   for (const k in G) G[k].userData.base = G[k].position.clone();
+  // his feet: the lowest point of the glowing base (`hover` below is the gap between it and the ground)
+  const footY = R ? boxOf(G.hover).min.y : 0;
   // blob shadow under him
   const sh = new THREE.Mesh(S.own(new THREE.PlaneGeometry(0.7, 0.7)), S.own(new THREE.MeshBasicMaterial({ map: S.tex(glowCanvas('rgba(0,0,0,.55)', 'rgba(0,0,0,.3)')), transparent: true, depthWrite: false, toneMapped: false })));
   sh.rotation.x = -Math.PI / 2; sh.position.y = 0.004; root.add(sh);
@@ -330,15 +332,15 @@ function makeRobo(S, R, { low = false, accent = null, accentDark = null } = {}) 
     set off(v) { st.off = v; }, get off() { return st.off; },
     wave(s = 1.4) { st.wave = s; },
     // hover: the height he floats at; look: a head turn (radians); armsUp: both arms raised (0..1, holding something)
-    update(t, dt, { hover = 0.1, look = 0, bob = 1, armsUp = 0, cheer = 0 } = {}) {
-      float.position.y = hover + Math.sin(t * 1.8) * 0.018 * bob;
+    update(t, dt, { hover = 0.1, look = 0, bob = 1, armsUp = 0, cheer = 0, waving = false } = {}) {
+      float.position.y = hover - footY + Math.sin(t * 1.8) * 0.018 * bob;
       float.rotation.z = Math.sin(t * 0.9) * 0.02 * bob;
       st.blinkT -= dt; if (st.blinkT < 0) { st.blink = 1; st.blinkT = 2.2 + Math.random() * 2.5; }
       st.blink = Math.max(0, st.blink - dt * 7);
       G.head.rotation.y += (look - G.head.rotation.y) * Math.min(1, dt * 4);
       G.head.rotation.x = Math.sin(t * 0.7) * 0.04;
       G.head.rotation.z = st.expr === 'curious' ? 0.12 : Math.sin(t * 0.4) * 0.03;
-      st.wave = Math.max(0, st.wave - dt);
+      st.wave = Math.max(0, st.wave - dt); if (waving) st.wave = Math.max(st.wave, 0.2);
       const up = armsUp, ch = cheer ? (0.5 + 0.5 * Math.sin(t * 9)) * cheer : 0;
       G.arm_a.rotation.z = lerp(-0.08 + Math.sin(t * 1.8 + 1) * 0.05, -1.1, up) - ch * 1.3;
       G.arm_a.rotation.x = lerp(0, -0.9, up);
@@ -434,8 +436,8 @@ SCENES[1] = async (S, { low }) => {
       if (!landed && t >= 1.6) { landed = true; sfx('place'); landFx.userData.fire(t, V(dp.x, top + 0.05, dp.z)); }
       const look = t < 1.9 ? 0 : t < 3.4 ? lerp(0, Math.sin((t - 1.9) * 2.1) * 0.55, seg(t, 1.9, 2.3)) : lerp(0.3, 0, seg(t, 3.4, 3.8));
       robo.expr = t > 2.1 && t < 3.6 ? 'wow' : 'happy';
-      if (!waved && t >= 3.7) { waved = true; robo.wave(1.6); sfx('pop'); }
-      robo.update(t, dt, { hover: t < 1.6 ? 0.06 : -0.035, look, bob: t < 1.6 ? 1 : 0.3 });
+      if (!waved && t >= 3.7) { waved = true; sfx('pop'); }
+      robo.update(t, dt, { hover: t < 1.6 ? 0.06 : 0.0, look, bob: t < 1.6 ? 1 : 0.3, waving: t > 3.7 && t < 5.4 });
       landFx.userData.tick(t);
       // the islands rise (a little overshoot, then they settle)
       isl.forEach((I, i) => {
@@ -504,7 +506,7 @@ SCENES[2] = async (S, { low }) => {
   const spine = new THREE.Mesh(S.own(new THREE.CylinderGeometry(0.05, 0.05, 1.3, 12)), S.own(new THREE.MeshStandardMaterial({ color: '#c9a24a', roughness: 0.35, metalness: 0.6 })));
   spine.rotation.x = Math.PI / 2; album.add(cover, spine);
   pageMeshes.forEach((m) => { m.scale.set(1, 1, 1); });
-  album.position.set(-1.75, -0.7, 1.1); album.rotation.set(1.12, 0.22, 0.0); album.scale.setScalar(1.12);
+  album.position.set(-1.5, -0.72, 1.1); album.rotation.set(1.12, 0.24, 0.0); album.scale.setScalar(1.02);
   // the empty place on the right page (RTL: the album's first page), in the world
   const sl = pg[1].slot(0);
   const slotLocal = V((sl.u - 0.5) * 1.68, (0.5 - sl.v) * 1.26, 0.01);
@@ -576,7 +578,7 @@ SCENES[3] = async (S, { low }) => {
   scene.add(skyDome(S, '#2e3570', '#e38a64', '#5a3a50', V(-0.4, 0.06, -1), '#ffc27a'));
   scene.add(lights(S, { sky: '#ffd7b8', ground: '#3a2c48', hemi: 1.1, sun: '#ffb47a', sunI: 2.4, sunPos: [-6, 4, 5], fill: 0.5 }));
   const sunG = glowSprite(S, '#ffb070', 40, 0.6); sunG.position.set(-90, 12, -200); scene.add(sunG);
-  const [tg, R, O, owlImg] = await Promise.all([S.imgTex(ISLAND_ART.c_grove), robotData(), animal('grove', 'owl', { seed: 5, len: 1.7 }), loadImg(CARD_ART.owl)]);
+  const [tg, R, O, owlImg] = await Promise.all([S.imgTex(ISLAND_ART.c_grove), robotData(), animal('grove', 'owl', { seed: 5, len: 2.1 }), loadImg(CARD_ART.owl)]);
   const grove = picture(S, tg, 5.0, { bottom: -2.4, color: '#f2c6b0' }); grove.position.set(0, 0, -6); scene.add(grove);
   // fireflies (warm round lights)
   const nf = low ? 18 : 44; const ff = dots(S, nf, { size: 0.16, color: '#ffe27a' }); scene.add(ff);
@@ -595,7 +597,7 @@ SCENES[3] = async (S, { low }) => {
   scene.add(rays);
   const pop = burst(S, low ? 14 : 28, '#ffe39a', { speed: 1.7, size: 0.13, gravity: -0.5 }); scene.add(pop);
   if (O) scene.add(O.holder);
-  const owlKeys = [[0, -7.5, 4.6, -5], [1.0, -4.6, 3.6, -2.6], [2.0, -2.0, 2.75, -0.4], [2.6, -1.45, 2.6, 0.1], [6.6, -1.3, 2.5, 0.2]];
+  const owlKeys = [[0, -7.5, 4.6, -5], [1.0, -4.6, 3.6, -2.6], [2.0, -2.0, 2.75, -0.4], [2.6, -1.3, 2.55, 0.9], [6.6, -1.15, 2.5, 1.1]];
   let gave = false, shone = false;
   return {
     dur: 6.6,
@@ -610,7 +612,7 @@ SCENES[3] = async (S, { low }) => {
         O.holder.position.copy(p); O.holder.position.y += Math.sin(t * 1.6) * 0.06 * seg(t, 2.4, 3);
         const head = Math.atan2(q.x - p.x, q.z - p.z);
         const face = lerp(head, 0.15, E.io(seg(t, 1.9, 2.8)));
-        O.holder.rotation.set(lerp(0.15, 0.62, E.io(seg(t, 1.8, 2.8))), t < 1.9 ? head : face, Math.sin(t * 1.1) * 0.06);
+        O.holder.rotation.set(lerp(0.15, 0.95, E.io(seg(t, 1.8, 2.8))), t < 1.9 ? head : face, Math.sin(t * 1.1) * 0.06);
         O.v.update(dt, { action: t < 2.0 ? 'fly' : 'glide' });
       }
       // רובו־דע floats in from the right, raises the badge
@@ -619,11 +621,11 @@ SCENES[3] = async (S, { low }) => {
       robo.root.rotation.y = lerp(-0.9, -0.35, kr);
       robo.expr = t > 3.6 ? 'happy' : 'normal';
       const up = E.io(seg(t, 3.1, 3.6)) * (1 - E.io(seg(t, 4.0, 4.4)));
-      robo.update(t, dt, { hover: 0.1, look: lerp(0.4, -0.2, seg(t, 3.3, 3.8)), armsUp: up });
-      if (!gave && t >= 4.3) { gave = true; robo.wave(1.5); }
+      robo.update(t, dt, { hover: 0.1, look: lerp(0.4, -0.2, seg(t, 3.3, 3.8)), armsUp: up, waving: t > 4.5 && t < 6 });
+      if (!gave && t >= 4.3) { gave = true; }
       // the coin: it appears between his hands, turns and flies up to the middle, shining
       robo.root.updateMatrixWorld(true);
-      const hand = V(0, 0.82, 0.32); robo.root.localToWorld(hand);
+      const hand = V(-0.05, 0.5, 0.42); robo.root.localToWorld(hand);
       const kc = E.io(seg(t, 3.75, 4.5));
       const target = V(0.55, 1.75, 4.1);
       coin.position.lerpVectors(hand, target, kc);
@@ -649,9 +651,9 @@ SCENES[4] = async (S, { low }) => {
   const NF = low ? 6 : 14;
   const [tr, tlab, R, ...fish] = await Promise.all([
     S.imgTex(ISLAND_ART.c_reef), S.imgTex(ISLAND_ART.lab), robotData(),
-    ...Array.from({ length: NF }, (_, i) => animal('reef', species[i % species.length], { seed: 40 + i, len: species[i % species.length] === 'parrotfish' ? 0.75 : 0.5 })),
+    ...Array.from({ length: NF }, (_, i) => animal('reef', species[i % species.length], { seed: 40 + i, len: species[i % species.length] === 'parrotfish' ? 1.0 : 0.72 })),
   ]);
-  const reef = picture(S, tr, 4.6, { bottom: -2.6 }); reef.position.set(0, 0, -4.5); reef.material.fog = true; reef.material.opacity = 0; scene.add(reef);
+  const reef = picture(S, tr, 6.2, { bottom: -3.4 }); reef.position.set(0, 0, -5); reef.material.fog = true; reef.material.opacity = 0; scene.add(reef);
   // light rays from the surface
   const rayT = S.tex((() => { const c = canvas(64, 256), x = c.getContext('2d'); const g = x.createLinearGradient(0, 0, 0, 256); g.addColorStop(0, 'rgba(220,250,255,.55)'); g.addColorStop(1, 'rgba(220,250,255,0)'); x.fillStyle = g; x.fillRect(0, 0, 64, 256); const h = x.createLinearGradient(0, 0, 64, 0); h.addColorStop(0, 'rgba(0,0,0,1)'); h.addColorStop(0.5, 'rgba(0,0,0,0)'); h.addColorStop(1, 'rgba(0,0,0,1)'); x.globalCompositeOperation = 'destination-out'; x.fillStyle = h; x.fillRect(0, 0, 64, 256); return c; })());
   const shafts = [];
@@ -663,18 +665,18 @@ SCENES[4] = async (S, { low }) => {
   const nbub = low ? 20 : 50; const bub = dots(S, nbub, { size: 0.09, color: '#e6fbff' }); scene.add(bub);
   const brg = makeRng(21); const bseed = Array.from({ length: nbub }, () => [brg(), brg(), brg(), brg()]);
   // the underwater robot
-  const rov = tool(S, 'rov', 1.1) || new THREE.Group(); scene.add(rov);
+  const rov = tool(S, 'rov', 1.6) || new THREE.Group(); scene.add(rov);
   // the fish
-  const F = fish.filter(Boolean).map((f, i) => { scene.add(f.holder); return { ...f, a: (i / NF) * Math.PI * 2, r: 0.7 + (i % 3) * 0.35, y: ((i * 7) % 5) * 0.16 - 0.3, side: i % 2 ? 1 : -1, sp: 0.9 + (i % 4) * 0.12 }; });
-  const schoolC = V(0, 1.45, 1.4);
+  const F = fish.filter(Boolean).map((f, i) => { scene.add(f.holder); return { ...f, a: (i / NF) * Math.PI * 2, r: 0.9 + (i % 3) * 0.45, y: ((i * 7) % 5) * 0.2 - 0.4, side: i % 2 ? 1 : -1, sp: 0.9 + (i % 4) * 0.12 }; });
+  const schoolC = V(0, 1.5, 2.2);
   // the lab behind the doors (they live in front of the camera)
   const labG = new THREE.Group(); camera.add(labG); labG.visible = false;
   const vs = viewSize(camera, 3.2);
   const lab = picture(S, tlab, 1, { opaque: true }); lab.material.fog = false; labG.add(lab); lab.position.z = -3.2;
-  const robo = makeRobo(S, R, { low }); robo.root.scale.setScalar(1.35); robo.shadow.visible = false; robo.root.position.set(0.95, -1.2, -2.6); robo.root.rotation.y = -0.3; labG.add(robo.root);
+  const robo = makeRobo(S, R, { low }); robo.root.scale.setScalar(1.0); robo.shadow.visible = false; robo.root.position.set(0.5, -0.92, -2.6); robo.root.rotation.y = -0.25; labG.add(robo.root);
   robo.root.traverse((o) => { if (o.material) o.material.fog = false; });
   const doors = new THREE.Group(); camera.add(doors);
-  const shell = S.own(new THREE.MeshStandardMaterial({ color: '#f1efe8', roughness: 0.35, fog: false }));
+  const shell = S.own(new THREE.MeshStandardMaterial({ color: '#f1efe8', roughness: 0.35, emissive: '#5a6466', fog: false }));
   const trim = S.own(new THREE.MeshStandardMaterial({ color: '#2c9a92', roughness: 0.35, fog: false }));
   const glass = S.own(new THREE.MeshStandardMaterial({ color: '#7fd6ea', roughness: 0.1, emissive: '#2a7f9a', emissiveIntensity: 0.6, fog: false }));
   const leafM = S.own(new THREE.MeshStandardMaterial({ color: '#5aa845', roughness: 0.4, emissive: '#2a5a20', emissiveIntensity: 0.4, fog: false, side: THREE.DoubleSide }));
@@ -733,14 +735,15 @@ SCENES[4] = async (S, { low }) => {
       // the doors close in front of us, then open onto the lab
       const kcl = E.out(seg(t, 3.85, 4.35)), kop = E.io(seg(t, 4.65, 5.5));
       doors.visible = t > 3.85; labG.visible = t > 4.4;
+      const under = t < 4.4; reef.visible = rov.visible = bub.visible = under; for (const m of shafts) m.visible = under; for (const f of F) f.holder.visible = under;
       dL.hinge.position.x = -dv.w / 2 * 1.02 - (1 - kcl) * dv.w * 0.55; dR.hinge.position.x = dv.w / 2 * 1.02 + (1 - kcl) * dv.w * 0.55;
       dL.hinge.rotation.y = kop * 1.75; dR.hinge.rotation.y = -kop * 1.75;
       if (!closed && t >= 4.3) { closed = true; sfx('place'); }
-      if (!opened && t >= 4.7) { opened = true; sfx('discover'); robo.wave(1.8); }
+      if (!opened && t >= 4.7) { opened = true; sfx('discover'); }
       flash.material.opacity = 0.85 * Math.sin(Math.PI * seg(t, 4.65, 5.4));
       flash.scale.setScalar(lerp(1.5, 6, seg(t, 4.65, 5.4)));
       robo.expr = 'happy';
-      robo.update(t, dt, { hover: 0.1, look: 0.25 });
+      robo.update(t, dt, { hover: 0.1, look: 0.25, waving: t > 4.9 && t < 6.6 });
     },
   };
 };
@@ -778,7 +781,7 @@ SCENES[5] = async (S, { low }) => {
   return {
     dur: 6.8,
     update(t, dt) {
-      lookCam(camera, V(lerp(0.5, -0.2, E.sine(seg(t, 0, 6.8))), lerp(1.95, 1.75, seg(t, 0, 4)), lerp(4.7, 4.1, E.sine(seg(t, 0, 6.8)))), V(0, 1.12, 0));
+      lookCam(camera, V(lerp(0.5, -0.2, E.sine(seg(t, 0, 6.8))), lerp(1.75, 1.6, seg(t, 0, 4)), lerp(5.0, 4.5, E.sine(seg(t, 0, 6.8)))), V(-0.1, 1.3, 0));
       ringM.opacity = 0.35 + 0.25 * Math.sin(t * 3) + 0.4 * seg(t, 2.5, 3.0) * (1 - seg(t, 3.6, 4.4));
       parts.forEach((P, i) => {
         const k = seg(t, P.t0, P.t0 + 0.55), e = E.back(k);
@@ -797,10 +800,9 @@ SCENES[5] = async (S, { low }) => {
       joy.userData.tick(t);
       const squash = t > 3.2 && t < 3.9 ? 1 + Math.sin(seg(t, 3.2, 3.9) * Math.PI) * 0.06 : 1;
       bot.root.scale.set(1.45 / Math.sqrt(squash), 1.45 * squash, 1.45 / Math.sqrt(squash));
-      if (t >= 3.95 && t < 4.0) bot.wave(1.8);
       // the hover (the float group's own) is kept at 0 while assembling, then rises
       const assembled = t < 3.2;
-      bot.update(t, dt, { hover: assembled ? -0.02 : lerp(-0.02, 0.18, ks), look: lerp(0.4, 0.15, seg(t, 3, 4)), bob: assembled ? 0 : 1 });
+      bot.update(t, dt, { hover: assembled ? 0.0 : lerp(0.0, 0.08, ks), look: lerp(0.4, 0.15, seg(t, 3, 4)), bob: assembled ? 0 : 1, waving: t > 4.0 && t < 6.2 });
       if (assembled) bot.float.rotation.z = 0;
       robo.expr = t > 3.3 ? 'happy' : 'curious';
       robo.update(t, dt, { hover: 0.1, look: lerp(0.5, 0.2, seg(t, 3, 4)), cheer: seg(t, 3.4, 3.7) * (1 - seg(t, 5.2, 5.6)) });
@@ -820,7 +822,7 @@ SCENES[6] = async (S, { low }) => {
   const isl = [
     { m: picture(S, ta, 6.2, { bottom: -1.0 }), p: V(-7.5, 0, -1.5) },
     { m: picture(S, tg, 4.6, { bottom: -0.55 }), p: V(7.5, 0, -1.2) },
-    { m: picture(S, tr, 4.2, { bottom: -1.2 }), p: V(0, 0, -11) },
+    { m: picture(S, tr, 5.4, { bottom: -1.6 }), p: V(0, 0, -11) },
   ];
   for (const I of isl) { I.m.position.copy(I.p); scene.add(I.m); }
   // the fleet: drones on a loop through the three islands
@@ -828,7 +830,7 @@ SCENES[6] = async (S, { low }) => {
   const ND = low ? 4 : 7, TRAIL = low ? 10 : 22;
   const drones = [];
   for (let i = 0; i < ND; i++) { const d = tool(S, 'drone', 1.25); if (!d) break; scene.add(d); drones.push({ d, ph: i / ND, off: ((i % 3) - 1) * 0.5 }); }
-  const trail = dots(S, Math.max(1, drones.length) * TRAIL, { size: 0.42, color: '#bff6ff' }); scene.add(trail);
+  const trail = dots(S, Math.max(1, drones.length) * TRAIL, { size: 0.6, color: '#bff6ff' }); scene.add(trail);
   const gold = new THREE.Color('#ffd27a'), cyan = new THREE.Color('#bff6ff');
   // the gold frame, in front of the camera
   const FD = 2;
@@ -844,8 +846,8 @@ SCENES[6] = async (S, { low }) => {
   return {
     dur: 6.8,
     update(t, dt) {
-      const a = lerp(-0.32, 0.18, E.sine(seg(t, 0, 6.8))), r = lerp(21, 18, E.sine(seg(t, 0, 6.8)));
-      lookCam(camera, V(Math.sin(a) * r, lerp(14.5, 12, E.sine(seg(t, 0, 5))), -3.5 + Math.cos(a) * r), V(0, 0.4, -3.6));
+      const a = lerp(-0.3, 0.16, E.sine(seg(t, 0, 6.8))), r = lerp(22, 20.5, E.sine(seg(t, 0, 6.8)));
+      lookCam(camera, V(Math.sin(a) * r, lerp(10.5, 8.2, E.sine(seg(t, 0, 5))), -4 + Math.cos(a) * r), V(0, 1.2, -4.5));
       water.userData.tick(t, camera);
       for (const I of isl) { I.m.rotation.y = Math.atan2(camera.position.x - I.p.x, camera.position.z - I.p.z); I.m.position.y = Math.sin(t * 0.8 + I.p.x) * 0.05; }
       let n = 0;
@@ -912,6 +914,7 @@ export function playStageScene(n, opts = {}) {
   let finish = () => { };
   const promise = new Promise((resolve) => {
     const animals = [];   // the rigged animals of the scene (their holders carry the visual), disposed at the end
+    const tCall = performance.now(); let readyMs = -1;
     let S = null, sc = null, raf = 0, done = false, t = 0, last = 0, frames = 0, t0 = performance.now(), endShown = false;
     const hold = opts.at != null ? +opts.at : null;
     const onKey = (e) => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); finish(); } };
@@ -919,7 +922,7 @@ export function playStageScene(n, opts = {}) {
     finish = () => {
       if (done) return; done = true;
       cancelAnimationFrame(raf); removeEventListener('keydown', onKey, true); removeEventListener('resize', onResize);
-      try { window.__stageScene.info = { n, frames, seconds: +((performance.now() - t0) / 1000).toFixed(2), tier: q, low }; } catch (e) { }
+      try { window.__stageScene.info = { n, frames, seconds: +((performance.now() - t0) / 1000).toFixed(2), readyMs, tier: q, low }; } catch (e) { }
       el.classList.add('out');
       setTimeout(() => {
         el.remove();
@@ -945,7 +948,7 @@ export function playStageScene(n, opts = {}) {
         S.scene.traverse((o) => { if (o.userData && o.userData.__v) animals.push({ v: o.userData.__v }); });
         if (done) return;
         try { S.renderer.compile(S.scene, S.camera); } catch (e) { }
-        el.classList.add('ready');
+        el.classList.add('ready'); readyMs = Math.round(performance.now() - tCall);
         last = performance.now(); t0 = last;
         const frame = (now) => {
           if (done) return;
