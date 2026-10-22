@@ -1000,6 +1000,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     let srcText = '';
     if (m.reward?.source) { const card = SOURCE_CARDS.find(c => c.id === m.reward.source); if (card && grantSource(card.id)) srcText = ' · קלף מקור חדש באלבום: ' + card.title; }
     ui.missionDone({ title: m.title, note: m.autoNote || '', rewardText: `+${m.reward?.points || 0} נקודות חיים${names.length ? ' · נפתחו: ' + names.join(', ') : ''}${srcText}${badges.length ? ' · תג חדש: ' + badges.map(b => b.name).join(', ') : ''}` });
+    try { const g = m.goal || {}; const sid = [g.from, g.id, g.species, g.to].find((x) => typeof x === 'string' && reg.byId.has(x) && reg.byId.get(x).kind === 'animal'); window.__flourish && window.__flourish.mission(sid); } catch (e) { }   // area I: an animal from the mission celebrates
     refreshTray();
     if (W.experiment) W._saveAfterExperiment = true; else saveGame(true);
     if (!W.research) saveProgress();
