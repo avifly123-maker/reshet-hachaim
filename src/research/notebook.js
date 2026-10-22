@@ -7,13 +7,15 @@
 //   ניסויים  every try, what we saw and why (the experiment log)
 // Plain DOM inside the research modal; the session gives the data (rows with their history, ideas, guesses, links).
 import { icon, esc } from '../ui/ui.js';
+import { BABA_DA_LOGO } from '../data/logo.js';
 
 const COLS = ['#c8473a', '#2f74c0'];
 
 export function notebookHTML(d, tab, sel, o) {
   const { T, kids, pic } = o;
   const tabs = [['measure', T('tabMeasure'), 'search'], ['hyp', T('tabHyp'), 'pencil'], ['links', T('tabLinks'), 'web'], ['log', T('tabLog'), 'book']];
-  const head = `<header><h2>${icon('book')}${esc(T('notebook'))}</h2><button class="rs-x" aria-label="${esc(T('close'))}">${icon('close')}</button></header>
+  // 1.3.2: the Baba Da logo in the notebook's header (styled inline: research.css belongs to the research hub)
+  const head = `<header><h2>${icon('book')}${esc(T('notebook'))}</h2><img class="nb-logo" src="${BABA_DA_LOGO}" alt="בבא דע" draggable="false" style="height:30px;width:auto;margin-inline-start:auto;margin-inline-end:12px;padding:2px 6px;border-radius:8px;background:rgba(251,246,228,.9)"><button class="rs-x" aria-label="${esc(T('close'))}">${icon('close')}</button></header>
     <nav class="nb-tabs" role="tablist">${tabs.map(([id, name, ic]) => `<button class="nb-tab${tab === id ? ' on' : ''}" data-tab="${id}" role="tab">${icon(ic)}<span>${esc(name)}</span>${id === 'hyp' && d.guess ? '<i class="nb-dot"></i>' : ''}</button>`).join('')}</nav>`;
   let body = '';
   if (tab === 'measure') body = measureHTML(d, sel, o);

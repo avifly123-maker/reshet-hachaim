@@ -255,3 +255,49 @@
 #ui.wol .lb.pano .lb-hots { z-index: 4; }
 /* the music switch sits in the bottom-left corner over the lab: the robot's strip at a panel's foot leaves it room */
 #ui.wol .lb .ls-voice, #ui.wol .lb .lt-voice, #ui.wol .lb .lb-pv { padding-left: 56px; }
+/* ===================================================== 1.3.2: מסע החוקר in the lab
+   the Baba Da logo in the top bar; a veiled station (a dim spot, a dim button: a soft curtain, no padlock); the ring
+   around what רובו־דע presents; the inventors table's two big doors */
+#ui.wol .lb-logo { flex: none; height: 46px; width: auto; padding: 4px 10px; border-radius: 14px; background: rgba(251, 246, 228, .94); box-shadow: 0 3px 0 #c9b98a, 0 6px 16px rgba(0, 0, 0, .25); pointer-events: none; }
+#ui.wol .lb.at-st .lb-logo { margin-inline-start: 10px; }
+#ui.wol .lb-hot.veil .lb-dot { animation: none; background: radial-gradient(circle at 40% 35%, #f4efe2, #c8bfa8 60%, #a89f88); box-shadow: 0 0 0 3px rgba(255, 255, 255, .55), 0 0 0 7px rgba(200, 191, 168, .25), 0 2px 6px rgba(0, 0, 0, .25); opacity: .85; }
+#ui.wol .lb-hot.veil .lb-tip { background: rgba(48, 52, 50, .9); color: #e8e2d0; font-weight: 700; }
+#ui.wol .lb-bar button.veil { color: rgba(232, 226, 200, .5); }
+#ui.wol .lb-bar button.veil .ic { opacity: .45; }
+#ui.wol .lb-ring { position: absolute; z-index: 6; border-radius: 16px; pointer-events: none; box-shadow: 0 0 0 4px #ffd166, 0 0 0 9px rgba(255, 209, 102, .35), 0 0 24px 8px rgba(255, 209, 102, .5); animation: lbRing 1.4s ease-in-out infinite; transition: left .25s, top .25s, width .25s, height .25s; }
+#ui.wol .lb-ring[hidden] { display: none; }
+@keyframes lbRing { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
+@media (prefers-reduced-motion: reduce) { #ui.wol .lb-ring { animation: none; } }
+#ui.wol .lb-doors { inset: 84px 0 100px; margin: 0 auto; width: min(700px, calc(100% - 24px)); display: flex; flex-direction: column; gap: 12px; padding: 14px 18px 18px; background: rgba(14, 26, 20, .62); color: #fbf6e4; backdrop-filter: blur(3px); overflow: hidden; }
+#ui.wol .lb-doors header { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+#ui.wol .lb-doors header h2 { color: #fbf6e4; font-size: 1.6em; }
+#ui.wol .lb-doors header p { margin: 0; color: var(--honey, #ffd978); font-weight: 700; }
+#ui.wol .lb-drow { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+#ui.wol .lb-door { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 0; padding: 18px 16px; border: 0; border-radius: 120px 120px 22px 22px; font: inherit; cursor: pointer; text-align: center; transition: transform .18s, box-shadow .18s;
+  box-shadow: inset 0 0 0 4px rgba(255, 255, 255, .5), inset 0 0 0 9px rgba(0, 0, 0, .08), 0 6px 0 rgba(0, 0, 0, .3), 0 12px 24px rgba(0, 0, 0, .3); }
+#ui.wol .lb-door.d-inv { background: linear-gradient(180deg, #fff1c4, #f0c060 70%, #d89a34); color: #3a2406; }
+#ui.wol .lb-door.d-robot { background: linear-gradient(180deg, #d8f4f0, #6cc4b8 70%, #2c9a92); color: #0e2e2c; }
+#ui.wol .lb-door:hover, #ui.wol .lb-door:focus-visible { transform: translateY(-3px); }
+#ui.wol .lb-door:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+#ui.wol .lb-dpic { display: grid; place-items: center; width: min(110px, 18vh); aspect-ratio: 1; border-radius: 50%; background: rgba(255, 255, 255, .55); box-shadow: inset 0 -4px 0 rgba(0, 0, 0, .08); }
+#ui.wol .lb-dpic svg { width: 72%; height: 72%; }
+#ui.wol .lb-door b { font-family: var(--serif); font-size: 1.6em; line-height: 1.15; }
+#ui.wol .lb-door small { font-weight: 700; font-size: .98em; line-height: 1.35; max-width: 18em; opacity: .9; }
+#ui.wol .lb-door.veil { cursor: help; filter: grayscale(.75) brightness(.86); }
+#ui.wol .lb-door.veil::after { content: ''; position: absolute; inset: 0; border-radius: inherit; background: repeating-linear-gradient(90deg, rgba(255, 255, 255, .16) 0 14px, rgba(255, 255, 255, 0) 14px 30px); pointer-events: none; }
+#ui.wol .lb.kids .lb-door small, #ui.wol .lb.kids .lb-doors header p { line-height: 1.6; }
+#ui.wol .lb.kids .lb-door b { line-height: 1.35; }
+@media (max-width: 1100px), (max-height: 680px) {
+  #ui.wol .lb-logo { height: 38px; padding: 3px 8px; }
+  #ui.wol .lb-doors { inset: 70px 0 88px; padding: 10px 12px 12px; gap: 8px; }
+  #ui.wol .lb-doors header h2 { font-size: 1.3em; }
+  #ui.wol .lb-door { padding: 10px; gap: 4px; border-radius: 90px 90px 18px 18px; }
+  #ui.wol .lb-door b { font-size: 1.3em; }
+  #ui.wol .lb-door small { font-size: .88em; }
+}
+@media (max-height: 520px) {
+  #ui.wol .lb-logo { height: 30px; padding: 2px 6px; border-radius: 10px; }
+  #ui.wol .lb-doors { inset: 60px 0 96px; }
+  #ui.wol .lb-dpic { width: 15vh; }
+}
+@media (max-width: 860px) { #ui.wol .lb:not(.at-st) .lb-logo { display: none; } }
