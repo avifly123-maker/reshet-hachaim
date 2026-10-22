@@ -51,14 +51,17 @@ async def do_check(p):
         res = {'players': players}
         # מסע החוקר (1.3.2): every player with progress from before is 'legacy' – every part open, nothing closes
         await pg.wait_for_function("window.__journey && window.__journey.state", timeout=60000)
-        journey = await pg.evaluate("""() => { const P = window.__profiles, J = window.__journey, cur = P.current().id, out = [];
+        # a player whose save is already from 1.3.2 or later has its own journey (stage by progress, not legacy): skip it
+        had = [k.split('::', 1)[1] for k in fx['keys'] if k.startswith('web-of-life-journey::')]
+        journey = await pg.evaluate("""(had) => { const P = window.__profiles, J = window.__journey, cur = P.current().id, out = [];
             for (const p of P.list()) {
+              if (had.includes(p.id)) continue;
               P.setCurrent(p.id); J.reload(); const m = J.metrics();
               const forest = Object.keys(localStorage).some((k) => k.startsWith('web-of-life-save-') && k.endsWith('::' + p.id));
               if (!(forest || m.missions + m.badges + m.lab + m.cases + m.cards > 0)) continue;   // a player who never played
               const st = J.state(); out.push({ id: p.id, legacy: st.legacy, closed: Object.keys(J.PARTS).filter((x) => !J.isOpen(x)) });
             }
-            P.setCurrent(cur); J.reload(); return out; }""")
+            P.setCurrent(cur); J.reload(); return out; }""", had)
         res['journey'] = journey
         for biome in ('amazon', 'grove'):
             saved = await pg.evaluate(f"!!localStorage.getItem(window.__profiles.key('web-of-life-save-{biome}'))")
@@ -73,7 +76,7 @@ async def do_check(p):
         cards = await pg.evaluate("window.__wolLearn.open(); const n = Object.keys(window.__wolLearn._state().owned).length; window.__wolLearn.close(); n")
         res['cards'] = cards; res['errors'] = errs[:3]
         ok = players >= 2 and cards >= 20 and not errs and all((not res[b]['had_save']) or res[b]['entities'] > 10 for b in ('amazon', 'grove')) \
-            and len(journey) > 0 and all(j['legacy'] and not j['closed'] for j in journey)
+            and (len(journey) > 0 or bool(had)) and all(j['legacy'] and not j['closed'] for j in journey)
         bad += not ok; print(('OK  ' if ok else 'FAIL'), pathlib.Path(f).name, json.dumps(res, ensure_ascii=False))
         await b.close()
     sys.exit(1 if bad else 0)
