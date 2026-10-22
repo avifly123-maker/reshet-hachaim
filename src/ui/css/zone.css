@@ -11,10 +11,10 @@
 #ui.wol .m-hint-btn { font-size: calc(.85em * var(--ts)); }
 #ui.wol .m-checks li { font-size: calc(.88em * var(--ts)); }
 #ui.wol .tray .card { font-size: calc(1em * (1 + (var(--ts) - 1) * .55)); }
-#ui.wol .tray .c-name { font-size: calc(.9em * (1 + (var(--ts) - 1) * .6)); }
-#ui.wol.kids .tray .c-name { font-size: calc(1.02em * (1 + (var(--ts) - 1) * .6)); }
-#ui.wol .tray .card.locked .c-name { font-size: calc(.82em * (1 + (var(--ts) - 1) * .6)); }
-#ui.wol .tray .c-cost { font-size: calc(1.15em * (1 + (var(--ts) - 1) * .6)); }
+#ui.wol .tray .c-name { font-size: calc(.9em * (1 + (var(--ts) - 1) * .22)); }
+#ui.wol.kids .tray .c-name { font-size: calc(1.02em * (1 + (var(--ts) - 1) * .22)); }
+#ui.wol .tray .card.locked .c-name { font-size: calc(.82em * (1 + (var(--ts) - 1) * .22)); }
+#ui.wol .tray .c-cost { font-size: calc(1.15em * (1 + (var(--ts) - 1) * .3)); }
 #ui.wol .tr-tabs button { font-size: calc(1em * (1 + (var(--ts) - 1) * .5)); }
 #ui.wol .h-item b { font-size: calc(1.2em * var(--ts)); }
 #ui.wol .vit-pc { font-size: calc(.78em * var(--ts)); }
@@ -23,7 +23,7 @@
 
 /* ---------- "מה עושים עכשיו?" under the missions */
 #ui.wol .m-whatnow { pointer-events: auto; align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; margin: -4px 4px 0; padding: 4px 12px 4px 10px; min-height: 32px;
-  border-radius: 99px; font-weight: 800; font-size: calc(.86em * var(--ts)); color: #10332f; background: #8fd6cd; box-shadow: 0 2px 0 #2c7a72; cursor: pointer; flex: none; }
+  border-radius: 99px; font-weight: 800; font-size: calc(.86em * var(--ts)); white-space: nowrap; color: #10332f; background: #8fd6cd; box-shadow: 0 2px 0 #2c7a72; cursor: pointer; flex: none; }
 #ui.wol .m-whatnow:hover { background: #a9e3db; }
 #ui.wol .m-whatnow:focus-visible { outline: 3px solid var(--honey); outline-offset: 2px; }
 #ui.wol .m-whatnow .ic { width: 20px; height: 20px; }

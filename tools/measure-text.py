@@ -2,7 +2,7 @@
 # Plays a zone headless for a stretch of game time with a simple bot player and counts every message that reaches the
 # screen (toasts, link discoveries, mission banners, events and their outcomes, dialogs, the end-of-day prompt, the coach,
 # the "איך משחקים" cards, the bubbles of רובו־דע, the injured-animal bar) and its words.
-#   python3 tools/measure-text.py dist/index.html [seconds=3600] [zones=amazon,grove,reef] [modes=full,experience] [out.json]
+#   python3 tools/measure-text.py dist/index.html [seconds=3600] [zones=amazon,grove,reef] [modes=full,experience] [out.json] [texts-prefix]
 # Prints one line per run: messages and words, in total and per game minute. Every run is a new player (fresh storage).
 # The bot: every 20 game seconds it closes what is open (events take their first choice, as debug.auto() does), places the
 # species the current mission asks for, reveals a link the mission asks for, sometimes places another unlocked species,
@@ -23,7 +23,7 @@ SETUP = r'''(mode) => {
   try { J.setPlayMode(mode); } catch (e) { }
   const C = window.__count = { n: 0, w: 0, kinds: {} };
   const words = (s) => String(s || '').replace(/[֑-ׇ]/g, '').split(/\s+/).filter((x) => /[א-תA-Za-z0-9]/.test(x)).length;
-  const add = (kind, text) => { const w = words(text); C.n++; C.w += w; const k = C.kinds[kind] || (C.kinds[kind] = { n: 0, w: 0 }); k.n++; k.w += w; };
+  const add = (kind, text) => { const w = words(text); (C.texts = C.texts || []).push(kind + ': ' + String(text || '').slice(0, 90)); C.n++; C.w += w; const k = C.kinds[kind] || (C.kinds[kind] = { n: 0, w: 0 }); k.n++; k.w += w; };
   window.__countAdd = add;
   const wrap = (name, f) => { const o = ui[name]; if (!o) return; ui[name] = function (...a) { try { f(...a); } catch (e) { } return o.apply(this, a); }; };
   wrap('toast', (t) => add('toast', t));
@@ -52,8 +52,9 @@ STEP = r'''(stepSecs) => {
     const nx = hb.querySelector('.howto-next') || hb.querySelector('[data-h]'); if (nx) nx.click(); else break;
   }
   try { window.__app.bus.emit('coach:skip'); } catch (e) { }
-  try { window.__guide && window.__guide.close(); } catch (e) { }
-  const d = W.debug; d.auto();
+  // רובו־דע: the child reads his bubbles and clicks through them (close() would abort them, and they would come again)
+  for (let k = 0; k < 40; k++) { const b = document.querySelector('#rguide:not([hidden]) .rg-next, #rguide:not([hidden]) .rg-act'); if (!b) break; b.click(); }
+  const d = W.debug; d.auto(); try { window.__app.bus.emit('outcome:close'); } catch (e) { }   // the child closes the outcome card
   // the bot player
   const M = W.missions && W.missions.current && W.missions.current();
   const g = M && M.goal || {};
@@ -61,13 +62,14 @@ STEP = r'''(stepSecs) => {
   W.points += 40 * stepSecs / 60;
   const tryPlace = (id) => { for (let i = 0; i < 6; i++) { const [x, z] = rnd(); const r = d.place(id, x, z); if (Array.isArray(r)) return true; } return false; };
   if (g.species && W.unlocked.has(g.species)) tryPlace(g.species);
-  if (g.type === 'link') try { window.__app.bus.emit('relation:reveal', { from: g.from, to: g.to, type: (W.reg.edges.find((e) => (e.from === g.from && e.to === g.to) || (e.from === g.to && e.to === g.from)) || {}).type }); } catch (e) { }
+  if (g.type === 'link' && !(W.countAlive(g.from) && W.countAlive(g.to))) { for (const id of [g.from, g.to]) if (!W.countAlive(id) && W.unlocked.has(id)) tryPlace(id); }
+  else if (g.type === 'link') try { window.__app.bus.emit('relation:reveal', { from: g.from, to: g.to, type: (W.reg.edges.find((e) => (e.from === g.from && e.to === g.to) || (e.from === g.to && e.to === g.from)) || {}).type }); } catch (e) { }
   if (g.type === 'speciesAlive' || g.type === 'chain' || g.type === 'discover' || Math.random() < 0.35) {
     const un = W.biome.species.filter((s) => W.unlocked.has(s.id) && s.cost <= W.points && W.countAlive(s.id) < 3);
     if (un.length) tryPlace(un[(Math.random() * un.length) | 0].id);
   }
   const r = d.ff(stepSecs, 0.25);
-  if (String(r).startsWith('modal')) d.auto();
+  if (String(r).startsWith('modal')) { d.auto(); try { window.__app.bus.emit('outcome:close'); } catch (e) { } }
   return { t: W.simT, done: W.missions.doneCount, n: window.__count.n, w: window.__count.w };
 }'''
 
@@ -92,6 +94,8 @@ async def run(pw, zone, mode):
         last = r
         if r['t'] >= SECS: break
     kinds = await pg.evaluate('() => window.__count.kinds')
+    texts = await pg.evaluate('() => window.__count.texts || []')
+    if len(sys.argv) > 6: pathlib.Path(sys.argv[6] + '-' + zone + '-' + mode + '.txt').write_text('\n'.join(texts))
     await b.close()
     mins = max(1e-6, last['t'] / 60)
     res = {'zone': zone, 'mode': mode, 'minutes': round(mins, 1), 'missions': last['done'], 'messages': last['n'], 'words': last['w'],
