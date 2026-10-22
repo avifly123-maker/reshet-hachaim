@@ -1,4 +1,5 @@
 [{"wait":2},
+{"js":"window.__journey && window.__journey.unlockAll('2580'); 1"},
 {"js":"window.__app.bus.emit('ui:learn', { screen: 'inventors' }); 1"},{"wait":11},
 {"js":"window.__ivDebug ? (window.__ivDebug.view('robots'), 'opened') : 'no game'"},{"wait":0.5},
 {"shot":"shots/inv-1-missions.png"},

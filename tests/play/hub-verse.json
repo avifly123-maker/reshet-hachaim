@@ -1,4 +1,5 @@
 [{"wait":2},
+{"js":"window.__journey && window.__journey.unlockAll('2580'); 1"},
 {"js":"window.__noRender=true; document.getElementById('game').style.display='none'; const st=document.createElement('style'); st.textContent='#wol-learn .wl-toast,#wol-learn .wl-fx{display:none!important} #wol-learn,#wol-learn *{animation:none!important}'; document.head.appendChild(st); 1"},
 {"js":"const k=window.__profiles.key('web-of-life-badges'); const t=Date.now(); localStorage.setItem(k, JSON.stringify({own:{b_inv1:t-50000,b_deep1:t-40000,b_rs1:t-30000,b_scope:t-20000,b_ax1:t-10000}})); const s=window.__profiles.key('web-of-life-srccards'); localStorage.setItem(s, JSON.stringify({ant:t,small4:t,lion:t,choni:t,yam:t,rabu:t,tikva:t})); 1"},
 {"js":"window.__wolLearn.open(); 1"},{"wait":2},

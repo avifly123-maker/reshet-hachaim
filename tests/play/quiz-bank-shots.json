@@ -1,4 +1,5 @@
 [{"wait": 2},
+{"js":"window.__journey && window.__journey.unlockAll('2580'); 1"},
 {"js": "try{window.__app.bus.emit('quality',{q:'min'})}catch(e){} window.__wolLearn.open(); const st=document.createElement('style'); st.textContent='#wol-learn *,#wol-learn *::before,#wol-learn *::after{animation-duration:0s!important;animation-delay:0s!important;transition:none!important}'; document.head.appendChild(st); window.__find=async(lv,b,want)=>{ const L=window.__wolLearn, $=(s)=>document.querySelector('#wol-learn '+s), sleep=(ms)=>new Promise(r=>setTimeout(r,ms)); for (let k=0;k<30;k++){ L._go('quiz',{level:lv,biome:b}); await sleep(80); for (let i=0;i<10;i++){ const q=$('.wl-q'); if (q && q.textContent.includes(want)) return 'found '+k; const o=$('.wl-opt'); if(!o) return 'no opt'; o.click(); await sleep(20); const n=$('.wl-fb [data-wl=next]'); if(!n) return 'no next'; n.click(); await sleep(20);} } return 'not found'; }; 1"},
 {"js": "window.__find('hard','reef','איך עשב הים עוזר למים להיות צלולים?')"},
 {"wait": 2},

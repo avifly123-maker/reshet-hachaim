@@ -1,4 +1,5 @@
-[{"wait":4},{"shot":"shots/01-start.png"},
+[{"wait":4},
+{"js":"window.__journey && window.__journey.unlockAll('2580'); 1"},{"shot":"shots/01-start.png"},
 {"js":"window.__app.bus.emit('quality',{q:'medium'}); 1"},
 {"js":"(async()=>{await window.__app.loadBiome('grove'); return 'g'})()"},{"wait":14},
 {"js":"(()=>{const W=window.__game,d=W.debug; d.unlockAll(); d.auto(); W.points=1e6; [...document.querySelectorAll('button')].filter(b=>b.textContent.trim()==='דלג').forEach(b=>b.click()); const L=[['oak',-6,4],['oak',5,9],['carob',8,-3],['pine',-10,-6],['terebinth',2,-11],['mastic',-3,1],['sage',1,5],['rockrose',-8,8],['cyclamen',0,2],['anemone',3,3],['anemone',-2,6],['cyclamen',6,4],['honeybee',2,4],['butterfly',-1,3],['jay',-5,4],['hoopoe',1,0],['gazelle',4,-6],['tortoise',-2,-2],['hyrax',-14,-12],['chukar',3,7]]; let ok=0; for(const [id,x,z] of L){ if(typeof d.place(id,x,z)==='object') ok++; } for(let k=0;k<6;k++){d.auto(); d.ff(20);} d.auto(); return 'placed '+ok})()"},

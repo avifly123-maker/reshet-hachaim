@@ -23,12 +23,15 @@ def _stress(segs):
     ipa_plain = ''.join(''.join(s.onset) + s.nucleus + ''.join(s.coda) for s in segs)
     n = len(segs); idx = n - 1
     word = _stress.word or ''
-    letters = re.sub('[^א-תְ-ׇ]', '', word)
+    letters = re.sub('[^א-תְ-ׇ]', '', word).replace('\u05C1', '').replace('\u05C2', '')
+    letters = re.sub('([ךת])ְ$', '\\1', letters)
+    letters = re.sub('(?<!ו)\u05BC', '', letters)   # a dagesh sits after the vowel in NFC (טֶּבַע): it never changes the stress
     if n >= 2:
         last = letters[-3:]
         # segolates: the last vowel is a segol (not before a final ה), or a furtive patah under a final ח / ע after a segol
-        if re.search('ֶ[א-ת]ּ?$', letters) and not letters.endswith('ה') : idx = n - 2
+        if re.search('ֶ[א-ת]ּ?$', letters) and not letters.endswith('ה') and not re.search('[כה]ֶ[םן]$', letters): idx = n - 2   # not -כֶם / -הֶם
         elif re.search('ֶ[א-ת]ּ?ַ?[חע]ַ$', letters): idx = n - 2
+        elif re.search('ֶ[א-ת]ּ?ַ[חע]$', letters): idx = n - 2        # טֶבַע, פֶּתַח, זֶרַע
         elif re.search('ַיִם$', letters): idx = n - 2                  # -ayim
         elif re.search('\u05B7[\u05D7\u05E2\u05D4\u05D0]\u05B7[\u05D0-\u05EA]\u05BC?$', letters): idx = n - 2   # יַעַר, נַעַר, שַׁעַר
         elif re.search('נוּ$', letters) or re.search('תּ?ִי$', letters): idx = n - 2   # -nu, -ti
@@ -38,6 +41,12 @@ def _stress(segs):
     return ''.join(pieces), []
 _stress.word = None
 H._syllabify_to_ipa = _stress
+# holam haser (חֹשֶׁךְ, בֹּקֶר): Piper reads a holam only on a vav, and drops it on any other letter
+_basic = H._map_basic_vowel
+def _basic_holam(g):
+    if g.base != H.VAV and g.has(H.HOLAM) and not g.any({H.QAMATS_QATAN, H.QUBUTZ, H.HIRIQ, H.TSERE, H.SEGOL, H.PATAH, H.QAMATS}): return 'o', True
+    return _basic(g)
+H._map_basic_vowel = _basic_holam
 _word_to_ipa = H.hebrew_word_to_ipa
 def word_ipa(w, lex):
     key = NIK.sub('', w)
@@ -111,10 +120,10 @@ def main():
             jobs.append((l['id'], f if NIK.search(f) else dia(f)))
             if k: jobs.append((l['id'] + '.k', k))
         for vid, text in jobs:
-            h = hashlib.sha1((text + '|v3').encode()).hexdigest()[:12]
+            ipa = text_to_ipa(text, lex)
+            h = hashlib.sha1((text + '|' + ipa + '|v4').encode()).hexdigest()[:12]   # a new reading rule re-voices the line
             path = OUT / (vid + '.ogg')
             if not o.force and man.get(vid, {}).get('h') == h and path.exists(): continue
-            ipa = text_to_ipa(text, lex)
             wav = to_ogg(synth(sess, ipa), path)
             man[vid] = {'h': h, 'text': text, 'ipa': ipa}
             heard = hear(wav) if hear else ''

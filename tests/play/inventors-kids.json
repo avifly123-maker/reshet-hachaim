@@ -1,4 +1,5 @@
 [{"wait":2},
+{"js":"window.__journey && window.__journey.unlockAll('2580'); 1"},
 {"clickSel":"[data-mode='kids']"},{"wait":0.5},
 {"js":"window.__app.bus.emit('ui:learn', { screen: 'inventors' }); 1"},{"wait":11},
 {"js":"window.__ivDebug.pick('roof'); window.__ivDebug.put('grove:tortoise'); 1"},{"wait":0.4},

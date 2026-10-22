@@ -1,4 +1,5 @@
 [{"wait":2},
+{"js":"window.__journey && window.__journey.unlockAll('2580'); 1"},
 {"js":"window.__wolLearn.open(); window.__wolLearn._go('setup'); 1"},{"wait":1},
 {"shot":"shots/tq-setup.png"},
 {"js":"(async()=>{ const L=window.__wolLearn, $=(s)=>document.querySelector('#wol-learn '+s), sleep=(ms)=>new Promise(r=>setTimeout(r,ms)); const all=[]; for (let k=0;k<20;k++){ L._go('quiz',{level:'torah'}); await sleep(60); for (let i=0;i<10;i++){ all.push($('.wl-q').textContent); $('.wl-opt').click(); await sleep(20); $('.wl-fb [data-wl=next]').click(); await sleep(20);} } const n=new Set(all).size; return 'torah rounds 20, asked '+all.length+', different '+n+', seen '+(L._state().seen||[]).length; })()"},
