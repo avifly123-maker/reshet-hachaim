@@ -17,11 +17,12 @@ async def main(o):
         pg.on('pageerror', lambda e: print('page error', e))
         await pg.goto(await mount(pg, o.build)); await pg.wait_for_function('window.__app && window.__stageScene', timeout=120000)
         if o.kids: await pg.evaluate("localStorage.setItem(window.__profiles.key('web-of-life-mode'), 'kids')")
-        await pg.evaluate("window.__app.bus.emit('quality', { q: 'medium' }); window.__guide && window.__guide.close()")
         await pg.wait_for_timeout(1500)
         for n in [int(x) for x in o.scenes.split(',')]:
-            await pg.evaluate(f"window.__guide && window.__guide.close(); window.__stageDone = false; window.__stageScene({n}, {{ at: 0 }}).then(() => window.__stageDone = true); 1")
-            await pg.wait_for_function("document.querySelector('.ss.ready')", timeout=180000)
+            await pg.evaluate("window.__stageScene.stop()"); await pg.wait_for_timeout(1200)   # a new player's own stage moment may be playing
+            await pg.evaluate("window.__guide && window.__guide.close(); 1"); await pg.wait_for_timeout(300)
+            await pg.evaluate(f"window.__stageDone = false; window.__stageScene({n}, {{ at: 0 }}).then(() => window.__stageDone = true); 1")
+            await pg.wait_for_function("document.querySelector('.ss.ready')", timeout=300000); await pg.wait_for_timeout(3000)
             steps = int(DUR[n] * o.fps)
             for i in range(steps):
                 t = i / o.fps
