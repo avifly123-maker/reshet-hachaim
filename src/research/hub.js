@@ -11,6 +11,8 @@ import { CARD_ART } from '../data/card-art.js';
 import { BABA_DA_LOGO } from '../data/logo.js';
 import { isOpen, introSeen } from '../core/journey.js';
 import { lockWords, lockTip } from '../ui/journey-map.js';
+import { recommended } from '../core/threads.js';   // חוטים: an event lived on the island → רובו־דע recommends its mystery
+import { markHTML } from '../ui/threads-ui.js';
 
 // "איך משחקים": four short cards the first time the research centre opens (replay with the "?" button). Vocalised,
 // so beginners read them too. Pictures: the card paintings.
@@ -44,6 +46,7 @@ export function createResearchHub(root, { onPick, onClose, onLab }) {
     // מסע החוקר (1.3.2): the mysteries open with the part 'research', the lab entry with 'lab'; veiled, never hidden
     const rsOpen = isOpen('research'), labOpen = isOpen('lab');
     const veil = (open, part) => (open ? '' : ` jv" data-part="${part}" title="${esc(lockWords(part))}`);
+    let rec = new Set(); try { rec = new Set(recommended().map((r) => r.caseId)); } catch (e) { console.error(e); }
     const starRow = (id) => { const s = (prog[id] && prog[id].stars) || []; return `<span class="rs-h-stars">${[0, 1, 2].map((i) => `<i class="${s[i] ? 'on' : ''}">★</i>`).join('')}</span>`; };
     el.innerHTML = `<div class="rs-h-bg"></div><div class="rs-h-inner">
       <header class="rs-h-head"><button class="rs-h-back">${icon('arrowR')}<span>חזרה</span></button>
@@ -55,7 +58,7 @@ export function createResearchHub(root, { onPick, onClose, onLab }) {
         const mine = CASES.filter((c) => c.level === L.id).sort((a, b) => a.order - b.order);
         const soon = SOON[L.id] || [];
         return `<section class="rs-h-level"><h2>${icon(L.ic)}<span>${esc(L.name)}</span><small>${esc(L.sub)}</small></h2><div class="rs-h-cases">
-          ${mine.map((c) => `<button class="rs-h-case${veil(rsOpen, 'research')}" data-case="${c.id}"><div class="rs-h-art"><img src="${ISLAND_ART[c.zone] || ''}" alt=""><span class="rs-h-zone">${esc(ZONE_NAME[c.zone] || '')}</span></div>
+          ${mine.map((c) => `<button class="rs-h-case${rec.has(c.id) ? ' th-rec' : ''}${veil(rsOpen, 'research')}" data-case="${c.id}">${rec.has(c.id) ? markHTML('recommend') : ''}<div class="rs-h-art"><img src="${ISLAND_ART[c.zone] || ''}" alt=""><span class="rs-h-zone">${esc(ZONE_NAME[c.zone] || '')}</span></div>
             <div class="rs-h-body"><b>${esc(c.title)}</b><p>${esc(c.call)}</p>${starRow(c.id)}</div></button>`).join('')}
           ${soon.map((c) => `<div class="rs-h-case soon"><div class="rs-h-art"><img src="${ISLAND_ART[c.zone] || ''}" alt=""><span class="rs-h-zone">${esc(ZONE_NAME[c.zone] || '')}</span></div>
             <div class="rs-h-body"><b>${esc(c.title)}</b><p>בקרוב</p></div></div>`).join('')}

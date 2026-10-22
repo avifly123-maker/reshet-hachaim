@@ -12,6 +12,8 @@ import { grant as grantBadge } from '../core/badges-store.js';
 import { labKids, fmt } from './level.js';
 import { QUEST_K, QUEST_UI_K, SAMPLES_K } from './kids-text.js';
 import { PROBLEMS_K } from '../data/inventions-kids.js';
+import { questionMarked } from '../core/threads.js';   // חוטים: a relation found on the island marks its creature's question
+import { markHTML } from '../ui/threads-ui.js';
 
 const ZONES = [['amazon', 'אמזונס'], ['grove', 'חורש'], ['reef', 'שונית']];
 
@@ -80,6 +82,8 @@ export function investigated(q, P = labProgress()) {
 // answered = guessed and investigated
 export function answered(q, P = labProgress()) { const s = P.qs[q.id]; return !!(s && s.g != null && investigated(q, P)); }
 export const answeredCount = (P = labProgress(), kids = false) => questionsFor(kids).filter((q) => answered(q, P)).length;
+// questions "מהאי שלכם" still open (חוטים: a relation of their creature was found on the island)
+export function islandQuestions(kids = false, P = labProgress()) { try { return questionsFor(kids).filter((q) => questionMarked(q.sp) && !answered(q, P)).length; } catch (e) { return 0; } }
 
 function grantFor(P) {
   const n = answeredCount(P);
@@ -101,6 +105,9 @@ export function openQuestions(root, { say, thumbs = {}, audio, onClose, onBack, 
   const el = document.createElement('div'); el.className = 'lb-panel lb-quest' + (kids ? ' kids' : ''); root.appendChild(el);
   let zone = 'amazon', cur = null, last = '', alive = true;
   if (start) { cur = QS.find((q) => q.id === start) || null; if (cur) zone = cur.zone; }
+  // a question "מהאי שלכם" (not answered yet): the list shows it, and the panel opens on its zone
+  const isl = (q, P = labProgress()) => { try { return questionMarked(q.sp) && !answered(q, P); } catch (e) { return false; } };
+  if (!start) { const m = QS.find((q) => isl(q)); if (m) zone = m.zone; }
   const status = (q, P) => { const s = P.qs[q.id] || {}; if (answered(q, P)) return q.open ? ['open', 'שאלה פתוחה'] : ['done', kids ? K.done : 'יש תשובה']; if (s.g != null) return ['wait', kids ? K.wait : 'מחכה לבדיקה']; return ['new', kids ? K.fresh : 'חדשה']; };
 
   function detail(q, P) {
@@ -139,8 +146,8 @@ export function openQuestions(root, { say, thumbs = {}, audio, onClose, onBack, 
     const n = answeredCount(P, kids);
     const keep = el.querySelector('.lb-q-list'), scroll = keep ? keep.scrollTop : 0;   // the list keeps its place when a question is picked
     el.innerHTML = `<header><h2>${kids ? K.title : 'שאלות חקר'}</h2><p>${kids ? fmt(K.count, { n, all: QS.length }) : `${n} מתוך ${QUESTIONS.length} שאלות קיבלו תשובה`}</p><button class="lb-btn lb-back">${kids ? K.back : 'חזרה לאטלס'}</button></header>
-      <div class="lb-q-cols"><div class="lb-q-side"><nav class="lb-q-zones">${ZONES.map(([z, t]) => `<button data-z="${z}" class="${z === zone ? 'on' : ''}">${kids ? K.zones[z] : t}</button>`).join('')}</nav>
-        <div class="lb-q-list">${list.map((q) => { const [k, t] = status(q, P); return `<button data-q="${q.id}" class="${cur === q ? 'on' : ''} ${k}">${thumbs[q.sp] ? `<img src="${thumbs[q.sp]}" alt="">` : ''}<span>${esc(q.q)}</span><small>${t}</small></button>`; }).join('')}</div></div>
+      <div class="lb-q-cols"><div class="lb-q-side"><nav class="lb-q-zones">${ZONES.map(([z, t]) => `<button data-z="${z}" class="${z === zone ? 'on' : ''}">${kids ? K.zones[z] : t}${QS.some((q) => q.zone === z && isl(q, P)) ? ' <i class="th-dot" aria-hidden="true"></i>' : ''}</button>`).join('')}</nav>
+        <div class="lb-q-list">${list.map((q) => { const [k, t] = status(q, P); const mk = isl(q, P); return `<button data-q="${q.id}" class="${cur === q ? 'on' : ''} ${k}${mk ? ' th-isl' : ''}">${mk ? markHTML('island') : ''}${thumbs[q.sp] ? `<img src="${thumbs[q.sp]}" alt="">` : ''}<span>${esc(q.q)}</span><small>${t}</small></button>`; }).join('')}</div></div>
         <div class="lb-q-main">${detail(cur, P)}</div></div>`;
     const lst = el.querySelector('.lb-q-list'); if (lst && scroll) lst.scrollTop = scroll;
     el.querySelector('.lb-back').onclick = () => { close(); onBack && onBack(); };
