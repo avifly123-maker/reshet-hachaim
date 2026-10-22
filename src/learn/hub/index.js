@@ -243,7 +243,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   // opened from the lab (the inventors table): "חזרה" on that screen goes straight back to the lab
   let returnTo = null;
   function back() {
-    if (!modal.hidden) return closeModal();
+    if (!modal.hidden) { closeModal(); onJourney(); return; }
     if (screen === 'album' && ctx.setsOpen) { sfx('click'); return showSets(false); }
     if (returnTo && screen === returnTo) { sfx('click'); returnTo = null; return close(); }
     const p = PARENT[screen];
@@ -274,7 +274,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
 
   /* ── events */
   const ACT = {
-    back, close: closeModal, home: () => { sfx('click'); go('home'); }, setup: () => { sfx('click'); go('setup'); },
+    back, close: () => { closeModal(); onJourney(); }, home: () => { sfx('click'); go('home'); }, setup: () => { sfx('click'); go('setup'); },
     album: () => { sfx('click'); go('album'); }, packs: () => { sfx('click'); go(S.packs ? 'pack' : 'album'); },
     pick: (t) => { QS[t.dataset.g] = t.dataset.v; sfx('select'); renderSetup(); },
     start: () => { sfx('click'); go('quiz'); }, again: () => { const Q = quizNow(); sfx('click'); go('quiz', { level: Q && Q.level, biome: Q && Q.biome }); },
@@ -309,7 +309,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   el.addEventListener('click', (e) => {
     const t = e.target.closest('[data-wl]');
     if (t && el.contains(t) && !t.disabled) { ACT[t.dataset.wl] && ACT[t.dataset.wl](t, e); return; }
-    if (e.target === modal) { closeModal(); return; }
+    if (e.target === modal) { closeModal(); onJourney(); return; }
     const c = e.target.closest('.wl-grid .wl-card'); if (c) zoom(c.dataset.cid);
   });
   // keep the game underneath from reacting to input while the hub is open
@@ -335,8 +335,8 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     clearTimeout(journeyT);
     journeyT = setTimeout(() => {
       if (!open_) return;
-      const sg = sigNow(); if (sg === lockSig) return; lockSig = sg;
-      if (!modal.hidden) return;
+      // (under an open window nothing is repainted and the new locks are not taken as seen: closing it repaints)
+      const sg = sigNow(); if (sg === lockSig || !modal.hidden) return; lockSig = sg;
       if (screen === 'home') renderHome(); else if (screen === 'badges') renderBadges(); else return;
       const sc = main.querySelector('.wl-screen'); if (sc) sc.style.animation = 'none';   // a repaint, not a new screen: no rise
     }, 60);
