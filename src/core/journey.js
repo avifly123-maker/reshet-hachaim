@@ -19,7 +19,7 @@
 //   playMode() / setPlayMode(m)         'experience' | 'full'   (beginners always play their own simple mode)
 //   textSize() / setTextSize(s)         'normal' | 'large' | 'xlarge'   (applies a class on <html>, see applyTextSize)
 //   voiceOn() / setVoice(on)            רובו־דע speaks his lines (src/audio/voice.js)
-//   allOpen() / unlockAll(code) / lockAgain()   the instructors' switch; INSTRUCTOR_CODE is written in docs/RELEASE.md
+//   allOpen() / unlockAll(code) / lockAgain()   the instructors' switch; INSTRUCTOR_CODE (Avi gives it to the instructors; docs/JOURNEY.md)
 // Events listened to: 'wol-badge' (a badge), 'wol-progress' (a mission, a lab activity, a solved mystery…) → check().
 import { key as profileKey } from './profiles.js';
 
