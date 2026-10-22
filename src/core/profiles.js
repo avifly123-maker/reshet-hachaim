@@ -3,20 +3,25 @@
 // Storage (localStorage, every access wrapped in try/catch – the game also works without storage):
 //   'web-of-life-profiles' = { list: [{ id, name, animal }], current: id }      (device-wide)
 //   per-player data lives under  `${base}::${playerId}`, e.g. 'web-of-life-cards::p1'
-//   device-wide keys stay unprefixed: the profiles store itself, 'web-of-life-quality', 'web-of-life-campad'.
+//   device-wide keys stay unprefixed. Which key is which: the list KEYS in core/storage.js (the one place for it).
 //
 // Migration: the first run that finds no profiles store creates "שחקן 1" and moves every existing
-// per-player key ('web-of-life-*' except the device-wide ones) to that player's prefixed key.
+// per-player key ('web-of-life-*' except the keys core/storage.js marks `migrate: false`) to that player's prefixed key.
 //
 // API: list(), current(), setCurrent(id), add(name, animal), rename(id, name), setAnimal(id, animal),
 //      remove(id), key(base), state(), MAX, NAME_MAX.   Exposed as window.__profiles for tests.
 
-export const STORE = 'web-of-life-profiles';
+import { unmovedKeys } from './storage.js';
+
+export const STORE = 'web-of-life-profiles';   // = K.profiles in core/storage.js (tools/validate-storage.mjs checks it)
 export const MAX = 6;   // 1.3.2: six children (was four)
 export const NAME_MAX = 14;
 const PREFIX = 'web-of-life-';
 const SEP = '::';
-const DEVICE_KEYS = new Set([STORE, 'web-of-life-quality', 'web-of-life-campad', 'web-of-life-autoq']);
+// the device-wide keys the first-run migration leaves alone, from core/storage.js KEYS (read when first needed:
+// storage.js imports this module too, so nothing of it may be used while the modules load)
+let DEVICE_KEYS = null;
+export const deviceKeys = () => DEVICE_KEYS || (DEVICE_KEYS = new Set(unmovedKeys()));
 // the animal avatars a player can pick (ids of painted card art; see src/ui/avatars.js)
 export const ANIMALS = ['owl', 'fox', 'hedgehog', 'hoopoe', 'toucan', 'dartfrog', 'sloth', 'butterfly'];
 
@@ -24,7 +29,7 @@ let P = null;   // { list, current } – kept in memory too, so profiles work ev
 
 const ls = () => { try { return window.localStorage || null; } catch (e) { return null; } };
 const allKeys = () => { const s = ls(); const out = []; try { if (s) for (let i = 0; i < s.length; i++) out.push(s.key(i)); } catch (e) { } return out; };
-const isPerPlayerLegacy = (k) => typeof k === 'string' && k.startsWith(PREFIX) && !k.includes(SEP) && !DEVICE_KEYS.has(k);
+const isPerPlayerLegacy = (k) => typeof k === 'string' && k.startsWith(PREFIX) && !k.includes(SEP) && !deviceKeys().has(k);
 const cleanName = (n) => String(n == null ? '' : n).replace(/[\u0000-\u001f<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, NAME_MAX).trim();
 const cleanAnimal = (a, fallback) => (ANIMALS.includes(a) ? a : fallback || ANIMALS[0]);
 const newId = () => 'p' + Date.now().toString(36).slice(-5) + Math.floor(Math.random() * 1296).toString(36);
