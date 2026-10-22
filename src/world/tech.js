@@ -195,7 +195,7 @@ function makeCloud(n, size, blending = THREE.NormalBlending) {
   geo.setAttribute('position', new THREE.BufferAttribute(P, 3).setUsage(THREE.DynamicDrawUsage));
   geo.setAttribute('color', new THREE.BufferAttribute(Cc, 3).setUsage(THREE.DynamicDrawUsage));
   geo.setDrawRange(0, 0);
-  const mat = new THREE.PointsMaterial({ size, map: dot(), vertexColors: true, transparent: true, opacity: 1, depthWrite: false, blending, toneMapped: false, sizeAttenuation: true, alphaTest: 0.02, fog: false });
+  const mat = new THREE.PointsMaterial({ size, map: dot(), vertexColors: true, transparent: true, opacity: 1, depthWrite: false, blending, toneMapped: false, sizeAttenuation: false, alphaTest: 0.02, fog: false });   // sizes in pixels: a snow of dots that reads at any distance
   const pts = new THREE.Points(geo, mat); pts.frustumCulled = false; pts.renderOrder = 5;
   return { pts, P, Cc, geo, mat, n: 0, max: n };
 }
@@ -424,7 +424,7 @@ export function createTech(ctx) {
       path.push(new THREE.Vector3(p.x, gY(p.x, p.z) + 1, p.z));
       p.path = path; p.seg = 0; p.segT = 0; p.ph = 'fly'; p.list = crowns(); p.emit = 0; p.flyT = 0;
       if (p.cloud) { scene.remove(p.cloud.pts); p.cloud.geo.dispose(); p.cloud.mat.dispose(); }
-      p.cloud = makeCloud(2800, 2.4); scene.add(p.cloud.pts); p.cloudT = 0;
+      p.cloud = makeCloud(2800, 4.5); scene.add(p.cloud.pts); p.cloudT = 0;
 
       if (!p.lasers) {
         const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(FAN * 6), 3).setUsage(THREE.DynamicDrawUsage));
@@ -689,8 +689,8 @@ export function createTech(ctx) {
     // eggs rise from the corals: near the robot on an ordinary night, from every coral on the spawning night
     const cor = W.plants.filter((q) => alive(q) && q.sp.kind === 'coral' && (big || Math.hypot(q.x - p.x, q.z - p.z) < 20));
     if (p.eggs) { scene.remove(p.eggs.pts); p.eggs.geo.dispose(); p.eggs.mat.dispose(); }
-    const per = big ? 26 : 14, n = Math.min(big ? 900 : 320, Math.max(40, cor.length * per));
-    const E = p.eggs = makeCloud(n, big ? 0.62 : 0.55); scene.add(E.pts);
+    const per = big ? 40 : 16, n = Math.min(big ? 1200 : 360, Math.max(60, cor.length * per));
+    const E = p.eggs = makeCloud(n, big ? 7 : 6); scene.add(E.pts);
     const cols = ['#ff9cc0', '#ffc39a', '#ffb0d0', '#ffd8a8'];
     for (let i = 0; i < n; i++) {
       const q = cor.length ? cor[i % cor.length] : { x: p.x + (Math.random() - 0.5) * 12, z: p.z + (Math.random() - 0.5) * 12 };
@@ -723,7 +723,7 @@ export function createTech(ctx) {
   }
   function sowCloud(x, z) {
     // tiny glowing larvae sink to the rock (they are not the eggs any more: a few days old, ready to settle)
-    const L = makeCloud(160, 0.4, THREE.AdditiveBlending); L.t = 0;
+    const L = makeCloud(160, 5, THREE.AdditiveBlending); L.t = 0;
 
     for (let i = 0; i < 160; i++) {
       const a = Math.random() * Math.PI * 2, r = Math.random() * 2.2;
@@ -793,6 +793,7 @@ export function createTech(ctx) {
         return 'ok';
       },
       boards: () => [...boards.values()].map((b) => b.el.textContent),
+      dev: (id) => devices().find((d) => d.id === id) || null,
       state: (id) => { const p = devices().find((d) => d.id === id); return p ? { ph: p.ph, k: p.k, seen: p.seen ? [...p.seen.entries()] : null, came: p.came, sown: p.sown, nights: p.nights, cy: p.cy } : null; },
 
     },

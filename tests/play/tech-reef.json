@@ -5,7 +5,7 @@
 {"wait":10},
 {"js":"__T.close(); const D=__T.tools().tech.debug; D.go('reefspeaker'); const W=__T.G(); const T=__T.tools(); for(let i=0;i<20;i++) T.update(0.1,0.1,i*0.1); const s=__T.dev('reefspeaker'); __T.look(s.x, W.env.heightAt(s.x,s.z)+2, s.z, 26); JSON.stringify(D.state('reefspeaker'))+' '+D.boards().join(' | ')"},{"wait":3},
 {"js":"__T.close(); 1"},{"shot":"shots/g/c1-reefspeaker.png"},
-{"js":"const D=__T.tools().tech.debug; D.go('spawnbot'); const T=__T.tools(); for(let i=0;i<70;i++) T.update(0.1,0.1,i*0.1); const s=__T.dev('spawnbot'); const W=__T.G(); __T.look(s.x, W.env.heightAt(s.x,s.z)+4, s.z, 30); JSON.stringify(D.state('spawnbot'))"},{"wait":3},
+{"js":"const D=__T.tools().tech.debug; D.go('spawnbot'); const T=__T.tools(); for(let i=0;i<45;i++) T.update(0.1,0.1,i*0.1); const p=D.dev('spawnbot'); const v=p.mesh.userData.sub.getWorldPosition(p.mesh.position.clone()); __T.look(v.x*0.5, v.y+2, v.z*0.5, 38); JSON.stringify(D.state('spawnbot'))"},{"wait":3},
 {"js":"__T.close(); 1"},{"shot":"shots/g/c2-spawn-eggs.png"},
 {"js":"const D=__T.tools().tech.debug; const T=__T.tools(); let n=0; while(n<400){ T.update(0.1,0.1,7+n*0.1); n++; if(D.state('spawnbot').ph==='rest') break; } const s=__T.dev('spawnbot'); const W=__T.G(); __T.look(s.x, W.env.heightAt(s.x,s.z)+3, s.z, 34); 'n '+n+' '+JSON.stringify(D.state('spawnbot'))+' scars '+W.scars.length+' '+D.boards().join(' | ')"},{"wait":2},
 {"js":"__T.close(); 1"},{"shot":"shots/g/c3-spawn-report.png"}
