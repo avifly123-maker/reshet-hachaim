@@ -8,6 +8,6 @@
 {"js":"const W=__T.G(); W.fires.length=0; let f=0.5, best=null; for(let i=0;i<40;i++){ W.dayFrac=(0.5+i*0.0125)%1; W.debug.ff(0.3,0.1); if(W.nightGlow>0.8){best=W.dayFrac;break;} } 'night '+W.nightGlow.toFixed(2)+' at '+best"},
 {"js":"const W=__T.G(); W.debug.ff(6, 0.05); W.speed=0.15; const dev=__T.tools().serialize().devices.find(d=>d.id==='thermal'); __T.look(0, 4, 0, 70); 'glow '+W.nightGlow.toFixed(2)"},{"wait":4},
 {"js":"__T.close(); 1"},{"shot":"shots/g/b2-thermal-night.png"},
-{"js":"const W=__T.G(); W.speed=1; let n=0; while(W.nightGlow>0.25 && n<200){ W.debug.ff(1,0.1); n++; } W.debug.ff(10,0.1); __T.look(0, 4, 0, 70); 'day '+W.nightGlow.toFixed(2)+' boards '+__T.tools().tech.debug.boards().join(' | ')"},{"wait":2},
+{"js":"const W=__T.G(); W.speed=1; const T=__T.tools(); const D=T.tech.debug; let n=0, st=null; while(n<300){ W.nightGlow=0.1; T.update(0.1,0.1,n*0.1); n++; st=D.state('thermal'); if(st.ph==='pad') break; } __T.look(0, 4, 0, 70); 'steps '+n+' '+JSON.stringify(st)+' boards '+D.boards().join(' | ')"},{"wait":1},
 {"js":"__T.close(); 1"},{"shot":"shots/g/b3-thermal-report.png"}
 ]

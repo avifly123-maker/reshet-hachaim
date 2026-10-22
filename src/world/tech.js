@@ -127,7 +127,7 @@ function makeCanopyBot() {
 function makeTower() {
   const g = new THREE.Group();
   const shell = std(C.shell), teal = std(C.teal);
-  g.add(Object.assign(mesh(new THREE.CylinderGeometry(0.85, 1.05, 0.5, 24), std('#cfc8b8', { roughness: 0.8 })), { position: new THREE.Vector3(0, 0.25, 0) }));
+  const foot = mesh(new THREE.CylinderGeometry(0.85, 1.05, 0.5, 24), std('#cfc8b8', { roughness: 0.8 })); foot.position.y = 0.25; g.add(foot);
   const col = mesh(new THREE.CylinderGeometry(0.24, 0.42, 7.4, 16), shell); col.position.y = 4.1; g.add(col);
   for (const y of [2.4, 5.2]) { const b = mesh(new THREE.TorusGeometry(y < 3 ? 0.38 : 0.31, 0.06, 6, 22), teal, false); b.rotation.x = Math.PI / 2; b.position.y = y; g.add(b); }
   const cab = mesh(new THREE.CylinderGeometry(1.05, 0.95, 1.1, 24), shell); cab.position.y = 8.2; g.add(cab);
@@ -233,6 +233,10 @@ export function createTech(ctx) {
     if (full && card.bars && card.bars.length) {
       const mx = Math.max(1, ...card.bars.map((x) => x.n));
       html += `<div class="tk-bars">${card.bars.map((x) => `<i style="--h:${(x.n / mx).toFixed(2)};--c:${x.c || '#2c9a92'}"><em>${x.n}</em><u></u><small>${esc(x.label)}</small></i>`).join('')}</div>`;
+    }
+    if (full && card.meter) {   // a gauge that fills from the right (RTL)
+      const m = card.meter;
+      html += `<div class="tk-meter"><u style="width:${Math.round(Math.max(0.04, Math.min(1, m.v)) * 100)}%;background:${m.c || '#2c9a92'}"></u></div><div class="tk-meter-l"><small>${esc(m.lo || '')}</small><small>${esc(m.hi || '')}</small></div>`;
     }
     if (full && card.spark && card.spark.length > 1) {
       // time runs from right to left (RTL): the newest reading is on the left
@@ -520,7 +524,7 @@ export function createTech(ctx) {
       const s = p.glows[i], a = p.tracked && p.tracked[i];
       if (!a || !alive(a)) { s.visible = false; continue; }
       a.focusPoint(s.position); s.visible = true;
-      const k = 1 + Math.sin(t * 3 + i) * 0.08; s.scale.setScalar((a.loco === 'flying' ? 1.8 : 2.6) * k);
+      const k = 1 + Math.sin(t * 3 + i) * 0.08; s.scale.setScalar((a.loco === 'flying' ? 3 : 4.6) * k);
     }
   }
   const smooth = (k) => k * k * (3 - 2 * k);
@@ -564,7 +568,7 @@ export function createTech(ctx) {
     if (lvl === p.risk) return; p.risk = lvl;
     const names = ['נמוכה', 'בינונית', 'גבוהה'];
     showBoard(p, { title: toolName('firetower'), line: lvl === 2 ? 'סכנת שריפה גבוהה. המגדל שומר בעיניים פקוחות.' : `סכנת שריפה ${names[lvl]}.`,
-      bars: [{ label: 'סכנה', n: Math.max(1, Math.round(v * 10)), c: ['#57b86a', '#ffb547', '#e8543a'][lvl] }, { label: 'מקסימום', n: 10, c: '#d8d2c2' }] }, 7);
+      meter: { v, c: ['#57b86a', '#ffb547', '#e8543a'][lvl], lo: 'נמוכה', hi: 'גבוהה' } }, 7);
   }
   const wrap = (a) => Math.atan2(Math.sin(a), Math.cos(a));
   function towerAlert(p, fire, r0) {
@@ -788,6 +792,8 @@ export function createTech(ctx) {
         return 'ok';
       },
       boards: () => [...boards.values()].map((b) => b.el.textContent),
+      state: (id) => { const p = devices().find((d) => d.id === id); return p ? { ph: p.ph, k: p.k, seen: p.seen ? [...p.seen.entries()] : null, came: p.came, sown: p.sown, nights: p.nights, cy: p.cy } : null; },
+
     },
   };
 }
