@@ -365,7 +365,8 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
       if (b.dataset.hot) b.setAttribute('aria-label', L ? `${n}, ${L.text}` : n); else b.title = L ? L.text : '';
     }
   }
-  addEventListener('wol-journey', () => { if (open_) paintLocks(); });
+  // (a new stage reached inside the lab fires 'wol-stage', then 'wol-stage-done' when its moment closes: repaint on both)
+  for (const ev of ['wol-journey', 'wol-stage', 'wol-stage-done']) addEventListener(ev, () => { if (open_) paintLocks(); });
   // something done at a station (any lab progress while the child is there) opens the next one (core/journey.js `after`)
   addEventListener('wol-progress', (e) => { if (open_ && station !== 'home' && e.detail && e.detail.kind === 'lab' && stOpen(station)) markUsed(partOf(station)); });
   // the line that says what opens a part (src/data/guide/lab.js 'lab:locks'): its stage, or the station before it

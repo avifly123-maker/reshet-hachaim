@@ -328,6 +328,8 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   // (only when a lock really changed: a part marked as used must not make the screen rise in again)
   let journeyT = 0, lockSig = '';
   const HUB_PARTS = ['album', 'quiz', 'webpuzzle', 'keepforest', 'badges', 'frames', 'inventors', 'expedition', 'duel', 'versematch'];
+  // a part opened by a new stage comes with 'wol-stage' / 'wol-stage-done' (no 'wol-journey'): listen to all three
+  const JOURNEY_EVENTS = ['wol-journey', 'wol-stage', 'wol-stage-done'];
   const sigNow = () => HUB_PARTS.map((p) => (locked(p) ? 0 : 1)).join('');
   function onJourney() {
     clearTimeout(journeyT);
@@ -345,7 +347,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     open_ = true; el.hidden = false; rootEl.classList.add('wl-hubopen');
     window.addEventListener('keydown', onKey, true);
     window.addEventListener('resize', onResize);
-    window.addEventListener('wol-journey', onJourney);
+    for (const ev of JOURNEY_EVENTS) window.addEventListener(ev, onJourney);
     lockSig = sigNow();
     go('home');
     try { $('.wl-back').focus({ preventScroll: true }); } catch (e) { /* */ }
@@ -356,7 +358,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     if (guideMine) { const g = guide(); try { g && g.isOpen() && g.close(); } catch (e) { /* */ } guideMine = false; }
     window.removeEventListener('keydown', onKey, true);
     window.removeEventListener('resize', onResize);
-    window.removeEventListener('wol-journey', onJourney);
+    for (const ev of JOURNEY_EVENTS) window.removeEventListener(ev, onJourney);
     sfx('click');
     try { onClose && onClose(); } catch (e) { console.warn(e); }
   }
