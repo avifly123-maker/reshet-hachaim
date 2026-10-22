@@ -1,5 +1,5 @@
 # The voice of רובו־דע (1.3.2): every guide line voiced in advance with the "shaul" Piper voice (Phonikud, a
-# non-commercial licence: fine for Baba Da's free educational game), read from its nikud, with a robot colour.
+# non-commercial licence: fine for Baba Da's free educational game), read from its nikud (plain, no effect since 22.10).
 #   python3 tools/voice/make.py --model <shaul.onnx> [--only id,id] [--check]   → art/voice/<id>.ogg, src/data/voice.js
 # A line whose beginners' words (k) differ from its words (f) gets two files: <id> (f, nikud restored by Nakdimon,
 # Piper's diacritizer) and <id>.k (k, its own nikud). src/audio/voice.js plays <id>.k for beginners when it exists.
@@ -74,11 +74,8 @@ def text_to_ipa(text, lex):
     return s
 
 def robot(a):
-    t = np.arange(len(a)) / SR
-    y = a * (0.72 + 0.28 * np.sin(2 * np.pi * 58 * t))          # a soft electric buzz
-    d = int(SR * 0.0055); z = y.copy(); z[d:] += 0.38 * y[:-d]   # a short metallic comb
-    d2 = int(SR * 0.0115); z[d2:] += 0.18 * y[:-d2]
-    return z
+    # 22.10 (Avi): the tremolo and comb sounded like a shaky voice, not a mechanical one: plain Shaul, no effect
+    return a
 
 def synth(sess, ipa, length=1.12):
     ids = phonemes_to_ids(list(ipa))
@@ -121,7 +118,7 @@ def main():
             if k: jobs.append((l['id'] + '.k', k))
         for vid, text in jobs:
             ipa = text_to_ipa(text, lex)
-            h = hashlib.sha1((text + '|' + ipa + '|v4').encode()).hexdigest()[:12]   # a new reading rule re-voices the line
+            h = hashlib.sha1((text + '|' + ipa + '|v5').encode()).hexdigest()[:12]   # a new reading rule re-voices the line
             path = OUT / (vid + '.ogg')
             if not o.force and man.get(vid, {}).get('h') == h and path.exists(): continue
             wav = to_ogg(synth(sess, ipa), path)
