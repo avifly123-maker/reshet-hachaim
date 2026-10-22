@@ -27,7 +27,7 @@ import { CLUE_CASES, SUS, ZONES_T, CAB_T } from './clue-cases.js';
 import { FINDS_T, JARS_T } from './station-text.js';
 import { MISSIONS } from '../data/inventions.js';
 import { MISSIONS_K } from '../data/inventions-kids.js';
-import { key as profileKey } from '../core/profiles.js';
+import { K, readPlayer } from '../core/storage.js';
 import { BABA_DA_LOGO } from '../data/logo.js';
 import { readPhotos, readVisitors } from '../game/rank.js';
 
@@ -63,8 +63,7 @@ const FIND_SHAPE = { 'mice-owl': 'box', 'flowers-bees': 'rosette', 'brazil-nut':
 const SHELF_SHAPE = { scope: 'round', jars: 'jar', patents: 'patent', robots: 'robot', photos: 'photo', visitors: 'bird', clues: 'pod', cases: 'pod' };
 export const shadowHTML = (shape, cls = '') => `<i class="cb-ghost ${cls}" aria-hidden="true"><svg viewBox="0 0 100 100"><g fill="currentColor">${SHAPES[shape] || SHAPES.round}</g></svg></i>`;
 // what other parts of the game keep (read only; a missing store is an empty shelf)
-function readStore(base) { try { const t = localStorage.getItem(profileKey(base)); return t ? JSON.parse(t) : null; } catch (e) { return null; } }
-const hubGames = () => { const S = readStore('web-of-life-cards'); return (S && S.games) || {}; };
+const hubGames = () => { const S = readPlayer(K.cards, null); return (S && S.games) || {}; };
 // the expedition's samples by id, once it keeps them (hub store games.expedition.found: { id: count } or [id]); else null
 export function expeditionFound() {
   const f = (hubGames().expedition || {}).found;
