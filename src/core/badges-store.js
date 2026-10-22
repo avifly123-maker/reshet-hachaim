@@ -2,14 +2,14 @@
 // grant(earn) gives every badge whose `earn` matches (src/data/badges.js) and tells the page: a 'wol-badge' event,
 // which main.js shows as a medallion that drops in. Anything can grant: the forest (expert missions), the hub's
 // games, the lab, the research world.
-import { key as profileKey } from './profiles.js';
+import { K as KEY, readPlayer, writePlayer } from './storage.js';
 import { BADGES, FRAMES, badgesFor } from '../data/badges.js';
-const K = 'web-of-life-badges';
+const K = KEY.badges;
 
 function read() {
-  try { const o = JSON.parse(localStorage.getItem(profileKey(K)) || '{}'); return o && typeof o === 'object' ? o : {}; } catch (e) { return {}; }
+  const o = readPlayer(K, {}); return o && typeof o === 'object' ? o : {};
 }
-function write(o) { try { localStorage.setItem(profileKey(K), JSON.stringify(o)); } catch (e) { /* storage full or blocked */ } }
+function write(o) { writePlayer(K, o); }   // storage full or blocked: the badge stays for this visit only
 
 export function ownedBadges() { return read().own || {}; }
 export function hasBadge(id) { return !!ownedBadges()[id]; }
