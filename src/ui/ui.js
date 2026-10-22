@@ -454,8 +454,10 @@ export function createUI(root, bus) {
         <span class="jb-prog"><i style="width:${Math.round((nx ? nx.progress : 1) * 100)}%"></i></span>
         <small class="jb-need">${esc(need)}</small>${mapIcon('jb-map')}`;
     };
-    const paintJourney = () => {
+    const paintJourney = (moveOff) => {
       if (!startEl.contains(jbar)) return;
+      // another player: the carousel turns to an island that is open for them
+      if (moveOff === true && veiled(isls[S.stCur])) { const k = isls.findIndex((el) => !veiled(el)); if (k >= 0) { S.stCur = k; paintCar(); } }
       startEl.querySelectorAll('[data-part]').forEach((el) => {
         if (el === jbar) return;
         const shut = veiled(el); el.classList.toggle('jv', shut);
@@ -499,7 +501,8 @@ export function createUI(root, bus) {
       addEventListener('wol-stage-done', (e) => {
         if (S.paintJourney) S.paintJourney();
         const n = e.detail && e.detail.stage, g = window.__guide; const go = GO[n];
-        if (!go || !g || !onStart() || (e.detail && e.detail.result === 'abort')) return;
+        if (!go || !g || !onStart() || !e.detail || !['done', 'skip'].includes(e.detail.result)) return;
+        if (JR.state().stage > n) return;   // several stages at once: only the last one offers the way (its moment comes next)
         const kids = JR.playMode() === 'kids', ask = (g.lines('start:go') || []).find((l) => l.id === 'start.go.ask');
         const ring = (g.lines('start:go') || []).find((l) => l.id === 'start.go.' + n);
         if (!ask || !ring) return;
@@ -513,7 +516,7 @@ export function createUI(root, bus) {
     paintModes(); paintTab(); paintCar(); paintJourney();
     S.journeyIntro();
     const renderStartIntros = () => paintInfo();
-    S.repaintStartMode = () => { paintModes(); paintJourney(); renderStartIntros(); };   // another player was chosen: show their level
+    S.repaintStartMode = () => { paintModes(); paintJourney(true); renderStartIntros(); };   // another player was chosen: show their level
     PP.open = false;
     startEl.querySelector('.st-who').addEventListener('click', () => (PP.open ? ppClose() : ppOpen()));
     const layer = startEl.querySelector('.st-pp-layer');

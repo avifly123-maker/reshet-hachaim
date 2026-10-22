@@ -40,7 +40,7 @@ function rowHTML(id, o) {
   }
   if (id === 'voice') {
     const on = J.voiceOn();
-    return `<button class="set-row set-tog" data-row="voice" data-set="voice" role="switch" aria-checked="${on}"><span class="set-lab">${icon(on ? 'sound' : 'mute')}<span><b>${t('הקול של רובו־דע', 'הַקּוֹל שֶׁל רוֹבּוֹ־דַּע')}</b><small>${t('הוא מקריא את מה שהוא אומר', 'הוּא מַקְרִיא אֶת מָה שֶּׁהוּא אוֹמֵר')}</small></span></span>${sw(on)}</button>`;
+    return `<button class="set-row set-tog" data-row="voice" data-set="voice" role="switch" aria-checked="${on}"><span class="set-lab">${icon(on ? 'sound' : 'mute')}<span><b>${t('הקול של רובו־דע', 'הַקּוֹל שֶׁל רוֹבּוֹ־דַּע')}</b><small>${t('הוא מקריא את מה שהוא אומר', 'הוּא מַקְרִיא אֶת מָה שֶׁהוּא אוֹמֵר')}</small></span></span>${sw(on)}</button>`;
   }
   if (id === 'music') {
     const on = o.getMusic ? !!o.getMusic() : true;
