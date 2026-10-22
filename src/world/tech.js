@@ -277,10 +277,11 @@ export function createTech(ctx) {
       p.trunkR = tr; p.baseY = gY(p.x, p.z);
       p.topH = h ? Math.max(6, (h.topY() - p.baseY) * 0.86) : 12;
       m.position.set(p.x, p.baseY, p.z);
-      const u = m.userData;
-      u.dock.position.set(0, 0.2, tr + 0.65);
-      u.climber.position.set(0, 1.2, tr + 0.42);
-      u.clamp.scale.setScalar(tr + 0.08);
+      const u = m.userData, K = p.sk = Math.max(1.8, Math.min(3, tr * 2.4));   // the robot reads from afar on a big tree
+      u.dock.scale.setScalar(K); u.climber.scale.setScalar(K);
+      u.dock.position.set(0, 0.2 * K, tr + 0.6 * K);
+      u.climber.position.set(0, 1.2, tr + 0.4 * K);
+      u.clamp.scale.set(tr + 0.08, tr + 0.08, K);
       for (const s of u.scan) s.position.set(0, 0, 0);
       p.cy = 1.2; p.ph = 'rest'; p.wait = saved ? 6 : 2.5; p.layerHit = new Set();
       p.boardY = 2;
@@ -314,10 +315,13 @@ export function createTech(ctx) {
 
   // ───── canopy robot: climbs, a ring of light at each layer, counts who lives at each height
   function layersOf() {
-    const L = (W.biome && W.biome.layers || []).filter((l) => Array.isArray(l.yRange));
+    const L = (W.biome && W.biome.layers || []).filter((l) => Array.isArray(l.yRange) && l.id !== 'water');
     return L.slice().sort((a, b) => a.yRange[0] - b.yRange[0]);
   }
   function heightAbove(a) { return a.pos.y - gY(a.pos.x, a.pos.z); }
+  const SHORT = { emergent: 'ענקים', canopy: 'צמרות', understory: 'ביניים', floor: 'קרקעית' };
+  const short = (l) => SHORT[l.id] || l.name;
+  const animalsN = (n) => (n === 1 ? 'בעל חיים אחד' : `${n} בעלי חיים`);
   function countLayers(x, z, R) {
     const L = layersOf(), counts = L.map(() => 0), who = L.map(() => new Map());
     for (const a of W.animals) {
@@ -349,8 +353,8 @@ export function createTech(ctx) {
       const line = total ? `הכי הרבה חיים מצאתי ב${LL[best].name}.` : 'עוד אין כאן בעלי חיים. הביאו בעלי חיים שגרים בצמרות.';
       const top = [...who[best].entries()].sort((a, b) => b[1] - a[1]).slice(0, 2).map(([id]) => fullName(id)).filter(Boolean);
       // bars from the top layer down: the forest as it stands
-      showBoard(p, { title: toolName('canopybot'), line, num: total ? `${total} בעלי חיים ליד העץ${top.length ? ' · למשל: ' + top.join(', ') : ''}` : '',
-        bars: total ? LL.map((l, i) => ({ label: l.name.replace(/^(קומת |קרקעית |חופת )/, ''), n: counts[i], c: ['#7a5532', '#4f9a45', '#2c9a92', '#ffb547'][i] || '#2c9a92' })) : null }, 9);
+      showBoard(p, { title: toolName('canopybot'), line, num: total ? `${animalsN(total)} ליד העץ${top.length ? ' · למשל: ' + top.join(', ') : ''}` : '',
+        bars: total ? LL.map((l, i) => ({ label: short(l), n: counts[i], c: ['#7a5532', '#4f9a45', '#2c9a92', '#ffb547'][i] || '#2c9a92' })) : null }, 9);
     }
     // the climber, the clamp and the cable follow it; it sways a little as it climbs
     const moving = p.ph === 'up' || p.ph === 'down';
@@ -358,7 +362,7 @@ export function createTech(ctx) {
     u.climber.rotation.z = moving ? Math.sin(t * 4.5) * 0.06 : 0;
     u.clamp.position.y = p.cy - 0.05;
     const cl = Math.max(0.1, p.cy - 0.6);
-    u.cable.scale.y = cl; u.cable.position.set(0.18, 0.4 + cl / 2, p.trunkR + 0.62);
+    u.cable.scale.set(p.sk, cl, p.sk); u.cable.position.set(0.18 * p.sk, 0.4 * p.sk + cl / 2, p.trunkR + 0.6 * p.sk);
     for (const s of u.scan) if (s.visible) {
       s.userData.t += rdt; const k = s.userData.t / 2.2;
       if (k >= 1) { s.visible = false; continue; }
@@ -416,10 +420,12 @@ export function createTech(ctx) {
       path.push(new THREE.Vector3(p.x, gY(p.x, p.z) + 1, p.z));
       p.path = path; p.seg = 0; p.segT = 0; p.ph = 'fly'; p.list = crowns(); p.emit = 0; p.flyT = 0;
       if (p.cloud) { scene.remove(p.cloud.pts); p.cloud.geo.dispose(); p.cloud.mat.dispose(); }
-      p.cloud = makeCloud(2800, 0.95); scene.add(p.cloud.pts); p.cloudT = 0;
+      p.cloud = makeCloud(2800, 2.4); scene.add(p.cloud.pts); p.cloudT = 0;
+
       if (!p.lasers) {
         const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(FAN * 6), 3).setUsage(THREE.DynamicDrawUsage));
-        p.lasers = new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color: '#7dffb0', transparent: true, opacity: 0.5, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false }));
+        p.lasers = new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color: '#9dffc4', transparent: true, opacity: 0.85, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false }));
+
         p.lasers.frustumCulled = false; scene.add(p.lasers);
       }
       p.lasers.visible = true; p.tops = new Map();
@@ -465,7 +471,7 @@ export function createTech(ctx) {
       if (!trees.length) { showBoard(p, { title: toolName('lidar'), line: 'עוד אין כאן עצים גבוהים. שתלו עצים, והרחפן ימדוד אותם.' }, 7); return; }
       const tall = trees.reduce((m, x) => (x.h > m.h ? x : m));
       if (!xpOnce('lidar')) return;
-      const bars = L.map((l) => ({ label: l.name.replace(/^(קומת |קרקעית |חופת )/, ''), n: trees.filter((x) => x.h >= l.yRange[0] && x.h < l.yRange[1]).length, c: heightColor((l.yRange[0] + l.yRange[1]) / 2, _c).getStyle() }));
+      const bars = L.map((l) => ({ label: short(l), n: trees.filter((x) => x.h >= l.yRange[0] && x.h < l.yRange[1]).length, c: heightColor((l.yRange[0] + l.yRange[1]) / 2, _c).getStyle() }));
       showBoard(p, { title: toolName('lidar'), line: 'הנקודות הצהובות הן הצמרות הגבוהות. שם יש הכי הרבה אור.',
         num: `${trees.length} עצים נמדדו · הגבוה ביותר: ${tall.q.sp.name}, ${Math.round(tall.h)} מטר`, bars }, 10);
     }
@@ -532,7 +538,7 @@ export function createTech(ctx) {
     if (!xpOnce('thermal:' + (total ? 'some' : 'none'))) return;
     const bars = [...p.seen.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4).map(([id, n]) => ({ label: fullName(id), n, c: '#ff8a3a' }));
     showBoard(p, { title: toolName('thermal'), line: total ? 'בלילה, בעלי החיים החמים זהרו במצלמת החום.' : 'הלילה לא נמצאו בעלי חיים חמים. הביאו בעלי חיים שפעילים בלילה.',
-      num: total ? `${total} בעלי חיים חמים נספרו בלילה${p.cool ? ` · ${p.cool} זוחלים כמעט לא זהרו: הגוף שלהם קריר בלילה` : ''}` : '', bars: total ? bars : null }, 10);
+      num: total ? `${total === 1 ? 'בעל חיים חם אחד נספר' : total + ' בעלי חיים חמים נספרו'} בלילה${p.cool ? ` · ${p.cool === 1 ? 'זוחל אחד כמעט לא זהר: הגוף שלו קריר' : p.cool + ' זוחלים כמעט לא זהרו: הגוף שלהם קריר'} בלילה` : ''}` : '', bars: total ? bars : null }, 10);
   }
 
   // ───── fire tower: a slow beam; a fire found early stays smaller
@@ -880,7 +886,7 @@ function createIslandRobo({ W, scene, camera, rig }) {
     pos.addScaledVector(vel, Math.min(rdt, 0.05));
     root.position.copy(pos); root.position.y += Math.sin(t * 1.8) * 0.06 * Math.max(1, dCam * 0.02);
     const dist = camera.position.distanceTo(pos);
-    const s = Math.max(0.6, dist * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * 0.62);   // about a fifth of the screen tall
+    const s = Math.max(0.6, dist * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * 0.5);   // about a fifth of the screen tall
     root.scale.setScalar(s);
     // face the camera (yaw), lean into the flight
     const yaw = Math.atan2(camera.position.x - pos.x, camera.position.z - pos.z);
