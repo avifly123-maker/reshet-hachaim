@@ -15,50 +15,48 @@
 //                          about 5 MB of storage: everything here stays small.
 // Rank (per zone): points from kinds alive, active links, days (the grove: seasons) lived, challenges, rare visitors and
 // photos → one of four ranks (RANKS). rankOf(zone, kids) → { i, name, pts, next, progress, parts }.
-import { key as profileKey } from '../core/profiles.js';
+import { K, saveKey, readPlayer, writePlayer, playerKey } from '../core/storage.js';
 
-export const PHOTOS_KEY = 'web-of-life-photos';
-export const VISITORS_KEY = 'web-of-life-visitors';
-export const AFTER_KEY = 'web-of-life-after';
+export const PHOTOS_KEY = K.photos;       // per player (core/storage.js)
+export const VISITORS_KEY = K.visitors;
+export const AFTER_KEY = K.after;
 export const MAX_PHOTOS = 24;
 
-const ls = () => { try { return window.localStorage || null; } catch (e) { return null; } };
-export function readJSON(base, fb) { try { const s = ls(); const t = s && s.getItem(profileKey(base)); return t ? JSON.parse(t) : fb; } catch (e) { return fb; } }
-export function writeJSON(base, v) { try { const s = ls(); if (s) { s.setItem(profileKey(base), JSON.stringify(v)); return true; } } catch (e) { /* storage full or blocked */ } return false; }
+// reading and writing: core/storage.js readPlayer / writePlayer (a write returns false when the storage is full or blocked)
 const obj = (v) => (v && typeof v === 'object' && !Array.isArray(v) ? v : {});
 
 // ─────────────────────────────── photos
-export function readPhotos() { const p = readJSON(PHOTOS_KEY, []); return Array.isArray(p) ? p.filter((x) => x && typeof x === 'object') : []; }
+export function readPhotos() { const p = readPlayer(PHOTOS_KEY, []); return Array.isArray(p) ? p.filter((x) => x && typeof x === 'object') : []; }
 export function addPhoto(rec) {
   phCache = null;
   const list = readPhotos(); list.push(rec);
   while (list.length > MAX_PHOTOS) list.shift();
   // a full storage: drop the oldest photos and try once more (the photos must never crowd out the saves)
-  let ok = writeJSON(PHOTOS_KEY, list);
+  let ok = writePlayer(PHOTOS_KEY, list);
   // never the newest: only older photos may make room (an empty album has none, so nothing is written)
   const drop = Math.min(list.length - 1, 6);
-  if (!ok && drop > 0) { list.splice(0, drop); ok = writeJSON(PHOTOS_KEY, list); }
+  if (!ok && drop > 0) { list.splice(0, drop); ok = writePlayer(PHOTOS_KEY, list); }
   if (ok) { try { window.dispatchEvent(new CustomEvent('wol-progress', { detail: { kind: 'photo', id: rec.sp, zone: rec.zone } })); } catch (e) { } }
   return ok ? list : null;
 }
 
 // ─────────────────────────────── rare visitors (one entry per species: the last time it was photographed)
 export function readVisitors() {
-  const v = readJSON(VISITORS_KEY, []);
+  const v = readPlayer(VISITORS_KEY, []);
   if (Array.isArray(v)) return v.filter((x) => x && x.id);
   return Object.entries(obj(v)).map(([id, x]) => ({ id, ...obj(x) }));   // a map by id (never written so, but read kindly)
 }
 export function addVisitor(rec) {
   const list = readVisitors().filter((x) => x.id !== rec.id).map((x) => ({ id: x.id, zone: x.zone, t: x.t }));
   list.push({ id: rec.id, zone: rec.zone, t: Math.round((rec.t || Date.now()) / 1000) * 1000 });
-  writeJSON(VISITORS_KEY, list);
+  writePlayer(VISITORS_KEY, list);
   try { window.dispatchEvent(new CustomEvent('wol-progress', { detail: { kind: 'visitor', id: rec.id, zone: rec.zone } })); } catch (e) { }
 }
 export const visitorsOf = (zone) => readVisitors().filter((v) => v.zone === zone);
 
 // ─────────────────────────────── challenges, photo missions, linked pairs, island snapshots
 export function afterStore() {
-  const s = obj(readJSON(AFTER_KEY, null));
+  const s = obj(readPlayer(AFTER_KEY, null));
   return { v: 1, z: obj(s.z) };
 }
 export function zoneAfter(zone, S = afterStore()) {
@@ -72,7 +70,7 @@ export function updateZone(zone, fn) {
   // keep it small: the last six challenges (their count and points stay), at most 30 pairs
   if (z.ch.length > 6) z.ch = z.ch.slice(-6).map((c) => ({ id: c.id, lv: c.lv }));
   const pk = Object.keys(z.pairs); if (pk.length > 30) for (const k of pk.slice(0, pk.length - 30)) delete z.pairs[k];
-  S.z[zone] = z; writeJSON(AFTER_KEY, S);
+  S.z[zone] = z; writePlayer(AFTER_KEY, S);
   return z;
 }
 // a challenge done: kept as its id and level, counted, its points added
@@ -92,7 +90,7 @@ export const CH_POINTS = [0, 5, 10, 15];   // a challenge of level 1 / 2 / 3
 function islandNumbers(zone, kids) {
   const z = zoneAfter(zone);
   const snap = z.snap[kids ? 'kids' : 'full'];
-  const save = obj(readJSON('web-of-life-save-' + zone + (kids ? '-kids' : ''), null));
+  const save = obj(readPlayer(saveKey(zone, kids), null));
   const ids = new Set();
   for (const p of Array.isArray(save.plants) ? save.plants : []) if (p && p.id) ids.add(p.id);
   for (const a of Array.isArray(save.animals) ? save.animals : []) if (a && a.id) ids.add(a.id);
@@ -105,7 +103,7 @@ function islandNumbers(zone, kids) {
 // reads them at most once a minute, or again after a new photo (addPhoto clears it); per player
 let phCache = null;
 function photoKinds(zone) {
-  const k = profileKey(PHOTOS_KEY), now = Date.now();
+  const k = playerKey(PHOTOS_KEY), now = Date.now();
   if (!phCache || phCache.k !== k || now - phCache.t > 60000) {
     const m = {}; for (const p of readPhotos()) { (m[p.zone] || (m[p.zone] = new Set())).add(p.sp); }
     phCache = { k, t: now, m };
