@@ -399,11 +399,14 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     const r = t.getBoundingClientRect(), o = el.getBoundingClientRect();
     ringEl.hidden = false; ringEl.style.cssText = `left:${r.left - o.left - 5}px;top:${r.top - o.top - 5}px;width:${r.width + 10}px;height:${r.height + 10}px`;
   }
+  // the big guide speaking over the lab (a stage moment, a badge): his own bubbles wait, so his voice never cuts it off
+  const guideBusy = () => { try { return !!(window.__guide && window.__guide.isOpen()); } catch (e) { return false; } };
   function sayLines(lines) {
     stopIntro(); const tok = introTok;
     const step = (i) => {
       if (tok !== introTok || !open_) return;
       if (i >= lines.length) { setRing(null); return; }
+      if (guideBusy()) { introT = setTimeout(() => step(i), 1000); return; }
       const ln = lines[i], text = kids ? ln.k : ln.f, ex = ln.expr || 'happy';
       if (panel && panel.talk) panel.talk(text, ex); else say(text, ex, true);
       setRing(ln.at);
@@ -419,8 +422,7 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     const part = partOf(st), lines = LAB_GUIDE[part];
     if (!lines || !lines.length || introSeen(part) || !stOpen(st)) return;   // a veiled station is not presented yet
     // (while the big guide speaks over the lab, a stage moment for instance, he waits for it to finish)
-    const busy = () => { try { return !!(window.__guide && window.__guide.isOpen()); } catch (e) { return false; } };
-    const begin = () => { if (!open_ || station !== st || walk) return; if (busy()) { introWait = setTimeout(begin, 1000); return; } markIntro(part); sayLines(lines); };
+    const begin = () => { if (!open_ || station !== st || walk) return; if (guideBusy()) { introWait = setTimeout(begin, 1000); return; } markIntro(part); sayLines(lines); };
     clearTimeout(introWait); introWait = setTimeout(begin, 650);
   }
 
