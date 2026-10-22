@@ -1,10 +1,11 @@
 // On-screen camera pad for young players: big round buttons to turn, tilt and zoom the view, plus "back to the whole island".
 // Click = one smooth step, press-and-hold = continuous motion. Works with the rig from world/camera.js (rig.nudge / rig.hold).
 // Usage: const pad = createCameraPad(document.getElementById('ui'), rig); pad.setVisible(true); … pad.dispose();
+import { K, readDeviceRaw, writeDeviceRaw } from '../core/storage.js';   // the fold is kept for the whole computer
 const CSS_ID = 'camera-pad-css';
 const CSS = `
 /* a brass-and-canopy compass rose: turn (west/east), tilt (north/south), home in the middle, zoom on the side; folds to one button */
-.cam-pad { position: absolute; left: 10px; bottom: calc(var(--trayH, 140px) + 48px); z-index: 30; display: flex; gap: 4px; align-items: center;
+.cam-pad { position: absolute; left: 10px; bottom: calc(var(--trayH, 140px) + 48px); z-index: var(--z-hud); display: flex; gap: 4px; align-items: center;
   direction: ltr; pointer-events: auto; user-select: none; -webkit-user-select: none; touch-action: none; transition: opacity .25s, transform .25s; }
 .cam-pad.cp-hidden { opacity: 0; transform: translateY(10px); pointer-events: none; visibility: hidden; transition: opacity .25s, transform .25s, visibility 0s .25s; }
 /* the species info panel reaches down to the tray: the pad would cover its relations list and buttons, so it steps aside while the panel is open */
@@ -79,14 +80,14 @@ export function createCameraPad(rootEl, rig, opts = {}) {
   // fold to a single compass button (remembered); young players start with it open
   const foldBtn = el.querySelector('.cp-fold');
   let folded = false;
-  try { const v = localStorage.getItem('web-of-life-campad'); folded = v ? v === 'folded' : !root.classList.contains('kids'); } catch (e) { }
+  try { const v = readDeviceRaw(K.campad); folded = v ? v === 'folded' : !root.classList.contains('kids'); } catch (e) { }
   function paintFold() {
     el.classList.toggle('cp-folded', folded); foldBtn.setAttribute('aria-expanded', String(!folded));
     const tip = folded ? 'הזזת המבט' : 'הסתר את מצפן המבט'; foldBtn.dataset.tip = tip; foldBtn.setAttribute('aria-label', tip);
     foldBtn.innerHTML = folded ? ICONS.compass : ICONS.fold;
   }
   paintFold();
-  foldBtn.addEventListener('click', (e) => { e.stopPropagation(); folded = !folded; try { localStorage.setItem('web-of-life-campad', folded ? 'folded' : 'open'); } catch (err) { } paintFold(); });
+  foldBtn.addEventListener('click', (e) => { e.stopPropagation(); folded = !folded; writeDeviceRaw(K.campad, folded ? 'folded' : 'open'); paintFold(); });
   foldBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
   root.appendChild(el);
   const defs = new Map(GROUPS.flat().map(b => [b.id, b]));

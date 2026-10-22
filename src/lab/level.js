@@ -1,10 +1,10 @@
 // מעבדת רובו־דע – which level the child plays (the start screen's מתחילים / מתקדמים switch, stored per player in
 // web-of-life-mode). Beginners ('kids') read fully vocalised Hebrew (ניקוד מלא) in short bubbles (src/lab/kids-text.js);
 // the full level keeps the plain texts. Read every time a panel opens, so a switch on the start screen applies at once.
-import { key as profileKey } from '../core/profiles.js';
+import { playerMode } from '../core/storage.js';
 
 export function labKids() {
-  try { return localStorage.getItem(profileKey('web-of-life-mode')) === 'kids'; } catch (e) { return false; }
+  return playerMode() === 'kids';
 }
 // {name} placeholders of the beginner texts; a string or a list of bubbles
 export function fmt(s, vars = {}) {

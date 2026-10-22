@@ -216,6 +216,7 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
       o.position.set(m.x, heightAt(m.x, m.z) - m.h * 0.55, m.z);
       o.castShadow = true; o.receiveShadow = true; o.name = 'reef-rock';
       root.add(o); rockMeshes.push(o);
+      if (rocks[i]) rocks[i].boulderTop = o.position.y + (sh.H || 1.2) * o.scale.y;   // read-only: the animal-eye tour keeps out of it
     });
   }
 
@@ -242,7 +243,7 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
         o.scale.setScalar(k); o.rotation.y = rng() * TAU;
         o.position.set(x, heightAt(x, z) - 0.08 * k, z);
         o.castShadow = quality !== 'min'; o.receiveShadow = true; o.name = 'reef-decor';
-        root.add(o); decor.push({ x, z, r: (sh.crown?.radius || 0.6) * k * 0.8 });
+        root.add(o); decor.push({ x, z, r: (sh.crown?.radius || 0.6) * k * 0.8, top: o.position.y + (sh.crown?.top || sh.H || 1) * k });
       }
     }
   }
@@ -612,6 +613,7 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
     heightAt, isWater: () => false, isPlaceable, waterLevel: null, water: { pools: [] },
     bridges: [], bridgeAt: () => null, walkRoute: () => [],
     rocks, groundMeshes: [floor], waterMeshes: [], rockMeshes, sun,
+    decor,   // read-only: the scenery coral heads {x, z, r, top} (the animal-eye tour keeps the camera and the fish out of them)
     update, setLightOverlay, setGap() { }, setQuality, dispose, setTreeShadows() { }, setFallenFruit() { },
     get night() { return night.v; },
   };

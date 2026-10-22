@@ -20,7 +20,7 @@ const SHOW = process.argv.includes('--cards');
 const errors = [], warns = [];
 const err = (m) => errors.push(m), warn = (m) => warns.push(m);
 
-// the cards of the hub (src/learn/hub.js): every species, every device (and the reef's own devices)
+// the cards of the hub (src/learn/hub/): every species, every device (and the reef's own devices)
 const cards = [];
 for (const B of [AMAZON, GROVE, REEF]) for (const s of B.species) cards.push({ id: `${B.id || ''}:${s.id}`, sp: s.id, name: s.name, skind: s.kind, type: 'species', tool: false });
 const toolsSrc = fs.readFileSync(new URL('../src/game/tool-defs.js', import.meta.url), 'utf8');

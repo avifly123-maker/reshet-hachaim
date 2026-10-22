@@ -15,6 +15,25 @@ const reportPdf = require('./report-pdf');
 // extraMetadata), so it gets its own data folder (%APPDATA%\<name>), saves and single-instance lock
 const PRODUCT = (() => { try { return require('./package.json').productName || 'רשת החיים'; } catch (e) { return 'רשת החיים'; } })();
 app.setName(PRODUCT);
+// 1.3.2: the edition is now called "רשת החיים – המסע", but its saves stay in the folder of its old name (dataName in
+// builder-torah.json → package.json), so every child keeps everything after the upgrade. The name the child sees and the
+// folder of the saves are two different things from now on.
+const DATA_NAME = (() => { try { return require('./package.json').dataName || PRODUCT; } catch (e) { return PRODUCT; } })();
+app.setPath('userData', path.join(app.getPath('appData'), DATA_NAME));
+// a child who played the general edition ("רשת החיים", its own data folder) and now installs this one: on the first start,
+// when this edition has no saves yet, its saves file is copied over (preload.js restores the game from it, because the
+// browser storage of this edition is still empty). Nothing is copied once this edition has saves of its own.
+function carryOverGeneralSaves() {
+  try {
+    const mine = path.join(app.getPath('userData'), 'saves', 'saves.json');
+    if (fs.existsSync(mine)) return 'has own';
+    const other = path.join(app.getPath('appData'), 'רשת החיים', 'saves', 'saves.json');
+    if (DATA_NAME === 'רשת החיים' || !fs.existsSync(other)) return 'nothing';
+    fs.mkdirSync(path.dirname(mine), { recursive: true });
+    fs.copyFileSync(other, mine);
+    return 'copied';
+  } catch (e) { return 'error ' + e.message; }
+}
 // a second copy only hands the focus to the first one and closes – it must not open windows or touch the saves
 const PRIMARY = app.requestSingleInstanceLock();
 if (!PRIMARY) { app.quit(); }
@@ -193,6 +212,8 @@ function createWindow() {   // the window first (so closing the hidden migration
 
 app.on('second-instance', () => { if (win) { if (win.isMinimized()) win.restore(); win.focus(); } });
 if (PRIMARY) app.whenReady().then(async () => {
+  const carried = carryOverGeneralSaves();
+  if (process.env.WOL_DEBUG_MIGRATION) console.log('general edition saves:', carried);
   snapshotOnVersionChange();
   serveApp();
   createWindow();

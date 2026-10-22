@@ -126,6 +126,7 @@ Every species in src/data/reef.js carries its own Wikipedia link (`sources`). Th
 - **Giant clams host algae in their mantle** — https://en.wikipedia.org/wiki/Tridacna
 - **Moon jellyfish are mostly water, drift and eat plankton; sea turtles eat jellyfish** — https://en.wikipedia.org/wiki/Aurelia_aurita , https://en.wikipedia.org/wiki/Green_sea_turtle
 - **Blacktip reef shark** (black fin tips, reef edges, eats small fish and octopus) — https://en.wikipedia.org/wiki/Blacktip_reef_shark
+  - 1.3.2, its diet in the game (surgeonfish, grouper, octopus, shrimp): "small teleost fishes, including mullet, groupers, grunters, jacks, mojarras, wrasses, surgeonfish, and smelt-whitings. Squid, octopus, cuttlefish, other molluscs, shrimp, crabs, and mantis shrimp are also taken" (Wikipedia, Feeding, checked 22.10.2026). It stays on the reef (`roams`, never leaves hungry): "extremely small home ranges and ... strong site fidelity, remaining within the same local area for up to several years"; "most of their time swimming back and forth along reef ledges" (same article).
 - **Crown-of-thorns sea star (in the game: קוצנון)**: eats coral polyps; outbreaks strip reefs; divers remove them — https://en.wikipedia.org/wiki/Crown-of-thorns_starfish
 - **Artificial reefs (reef balls)**: concrete domes with holes that fish use and corals settle on — https://en.wikipedia.org/wiki/Reef_ball
 - **Underwater robots (ROVs) and underwater cameras for reef monitoring** — https://en.wikipedia.org/wiki/Remotely_operated_underwater_vehicle
@@ -664,3 +665,73 @@ Only the nursery gives "strong" young corals; they go onto the reef bigger and b
 - **Gulf of Aqaba Stylophora pistillata did not bleach under warmer water in Eilat experiments** (pre-adapted heat tolerance; pollution may lower it) — https://actu.epfl.ch/news/coral-reefs-in-the-gulf-of-aqaba-may-survive-globa/ (with Fine et al. 2013 above). In the game, ordinary corals pale in a heat wave and recover when it ends; none die of the heat alone.
 - **Storms break branching and table corals**; damaged spots are where restoration plants first (game: r_storm, scars) — the table coral text in src/data/reef.js (Acropora, https://en.wikipedia.org/wiki/Acropora , already listed for it); no numbers are quoted.
 - Wording: no "evolution"; the texts say "a fragment of a coral that stood the heat" (שבר של אלמוג שעמד בחום).
+
+## חוטים (1.3.2, the threads between the parts: src/data/threads.js)
+
+A thread rests on a fact that is already checked elsewhere in this file; what the thread changes in the game (a faster robot, a longer camera range, a new event choice) is game logic built on that fact, and is said so. Validated by `node tools/validate-threads.mjs`.
+- `sharkskin`: ridges along the flow, like shark skin denticles, cut friction by about 8% (Bechert et al. 1997, the lab section above); the underwater robot swims faster (game logic, as in 1.3.0).
+- `hover`: the Nano Hummingbird (AeroVironment, 2011) hovers on flapping wings — https://en.wikipedia.org/wiki/AeroVironment_Nano_Hummingbird ; the monitoring drone hovers by an animal that needs help (game logic).
+- `anternet`: harvester ants send out foragers by how fast others come back, nearly the rule the internet uses (הממציאים: anternet, above); several drones share one report (game logic).
+- `lamp`: the jagged scales of the firefly lantern on an LED let out up to 55% more light — https://www.sciencedaily.com/releases/2013/01/130108112453.htm ; the field camera sees farther at night (game logic).
+- `camo`: chameleons change colour with a lattice of tiny crystals — https://www.manep.ch/the-chameleon-reorganizes-its-nano-crystals-to-change-colors-2/ ; camera traps record without disturbing (quiz bank line, https://en.wikipedia.org/wiki/Camera_trap); a hidden camera catches shy animals (game logic).
+- `grip`: Festo's octopus-arm soft gripper holds things gently — https://techxplore.com/news/2017-03-octopus-tentacle-gripper.html ; the rescue robot treats faster (game logic).
+- `bandage`: the octopus-sucker patch sticks to wet skin and under water (הממציאים: bandage, above); an injured animal recovers faster (game logic).
+- `solar`: mirrors in the white butterfly's V shape gave a solar panel almost 50% more power (הממציאים: solar, above); the water-from-air machine gets more power and gives more water (game logic; its tool fact says it cools air to collect drops).
+- `nutshell`: the Brazil nut shell does not crack, and a light tough material was modelled on it (הממציאים: nutshell, above); nest boxes stand in a storm (game logic).
+- `plasma`: the pistol shrimp's collapsing bubble may one day help clean water (הממציאים: plasma, research only); murky water on the reef clears sooner (game logic, said as "helps", not as a real device).
+- `notebook`, `quadrat`, `fair`: research methods, not facts about creatures: a graph of numbers over time (the mysteries), a quadrat as a square frame for counting what grows inside it — https://en.wikipedia.org/wiki/Quadrat , a fair test that changes one thing at a time (חושבים כמו חוקרים, above).
+- `mice-owl`: barn owls in Israel hunt spiny mice and use nest boxes (grove, Barn owl and Spiny mouse lines above).
+- `the-trap`: acorns are eaten by rodents (Palestine oak line), more food raises rodent numbers (Boutin 1990), poison passes to owls and Israel hangs barn owl nest boxes instead (the mystery "המלכודת", above). The new choice in the year of many acorns is game logic on these.
+- `summer-fire`: KKL makes fuel breaks along roads and counts mastic among the shrubs that burn less — https://www.kkl-jnf.org/forestry-and-ecology/fire-prevention/maintaining-forests-to-prevent-fires/ ; the green belt is the mystery's game logic (above).
+- `cleaning-station`, `ev-anchor`: anchors break corals and mooring buoys prevent it — https://en.wikipedia.org/wiki/Mooring_buoy ; the larger area is game logic.
+- `brazil-nut`: orchid bees among the large bees that pollinate the Brazil nut; agoutis open the fruit and bury seeds (the mystery "אגוזי הברזיל", above).
+- `photo-scope`: each sample is of the creature it names (src/lab/samples.js); a glowing fungus is a fungus and grows mycelium threads like the mushroom's sample — https://en.wikipedia.org/wiki/Mycelium , glowing fungi in decaying wood (Foxfire line above).
+- `link-atlas`: the research questions' answers each lean on a fact above (src/data/lab-questions.js).
+- `ev-fire`: dry vegetation is the fuel of summer fires (KKL, above). `ev-heat`: warm water bleaches corals; clean water helps Eilat's corals stand it (the reef, above). `ev-dry`: dart frogs raise tadpoles in rainwater held by bromeliads (Amazon, above). `ev-road`: roads and fences cut gazelle herds (the mystery "הצבאים נעלמים", above).
+- `zone-amazon`, `zone-grove`, `zone-reef`: the three problems of each zone are real inventions learned from its creatures (הממציאים, above): water lily, morpho, kapok; barn owl, hedgehog, tortoise; reef shark, clownfish, octopus.
+- `robot-out`: the robot of the workshop going out to the island is game logic.
+
+## Technologies on the island (1.3.2, area G: src/game/tool-defs.js TECH_DEFS, src/world/tech.js)
+
+Six devices, each resting on one real kind of research. The tool facts keep the claims modest; what the device does in
+the game (how often, how many, how strong) is game logic and is said so here. Checked 22.10.2026 from search results
+(WebFetch of full pages was not used); the claims marked "general knowledge" are textbook-level and kept vague on purpose.
+- **רובוט הצמרת (canopybot)**: canopy research is hard because the treetops are hard to reach; robots are being built to
+  climb or hang in the canopy and collect data, e.g. the ETH Zurich / WSL "Avocado" robot that swings between branches
+  (2024): https://techxplore.com/news/2024-01-avocado-robot-unexplored-treetops.amp ,
+  https://snf.ch/en/ayVlsYIYyyrSPKJS/news/robot-swings-its-way-to-unexplored-treetops . That many rainforest animals live
+  in the canopy is already in the Amazon layers (src/data/amazon.js, "Light and layers" above). Game logic: it climbs a
+  trunk and counts the animals near the tree by height, using the zone's own layer heights.
+- **רחפן לידאר (lidar)**: LiDAR sends short pulses of laser light and times their return to measure distance; flown over
+  a forest it maps the height of every crown (airborne laser scanning of tropical forest structure):
+  https://hal.umontpellier.fr/hal-01943016 , https://jagst.utm.my/index.php/jagst/article/view/62 (general knowledge for
+  the pulse-and-time principle). Game logic: a point cloud coloured by height, binned by the zone's layers; the numbers
+  are the island's own trees (metres as the game's units).
+- **רחפן מצלמת חום (thermal)**: drones with thermal infrared cameras count animals at night by their body heat, without
+  disturbing them; accuracy was tested e.g. on red deer counts in night flights:
+  https://napier-repository.worktribe.com/output/3007362/assessment-of-the-accuracy-of-counting-large-ungulate-species-red-deer-cervus-elaphus-with-uavmounted-thermal-infrared-cameras-during-night-flights ,
+  https://wildlife.org/wsb-study-tests-accuracy-of-thermal-drone-surveys/ . Birds and mammals keep a warm body; reptiles
+  take the temperature around them, so at night they show weakly (general knowledge). Game logic: warm animals within
+  reach of the drone glow; chameleon, agama and tortoise do not.
+- **מגדל תצפית אש (firetower)**: fire lookouts watch forests from high places to spot smoke early, so firefighters arrive
+  while a fire is small; KKL runs fire prevention and watch in Israel's forests:
+  https://www.kkl-jnf.org/about-kkl-jnf/green-israel-news/press-releases-2021/kkl-jnf-firefighters.aspx ,
+  https://en.wikipedia.org/wiki/Fire_lookout_tower . The tool fact says only "גם ביערות בארץ יש תצפיות אש". Game logic: a
+  fire event with a tower is 60% of the size and ends sooner; the fire-danger gauge (season, drought, heat, wind, rain)
+  is a game simplification.
+- **רמקול של שונית בריאה (reefspeaker)**: "acoustic enrichment": loudspeakers playing the sounds of a healthy reef on
+  degraded patches of the Great Barrier Reef drew more young fish (about twice as many settled, with more species):
+  Gordon et al. 2019, Nature Communications 10:5414: https://doaj.org/article/13c20fa466534b2f980d7dfb9a645d2a ,
+  https://www.sciencedaily.com/releases/2019/11/191130092054.htm , https://bristol.ac.uk/news/2019/november/coral-reef-restoration.html .
+  The tool fact says only that more young fish came. Game logic: on a hurt reef (bare places, few or weak corals) one
+  young reef fish arrives every 40 game seconds.
+- **רובוט האלמוגים הצעירים (spawnbot)**: after a mass spawning, researchers collect coral spawn, rear the larvae, and
+  "LarvalBot" (QUT and Southern Cross University, Great Barrier Reef, December 2018) spread the young corals over damaged
+  reef: https://www.qut.edu.au/research/article?id=138931 ,
+  https://robohub.org/robot-makes-world-first-baby-coral-delivery-to-great-barrier-reef/ ,
+  https://www.eurekalert.org/news-releases/777139 . The robot does not collect the eggs itself (the fact says researchers
+  rear them and the robot spreads them). Corals releasing eggs together a few nights after a full moon is already in the
+  reef event r_spawn. Game logic: each night a small outing near the robot, on the spawning night (r_spawn) eggs rise from
+  every coral; where the reef was hurt (W.scars) a young coral is planted, one a night (two on the spawning night).
+- Not claimed: no numbers of eggs, larvae survival rates or fish counts from the studies appear in the game; the board
+  numbers are the island's own.

@@ -91,12 +91,12 @@ function injectCss() {
 #ui.wol .ls-ic .ic{width:22px;height:22px}
 #ui.wol .ls-ttl small{display:block;color:#1d6680;font-weight:700;font-size:.8em}
 #ui.wol .ls-ttl h2{font-size:1.5em;line-height:1.1;white-space:nowrap;margin:0}
-#ui.wol .ls-sub{flex:1;margin:0;color:#5a4420;font-weight:700;font-size:.95em;line-height:1.3}
+#ui.wol .ls-sub{flex:1;margin:0;color:#5a4420;font-weight:700;font-size:calc(.95em * var(--tsr,1));line-height:1.3}
 #ui.wol .ls-back .ic{width:18px;height:18px}
 #ui.wol .ls-body{flex:1;min-height:0;overflow:auto}
 #ui.wol .ls-voice{flex:none;display:flex;align-items:center;gap:10px;padding:7px 12px;border-radius:14px;background:#263440;color:#eaf6fa;min-height:44px;box-shadow:inset 0 0 0 1px rgba(127,240,255,.25)}
 #ui.wol .ls-voice.pop{animation:lsPop .3s ease-out}
-#ui.wol .ls-voice p{margin:0;line-height:1.4;font-size:.98em}
+#ui.wol .ls-voice p{margin:0;line-height:1.4;font-size:calc(.98em * var(--tsr,1))}
 #ui.wol .ls-voice b{color:#7ff0ff}
 #ui.wol .ls-face{width:40px;height:40px;flex:none}
 #ui.wol .ls-part{animation:lsPart .4s ease-out both}
@@ -131,7 +131,7 @@ function injectCss() {
 #ui.wol .ls-mic .ic{width:23px;height:23px}
 #ui.wol .ls-mtx{flex:1;display:flex;flex-direction:column;gap:1px;min-width:0}
 #ui.wol .ls-mtx b{font-family:var(--serif);font-size:1.15em}
-#ui.wol .ls-mtx span{font-size:.88em;color:#5a4420;line-height:1.3}
+#ui.wol .ls-mtx span{font-size:calc(.88em * var(--tsr,1));color:#5a4420;line-height:1.3}
 #ui.wol .ls-mcard small{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
 #ui.wol .ls-mcard small .ic{width:14px;height:14px}
 #ui.wol .ls-mcard.done{background:#f2f9ea;border-color:#8ab86a}

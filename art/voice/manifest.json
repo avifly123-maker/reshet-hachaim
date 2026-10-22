@@ -1,0 +1,2217 @@
+{
+ "st1.1": {
+  "h": "3e7cd63dfdaf",
+  "text": "שָׁלוֹם! אֲנִי רוֹבּוֹ־דַּע, הָרוֹבּוֹט הַחוֹקֵר.",
+  "ipa": "ʃalˈom! anˈi ʁˈobo dˈa, haʁobˈot haχokˈeʁ."
+ },
+ "st1.2": {
+  "h": "3c598e4fdba5",
+  "text": "יֵשׁ לָנוּ שְׁנֵי אִיִּים: הָאַמְזוֹנָס וְהַחוֹרֶשׁ. בָּחֲרוּ אִי, וְנִבְנָה בּוֹ יַעַר חַי.",
+  "ipa": "jˈeʃ lˈanu ʃenˈej ijˈim, haamazˈonas vehaχˈoʁeʃ. baχaʁˈu ˈi, venivnˈe bˈo jˈaaʁ χˈaj."
+ },
+ "st1.2.k": {
+  "h": "199950205dad",
+  "text": "יֵשׁ לָנוּ שְׁנֵי אִיִּים: הָאָמָזוֹנָס וְהַחֹרֶשׁ. בַּחֲרוּ אִי, וְנִבְנֶה בּוֹ יַעַר חַי.",
+  "ipa": "jˈeʃ lˈanu ʃenˈej ijˈim, haamazˈonas vehaχˈoʁeʃ. baχaʁˈu ˈi, venivnˈe bˈo jˈaaʁ χˈaj."
+ },
+ "st1.3": {
+  "h": "9cd35fb4b0ab",
+  "text": "כָּל מְשִׂימָה שֶׁתַּשְׁלִימוּ תִּפְתַּח עוֹד חֵלֶק בַּמַּסָּע. בְּהַצְלָחָה!",
+  "ipa": "kˈol mesimˈa ʃetaʃlimˈu tiftˈaχ ʔˈod χˈelek bamasˈa. behatslaχˈa!"
+ },
+ "st2.1": {
+  "h": "772a618e8ab5",
+  "text": "כָּל הַכָּבוֹד! עַכְשָׁיו אַתֶּם אַסְפָנִים.",
+  "ipa": "kˈol hakavˈod! aχʃˈav atˈem asfanˈim."
+ },
+ "st2.1.k": {
+  "h": "df673a4463f3",
+  "text": "כָּל הַכָּבוֹד! עַכְשָׁו אַתֶּם אַסְפָנִים.",
+  "ipa": "kˈol hakavˈod! aχʃˈav atˈem asfanˈim."
+ },
+ "st2.2": {
+  "h": "314353e9ab9b",
+  "text": "נִפְתַּח לָכֶם אַלְבּוֹם הַקְּלָפִים, עִם חֲבִילוֹת וְחִידוֹן.",
+  "ipa": "niftˈaχ laχˈem albˈom hakelafˈim, ˈim χavilˈot veχidˈon."
+ },
+ "st3.1": {
+  "h": "5bd0f86326d5",
+  "text": "מְעוּלֶּה! עַכְשָׁיו אַתֶּם שׁוֹמְרֵי טֶבַע.",
+  "ipa": "meʔulˈe! aχʃˈav atˈem ʃomʁˈej tˈeva."
+ },
+ "st3.1.k": {
+  "h": "6cb6b59e8df4",
+  "text": "מְצֻיָּן! עַכְשָׁו אַתֶּם שׁוֹמְרֵי טֶבַע.",
+  "ipa": "metsujˈan! aχʃˈav atˈem ʃomʁˈej tˈeva."
+ },
+ "st4.2": {
+  "h": "ddfa4b1d4762",
+  "text": "נִפְתְּחָה הַשּׁוּנִית שֶׁל אֵילַת, וְנִפְתְּחָה הַמַּעְבָּדָה שֶׁלִּי!",
+  "ipa": "nifteχˈa haʃunˈit ʃˈel ejlˈat, venifteχˈa hamabadˈa ʃelˈi!"
+ },
+ "st6.3": {
+  "h": "f6480b63afe7",
+  "text": "וְגַם מְשִׂימוֹת הַמּוּמְחִים בְּכָל אִי. בְּהַצְלָחָה!",
+  "ipa": "vegˈam mesimˈot hamumχˈim beχˈol ˈi. behatslaχˈa!"
+ },
+ "st6.3.k": {
+  "h": "4ae2dcc42e7c",
+  "text": "בְּהַצְלָחָה, מֻמְחִים!",
+  "ipa": "behatslaχˈa, mumχˈim!"
+ },
+ "leg.2": {
+  "h": "01e25d583207",
+  "text": "כָּל מָה שֶׁשִּׁיחַקְתֶּם נִשְׁאַר פָּתוּחַ. בְּמַפַּת הַמַּסָּע רוֹאִים אֶת הַדַּרְגָּה שֶׁלָּכֶם.",
+  "ipa": "kˈol mˈa ʃesiχaktˈem niʃˈaʁ patˈuaχ. bemapˈat hamasˈa ʁoˈim ˈet hadaʁgˈa ʃelaχˈem."
+ },
+ "leg.2.k": {
+  "h": "d7a17cd792a7",
+  "text": "כָּל מָה שֶׁשִּׂחַקְתֶּם נִשְׁאַר פָּתוּחַ. בְּמַפַּת הַמַּסָּע רוֹאִים אֶת הַדַּרְגָּה שֶׁלָּכֶם.",
+  "ipa": "kˈol mˈa ʃesiχaktˈem niʃˈaʁ patˈuaχ. bemapˈat hamasˈa ʁoˈim ˈet hadaʁgˈa ʃelaχˈem."
+ },
+ "st2.3": {
+  "h": "80a30c9a9427",
+  "text": "בְּכָל קְלָף יֵשׁ יְצוּר מֵהַטֶּבַע. בּוֹאוּ לֶאֱסוֹף!",
+  "ipa": "beχˈol kelˈaf jˈeʃ jetsˈuʁ mehatˈeva. boʔˈu leesˈof!"
+ },
+ "st2.3.k": {
+  "h": "d2133ffcea4a",
+  "text": "בְּכָל קְלָף יֵשׁ יְצוּר מֵהַטֶּבַע. בּוֹאוּ לֶאֱסֹף!",
+  "ipa": "beχˈol kelˈaf jˈeʃ jetsˈuʁ mehatˈeva. boʔˈu leesˈof!"
+ },
+ "st3.2": {
+  "h": "10ba4adf21c2",
+  "text": "נִפְתְּחוּ שְׁנֵי מִשְׂחֲקֵי קְלָפִים: חוּט הַקֶּשֶׁר וּמַחֲזִיקִים אֶת הַיַּעַר.",
+  "ipa": "nifteχˈu ʃenˈej misχakˈej kelafˈim, χˈut hakˈeʃeʁ umaχazikˈim ˈet hajˈaaʁ."
+ },
+ "st3.3": {
+  "h": "3c8ef840ad5c",
+  "text": "וְגַם מָסַךְ הַתָּגִים שֶׁלָּכֶם.",
+  "ipa": "vegˈam masˈaχ hatagˈim ʃelaχˈem."
+ },
+ "st3.3.k": {
+  "h": "45bd07b65f05",
+  "text": "וְגַם הַתָּגִים שֶׁלָּכֶם.",
+  "ipa": "vegˈam hatagˈim ʃelaχˈem."
+ },
+ "st4.1": {
+  "h": "eb5aef2add28",
+  "text": "וּוָאוּ! עַכְשָׁיו אַתֶּם חוֹקְרִים.",
+  "ipa": "uvaʔˈu! aχʃˈav atˈem χokʁˈim."
+ },
+ "st4.1.k": {
+  "h": "a8623e5de375",
+  "text": "וָאוּ! עַכְשָׁו אַתֶּם חוֹקְרִים.",
+  "ipa": "vaʔˈu! aχʃˈav atˈem χokʁˈim."
+ },
+ "st4.3": {
+  "h": "247de76ad097",
+  "text": "בַּמַּעְבָּדָה יֵשׁ מִיקְרוֹסְקוֹפּ וְאַטְלָס. בּוֹאוּ לְבַקֵּר!",
+  "ipa": "bamabadˈa jˈeʃ mikʁoskˈop veatlˈas. boʔˈu levakˈeʁ!"
+ },
+ "st5.1": {
+  "h": "208374d58d0f",
+  "text": "עַכְשָׁיו אַתֶּם מַמְצִיאִים!",
+  "ipa": "aχʃˈav atˈem mamtsiˈim!"
+ },
+ "st5.1.k": {
+  "h": "455544c7ef13",
+  "text": "עַכְשָׁו אַתֶּם מַמְצִיאִים!",
+  "ipa": "aχʃˈav atˈem mamtsiˈim!"
+ },
+ "st5.2": {
+  "h": "b08cbc9bc2e1",
+  "text": "נִפְתְּחוּ שׁוּלְחַן הַמַּמְצִיאִים, סַדְנַת הָרוֹבּוֹטִים וְחוֹקְרֵי הַטֶּבַע.",
+  "ipa": "nifteχˈu ʃulχˈan hamamtsiˈim, sadnˈat haʁobotˈim veχokʁˈej hatˈeva."
+ },
+ "st5.2.k": {
+  "h": "8ae10f6cb0e6",
+  "text": "נִפְתְּחוּ שֻׁלְחַן הַמַּמְצִיאִים, סַדְנַת הָרוֹבּוֹטִים וְחוֹקְרֵי הַטֶּבַע.",
+  "ipa": "nifteχˈu ʃulχˈan hamamtsiˈim, sadnˈat haʁobotˈim veχokʁˈej hatˈeva."
+ },
+ "st5.3": {
+  "h": "d17611873142",
+  "text": "שָׁם לוֹמְדִים מֵהַטֶּבַע, וּבוֹנִים בְּעֶזְרָתוֹ.",
+  "ipa": "ʃˈam lomdˈim mehatˈeva, uvonˈim beezʁatˈo."
+ },
+ "st6.1": {
+  "h": "5977d2a17723",
+  "text": "אַתֶּם מוּמְחִים אֲמִיתִּיִּים!",
+  "ipa": "atˈem mumχˈim amitijˈim!"
+ },
+ "st6.1.k": {
+  "h": "6695c4cd699f",
+  "text": "אַתֶּם מֻמְחִים אֲמִתִּיִּים!",
+  "ipa": "atˈem mumχˈim amitijˈim!"
+ },
+ "st6.2": {
+  "h": "82ec4458133e",
+  "text": "נִפְתְּחוּ מִסְגְּרוֹת לִקְּלָפִים, מְשְׁלַחַת לָעוֹמֶק וּמִי חָזָק בָּרֶשֶׁת.",
+  "ipa": "nifteχˈu misgeʁˈot likelafˈim, meʃlˈaχat laʔˈomek umˈi χazˈak baʁˈeʃet."
+ },
+ "st6.2.k": {
+  "h": "536ae24d9db1",
+  "text": "נִפְתְּחוּ מִסְגָּרוֹת לַקְּלָפִים, מִשְׁלַחַת לָעֹמֶק וּמִי חָזָק בָּרֶשֶׁת.",
+  "ipa": "nifteχˈu misgaʁˈot lakelafˈim, miʃlˈaχat laˈomek umˈi χazˈak baʁˈeʃet."
+ },
+ "leg.1": {
+  "h": "b4c00ad82648",
+  "text": "שָׁלוֹם! יֵשׁ חָדָשׁ בַּמִּשְׂחָק: מַסַּע הַחוֹקֵר.",
+  "ipa": "ʃalˈom! jˈeʃ χadˈaʃ bamisχˈak, masˈa haχokˈeʁ."
+ },
+ "start.journey.1": {
+  "h": "3825156813e3",
+  "text": "כָּאן רוֹאִים בְּאֵיזֶה שָׁלָב שֶׁל הַמַּסָּע אַתֶּם.",
+  "ipa": "kˈan ʁoˈim beejzˈe ʃalˈav ʃˈel hamasˈa atˈem."
+ },
+ "start.journey.2": {
+  "h": "5679a225b90e",
+  "text": "הַפַּס מִתְמַלֵּא כְּשֶׁמַּשְׁלִימִים מְשִׂימוֹת וּמְקַבְּלִים תָּגִים.",
+  "ipa": "hapˈas mitmalˈe keʃemaʃlimˈim mesimˈot umkabelˈim tagˈim."
+ },
+ "start.journey.3": {
+  "h": "d67b61b010e5",
+  "text": "לַחֲצוּ כָּאן, וְתִרְאוּ אֶת כָּל מַפַּת הַמַּסָּע.",
+  "ipa": "laχatsˈu kˈan, vetiʁʔˈu ˈet kˈol mapˈat hamasˈa."
+ },
+ "start.journey.4": {
+  "h": "484ba6060f78",
+  "text": "בַּכַּפְתּוֹר הַזֶּה מְשַׁנִּים אֶת גּוֹדֶל הָאוֹתִיּוֹת וְאֶת הַקּוֹל שֶׁלִּי.",
+  "ipa": "bakaftˈoʁ hazˈe meʃanˈim ˈet gˈodel haʔotiˈot vˈeet hakˈol ʃelˈi."
+ },
+ "start.journey.4.k": {
+  "h": "ce9d5a453157",
+  "text": "בַּכַּפְתּוֹר הַזֶּה מְשַׁנִּים אֶת גֹּדֶל הָאוֹתִיּוֹת וְאֶת הַקּוֹל שֶׁלִּי.",
+  "ipa": "bakaftˈoʁ hazˈe meʃanˈim ˈet gˈodel haʔotiˈot vˈeet hakˈol ʃelˈi."
+ },
+ "start.map.1": {
+  "h": "c0f5001224a4",
+  "text": "זוֹ מַפַּת הַמַּסָּע: שִׁישָּׁה שְׁלַבִּים, מִיָּמִין לִשְׂמֹאל.",
+  "ipa": "zˈo mapˈat hamasˈa, ʃiʃˈa ʃelabˈim, mijamˈin lismˈol."
+ },
+ "start.map.1.k": {
+  "h": "39e11d211aae",
+  "text": "זוֹ מַפַּת הַמַּסָּע: שִׁשָּׁה שְׁלַבִּים, מִיָּמִין לִשְׂמֹאל.",
+  "ipa": "zˈo mapˈat hamasˈa, ʃiʃˈa ʃelabˈim, mijamˈin lismˈol."
+ },
+ "start.map.2": {
+  "h": "3f7f7de269da",
+  "text": "הַשָּׁלָב שֶׁזּוֹהַר הוּא הַשָּׁלָב שֶׁלָּכֶם עַכְשָׁיו.",
+  "ipa": "haʃalˈav ʃezohˈaʁ hˈu haʃalˈav ʃelaχˈem aχʃˈav."
+ },
+ "start.map.2.k": {
+  "h": "e5af0e00724f",
+  "text": "הַשָּׁלָב שֶׁזּוֹהֵר הוּא הַשָּׁלָב שֶׁלָּכֶם עַכְשָׁו.",
+  "ipa": "haʃalˈav ʃezohˈeʁ hˈu haʃalˈav ʃelaχˈem aχʃˈav."
+ },
+ "start.map.3": {
+  "h": "94b50641175d",
+  "text": "מִתַּחַת לְכָל שָׁלָב רוֹאִים מָה הוּא פּוֹתֵחַ בַּמִּשְׂחָק.",
+  "ipa": "mitˈaχat leχˈol ʃalˈav ʁoˈim mˈa hˈu potˈeaχ bamisχˈak."
+ },
+ "start.map.4": {
+  "h": "c681d5d6fcc0",
+  "text": "וְכָאן כָּתוּב מָה עוֹד חָסֵר כְּדֵי לְהַגִּיעַ לַשָּׁלָב הַבָּא.",
+  "ipa": "veχˈan katˈuv mˈa ʔˈod χasˈeʁ kedˈej lehagˈia laʃalˈav habˈa."
+ },
+ "start.settings.1": {
+  "h": "b45b3781c915",
+  "text": "כָּאן בּוֹחֲרִים כַּמָּה גְּדוֹלוֹת יִהְיוּ הָאוֹתִיּוֹת.",
+  "ipa": "kˈan boχaʁˈim kamˈa gedolˈot jihjˈu haʔotiˈot."
+ },
+ "start.settings.2": {
+  "h": "cbc9a0229553",
+  "text": "כָּאן מַדְלִיקִים אוֹ מְכַבִּים אֶת הַקּוֹל שֶׁלִּי.",
+  "ipa": "kˈan madlikˈim ʔˈo meχabˈim ˈet hakˈol ʃelˈi."
+ },
+ "start.settings.3": {
+  "h": "9662665ae96f",
+  "text": "בְּמַצָּב חֲוָויָה יֵשׁ בַּיַּעַר פָּחוֹת מִילִּים, וּבְמַצָּב מָלֵא כָּל הַפְּרָטִים.",
+  "ipa": "bematsˈav χavavjˈa jˈeʃ bajˈaaʁ paχˈot milˈim, uvmatsˈav malˈe kˈol hapeʁatˈim."
+ },
+ "start.settings.3.k": {
+  "h": "eda36cafd11d",
+  "text": "בְּמַצַּב חֲוָיָה יֵשׁ בַּיַּעַר פָּחוֹת מִלִּים, וּבְמַצַּב מָלֵא כָּל הַפְּרָטִים.",
+  "ipa": "bematsˈav χavajˈa jˈeʃ bajˈaaʁ paχˈot milˈim, uvmatsˈav malˈe kˈol hapeʁatˈim."
+ },
+ "start.settings.4": {
+  "h": "d0d8c8c8586c",
+  "text": "שֶׁכַחְתֶּם מַשֶּׁהוּ? כָּאן אֶפְשָׁר לִשְׁמוֹעַ שׁוּב אֶת כָּל הַהֶסְבֵּרִים.",
+  "ipa": "ʃeχˈaχtem maʃehˈu? kˈan efʃˈaʁ liʃmˈoa ʃˈuv ˈet kˈol hahesbeʁˈim."
+ },
+ "start.settings.4.k": {
+  "h": "124ebf2370ff",
+  "text": "שְׁכַחְתֶּם מַשֶּׁהוּ? כָּאן אֶפְשָׁר לִשְׁמֹעַ שׁוּב אֶת כָּל הַהֶסְבֵּרִים.",
+  "ipa": "ʃeχˈaχtem maʃehˈu? kˈan efʃˈaʁ liʃmˈoa ʃˈuv ˈet kˈol hahesbeʁˈim."
+ },
+ "start.go.ask": {
+  "h": "9d3d7780b5b6",
+  "text": "רוֹצִים לָלֶכֶת לְשָׁם עַכְשָׁיו?",
+  "ipa": "ʁotsˈim lalˈeχet leʃˈam aχʃˈav?"
+ },
+ "start.go.ask.k": {
+  "h": "c90f830b8f1d",
+  "text": "רוֹצִים לָלֶכֶת לְשָׁם עַכְשָׁו?",
+  "ipa": "ʁotsˈim lalˈeχet leʃˈam aχʃˈav?"
+ },
+ "start.go.2": {
+  "h": "a967d46cbc4e",
+  "text": "הִנֵּה אַלְבּוֹם הַקְּלָפִים. לָחֲצוּ כְּדֵי לְהִיכָּנֵס!",
+  "ipa": "hinˈe albˈom hakelafˈim. laχatsˈu kedˈej lehikanˈes!"
+ },
+ "start.go.2.k": {
+  "h": "47e635b15382",
+  "text": "הִנֵּה אַלְבּוֹם הַקְּלָפִים. לַחֲצוּ כְּדֵי לְהִכָּנֵס!",
+  "ipa": "hinˈe albˈom hakelafˈim. laχatsˈu kedˈej lehikanˈes!"
+ },
+ "start.go.3": {
+  "h": "2f98ff4ebe8b",
+  "text": "הִנֵּה מִשְׂחֲקֵי הַקְּלָפִים הַחֲדָשִׁים. לַחֲצוּ וּנְשַׂחֵק!",
+  "ipa": "hinˈe misχakˈej hakelafˈim haχadaʃˈim. laχatsˈu unsaχˈek!"
+ },
+ "start.go.4": {
+  "h": "e86458297b51",
+  "text": "הִנֵּה הַמַּעְבָּדָה שֶׁלִּי. לָחֲצוֹ כְּדֵי לְהִיכָּנֵס!",
+  "ipa": "hinˈe hamabadˈa ʃelˈi. laχatsˈo kedˈej lehikanˈes!"
+ },
+ "start.go.4.k": {
+  "h": "69a4e859d20d",
+  "text": "הִנֵּה הַמַּעְבָּדָה שֶׁלִּי. לַחֲצוּ כְּדֵי לְהִכָּנֵס!",
+  "ipa": "hinˈe hamabadˈa ʃelˈi. laχatsˈu kedˈej lehikanˈes!"
+ },
+ "start.go.5": {
+  "h": "4b775495b5da",
+  "text": "הִנֵּה חוֹקְרֵי הַטֶּבַע. תַּעֲלוּמוֹת מְחַכּוֹת לָכֶם!",
+  "ipa": "hinˈe χokʁˈej hatˈeva. taalumˈot meχakˈot laχˈem!"
+ },
+ "start.go.6": {
+  "h": "50b2c3e3ae34",
+  "text": "הִנֵּה מְשְׁלַחַת לָעוֹמֶק. צוֹלְלִים עִם הַקְּלָפִים!",
+  "ipa": "hinˈe meʃlˈaχat laʔˈomek. tsollˈim ˈim hakelafˈim!"
+ },
+ "start.go.6.k": {
+  "h": "a4e320b3989e",
+  "text": "הִנֵּה מִשְׁלַחַת לָעֹמֶק. צוֹלְלִים עִם הַקְּלָפִים!",
+  "ipa": "hinˈe miʃlˈaχat laˈomek. tsollˈim ˈim hakelafˈim!"
+ },
+ "start.again.1": {
+  "h": "a576970927e0",
+  "text": "אַסְבִּיר שׁוּב כָּל חֵלֶק כְּשֶׁתִּיכָּנְסוּ אֵלָיו.",
+  "ipa": "asbˈiʁ ʃˈuv kˈol χˈelek keʃetikansˈu elˈajv."
+ },
+ "start.again.1.k": {
+  "h": "41e042b5990f",
+  "text": "אַסְבִּיר שׁוּב כָּל חֵלֶק כְּשֶׁתִּכָּנְסוּ אֵלָיו.",
+  "ipa": "asbˈiʁ ʃˈuv kˈol χˈelek keʃetikansˈu elˈajv."
+ },
+ "hub.learn.1": {
+  "h": "0fd1e8382b49",
+  "text": "בְּרוּכִים הַבָּאִים לְמֶרְכַּז הַלְּמִידָה! כָּאן מְשַׂחֲקִים עִם הַקְּלָפִים שֶׁאֲסַפְתֶּם.",
+  "ipa": "beʁuχˈim habaˈim lemeʁkˈaz halemidˈa! kˈan mesaχakˈim ˈim hakelafˈim ʃeasˈaftem."
+ },
+ "hub.learn.2": {
+  "h": "afd378776ee4",
+  "text": "בָּאֶמְצַע הָאַלְבּוֹם. שָׁם רוֹאִים אֶת כָּל הַקְּלָפִים, וּפוֹתְחִים חֲבִילוֹת.",
+  "ipa": "baemtsˈa haalbˈom. ʃˈam ʁoˈim ˈet kˈol hakelafˈim, ufotχˈim χavilˈot."
+ },
+ "hub.learn.3": {
+  "h": "70285eb92e81",
+  "text": "מִיָּמִין הַחִידּוֹן: עוֹנִים נָכוֹן וּמַרְוִויחִים חֲבִילוֹת קְלָפִים.",
+  "ipa": "mijamˈin haχidˈon, ʔonˈim naχˈon umaʁvivjχˈim χavilˈot kelafˈim."
+ },
+ "hub.learn.3.k": {
+  "h": "0d2f423efcb7",
+  "text": "מִיָּמִין הַחִידוֹן: עוֹנִים נָכוֹן וּמַרְוִיחִים חֲבִילוֹת קְלָפִים.",
+  "ipa": "mijamˈin haχidˈon, ʔonˈim naχˈon umaʁviχˈim χavilˈot kelafˈim."
+ },
+ "hub.learn.4": {
+  "h": "f1589bed4981",
+  "text": "מִשְּׂמֹאל מִשְׂחֲקֵי הַקְּלָפִים. מִשְׂחָק שֶׁעוֹד מְכוּסֶּה יִיפָּתַח בַּהֶמְשֵׁךְ הַמַּסָּע.",
+  "ipa": "misemˈol misχakˈej hakelafˈim. misχˈak ʃeʔˈod meχusˈe jipatˈaχ bahemʃˈeχ hamasˈa."
+ },
+ "hub.learn.4.k": {
+  "h": "ee83c489bdbb",
+  "text": "מִשְּׂמֹאל מִשְׂחֲקֵי הַקְּלָפִים. מִשְׂחָק שֶׁעוֹד מְכֻסֶּה יִפָּתַח בְּהֶמְשֵׁךְ הַמַּסָּע.",
+  "ipa": "misemˈol misχakˈej hakelafˈim. misχˈak ʃeʔˈod meχusˈe jipatˈaχ behemʃˈeχ hamasˈa."
+ },
+ "hub.album.1": {
+  "h": "650e70c78e27",
+  "text": "זֶה הָאַלְבּוֹם שֶׁלָּכֶם. כָּל קְלָף הוּא יְצוּר מֵהַטֶּבַע, אוֹ כְּלִי שֶׁל חוֹקְרִים.",
+  "ipa": "zˈe haalbˈom ʃelaχˈem. kˈol kelˈaf hˈu jetsˈuʁ mehatˈeva, ʔˈo kelˈi ʃˈel χokʁˈim."
+ },
+ "hub.album.2": {
+  "h": "094e0c7789c8",
+  "text": "לְמַעְלָה בּוֹחֲרִים מָקוֹם: אַמְזוֹנְס, חוֹרֶשׁ אוֹ שׁוֹנִית.",
+  "ipa": "lemalˈa boχaʁˈim makˈom, amazˈonas, χˈoʁeʃ ʔˈo ʃonˈit."
+ },
+ "hub.album.2.k": {
+  "h": "23301eb94d66",
+  "text": "לְמַעְלָה בּוֹחֲרִים מָקוֹם: אָמָזוֹנָס, חֹרֶשׁ אוֹ שׁוּנִית.",
+  "ipa": "lemalˈa boχaʁˈim makˈom, amazˈonas, χˈoʁeʃ ʔˈo ʃunˈit."
+ },
+ "hub.album.3": {
+  "h": "4f69220908bd",
+  "text": "יֵשׁ לָכֶם חֲבִילָה? לַחֲצוּ כָּאן וּפִתְחוּ אוֹתָהּ.",
+  "ipa": "jˈeʃ laχˈem χavilˈa? laχatsˈu kˈan ufitχˈu ʔotˈah."
+ },
+ "hub.album.4": {
+  "h": "3154a1fc2b2d",
+  "text": "אִסְפוּ סִדְרָה שְׁלֵמָה, וּתְקַבְּלוּ חֲבִילָה בְּמַתָּנָה!",
+  "ipa": "isfˈu sidʁˈa ʃelemˈa, utkabelˈu χavilˈa bematanˈa!"
+ },
+ "hub.quiz.1": {
+  "h": "2c75463167ef",
+  "text": "בַּחִידוֹן יֵשׁ עֶשֶׂר שְׁאֵלוֹת עַל הַיְּצוּרִים שֶׁל רֶשֶׁת הַחַיִּים.",
+  "ipa": "baχidˈon jˈeʃ ˈeseʁ ʃeelˈot ˈal hajetsuʁˈim ʃˈel ʁˈeʃet haχajˈim."
+ },
+ "hub.quiz.2": {
+  "h": "b56f92881922",
+  "text": "קוֹדֶם בּוֹחֲרִים רָמָה וּמָקוֹם.",
+  "ipa": "kˈodem boχaʁˈim ʁamˈa umakˈom."
+ },
+ "hub.quiz.2.k": {
+  "h": "5fc9e30c674c",
+  "text": "קֹדֶם בּוֹחֲרִים רָמָה וּמָקוֹם.",
+  "ipa": "kˈodem boχaʁˈim ʁamˈa umakˈom."
+ },
+ "hub.quiz.3": {
+  "h": "43f9f4b89b4b",
+  "text": "עוֹנִים נָכוֹן, וְאוּלַי תְּקַבְּלוּ חֲבִילַת קְלָפִים. בְּהַצְלָחָה!",
+  "ipa": "ʔonˈim naχˈon, veʔulˈaj tekabelˈu χavilˈat kelafˈim. behatslaχˈa!"
+ },
+ "hub.badges.1": {
+  "h": "aa06f6890d5c",
+  "text": "כָּאן כָּל הַתָּגִים שֶׁלָּכֶם. תָּג מְקַבְּלִים עַל מַשֶּׁהוּ מְיוּחָד שֶׁעֲשִׂיתֶם.",
+  "ipa": "kˈan kˈol hatagˈim ʃelaχˈem. tˈag mekabelˈim ˈal maʃehˈu mejuχˈad ʃeasˈitem."
+ },
+ "hub.badges.1.k": {
+  "h": "db7f76ecb136",
+  "text": "כָּאן כָּל הַתָּגִים שֶׁלָּכֶם. תָּג מְקַבְּלִים עַל מַשֶּׁהוּ מְיֻחָד שֶׁעֲשִׂיתֶם.",
+  "ipa": "kˈan kˈol hatagˈim ʃelaχˈem. tˈag mekabelˈim ˈal maʃehˈu mejuχˈad ʃeasˈitem."
+ },
+ "hub.badges.2": {
+  "h": "69291f35dcbb",
+  "text": "תָּג עִם סִימַן שְׁאֵלָה עוֹד מְחַכֶּה לָכֶם. לַחֲצוּ עָלָיו וְתִרְאוּ אֵיךְ מַשִּׂיגִים אוֹתוֹ.",
+  "ipa": "tˈag ˈim simˈan ʃeelˈa ʔˈod meχakˈe laχˈem. laχatsˈu alˈajv vetiʁʔˈu ˈejχ masigˈim ʔotˈo."
+ },
+ "hub.badges.3": {
+  "h": "0b459b6cb0c9",
+  "text": "כַּמָּה תָּגִים מֵאוֹתָהּ קְבוּצָה פּוֹתְחִים מִסְגֶּרֶת חֲדָשָׁה לַקְּלָפִים.",
+  "ipa": "kamˈa tagˈim meʔotˈah kevutsˈa potχˈim misgˈeʁet χadaʃˈa lakelafˈim."
+ },
+ "hub.frames.1": {
+  "h": "c4b323d5dfe8",
+  "text": "כָּאן בּוֹחֲרִים מִסְגֶּרֶת לְכָל הַקְּלָפִים בָּאַלְבּוֹם.",
+  "ipa": "kˈan boχaʁˈim misgˈeʁet leχˈol hakelafˈim baalbˈom."
+ },
+ "hub.frames.2": {
+  "h": "0d813233ccf8",
+  "text": "מִסְגֶּרֶת פְּתוּחָה אֶפְשָׁר לִבְחוֹר. אֶת הַשְּׁאָר פּוֹתְחִים בְּעֶזְרַת תָּגִים.",
+  "ipa": "misgˈeʁet petuχˈa efʃˈaʁ livχˈoʁ. ˈet haʃeˈaʁ potχˈim beezʁˈat tagˈim."
+ },
+ "hub.frames.2.k": {
+  "h": "4ea4f7713b7c",
+  "text": "מִסְגֶּרֶת פְּתוּחָה אֶפְשָׁר לִבְחֹר. אֶת הַשְּׁאָר פּוֹתְחִים בְּעֶזְרַת תָּגִים.",
+  "ipa": "misgˈeʁet petuχˈa efʃˈaʁ livχˈoʁ. ˈet haʃeˈaʁ potχˈim beezʁˈat tagˈim."
+ },
+ "hub.frames.3": {
+  "h": "ed7e14753e93",
+  "text": "כָּאן רוֹאִים אֵיךְ הַקְּלָף יֵירָאֶה.",
+  "ipa": "kˈan ʁoˈim ˈejχ hakelˈaf jejʁaˈe."
+ },
+ "hub.frames.3.k": {
+  "h": "4578202bc313",
+  "text": "כָּאן רוֹאִים אֵיךְ הַקְּלָף יֵרָאֶה.",
+  "ipa": "kˈan ʁoˈim ˈejχ hakelˈaf jeʁaˈe."
+ },
+ "hub.webpuzzle.1": {
+  "h": "04e3c2053b34",
+  "text": "בְּחוּט הַקֶּשֶׁר מַשְׁלִימִים רֶשֶׁת: מִי אוֹכֵל אֶת מִי, וּמִי עוֹזֵר לְמִי.",
+  "ipa": "beχˈut hakˈeʃeʁ maʃlimˈim ʁˈeʃet, mˈi ʔoχˈel ˈet mˈi, umˈi ʔozˈeʁ lemˈi."
+ },
+ "hub.webpuzzle.2": {
+  "h": "6f762f321a74",
+  "text": "לְמַעְלָה בּוֹחֲרִים מָקוֹם. לְכָל מָקוֹם יֵשׁ חִידוֹת מִשֶּׁלּוֹ.",
+  "ipa": "lemalˈa boχaʁˈim makˈom. leχˈol makˈom jˈeʃ χidˈot miʃelˈo."
+ },
+ "hub.webpuzzle.3": {
+  "h": "39fdeb375d5d",
+  "text": "בּוֹחֲרִים שָׁלָב, וּמַנִּיחִים כָּל קְלָף בַּמָּקוֹם הַנָּכוֹן בָּרֶשֶׁת.",
+  "ipa": "boχaʁˈim ʃalˈav, umaniχˈim kˈol kelˈaf bamakˈom hanaχˈon baʁˈeʃet."
+ },
+ "hub.webpuzzle.4": {
+  "h": "2132da0c47ec",
+  "text": "פְּתַרְתֶּם בְּלִי טָעוּיוֹת? תְּקַבְּלוּ שְׁלוֹשָׁה כּוֹכָבִים!",
+  "ipa": "petˈaʁtem belˈi taʔujˈot? tekabelˈu ʃeloʃˈa koχavˈim!"
+ },
+ "hub.webpuzzle.4.k": {
+  "h": "63439800f609",
+  "text": "פְּתַרְתֶּם בְּלִי טָעֻיּוֹת? תְּקַבְּלוּ שְׁלוֹשָׁה כּוֹכָבִים!",
+  "ipa": "petˈaʁtem belˈi taujˈot? tekabelˈu ʃeloʃˈa koχavˈim!"
+ },
+ "hub.keepforest.1": {
+  "h": "7636b3a8050e",
+  "text": "בְּמַחֲזִיקִים אֶת הַיַּעַר בּוֹנִים יַעַר מֵהַקְּלָפִים שֶׁלָּכֶם.",
+  "ipa": "bemaχazikˈim ˈet hajˈaaʁ bonˈim jˈaaʁ mehakelafˈim ʃelaχˈem."
+ },
+ "hub.keepforest.2": {
+  "h": "3a6f37f0fbab",
+  "text": "אַחַר כָּךְ בָּאִים קְשָׁיִים: בְּצוּרַת, שְׂרֵיפָה אוֹ כְּרִיתָה.",
+  "ipa": "ˈaχaʁ kˈaχ baˈim keʃajˈim, betsuʁˈat, seʁejfˈa ʔˈo keʁitˈa."
+ },
+ "hub.keepforest.2.k": {
+  "h": "86504b5e0100",
+  "text": "אַחַר כָּךְ בָּאִים קְשָׁיִים: בַּצֹּרֶת, שְׂרֵפָה אוֹ כְּרִיתָה.",
+  "ipa": "ˈaχaʁ kˈaχ baˈim keʃajˈim, batsˈoʁet, seʁefˈa ʔˈo keʁitˈa."
+ },
+ "hub.keepforest.3": {
+  "h": "ba1aa15a42f3",
+  "text": "יַעַר עִם הַרְבֵּה קְשָׁרִים מַחֲזִיק מַעֲמָד. בַּחֲרוּ מָקוֹם וְיוֹצְאִים לַדֶּרֶךְ!",
+  "ipa": "jˈaaʁ ˈim haʁbˈe keʃaʁˈim maχazˈik maamˈad. baχaʁˈu makˈom vejotsˈim ladˈeʁeχ!"
+ },
+ "hub.duel.1": {
+  "h": "f43a10c8b8a8",
+  "text": "בְּמִי חָזָק בָּרֶשֶׁת הַקְּלָפִים שֶׁלָּכֶם מִתְמוֹדְדִים מוּל קַלְפֵי הַמַּחְשֵׁב.",
+  "ipa": "bemˈi χazˈak baʁˈeʃet hakelafˈim ʃelaχˈem mitmoddˈim mˈul kalfˈej hamaχʃˈev."
+ },
+ "hub.duel.2": {
+  "h": "4a46b823479a",
+  "text": "בְּכָל סֶבֶב יֵשׁ תְּכוּנָה אַחַת, לְמָשָׁל אוֹר אוֹ מַיִם.",
+  "ipa": "beχˈol sˈevev jˈeʃ teχunˈa ˈaχat, lemaʃˈal ʔˈoʁ ʔˈo mˈajim."
+ },
+ "hub.duel.3": {
+  "h": "2ca0aa8e0fd0",
+  "text": "בַּחֲרוּ קְלָף מִלְּמַטָּה. הַמִּסְפָּר הַגָּבוֹהַּ מְנַצֵּחַ!",
+  "ipa": "baχaʁˈu kelˈaf milematˈa. hamispˈaʁ hagavohˈa menatsˈeaχ!"
+ },
+ "hub.inventors.1": {
+  "h": "a69dc320f0f2",
+  "text": "כָּאן פּוֹתְרִים בְּעָיוֹת אֲמִיתִּיּוֹת בְּעֶזְרַת הַיְּצוּרִים שֶׁבַּקְּלָפִים שֶׁלָּכֶם.",
+  "ipa": "kˈan potʁˈim beajˈot amitiˈot beezʁˈat hajetsuʁˈim ʃebakelafˈim ʃelaχˈem."
+ },
+ "hub.inventors.1.k": {
+  "h": "d3e9f8eba0b2",
+  "text": "כָּאן פּוֹתְרִים בְּעָיוֹת אֲמִתִּיּוֹת בְּעֶזְרַת הַיְּצוּרִים שֶׁבַּקְּלָפִים שֶׁלָּכֶם.",
+  "ipa": "kˈan potʁˈim beajˈot amitiˈot beezʁˈat hajetsuʁˈim ʃebakelafˈim ʃelaχˈem."
+ },
+ "hub.inventors.2": {
+  "h": "3a13e62cce71",
+  "text": "בּוֹחֲרִים בְּעָיָה, שָׂמִים קְלָף אוֹ שְׁנַיִים, וּבוֹדְקִים. מוּתָּר לִטְעוֹת!",
+  "ipa": "boχaʁˈim beajˈa, samˈim kelˈaf ʔˈo ʃenajˈim, uvodkˈim. mutˈaʁ litʔˈot!"
+ },
+ "hub.inventors.2.k": {
+  "h": "744840d88732",
+  "text": "בּוֹחֲרִים בְּעָיָה, שָׂמִים קְלָף אוֹ שְׁנַיִם, וּבוֹדְקִים. מֻתָּר לִטְעוֹת!",
+  "ipa": "boχaʁˈim beajˈa, samˈim kelˈaf ʔˈo ʃenˈajim, uvodkˈim. mutˈaʁ litʔˈot!"
+ },
+ "hub.inventors.3": {
+  "h": "059fd2c2d250",
+  "text": "וְהַכַּפְתּוֹר הַזֶּה הוּא סַדְנַת הָרוֹבּוֹטִים! שָׁם בּוֹנִים רוֹבּוֹט מִתְּכוּנוֹת שֶׁל יְצוּרִים.",
+  "ipa": "vehakaftˈoʁ hazˈe hˈu sadnˈat haʁobotˈim! ʃˈam bonˈim ʁobˈot miteχunˈot ʃˈel jetsuʁˈim."
+ },
+ "hub.inventors.4": {
+  "h": "0b19aa2834bb",
+  "text": "הָרוֹבּוֹט עוֹבֵר מִבְחָנִים בַּשֶּׁטַח. נַסּוּ גַּם אַתֶּם!",
+  "ipa": "haʁobˈot ʔovˈeʁ mivχanˈim baʃˈetaχ. nasˈu gˈam atˈem!"
+ },
+ "hub.expedition.1": {
+  "h": "fb06aa980e75",
+  "text": "בַּמִּשְׁלַחַת לְעוֹמֶק צוֹלְלִים לְשׁוֹנִית עִם צֶוֶות שֶׁל אַרְבָּעָה קְלָפִים.",
+  "ipa": "bamiʃlˈaχat leʔˈomek tsollˈim leʃonˈit ˈim tsevˈevt ʃˈel aʁbaˈa kelafˈim."
+ },
+ "hub.expedition.1.k": {
+  "h": "a541f6926b3e",
+  "text": "בְּמִשְׁלַחַת לָעֹמֶק צוֹלְלִים לַשּׁוּנִית עִם צֶוֶת שֶׁל אַרְבָּעָה קְלָפִים.",
+  "ipa": "bemiʃlˈaχat laˈomek tsollˈim laʃunˈit ˈim tsˈevet ʃˈel aʁbaˈa kelafˈim."
+ },
+ "hub.expedition.2": {
+  "h": "ed14896d1dd6",
+  "text": "בָּחֲרוּ אֶת הַצֶּוֶות מֵהַקְּלָפִים שֶׁלָּכֶם.",
+  "ipa": "baχaʁˈu ˈet hatsevˈevt mehakelafˈim ʃelaχˈem."
+ },
+ "hub.expedition.2.k": {
+  "h": "5caba1961381",
+  "text": "בַּחֲרוּ אֶת הַצֶּוֶת מֵהַקְּלָפִים שֶׁלָּכֶם.",
+  "ipa": "baχaʁˈu ˈet hatsˈevet mehakelafˈim ʃelaχˈem."
+ },
+ "hub.expedition.3": {
+  "h": "c6d0512512da",
+  "text": "בְּכָל עוֹמֶק מַחֲלִיטִים: לָרֶדֶת עוֹד, אוֹ לַחֲזוֹר לַסִּירָה עִם הַדְּגִימוֹת.",
+  "ipa": "beχˈol ʔˈomek maχalitˈim, laʁˈedet ʔˈod, ʔˈo laχazˈoʁ lasiʁˈa ˈim hadegimˈot."
+ },
+ "hub.expedition.3.k": {
+  "h": "22016ea79270",
+  "text": "בְּכָל עֹמֶק מַחְלִיטִים: לָרֶדֶת עוֹד, אוֹ לַחֲזֹר לַסִּירָה עִם הַדְּגִימוֹת.",
+  "ipa": "beχˈol ˈomek maχlitˈim, laʁˈedet ʔˈod, ʔˈo laχazˈoʁ lasiʁˈa ˈim hadegimˈot."
+ },
+ "hub.versematch.1": {
+  "h": "77ce490bf74f",
+  "text": "בְּמָה הַפָּסוּק מְלַמֵּד יֵשׁ קְלַף מָקוֹר עִם פָּסוּק.",
+  "ipa": "bemˈa hapasˈuk melamˈed jˈeʃ kelˈaf makˈoʁ ˈim pasˈuk."
+ },
+ "hub.versematch.2": {
+  "h": "d84df54067ee",
+  "text": "קוֹרְאִים אֶת הַפָּסוּק, וּבוֹחֲרִים קְלָף מֵהָאַלְבּוֹם שֶׁמַּתְאִים לְמָה שֶׁהוּא מְלַמֵּד.",
+  "ipa": "koʁˈim ˈet hapasˈuk, uvoχaʁˈim kelˈaf mehaalbˈom ʃematˈim lemˈa ʃehˈu melamˈed."
+ },
+ "hub.versematch.3": {
+  "h": "475a799bc852",
+  "text": "לִפְעָמִים יֵשׁ יוֹתֵר מִתְּשׁוּבָה אַחַת. חִשְׁבוּ בְּעִיּוּן!",
+  "ipa": "lifamˈim jˈeʃ jotˈeʁ miteʃuvˈa ˈaχat. χiʃvˈu beiˈun!"
+ },
+ "lab.scope.1": {
+  "h": "e9a6b1c90a64",
+  "text": "זֶה הַמִּיקְרוֹסְקוֹפּ. הוּא מַגְדִּיל דְּבָרִים קְטַנִּים מְאוֹד.",
+  "ipa": "zˈe hamikʁoskˈop. hˈu magdˈil devaʁˈim ketanˈim meʔˈod."
+ },
+ "lab.scope.1.k": {
+  "h": "89dee7ec61ee",
+  "text": "זֶה הַמִּיקְרוֹסְקוֹפּ. הוּא מַגְדִּיל דְּבָרִים קְטַנִּים מְאֹד.",
+  "ipa": "zˈe hamikʁoskˈop. hˈu magdˈil devaʁˈim ketanˈim meˈod."
+ },
+ "lab.scope.2": {
+  "h": "1948d7ac13df",
+  "text": "בַּחֲרוּ דְּגִימָה מֵהַמַּגָּשׁ שֶׁבַּצַּד.",
+  "ipa": "baχaʁˈu degimˈa mehamagˈaʃ ʃebatsˈad."
+ },
+ "lab.scope.3": {
+  "h": "195c214b6b9a",
+  "text": "הֵזִיזוּ אֶת הַמִּיקּוּד עַד שֶׁהַתְּמוּנָה חַדָּה, וְאָז הִגְדִּילוּ.",
+  "ipa": "hezizˈu ˈet hamikˈud ˈad ʃehatemunˈa χadˈa, veˈaz higdilˈu."
+ },
+ "lab.scope.3.k": {
+  "h": "fe85bb84f7e3",
+  "text": "הָזִיזוּ אֶת הַמִּקּוּד עַד שֶׁהַתְּמוּנָה חַדָּה, וְאָז הַגְדִּילוּ.",
+  "ipa": "hazizˈu ˈet hamikˈud ˈad ʃehatemunˈa χadˈa, veˈaz hagdilˈu."
+ },
+ "lab.scope.4": {
+  "h": "8734b25e651d",
+  "text": "בְּכָל דְּגִימָה מִסְתַּתְּרִים שְׁלוֹשָׁה סוֹדוֹת. לָחֲצוּ עֲלֵיהֶם כְּשֶׁתִּמְצְאוּ!",
+  "ipa": "beχˈol degimˈa mistateʁˈim ʃeloʃˈa sodˈot. laχatsˈu alejhˈem keʃetimtseʔˈu!"
+ },
+ "lab.scope.4.k": {
+  "h": "4706cf1c241d",
+  "text": "בְּכָל דְּגִימָה מִסְתַּתְּרִים שְׁלֹשָׁה סוֹדוֹת. לִחְצוּ עֲלֵיהֶם!",
+  "ipa": "beχˈol degimˈa mistateʁˈim ʃeloʃˈa sodˈot. liχtsˈu alejhˈem!"
+ },
+ "lab.atlas.1": {
+  "h": "be6e34a74836",
+  "text": "זֶה הָאַטְלָס, הַסֵּפֶר שֶׁל כָּל הַיְּצוּרִים שֶׁחֲקַרְתֶּם.",
+  "ipa": "zˈe haatlˈas, hasˈefeʁ ʃˈel kˈol hajetsuʁˈim ʃeχakˈaʁtem."
+ },
+ "lab.atlas.2": {
+  "h": "a4af4d388e8f",
+  "text": "כָּל יְצוּר מְקַבֵּל דַּף, וְעָלָיו חוֹתָמוֹת.",
+  "ipa": "kˈol jetsˈuʁ mekabˈel dˈaf, vealˈajv χotamˈot."
+ },
+ "lab.atlas.3": {
+  "h": "d34cd188ae29",
+  "text": "חוֹתֶמֶת אַחַת מְקַבְּלִים בַּמִיקְרוֹסְקוֹפּ, וְאַחַת בְּשׁוּלְחַן הַמַּמְצִיאִים.",
+  "ipa": "χotˈemet ˈaχat mekabelˈim bamikʁoskˈop, veˈaχat beʃulχˈan hamamtsiˈim."
+ },
+ "lab.atlas.3.k": {
+  "h": "066f6de37dae",
+  "text": "חוֹתֶמֶת אַחַת מְקַבְּלִים בַּמִּיקְרוֹסְקוֹפּ, וְאַחַת בְּשֻׁלְחַן הַמַּמְצִיאִים.",
+  "ipa": "χotˈemet ˈaχat mekabelˈim bamikʁoskˈop, veˈaχat beʃulχˈan hamamtsiˈim."
+ },
+ "lab.atlas.4": {
+  "h": "c395bc160f69",
+  "text": "וְיֵשׁ כָּאן גַּם שְׁאֵלוֹת חֵקֶר. לִחְצוּ עַל הַכַּפְתּוֹר לְמַעְלָה.",
+  "ipa": "vejˈeʃ kˈan gˈam ʃeelˈot χˈekeʁ. liχtsˈu ˈal hakaftˈoʁ lemalˈa."
+ },
+ "lab.table.1": {
+  "h": "9d9b7b25476a",
+  "text": "זֶה שׁוּלְחַן הַמַּמְצִיאִים. כָּאן לוֹמְדִים מֵהַטֶּבַע, וּמַמְצִיאִים.",
+  "ipa": "zˈe ʃulχˈan hamamtsiˈim. kˈan lomdˈim mehatˈeva, umamtsiˈim."
+ },
+ "lab.table.1.k": {
+  "h": "649dd0d492b9",
+  "text": "זֶה שֻׁלְחַן הַמַּמְצִיאִים. כָּאן לוֹמְדִים מֵהַטֶּבַע, וּמַמְצִיאִים.",
+  "ipa": "zˈe ʃulχˈan hamamtsiˈim. kˈan lomdˈim mehatˈeva, umamtsiˈim."
+ },
+ "lab.table.2": {
+  "h": "c5824b7423f3",
+  "text": "בַּדֶּלֶת הַזֹּאת פּוֹתְרִים בְּעָיוֹת בְּעֶזְרַת הַיְּצוּרִים מֵהַקְּלָפִים שֶׁלָּכֶם.",
+  "ipa": "badˈelet hazˈot potʁˈim beajˈot beezʁˈat hajetsuʁˈim mehakelafˈim ʃelaχˈem."
+ },
+ "lab.table.3": {
+  "h": "c8ff52e9a2e8",
+  "text": "וּבַדֶּלֶת הַזֹּאת בּוֹנִים רוֹבּוֹט, וְשׁוֹלְחִים אוֹתוֹ לִמְשִׂימָה!",
+  "ipa": "uvadˈelet hazˈot bonˈim ʁobˈot, veʃolχˈim ʔotˈo limsimˈa!"
+ },
+ "lab.table.4": {
+  "h": "24ebbdf31156",
+  "text": "מוּתָּר לִטְעוֹת. כָּכָה מַמְצִיאִים!",
+  "ipa": "mutˈaʁ litʔˈot. kaχˈa mamtsiˈim!"
+ },
+ "lab.table.4.k": {
+  "h": "4e92234d85e2",
+  "text": "מֻתָּר לִטְעוֹת. כָּכָה מַמְצִיאִים!",
+  "ipa": "mutˈaʁ litʔˈot. kaχˈa mamtsiˈim!"
+ },
+ "lab.greenhouse.1": {
+  "h": "56c1cab72fdf",
+  "text": "זוֹ הַחֲמָמָה. כָּאן צְמָחִים גְּדֵלִים מַהֵר מְאוֹד.",
+  "ipa": "zˈo haχamamˈa. kˈan tsemaχˈim gedelˈim mahˈeʁ meʔˈod."
+ },
+ "lab.greenhouse.1.k": {
+  "h": "bc1e2fc0e8e0",
+  "text": "זוֹ הַחֲמָמָה. כָּאן צְמָחִים גְּדֵלִים מַהֵר מְאֹד.",
+  "ipa": "zˈo haχamamˈa. kˈan tsemaχˈim gedelˈim mahˈeʁ meˈod."
+ },
+ "lab.greenhouse.2": {
+  "h": "e76fbaf274b8",
+  "text": "אֶפְשָׁר לְגַדֵּל חַמָנִיָּיה, וְלִרְאוֹת מָה עוֹזֵר לָהּ לִגְדּוֹל.",
+  "ipa": "efʃˈaʁ legadˈel χamanijˈaj, veliʁʔˈot mˈa ʔozˈeʁ lˈah ligdˈol."
+ },
+ "lab.greenhouse.2.k": {
+  "h": "1955daee864d",
+  "text": "אֶפְשָׁר לְגַדֵּל חַמָּנִיָּה, וְלִרְאוֹת מָה עוֹזֵר לָהּ לִגְדֹּל.",
+  "ipa": "efʃˈaʁ legadˈel χamanijˈa, veliʁʔˈot mˈa ʔozˈeʁ lˈah ligdˈol."
+ },
+ "lab.greenhouse.3": {
+  "h": "bebec22e4bd1",
+  "text": "אֶפְשָׁר לִבְנוֹת זֶרַע, וְלִבְדּוֹק לְאָן הוּא יַגִּיעַ.",
+  "ipa": "efʃˈaʁ livnˈot zˈeʁa, velivdˈok leˈan hˈu jagˈia."
+ },
+ "lab.greenhouse.3.k": {
+  "h": "cc5478d6d125",
+  "text": "אֶפְשָׁר לִבְנוֹת זֶרַע, וְלִבְדֹּק לְאָן הוּא יַגִּיעַ.",
+  "ipa": "efʃˈaʁ livnˈot zˈeʁa, velivdˈok leˈan hˈu jagˈia."
+ },
+ "lab.greenhouse.4": {
+  "h": "c387d69b7b8d",
+  "text": "וּבְנִיסּוּי הַהוֹגֵן מְשַׁנִים רַק דָּבָר אֶחָד בְּכָל פַּעַם.",
+  "ipa": "uvnisˈuj hahogˈen meʃanˈim ʁˈak davˈaʁ eχˈad beχˈol pˈaam."
+ },
+ "lab.greenhouse.4.k": {
+  "h": "5c9b78821a36",
+  "text": "וּבַנִּסּוּי הַהוֹגֵן מְשַׁנִּים רַק דָּבָר אֶחָד בְּכָל פַּעַם.",
+  "ipa": "uvanisˈuj hahogˈen meʃanˈim ʁˈak davˈaʁ eχˈad beχˈol pˈaam."
+ },
+ "lab.aquarium.1": {
+  "h": "2d33f6a33eb0",
+  "text": "זֶה הָאַקְוַורְיוּם. הַדָּגִים כָּאן בָּאוּ מֵהַשּׁוֹנִית שֶׁל אֵילַת.",
+  "ipa": "zˈe haakvavʁjˈum. hadagˈim kˈan baʔˈu mehaʃonˈit ʃˈel ejlˈat."
+ },
+ "lab.aquarium.1.k": {
+  "h": "f25a0f031bdc",
+  "text": "זֶה הָאַקְוַרְיוּם. הַדָּגִים כָּאן בָּאוּ מֵהַשּׁוּנִית שֶׁל אֵילַת.",
+  "ipa": "zˈe haakvaʁjˈum. hadagˈim kˈan baʔˈu mehaʃunˈit ʃˈel ejlˈat."
+ },
+ "lab.aquarium.2": {
+  "h": "008095c33183",
+  "text": "בְּשׁוֹנִית בַּקּוּפְסָה בּוֹחֲרִים מִי גָּר בָּהּ, וְרוֹאִים מִי נִשְׁאַר.",
+  "ipa": "beʃonˈit bakufsˈa boχaʁˈim mˈi gˈaʁ bˈah, veʁoˈim mˈi niʃˈaʁ."
+ },
+ "lab.aquarium.2.k": {
+  "h": "c05dcfb11056",
+  "text": "בַּשּׁוּנִית בַּקֻּפְסָה בּוֹחֲרִים מִי גָּר בָּהּ, וְרוֹאִים מִי נִשְׁאָר.",
+  "ipa": "baʃunˈit bakufsˈa boχaʁˈim mˈi gˈaʁ bˈah, veʁoˈim mˈi niʃˈaʁ."
+ },
+ "lab.aquarium.3": {
+  "h": "e47126a70fb6",
+  "text": "בְּמִשְׂחָק \"יוֹם וָלַיְלָה\" מְגַלִּים מִי עֵר בַּחוֹשֶׁךְ.",
+  "ipa": "bemisχˈak jˈom valajlˈa megalˈim mˈi ˈeʁ baχˈoʃeχ."
+ },
+ "lab.aquarium.3.k": {
+  "h": "024dfdcdd9e7",
+  "text": "בַּמִּשְׂחָק \"יוֹם וָלַיְלָה\" מְגַלִּים מִי עֵר בַּחֹשֶׁךְ.",
+  "ipa": "bamisχˈak jˈom valajlˈa megalˈim mˈi ˈeʁ baχˈoʃeχ."
+ },
+ "lab.aquarium.4": {
+  "h": "d4e2e7d46a65",
+  "text": "וּבַמִּשְׂחָק \"צָף אוֹ שׁוֹקֵעַ?\" מְנַחֲשִׁים, וְרַק אַחַר כָּךְ בּוֹדְקִים.",
+  "ipa": "uvamisχˈak tsˈaf ʔˈo ʃokˈea? menaχaʃˈim, veʁˈak ˈaχaʁ kˈaχ bodkˈim."
+ },
+ "lab.cabinet.1": {
+  "h": "3d51f2d19326",
+  "text": "זֶה אֲרוֹן הָאוֹסֶף. כָּאן שׁוֹמְרִים כָּל מָה שֶׁמָּצָאתֶם.",
+  "ipa": "zˈe aʁˈon haʔˈosef. kˈan ʃomʁˈim kˈol mˈa ʃematsˈatem."
+ },
+ "lab.cabinet.1.k": {
+  "h": "252a7745467a",
+  "text": "זֶה אֲרוֹן הָאֹסֶף. כָּאן שׁוֹמְרִים כָּל מָה שֶׁמְּצָאתֶם.",
+  "ipa": "zˈe aʁˈon haˈosef. kˈan ʃomʁˈim kˈol mˈa ʃemetsˈatem."
+ },
+ "lab.cabinet.2": {
+  "h": "bfccaa7f4ac1",
+  "text": "עַל הַמַּדָּפִים יֵשׁ מִמְצָאִים מֵהַתַּעֲלוּמוֹת, מֵהַמִּשְׁלַחַת וּמֵהַמַּמְצִיאִים.",
+  "ipa": "ˈal hamadafˈim jˈeʃ mimtsaˈim mehataalumˈot, mehamiʃlˈaχat umehamamtsiˈim."
+ },
+ "lab.cabinet.3": {
+  "h": "0866a2fdd706",
+  "text": "בְּמִשְׂחַק הַמִּיּוּן אַתֶּם מְמַיְּינִים, וַאֲנִי מְנַחֵשׁ אֶת הַכְּלָל.",
+  "ipa": "bemisχˈak hamiˈun atˈem memajejnˈim, vaanˈi menaχˈeʃ ˈet hakelˈal."
+ },
+ "lab.cabinet.3.k": {
+  "h": "9eb7d68a1fed",
+  "text": "בְּמִשְׂחַק הַמִּיּוּן אַתֶּם מְמַיְּנִים, וַאֲנִי מְנַחֵשׁ אֶת הַכְּלָל.",
+  "ipa": "bemisχˈak hamiˈun atˈem memajenˈim, vaanˈi menaχˈeʃ ˈet hakelˈal."
+ },
+ "lab.cabinet.4": {
+  "h": "1e7855ca167d",
+  "text": "וּבַמִּשְׂחָק \"מִי הִשְׁאִיר אֶת זֶה?\" מְגַלִּים מִי עָבַר כָּאן, לְפִי רְמָזִים.",
+  "ipa": "uvamisχˈak mˈi hiʃˈiʁ ˈet zˈe? megalˈim mˈi avˈaʁ kˈan, lefˈi ʁemazˈim."
+ },
+ "lab.locks.stage4": {
+  "h": "690f71475bbe",
+  "text": "אֶת זֶה נִפְתַּח כְּשֶׁתִּהְיוּ חוֹקְרִים. עוֹד כַּמָּה מְשִׂימוֹת בָּאִיִּים!",
+  "ipa": "ˈet zˈe niftˈaχ keʃetihjˈu χokʁˈim. ʔˈod kamˈa mesimˈot baijˈim!"
+ },
+ "lab.locks.stage5": {
+  "h": "0651b22ef7c4",
+  "text": "אֶת זֶה נִפְתַּח כְּשֶׁתִּהְיוּ מַמְצִיאִים. כָּל גִּילּוּי בְּמִיקְרוֹסְקוֹפּ מְקָּרֵב אֶתְכֶם!",
+  "ipa": "ˈet zˈe niftˈaχ keʃetihjˈu mamtsiˈim. kˈol gilˈuj bemikʁoskˈop mekaʁˈev etχˈem!"
+ },
+ "lab.locks.stage5.k": {
+  "h": "59ac0ca7a141",
+  "text": "אֶת זֶה נִפְתַּח כְּשֶׁתִּהְיוּ מַמְצִיאִים. כָּל גִּלּוּי בַּמִּיקְרוֹסְקוֹפּ מְקָרֵב אֶתְכֶם!",
+  "ipa": "ˈet zˈe niftˈaχ keʃetihjˈu mamtsiˈim. kˈol gilˈuj bamikʁoskˈop mekaʁˈev etχˈem!"
+ },
+ "lab.locks.later": {
+  "h": "f24eb29fbf58",
+  "text": "אֶת זֶה נִפְתַּח בְּהֶמְשֵׁךְ הַמַּסָּע.",
+  "ipa": "ˈet zˈe niftˈaχ behemʃˈeχ hamasˈa."
+ },
+ "lab.locks.greenhouse": {
+  "h": "14f425dd7e8e",
+  "text": "אֶת זֶה נִפְתַּח אַחֲרֵי שֶׁתְּנַסּוּ מַשֶּׁהוּ בַּחֲמָמָה.",
+  "ipa": "ˈet zˈe niftˈaχ aχaʁˈej ʃetenasˈu maʃehˈu baχamamˈa."
+ },
+ "lab.locks.aquarium": {
+  "h": "c6322e26fa67",
+  "text": "אֶת זֶה נִפְתַּח אַחֲרֵי שֶׁתְּנַסּוּ מַשֶּׁהוּ בָּאַקְוַורְיוּם.",
+  "ipa": "ˈet zˈe niftˈaχ aχaʁˈej ʃetenasˈu maʃehˈu baakvavʁjˈum."
+ },
+ "lab.locks.aquarium.k": {
+  "h": "a22ed6671d1b",
+  "text": "אֶת זֶה נִפְתַּח אַחֲרֵי שֶׁתְּנַסּוּ מַשֶּׁהוּ בָּאַקְוַרְיוּם.",
+  "ipa": "ˈet zˈe niftˈaχ aχaʁˈej ʃetenasˈu maʃehˈu baakvaʁjˈum."
+ },
+ "research.intro.1": {
+  "h": "fa69eb70343a",
+  "text": "בְּרוּכִים הַבָּאִים לְחוֹקְרֵי הַטֶּבַע!",
+  "ipa": "beʁuχˈim habaˈim leχokʁˈej hatˈeva!"
+ },
+ "research.intro.2": {
+  "h": "776850df99f2",
+  "text": "בְּכָל תַּעֲלוּמָה מַשֶּׁהוּ בַּטֶּבַע יָצָא מֵאִיזּוּן. אַתֶּם מְגַלִּים לָמָּה.",
+  "ipa": "beχˈol taalumˈa maʃehˈu batˈeva jatsˈa meizˈun. atˈem megalˈim lamˈa."
+ },
+ "research.intro.2.k": {
+  "h": "1a3f029639e7",
+  "text": "בְּכָל תַּעֲלוּמָה מַשֶּׁהוּ בַּטֶּבַע יָצָא מֵאִזּוּן. אַתֶּם מְגַלִּים לָמָּה.",
+  "ipa": "beχˈol taalumˈa maʃehˈu batˈeva jatsˈa meizˈun. atˈem megalˈim lamˈa."
+ },
+ "research.intro.3": {
+  "h": "a5f6ad02be9b",
+  "text": "מַתְחִילִים בָּרָמָה הַקַּלָּה, וְעוֹלִים כְּשֶׁמַּרְגִּישִׁים מוּכָנִים.",
+  "ipa": "matχilˈim baʁamˈa hakalˈa, veʔolˈim keʃemaʁgiʃˈim muχanˈim."
+ },
+ "research.intro.4": {
+  "h": "260b13986f87",
+  "text": "פַּעַם רִאשׁוֹנָה? כָּאן נִפְתּוֹר יַחַד תַּעֲלוּמָה, צַעַד אַחַר צַעַד.",
+  "ipa": "pˈaam ʁiʃonˈa? kˈan niftˈoʁ jˈaχad taalumˈa, tsˈaad ˈaχaʁ tsˈaad."
+ },
+ "research.intro.4.k": {
+  "h": "a9ac2f28423f",
+  "text": "פַּעַם רִאשׁוֹנָה? כָּאן נִפְתֹּר יַחַד תַּעֲלוּמָה, צַעַד אַחַר צַעַד.",
+  "ipa": "pˈaam ʁiʃonˈa? kˈan niftˈoʁ jˈaχad taalumˈa, tsˈaad ˈaχaʁ tsˈaad."
+ },
+ "research.intro.5": {
+  "h": "2b940eef7b15",
+  "text": "בַּכַּפְתּוֹר הַזֶּה תִּמְצְאוּ שׁוּב אֶת הַהֶסְבֵּר הַקָּצָר.",
+  "ipa": "bakaftˈoʁ hazˈe timtseʔˈu ʃˈuv ˈet hahesbˈeʁ hakatsˈaʁ."
+ },
+ "zone.amazon.1": {
+  "h": "a1a87fe601ea",
+  "text": "בְּרוּכִים הַבָּאִים לָאַמְזוֹנְס! כָּאן כּוּלָּם נֶאֱבָקִים עַל אוֹר הַשֶּׁמֶשׁ.",
+  "ipa": "beʁuχˈim habaˈim laamzˈon! kˈan kulˈam neevakˈim ˈal ʔˈoʁ haʃˈemeʃ."
+ },
+ "zone.amazon.1.k": {
+  "h": "4be9258bddcc",
+  "text": "בְּרוּכִים הַבָּאִים לָאָמָזוֹנָס! כָּאן כֻּלָּם נֶאֱבָקִים עַל אוֹר הַשֶּׁמֶשׁ.",
+  "ipa": "beʁuχˈim habaˈim laamazonˈas! kˈan kulˈam neevakˈim ˈal ʔˈoʁ haʃˈemeʃ."
+ },
+ "zone.amazon.2": {
+  "h": "db8aa0c9dbe0",
+  "text": "כָּאן מְחַכֶּה הַמְּשִׂימָה שֶׁלָּכֶם. הִיא אוֹמֶרֶת מָה לַעֲשׂוֹת עַכְשָׁיו.",
+  "ipa": "kˈan meχakˈe hamesimˈa ʃelaχˈem. hˈi ʔomˈeʁet mˈa laasˈot aχʃˈav."
+ },
+ "zone.amazon.2.k": {
+  "h": "4ac9e2f1aa42",
+  "text": "כָּאן מְחַכָּה הַמְּשִׂימָה שֶׁלָּכֶם. הִיא אוֹמֶרֶת מָה לַעֲשׂוֹת עַכְשָׁו.",
+  "ipa": "kˈan meχakˈa hamesimˈa ʃelaχˈem. hˈi ʔomˈeʁet mˈa laasˈot aχʃˈav."
+ },
+ "zone.amazon.3": {
+  "h": "40a2adb30a0b",
+  "text": "גִּרְרוּ קְלָף מֵהַמַּגָּשׁ אֶל הַיַּעַר. כָּךְ מְבִיאִים צֶמַח אוֹ בַּעַל חַיִּים.",
+  "ipa": "giʁʁˈu kelˈaf mehamagˈaʃ ˈel hajˈaaʁ. kˈaχ meviˈim tsˈemaχ ʔˈo bˈaal χajˈim."
+ },
+ "zone.amazon.4": {
+  "h": "1c14392cc852",
+  "text": "כָּאן הַנְּקוּדּוֹת שֶׁלָּכֶם. מְשַׁלְּמִים בָּהֶן עַל כָּל קְלָף.",
+  "ipa": "kˈan hanekudˈot ʃelaχˈem. meʃalemˈim bahˈen ˈal kˈol kelˈaf."
+ },
+ "zone.amazon.4.k": {
+  "h": "12c035dcf4ca",
+  "text": "כָּאן הַנְּקֻדּוֹת שֶׁלָּכֶם. מְשַׁלְּמִים בָּהֶן עַל כָּל קְלָף.",
+  "ipa": "kˈan hanekudˈot ʃelaχˈem. meʃalemˈim bahˈen ˈal kˈol kelˈaf."
+ },
+ "zone.amazon.5": {
+  "h": "d849fbb49bea",
+  "text": "לֹא בְּטוּחִים מָה עַכְשָׁיו? לָחֲצוּ עַל \"מָה עוֹשִׂים עַכְשָׁיו?\" וַאֲנִי אֶעֱזוֹר.",
+  "ipa": "lˈo betuχˈim mˈa aχʃˈav? laχatsˈu ˈal mˈa ʔosˈim aχʃˈav? vaanˈi eezˈoʁ."
+ },
+ "zone.amazon.5.k": {
+  "h": "5130bda41c0b",
+  "text": "לֹא בְּטוּחִים מָה עַכְשָׁו? לִחֲצוּ עַל \"מָה עוֹשִׂים עַכְשָׁו?\" וַאֲנִי אֶעֱזֹר.",
+  "ipa": "lˈo betuχˈim mˈa aχʃˈav? liχatsˈu ˈal mˈa ʔosˈim aχʃˈav? vaanˈi eezˈoʁ."
+ },
+ "zone.grove.1": {
+  "h": "26a866f83005",
+  "text": "בְּרוּכִים הַבָּאִים לַחוֹרֶשׁ! כָּאן רוֹאִים אֵיךְ הַטֶּבַע מִשְׁתַּנֶּה בְּכָל עוֹנָה.",
+  "ipa": "beʁuχˈim habaˈim laχˈoʁeʃ! kˈan ʁoˈim ˈejχ hatˈeva miʃtanˈe beχˈol ʔonˈa."
+ },
+ "zone.grove.1.k": {
+  "h": "90342223094c",
+  "text": "בְּרוּכִים הַבָּאִים לַחֹרֶשׁ! כָּאן רוֹאִים אֵיךְ הַטֶּבַע מִשְׁתַּנֶּה בְּכָל עוֹנָה.",
+  "ipa": "beʁuχˈim habaˈim laχˈoʁeʃ! kˈan ʁoˈim ˈejχ hatˈeva miʃtanˈe beχˈol ʔonˈa."
+ },
+ "zone.grove.2": {
+  "h": "db8aa0c9dbe0",
+  "text": "כָּאן מְחַכֶּה הַמְּשִׂימָה שֶׁלָּכֶם. הִיא אוֹמֶרֶת מָה לַעֲשׂוֹת עַכְשָׁיו.",
+  "ipa": "kˈan meχakˈe hamesimˈa ʃelaχˈem. hˈi ʔomˈeʁet mˈa laasˈot aχʃˈav."
+ },
+ "zone.grove.2.k": {
+  "h": "4ac9e2f1aa42",
+  "text": "כָּאן מְחַכָּה הַמְּשִׂימָה שֶׁלָּכֶם. הִיא אוֹמֶרֶת מָה לַעֲשׂוֹת עַכְשָׁו.",
+  "ipa": "kˈan meχakˈa hamesimˈa ʃelaχˈem. hˈi ʔomˈeʁet mˈa laasˈot aχʃˈav."
+ },
+ "zone.grove.3": {
+  "h": "51e50b162e6e",
+  "text": "גָּרְרוּ קְלָף מֵהַמַּגָּשׁ אֶל הַחוֹרֶשׁ. כָּךְ מְבִיאִים צֶמַח אוֹ בַּעַל חַיִּים.",
+  "ipa": "gaʁʁˈu kelˈaf mehamagˈaʃ ˈel haχˈoʁeʃ. kˈaχ meviˈim tsˈemaχ ʔˈo bˈaal χajˈim."
+ },
+ "zone.grove.3.k": {
+  "h": "f6bc34d2ee4a",
+  "text": "גִּרְרוּ קְלָף מֵהַמַּגָּשׁ אֶל הַחֹרֶשׁ. כָּךְ מְבִיאִים צֶמַח אוֹ בַּעַל חַיִּים.",
+  "ipa": "giʁʁˈu kelˈaf mehamagˈaʃ ˈel haχˈoʁeʃ. kˈaχ meviˈim tsˈemaχ ʔˈo bˈaal χajˈim."
+ },
+ "zone.grove.4": {
+  "h": "1c14392cc852",
+  "text": "כָּאן הַנְּקוּדּוֹת שֶׁלָּכֶם. מְשַׁלְּמִים בָּהֶן עַל כָּל קְלָף.",
+  "ipa": "kˈan hanekudˈot ʃelaχˈem. meʃalemˈim bahˈen ˈal kˈol kelˈaf."
+ },
+ "zone.grove.4.k": {
+  "h": "12c035dcf4ca",
+  "text": "כָּאן הַנְּקֻדּוֹת שֶׁלָּכֶם. מְשַׁלְּמִים בָּהֶן עַל כָּל קְלָף.",
+  "ipa": "kˈan hanekudˈot ʃelaχˈem. meʃalemˈim bahˈen ˈal kˈol kelˈaf."
+ },
+ "zone.grove.5": {
+  "h": "d849fbb49bea",
+  "text": "לֹא בְּטוּחִים מָה עַכְשָׁיו? לָחֲצוּ עַל \"מָה עוֹשִׂים עַכְשָׁיו?\" וַאֲנִי אֶעֱזוֹר.",
+  "ipa": "lˈo betuχˈim mˈa aχʃˈav? laχatsˈu ˈal mˈa ʔosˈim aχʃˈav? vaanˈi eezˈoʁ."
+ },
+ "zone.grove.5.k": {
+  "h": "5130bda41c0b",
+  "text": "לֹא בְּטוּחִים מָה עַכְשָׁו? לִחֲצוּ עַל \"מָה עוֹשִׂים עַכְשָׁו?\" וַאֲנִי אֶעֱזֹר.",
+  "ipa": "lˈo betuχˈim mˈa aχʃˈav? liχatsˈu ˈal mˈa ʔosˈim aχʃˈav? vaanˈi eezˈoʁ."
+ },
+ "zone.reef.1": {
+  "h": "df5540256e57",
+  "text": "בְּרוּכִים הַבָּאִים לְשׁוֹנִית שֶׁל אֵילַת! כָּאן הָאַלְמוֹגִּים בּוֹנִים בַּיִת לְכוּלָּם.",
+  "ipa": "beʁuχˈim habaˈim leʃonˈit ʃˈel ejlˈat! kˈan haalmogˈim bonˈim bajˈit leχulˈam."
+ },
+ "zone.reef.1.k": {
+  "h": "fbdb63eb4508",
+  "text": "בְּרוּכִים הַבָּאִים לַשּׁוּנִית שֶׁל אֵילַת! כָּאן הָאַלְמוֹגִים בּוֹנִים בַּיִת לְכֻלָּם.",
+  "ipa": "beʁuχˈim habaˈim laʃunˈit ʃˈel ejlˈat! kˈan haalmogˈim bonˈim bajˈit leχulˈam."
+ },
+ "zone.reef.2": {
+  "h": "db8aa0c9dbe0",
+  "text": "כָּאן מְחַכֶּה הַמְּשִׂימָה שֶׁלָּכֶם. הִיא אוֹמֶרֶת מָה לַעֲשׂוֹת עַכְשָׁיו.",
+  "ipa": "kˈan meχakˈe hamesimˈa ʃelaχˈem. hˈi ʔomˈeʁet mˈa laasˈot aχʃˈav."
+ },
+ "zone.reef.2.k": {
+  "h": "4ac9e2f1aa42",
+  "text": "כָּאן מְחַכָּה הַמְּשִׂימָה שֶׁלָּכֶם. הִיא אוֹמֶרֶת מָה לַעֲשׂוֹת עַכְשָׁו.",
+  "ipa": "kˈan meχakˈa hamesimˈa ʃelaχˈem. hˈi ʔomˈeʁet mˈa laasˈot aχʃˈav."
+ },
+ "zone.reef.3": {
+  "h": "743201f8c876",
+  "text": "גִּרְרוּ קְלָף מֵהַמַּגָּשׁ אֶל הַשּׁוּנִית. כָּךְ מְבִיאִים צֶמַח אוֹ בַּעַל חַיִּים.",
+  "ipa": "giʁʁˈu kelˈaf mehamagˈaʃ ˈel haʃunˈit. kˈaχ meviˈim tsˈemaχ ʔˈo bˈaal χajˈim."
+ },
+ "zone.reef.4": {
+  "h": "1c14392cc852",
+  "text": "כָּאן הַנְּקוּדּוֹת שֶׁלָּכֶם. מְשַׁלְּמִים בָּהֶן עַל כָּל קְלָף.",
+  "ipa": "kˈan hanekudˈot ʃelaχˈem. meʃalemˈim bahˈen ˈal kˈol kelˈaf."
+ },
+ "zone.reef.4.k": {
+  "h": "12c035dcf4ca",
+  "text": "כָּאן הַנְּקֻדּוֹת שֶׁלָּכֶם. מְשַׁלְּמִים בָּהֶן עַל כָּל קְלָף.",
+  "ipa": "kˈan hanekudˈot ʃelaχˈem. meʃalemˈim bahˈen ˈal kˈol kelˈaf."
+ },
+ "zone.reef.5": {
+  "h": "d849fbb49bea",
+  "text": "לֹא בְּטוּחִים מָה עַכְשָׁיו? לָחֲצוּ עַל \"מָה עוֹשִׂים עַכְשָׁיו?\" וַאֲנִי אֶעֱזוֹר.",
+  "ipa": "lˈo betuχˈim mˈa aχʃˈav? laχatsˈu ˈal mˈa ʔosˈim aχʃˈav? vaanˈi eezˈoʁ."
+ },
+ "zone.reef.5.k": {
+  "h": "5130bda41c0b",
+  "text": "לֹא בְּטוּחִים מָה עַכְשָׁו? לִחֲצוּ עַל \"מָה עוֹשִׂים עַכְשָׁו?\" וַאֲנִי אֶעֱזֹר.",
+  "ipa": "lˈo betuχˈim mˈa aχʃˈav? liχatsˈu ˈal mˈa ʔosˈim aχʃˈav? vaanˈi eezˈoʁ."
+ },
+ "zone.alldone": {
+  "h": "e989c5bd00ff",
+  "text": "כָּל הַמְּשִׂימוֹת כָּאן הוּשְׁלְמוּ! עַכְשָׁיו אֶפְשָׁר לְשַׂחֵק וּלְגַלּוֹת עוֹד קְשָׁרִים.",
+  "ipa": "kˈol hamesimˈot kˈan huʃlemˈu! aχʃˈav efʃˈaʁ lesaχˈek ulgalˈot ʔˈod keʃaʁˈim."
+ },
+ "zone.alldone.k": {
+  "h": "85079c87af43",
+  "text": "כָּל הַמְּשִׂימוֹת כָּאן הֻשְׁלְמוּ! עַכְשָׁו אֶפְשָׁר לְשַׂחֵק וּלְגַלּוֹת עוֹד קְשָׁרִים.",
+  "ipa": "kˈol hamesimˈot kˈan huʃlemˈu! aχʃˈav efʃˈaʁ lesaχˈek ulgalˈot ʔˈod keʃaʁˈim."
+ },
+ "zone.hurt.1": {
+  "h": "fd2877094cd9",
+  "text": "בַּעַל חַיִּים נִפְגַּע! הַפָּס הָאָדוֹם לְמַעְלָה מַרְאָה מִי, וּלְחִיצָה עָלָיו מְבִיאָה אֶתְכֶם אֵלָיו.",
+  "ipa": "bˈaal χajˈim nifgˈa! hapˈas haadˈom lemalˈa maʁˈa mˈi, ulχitsˈa alˈajv meviˈa etχˈem elˈajv."
+ },
+ "zone.hurt.1.k": {
+  "h": "d995c041f08b",
+  "text": "בַּעַל חַיִּים נִפְגַּע! הַפַּס הָאָדֹם לְמַעְלָה מַרְאֶה מִי, וּלְחִיצָה עָלָיו מְבִיאָה אֶתְכֶם אֵלָיו.",
+  "ipa": "bˈaal χajˈim nifgˈa! hapˈas haadˈom lemalˈa maʁˈe mˈi, ulχitsˈa alˈajv meviˈa etχˈem elˈajv."
+ },
+ "zone.hurt.2": {
+  "h": "33a0d1b65458",
+  "text": "גָּרְרוּ אֶת רוֹבּוֹט הַהַצָּלָה מֵהַלְּשׁוֹנִית \"טֶכְנוֹלוֹגְיָה\" אֶל סִימַן הַקְּרִיאָה הָאָדוֹם.",
+  "ipa": "gaʁʁˈu ˈet ʁobˈot hahatsalˈa mehaleʃonˈit teχnologjˈa ˈel simˈan hakeʁiˈa haadˈom."
+ },
+ "zone.hurt.2.k": {
+  "h": "2e6a30bb8bd6",
+  "text": "גִּרְרוּ אֶת רוֹבּוֹט הַהַצָּלָה מֵהַלְּשׁוֹנִית \"טֶכְנוֹלוֹגְיָה\" אֶל סִימַן הַקְּרִיאָה הָאָדֹם.",
+  "ipa": "giʁʁˈu ˈet ʁobˈot hahatsalˈa mehaleʃonˈit teχnologjˈa ˈel simˈan hakeʁiˈa haadˈom."
+ },
+ "zone.hurtlate": {
+  "h": "f2d893ddaa1c",
+  "text": "מַהֲרוּ! בַּעַל הַחַיִּים הַפָּגוּעַ עוֹד מְחַכֶּה לְעֶזְרָה.",
+  "ipa": "mahaʁˈu! bˈaal haχajˈim hapagˈua ʔˈod meχakˈe leezʁˈa."
+ },
+ "zone.hungry": {
+  "h": "3bfa2c13342e",
+  "text": "בַּעַל חַיִּים עָזַב כִּי לֹא מָצָא אוֹכֶל. לִפְנֵי שֶׁמְּבִיאִים חַיָה, דּוֹאֲגִים לָהּ לְאוֹכֶל.",
+  "ipa": "bˈaal χajˈim azˈav kˈi lˈo matsˈa ʔˈoχel. lifnˈej ʃemeviˈim χajˈa, doagˈim lˈah leʔˈoχel."
+ },
+ "zone.hungry.k": {
+  "h": "a7912ed4ffa4",
+  "text": "בַּעַל חַיִּים עָזַב כִּי לֹא מָצָא אֹכֶל. לִפְנֵי שֶׁמְּבִיאִים חַיָּה, דּוֹאֲגִים לָהּ לְאֹכֶל.",
+  "ipa": "bˈaal χajˈim azˈav kˈi lˈo matsˈa ˈoχel. lifnˈej ʃemeviˈim χajˈa, doagˈim lˈah leˈoχel."
+ },
+ "zone.dayend.1": {
+  "h": "22551b0069aa",
+  "text": "עוֹד יוֹם עָבַר. כָּל צֶמַח שֶׁגָּדַל הַיּוֹם עוֹזֵר לְכָל הָרֶשֶׁת.",
+  "ipa": "ʔˈod jˈom avˈaʁ. kˈol tsˈemaχ ʃegadˈal hajˈom ʔozˈeʁ leχˈol haʁˈeʃet."
+ },
+ "zone.dayend.2": {
+  "h": "7309942595fa",
+  "text": "יוֹם יָפֶה עָבַר! לִחֲצוּ עַל בַּעַל חַיִּים כְּדֵי לִרְאוֹת עִם מִי הוּא חַי.",
+  "ipa": "jˈom jafˈe avˈaʁ! liχatsˈu ˈal bˈaal χajˈim kedˈej liʁʔˈot ˈim mˈi hˈu χˈaj."
+ },
+ "zone.dayend.3": {
+  "h": "a875a7b12d48",
+  "text": "עוֹד יוֹם הִסְתַּיֵּים. כְּשֶׁיֵּשׁ הַרְבֵּה מִינִים שׁוֹנִים, הָרֶשֶׁת חֲזָקָה יוֹתֵר.",
+  "ipa": "ʔˈod jˈom histajˈejm. keʃejˈeʃ haʁbˈe minˈim ʃonˈim, haʁˈeʃet χazakˈa jotˈeʁ."
+ },
+ "zone.dayend.3.k": {
+  "h": "df132f524cce",
+  "text": "עוֹד יוֹם הִסְתַּיֵּם. כְּשֶׁיֵּשׁ הַרְבֵּה מִינִים שׁוֹנִים, הָרֶשֶׁת חֲזָקָה יוֹתֵר.",
+  "ipa": "ʔˈod jˈom histajˈem. keʃejˈeʃ haʁbˈe minˈim ʃonˈim, haʁˈeʃet χazakˈa jotˈeʁ."
+ },
+ "zone.dayend.4": {
+  "h": "fda695dad3e4",
+  "text": "יוֹם חָדָשׁ מַתְחִיל. הַפָּס הַיָּרוֹק לְמַעְלָה מַרְאָה כַּמָּה טוֹב לְכוּלָּם.",
+  "ipa": "jˈom χadˈaʃ matχˈil. hapˈas hajaʁˈok lemalˈa maʁˈa kamˈa tˈov leχulˈam."
+ },
+ "zone.dayend.4.k": {
+  "h": "4b9dc18bcaea",
+  "text": "יוֹם חָדָשׁ מַתְחִיל. הַפַּס הַיָּרֹק לְמַעְלָה מַרְאֶה כַּמָּה טוֹב לְכֻלָּם.",
+  "ipa": "jˈom χadˈaʃ matχˈil. hapˈas hajaʁˈok lemalˈa maʁˈe kamˈa tˈov leχulˈam."
+ },
+ "zone.dayend.5": {
+  "h": "624895965409",
+  "text": "עוֹד יוֹם עָבַר. נַסּוּ לְגַלּוֹת קֶשֶׁר חָדָשׁ בֵּין שְׁנֵי מִינִים.",
+  "ipa": "ʔˈod jˈom avˈaʁ. nasˈu legalˈot kˈeʃeʁ χadˈaʃ bˈejn ʃenˈej minˈim."
+ },
+ "zone.season.winter": {
+  "h": "04b2f0c39c47",
+  "text": "הִגִּיעַ הַחוֹרֶף! הַגֶּשֶׁם מַשְׁקֶה אֶת הַחוֹרֶשׁ, וְהַכּוֹל מִתְעוֹרֵר.",
+  "ipa": "higˈia haχˈoʁef! hagˈeʃem maʃkˈe ˈet haχˈoʁeʃ, vehakˈol mitʔoʁˈeʁ."
+ },
+ "zone.season.winter.k": {
+  "h": "3d8a66241624",
+  "text": "הִגִּיעַ הַחֹרֶף! הַגֶּשֶׁם מַשְׁקֶה אֶת הַחֹרֶשׁ, וְהַכֹּל מִתְעוֹרֵר.",
+  "ipa": "higˈia haχˈoʁef! hagˈeʃem maʃkˈe ˈet haχˈoʁeʃ, vehakˈol mitʔoʁˈeʁ."
+ },
+ "zone.season.spring": {
+  "h": "0c4c80e3a915",
+  "text": "הִגִּיעַ הָאָבִיב! הַחוֹרֶשׁ מִתְמַלֵּא פְּרָחִים, וְהַדִּבוּרִים יוֹצְאוֹת לַעֲבוֹד.",
+  "ipa": "higˈia haavˈiv! haχˈoʁeʃ mitmalˈe peʁaχˈim, vehadivuʁˈim jotsʔˈot laavˈod."
+ },
+ "zone.season.spring.k": {
+  "h": "2d1bbc826715",
+  "text": "הִגִּיעַ הָאָבִיב! הַחֹרֶשׁ מִתְמַלֵּא פְּרָחִים, וְהַדְּבוֹרִים יוֹצְאוֹת לַעֲבֹד.",
+  "ipa": "higˈia haavˈiv! haχˈoʁeʃ mitmalˈe peʁaχˈim, vehadevoʁˈim jotsʔˈot laavˈod."
+ },
+ "zone.season.summer": {
+  "h": "17854dc914c2",
+  "text": "הִגִּיעַ הַקַּיִץ! אֵין גֶּשֶׁם עַד הַסְּתָיו, וְהַחוֹרֶשׁ חוֹסֵךְ מַיִם.",
+  "ipa": "higˈia hakajˈits! ˈejn gˈeʃem ˈad hasetˈajv, vehaχˈoʁeʃ χosˈeχ mˈajim."
+ },
+ "zone.season.summer.k": {
+  "h": "708b598b8109",
+  "text": "הִגִּיעַ הַקַּיִץ! אֵין גֶּשֶׁם עַד הַסְּתָו, וְהַחֹרֶשׁ חוֹסֵךְ מַיִם.",
+  "ipa": "higˈia hakajˈits! ˈejn gˈeʃem ˈad hasetˈav, vehaχˈoʁeʃ χosˈeχ mˈajim."
+ },
+ "zone.season.autumn": {
+  "h": "aadf06a9772c",
+  "text": "הִגִּיעַ הַסְּתָיו! מְחַכִּים לַגֶשֶׁם הָרִאשׁוֹן, וְהַבְּלוּטִים נוֹפְלִים מֵהָאַלּוֹנִים.",
+  "ipa": "higˈia hasetˈajv! meχakˈim lagˈeʃem haʁiʃˈon, vehabelutˈim noflˈim mehaalonˈim."
+ },
+ "zone.season.autumn.k": {
+  "h": "c388306b633b",
+  "text": "הִגִּיעַ הַסְּתָו! מְחַכִּים לַגֶּשֶׁם הָרִאשׁוֹן, וְהַבַּלּוּטִים נוֹפְלִים מֵהָאַלּוֹנִים.",
+  "ipa": "higˈia hasetˈav! meχakˈim lagˈeʃem haʁiʃˈon, vehabalutˈim noflˈim mehaalonˈim."
+ },
+ "zone.tool.drone": {
+  "h": "dd90385f51cc",
+  "text": "רַחֲפָן הַנִּיטּוֹר טָס מֵעַל הַיַּעַר וּמְגַלֶּה מִי רָעֵב וּמִי בָּצֵל. נִסוּ אוֹתוֹ!",
+  "ipa": "ʁaχafˈan hanitˈoʁ tˈas meˈal hajˈaaʁ umgalˈe mˈi ʁaˈev umˈi batsˈel. nisˈu ʔotˈo!"
+ },
+ "zone.tool.drone.k": {
+  "h": "ac21b8c487cd",
+  "text": "רַחְפַן הַנִּטּוּר טָס מֵעַל הַיַּעַר וּמְגַלֶּה מִי רָעֵב וּמִי בַּצֵּל. נַסּוּ אוֹתוֹ!",
+  "ipa": "ʁaχfˈan hanitˈuʁ tˈas meˈal hajˈaaʁ umgalˈe mˈi ʁaˈev umˈi batsˈel. nasˈu ʔotˈo!"
+ },
+ "zone.tool.rov": {
+  "h": "111cc23aa44f",
+  "text": "הָרוֹבּוֹט הַצּוֹלֵל שׂוֹחֶה לְאוֹרֶךְ הַשּׁוֹנִית וּמְגַלֶּה אֵיפֹה יֵשׁ בְּעָיָה.",
+  "ipa": "haʁobˈot hatsolˈel soχˈe leʔˈoʁeχ haʃonˈit umgalˈe ejfˈo jˈeʃ beajˈa."
+ },
+ "zone.tool.rov.k": {
+  "h": "bfc214f8bd57",
+  "text": "הָרוֹבּוֹט הַצּוֹלֵל שׂוֹחֶה לְאֹרֶךְ הַשּׁוּנִית וּמְגַלֶּה אֵיפֹה יֵשׁ בְּעָיָה.",
+  "ipa": "haʁobˈot hatsolˈel soχˈe leˈoʁeχ haʃunˈit umgalˈe ejfˈo jˈeʃ beajˈa."
+ },
+ "zone.tool.camera": {
+  "h": "f8cfe8c66df2",
+  "text": "מַצְלֵמַת הַשֶּׁטַח מְצַלֶּמֶת לְבַד כָּל בַּעַל חַיִּים שֶׁעוֹבֵר לְיָדָהּ, גַּם בַּלַּיְלָה.",
+  "ipa": "matslemˈat haʃˈetaχ metsalˈemet levˈad kˈol bˈaal χajˈim ʃeʔovˈeʁ lejadˈah, gˈam balajlˈa."
+ },
+ "zone.tool.uwcam": {
+  "h": "1c9fa20efd16",
+  "text": "הַמַּצְלֵמָה הַתַּת־יַמִּית מְצַלֶּמֶת לְבַד כָּל דָּג שֶׁעוֹבֵר לְיָדָהּ, גַּם בַּלַּיְלָה.",
+  "ipa": "hamatslemˈa hatˈat jamˈit metsalˈemet levˈad kˈol dˈag ʃeʔovˈeʁ lejadˈah, gˈam balajlˈa."
+ },
+ "zone.tool.rescue": {
+  "h": "1df57c4f99ee",
+  "text": "רוֹבּוֹט הַהַצָּלָה מְטַפֵּל בְּבַעַל חַיִּים פָּגוּעַ. גָּרְרוּ אוֹתוֹ אֶל סִימַן הַקְּרִיאָה הָאָדוֹם.",
+  "ipa": "ʁobˈot hahatsalˈa metapˈel bevˈaal χajˈim pagˈua. gaʁʁˈu ʔotˈo ˈel simˈan hakeʁiˈa haadˈom."
+ },
+ "zone.tool.rescue.k": {
+  "h": "56c1051e4bcc",
+  "text": "רוֹבּוֹט הַהַצָּלָה מְטַפֵּל בְּבַעַל חַיִּים פָּגוּעַ. גִּרְרוּ אוֹתוֹ אֶל סִימַן הַקְּרִיאָה הָאָדֹם.",
+  "ipa": "ʁobˈot hahatsalˈa metapˈel bevˈaal χajˈim pagˈua. giʁʁˈu ʔotˈo ˈel simˈan hakeʁiˈa haadˈom."
+ },
+ "zone.tool.watergen": {
+  "h": "122c17058edd",
+  "text": "הַמַּכְשִׁיר הַזֶּה אוֹסֵף טִיפּוֹת מַיִם מֵהָאֲוִויר, כְּמוֹ טַל שֶׁל בּוֹקֶר.",
+  "ipa": "hamaχʃˈiʁ hazˈe ʔosˈef tipˈot mˈajim mehaavˈivjʁ, kemˈo tˈal ʃˈel bˈokeʁ."
+ },
+ "zone.tool.watergen.k": {
+  "h": "5fdb63ee110e",
+  "text": "הַמַּכְשִׁיר הַזֶּה אוֹסֵף טִפּוֹת מַיִם מֵהָאֲוִיר, כְּמוֹ טַל שֶׁל בֹּקֶר.",
+  "ipa": "hamaχʃˈiʁ hazˈe ʔosˈef tipˈot mˈajim mehaavˈiʁ, kemˈo tˈal ʃˈel bˈokeʁ."
+ },
+ "zone.tool.seeddrone": {
+  "h": "f09529a006e8",
+  "text": "רַחְפַן הַזְּרִיעָה מְפַזֵּר כַּדּוּרֵי זְרָעִים עַל אֲדָמָה חֲשׂוּפָה, וּשְׁתִילִים חֲדָשִׁים נוֹבְטִים.",
+  "ipa": "ʁaχfˈan hazeʁiˈa mefazˈeʁ kaduʁˈej zeʁaˈim ˈal adamˈa χasufˈa, uʃtilˈim χadaʃˈim novtˈim."
+ },
+ "zone.tool.listener": {
+  "h": "02594f7e15fb",
+  "text": "מַאֲזִין הַיַּעַר שׁוֹמֵעַ מַסּוֹר חַשְׁמַלִּי וּמַזְעִיק אֶת שׁוֹמְרֵי הַיַּעַר.",
+  "ipa": "maazˈin hajˈaaʁ ʃomˈea masˈoʁ χaʃmalˈi umazˈik ˈet ʃomʁˈej hajˈaaʁ."
+ },
+ "zone.tool.nestbox": {
+  "h": "3fd93e87c9da",
+  "text": "תֵּיבַת קִינּוּן הִיא בֵּית מֵעֵץ לַצִּיפּוֹרִים. תָּלוּ אוֹתָהּ עַל עֵץ.",
+  "ipa": "tejvˈat kinˈun hˈi bˈejt meˈets latsipoʁˈim. talˈu ʔotˈah ˈal ˈets."
+ },
+ "zone.tool.nestbox.k": {
+  "h": "fc2f407386ba",
+  "text": "תֵּבַת קִנּוּן הִיא בַּיִת מֵעֵץ לְצִפּוֹרִים. תְּלוּ אוֹתָהּ עַל עֵץ.",
+  "ipa": "tevˈat kinˈun hˈi bajˈit meˈets letsipoʁˈim. telˈu ʔotˈah ˈal ˈets."
+ },
+ "zone.tool.insecthotel": {
+  "h": "6ee289504866",
+  "text": "בְּמָלוֹן הַחֲרָקִים דְּבוֹרֵי בָּר וּפַרְפָּרִים מוֹצְאִים מַחְסֶה. שִׂימוּ אוֹתוֹ לְיַד פְּרָחִים.",
+  "ipa": "bemalˈon haχaʁakˈim devoʁˈej bˈaʁ ufaʁpaʁˈim motsˈim maχsˈe. simˈu ʔotˈo lejˈad peʁaχˈim."
+ },
+ "zone.tool.weather": {
+  "h": "d9b6648e572a",
+  "text": "תַּחֲנַת מֶזֶג הָאֲוִויר מַזְהִירָה מֵרֹאשׁ מִבְּצוֹרֶת, מַשְׂרֵיפָה וּמִשִּׁיטְפוֹן.",
+  "ipa": "taχanˈat mˈezeg haavˈivjʁ mazhiʁˈa meʁˈoʃ mibetsˈoʁet, masʁejfˈa umiʃitfˈon."
+ },
+ "zone.tool.weather.k": {
+  "h": "bb2858dff594",
+  "text": "תַּחֲנַת מֶזֶג הָאֲוִיר מַזְהִירָה מֵרֹאשׁ מִבַּצֹּרֶת, מִשְּׂרֵפָה וּמִשִּׁטָּפוֹן.",
+  "ipa": "taχanˈat mˈezeg haavˈiʁ mazhiʁˈa meʁˈoʃ mibatsˈoʁet, miseʁefˈa umiʃitafˈon."
+ },
+ "zone.tool.sensor": {
+  "h": "3fa14b802d44",
+  "text": "מִצּוּף הַחַיְישָׁנִים מוֹדֵד אֶת חוֹם הַמַּיִם, וּמַתְרִיעַ מֵרֹאשׁ כְּשֶׁהֵם מְתְחַמְמִים.",
+  "ipa": "mitsˈuf haχajjʃanˈim modˈed ˈet χˈom hamˈajim, umatʁˈia meʁˈoʃ keʃehˈem metχammˈim."
+ },
+ "zone.tool.sensor.k": {
+  "h": "b6ee44d8acc4",
+  "text": "מְצוֹף הַחַיְשָׁנִים מוֹדֵד אֶת חֹם הַמַּיִם, וּמַתְרִיעַ מֵרֹאשׁ כְּשֶׁהֵם מִתְחַמְּמִים.",
+  "ipa": "metsˈof haχajʃanˈim modˈed ˈet χˈom hamˈajim, umatʁˈia meʁˈoʃ keʃehˈem mitχamemˈim."
+ },
+ "zone.tool.nursery": {
+  "h": "86ab8ba0b29d",
+  "text": "בַּמִּשְׁתָּלָה גְּדֵלִים אַלְמוֹגִים חֲזָקִים. אַחַר כָּךְ שׁוֹתְלִים אוֹתָם בַּשּׁוּנִית.",
+  "ipa": "bamiʃtalˈa gedelˈim almogˈim χazakˈim. ˈaχaʁ kˈaχ ʃotlˈim ʔotˈam baʃunˈit."
+ },
+ "zone.tool.reefball": {
+  "h": "1e9db86b83e0",
+  "text": "בַּשּׁוּנִית הַמְּלָאכוּתִית יֵשׁ הַרְבֵּה חוֹרִים. דָּגִים קְטַנִּים מִתְחַבְּאִים בָּהֶם.",
+  "ipa": "baʃunˈit hamelaχutˈit jˈeʃ haʁbˈe χoʁˈim. dagˈim ketanˈim mitχabeˈim bahˈem."
+ },
+ "zone.tool.buoy": {
+  "h": "2b295fcb4363",
+  "text": "סִירוֹת נִקְשָׁרוֹת לְמִצוֹף הָעֲגִינָה, וְלֹא מְטִילוֹת עוֹגֶן עַל הָאַלְמוֹגִּים.",
+  "ipa": "siʁˈot nikʃaʁˈot lemitsˈof haaginˈa, velˈo metilˈot ʔˈogen ˈal haalmogˈim."
+ },
+ "zone.tool.buoy.k": {
+  "h": "98b16b7c6967",
+  "text": "סִירוֹת נִקְשָׁרוֹת לִמְצוֹף הָעֲגִינָה, וְלֹא מְטִילוֹת עֹגֶן עַל הָאַלְמוֹגִים.",
+  "ipa": "siʁˈot nikʃaʁˈot limtsˈof haaginˈa, velˈo metilˈot ˈogen ˈal haalmogˈim."
+ },
+ "zone.event.a_storm": {
+  "h": "26092a589bcb",
+  "text": "כְּשֶׁעֵץ עֲנָק נוֹפֵל, הָאוֹר מַגִּיעַ לַקַּרְקָעִית, וּצְמָחִים מִתְחָרִים עָלָיו.",
+  "ipa": "keʃeˈets anˈak nofˈel, haʔˈoʁ magˈia lakaʁkaˈit, utsmaχˈim mitχaʁˈim alˈajv."
+ },
+ "zone.event.a_flood": {
+  "h": "9b2ed157f4d3",
+  "text": "לְיַד הַנָּהָר צוֹמְחִים צְמָחִים שֶׁאוֹהֲבִים מַיִם, כְּמוֹ דֶּקֶל הָאָסָאִי.",
+  "ipa": "lejˈad hanahˈaʁ tsomχˈim tsemaχˈim ʃeʔohavˈim mˈajim, kemˈo dˈekel haasaˈi."
+ },
+ "zone.event.a_dry": {
+  "h": "eecdbe66cf10",
+  "text": "חוֹפָּה צְפוּפָה שׁוֹמֶרֶת עַל צֵל וְלַחוּת. כָּךְ הַיַּעַר מַחֲזִיק מַעֲמָד.",
+  "ipa": "χopˈa tsefufˈa ʃomˈeʁet ˈal tsˈel velaχˈut. kˈaχ hajˈaaʁ maχazˈik maamˈad."
+ },
+ "zone.event.a_dry.k": {
+  "h": "ca62fdcc52ac",
+  "text": "חֻפָּה צְפוּפָה שׁוֹמֶרֶת עַל צֵל וְלַחוּת. כָּךְ הַיַּעַר מַחֲזִיק מַעֲמָד.",
+  "ipa": "χupˈa tsefufˈa ʃomˈeʁet ˈal tsˈel velaχˈut. kˈaχ hajˈaaʁ maχazˈik maamˈad."
+ },
+ "zone.event.a_sick": {
+  "h": "b6b8aadad028",
+  "text": "כְּשֶׁיֵּשׁ הַרְבֵּה מִינִים שׁוֹנִים, מַחֲלָה לֹא פּוֹגַעַת בְּכוּלָּם יַחַד.",
+  "ipa": "keʃejˈeʃ haʁbˈe minˈim ʃonˈim, maχalˈa lˈo pogˈaat beχulˈam jˈaχad."
+ },
+ "zone.event.a_sick.k": {
+  "h": "e9eaa19669ee",
+  "text": "כְּשֶׁיֵּשׁ הַרְבֵּה מִינִים שׁוֹנִים, מַחֲלָה לֹא פּוֹגַעַת בְּכֻלָּם יַחַד.",
+  "ipa": "keʃejˈeʃ haʁbˈe minˈim ʃonˈim, maχalˈa lˈo pogˈaat beχulˈam jˈaχad."
+ },
+ "zone.event.a_figs": {
+  "h": "0c048dae405d",
+  "text": "עֵץ פִיקוּס אֶחָד מַאֲכִיל הָמוֹן בַּעֲלֵי חַיִּים, בַּיּוֹם וּבַלַּיְלָה.",
+  "ipa": "ˈets fikˈus eχˈad maaχˈil hamˈon baalˈej χajˈim, bajˈom uvalajlˈa."
+ },
+ "zone.event.a_smoke": {
+  "h": "ea230ee00b31",
+  "text": "אַחֲרֵי שְׂרֵיפָה צוֹמְחִים קוֹדֶם צְמָחִים מְהִירִים, וְאַחֲרֵיהֶם הָעֵצִים הַגְּדוֹלִים.",
+  "ipa": "aχaʁˈej seʁejfˈa tsomχˈim kˈodem tsemaχˈim mehiʁˈim, veaχaʁejhˈem haetsˈim hagedolˈim."
+ },
+ "zone.event.a_smoke.k": {
+  "h": "e01edfecd71e",
+  "text": "אַחֲרֵי שְׂרֵפָה צוֹמְחִים קֹדֶם צְמָחִים מְהִירִים, וְאַחֲרֵיהֶם הָעֵצִים הַגְּדוֹלִים.",
+  "ipa": "aχaʁˈej seʁefˈa tsomχˈim kˈodem tsemaχˈim mehiʁˈim, veaχaʁejhˈem haetsˈim hagedolˈim."
+ },
+ "zone.event.a_noagouti": {
+  "h": "9e7c91774c8b",
+  "text": "הָאָגוּטִי קוֹבֵר אֱגוֹזִים, וּמֵאֵלֶּה שֶׁהוּא שׁוֹכֵחַ צוֹמְחִים עֵצִים חֲדָשִׁים.",
+  "ipa": "haagutˈi kovˈeʁ egozˈim, umeelˈe ʃehˈu ʃoχˈeaχ tsomχˈim etsˈim χadaʃˈim."
+ },
+ "zone.event.a_logging": {
+  "h": "e4f384fd9f33",
+  "text": "עֵצִים גְּדוֹלִים הֵם בַּיִת וּמָזוֹן לְהַרְבֵּה בַּעֲלֵי חַיִּים. שׁוֹמְרִים עֲלֵיהֶם.",
+  "ipa": "etsˈim gedolˈim hˈem bajˈit umazˈon lehaʁbˈe baalˈej χajˈim. ʃomʁˈim alejhˈem."
+ },
+ "zone.event.a_road": {
+  "h": "5add07e29fc4",
+  "text": "בַּעֲלֵי חַיִּים שֶׁהוֹלְכִים עַל הַקַּרְקַע צְרִיכִים דֶּרֶךְ בְּטוּחָה לַעֲבוֹר.",
+  "ipa": "baalˈej χajˈim ʃeholχˈim ˈal hakaʁkˈa tseʁiχˈim dˈeʁeχ betuχˈa laavˈoʁ."
+ },
+ "zone.event.a_road.k": {
+  "h": "804ba708a47e",
+  "text": "בַּעֲלֵי חַיִּים שֶׁהוֹלְכִים עַל הַקַּרְקַע צְרִיכִים דֶּרֶךְ בְּטוּחָה לַעֲבֹר.",
+  "ipa": "baalˈej χajˈim ʃeholχˈim ˈal hakaʁkˈa tseʁiχˈim dˈeʁeχ betuχˈa laavˈoʁ."
+ },
+ "zone.event.g_rain": {
+  "h": "1d8a98b38bcb",
+  "text": "אַחֲרֵי הַגֶּשֶׁם הָרִאשׁוֹן הָרַקָּפוֹת מִתְעוֹרְרוֹת, וּפִטְרִיּוֹת צָצוֹת לְיַד הָעֵצִים.",
+  "ipa": "aχaʁˈej hagˈeʃem haʁiʃˈon haʁakafˈot mitʔoʁʁˈot, ufitʁiˈot tsatsˈot lejˈad haetsˈim."
+ },
+ "zone.event.g_cold": {
+  "h": "dff0459a8234",
+  "text": "בְּלַיְלָה קַר הַזּוֹחֲלִים מִתְחַבְּאִים בֵּין הַסְּלָעִים וּמְחַכִּים לַשֶּׁמֶשׁ.",
+  "ipa": "belajlˈa kˈaʁ hazoχalˈim mitχabeˈim bˈejn haselaˈim umχakˈim laʃˈemeʃ."
+ },
+ "zone.event.g_drought": {
+  "h": "45bbd10836cb",
+  "text": "עֵצִים יְרוֹקִּי עַד, כְּמוֹ הָאַלוֹן וְהֶחָרוּב, יוֹדְעִים לַעֲבוֹר קַיִץ אָרוֹךְ.",
+  "ipa": "etsˈim jeʁokˈi ˈad, kemˈo haalˈon veheχaʁˈuv, jodˈim laavˈoʁ kajˈits aʁˈoχ."
+ },
+ "zone.event.g_drought.k": {
+  "h": "33d2ccdd4cc6",
+  "text": "עֵצִים יְרֻקֵּי עַד, כְּמוֹ הָאַלּוֹן וְהֶחָרוּב, יוֹדְעִים לַעֲבֹר קַיִץ אָרֹךְ.",
+  "ipa": "etsˈim jeʁukˈej ˈad, kemˈo haalˈon veheχaʁˈuv, jodˈim laavˈoʁ kajˈits aʁˈoχ."
+ },
+ "zone.event.g_fire": {
+  "h": "e27ac739eeb8",
+  "text": "הַחוֹרֶשׁ יוֹדֵעַ לְהִתְחַדֵּשׁ: הָאַלוֹן צוֹמֵחַ מֵהַשּׁוֹרָשִׁים, וְהָאוֹרֶן מִזְרָעִים.",
+  "ipa": "haχˈoʁeʃ jodˈea lehitχadˈeʃ, haalˈon tsomˈeaχ mehaʃoʁaʃˈim, vehaʔˈoʁen mizʁaˈim."
+ },
+ "zone.event.g_fire.k": {
+  "h": "c307633efc26",
+  "text": "הַחֹרֶשׁ יוֹדֵעַ לְהִתְחַדֵּשׁ: הָאַלּוֹן צוֹמֵחַ מֵהַשָּׁרָשִׁים, וְהָאֹרֶן מִזְּרָעִים.",
+  "ipa": "haχˈoʁeʃ jodˈea lehitχadˈeʃ, haalˈon tsomˈeaχ mehaʃaʁaʃˈim, vehaˈoʁen mizeʁaˈim."
+ },
+ "zone.event.g_acorns": {
+  "h": "f92c32fce493",
+  "text": "הָעוֹרְבָנִי מַסְתִּיר בַּלּוּטִים בָּאֲדָמָה, וּמֵאֵלֶּה שֶׁהוּא שׁוֹכֵחַ צוֹמְחִים אַלּוֹנִים.",
+  "ipa": "haʔoʁvanˈi mastˈiʁ balutˈim baadamˈa, umeelˈe ʃehˈu ʃoχˈeaχ tsomχˈim alonˈim."
+ },
+ "zone.event.g_bloom": {
+  "h": "03c735c95eb3",
+  "text": "בָּאָבִיב הַפְּרָחִים נוֹתְנִים צוּף, וְהַדְּבוֹרִים מַאֲבִיקוֹת אוֹתָם.",
+  "ipa": "baavˈiv hapeʁaχˈim notnˈim tsˈuf, vehadevoʁˈim maavikˈot ʔotˈam."
+ },
+ "zone.event.g_nojay": {
+  "h": "c105d88c0e20",
+  "text": "הָעוֹרְבָנִי שׁוֹתֵל אַלּוֹנִים בְּלִי לָדַעַת. מָה יִקְרֶה בִּלְעָדָיו?",
+  "ipa": "haʔoʁvanˈi ʃotˈel alonˈim belˈi ladˈaat. mˈa jikʁˈe biladˈajv?"
+ },
+ "zone.event.g_logging": {
+  "h": "b8cd4d101c04",
+  "text": "הָעֵצִים בַּחוֹרֶשׁ נוֹתְנִים צֵל, מָזוֹן וּבַיִת. שׁוֹמְרִים עֲלֵיהֶם.",
+  "ipa": "haetsˈim baχˈoʁeʃ notnˈim tsˈel, mazˈon uvajˈit. ʃomʁˈim alejhˈem."
+ },
+ "zone.event.g_logging.k": {
+  "h": "39c24bff383f",
+  "text": "הָעֵצִים בַּחֹרֶשׁ נוֹתְנִים צֵל, מָזוֹן וּבַיִת. שׁוֹמְרִים עֲלֵיהֶם.",
+  "ipa": "haetsˈim baχˈoʁeʃ notnˈim tsˈel, mazˈon uvajˈit. ʃomʁˈim alejhˈem."
+ },
+ "zone.event.g_road": {
+  "h": "ad934da928d8",
+  "text": "בַּעֲלֵי הַחַיִּים בַּחוֹרֶשׁ צְרִיכִים דֶּרֶךְ בְּטוּחָה לַעֲבוֹר מִצַּד לְצַד.",
+  "ipa": "baalˈej haχajˈim baχˈoʁeʃ tseʁiχˈim dˈeʁeχ betuχˈa laavˈoʁ mitsˈad letsˈad."
+ },
+ "zone.event.g_road.k": {
+  "h": "c549174307d8",
+  "text": "בַּעֲלֵי הַחַיִּים בַּחֹרֶשׁ צְרִיכִים דֶּרֶךְ בְּטוּחָה לַעֲבֹר מִצַּד לְצַד.",
+  "ipa": "baalˈej haχajˈim baχˈoʁeʃ tseʁiχˈim dˈeʁeχ betuχˈa laavˈoʁ mitsˈad letsˈad."
+ },
+ "zone.event.r_heatx": {
+  "h": "9350d06b5c26",
+  "text": "חוֹם אָרוֹךְ מַחֲלִישׁ אֶת הָאַלְמוֹגִּים. אַלְמוֹגִים חֲזָקִים מֵהַמִּשְׁתָּלָה עוֹמְדִים בּוֹ יוֹתֵר.",
+  "ipa": "χˈom aʁˈoχ maχalˈiʃ ˈet haalmogˈim. almogˈim χazakˈim mehamiʃtalˈa ʔomdˈim bˈo jotˈeʁ."
+ },
+ "zone.event.r_heatx.k": {
+  "h": "a80223c94039",
+  "text": "חֹם אָרֹךְ מַחְלִישׁ אֶת הָאַלְמוֹגִים. אַלְמוֹגִים חֲזָקִים מֵהַמִּשְׁתָּלָה עוֹמְדִים בּוֹ יוֹתֵר.",
+  "ipa": "χˈom aʁˈoχ maχlˈiʃ ˈet haalmogˈim. almogˈim χazakˈim mehamiʃtalˈa ʔomdˈim bˈo jotˈeʁ."
+ },
+ "zone.event.r_heat": {
+  "h": "b5cee1692160",
+  "text": "כְּשֶׁהַמַּיִם חַמִּים מִדַּי, הָאַלְמוֹגִים מַלְבִּינִים. מַיִם נְקִיִּים עוֹזְרִים לָהֶם.",
+  "ipa": "keʃehamˈajim χamˈim midˈaj, haalmogˈim malbinˈim. mˈajim nekijˈim ʔozʁˈim lahˈem."
+ },
+ "zone.event.r_flood": {
+  "h": "b572bb601bcf",
+  "text": "בּוֹץ בְּמַיִם מַסְתִּיר אֶת הָאוֹר. עֵשֶׂב יָם מַחֲזִיק אֶת הַחוֹל בַּמָּקוֹם.",
+  "ipa": "bˈots bemˈajim mastˈiʁ ˈet haʔˈoʁ. ˈesev jˈam maχazˈik ˈet haχˈol bamakˈom."
+ },
+ "zone.event.r_flood.k": {
+  "h": "d69fc55d94bb",
+  "text": "בֹּץ בַּמַּיִם מַסְתִּיר אֶת הָאוֹר. עֵשֶׂב יָם מַחֲזִיק אֶת הַחוֹל בַּמָּקוֹם.",
+  "ipa": "bˈots bamˈajim mastˈiʁ ˈet haʔˈoʁ. ˈesev jˈam maχazˈik ˈet haχˈol bamakˈom."
+ },
+ "zone.event.r_starfish": {
+  "h": "156aaa3344d1",
+  "text": "כְּשֶׁיֵּשׁ יוֹתֵר מִדַּי מֵהֶם, הֵם אוֹכְלִים יוֹתֵר אַלְמוֹגִים מִמָּה שֶׁגָּדֵל.",
+  "ipa": "keʃejˈeʃ jotˈeʁ midˈaj mehˈem, hˈem ʔoχlˈim jotˈeʁ almogˈim mimˈa ʃegadˈel."
+ },
+ "zone.event.r_anchor": {
+  "h": "3269270f3303",
+  "text": "אַלְמוֹג גָּדֵל לְאַט מְאוֹד. מָצּוּף עֲגִינָה שׁוֹמֵר עָלָיו מִפְּנֵי עוֹגֶן.",
+  "ipa": "almˈog gadˈel leˈat meʔˈod. matsˈuf aginˈa ʃomˈeʁ alˈajv mipenˈej ʔˈogen."
+ },
+ "zone.event.r_anchor.k": {
+  "h": "882a01b38bb4",
+  "text": "אַלְמוֹג גָּדֵל לְאַט מְאֹד. מְצוֹף עֲגִינָה שׁוֹמֵר עָלָיו מִפְּנֵי עֹגֶן.",
+  "ipa": "almˈog gadˈel leˈat meˈod. metsˈof aginˈa ʃomˈeʁ alˈajv mipenˈej ˈogen."
+ },
+ "zone.event.r_spawn": {
+  "h": "fe8e655b7968",
+  "text": "בַּלֵּילוֹת שֶׁל הַקַּיִץ הָאַלְמוֹגִים מְשַׁחְרְרִים בֵּיצִים קְטַנְטַנּוֹת אֶל הַמַּיִם.",
+  "ipa": "balejlˈot ʃˈel hakajˈits haalmogˈim meʃaχʁeʁˈim bejtsˈim ketantanˈot ˈel hamˈajim."
+ },
+ "zone.event.r_storm": {
+  "h": "d73700274903",
+  "text": "אַחֲרֵי סְעָרָה, אַלְמוֹגִים צְעִירִים מֵהַמִּשְׁתָּלָה עוֹזְרִים לַשּׁוּנִית לְהִתְאוֹשֵׁשׁ.",
+  "ipa": "aχaʁˈej seaʁˈa, almogˈim tseiʁˈim mehamiʃtalˈa ʔozʁˈim laʃunˈit lehitʔoʃˈeʃ."
+ },
+ "zone.event.r_algae": {
+  "h": "378bb0e2ca3c",
+  "text": "דָּגִים שֶׁרוֹעִים אַצּוֹת שׁוֹמְרִים עַל הָאַלְמוֹגִים נְקִיִּים.",
+  "ipa": "dagˈim ʃeʁoˈim atsˈot ʃomʁˈim ˈal haalmogˈim nekijˈim."
+ },
+ "th.sharkskin": {
+  "h": "308af242c0c7",
+  "text": "בִּזְכוּת עוֹר הַכָּרִישׁ שֶׁהִמְצֵאתֶם, הָרוֹבּוֹט הַצּוֹלֵל בַּשּׁוּנִית שׂוֹחֶה מַהֵר יוֹתֵר!",
+  "ipa": "bizχˈut ʔˈoʁ hakaʁˈiʃ ʃehimtsˈetem, haʁobˈot hatsolˈel baʃunˈit soχˈe mahˈeʁ jotˈeʁ!"
+ },
+ "th.hover": {
+  "h": "5fd74911d6c2",
+  "text": "לְמַדְתָּם מְיוּנָק הַדְּבַשׁ! עַכְשָׁיו רַחֲפָן הַנִּיטּוֹר עוֹמֵד בָּאֲוִויר לְיַד בַּעַל חַיִּים שֶׁצָּרִיךְ עֶזְרָה.",
+  "ipa": "lemadtˈam mejunˈak hadevˈaʃ! aχʃˈav ʁaχafˈan hanitˈoʁ ʔomˈed baavˈivjʁ lejˈad bˈaal χajˈim ʃetsaʁˈiχ ezʁˈa."
+ },
+ "th.hover.k": {
+  "h": "9534061c3166",
+  "text": "לְמַדְתֶּם מִיּוֹנֵק הַדְּבַשׁ! עַכְשָׁו רַחְפַן הַנִּטּוּר עוֹמֵד בָּאֲוִיר לְיַד בַּעַל חַיִּים שֶׁצָּרִיךְ עֶזְרָה.",
+  "ipa": "lemˈadtem mionˈek hadevˈaʃ! aχʃˈav ʁaχfˈan hanitˈuʁ ʔomˈed baavˈiʁ lejˈad bˈaal χajˈim ʃetsaʁˈiχ ezʁˈa."
+ },
+ "th.anternet": {
+  "h": "885915ecc462",
+  "text": "כְּמוֹ נִמְלֵי הַקָּצִיר: כַּמָּה רַחֲפָנִי נִיטּוֹר חוֹלְקִים עַכְשָׁיו דּוּחַ אֶחָד.",
+  "ipa": "kemˈo nimlˈej hakatsˈiʁ, kamˈa ʁaχafanˈi nitˈoʁ χolkˈim aχʃˈav dˈuaχ eχˈad."
+ },
+ "th.anternet.k": {
+  "h": "e50c008312fe",
+  "text": "כְּמוֹ נְמָלֵי הַקָּצִיר: כַּמָּה רַחְפָנֵי נִטּוּר חוֹלְקִים עַכְשָׁו דּוּחַ אֶחָד.",
+  "ipa": "kemˈo nemalˈej hakatsˈiʁ, kamˈa ʁaχfanˈej nitˈuʁ χolkˈim aχʃˈav dˈuaχ eχˈad."
+ },
+ "th.lamp": {
+  "h": "d09b22ba33a7",
+  "text": "לְמַדְתָּם מֵהַגַּחְלִילִית! מַצְלֵמַת הַשֶּׁטַח רוֹאֶה עַכְשָׁיו רָחוֹק יוֹתֵר בַּלַּיְלָה.",
+  "ipa": "lemadtˈam mehagaχlilˈit! matslemˈat haʃˈetaχ ʁoˈe aχʃˈav ʁaχˈok jotˈeʁ balajlˈa."
+ },
+ "th.lamp.k": {
+  "h": "cbc2736bc6c8",
+  "text": "לְמַדְתֶּם מֵהַגַּחְלִילִית! מַצְלֵמַת הַשָּׂטַח רוֹאָה עַכְשָׁו רָחוֹק יוֹתֵר בַּלַּיְלָה.",
+  "ipa": "lemˈadtem mehagaχlilˈit! matslemˈat hasatˈaχ ʁoˈa aχʃˈav ʁaχˈok jotˈeʁ balajlˈa."
+ },
+ "th.camo": {
+  "h": "432e0febb2ad",
+  "text": "כְּמוֹ הַזִּיקִית: מַצְלֵמַת הַשֶּׁטַח מִתְחַבֵּאת, וּבַעֲלֵי חַיִּים בַּיְישָׁנִים לֹא בּוֹרְחִים מִמֶּנָּה.",
+  "ipa": "kemˈo hazikˈit, matslemˈat haʃˈetaχ mitχabˈet, uvaalˈej χajˈim bajjʃanˈim lˈo boʁχˈim mimenˈa."
+ },
+ "th.camo.k": {
+  "h": "fa4548d22c98",
+  "text": "כְּמוֹ הַזִּקִּית: מַצְלֵמַת הַשָּׂטַח מִתְחַבֵּאת, וּבַעֲלֵי חַיִּים בַּיְשָׁנִים לֹא בּוֹרְחִים מִמֶּנָּה.",
+  "ipa": "kemˈo hazikˈit, matslemˈat hasatˈaχ mitχabˈet, uvaalˈej χajˈim bajʃanˈim lˈo boʁχˈim mimenˈa."
+ },
+ "th.grip": {
+  "h": "f0455bbd4e8e",
+  "text": "לְמַדְתָּם מֵהַתִּמָנוּן! רוֹבּוֹט הַהַצָּלָה מְטַפֵּל עַכְשָׁיו בַּעֲדִינוּת, וּמַהֵר יוֹתֵר.",
+  "ipa": "lemadtˈam mehatimanˈun! ʁobˈot hahatsalˈa metapˈel aχʃˈav baadinˈut, umahˈeʁ jotˈeʁ."
+ },
+ "th.grip.k": {
+  "h": "175cfcbb14a5",
+  "text": "לְמַדְתֶּם מֵהַתְּמָנוּן! רוֹבּוֹט הַהַצָּלָה מְטַפֵּל עַכְשָׁו בַּעֲדִינוּת, וּמַהֵר יוֹתֵר.",
+  "ipa": "lemˈadtem mehatemanˈun! ʁobˈot hahatsalˈa metapˈel aχʃˈav baadinˈut, umahˈeʁ jotˈeʁ."
+ },
+ "th.bandage": {
+  "h": "e68315c992ce",
+  "text": "הַפְלַסְטֵר שֶׁל הַתִּמְנוּן עוֹבֵד! בַּעַל חַיִּים פָּגוּעַ מַחֲלִים עַכְשָׁיו מַהֵר יוֹתֵר.",
+  "ipa": "haflastˈeʁ ʃˈel hatimnˈun ʔovˈed! bˈaal χajˈim pagˈua maχalˈim aχʃˈav mahˈeʁ jotˈeʁ."
+ },
+ "th.bandage.k": {
+  "h": "f56cb103c346",
+  "text": "הַפְּלַסְטֶר שֶׁל הַתְּמָנוּן עוֹבֵד! בַּעַל חַיִּים פָּגוּעַ מַחְלִים עַכְשָׁו מַהֵר יוֹתֵר.",
+  "ipa": "hapelˈasteʁ ʃˈel hatemanˈun ʔovˈed! bˈaal χajˈim pagˈua maχlˈim aχʃˈav mahˈeʁ jotˈeʁ."
+ },
+ "th.solar": {
+  "h": "a87bdf08c9ac",
+  "text": "כְּמוֹ כַּנְפֵי הַפַּרְפַּר: יוֹתֵר אוֹר שֶׁמֶשׁ, יוֹתֵר חַשְׁמַל, וּמְחוֹלֵל הַמַּיִם נוֹתֵן יוֹתֵר מַיִם.",
+  "ipa": "kemˈo kanfˈej hapaʁpˈaʁ, jotˈeʁ ʔˈoʁ ʃˈemeʃ, jotˈeʁ χaʃmˈal, umχolˈel hamˈajim notˈen jotˈeʁ mˈajim."
+ },
+ "th.nutshell": {
+  "h": "d42c08a94031",
+  "text": "כְּמוֹ קְלִיפַּת אֱגוֹז הַבְּרָזִיל: תֵּיבוֹת הַקִּינּוּן שֶׁלָּכֶם עוֹמְדוֹת עַכְשָׁיו גַּם בִּסְעָרָה.",
+  "ipa": "kemˈo kelipˈat egˈoz habeʁazˈil, tejvˈot hakinˈun ʃelaχˈem ʔomdˈot aχʃˈav gˈam bisaʁˈa."
+ },
+ "th.nutshell.k": {
+  "h": "c4448195f123",
+  "text": "כְּמוֹ קְלִפַּת אֱגוֹז הַבְּרָזִיל: תֵּבוֹת הַקִּנּוּן שֶׁלָּכֶם עוֹמְדוֹת עַכְשָׁו גַּם בִּסְעָרָה.",
+  "ipa": "kemˈo kelipˈat egˈoz habeʁazˈil, tevˈot hakinˈun ʃelaχˈem ʔomdˈot aχʃˈav gˈam bisaʁˈa."
+ },
+ "th.plasma": {
+  "h": "8b2f70fc5c75",
+  "text": "הַבּוּעָה שֶׁל הַחֲסִילוֹן עוֹזֶרֶת: כְּשֶׁהַמַּיִם בַּשּׁוּנִית עֲכוּרִים, הֵם מִתְבַּהֲרִים מַהֵר יוֹתֵר.",
+  "ipa": "habuˈa ʃˈel haχasilˈon ʔozˈeʁet, keʃehamˈajim baʃunˈit aχuʁˈim, hˈem mitbahaʁˈim mahˈeʁ jotˈeʁ."
+ },
+ "th.notebook": {
+  "h": "44102cf1eca3",
+  "text": "פְּתַרְתֶּם תַּעֲלוּמָה! עַכְשָׁיו מֵחֶבֶרַת הַחוֹקֵר מְצַיֶּירֶת גְּרַף גַּם בָּאִי שֶׁלָּכֶם.",
+  "ipa": "petˈaʁtem taalumˈa! aχʃˈav meχeveʁˈat haχokˈeʁ metsajˈejʁet geʁˈaf gˈam baˈi ʃelaχˈem."
+ },
+ "th.notebook.k": {
+  "h": "82ed879b807f",
+  "text": "פְּתַרְתֶּם תַּעֲלוּמָה! עַכְשָׁו מַחְבֶּרֶת הַחוֹקֵר מְצַיֶּרֶת גְּרָף גַּם בָּאִי שֶׁלָּכֶם.",
+  "ipa": "petˈaʁtem taalumˈa! aχʃˈav maχbˈeʁet haχokˈeʁ metsajˈeʁet geʁˈaf gˈam baˈi ʃelaχˈem."
+ },
+ "th.quadrat": {
+  "h": "cf5254031069",
+  "text": "מִדַּדְתָם בְּרִיבּוּעַ הַדְגִּימָה. עַכְשָׁיו אֶפְשָׁר לִסְפּוֹר בּוֹ צְמָחִים גַּם בָּאִי שֶׁלָּכֶם.",
+  "ipa": "midadtˈam beʁibˈua hadgimˈa. aχʃˈav efʃˈaʁ lispˈoʁ bˈo tsemaχˈim gˈam baˈi ʃelaχˈem."
+ },
+ "th.quadrat.k": {
+  "h": "142f0ef98390",
+  "text": "מְדַדְתֶּם בְּרִבּוּעַ הַדְּגִימָה. עַכְשָׁו אֶפְשָׁר לִסְפֹּר בּוֹ צְמָחִים גַּם בָּאִי שֶׁלָּכֶם.",
+  "ipa": "medˈadtem beʁibˈua hadegimˈa. aχʃˈav efʃˈaʁ lispˈoʁ bˈo tsemaχˈim gˈam baˈi ʃelaχˈem."
+ },
+ "th.mice-owl": {
+  "h": "94872ae05399",
+  "text": "בַּחוֹרֶשׁ שֶׁלָּכֶם מְסוּמָּן עַכְשָׁיו: הִתְנַשַּׁמַת צִדָה קוֹצָנִים, וְתֵיבַת הַקִּינּוּן הִיא הַבַּיִת שֶׁלָּהּ.",
+  "ipa": "baχˈoʁeʃ ʃelaχˈem mesumˈan aχʃˈav, hitnaʃamˈat tsidˈa kotsanˈim, vetejvˈat hakinˈun hˈi habajˈit ʃelˈah."
+ },
+ "th.mice-owl.k": {
+  "h": "5c6f7318177e",
+  "text": "בַּחֹרֶשׁ שֶׁלָּכֶם מְסֻמָּן עַכְשָׁו: הַתִּנְשֶׁמֶת צָדָה קוֹצָנִים, וְתֵבַת הַקִּנּוּן הִיא הַבַּיִת שֶׁלָּהּ.",
+  "ipa": "baχˈoʁeʃ ʃelaχˈem mesumˈan aχʃˈav, hatinʃˈemet tsadˈa kotsanˈim, vetevˈat hakinˈun hˈi habajˈit ʃelˈah."
+ },
+ "th.the-trap": {
+  "h": "54d8d080a75d",
+  "text": "לְמַדְתָּם מֵהַמַּלְכּוֹדֶת. בְּשָׁנָה שֶׁל הָמוֹן בְּלוֹטִים תּוּכְלוּ לִבְחוֹר תַּנְשָׁמוֹת בִּמָקוֹם רַעַל.",
+  "ipa": "lemadtˈam mehamalkˈodet. beʃanˈa ʃˈel hamˈon belotˈim tuχlˈu livχˈoʁ tanʃamˈot bimakˈom ʁˈaal."
+ },
+ "th.the-trap.k": {
+  "h": "e3a3dd3f27da",
+  "text": "לְמַדְתֶּם מֵהַמַּלְכֹּדֶת. בְּשָׁנָה שֶׁל הָמוֹן בַּלּוּטִים תּוּכְלוּ לִבְחֹר תִּנְשָׁמוֹת בִּמְקוֹם רַעַל.",
+  "ipa": "lemˈadtem mehamalkˈodet. beʃanˈa ʃˈel hamˈon balutˈim tuχlˈu livχˈoʁ tinʃamˈot bimkˈom ʁˈaal."
+ },
+ "th.summer-fire": {
+  "h": "685248419dba",
+  "text": "לְמַדְתָּם מֵהַתַעֲלוּמָה \"אֵשׁ בַּקַּיִץ\". בִּשְׂרֵיפָה בַּחוֹרֶשׁ יֵשׁ עַכְשָׁיו עוֹד דֶּרֶךְ: פַּס שְׁמִירָה יָרוֹק.",
+  "ipa": "lemadtˈam mehataalumˈa ˈeʃ bakajˈits. bisʁejfˈa baχˈoʁeʃ jˈeʃ aχʃˈav ʔˈod dˈeʁeχ, pˈas ʃemiʁˈa jaʁˈok."
+ },
+ "th.summer-fire.k": {
+  "h": "2f3da07af313",
+  "text": "לְמַדְתֶּם מֵהַתַּעֲלוּמָה \"אֵשׁ בַּקַּיִץ\". בִּשְׂרֵפָה בַּחֹרֶשׁ יֵשׁ עַכְשָׁו עוֹד דֶּרֶךְ: פַּס שְׁמִירָה יָרֹק.",
+  "ipa": "lemˈadtem mehataalumˈa ˈeʃ bakajˈits. bisʁefˈa baχˈoʁeʃ jˈeʃ aχʃˈav ʔˈod dˈeʁeχ, pˈas ʃemiʁˈa jaʁˈok."
+ },
+ "th.cleaning-station": {
+  "h": "ebc398a9fe47",
+  "text": "לְמַדְתָּם שֶׁעוֹגָנִים שׁוֹבְרִים אַלְמוֹגִּים. מִצּוֹף הָעֲגִינָה שׁוֹמֵר עַכְשָׁיו עַל שֶׁטַח גָּדוֹל יוֹתֵר.",
+  "ipa": "lemadtˈam ʃeʔoganˈim ʃovʁˈim almogˈim. mitsˈof haaginˈa ʃomˈeʁ aχʃˈav ˈal ʃˈetaχ gadˈol jotˈeʁ."
+ },
+ "th.cleaning-station.k": {
+  "h": "994e7ebd9720",
+  "text": "לְמַדְתֶּם שֶׁעֹגְנִים שׁוֹבְרִים אַלְמֻגִּים. מְצוֹף הָעֲגִינָה שׁוֹמֵר עַכְשָׁו עַל שֶׁטַח גָּדוֹל יוֹתֵר.",
+  "ipa": "lemˈadtem ʃeognˈim ʃovʁˈim almugˈim. metsˈof haaginˈa ʃomˈeʁ aχʃˈav ˈal ʃˈetaχ gadˈol jotˈeʁ."
+ },
+ "th.brazil-nut": {
+  "h": "d3cc509753d0",
+  "text": "בְּאַמְזוֹנְס שֶׁלָּכֶם מְסוּמָּן עַכְשָׁיו: דְּבוּרַת הַסַּחְלַבִים מֵאֲבִיקָה, וְהָאֱגוֹטִי טוֹמֵן אֶת הָאֱגוֹזִים.",
+  "ipa": "beamzˈon ʃelaχˈem mesumˈan aχʃˈav, devuʁˈat hasaχlavˈim meavikˈa, vehaegotˈi tomˈen ˈet haegozˈim."
+ },
+ "th.brazil-nut.k": {
+  "h": "c3edc8f900df",
+  "text": "בָּאָמָזוֹנָס שֶׁלָּכֶם מְסֻמָּן עַכְשָׁו: דְּבוֹרַת הַסַּחְלָבִים מַאֲבִיקָה, וְהָאָגוּטִי טוֹמֵן אֶת הָאֱגוֹזִים.",
+  "ipa": "baamazonˈas ʃelaχˈem mesumˈan aχʃˈav, devoʁˈat hasaχlavˈim maavikˈa, vehaagutˈi tomˈen ˈet haegozˈim."
+ },
+ "th.fair": {
+  "h": "3bf389e00168",
+  "text": "עֲשִׂיתֶם נִיסּוּי הוֹגֵן! עַכְשָׁיו הַנִּיסּוּי בְּאִי מַרְאֶה גְּרַף שֶׁל לִפְנֵי וְאַחֲרֵי.",
+  "ipa": "asˈitem nisˈuj hogˈen! aχʃˈav hanisˈuj beˈi maʁˈe geʁˈaf ʃˈel lifnˈej veaχaʁˈej."
+ },
+ "th.fair.k": {
+  "h": "b6d4c12f4fe7",
+  "text": "עֲשִׂיתֶם נִסּוּי הוֹגֵן! עַכְשָׁו הַנִּסּוּי בָּאִי מַרְאֶה גְּרָף שֶׁל לִפְנֵי וְאַחֲרֵי.",
+  "ipa": "asˈitem nisˈuj hogˈen! aχʃˈav hanisˈuj baˈi maʁˈe geʁˈaf ʃˈel lifnˈej veaχaʁˈej."
+ },
+ "th.photo-scope": {
+  "h": "fb580df8e89b",
+  "text": "צִילַּמְתֶּם בָּאִי יְצוּר שֶׁיֵּשׁ לוֹ דְּגִימָה. הִיא מְחַכָּה לָכֶם בְּמִיקְרוֹסְקוֹפּ!",
+  "ipa": "tsilˈamtem baˈi jetsˈuʁ ʃejˈeʃ lˈo degimˈa. hˈi meχakˈa laχˈem bemikʁoskˈop!"
+ },
+ "th.photo-scope.k": {
+  "h": "0175c5f2359b",
+  "text": "צִלַּמְתֶּם בָּאִי יְצוּר שֶׁיֵּשׁ לוֹ דְּגִימָה. הִיא מְחַכָּה לָכֶם בַּמִּיקְרוֹסְקוֹפּ!",
+  "ipa": "tsilˈamtem baˈi jetsˈuʁ ʃejˈeʃ lˈo degimˈa. hˈi meχakˈa laχˈem bamikʁoskˈop!"
+ },
+ "th.link-atlas": {
+  "h": "e89172dc3503",
+  "text": "גִּילִּיתָם קֶשֶׁר בָּאִי. בָּאטְלָס מְחַכֶּה לָכֶם שְׁאֵלַת חֵקֶר עַל אוֹתוֹ יְצוּר.",
+  "ipa": "gilitˈam kˈeʃeʁ baˈi. batlˈas meχakˈe laχˈem ʃeelˈat χˈekeʁ ˈal ʔotˈo jetsˈuʁ."
+ },
+ "th.link-atlas.k": {
+  "h": "d29e6969b463",
+  "text": "גִּלִּיתֶם קֶשֶׁר בָּאִי. בָּאַטְלָס מְחַכָּה לָכֶם שְׁאֵלַת חֵקֶר עַל אוֹתוֹ יְצוּר.",
+  "ipa": "gilˈitem kˈeʃeʁ baˈi. baatlˈas meχakˈa laχˈem ʃeelˈat χˈekeʁ ˈal ʔotˈo jetsˈuʁ."
+ },
+ "th.ev-fire": {
+  "h": "3fb6462ec862",
+  "text": "הַחוֹרֶשׁ שֶׁלָּכֶם עָבַר קַיִץ קָשֶׁה. אֲנִי מַמְלִיץ לָכֶם עַל הַתַעֲלוּמָה \"אֵשׁ בַּקַּיִץ\".",
+  "ipa": "haχˈoʁeʃ ʃelaχˈem avˈaʁ kajˈits kaʃˈe. anˈi mamlˈits laχˈem ˈal hataalumˈa ˈeʃ bakajˈits."
+ },
+ "th.ev-fire.k": {
+  "h": "548255c8a09f",
+  "text": "הַחֹרֶשׁ שֶׁלָּכֶם עָבַר קַיִץ קָשֶׁה. אֲנִי מַמְלִיץ לָכֶם עַל הַתַּעֲלוּמָה \"אֵשׁ בַּקַּיִץ\".",
+  "ipa": "haχˈoʁeʃ ʃelaχˈem avˈaʁ kajˈits kaʃˈe. anˈi mamlˈits laχˈem ˈal hataalumˈa ˈeʃ bakajˈits."
+ },
+ "th.ev-heat": {
+  "h": "b22d7ab3482e",
+  "text": "הַמַּיִם בַּשׁוֹנִית שֶׁלָּכֶם הִתְחַמְּמוּ. אֲנִי מַמְלִיץ לָכֶם עַל הַתַעֲלוּמָה \"הָאַלְמוֹג הַלָּבָן\".",
+  "ipa": "hamˈajim baʃonˈit ʃelaχˈem hitχamemˈu. anˈi mamlˈits laχˈem ˈal hataalumˈa haalmˈog halavˈan."
+ },
+ "th.ev-heat.k": {
+  "h": "e9cfbb0478fb",
+  "text": "הַמַּיִם בַּשּׁוּנִית שֶׁלָּכֶם הִתְחַמְּמוּ. אֲנִי מַמְלִיץ לָכֶם עַל הַתַּעֲלוּמָה \"הָאַלְמֹג הַלָּבָן\".",
+  "ipa": "hamˈajim baʃunˈit ʃelaχˈem hitχamemˈu. anˈi mamlˈits laχˈem ˈal hataalumˈa haalmˈog halavˈan."
+ },
+ "th.ev-dry": {
+  "h": "66f6decc000f",
+  "text": "בַּיַּעַר שֶׁלָּכֶם לֹא יָרַד גֶּשֶׁם. מָה עִם הַצְּפַרְדְּעִים? נַסּוּ אֶת \"אֵיפֹה הַצְּפַרְדְּעִים?\".",
+  "ipa": "bajˈaaʁ ʃelaχˈem lˈo jaʁˈad gˈeʃem. mˈa ˈim hatsefaʁdeˈim? nasˈu ˈet ejfˈo hatsefaʁdeˈim?."
+ },
+ "th.ev-anchor": {
+  "h": "7cfbda1c77be",
+  "text": "עוֹגֶן פָּגַע בַּשּׁוֹנִית שֶׁלָּכֶם. אֲנִי מַמְלִיץ לָכֶם עַל \"תַּחֲנַת הַנִּיקּוּי נִסְגְּרָה\".",
+  "ipa": "ʔˈogen pagˈa baʃonˈit ʃelaχˈem. anˈi mamlˈits laχˈem ˈal taχanˈat hanikˈuj nisgeʁˈa."
+ },
+ "th.ev-anchor.k": {
+  "h": "d8522e0105d1",
+  "text": "עֹגֶן פָּגַע בַּשּׁוּנִית שֶׁלָּכֶם. אֲנִי מַמְלִיץ לָכֶם עַל \"תַּחֲנַת הַנִּקּוּי נִסְגְּרָה\".",
+  "ipa": "ˈogen pagˈa baʃunˈit ʃelaχˈem. anˈi mamlˈits laχˈem ˈal taχanˈat hanikˈuj nisgeʁˈa."
+ },
+ "th.ev-road": {
+  "h": "380edb011256",
+  "text": "כְּבִישׁ עָבַר לְיַד הַחוֹרֶשׁ שֶׁלָּכֶם. אֲנִי מַמְלִיץ לָכֶם עַל \"הַצְּבָאִים נֶעֱלָמִים\".",
+  "ipa": "kevˈiʃ avˈaʁ lejˈad haχˈoʁeʃ ʃelaχˈem. anˈi mamlˈits laχˈem ˈal hatsevaˈim neelamˈim."
+ },
+ "th.ev-road.k": {
+  "h": "9b89232d1b68",
+  "text": "כְּבִישׁ עָבַר לְיַד הַחֹרֶשׁ שֶׁלָּכֶם. אֲנִי מַמְלִיץ לָכֶם עַל \"הַצְּבָאִים נֶעֱלָמִים\".",
+  "ipa": "kevˈiʃ avˈaʁ lejˈad haχˈoʁeʃ ʃelaχˈem. anˈi mamlˈits laχˈem ˈal hatsevaˈim neelamˈim."
+ },
+ "th.zone-amazon": {
+  "h": "5160ea9e634b",
+  "text": "הִשְׁלַמְתֶּם אֶת הָאַמְזוֹנְס! אֵצֶל הַמַּמְצִיאִים מְחַכּוֹת לָכֶם שָׁלוֹשׁ בְּעָיוֹת מֵהַיַּעַר.",
+  "ipa": "hiʃlˈamtem ˈet haamazˈonas! ˈetsel hamamtsiˈim meχakˈot laχˈem ʃalˈoʃ beajˈot mehajˈaaʁ."
+ },
+ "th.zone-amazon.k": {
+  "h": "5bb337ea13f6",
+  "text": "הִשְׁלַמְתֶּם אֶת הָאָמָזוֹנָס! אֵצֶל הַמַּמְצִיאִים מְחַכּוֹת לָכֶם שָׁלֹשׁ בְּעָיוֹת מֵהַיַּעַר.",
+  "ipa": "hiʃlˈamtem ˈet haamazˈonas! ˈetsel hamamtsiˈim meχakˈot laχˈem ʃalˈoʃ beajˈot mehajˈaaʁ."
+ },
+ "th.zone-grove": {
+  "h": "caf170623694",
+  "text": "הִשְׁלַמְתֶּם אֶת הַחוֹרֶשׁ! אֵצֶל הַמַּמְצִיאִים מְחַכּוֹת לָכֶם שָׁלוֹשׁ בְּעָיוֹת מֵהַחוֹרֶשׁ.",
+  "ipa": "hiʃlˈamtem ˈet haχˈoʁeʃ! ˈetsel hamamtsiˈim meχakˈot laχˈem ʃalˈoʃ beajˈot mehaχˈoʁeʃ."
+ },
+ "th.zone-grove.k": {
+  "h": "541e9a3d54cc",
+  "text": "הִשְׁלַמְתֶּם אֶת הַחֹרֶשׁ! אֵצֶל הַמַּמְצִיאִים מְחַכּוֹת לָכֶם שָׁלֹשׁ בְּעָיוֹת מֵהַחֹרֶשׁ.",
+  "ipa": "hiʃlˈamtem ˈet haχˈoʁeʃ! ˈetsel hamamtsiˈim meχakˈot laχˈem ʃalˈoʃ beajˈot mehaχˈoʁeʃ."
+ },
+ "th.zone-reef": {
+  "h": "182805151fbe",
+  "text": "הִשְׁלַמְתֶּם אֶת הַשּׁוֹנִית! אֵצֶל הַמַּמְצִיאִים מְחַכּוֹת לָכֶם שָׁלוֹשׁ בְּעָיוֹת מֵהַיָּם.",
+  "ipa": "hiʃlˈamtem ˈet haʃonˈit! ˈetsel hamamtsiˈim meχakˈot laχˈem ʃalˈoʃ beajˈot mehajˈam."
+ },
+ "th.zone-reef.k": {
+  "h": "9b44368f087c",
+  "text": "הִשְׁלַמְתֶּם אֶת הַשּׁוּנִית! אֵצֶל הַמַּמְצִיאִים מְחַכּוֹת לָכֶם שָׁלֹשׁ בְּעָיוֹת מֵהַיָּם.",
+  "ipa": "hiʃlˈamtem ˈet haʃunˈit! ˈetsel hamamtsiˈim meχakˈot laχˈem ʃalˈoʃ beajˈot mehajˈam."
+ },
+ "th.robot-out": {
+  "h": "ba056face8e3",
+  "text": "הָרוֹבּוֹט שֶׁבְּנִיתָם יוֹצֵא לַעֲבוֹד בָּאִי! חִפְּשׂוּ אוֹתוֹ כְּשֶׁתַּחְזְרוּ לְשֵׁם.",
+  "ipa": "haʁobˈot ʃebenitˈam jotsˈe laavˈod baˈi! χipesˈu ʔotˈo keʃetaχzeʁˈu leʃˈem."
+ },
+ "th.robot-out.k": {
+  "h": "fa52b075da4f",
+  "text": "הָרוֹבּוֹט שֶׁבְּנִיתֶם יוֹצֵא לַעֲבֹד בָּאִי! חַפְּשׂוּ אוֹתוֹ כְּשֶׁתַּחְזְרוּ לְשָׁם.",
+  "ipa": "haʁobˈot ʃebenˈitem jotsˈe laavˈod baˈi! χapesˈu ʔotˈo keʃetaχzeʁˈu leʃˈam."
+ },
+ "zone.tech.canopybot.1": {
+  "h": "82026f5ef556",
+  "text": "רוֹבּוֹט הַצַּמֶּרֶת מְטַפֵּס עַל עֵץ גָּבוֹהַּ, וּבוֹדֵק מִי גָּר בְּכָל קוֹמָה שֶׁל הַיַּעַר.",
+  "ipa": "ʁobˈot hatsamˈeʁet metapˈes ˈal ˈets gavohˈa, uvodˈek mˈi gˈaʁ beχˈol komˈa ʃˈel hajˈaaʁ."
+ },
+ "zone.tech.canopybot.2": {
+  "h": "fe0c574446c3",
+  "text": "שִׂימוּ לֵב לְטַבְּעוֹת הָאוֹר: כָּל טַבַּעַת הִיא קוֹמָה אַחֶרֶת שֶׁל הַיַּעַר.",
+  "ipa": "simˈu lˈev letabeʔˈot haʔˈoʁ, kˈol tabˈaat hˈi komˈa aχˈeʁet ʃˈel hajˈaaʁ."
+ },
+ "zone.tech.lidar.1": {
+  "h": "cedeb900d405",
+  "text": "רַחְפַן הַלִּידָאר שׁוֹלֵחַ הַבְזְקֵי אוֹר קְטַנִּים, וּמוֹדֵד כַּמָּה גָּבוֹהַּ כָּל עֵץ.",
+  "ipa": "ʁaχfˈan halidˈaʁ ʃolˈeaχ havzekˈej ʔˈoʁ ketanˈim, umodˈed kamˈa gavohˈa kˈol ˈets."
+ },
+ "zone.tech.lidar.2": {
+  "h": "08b284a73743",
+  "text": "נְקוּדּוֹת צְהוּבּוֹת הֵן צַמָּרוֹת גְּבוֹהוֹת. שָׁם יֵשׁ הֲכִי הַרְבֵּה אוֹר.",
+  "ipa": "nekudˈot tsehubˈot hˈen tsamaʁˈot gevohˈot. ʃˈam jˈeʃ haχˈi haʁbˈe ʔˈoʁ."
+ },
+ "zone.tech.lidar.2.k": {
+  "h": "8eb98cc552ab",
+  "text": "נְקֻדּוֹת צְהֻבּוֹת הֵן צַמָּרוֹת גְּבוֹהוֹת. שָׁם יֵשׁ הֲכִי הַרְבֵּה אוֹר.",
+  "ipa": "nekudˈot tsehubˈot hˈen tsamaʁˈot gevohˈot. ʃˈam jˈeʃ haχˈi haʁbˈe ʔˈoʁ."
+ },
+ "zone.tech.thermal.1": {
+  "h": "0867fbc1033a",
+  "text": "מַצְלֶמֶת הַחוֹם רוֹאֶה בַּחוֹשֶׁךְ אֶת הַחוֹם שֶׁל בַּעֲלֵי הַחַיִּים.",
+  "ipa": "matslˈemet haχˈom ʁoˈe baχˈoʃeχ ˈet haχˈom ʃˈel baalˈej haχajˈim."
+ },
+ "zone.tech.thermal.1.k": {
+  "h": "6c34385b9ade",
+  "text": "מַצְלֵמַת הַחֹם רוֹאָה בַּחֹשֶׁךְ אֶת הַחֹם שֶׁל בַּעֲלֵי הַחַיִּים.",
+  "ipa": "matslemˈat haχˈom ʁoˈa baχˈoʃeχ ˈet haχˈom ʃˈel baalˈej haχajˈim."
+ },
+ "zone.tech.thermal.2": {
+  "h": "61adbc778f17",
+  "text": "צִיפּוֹרִים וְיוֹנְקִים זוֹהֲרִים. זוֹחֲלִים כִּמְעַט לֹא, כִּי בַּלַּיְלָה הַגּוּף שֶׁלָּהֶם קָרִיר.",
+  "ipa": "tsipoʁˈim vejonkˈim zohaʁˈim. zoχalˈim kimˈat lˈo, kˈi balajlˈa hagˈuf ʃelahˈem kaʁˈiʁ."
+ },
+ "zone.tech.thermal.2.k": {
+  "h": "a21b29aa3984",
+  "text": "צִפּוֹרִים וְיוֹנְקִים זוֹהֲרִים. זוֹחֲלִים כִּמְעַט לֹא, כִּי בַּלַּיְלָה הַגּוּף שֶׁלָּהֶם קָרִיר.",
+  "ipa": "tsipoʁˈim vejonkˈim zohaʁˈim. zoχalˈim kimˈat lˈo, kˈi balajlˈa hagˈuf ʃelahˈem kaʁˈiʁ."
+ },
+ "zone.tech.firetower.1": {
+  "h": "6de2fffbd01e",
+  "text": "מִמִּגְדַּל הַתַּצְפִּית רוֹאִים עָשָׁן מֵרָחוֹק. כָּךְ מְגַלִּים שְׂרֵיפָה כְּשֶׁהִיא עוֹד קְטַנָּה.",
+  "ipa": "mimigdˈal hatatspˈit ʁoˈim aʃˈan meʁaχˈok. kˈaχ megalˈim seʁejfˈa keʃehˈi ʔˈod ketanˈa."
+ },
+ "zone.tech.firetower.1.k": {
+  "h": "657fd75ea635",
+  "text": "מִמִּגְדַּל הַתַּצְפִּית רוֹאִים עָשָׁן מֵרָחוֹק. כָּךְ מְגַלִּים שְׂרֵפָה כְּשֶׁהִיא עוֹד קְטַנָּה.",
+  "ipa": "mimigdˈal hatatspˈit ʁoˈim aʃˈan meʁaχˈok. kˈaχ megalˈim seʁefˈa keʃehˈi ʔˈod ketanˈa."
+ },
+ "zone.tech.firetower.2": {
+  "h": "2c89dbe559ee",
+  "text": "בְּקַיִץ הַיָּבֵשׁ הַמִּגְדָּל שׁוֹמֵר עַל הַחוֹרֶשׁ בְּעֵינַיִים פְּקוּחוֹת.",
+  "ipa": "bekajˈits hajavˈeʃ hamigdˈal ʃomˈeʁ ˈal haχˈoʁeʃ beejnajˈim pekuχˈot."
+ },
+ "zone.tech.firetower.2.k": {
+  "h": "bd11de456e6f",
+  "text": "בַּקַּיִץ הַיָּבֵשׁ הַמִּגְדָּל שׁוֹמֵר עַל הַחֹרֶשׁ בְּעֵינַיִם פְּקוּחוֹת.",
+  "ipa": "bakajˈits hajavˈeʃ hamigdˈal ʃomˈeʁ ˈal haχˈoʁeʃ beejnˈajim pekuχˈot."
+ },
+ "zone.tech.reefspeaker.1": {
+  "h": "4405b437e391",
+  "text": "הָרַמְקוֹל מַשְׁמִיעַ קוֹלוֹת שֶׁל שׁוּנִית בְּרִיאָה, וְדָגִים צְעִירִים בָּאִים אֶל הַשּׁוּנִית הַפְּגוּעָה.",
+  "ipa": "haʁamkˈol maʃmˈia kolˈot ʃˈel ʃunˈit beʁiˈa, vedagˈim tseiʁˈim baˈim ˈel haʃunˈit hapeguˈa."
+ },
+ "zone.tech.reefspeaker.2": {
+  "h": "83cf73bb500e",
+  "text": "חוֹקְרִים בֶּאֱמֶת נִיסּוּ אֶת זֶה, וְהַדָּגִים הִגִּיעוּ!",
+  "ipa": "χokʁˈim beˈemet nisˈu ˈet zˈe, vehadagˈim higiʔˈu!"
+ },
+ "zone.tech.reefspeaker.2.k": {
+  "h": "e9859e5836ab",
+  "text": "חוֹקְרִים בֶּאֱמֶת נִסּוּ אֶת זֶה, וְהַדָּגִים הִגִּיעוּ!",
+  "ipa": "χokʁˈim beˈemet nisˈu ˈet zˈe, vehadagˈim higiʔˈu!"
+ },
+ "zone.tech.spawnbot.1": {
+  "h": "46baf1abe7a7",
+  "text": "בְּלַיְלָה שֶׁל בֵּיצִים, הָרוֹבּוֹט עוֹזֵר לְאַלְמוֹגִים צְעִירִים לְהַגִּיעַ לַמָּקוֹם שֶׁנִּפְגַּע.",
+  "ipa": "belajlˈa ʃˈel bejtsˈim, haʁobˈot ʔozˈeʁ lealmogˈim tseiʁˈim lehagˈia lamakˈom ʃenifgˈa."
+ },
+ "zone.tech.spawnbot.2": {
+  "h": "b53edf605fae",
+  "text": "הַנְּקוּדּוֹת הַוְּורוּדּוֹת הֵן בֵּיצִים שֶׁל אַלְמוֹגִּים. הֵן עוֹלוֹת לְמַעְלָה כְּמוֹ שֶׁלֶג הָפוּךְ.",
+  "ipa": "hanekudˈot havevʁudˈot hˈen bejtsˈim ʃˈel almogˈim. hˈen ʔolˈot lemalˈa kemˈo ʃˈeleg hafˈuχ."
+ },
+ "zone.tech.spawnbot.2.k": {
+  "h": "2a32140fbb6b",
+  "text": "הַנְּקֻדּוֹת הַוְּרֻדּוֹת הֵן בֵּיצִים שֶׁל אַלְמוֹגִים. הֵן עוֹלוֹת לְמַעְלָה כְּמוֹ שֶׁלֶג הָפוּךְ.",
+  "ipa": "hanekudˈot haveʁudˈot hˈen bejtsˈim ʃˈel almogˈim. hˈen ʔolˈot lemalˈa kemˈo ʃˈeleg hafˈuχ."
+ },
+ "after.photo.1": {
+  "h": "51d95c3df5dd",
+  "text": "זֶה מַצָּב צִילּוּם. סוֹבְבוּ אֶת הַמַּבָּט עַד שֶׁבַּעַל הַחַיִּים בְּתוֹךְ הַמִּסְגֶּרֶת.",
+  "ipa": "zˈe matsˈav tsilˈum. sovvˈu ˈet hamabˈat ˈad ʃebˈaal haχajˈim betˈoχ hamisgˈeʁet."
+ },
+ "after.photo.1.k": {
+  "h": "f632c2b2e614",
+  "text": "זֶה מַצַּב צִלּוּם. סוֹבְבוּ אֶת הַמַּבָּט עַד שֶׁבַּעַל הַחַיִּים בְּתוֹךְ הַמִּסְגֶּרֶת.",
+  "ipa": "zˈe matsˈav tsilˈum. sovvˈu ˈet hamabˈat ˈad ʃebˈaal haχajˈim betˈoχ hamisgˈeʁet."
+ },
+ "after.photo.2": {
+  "h": "f21b23f63984",
+  "text": "שְׁנֵי מִינִים שֶׁקְּשׁוּרִים זֶה לְזֶה בַּתְמוּנָה אַחַת? תְּמוּנָה כְּזֹאת שָׁוָוה יוֹתֵר!",
+  "ipa": "ʃenˈej minˈim ʃekeʃuʁˈim zˈe lezˈe batmunˈa ˈaχat? temunˈa kezˈot ʃavˈav jotˈeʁ!"
+ },
+ "after.photo.2.k": {
+  "h": "1a973f1242e2",
+  "text": "שְׁנֵי מִינִים שֶׁקְּשׁוּרִים זֶה לָזֶה בִּתְמוּנָה אַחַת? תְּמוּנָה כָּזֹאת שָׁוָה יוֹתֵר!",
+  "ipa": "ʃenˈej minˈim ʃekeʃuʁˈim zˈe lazˈe bitmunˈa ˈaχat? temunˈa kazˈot ʃavˈa jotˈeʁ!"
+ },
+ "after.pair": {
+  "h": "cdd42338dee4",
+  "text": "צִילַּמְתֶּם שְׁנֵי מִינִים שֶׁקְּשׁוּרִים זֶה לְזֶה! זֶה קֶשֶׁר בְּרֶשֶׁת הַחַיִּים.",
+  "ipa": "tsilˈamtem ʃenˈej minˈim ʃekeʃuʁˈim zˈe lezˈe! zˈe kˈeʃeʁ beʁˈeʃet haχajˈim."
+ },
+ "after.pair.k": {
+  "h": "74c772d771a3",
+  "text": "צִלַּמְתֶּם שְׁנֵי מִינִים שֶׁקְּשׁוּרִים זֶה לָזֶה! זֶה קֶשֶׁר בְּרֶשֶׁת הַחַיִּים.",
+  "ipa": "tsilˈamtem ʃenˈej minˈim ʃekeʃuʁˈim zˈe lazˈe! zˈe kˈeʃeʁ beʁˈeʃet haχajˈim."
+ },
+ "after.open.1": {
+  "h": "61e14ddfcea0",
+  "text": "כָּל הַמְּשִׂימוֹת כָּאן הוּשְׁלְמוּ! עַכְשָׁיו אַתֶּם שׁוֹמְרֵי הָאִי.",
+  "ipa": "kˈol hamesimˈot kˈan huʃlemˈu! aχʃˈav atˈem ʃomʁˈej haˈi."
+ },
+ "after.open.1.k": {
+  "h": "34dd2596b25a",
+  "text": "כָּל הַמְּשִׂימוֹת כָּאן הֻשְׁלְמוּ! עַכְשָׁו אַתֶּם שׁוֹמְרֵי הָאִי.",
+  "ipa": "kˈol hamesimˈot kˈan huʃlemˈu! aχʃˈav atˈem ʃomʁˈej haˈi."
+ },
+ "after.open.2": {
+  "h": "247771fcfa7f",
+  "text": "כָּאן מְחַכּוֹת מְשִׂימוֹת צִילּוּם וְאֶתְגָּר שׁוֹמְרִים. כָּל אֶחָד מַעֲלֶה אֶת הָאִי בְּדַרְגָּה.",
+  "ipa": "kˈan meχakˈot mesimˈot tsilˈum veetgˈaʁ ʃomʁˈim. kˈol eχˈad maalˈe ˈet haˈi bedaʁgˈa."
+ },
+ "after.open.2.k": {
+  "h": "6acdddb4c553",
+  "text": "כָּאן מְחַכּוֹת מְשִׂימוֹת צִלּוּם וְאֶתְגַּר שׁוֹמְרִים. כָּל אֶחָד מַעֲלֶה אֶת הָאִי בְּדַרְגָּה.",
+  "ipa": "kˈan meχakˈot mesimˈot tsilˈum veetgˈaʁ ʃomʁˈim. kˈol eχˈad maalˈe ˈet haˈi bedaʁgˈa."
+ },
+ "after.open.3": {
+  "h": "e9b56ac32395",
+  "text": "וְלִפְעָמִים מַגִּיעַ מְבַקֵּר נָדִיר. כְּשֶׁהוּא בָּא, צַלְּמוּ אוֹתוֹ מַהֵר!",
+  "ipa": "velifamˈim magˈia mevakˈeʁ nadˈiʁ. keʃehˈu bˈa, tsalemˈu ʔotˈo mahˈeʁ!"
+ },
+ "after.openxp.1": {
+  "h": "61e14ddfcea0",
+  "text": "כָּל הַמְּשִׂימוֹת כָּאן הוּשְׁלְמוּ! עַכְשָׁיו אַתֶּם שׁוֹמְרֵי הָאִי.",
+  "ipa": "kˈol hamesimˈot kˈan huʃlemˈu! aχʃˈav atˈem ʃomʁˈej haˈi."
+ },
+ "after.openxp.1.k": {
+  "h": "34dd2596b25a",
+  "text": "כָּל הַמְּשִׂימוֹת כָּאן הֻשְׁלְמוּ! עַכְשָׁו אַתֶּם שׁוֹמְרֵי הָאִי.",
+  "ipa": "kˈol hamesimˈot kˈan huʃlemˈu! aχʃˈav atˈem ʃomʁˈej haˈi."
+ },
+ "after.openxp.2": {
+  "h": "22ec5a28ce4d",
+  "text": "כָּאן מְחַכֶּה מְשִׂימַת צִילּוּם. צַלְמוּ, וְהָאִי שֶׁלָּכֶם יַעֲלֶה בְּדַרְגָּה.",
+  "ipa": "kˈan meχakˈe mesimˈat tsilˈum. tsalmˈu, vehaˈi ʃelaχˈem jaalˈe bedaʁgˈa."
+ },
+ "after.openxp.2.k": {
+  "h": "95274a860bbd",
+  "text": "כָּאן מְחַכָּה מְשִׂימַת צִלּוּם. צַלְּמוּ, וְהָאִי שֶׁלָּכֶם יַעֲלֶה בְּדַרְגָּה.",
+  "ipa": "kˈan meχakˈa mesimˈat tsilˈum. tsalemˈu, vehaˈi ʃelaχˈem jaalˈe bedaʁgˈa."
+ },
+ "after.openxp.3": {
+  "h": "e9b56ac32395",
+  "text": "וְלִפְעָמִים מַגִּיעַ מְבַקֵּר נָדִיר. כְּשֶׁהוּא בָּא, צַלְּמוּ אוֹתוֹ מַהֵר!",
+  "ipa": "velifamˈim magˈia mevakˈeʁ nadˈiʁ. keʃehˈu bˈa, tsalemˈu ʔotˈo mahˈeʁ!"
+ },
+ "after.pmdone": {
+  "h": "5e5678d9aa72",
+  "text": "אֵיזוֹ תְּמוּנָה יָפֶה! מְשִׂימַת הַצִּילּוּם הוּשְׁלְמָה.",
+  "ipa": "ejzˈo temunˈa jafˈe! mesimˈat hatsilˈum huʃlemˈa."
+ },
+ "after.pmdone.k": {
+  "h": "2feb06474614",
+  "text": "אֵיזוֹ תְּמוּנָה יָפָה! מְשִׂימַת הַצִּלּוּם הֻשְׁלְמָה.",
+  "ipa": "ejzˈo temunˈa jafˈa! mesimˈat hatsilˈum huʃlemˈa."
+ },
+ "after.chdone": {
+  "h": "2caca0bd1b1c",
+  "text": "כָּל הַכָּבוֹד! עֲמַדְתֶּם בָּאֶתְגָּר, וְהָאִי שֶׁלָּכֶם מִתְחַזֵּק.",
+  "ipa": "kˈol hakavˈod! amˈadtem baetgˈaʁ, vehaˈi ʃelaχˈem mitχazˈek."
+ },
+ "after.challenge": {
+  "h": "99625c7e4a51",
+  "text": "יֵשׁ לָכֶם אֶתְגָּר שׁוֹמְרִים! הוּא כָּתוּב כָּאן, מִתַּחַת לִמְשִׂימַת הַצִּילּוּם.",
+  "ipa": "jˈeʃ laχˈem etgˈaʁ ʃomʁˈim! hˈu katˈuv kˈan, mitˈaχat limsimˈat hatsilˈum."
+ },
+ "after.challenge.k": {
+  "h": "572d6e9ca741",
+  "text": "יֵשׁ לָכֶם אֶתְגַּר שׁוֹמְרִים! הוּא כָּתוּב כָּאן, מִתַּחַת לִמְשִׂימַת הַצִּלּוּם.",
+  "ipa": "jˈeʃ laχˈem etgˈaʁ ʃomʁˈim! hˈu katˈuv kˈan, mitˈaχat limsimˈat hatsilˈum."
+ },
+ "after.rank.amazon.1": {
+  "h": "8f0f245dc6a9",
+  "text": "הַיַּעַר שֶׁלָּכֶם עָלָה בְּדַרְגָּה! עַכְשָׁיו הוּא יַעַר יָרוֹק.",
+  "ipa": "hajˈaaʁ ʃelaχˈem alˈa bedaʁgˈa! aχʃˈav hˈu jˈaaʁ jaʁˈok."
+ },
+ "after.rank.amazon.1.k": {
+  "h": "1961314eb44d",
+  "text": "הַיַּעַר שֶׁלָּכֶם עָלָה בְּדַרְגָּה! עַכְשָׁו הוּא יַעַר יָרֹק.",
+  "ipa": "hajˈaaʁ ʃelaχˈem alˈa bedaʁgˈa! aχʃˈav hˈu jˈaaʁ jaʁˈok."
+ },
+ "after.rank.amazon.2": {
+  "h": "0d7191e73c85",
+  "text": "הַיַּעַר שֶׁלָּכֶם עָלָה בְּדַרְגָּה! עַכְשָׁיו הוּא יַעַר סָבוּךְ.",
+  "ipa": "hajˈaaʁ ʃelaχˈem alˈa bedaʁgˈa! aχʃˈav hˈu jˈaaʁ savˈuχ."
+ },
+ "after.rank.amazon.2.k": {
+  "h": "7a1a830d7afb",
+  "text": "הַיַּעַר שֶׁלָּכֶם עָלָה בְּדַרְגָּה! עַכְשָׁו הוּא יַעַר סָבוּךְ.",
+  "ipa": "hajˈaaʁ ʃelaχˈem alˈa bedaʁgˈa! aχʃˈav hˈu jˈaaʁ savˈuχ."
+ },
+ "after.rank.amazon.3": {
+  "h": "3f70b9d2a5a2",
+  "text": "הַיַּעַר שֶׁלָּכֶם עָלָה בְּדַרְגָּה! עַכְשָׁיו הוּא יַעַר עֲנָקִים.",
+  "ipa": "hajˈaaʁ ʃelaχˈem alˈa bedaʁgˈa! aχʃˈav hˈu jˈaaʁ anakˈim."
+ },
+ "after.rank.amazon.3.k": {
+  "h": "c88c445e6516",
+  "text": "הַיַּעַר שֶׁלָּכֶם עָלָה בְּדַרְגָּה! עַכְשָׁו הוּא יַעַר עֲנָקִים.",
+  "ipa": "hajˈaaʁ ʃelaχˈem alˈa bedaʁgˈa! aχʃˈav hˈu jˈaaʁ anakˈim."
+ },
+ "after.rank.grove.1": {
+  "h": "657b288a5fcc",
+  "text": "הַחוֹרֶשׁ שֶׁלָּכֶם עָלָה בְּדַרְגָּה! עַכְשָׁיו הוּא חוֹרֵשׁ פּוֹרֵחַ.",
+  "ipa": "haχˈoʁeʃ ʃelaχˈem alˈa bedaʁgˈa! aχʃˈav hˈu χoʁˈeʃ poʁˈeaχ."
+ },
+ "after.rank.grove.1.k": {
+  "h": "002b19a444a4",
+  "text": "הַחֹרֶשׁ שֶׁלָּכֶם עָלָה בְּדַרְגָּה! עַכְשָׁו הוּא חֹרֶשׁ פּוֹרֵחַ.",
+  "ipa": "haχˈoʁeʃ ʃelaχˈem alˈa bedaʁgˈa! aχʃˈav hˈu χˈoʁeʃ poʁˈeaχ."
+ },
+ "after.rank.grove.2": {
+  "h": "f1d93fae907b",
+  "text": "הַחוֹרֶשׁ שֶׁלָּכֶם עָלָה בְּדַרְגָּה! עַכְשָׁיו הוּא חוֹרֵשׁ עָבוֹת.",
+  "ipa": "haχˈoʁeʃ ʃelaχˈem alˈa bedaʁgˈa! aχʃˈav hˈu χoʁˈeʃ avˈot."
+ },
+ "after.rank.grove.2.k": {
+  "h": "8fc1dacf3ee0",
+  "text": "הַחֹרֶשׁ שֶׁלָּכֶם עָלָה בְּדַרְגָּה! עַכְשָׁו הוּא חֹרֶשׁ עָבוֹת.",
+  "ipa": "haχˈoʁeʃ ʃelaχˈem alˈa bedaʁgˈa! aχʃˈav hˈu χˈoʁeʃ avˈot."
+ },
+ "after.rank.grove.3": {
+  "h": "c0b7f931746c",
+  "text": "הַחוֹרֶשׁ שֶׁלָּכֶם עָלָה בְּדַרְגָּה! עַכְשָׁיו הוּא חוֹרֵשׁ עַתִּיק.",
+  "ipa": "haχˈoʁeʃ ʃelaχˈem alˈa bedaʁgˈa! aχʃˈav hˈu χoʁˈeʃ atˈik."
+ },
+ "after.rank.grove.3.k": {
+  "h": "c6ffc5036ea9",
+  "text": "הַחֹרֶשׁ שֶׁלָּכֶם עָלָה בְּדַרְגָּה! עַכְשָׁו הוּא חֹרֶשׁ עַתִּיק.",
+  "ipa": "haχˈoʁeʃ ʃelaχˈem alˈa bedaʁgˈa! aχʃˈav hˈu χˈoʁeʃ atˈik."
+ },
+ "after.rank.reef.1": {
+  "h": "bc5dc47b28a7",
+  "text": "הַשּׁוֹנִית שֶׁלָּכֶם עָלְתָה בְּדַרְגָּה! עַכְשָׁיו הִיא שׁוֹנִית צוֹמַחַת.",
+  "ipa": "haʃonˈit ʃelaχˈem altˈa bedaʁgˈa! aχʃˈav hˈi ʃonˈit tsomˈaχat."
+ },
+ "after.rank.reef.1.k": {
+  "h": "66ad836328c4",
+  "text": "הַשּׁוּנִית שֶׁלָּכֶם עָלְתָה בְּדַרְגָּה! עַכְשָׁו הִיא שׁוּנִית צוֹמַחַת.",
+  "ipa": "haʃunˈit ʃelaχˈem altˈa bedaʁgˈa! aχʃˈav hˈi ʃunˈit tsomˈaχat."
+ },
+ "after.rank.reef.2": {
+  "h": "98eea2c414fc",
+  "text": "הַשּׁוֹנִית שֶׁלָּכֶם עָלְתָה בְּדַרְגָּה! עַכְשָׁיו הִיא שׁוֹנִית צִבְעוֹנִית.",
+  "ipa": "haʃonˈit ʃelaχˈem altˈa bedaʁgˈa! aχʃˈav hˈi ʃonˈit tsivʔonˈit."
+ },
+ "after.rank.reef.2.k": {
+  "h": "e59bdede8a76",
+  "text": "הַשּׁוּנִית שֶׁלָּכֶם עָלְתָה בְּדַרְגָּה! עַכְשָׁו הִיא שׁוּנִית צִבְעוֹנִית.",
+  "ipa": "haʃunˈit ʃelaχˈem altˈa bedaʁgˈa! aχʃˈav hˈi ʃunˈit tsivʔonˈit."
+ },
+ "after.rank.reef.3": {
+  "h": "7ae9e0f6749f",
+  "text": "הַשּׁוֹנִית שֶׁלָּכֶם עָלְתָה בְּדַרְגָּה! עַכְשָׁיו הִיא שׁוֹנִית עַתִּיקָה.",
+  "ipa": "haʃonˈit ʃelaχˈem altˈa bedaʁgˈa! aχʃˈav hˈi ʃonˈit atikˈa."
+ },
+ "after.rank.reef.3.k": {
+  "h": "605fffd5abd7",
+  "text": "הַשּׁוּנִית שֶׁלָּכֶם עָלְתָה בְּדַרְגָּה! עַכְשָׁו הִיא שׁוּנִית עַתִּיקָה.",
+  "ipa": "haʃunˈit ʃelaχˈem altˈa bedaʁgˈa! aχʃˈav hˈi ʃunˈit atikˈa."
+ },
+ "after.visit.harpy": {
+  "h": "f0ce2dfc7284",
+  "text": "עֵיט הַרְפְּיָה בָּא לְבַקֵּר! הוּא מָצָא כָּאן עֵצִים עֲנָקִיִּים. מַהֵר, צַלְּמוּ אוֹתוֹ.",
+  "ipa": "ˈejt haʁpejˈa bˈa levakˈeʁ! hˈu matsˈa kˈan etsˈim anakijˈim. mahˈeʁ, tsalemˈu ʔotˈo."
+ },
+ "after.fact.harpy": {
+  "h": "323b4baa98f5",
+  "text": "עֵיט הַהַרְפְּיָה בּוֹנֶה אֶת הַקֵּן שֶׁלּוֹ רַק עַל הָעֵצִים הָעֲנָקִיִּים.",
+  "ipa": "ˈejt hahaʁpejˈa bonˈe ˈet hakˈen ʃelˈo ʁˈak ˈal haetsˈim haanakijˈim."
+ },
+ "after.visit.jaguar": {
+  "h": "ed2960f2cb51",
+  "text": "יָגוּאָר הִגִּיעַ מֵהַיַּעַר הָרָחוֹק! הוּא לֹא נִשְׁאָר הַרְבֵּה זְמַן. מַהֵר, צַלְּמוּ אוֹתוֹ.",
+  "ipa": "jaguˈaʁ higˈia mehajˈaaʁ haʁaχˈok! hˈu lˈo niʃˈaʁ haʁbˈe zemˈan. mahˈeʁ, tsalemˈu ʔotˈo."
+ },
+ "after.fact.jaguar": {
+  "h": "31fd973062f3",
+  "text": "הִיגוּאָר שַׂחְיָין מְצוּיָּן! בְּשׁוֹנֶה מֵהַרְבֵּה חֲתוּלִים, הוּא לֹא מְפַחֵד מִמַּיִם.",
+  "ipa": "higuˈaʁ saχjˈajn metsujˈan! beʃonˈe mehaʁbˈe χatulˈim, hˈu lˈo mefaχˈed mimˈajim."
+ },
+ "after.fact.jaguar.k": {
+  "h": "c07475fec5f9",
+  "text": "הַיָּגוּאָר שַׂחְיָן מְצֻיָּן! בְּשׁוֹנֶה מֵהַרְבֵּה חֲתוּלִים, הוּא לֹא מְפַחֵד מִמַּיִם.",
+  "ipa": "hajaguˈaʁ saχjˈan metsujˈan! beʃonˈe mehaʁbˈe χatulˈim, hˈu lˈo mefaχˈed mimˈajim."
+ },
+ "after.visit.macaw": {
+  "h": "870190bcf970",
+  "text": "תּוֹכִי אָרָה צִבְעוֹנִי בָּא לְבַקֵּר! הוּא אוֹהֵב אֱגוֹזִי בְּרָזִיל. צַלְמוּ אוֹתוֹ.",
+  "ipa": "toχˈi aʁˈa tsivʔonˈi bˈa levakˈeʁ! hˈu ʔohˈev egozˈi beʁazˈil. tsalmˈu ʔotˈo."
+ },
+ "after.visit.macaw.k": {
+  "h": "8087aee459ad",
+  "text": "תֻּכִּי אָרָה צִבְעוֹנִי בָּא לְבַקֵּר! הוּא אוֹהֵב אֱגוֹזֵי בְּרָזִיל. צַלְּמוּ אוֹתוֹ.",
+  "ipa": "tukˈi aʁˈa tsivʔonˈi bˈa levakˈeʁ! hˈu ʔohˈev egozˈej beʁazˈil. tsalemˈu ʔotˈo."
+ },
+ "after.fact.macaw": {
+  "h": "45e607659449",
+  "text": "תּוֹכִי הֶאָרָה אוֹכְלִים חִימֶּר! בְּחִימָר יֵשׁ מִינֵרָלִים שֶׁעוֹזְרִים לָהֶם לְעַכֵּל.",
+  "ipa": "toχˈi heaʁˈa ʔoχlˈim χˈimeʁ! beχimˈaʁ jˈeʃ mineʁalˈim ʃeʔozʁˈim lahˈem leakˈel."
+ },
+ "after.fact.macaw.k": {
+  "h": "63b87228c613",
+  "text": "תֻּכֵּי הָאָרָה אוֹכְלִים חֵמָר! בַּחֵמָר יֵשׁ מִינֶרָלִים שֶׁעוֹזְרִים לָהֶם לְעַכֵּל.",
+  "ipa": "tukˈej haaʁˈa ʔoχlˈim χemˈaʁ! baχemˈaʁ jˈeʃ mineʁalˈim ʃeʔozʁˈim lahˈem leakˈel."
+ },
+ "after.visit.toucan": {
+  "h": "11d614776be4",
+  "text": "טוֹקֵן בָּא לְבַקֵּר! הוּא מְחַפֵּשׂ פֵּירוֹת שֶׁל דֶּקֶל אַסַּאי. צַלְמוּ אוֹתוֹ.",
+  "ipa": "tokˈen bˈa levakˈeʁ! hˈu meχapˈes pejʁˈot ʃˈel dˈekel asˈaj. tsalmˈu ʔotˈo."
+ },
+ "after.visit.toucan.k": {
+  "h": "9a900edd0bc6",
+  "text": "טוּקָן בָּא לְבַקֵּר! הוּא מְחַפֵּשׂ פֵּרוֹת שֶׁל דֶּקֶל אָסָאִי. צַלְּמוּ אוֹתוֹ.",
+  "ipa": "tukˈan bˈa levakˈeʁ! hˈu meχapˈes peʁˈot ʃˈel dˈekel asaˈi. tsalemˈu ʔotˈo."
+ },
+ "after.fact.toucan": {
+  "h": "461a9d38b42a",
+  "text": "הַמָּקוֹר שֶׁל הַטּוֹקֵן עֲנָק, אֲבָל קַל מְאוֹד! בִּפְנִים הוּא כְּמוֹ סְפוֹג.",
+  "ipa": "hamakˈoʁ ʃˈel hatokˈen anˈak, avˈal kˈal meʔˈod! bifnˈim hˈu kemˈo sefˈog."
+ },
+ "after.fact.toucan.k": {
+  "h": "143faae3ee8e",
+  "text": "הַמַּקּוֹר שֶׁל הַטּוּקָן עֲנָק, אֲבָל קַל מְאֹד! בִּפְנִים הוּא כְּמוֹ סְפוֹג.",
+  "ipa": "hamakˈoʁ ʃˈel hatukˈan anˈak, avˈal kˈal meˈod! bifnˈim hˈu kemˈo sefˈog."
+ },
+ "after.visit.sloth": {
+  "h": "48d51e6b1ada",
+  "text": "עַצְלָן בָּא לְבַקֵּר! הוּא מְטַפֵּס לְאַט עַל עֵץ הַצֶּקְרוֹפְּיָה. צַלְּמוּ אוֹתוֹ.",
+  "ipa": "atslˈan bˈa levakˈeʁ! hˈu metapˈes leˈat ˈal ˈets hatsekʁopejˈa. tsalemˈu ʔotˈo."
+ },
+ "after.fact.sloth": {
+  "h": "b8156d9c03c2",
+  "text": "בְּפַרְוָוה שֶׁל הָעַצְלָן גָּדְלוֹת אַצוֹת יְרוּקּוֹת. הוּא כְּמוֹ יַעַר קָטָן!",
+  "ipa": "befaʁvˈav ʃˈel haatslˈan gadlˈot atsˈot jeʁukˈot. hˈu kemˈo jˈaaʁ katˈan!"
+ },
+ "after.fact.sloth.k": {
+  "h": "ee7eedd1c22a",
+  "text": "בַּפַּרְוָה שֶׁל הָעַצְלָן גְּדֵלוֹת אַצּוֹת יְרֻקּוֹת. הוּא כְּמוֹ יַעַר קָטָן!",
+  "ipa": "bapaʁvˈa ʃˈel haatslˈan gedelˈot atsˈot jeʁukˈot. hˈu kemˈo jˈaaʁ katˈan!"
+ },
+ "after.visit.agouti": {
+  "h": "7424f55f338e",
+  "text": "אֱגוֹטִי בָּא לְבַקֵּר! הוּא מְחַפֵּשׂ פֵּירוֹת עַל הָאֲדָמָה. צַלְמוּ אוֹתוֹ.",
+  "ipa": "egotˈi bˈa levakˈeʁ! hˈu meχapˈes pejʁˈot ˈal haadamˈa. tsalmˈu ʔotˈo."
+ },
+ "after.visit.agouti.k": {
+  "h": "56291f48c290",
+  "text": "אָגוּטִי בָּא לְבַקֵּר! הוּא מְחַפֵּשׂ פֵּרוֹת עַל הָאֲדָמָה. צַלְּמוּ אוֹתוֹ.",
+  "ipa": "agutˈi bˈa levakˈeʁ! hˈu meχapˈes peʁˈot ˈal haadamˈa. tsalemˈu ʔotˈo."
+ },
+ "after.fact.agouti": {
+  "h": "50c18e3b4389",
+  "text": "הָאֱגוֹטִי פּוֹתֵחַ אֶת הַפְּרִי הַקָּשָׁה שֶׁל אֱגוֹז בְּרָזִיל, רַק עִם הַשִּׁינַּיִים!",
+  "ipa": "haegotˈi potˈeaχ ˈet hapeʁˈi hakaʃˈa ʃˈel egˈoz beʁazˈil, ʁˈak ˈim haʃinajˈim!"
+ },
+ "after.fact.agouti.k": {
+  "h": "9367d70d09cb",
+  "text": "הָאָגוּטִי פּוֹתֵחַ אֶת הַפְּרִי הַקָּשֶׁה שֶׁל אֱגוֹז בְּרָזִיל, רַק עִם הַשִּׁנַּיִם!",
+  "ipa": "haagutˈi potˈeaχ ˈet hapeʁˈi hakaʃˈe ʃˈel egˈoz beʁazˈil, ʁˈak ˈim haʃinˈajim!"
+ },
+ "after.visit.owl": {
+  "h": "7ce783320ef0",
+  "text": "תִּנְשֶׁמֶת בָּאָה לְבַקֵּר בַּלַּיְלָה! יֵשׁ כָּאן הַרְבֵּה קוֹצָנִים. צַלְּמוּ אוֹתָהּ.",
+  "ipa": "tinʃˈemet baˈa levakˈeʁ balajlˈa! jˈeʃ kˈan haʁbˈe kotsanˈim. tsalemˈu ʔotˈah."
+ },
+ "after.fact.owl": {
+  "h": "048aee80d64c",
+  "text": "זוּג תִּנְשָׁמוֹת עִם הַגּוֹזָלִים אוֹכֵל אַלְפֵי מְכַרְסְמִים בְּשָׁנָה אַחַת!",
+  "ipa": "zˈug tinʃamˈot ˈim hagozalˈim ʔoχˈel alfˈej meχaʁsemˈim beʃanˈa ˈaχat!"
+ },
+ "after.visit.hoopoe": {
+  "h": "1472466db92c",
+  "text": "דּוּכִיפַת בָּאָה לְבַקֵּר! הִיא מְחַפֶּשֶׂת חֲרָקִים בָּאֲדָמָה. צַלְּמוּ אוֹתָהּ.",
+  "ipa": "duχifˈat baˈa levakˈeʁ! hˈi meχapˈeset χaʁakˈim baadamˈa. tsalemˈu ʔotˈah."
+ },
+ "after.fact.hoopoe": {
+  "h": "e49b4ef64280",
+  "text": "הַדּוֹכִיפַת הִיא הַצִּיפּוֹר הַלְּאוּמִּית שֶׁל יִשְׂרָאֵל! יֵשׁ לָהּ צִיצִית כְּמוֹ מְנִיפָה.",
+  "ipa": "hadoχifˈat hˈi hatsipˈoʁ haleʔumˈit ʃˈel jisʁaˈel! jˈeʃ lˈah tsitsˈit kemˈo menifˈa."
+ },
+ "after.fact.hoopoe.k": {
+  "h": "a0106cf228cd",
+  "text": "הַדּוּכִיפַת הִיא הַצִּפּוֹר הַלְּאֻמִּית שֶׁל יִשְׂרָאֵל! יֵשׁ לָהּ צִיצִית כְּמוֹ מְנִיפָה.",
+  "ipa": "haduχifˈat hˈi hatsipˈoʁ haleumˈit ʃˈel jisʁaˈel! jˈeʃ lˈah tsitsˈit kemˈo menifˈa."
+ },
+ "after.visit.gazelle": {
+  "h": "94cf851fc719",
+  "text": "צְבִי בָּא לְבַקֵּר! הוּא מָצָא כָּאן עֵצִים וְשִׂיחִים לֶאֱכוֹל. צַלְמוּ אוֹתוֹ.",
+  "ipa": "tsevˈi bˈa levakˈeʁ! hˈu matsˈa kˈan etsˈim vesiχˈim leeχˈol. tsalmˈu ʔotˈo."
+ },
+ "after.visit.gazelle.k": {
+  "h": "e530e7687d68",
+  "text": "צְבִי בָּא לְבַקֵּר! הוּא מָצָא כָּאן עֵצִים וְשִׂיחִים לֶאֱכֹל. צַלְּמוּ אוֹתוֹ.",
+  "ipa": "tsevˈi bˈa levakˈeʁ! hˈu matsˈa kˈan etsˈim vesiχˈim leeχˈol. tsalemˈu ʔotˈo."
+ },
+ "after.fact.gazelle": {
+  "h": "bded24fe48c8",
+  "text": "הַצְּבִי הָאֶרֶץ־יִשְׂרְאֵלִי יָכוֹל לָרוּץ בִּמְהִירוּת שֶׁל 80 קִילוֹמֶטֶר בְּשָׁעָה!",
+  "ipa": "hatsevˈi haˈeʁets jisʁeelˈi jaχˈol laʁˈuts bimhiʁˈut ʃˈel kilomˈeteʁ beʃaˈa!"
+ },
+ "after.visit.jay": {
+  "h": "2b262712ec59",
+  "text": "עוֹרְבָנִי בָּא לְבַקֵּר! הוּא אוֹסֵף בַּלּוּטִים מֵהָאַלּוֹן. צַלְּמוּ אוֹתוֹ.",
+  "ipa": "ʔoʁvanˈi bˈa levakˈeʁ! hˈu ʔosˈef balutˈim mehaalˈon. tsalemˈu ʔotˈo."
+ },
+ "after.fact.jay": {
+  "h": "8bc03e83b730",
+  "text": "עוֹרְבָנִי אֶחָד יָכוֹל לְפַזֵּר יוֹתֵר מֵאֶלֶף בַּלּוּטִים בְּשָׁנָה אַחַת!",
+  "ipa": "ʔoʁvanˈi eχˈad jaχˈol lefazˈeʁ jotˈeʁ meˈelef balutˈim beʃanˈa ˈaχat!"
+ },
+ "after.visit.hyrax": {
+  "h": "2e279525bebc",
+  "text": "שֶׁפַן סֶלַע בָּא לְבַקֵּר! הוּא אוֹהֵב לֶאֱכוֹל עָלִים שֶׁל מַרְוֶוה. צַלְמוּ אוֹתוֹ.",
+  "ipa": "ʃefˈan sˈela bˈa levakˈeʁ! hˈu ʔohˈev leeχˈol alˈim ʃˈel maʁvˈev. tsalmˈu ʔotˈo."
+ },
+ "after.visit.hyrax.k": {
+  "h": "de4c61a8ac1c",
+  "text": "שְׁפַן סֶלַע בָּא לְבַקֵּר! הוּא אוֹהֵב לֶאֱכֹל עָלִים שֶׁל מַרְוָה. צַלְּמוּ אוֹתוֹ.",
+  "ipa": "ʃefˈan sˈela bˈa levakˈeʁ! hˈu ʔohˈev leeχˈol alˈim ʃˈel maʁvˈa. tsalemˈu ʔotˈo."
+ },
+ "after.fact.hyrax": {
+  "h": "a09dacb75b0d",
+  "text": "לְשְׁפֶן הַסֶּלַע יֵשׁ כַּפּוֹת רַגְלַיִים רַכּוֹת. הֵן עוֹזְרוֹת לוֹ לְטַפֵּס עַל סְלָעִים.",
+  "ipa": "lˈeʃfen hasˈela jˈeʃ kapˈot ʁaglajˈim ʁakˈot. hˈen ʔozʁˈot lˈo letapˈes ˈal selaˈim."
+ },
+ "after.fact.hyrax.k": {
+  "h": "b7763d689051",
+  "text": "לִשְׁפַן הַסֶּלַע יֵשׁ כַּפּוֹת רַגְלַיִם רַכּוֹת. הֵן עוֹזְרוֹת לוֹ לְטַפֵּס עַל סְלָעִים.",
+  "ipa": "liʃfˈan hasˈela jˈeʃ kapˈot ʁaglˈajim ʁakˈot. hˈen ʔozʁˈot lˈo letapˈes ˈal selaˈim."
+ },
+ "after.visit.reefshark": {
+  "h": "cbb369bbebb4",
+  "text": "כְּרִישׁ שׁוּנִית עוֹבֵר לְיַד הַשּׁוּנִית! הוּא שׂוֹחֶה בְּשֶׁקֶט. צַלְּמוּ אוֹתוֹ.",
+  "ipa": "keʁˈiʃ ʃunˈit ʔovˈeʁ lejˈad haʃunˈit! hˈu soχˈe beʃˈeket. tsalemˈu ʔotˈo."
+ },
+ "after.fact.reefshark": {
+  "h": "4cea95bdc089",
+  "text": "אֶת כָּרִישׁ הַשּׁוֹנִית מַכִּירִים לְפִי הַקַּצְווֹת הַשְּׁחוֹרִים שֶׁל הַסְּנַפִּירִים.",
+  "ipa": "ˈet kaʁˈiʃ haʃonˈit makiʁˈim lefˈi hakatsvˈot haʃeχoʁˈim ʃˈel hasenapiʁˈim."
+ },
+ "after.fact.reefshark.k": {
+  "h": "f7feebbb4757",
+  "text": "אֶת כְּרִישׁ הַשּׁוּנִית מַכִּירִים לְפִי הַקְּצָווֹת הַשְּׁחֹרִים שֶׁל הַסְּנַפִּירִים.",
+  "ipa": "ˈet keʁˈiʃ haʃunˈit makiʁˈim lefˈi haketsavˈot haʃeχoʁˈim ʃˈel hasenapiʁˈim."
+ },
+ "after.visit.turtle": {
+  "h": "499b3c6ceddf",
+  "text": "צָב יָם יָרוֹק בָּא לְבַקֵּר! הוּא מָצָא כָּאן עֵשֶׂב יָם. צַלְמוּ אוֹתוֹ.",
+  "ipa": "tsˈav jˈam jaʁˈok bˈa levakˈeʁ! hˈu matsˈa kˈan ˈesev jˈam. tsalmˈu ʔotˈo."
+ },
+ "after.visit.turtle.k": {
+  "h": "359f9eddc9fe",
+  "text": "צַב יָם יָרֹק בָּא לְבַקֵּר! הוּא מָצָא כָּאן עֵשֶׂב יָם. צַלְּמוּ אוֹתוֹ.",
+  "ipa": "tsˈav jˈam jaʁˈok bˈa levakˈeʁ! hˈu matsˈa kˈan ˈesev jˈam. tsalemˈu ʔotˈo."
+ },
+ "after.fact.turtle": {
+  "h": "3fd5205c41fa",
+  "text": "צַב הַיָּם נוֹשֵׁם אֲוִויר! הוּא עוֹלֶה אֶל פְּנֵי הַמַּיִם כְּדֵי לִנְשׁוֹם.",
+  "ipa": "tsˈav hajˈam noʃˈem avˈivjʁ! hˈu ʔolˈe ˈel penˈej hamˈajim kedˈej linʃˈom."
+ },
+ "after.fact.turtle.k": {
+  "h": "12b4d2c7e9f3",
+  "text": "צַב הַיָּם נוֹשֵׁם אֲוִיר! הוּא עוֹלֶה אֶל פְּנֵי הַמַּיִם כְּדֵי לִנְשֹׁם.",
+  "ipa": "tsˈav hajˈam noʃˈem avˈiʁ! hˈu ʔolˈe ˈel penˈej hamˈajim kedˈej linʃˈom."
+ },
+ "after.visit.stingray": {
+  "h": "1513775de2d6",
+  "text": "חָתוּל יָם בָּא לְבַקֵּר! הוּא מְחַפֵּשׂ אוֹכֶל בַּחוֹל. צַלְמוּ אוֹתוֹ.",
+  "ipa": "χatˈul jˈam bˈa levakˈeʁ! hˈu meχapˈes ʔˈoχel baχˈol. tsalmˈu ʔotˈo."
+ },
+ "after.visit.stingray.k": {
+  "h": "06bca7168182",
+  "text": "חֲתוּל יָם בָּא לְבַקֵּר! הוּא מְחַפֵּשׂ אֹכֶל בַּחוֹל. צַלְּמוּ אוֹתוֹ.",
+  "ipa": "χatˈul jˈam bˈa levakˈeʁ! hˈu meχapˈes ˈoχel baχˈol. tsalemˈu ʔotˈo."
+ },
+ "after.fact.stingray": {
+  "h": "99f4d9980fac",
+  "text": "לֶחָתוּל הַיָּם יֵשׁ גּוּף שָׁטוּחַ עִם נְקוּדּוֹת כְּחוּלּוֹת.",
+  "ipa": "leχatˈul hajˈam jˈeʃ gˈuf ʃatˈuaχ ˈim nekudˈot keχulˈot."
+ },
+ "after.fact.stingray.k": {
+  "h": "f345a39b43b6",
+  "text": "לַחֲתוּל הַיָּם יֵשׁ גּוּף שָׁטוּחַ עִם נְקֻדּוֹת כְּחֻלּוֹת.",
+  "ipa": "laχatˈul hajˈam jˈeʃ gˈuf ʃatˈuaχ ˈim nekudˈot keχulˈot."
+ },
+ "after.visit.parrotfish": {
+  "h": "8d0e9c842891",
+  "text": "תּוּכִינוֹן בָּא לְבַקֵּר! הוּא מְגָרֵד אַצּוֹת מֵהַסְּלָעִים. צַלְּמוּ אוֹתוֹ.",
+  "ipa": "tuχinˈon bˈa levakˈeʁ! hˈu megaʁˈed atsˈot mehaselaˈim. tsalemˈu ʔotˈo."
+ },
+ "after.fact.parrotfish": {
+  "h": "203b54c6d366",
+  "text": "לְתוֹכִינוֹן יֵשׁ שִׁינַּיִים שֶׁנִּרְאוֹת כְּמוֹ מָקוֹר שֶׁל תּוֹכִי!",
+  "ipa": "letoχinˈon jˈeʃ ʃinajˈim ʃeniʁʔˈot kemˈo makˈoʁ ʃˈel toχˈi!"
+ },
+ "after.fact.parrotfish.k": {
+  "h": "07de46c4cd26",
+  "text": "לַתּוּכִינוֹן יֵשׁ שִׁנַּיִם שֶׁנִּרְאוֹת כְּמוֹ מַקּוֹר שֶׁל תֻּכִּי!",
+  "ipa": "latuχinˈon jˈeʃ ʃinˈajim ʃeniʁʔˈot kemˈo makˈoʁ ʃˈel tukˈi!"
+ },
+ "hub.robots.1": {
+  "h": "87aee9d9563f",
+  "text": "זוֹ סַדְנַת הָרוֹבּוֹטִים! כָּאן בּוֹנִים רוֹבּוֹט מִתְּכוּנוֹת שֶׁל יְצוּרִים.",
+  "ipa": "zˈo sadnˈat haʁobotˈim! kˈan bonˈim ʁobˈot miteχunˈot ʃˈel jetsuʁˈim."
+ },
+ "hub.robots.2": {
+  "h": "f651aa7fd25e",
+  "text": "קוֹדֶם בּוֹחֲרִים מְשִׂימָה, וְאַחַר כָּךְ גּוּף וּתְכוּנוֹת מֵהַקְּלָפִים שֶׁלָּכֶם.",
+  "ipa": "kˈodem boχaʁˈim mesimˈa, veˈaχaʁ kˈaχ gˈuf utχunˈot mehakelafˈim ʃelaχˈem."
+ },
+ "hub.robots.2.k": {
+  "h": "f004c7e618b4",
+  "text": "קֹדֶם בּוֹחֲרִים מְשִׂימָה, וְאַחַר כָּךְ גּוּף וּתְכוּנוֹת מֵהַקְּלָפִים שֶׁלָּכֶם.",
+  "ipa": "kˈodem boχaʁˈim mesimˈa, veˈaχaʁ kˈaχ gˈuf utχunˈot mehakelafˈim ʃelaχˈem."
+ },
+ "hub.robots.3": {
+  "h": "3eed8089127f",
+  "text": "בַּסּוֹף בּוֹדְקִים אֶת הָרוֹבּוֹט בַּשֶּׁטַח. מוּתָּר לְשַׁפֵּר וּלְנַסּוֹת שׁוּב!",
+  "ipa": "basˈof bodkˈim ˈet haʁobˈot baʃˈetaχ. mutˈaʁ leʃapˈeʁ ulnasˈot ʃˈuv!"
+ },
+ "hub.robots.3.k": {
+  "h": "543665b50213",
+  "text": "בַּסּוֹף בּוֹדְקִים אֶת הָרוֹבּוֹט בַּשֶּׁטַח. מֻתָּר לְשַׁפֵּר וּלְנַסּוֹת שׁוּב!",
+  "ipa": "basˈof bodkˈim ˈet haʁobˈot baʃˈetaχ. mutˈaʁ leʃapˈeʁ ulnasˈot ʃˈuv!"
+ },
+ "hub.robots.4": {
+  "h": "3b8a381277c9",
+  "text": "וּבַכַּפְתּוֹר הַשֵּׁנִי פּוֹתְרִים בְּעָיוֹת בְּעֶזְרַת הַיְּצוּרִים שֶׁבַּקְּלָפִים.",
+  "ipa": "uvakaftˈoʁ haʃenˈi potʁˈim beajˈot beezʁˈat hajetsuʁˈim ʃebakelafˈim."
+ }
+}

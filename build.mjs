@@ -35,6 +35,8 @@ const readCss = (fontsCss) => {
   if (fs.existsSync('src/ui/style.css')) css += fs.readFileSync('src/ui/style.css', 'utf8');
   if (fs.existsSync('src/research/research.css')) css += fs.readFileSync('src/research/research.css', 'utf8');   // חוקרי היער
   if (fs.existsSync('src/lab/lab.css')) css += fs.readFileSync('src/lab/lab.css', 'utf8');   // מעבדת רובו־דע
+  // 1.3.2: one stylesheet per area (journey, zone, …), each owned by its own part of the code
+  if (fs.existsSync('src/ui/css')) for (const f of fs.readdirSync('src/ui/css').filter((f) => f.endsWith('.css')).sort()) css += fs.readFileSync(path.join('src/ui/css', f), 'utf8');
   return css;
 };
 const MB = (n) => (n / 1024 / 1024).toFixed(2) + ' MB';
@@ -88,7 +90,7 @@ async function buildDesktop(outdir) {
   };
   // The generated picture tables (src/data/*.js written by tools/build-*.py) hold base64 data URIs; in the desktop build
   // each module is replaced by the same table with file paths, so a picture costs nothing until something shows it.
-  const ASSET_MODULES = /[\\/]src[\\/]data[\\/](panorama|ground-textures|card-art|thumbs|island-art|tree-shadow|logo|pack-art|source-art|lab-art|reef-backdrop|music|frame-art|lab-items-art)\.js$/;
+  const ASSET_MODULES = /[\\/]src[\\/]data[\\/](panorama|ground-textures|card-art|thumbs|island-art|tree-shadow|logo|pack-art|source-art|lab-art|reef-backdrop|music|voice|robo-art|frame-art|lab-items-art)\.js$/;
   const assetPlugin = {
     name: 'asset-files',
     setup(b) {

@@ -1,4 +1,5 @@
 [{"wait":2},
+{"js":"window.__journey && window.__journey.unlockAll('2580'); 1"},
 {"js":"window.__noRender=true; document.getElementById('game').style.display='none'; const st=document.createElement('style'); st.textContent='#wol-learn .wl-toast,#wol-learn .wl-fx{display:none!important} #wol-learn,#wol-learn *{animation:none!important}'; document.head.appendChild(st); localStorage.setItem(window.__profiles.key('web-of-life-mode'),'kids'); 1"},
 {"js":"window.__wolLearn.open(); 1"},{"wait":2},
 {"js":"window.__wolLearn._go('versematch'); 1"},{"wait":1.5},

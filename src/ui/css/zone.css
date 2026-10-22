@@ -1,0 +1,140 @@
+/* ===================================================== 1.3.2 – the forests (area C)
+   The חוויה mode (#ui.play-xp: less to read), the injured animal's red bar and edge arrows, "מה עושים עכשיו?",
+   and larger words: everything a child must read in the forest is multiplied by --ts (core/journey.js text size). */
+
+/* ---------- larger words (html.ts-large / ts-xlarge set --ts) */
+#ui.wol .m-head h3 { font-size: calc(1.18em * var(--ts)); }
+#ui.wol .m-row b { font-size: calc(.95em * var(--ts)); }
+#ui.wol .m-pc { font-size: calc(.78em * var(--ts)); }
+#ui.wol .m-detail p { font-size: calc(.9em * var(--ts)); }
+#ui.wol .m-detail .m-hint { font-size: calc(.86em * var(--ts)); }
+#ui.wol .m-hint-btn { font-size: calc(.85em * var(--ts)); }
+#ui.wol .m-checks li { font-size: calc(.88em * var(--ts)); }
+#ui.wol .tray .card { font-size: calc(1em * (1 + (var(--ts) - 1) * .55)); }
+#ui.wol .tray .c-name { font-size: calc(.9em * (1 + (var(--ts) - 1) * .22)); }
+#ui.wol.kids .tray .c-name { font-size: calc(1.02em * (1 + (var(--ts) - 1) * .22)); }
+#ui.wol .tray .card.locked .c-name { font-size: calc(.82em * (1 + (var(--ts) - 1) * .22)); }
+#ui.wol .tray .c-cost { font-size: calc(1.15em * (1 + (var(--ts) - 1) * .3)); }
+#ui.wol .tr-tabs button { font-size: calc(1em * (1 + (var(--ts) - 1) * .5)); }
+#ui.wol .h-item b { font-size: calc(1.2em * var(--ts)); }
+#ui.wol .vit-pc { font-size: calc(.78em * var(--ts)); }
+#ui.wol .species .sp-scroll { font-size: calc(1em * var(--ts)); }
+#ui.wol .toasts { font-size: calc(1em * (1 + (var(--ts) - 1) * .7)); }
+
+/* ---------- "מה עושים עכשיו?" under the missions */
+#ui.wol .m-whatnow { pointer-events: auto; align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; margin: -4px 4px 0; padding: 4px 12px 4px 10px; min-height: 32px;
+  border-radius: 99px; font-weight: 800; font-size: calc(.86em * var(--ts)); white-space: nowrap; color: #10332f; background: #8fd6cd; box-shadow: 0 2px 0 #2c7a72; cursor: pointer; flex: none; }
+#ui.wol .m-whatnow:hover { background: #a9e3db; }
+#ui.wol .m-whatnow:focus-visible { outline: 3px solid var(--honey); outline-offset: 2px; }
+#ui.wol .m-whatnow .ic { width: 20px; height: 20px; }
+#ui.wol .m-whatnow[hidden] { display: none; }
+#ui.wol.research .m-whatnow { display: none; }
+
+/* ---------- חוויה: the mission panel is one line with an icon */
+#ui.wol .missions.xp .m-count, #ui.wol .missions.xp .m-hist { display: none; }
+#ui.wol .missions.xp .m-list li.xp-one { padding: 6px 6px; border-top: 0; background: rgba(233, 230, 204, .07); border-radius: 8px; }
+#ui.wol .missions.xp .m-list li.xp-one:hover { background: rgba(233, 230, 204, .14); }
+#ui.wol .missions.xp .m-row b { font-size: calc(1.02em * var(--ts)); color: var(--chalk); }
+#ui.wol .m-xic { flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: rgba(233, 230, 204, .14); color: var(--honey); overflow: hidden; }
+#ui.wol .m-xic.art { background: #f3ecd2; box-shadow: 0 0 0 2px rgba(230, 169, 60, .7); }
+#ui.wol .m-xic img { width: 100%; height: 100%; object-fit: cover; }
+#ui.wol .m-xic .ic { width: 20px; height: 20px; }
+
+#ui.wol .missions.xp .m-list { flex: none; overflow: visible; }
+#ui.wol .m-list { min-height: 2.4em; }
+#ui.wol .missions[hidden] + .m-whatnow { display: none; }
+
+/* ---------- חוויה: the HUD shows the points and one health meter */
+#ui.wol.play-xp .hud .h-bio, #ui.wol.play-xp .hud .h-day, #ui.wol.play-xp .hud .h-season b { display: none; }
+#ui.wol.play-xp .km-row[data-a="report"] { display: none; }
+
+/* ---------- חוויה: the short species card */
+#ui.wol .species.xp .sp-fact { font-size: 1.1em; }
+#ui.wol .sp-lives h4 { display: flex; align-items: center; gap: 7px; font-family: var(--serif); font-size: 1.15em; color: #2b3a24; margin-bottom: 8px; }
+#ui.wol .sp-lives h4 .ic { width: 20px; height: 20px; color: #4d7a3a; }
+#ui.wol .sp-lives ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+#ui.wol .sp-lives li { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 6px 10px; border-radius: 10px; background: rgba(80, 100, 60, .07); border-right: 4px solid var(--rc); }
+#ui.wol .sp-lives .lw-name { font-weight: 800; font-size: 1em; color: #1f2c1a; text-decoration: underline; text-decoration-color: rgba(31, 44, 26, .25); text-underline-offset: 3px; }
+#ui.wol .sp-lives .lw-type { margin-inline-start: auto; font-size: .78em; font-weight: 800; padding: 2px 8px; border-radius: 8px; color: #fff; background: color-mix(in srgb, var(--rc) 82%, #000); }
+#ui.wol .sp-lives li.hid { background: rgba(240, 180, 76, .12); }
+#ui.wol .sp-lives .lw-reveal { margin-inline-start: auto; display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; min-height: 34px; border-radius: 99px; font-weight: 800; font-size: .86em; color: #3a2506; background: var(--amber, #f0b44c); }
+#ui.wol .sp-lives .lw-reveal .ic { width: 16px; height: 16px; }
+#ui.wol .sp-lives .lw-reveal.busy { opacity: .6; }
+#ui.wol .xp-one-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+#ui.wol .xp-one-btns .btn { flex: 1; min-width: 0; }
+
+/* ---------- an injured animal: a line on its card */
+#ui.wol .sp-hurt { display: flex; align-items: flex-start; gap: 8px; margin: 0; padding: 9px 12px; border-radius: 10px; background: #fde3df; color: #7a1d14; font-weight: 700; line-height: 1.4; box-shadow: inset 0 0 0 2px #e5483b; }
+#ui.wol .sp-hurt .ic { flex: none; width: 22px; height: 22px; color: #fff; background: #e5483b; border-radius: 50%; padding: 2px; }
+
+/* ---------- the injured bar: fixed at the top, under the HUD, one chip per animal */
+#ui.wol .hurtbar { position: absolute; top: 62px; left: 50%; transform: translateX(-50%); z-index: var(--z-hurt); display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
+  max-width: calc(100vw - var(--rcW) - 40px); pointer-events: none; }
+#ui.wol.sp-open .hurtbar { left: calc(14px + var(--spW) + (100vw - var(--spW) - var(--rcW) - 28px) / 2); max-width: calc(100vw - var(--spW) - var(--rcW) - 40px); }
+#ui.wol .hurtbar[hidden] { display: none; }
+#ui.wol .hb-chip { pointer-events: auto; position: relative; display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 5px 14px 9px 8px; border-radius: 14px; cursor: pointer;
+  text-align: right; color: #fff; background: linear-gradient(#d83a2c, #b52a1f); box-shadow: 0 0 0 2px #ffd0c8, 0 6px 16px rgba(60, 0, 0, .45); animation: hb-in .35s cubic-bezier(.2, .8, .3, 1.3) both; max-width: min(430px, 92vw); }
+#ui.wol .hb-chip:hover { background: linear-gradient(#e44536, #c0301f); }
+#ui.wol .hb-chip:focus-visible { outline: 3px solid #ffd166; outline-offset: 2px; }
+#ui.wol .hb-pic { position: relative; flex: none; width: 42px; height: 42px; border-radius: 50%; background: #fbe9e5; overflow: visible; box-shadow: 0 0 0 2px #fff; }
+#ui.wol .hb-pic img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+#ui.wol .hb-bang { position: absolute; top: -7px; right: -7px; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-weight: 900; font-size: 16px; line-height: 1;
+  color: #b52a1f; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .35); animation: hb-throb 1s ease-in-out infinite; }
+#ui.wol .hb-txt { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
+#ui.wol .hb-txt b { font-size: calc(1.02em * var(--ts)); font-weight: 900; }
+#ui.wol .hb-txt small { font-size: calc(.84em * var(--ts)); font-weight: 600; opacity: .95; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+#ui.wol .hb-time { position: absolute; right: 12px; left: 12px; bottom: 4px; height: 3px; border-radius: 2px; background: rgba(255, 255, 255, .25); overflow: hidden; }
+#ui.wol .hb-time i { position: absolute; inset-block: 0; right: 0; background: #ffe08a; transition: width .6s linear; }
+#ui.wol .hb-chip.late { animation: hb-in .35s both, hb-late 1.1s ease-in-out infinite; }
+#ui.wol .hb-chip.saving { background: linear-gradient(#3f8f5a, #2d6e44); box-shadow: 0 0 0 2px #c8f0d0, 0 6px 16px rgba(0, 40, 10, .4); }
+#ui.wol .hb-chip.saving .hb-bang { color: #2d6e44; animation: none; }
+#ui.wol.has-hurt .toasts { top: 128px; }
+/* רובו־דע explains an injury (update.js adds rg-lift): his bubble sits above the tray, which stays free to use */
+#ui.wol.rg-lift #rguide:not(.center) .rg-wrap { bottom: calc(var(--trayH, 170px) + 8px); }
+/* an experiment while an animal is injured: its banner goes under the red bar (the bar stays on top) */
+#ui.wol.has-hurt .experiment { top: 124px; }
+#ui.wol.has-hurt.has-experiment .toasts { top: 192px; }
+@keyframes hb-in { from { opacity: 0; transform: translateY(-10px) scale(.95); } to { opacity: 1; transform: none; } }
+@keyframes hb-throb { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+@keyframes hb-late { 0%, 100% { box-shadow: 0 0 0 2px #ffd0c8, 0 6px 16px rgba(60, 0, 0, .45); } 50% { box-shadow: 0 0 0 5px #ffd166, 0 6px 22px rgba(255, 80, 40, .6); } }
+
+/* ---------- edge arrows to an injured animal out of view (a red circle with "!" and a pointer; never a cross) */
+#ui.wol .hurt-arrows { position: absolute; inset: 0; pointer-events: none; z-index: var(--z-hurt-arrows); }
+#ui.wol .hurt-arrows .ha { position: absolute; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%; display: grid; place-items: center; pointer-events: auto; cursor: pointer;
+  color: #fff; background: #e5483b; box-shadow: 0 0 0 3px #fff, 0 4px 12px rgba(60, 0, 0, .5); animation: ha-pulse 1.1s ease-in-out infinite; }
+#ui.wol .hurt-arrows .ha b { font-size: 28px; font-weight: 900; line-height: 1; font-family: var(--sans); }
+#ui.wol .hurt-arrows .ha-pt { position: absolute; left: 50%; top: 50%; width: 18px; height: 22px; margin: -11px 0 0 -9px; background: #e5483b;
+  clip-path: polygon(0 0, 100% 50%, 0 100%); transform: rotate(var(--a, 0deg)) translateX(31px); }
+#ui.wol.has-modal .hurt-arrows, #ui.wol.research .hurt-arrows, #ui.wol.research .hurtbar { display: none; }
+@keyframes ha-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+
+/* ---------- the rescue robot pulses in the tray after a click on the bar */
+#ui.wol .tray .card.help-pulse { animation: help-pulse 1s ease-in-out infinite; z-index: 2; }
+@keyframes help-pulse { 0%, 100% { box-shadow: inset 0 0 0 3px var(--paper), 0 0 0 3px #e5483b, 0 0 14px 4px rgba(229, 72, 59, .55); transform: translateY(-3px); }
+  50% { box-shadow: inset 0 0 0 3px var(--paper), 0 0 0 6px #ffd166, 0 0 22px 8px rgba(229, 72, 59, .7); transform: translateY(-7px); } }
+
+@media (max-height: 640px) {
+  #ui.wol .species .sp-head h2 { font-size: 1.45em; }
+  #ui.wol .missions { min-height: calc(64px + 2.5em * var(--ts)); }
+  #ui.wol .species.xp .sp-art { height: 84px; margin-bottom: 4px; }
+  #ui.wol.play-xp .missions .m-head { display: none; }
+  #ui.wol .species.xp .sp-scroll { gap: 9px; padding-top: 14px; }
+  #ui.wol .species.xp .sp-head h2 { font-size: 1.5em; }
+  #ui.wol .species.xp .chips { margin-top: 4px; }
+}
+@media (max-height: 520px) {
+  #ui.wol .species .sp-art { height: 70px; margin-bottom: 4px; }
+  #ui.wol .species.xp .sp-art { height: 62px; }
+  #ui.wol .species.xp .sp-head h2 { font-size: 1.35em; }
+  #ui.wol .hurtbar { top: 50px; }
+  #ui.wol .hb-chip { min-height: 44px; padding: 3px 10px 8px 6px; gap: 8px; }
+  #ui.wol .hb-pic { width: 34px; height: 34px; }
+  #ui.wol .m-whatnow { min-height: 28px; padding: 2px 10px 2px 8px; margin-top: 2px; }
+  #ui.wol .m-xic { width: 28px; height: 28px; }
+  #ui.wol.has-hurt .toasts { top: 104px; }
+  #ui.wol.has-hurt .experiment { top: 102px; }
+  #ui.wol.has-hurt.has-experiment .toasts { top: 164px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #ui.wol .hb-bang, #ui.wol .hb-chip.late, #ui.wol .hurt-arrows .ha, #ui.wol .tray .card.help-pulse { animation: none; }
+}

@@ -1,0 +1,6 @@
+[{"wait":2},
+{"js":"window.__app.journey.unlockAll('2580'); window.__app.journey.setPlayMode('full'); try{window.__guide.close()}catch(e){}; window.__app.bus.emit('start:biome',{id:window.__ZONE||'reef'}); 1"},{"wait":14},
+{"js":"try{window.__guide.close()}catch(e){}; document.querySelectorAll('[data-h=skip]').forEach(b=>b.click()); const W=window.__game; W.debug.unlockAll(); W.points=9999; W.debug.ff(2); const b=[...document.querySelectorAll('#ui button, #ui [role=tab]')].find(b=>b.textContent.includes('טכנולוגיה')); if(b) b.click(); W.debug.ff(1); 'tab '+!!b"},{"wait":3},
+{"js":"try{window.__guide.close()}catch(e){}; const s=[...document.querySelectorAll('#ui .tray, #ui .t-scroll, #ui [class*=tray]')].find(e=>e.scrollWidth>e.clientWidth); if(s) s.scrollLeft=-99999; 1"},{"wait":2},
+{"shot":"shots/g/e-tray-reef.png"}
+]

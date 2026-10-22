@@ -6,8 +6,8 @@ import fs from 'node:fs';
 import { HUB_ICONS } from '../src/ui/icons-hub.js';
 
 const out = process.argv[2] || 'shots/icon-sheet.html';
-// the ui.js table is a plain object literal: read it from the source (ui.js itself needs the browser)
-const src = fs.readFileSync(new URL('../src/ui/ui.js', import.meta.url), 'utf8');
+// the ui.js table (src/ui/ui/icons.js since the 1.3.2 split) is a plain object literal: read it from the source
+const src = fs.readFileSync(new URL('../src/ui/ui/icons.js', import.meta.url), 'utf8');
 const m = src.match(/\nconst I = (\{[\s\S]*?\n\});/);
 const UI = m ? Function('return ' + m[1])() : {};
 const svg = (body) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${body}</svg>`;

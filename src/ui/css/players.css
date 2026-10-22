@@ -1,0 +1,25 @@
+/* 1.3.2: up to six players. Five or six names sit in two columns, so the panel never scrolls on 800x460. */
+#ui.wol .st-pp.many { width: min(560px, calc(100vw - 28px)); }
+#ui.wol .pp-list.many { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+#ui.wol .pp-list.many .pp-pick { min-height: 50px; gap: 8px; padding: 4px 6px; }
+#ui.wol .pp-list.many .pp-pick .av { width: 40px; height: 40px; }
+#ui.wol .pp-list.many .pp-name { font-size: 1.15em; }
+#ui.wol .pp-list.many .pp-edit { width: 38px; height: 38px; margin-inline-end: 4px; }
+
+/* the settings sheet (1.3.2): the player's rows and the computer's rows side by side, so it never scrolls on 800x460 */
+#ui.wol .set-sheet { width: min(780px, calc(100vw - 28px)); }
+#ui.wol .set-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+#ui.wol .set-sub { margin: 0 2px; font-weight: 700; color: var(--ink2); font-size: .9em; }
+@media (max-width: 640px) { #ui.wol .set-cols { grid-template-columns: 1fr; } }
+@media (max-height: 520px) { #ui.wol .set-sheet .set-row { min-height: 0; padding-block: 3px; } #ui.wol .set-sheet .set-lab small { display: none; } }
+
+/* text size (--ts, core/journey.js): the players panel and the "מי משחק?" chip grow with it (their em sizes follow) */
+#ui.wol .st-pp, #ui.wol .st-who .who-txt { font-size: calc(1em * var(--ts, 1)); }
+/* a short screen: four players already sit in two columns (one column scrolled at 800x460) */
+@media (max-height: 520px) {
+  #ui.wol .st-pp:has(.pp-list > li:nth-child(4)) { width: min(560px, calc(100vw - 28px)); }
+  #ui.wol .pp-list:has(> li:nth-child(4)) { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  #ui.wol .pp-list:has(> li:nth-child(4)) .pp-pick { min-height: 50px; gap: 8px; padding: 4px 6px; }
+  #ui.wol .pp-list:has(> li:nth-child(4)) .pp-pick .av { width: 40px; height: 40px; }
+  #ui.wol .pp-list:has(> li:nth-child(4)) .pp-name { font-size: 1.15em; }
+}

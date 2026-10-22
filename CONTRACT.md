@@ -18,21 +18,25 @@ All 3D models, textures and sounds are generated procedurally in code. Must run 
 - Hebrew UI, fully RTL. Simple language (grades 3–5). Facts must be true (content agent verifies them).
 
 ## Directory layout
+
+**1.3.2: the up-to-date map of every folder is `docs/CODEMAP.md`.** The block below is the original 1.0 layout, kept for history.
 ```
 build.mjs                 bundler → single HTML (inlines src/ui/style.css); --desktop → desktop/app/ (core.js + packs/ + assets/, served as app://game/)
 tools/shot.py             headless WebGL screenshot: python3 tools/shot.py page.html out.png [wait] [w] [h] [js]
 tests/rig.js              shared lighting rig for model galleries (ACES tone mapping, sun, sky, shadows)
 src/core/util.js          makeRng, hashString, clamp/lerp/smoothstep/damp, makeNoise2D, makeBus, cachedMaterial, jitterColor, mergeGeometries, paint, SEASONS
 src/env/pipeline.js       renderer + post-processing                         (ENV agent)
-src/env/environment.js    island, sky, sun/moon, fog, water, weather, shafts  (ENV agent)
-src/models/amazon-plants.js   PLANTS map for amazon                          (AMAZON-PLANTS agent)
-src/models/grove-plants.js    PLANTS map for grove                           (GROVE-PLANTS agent)
-src/models/amazon-animals.js  ANIMALS map for amazon                         (AMAZON-ANIMALS agent)
-src/models/grove-animals.js   ANIMALS map for grove                          (GROVE-ANIMALS agent)
+src/env/environment/      island, sky, sun/moon, fog, water, weather, shafts  (ENV agent; index.js + one file per part)
+src/models/amazon-plants/     PLANTS map for amazon                          (AMAZON-PLANTS agent)
+src/models/grove-plants/      PLANTS map for grove                           (GROVE-PLANTS agent)
+src/models/amazon-animals/    ANIMALS map for amazon (+ extra/: ANIMALS_EXTRA) (AMAZON-ANIMALS agent)
+src/models/grove-animals/     ANIMALS map for grove (+ extra/: ANIMALS_EXTRA)  (GROVE-ANIMALS agent)
+                              (1.3.2: each folder = index.js + one file per part, listed in its header; the old
+                              src/models/<biome>-<kind>[-extra].js files only re-export the folders)
 src/data/amazon.js, src/data/grove.js   BIOME content objects                (CONTENT agent)
 src/data/common.js        shared Hebrew labels (relation type names, layer names...) (CONTENT agent)
 docs/sources.md           sources for every fact                             (CONTENT agent)
-src/ui/ui.js + src/ui/style.css   DOM overlay UI                             (UI agent)
+src/ui/ui/ + src/ui/style.css     DOM overlay UI (index.js + one file per part; src/ui/ui.js re-exports it) (UI agent)
 src/audio/audio.js        procedural Web Audio                               (AUDIO agent)
 src/main.js, src/sim/*, src/world/*   core loop, light map, ecology, entities, links, camera (CORE – lead)
 ```
@@ -95,7 +99,7 @@ export function createPipeline(canvas, { quality = 'medium' }) → {
 ACESFilmic tone mapping (exposure ≈1), sRGB output, PCFSoft shadows. Post: UnrealBloom (threshold high so only
 emissives/sun glow bloom) + OutputPass on medium/high; low = no composer. Optional gentle vignette / colour grade pass.
 
-## 2. Environment — `src/env/environment.js`
+## 2. Environment — `src/env/environment/` (index.js; the parts are listed in its header)
 ```js
 export function createEnvironment(pipeline, biomeId, { quality, seed = 1 }) → env
 env.radius            // 38 – placeable radius
@@ -127,7 +131,7 @@ ambient particles (dust motes visible in light shafts, pollen, seeds), **light s
 from canopy gaps, aligned with `sun.direction`, fading with sun elevation), fire visuals, season tinting of ground
 (grove: green winter/spring with flower dots, golden-dry summer), drought tint.
 
-## 3. Plant models — `src/models/<biome>-plants.js`
+## 3. Plant models — `src/models/<biome>-plants/` (index.js; `src/models/<biome>-plants.js` re-exports it)
 ```js
 export const PLANTS = { <speciesId>: (opts) => PlantVisual, ... }
 opts = { seed, rng (makeRng(seed)), hostHeight?, hostRadius? }   // host* only for 'liana'
@@ -152,7 +156,7 @@ with leaves along it and a burst at the top. bromeliad/orchid: rosette meant to 
 waterlily: big round pads with upturned rims + a flower, origin on the water surface. glowfungus: cluster of small
 mushrooms that glow green at night. fig: the strangler fig (aerial roots wrapping a trunk, broad canopy, figs).
 
-## 4. Animal models — `src/models/<biome>-animals.js`
+## 4. Animal models — `src/models/<biome>-animals/` (index.js, and extra/; `src/models/<biome>-animals[-extra].js` re-export them)
 ```js
 export const ANIMALS = { <speciesId>: (opts) => AnimalVisual | ColonyVisual | SwarmVisual }
 AnimalVisual = {
@@ -214,9 +218,24 @@ Effect types (core implements exactly these):
   {type:'boost', species, amount} | {type:'plant', species, count, where:'gap'|'any'}
 ```
 
-## 6. UI — `src/ui/ui.js` (+ `src/ui/style.css`)
+## 6. UI — `src/ui/ui/` (index.js; the parts are listed in its header; `src/ui/ui.js` re-exports it) (+ `src/ui/style.css`)
 `export function createUI(root, bus) → ui` — DOM overlay over the canvas, RTL Hebrew. Talks to core only through
 the methods below (core → UI) and `bus.emit(name, payload)` (UI → core). See the UI agent brief for the exact list.
+
+### Layers (z-index, 1.3.2)
+One ladder for everything that floats over the game: CSS custom properties on `:root` in `src/ui/css/00-layers.css`
+(loaded first), one line per rung saying what lives there. From the bottom: `--z-world` (technology cards, under the
+HUD) → the forest and mystery HUD pieces (`--z-panel` … `--z-hurt`) → things that open over the island (`--z-panels`
+… `--z-report`) → whole screens (`--z-start`, `--z-research`, `--z-map`, `--z-howto`, `--z-guide`, `--z-hub`,
+`--z-guide-over-hub`) → over every screen (`--z-badge`, `--z-scene` for a stage film, the flourishes). `#ui` itself is
+`--z-ui` on the page; the fps meter `--z-dev` and the game-controller cursor `--z-top` sit on the page above it.
+- An element that competes in `#ui`'s stacking context (a direct layer of the interface) uses `var(--z-…)`, also in CSS
+  strings inside JS and in `style.cssText`; never a number. A new floating thing gets its own line in 00-layers.css.
+- Inside a positioned parent with its own z-index (a card, a window, the hub, the lab, the film) small numbers stay:
+  they only compete inside that parent.
+- Fixed orders: a stage film over everything a child sees (a badge waits for it, badge-toast.js); רובו־דע over the
+  screen he talks about and over the hub while it is open; the how-to cards under him; the injured bar over the
+  experiment banner; technology cards under the HUD.
 
 ## 7. Audio — `src/audio/audio.js`
 `export function createAudio() → { start(), setBiome(id), update(ctx), play(name, opts), setMuted(b), muted }` – procedural Web Audio.
@@ -225,3 +244,21 @@ the methods below (core → UI) and `bus.emit(name, payload)` (UI → core). See
 The Amazon environment exports `bridges` (log end points), `bridgeAt(x, z)` → deck height or null, and
 `walkRoute(x0, z0, x1, z1)` → `[]` or the two log ends to walk over. Ground animals use them in `canStand`,
 `groundY` and `startWalk` (goal.via waypoints); hunts across the river walk over the log first.
+
+## Saves — `src/core/storage.js` (1.3.2)
+Every localStorage key the game uses is in one list, `KEYS` in `src/core/storage.js` (names in `K`, per-zone keys from
+`zoneKey(zone)` / `saveKey(zone, kids)`), each with its scope:
+- **per player**: stored as `<key>::<playerId>` through `core/profiles.js` `key()` — mode, coach, cards, badges, srccards,
+  lab, research, journey, threads, photos, visitors, after, and per zone `web-of-life-<zone>`, `web-of-life-save-<zone>[-kids]`;
+- **per device** (the same for every player on the computer): profiles, quality, autoq, campad, howto, music, sources, allopen.
+
+Rules: modules never touch `localStorage` or type a key string; they use `readPlayer(base, fallback)` / `writePlayer(base, value)`
+(JSON; a write returns true/false, reading never throws), `readPlayerRaw` / `writePlayerRaw` for plain strings, `removePlayer`,
+the same four for the device (`readDevice`, `writeDevice`, `readDeviceRaw`, `writeDeviceRaw`, `removeDevice`), and
+`playerMode()` ('kids' | 'full') for the level. A key's string, scope and stored format never change: saves of every released
+version must load (`tests/fixtures/saves-*.json`, `tools/check-old-saves.py`). The desktop shell mirrors every `web-of-life*` key
+to a file (`desktop/preload.js`); the torah edition's browser build prefixes them with `torah:` (`core/edition.js`).
+
+A new key: add it to `K` and `KEYS` with its scope (decide once: it can never move), read and write it only through these
+functions, and run `node tools/validate-storage.mjs` (part of `tools/check-all.sh`): it checks the list, that
+`profiles.js` agrees with it, and that no other module types a `web-of-life…` key.

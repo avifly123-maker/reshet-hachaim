@@ -10,13 +10,13 @@
 
 ## הורדה
 
-**הגרסה החדשה: 1.3.1, חוקרי הטבע (מהדורה תורנית).** היא נמצאת בעמוד [Releases](https://github.com/avifly123-maker/reshet-hachaim/releases/latest). יש בה סביבה שלישית, שונית האלמוגים של אילת, 13 תעלומות שבהן הילד חוקר כמו מדען, ומעבדה של הרובוט רובו־דע. יש שם שלושה קבצים:
+**הגרסה החדשה: 1.3.2, רשת החיים – המסע.** היא נמצאת בעמוד [Releases](https://github.com/avifly123-maker/reshet-hachaim/releases/latest). מהגרסה הזאת יש מהדורה אחת: המקורות נמצאים בה, ומתג בהגדרות מדליק ומכבה אותם. המשחק נפתח שלב אחרי שלב (מסע החוקר), והרובוט רובו־דע מסביר כל חלק בקולו. יש שם שלושה קבצים:
 
 | קובץ | מה זה |
 | --- | --- |
-| `reshet-hachaim-torah-setup-1.3.1.exe` | התקנה ל־Windows |
-| `reshet-hachaim-torah-mac-1.3.1.zip` | למק מכל סוג (במק עם שבב של אפל הוא רץ דרך Rosetta, שהמק מתקין לבד) |
-| `reshet-hachaim-torah-1.3.1.html` | המשחק כולו בקובץ אחד, נפתח בדפדפן Chrome או Edge בלי התקנה |
+| `reshet-hachaim-hamasa-setup-1.3.2.exe` | התקנה ל־Windows (עולה על 1.3.1 ושומרת הכול) |
+| `reshet-hachaim-hamasa-mac-1.3.2.zip` | למק מכל סוג (במק עם שבב של אפל הוא רץ דרך Rosetta, שהמק מתקין לבד) |
+| `reshet-hachaim-hamasa-1.3.2.html` | המשחק כולו בקובץ אחד, נפתח בדפדפן Chrome או Edge בלי התקנה |
 
 **הסדרה 1.2 (המהדורה הכללית):** הגרסה האחרונה שלה היא **1.2.3**, בעמוד [v1.2.3](https://github.com/avifly123-maker/reshet-hachaim/releases/tag/v1.2.3), עם שבעה קבצים: Windows ומק בשתי המהדורות, ודף רשת.
 

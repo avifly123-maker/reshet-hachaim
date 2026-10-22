@@ -1,4 +1,5 @@
 [{"wait":2},
+{"js":"window.__journey && window.__journey.unlockAll('2580'); 1"},
 {"js":"window.__wolLearn.open(); window.__wolLearn._go('setup'); 1"},{"wait":1},
 {"shot":"shots/quiz-setup.png"},
 {"js":"const L=window.__wolLearn; const out=[]; for (const lv of ['easy','hard']) for (const b of ['amazon','grove','reef','both']) { const r=L._round(lv,b); const qs=new Set(r.map(q=>q.q+'|'+(q.sub||'')+'|'+q.opts.join(','))); out.push(lv+'/'+b+':'+r.length+(qs.size<r.length?' DUP':'')+(r.every(q=>q.opts.filter(o=>o[0]==='*').length===1)?'':' BADOPT')); } out.join(' ')"},

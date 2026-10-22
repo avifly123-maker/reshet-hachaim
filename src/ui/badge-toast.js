@@ -7,7 +7,7 @@ export function startBadgeToasts(root, audio) {
   if (!document.getElementById('wol-badge-css')) {
     const st = document.createElement('style'); st.id = 'wol-badge-css';
     st.textContent = BADGE_CSS + `
-#ui.wol .bdg-pop{position:absolute;left:50%;top:14%;z-index:400;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.4em;padding:1.1em 1.8em 1.2em;border-radius:1.2em;
+#ui.wol .bdg-pop{position:absolute;left:50%;top:14%;z-index:var(--z-badge);transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.4em;padding:1.1em 1.8em 1.2em;border-radius:1.2em;
   background:radial-gradient(ellipse at 50% 30%,rgba(60,48,22,.96),rgba(24,20,10,.96));box-shadow:0 1.2em 2.6em rgba(0,0,0,.55),inset 0 0 0 2px rgba(246,207,114,.4);color:#fbf3d8;pointer-events:auto;cursor:pointer;
   animation:bdg-drop .8s cubic-bezier(.2,1.4,.4,1) both}
 #ui.wol .bdg-pop.out{animation:bdg-out .35s ease-in both}
@@ -31,13 +31,14 @@ export function startBadgeToasts(root, audio) {
   function next() {
     if (busy || !queue.length) return;
     // a mission banner ("משימה הושלמה!") is showing: the badge waits until it is gone, so they never cover each other
-    if (root.querySelector('.mission-banner')) { if (!waitT) waitT = setTimeout(() => { waitT = 0; next(); }, 300); return; }
+    if (root.querySelector('.mission-banner') || document.querySelector('.ss')) { if (!waitT) waitT = setTimeout(() => { waitT = 0; next(); }, 300); return; }
     const b = badgeById(queue.shift()); if (!b) { next(); return; }
     busy = true;
     const el = document.createElement('div'); el.className = 'bdg-pop'; el.setAttribute('role', 'status');
     el.innerHTML = `<i class="rays"></i><h4>תג חדש!</h4>${badgeHTML(b)}<p>${b.how}</p>`;
     root.appendChild(el);
     try { audio && audio.play('mission'); } catch (e) { /* */ }
+    try { window.__flourish && window.__flourish.badge(el); } catch (e) { /* */ }   // round sparks round the medallion (src/ui/flourish.js)
     let done = false;
     const close = () => { if (done) return; done = true; el.classList.add('out'); setTimeout(() => { el.remove(); busy = false; next(); }, 360); };
     el.addEventListener('click', close); setTimeout(close, 5200);

@@ -6,19 +6,20 @@
 //   st: { <activityId>: {...} }   (the station worlds of the aquarium, the greenhouse and the cabinet: src/lab/aquarium.js, greenhouse.js, cabinet.js) }
 // Older saves have no solved / qs / st: they default to empty. The storage key never changes.
 // The game reads hasInvention() to upgrade a device (the underwater robot with a shark-skin coat swims faster).
-import { key as profileKey } from '../core/profiles.js';
+import { K as KEY, readPlayer, writePlayer } from '../core/storage.js';
 
-const K = 'web-of-life-lab';
+const K = KEY.lab;
 const EMPTY = () => ({ found: {}, seen: {}, inventions: {}, tries: {}, solved: {}, qs: {}, think: {}, st: {} });
 export function labProgress() {
-  try {
-    const o = JSON.parse(localStorage.getItem(profileKey(K)) || '{}');
-    if (!o || typeof o !== 'object') throw 0;
-    const obj = (v) => (v && typeof v === 'object' ? v : {});
-    return { found: obj(o.found), seen: obj(o.seen), inventions: obj(o.inventions), tries: obj(o.tries), solved: obj(o.solved), qs: obj(o.qs), think: obj(o.think), st: obj(o.st) };
-  } catch (e) { return EMPTY(); }
+  const o = readPlayer(K, {});
+  if (!o || typeof o !== 'object') return EMPTY();
+  const obj = (v) => (v && typeof v === 'object' ? v : {});
+  return { found: obj(o.found), seen: obj(o.seen), inventions: obj(o.inventions), tries: obj(o.tries), solved: obj(o.solved), qs: obj(o.qs), think: obj(o.think), st: obj(o.st) };
 }
-function save(o) { try { localStorage.setItem(profileKey(K), JSON.stringify(o)); } catch (e) { /* storage full or blocked: the lab still works */ } }
+function save(o) {
+  writePlayer(K, o);   // storage full or blocked: the lab still works
+  try { window.dispatchEvent(new CustomEvent('wol-progress', { detail: { kind: 'lab' } })); } catch (e) { }   // מסע החוקר counts lab activities
+}
 export function markFound(sample, idx, total) {
   const o = labProgress(); const f = new Set(o.found[sample] || []); f.add(idx); o.found[sample] = [...f];
   if (f.size >= total) o.seen[sample] = true;

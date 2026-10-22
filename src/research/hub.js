@@ -8,6 +8,11 @@ import { researchProgress } from './progress.js';
 import { RESEARCH_NAME } from './texts.js';
 import { howto, howtoButton } from '../ui/howto.js';
 import { CARD_ART } from '../data/card-art.js';
+import { BABA_DA_LOGO } from '../data/logo.js';
+import { isOpen, introSeen } from '../core/journey.js';
+import { lockWords, lockTip } from '../ui/journey-map.js';
+import { recommended } from '../core/threads.js';   // חוטים: an event lived on the island → רובו־דע recommends its mystery
+import { markHTML, W } from '../ui/threads-ui.js';
 
 // "איך משחקים": four short cards the first time the research centre opens (replay with the "?" button). Vocalised,
 // so beginners read them too. Pictures: the card paintings.
@@ -38,32 +43,53 @@ export function createResearchHub(root, { onPick, onClose, onLab }) {
   root.appendChild(el);
   function render() {
     const prog = researchProgress().cases;
+    // מסע החוקר (1.3.2): the mysteries open with the part 'research', the lab entry with 'lab'; veiled, never hidden
+    const rsOpen = isOpen('research'), labOpen = isOpen('lab');
+    const veil = (open, part) => (open ? '' : ` jv" data-part="${part}" title="${esc(lockWords(part))}`);
+    let recs = []; try { recs = recommended(); } catch (e) { console.error(e); }
+    const rec = new Set(recs.map((r) => r.caseId));
+    // רובו־דע's recommendation on top (the mystery itself may be far down the page): why, and the mystery's name
+    const recHTML = rsOpen && recs.length ? `<div class="rs-h-rec">${markHTML('recommend')}${recs.slice(0, 2).map((r) => { const c = CASES.find((x) => x.id === r.caseId); return c ? `<button class="rs-h-recgo" data-case="${c.id}"><small>${esc(W(r.thread.name))}</small><b>${esc(c.title)}</b>${icon('arrowL')}</button>` : ''; }).join('')}</div>` : '';
     const starRow = (id) => { const s = (prog[id] && prog[id].stars) || []; return `<span class="rs-h-stars">${[0, 1, 2].map((i) => `<i class="${s[i] ? 'on' : ''}">★</i>`).join('')}</span>`; };
     el.innerHTML = `<div class="rs-h-bg"></div><div class="rs-h-inner">
       <header class="rs-h-head"><button class="rs-h-back">${icon('arrowR')}<span>חזרה</span></button>
         <div><small class="rs-h-centre">המרכז המדעי</small><h1>${esc(RESEARCH_NAME)}</h1><p>תעלומות בטבע: מודדים, משערים, מנסים ומאזנים</p>
-          <div class="rs-h-help">${howtoButton()}<button class="rs-h-tut">${icon('play')}<span>הַדְרָכָה: תַּעֲלוּמָה עִם רוֹבּוֹ־דַּע</span></button></div></div>
-        <div class="rs-h-badge">${icon('flask')}</div></header>
+          <div class="rs-h-help">${howtoButton()}<button class="rs-h-tut${veil(rsOpen, 'research')}">${icon('play')}<span>הַדְרָכָה: תַּעֲלוּמָה עִם רוֹבּוֹ־דַּע</span></button></div></div>
+        <div class="rs-h-logo"><img src="${BABA_DA_LOGO}" alt="בבא דע"></div></header>
+      ${rsOpen ? '' : `<p class="rs-h-veil">${icon('sprout')}<span>${esc(lockWords('research'))}</span></p>`}${recHTML}
       ${LEVELS.map((L) => {
         const mine = CASES.filter((c) => c.level === L.id).sort((a, b) => a.order - b.order);
         const soon = SOON[L.id] || [];
         return `<section class="rs-h-level"><h2>${icon(L.ic)}<span>${esc(L.name)}</span><small>${esc(L.sub)}</small></h2><div class="rs-h-cases">
-          ${mine.map((c) => `<button class="rs-h-case" data-case="${c.id}"><div class="rs-h-art"><img src="${ISLAND_ART[c.zone] || ''}" alt=""><span class="rs-h-zone">${esc(ZONE_NAME[c.zone] || '')}</span></div>
+          ${mine.map((c) => `<button class="rs-h-case${rec.has(c.id) ? ' th-rec' : ''}${veil(rsOpen, 'research')}" data-case="${c.id}">${rec.has(c.id) ? markHTML('recommend') : ''}<div class="rs-h-art"><img src="${ISLAND_ART[c.zone] || ''}" alt=""><span class="rs-h-zone">${esc(ZONE_NAME[c.zone] || '')}</span></div>
             <div class="rs-h-body"><b>${esc(c.title)}</b><p>${esc(c.call)}</p>${starRow(c.id)}</div></button>`).join('')}
           ${soon.map((c) => `<div class="rs-h-case soon"><div class="rs-h-art"><img src="${ISLAND_ART[c.zone] || ''}" alt=""><span class="rs-h-zone">${esc(ZONE_NAME[c.zone] || '')}</span></div>
             <div class="rs-h-body"><b>${esc(c.title)}</b><p>בקרוב</p></div></div>`).join('')}
         </div></section>`;
       }).join('')}
       <section class="rs-h-level rs-h-lab"><h2>${icon('flask')}<span>מעבדת החוקרים</span><small>רובו־דע מחכה לכם: מיקרוסקופ, שולחן ממציאים ואטלס</small></h2>
-        <div class="rs-h-cases"><button class="rs-h-case rs-h-labgo"><div class="rs-h-body"><b>${tileIcon('lab', 'rs-h-tic')}המעבדה של רובו־דע</b><p>מגדילים במיקרוסקופ, ממציאים בעזרת הטבע, ומשדרגים את הכלים בסביבות.</p></div></button></div></section>
+        <div class="rs-h-cases"><button class="rs-h-case rs-h-labgo${veil(labOpen, 'lab')}"><div class="rs-h-body"><b>${tileIcon('lab', 'rs-h-tic')}המעבדה של רובו־דע</b><p>${labOpen ? 'מגדילים במיקרוסקופ, ממציאים בעזרת הטבע, ומשדרגים את הכלים בסביבות.' : esc(lockWords('lab'))}</p></div></button></div></section>
       </div>`;
     el.querySelector('.rs-h-back').addEventListener('click', close);
-    el.querySelectorAll('[data-case]').forEach((b) => b.addEventListener('click', () => { close(); onPick(b.dataset.case); }));
-    const lab = el.querySelector('.rs-h-labgo'); if (lab) lab.addEventListener('click', () => { close(); onLab && onLab(); });
+    // a veiled button: רובו־דע says what opens it
+    const gate = (b, fn) => b.addEventListener('click', () => { if (b.classList.contains('jv')) lockTip(b.dataset.part); else fn(); });
+    el.querySelectorAll('[data-case]').forEach((b) => gate(b, () => { close(); onPick(b.dataset.case); }));
+    const lab = el.querySelector('.rs-h-labgo'); if (lab) gate(lab, () => { close(); onLab && onLab(); });
     el.querySelector('.howto-replay').addEventListener('click', () => howto(root, HOWTO, { key: 'research', force: true }));
-    el.querySelector('.rs-h-tut').addEventListener('click', () => { close(); onPick(TUTORIAL_CASE, { tutorial: true }); });
+    gate(el.querySelector('.rs-h-tut'), () => { close(); onPick(TUTORIAL_CASE, { tutorial: true }); });
   }
-  function open() { render(); el.classList.add('on'); howto(root, HOWTO, { key: 'research' }); }
+  // the first entry: רובו־דע presents the centre (his bubbles take the place of the four how-to cards, which stay on
+  // the "?" button). A player who already had his presentation is not told again: the cards wait on the "?" button.
+  // (only a page without the guide shows the how-to cards by themselves, once)
+  function open() {
+    render(); el.classList.add('on');
+    const g = window.__guide;
+    if (!isOpen('research')) return;
+    if (!g) howto(root, HOWTO, { key: 'research' });
+    else if (!introSeen('g:research')) setTimeout(() => { if (el.classList.contains('on')) g.intro('research', { modal: true }); }, 450);
+  }
   function close() { if (!el.classList.contains('on')) return; el.classList.remove('on'); onClose && onClose(); }
+  // a part opened or another player was chosen while the centre is open: draw it again
+  addEventListener('wol-journey', () => { if (el.classList.contains('on')) render(); });
   return { open, close, isOpen: () => el.classList.contains('on') };
 }

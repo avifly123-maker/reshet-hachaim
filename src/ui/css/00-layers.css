@@ -1,0 +1,58 @@
+/* 1.3.2 – the one layer order (z-index ladder) for everything that floats over the game. Loaded first (build.mjs joins
+   src/ui/css/*.css by name); CSS strings inside JS use the same names. Rules:
+   - A top-level element of #ui (it competes with the others in #ui's stacking context) takes var(--z-…) from here,
+     never a number. Two elements on the same rung are ordered by the DOM (the later one is on top).
+   - Inside a positioned parent that has its own z-index (a card, a window, the hub, the lab, the stage film) small plain
+     numbers (1, 2, 3…) stay: they only compete inside that parent.
+   - A new layer gets a line here, in order, with what lives on it. See CONTRACT.md "Layers".
+   #ui itself is one stacking context over the 3D canvas; everything below except --z-ui, --z-dev and --z-top lives in it. */
+:root {
+  /* the page (body): */
+  --z-ui: 10;                  /* #ui, the whole interface, over the canvas */
+  --z-dev: 99;                 /* the fps meter (?fps, main.js) */
+  --z-top: 2147483000;         /* the game-controller cursor (gamepad.js): over everything */
+
+  /* the island and its HUD (forest and mystery); the HUD itself (.hud, .tray, .toolbar, .rightcol) has no z-index: */
+  --z-world: -1;               /* the technologies' floating cards (.tk-boards, tech.css): over the island, under the HUD */
+  --z-panel: 5;                /* the species card (.species, wide screens); the mystery's board (.rs-board) */
+  --z-rs-gauge: 6;             /* the mystery's balance meter (.rs-meter) and tool table (.rs-table) */
+  --z-rs-run: 7;               /* the mystery's "לראות מה קורה" button (.rs-ff) */
+  --z-rs-notes: 8;             /* the mystery's notes (.rs-notes) */
+  --z-rs-steps: 9;             /* the mystery's step bar (.rs-steps) */
+  --z-move: 14;                /* the move handle of a plant being moved (.mv-handle) */
+  --z-experiment: 20;          /* the experiment banner (.experiment): under the injured bar */
+  --z-hover: 25;               /* the hover label (.hover); the immersive view (.imv) */
+  --z-sources: 26;             /* the sources menu (.srcm) */
+  --z-tour: 27;                /* the tour picker (.tour-pick) */
+  --z-hurt-arrows: 29;         /* the edge arrows to injured animals (.hurt-arrows) */
+  --z-hud: 30;                 /* toasts (.toasts), the camera pad (.cam-pad), the species card on narrow screens */
+  --z-hurt: 31;                /* the injured bar (.hurtbar): over the experiment banner and the toasts */
+
+  /* things that open over the island: */
+  --z-panels: 40;              /* the drag ghost (.ghost), the photo mode (.af-photo), the lab (.lb), a mystery's window (.rs-modal) */
+  --z-drag-hint: 41;           /* the drag hint (.drag-hint) */
+  --z-fx: 43;                  /* points and sparks (.fx) */
+  --z-banner: 44;              /* the mission banner (.mission-banner) */
+  --z-modal: 45;               /* dialogs (.modal-layer); the mission's hero animal (.fl-hero) */
+  --z-coach-ring: 46;          /* the coach's ring (.coach-ring); the mystery's speech strip (.rs-say) */
+  --z-coach: 47;               /* the coach (.coach); the run button while it waits (.rs-ff.on) */
+  --z-report: 48;              /* the daily report (.rep-layer) */
+
+  /* whole screens and what opens over them: */
+  --z-start: 50;               /* the start screen (.start) */
+  --z-research: 52;            /* the research centre (.rs-hub); the music button (.mus-btn) */
+  --z-modal-over-start: 55;    /* an open dialog over the start screen (#ui.has-modal .modal-layer) */
+  --z-map: 60;                 /* the journey map (.jm); the loading screen (.loading) */
+  --z-howto: 62;               /* the "איך משחקים" cards (#howto): under רובו־דע */
+  --z-guide: 70;               /* רובו־דע's bubbles (#rguide): over the screen he talks about */
+  --z-hub: 80;                 /* the learning hub (#wol-learn) */
+  --z-guide-over-hub: 90;      /* רובו־דע while the hub is open (#ui.wl-hubopen #rguide) */
+
+  /* over every screen: */
+  --z-badge: 400;              /* a new badge (.bdg-pop); it waits while a stage film plays (badge-toast.js) */
+  --z-scene-doors: 880;        /* the lab doors flourish (.fl-doors) */
+  --z-scene: 900;              /* a stage film (.ss): over everything a child sees */
+  --z-flourish: 903;           /* the thread flourish (.fl-thread) */
+  --z-flourish-pulse: 904;     /* a pulse flourish (.fl-pulse) */
+  --z-flourish-sparks: 905;    /* sparks (.fl-sparks) */
+}

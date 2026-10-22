@@ -1,6 +1,11 @@
 // Technology tools the player can drag onto the island:
 // monitoring drone, camera trap, rescue robot, water-from-air generator, seed-ball drone, forest listener.
 // Each tool teaches something real that people use today to watch over and repair nature.
+// 1.3.2 (area G): six more technologies live in src/world/tech.js (canopy robot, LiDAR drone, thermal drone, fire tower,
+// healthy-reef speaker, young-corals robot), and the tools get upgrades from the threads (חוטים, core/threads.js):
+// toolBoost(tool, zone) is read where each tool works (drone speed / hover / share, camera night / shy, rescue speed /
+// heal, watergen output, nestbox storm, buoy range), eventBoost(id) shortens the reef's murky water, and choicesFor(id)
+// adds new ways to an event's choices (eventChoices below; the full mode only).
 import * as THREE from 'three';
 import { hasInvention } from '../lab/progress.js';
 import { clamp, makeRng } from '../core/util.js';
@@ -8,8 +13,10 @@ import { gw } from '../data/common.js';
 import { toolProp } from '../world/props.js';
 import { zoneWord } from '../core/place.js';
 
-import { TOOL_DEFS, TOOL_ICONS, toolDef, toolInZone, REEF_TOOL_CARDS, CAM } from './tool-defs.js';
-export { TOOL_DEFS, TOOL_ICONS, toolDef, toolInZone, REEF_TOOL_CARDS, CAM };
+import { TOOL_DEFS, TECH_DEFS, ISLAND_TOOLS, TOOL_ICONS, toolDef, toolInZone, REEF_TOOL_CARDS, CAM } from './tool-defs.js';
+import { createTech, techModel, TECH_IDS, TECH_HOST } from '../world/tech.js';
+import { toolBoost, eventBoost, choicesFor } from '../core/threads.js';
+export { TOOL_DEFS, TECH_DEFS, ISLAND_TOOLS, TOOL_ICONS, toolDef, toolInZone, REEF_TOOL_CARDS, CAM };
 const ICONS = TOOL_ICONS;
 
 // ─────────────────────────────────────────── device models (simple, readable from far)
@@ -173,6 +180,7 @@ function makeFloating(id) {
   return g;
 }
 export function toolModel(id, biome) {
+  if (TECH_IDS.has(id)) return techModel(id);
   if (biome === 'reef') {
     if (id === 'drone') return makeROV();
     if (id === 'camera') return makeUWCam();
@@ -224,6 +232,19 @@ export function createTools(ctx) {
   const badges = [];       // {sprite, follow, until}
   W.photos = W.photos || new Set();
   const told = new Set();
+  // the new technologies (src/world/tech.js): their models, effects, floating cards and רובו־דע flying on the island
+  const tech = createTech({ ...ctx, group, canvas: ctx.canvas || document.getElementById('game') || document.querySelector('canvas') });
+  tech.setDevices(() => placed);
+  // upgrades from the threads, read where each tool works; kept for a few seconds (the lists ask every frame).
+  // Never inside a mystery: its numbers are balanced without them.
+  const bcache = new Map(); let bT = 0;
+  function boost(tool) {
+    if (W.research) return {};
+    const now = performance.now(); if (now - bT > 3000) { bcache.clear(); bT = now; }
+    let b = bcache.get(tool);
+    if (!b) { try { b = toolBoost(tool, W.biomeId) || {}; } catch (e) { b = {}; } bcache.set(tool, b); }
+    return b;
+  }
   const humidity = () => {
     if (W.biomeId === 'amazon') return 1;
     const s = { winter: 0.9, spring: 0.75, autumn: 0.6, summer: 0.45 }[W.season] ?? 0.7;
@@ -231,10 +252,11 @@ export function createTools(ctx) {
   };
 
   function count(id) { return placed.filter(p => p.id === id).length; }
-  function unlocked(def) { if (W.kids && !['drone', 'camera'].includes(def.id)) return false; return (W.missions?.doneCount || 0) >= def.needs || W.allToolsUnlocked; }
+  // W.rescueOpen: an animal was injured before the rescue robot's mission, so only the rescue robot opens early
+  function unlocked(def) { if (W.kids && !['drone', 'camera'].includes(def.id)) return false; return (W.missions?.doneCount || 0) >= def.needs || W.allToolsUnlocked || (def.id === 'rescue' && !!W.rescueOpen); }
 
   function cards() {
-    return TOOL_DEFS.filter(d => (!W.kids || ['drone', 'camera'].includes(d.id)) && toolInZone(d, W.biomeId)).map(d0 => {
+    return ISLAND_TOOLS.filter(d => (!W.kids || ['drone', 'camera'].includes(d.id)) && toolInZone(d, W.biomeId) && !(d.tech && W.research)).map(d0 => {
       const d = toolDef(d0.id, W.biomeId);
       return {
         id: 'tool:' + d.id, name: d.name, kind: 'tool', layer: null, layerName: '', cost: d.cost,
@@ -258,16 +280,23 @@ export function createTools(ctx) {
       const waiting = W.animals.filter(x => x.injured && x.alive && !x.leaving);
       return { ok: false, reason: waiting.some(x => !x.injured.saving) ? 'גררו קרוב יותר לבעל החיים הפגוע' : waiting.length ? 'רובוט הצלה כבר בדרך' : 'אין כרגע בעל חיים פגוע' };
     }
-    if (id === 'listener' || id === 'nestbox') {
+    if (id === 'listener' || id === 'nestbox' || TECH_HOST.has(id)) {
+      const climb = TECH_HOST.has(id);   // the canopy robot wants a tall tree of its own
       let best = null, bd = 5;
-      for (const p of W.plants) { if (!p.alive || p.removed || !p.isTree || p.growth < 0.5 || p.falling) continue; const dd = Math.hypot(p.x - hit.x, p.z - hit.z); if (dd < bd) { bd = dd; best = p; } }
-      return best ? { ok: true, host: best, text: `על ה${best.sp.name}` } : { ok: false, reason: 'גררו אל עץ גבוה' };
+      for (const p of W.plants) {
+        if (!p.alive || p.removed || !p.isTree || p.growth < 0.5 || p.falling) continue;
+        if (climb && (p.topY() - env.heightAt(p.x, p.z) < 10 || placed.some(q => q.host === p && q.id === id))) continue;
+        const dd = Math.hypot(p.x - hit.x, p.z - hit.z); if (dd < bd) { bd = dd; best = p; }
+      }
+      return best ? { ok: true, host: best, text: climb ? `הרובוט יטפס על ה${best.sp.name}` : `על ה${best.sp.name}` } : { ok: false, reason: 'גררו אל עץ גבוה' };
     }
     if (id === 'drone') return { ok: true, text: W.biomeId === 'reef' ? 'הרובוט יצלול ויסרוק את השונית' : 'הרחפן יטוס ויסרוק את היער' };
     if (env.isWater(hit.x, hit.z)) return { ok: false, reason: 'זה מים' };
     if (W.onRoad && W.onRoad(hit.x, hit.z, 0.5)) return { ok: false, reason: 'לא על הכביש' };
     if (id === 'seeddrone') return W.maxPlants && W.plants.length >= W.maxPlants ? { ok: false, reason: 'היער מלא – אין מקום לעוד צמחים כרגע' } : { ok: true, text: 'כאן יפוזרו כדורי זרעים' };
     if (id === 'watergen') { const h = humidity(); return { ok: true, text: `לחות באוויר: ${Math.round(h * 100)}%` }; }
+    if (id === 'lidar') return { ok: true, text: 'מכאן הרחפן ימריא לבד' };
+    if (id === 'thermal') return { ok: true, text: W.nightGlow > 0.5 ? 'לילה! הרחפן ימריא מיד' : 'בלילה הרחפן ימריא מכאן' };
     return { ok: true };
   }
 
@@ -276,7 +305,12 @@ export function createTools(ctx) {
     W.points -= d.cost;
     W.stats.toolUse = W.stats.toolUse || {}; W.stats.toolUse[id] = (W.stats.toolUse[id] || 0) + 1;
     audio.play('place');
-    if (!told.has(id) && !W.research) { told.add(id); ui.toast(d.fact, 'info'); }
+    // the first time: רובו־דע tells what the tool does (once per player); the full mode keeps its one fact toast per visit after that
+    if (!told.has(id) && !W.research) {
+      tech.roboAt(new THREE.Vector3(hit.x, env.heightAt(hit.x, hit.z) + 1, hit.z));   // רובו־דע flies to the new device while he tells about it
+      told.add(id); const r = W.roboTool ? W.roboTool(id) : null;
+      if (!W.xp) Promise.resolve(r).then((x) => { if (!r || x === 'seen' || x === 'none') ui.toast(d.fact, 'info'); });
+    }
     if (id === 'drone') return launchSurvey(hit);
     if (id === 'seeddrone') return launchSeeding(hit);
     if (id === 'rescue') return sendRobot(hit, chk.target);
@@ -294,12 +328,9 @@ export function createTools(ctx) {
       p.pitch = -0.06; p.auto = saved?.auto !== 0; p.turn = 0; p.tilt = 0; p.lock = null; p.lockT = 0; p.lockCool = 0; p.scanT = 0;
       p.recent = new Map(); p.sweepDir = Math.random() < 0.5 ? 1 : -1;
     }
-    if ((id === 'listener' || id === 'nestbox') && host) {
-      p.x = host.x; p.z = host.z;
-      const y = host.y + Math.max(3, (host.vis.crown().bottom || 6) * host.obj.scale.x * 0.55);
-      mesh.position.set(host.x, y, host.z);
-      mesh.scale.multiplyScalar(Math.max(1, (host.vis.trunkRadius || 0.5) * 1.3));
-    } else mesh.position.set(x, env.heightAt(x, z) - 0.02, z);
+    if ((id === 'listener' || id === 'nestbox') && host) mountOnHost(p, host);
+    else if (TECH_HOST.has(id) && host) { p.x = host.x; p.z = host.z; }
+    else mesh.position.set(x, env.heightAt(x, z) - 0.02, z);
     if (mesh.userData.rope && env.surfaceY != null) {
       // a buoy: the rope stretches from the ring in the sand to the surface, where the float rides
       const sc = mesh.scale.y, depth = (env.surfaceY - mesh.position.y) / sc;
@@ -309,10 +340,32 @@ export function createTools(ctx) {
     }
     mesh.rotation.y = id === 'camera' ? 0 : Math.random() * Math.PI * 2;
     if (id === 'camera') { mesh.userData.head.rotation.set(-p.pitch, p.yaw, 0); p.num = placed.filter(q => q.id === 'camera').length + 1; }
-    if (id === 'listener' || id === 'nestbox') mesh.rotation.y = Math.atan2(rig.controls.object.position.x - p.x, rig.controls.object.position.z - p.z);
+    if (id === 'listener' || id === 'nestbox' || TECH_HOST.has(id)) mesh.rotation.y = Math.atan2(rig.controls.object.position.x - p.x, rig.controls.object.position.z - p.z);
+    if (TECH_IDS.has(id)) tech.init(p, saved);
     group.add(mesh); placed.push(p);
     if (id === 'listener') W.listener = true;
     return p;
+  }
+
+  function mountOnHost(p, host) {
+    const mesh = p.mesh; p.host = host; p.x = host.x; p.z = host.z;
+    const y = host.y + Math.max(3, (host.vis.crown().bottom || 6) * host.obj.scale.x * 0.55);
+    mesh.position.set(host.x, y, host.z);
+    if (!p.baseScale) p.baseScale = mesh.scale.x;
+    mesh.scale.setScalar(p.baseScale * Math.max(1, (host.vis.trunkRadius || 0.5) * 1.3));
+  }
+  // a strong nest box (the "nutshell" thread): when its tree falls, it is hung on the nearest tree instead of breaking
+  function rehost(p) {
+    let best = null, bd = 25;
+    for (const q of W.plants) {
+      if (!q.alive || q.removed || !q.isTree || q.growth < 0.5 || q.falling || q.dying || q === p.host) continue;
+      const d = Math.hypot(q.x - p.x, q.z - p.z); if (d < bd) { bd = d; best = q; }
+    }
+    if (!best) return false;
+    mountOnHost(p, best);
+    markers.burst(new THREE.Vector3(best.x, p.mesh.position.y, best.z), '#c8955a', 12, { size: 0.4 });
+    (W.amb || ui.toast)('תיבת הקינון החזקה שרדה, ונתלתה על עץ אחר', 'good');
+    return true;
   }
 
   // ───── monitoring drone: flies a loop, then reports what needs attention
@@ -321,11 +374,14 @@ export function createTools(ctx) {
     const start = new THREE.Vector3(hit.x, env.heightAt(hit.x, hit.z) + 1.5, hit.z);
     // invented in רובו־דע's lab: a shark-skin coat lets the underwater robot glide through the water faster
     const skin = W.biomeId === 'reef' && hasInvention('sharkskin');
-    flights.push({ kind: 'survey', mesh, t: 0, dur: skin ? 7 : 11, start, a0: Math.atan2(hit.z, hit.x) });
-    ui.toast(W.biomeId === 'reef' ? (skin ? 'הרובוט הצולל עם ציפוי עור הכריש יצא לדרך, וסורק את השונית מהר...' : 'הרובוט הצולל יצא לדרך – סורק את השונית...') : 'רחפן הניטור המריא – סורק את היער...', 'info');
+    const b = boost('drone');
+    const dur = skin ? 7 : 11 / (b.speed || 1);   // threads: a faster drone (the shark-skin coat keeps its own 7 s)
+    flights.push({ kind: 'survey', mesh, t: 0, dur, start, a0: Math.atan2(hit.z, hit.x), hover: !!b.hover, share: !!b.share });
+    (W.amb || ui.toast)(W.biomeId === 'reef' ? (skin ? 'הרובוט הצולל עם ציפוי עור הכריש יצא לדרך, וסורק את השונית מהר...' : 'הרובוט הצולל יצא לדרך – סורק את השונית...') : 'רחפן הניטור המריא – סורק את היער...', 'info');
   }
-  function surveyReport() {
+  function surveyReport(f = {}) {
     const lines = [], marks = [];
+    if (f.hv && f.hv.a) lines.push(`🚁 הרחפן ריחף מעל ה${f.hv.a.sp.name}, ${f.hv.a.injured ? 'שצריך רובוט הצלה' : 'שמחפש אוכל'}.`);
     const plants = W.plants.filter(p => p.alive && !p.removed && !p.dying);
     const dark = plants.filter(p => p.sp.kind !== 'fungus' && p.light < (p.sp.lightNeed ?? 0.5) * 0.55 && p.health < 0.85);
     let moveBtn = false;
@@ -351,12 +407,16 @@ export function createTools(ctx) {
     if (W.road && !W.road.bridge) lines.push('🛣 הכביש חותך את היער לשניים. לחצו עליו כדי לתקן.');
     const wg = TOOL_DEFS.find(t => t.id === 'watergen');
     if ((W.drought > 0.2 || (W.biomeId === 'grove' && W.season === 'summer')) && unlocked(wg) && count('watergen') < wg.max) lines.push('☀ האדמה יבשה. מחולל מים מהאוויר ליד העצים יעזור.');
-    for (const m of marks.slice(0, 8)) addBadge(m, 30);
+    if (f.share) {   // threads (anternet): the drone hears what the field cameras found, and one report holds it all
+      const cams = placed.filter(p => p.id === 'camera').length;
+      if (cams) lines.push(`📡 הרחפן קיבל גם מ${cams === 1 ? 'מצלמת השטח' : cams + ' מצלמות השטח'}: עד עכשיו צולמו ${W.photos.size} מינים.`);
+    }
+    for (const m of marks.slice(0, 8)) addBadge(m, f.share ? 60 : 30);
     W.points += 3;
     const ok = lines.length === 0;
     const buttons = [{ id: 'ok', label: 'תודה, רחפן!' }];
     if (moveBtn) buttons.unshift({ id: 'move-shaded', label: 'העבירו את השתילים המוצלים לאור (10 נקודות)' });
-    ui.showDialog({ title: 'דוח רחפן הניטור', text: ok ? 'הרחפן סרק את כל היער – הכול נראה טוב! כל המינים מקבלים מה שהם צריכים.' : 'הרחפן מצא כמה דברים שכדאי לטפל בהם (הם מסומנים ב-! אדום):\n\n' + lines.slice(0, 9).join('\n'), buttons });
+    ui.showDialog({ title: 'דוח רחפן הניטור', text: ok ? 'הרחפן סרק את כל היער – הכול נראה טוב! כל המינים מקבלים מה שהם צריכים.' : 'הרחפן מצא כמה דברים שכדאי לטפל בהם (הם מסומנים ב-! אדום):\n\n' + lines.slice(0, W.xp ? 4 : 9).join('\n'), buttons });
     audio.play('discover');
   }
 
@@ -385,14 +445,16 @@ export function createTools(ctx) {
   }
 
   // ───── injured animals + rescue robot
-  let injuryT = 120;
+  let injuryT = 120, hurtN = 0;
+  // 1.3.2: an injured animal waits longer for help (Avi: the alert got lost), and רובו־דע reminds once before it leaves
+  const HURT_WAIT = 150, HURT_REMIND = 45;
   function injuredNear(x, z, r) { let best = null, bd = r; for (const a of W.animals) if (a.injured && !a.injured.saving && a.alive && !a.leaving) { const d = Math.hypot(a.pos.x - x, a.pos.z - z); if (d < bd) { bd = d; best = a; } } return best; }
   function maybeInjure(dt) {
     if (W.kids || W.research || W.day < 2 || W.animals.some(a => a.injured)) return;
     if (W.missions?.current()?.goal?.type === 'rescue') injuryT = Math.min(injuryT, 25);
     injuryT -= dt; if (injuryT > 0) return;
     injuryT = 150 + Math.random() * 120;
-    const cand = W.animals.filter(a => a.alive && !a.leaving && !a.touring && a.type === 'animal' && a.visible && (a.loco === 'ground' || a.loco === 'flying') && !a.sp.isInsect && (a.loco !== 'flying' || !a.perch));
+    const cand = W.animals.filter(a => a.alive && !a.leaving && !a.touring && !a.visitor && a.type === 'animal' && a.visible && (a.loco === 'ground' || a.loco === 'flying') && !a.sp.isInsect && (a.loco !== 'flying' || !a.perch));
     if (!cand.length) return;
     const a = cand[(Math.random() * cand.length) | 0];
     let cause;
@@ -401,14 +463,16 @@ export function createTools(ctx) {
     else if (a.loco === 'flying') cause = g('נתקע', 'נתקעה', 'נתקעו', 'נתקעו') + ` ברשת ישנה שמישהו השאיר ${zoneWord('in')}`;
     else cause = [g('נפצע', 'נפצעה', 'נפצעו', 'נפצעו') + ' ברגל מחתיכת זכוכית שנזרקה', g('נתקע', 'נתקעה', 'נתקעו', 'נתקעו') + ' בשקית ניילון'][(Math.random() * 2) | 0];
     if (a.loco === 'flying') { a.path = null; a.perch = null; a.pos.y = env.heightAt(a.pos.x, a.pos.z) + 0.3; }
-    a.injured = { t: 0, max: 80, cause };
+    a.injured = { t: 0, max: HURT_WAIT, cause, uid: ++hurtN, reminded: false };
     a.state = 'sleep'; a.action = 'sleep';
     removeBadge(a);   // a short-lived drone "!" on it would otherwise expire and take the alert with it
     addBadge(a, 999, true);
-    // the alert says plainly what happened and what to do; it stays long enough for a young reader
-    ui.toast(`${a.sp.name} ${cause}! שלחו רובוט הצלה: גררו אותו מלשונית טכנולוגיה אל סימן הקריאה האדום.`, 'warn', 9000);
+    // the alert is the red bar at the top (game.js → ui.setInjured), with the animal's picture, its name and what
+    // happened; it stays until the animal is healed or gone. One short sound; רובו־דע explains it the first time.
     audio.play('event');
-    if (!unlocked(TOOL_DEFS.find(t => t.id === 'rescue'))) { W.allToolsUnlocked = true; }   // the rescue robot must be available when needed
+    tech.roboAt(a.pos);   // רובו־דע flies to it while he tells
+    if (W.onHurt) W.onHurt('new', a);
+    if (!unlocked(TOOL_DEFS.find(t => t.id === 'rescue'))) { W.rescueOpen = true; }   // the rescue robot (only it) must be available when needed
   }
   function sendRobot(hit, a) {
     const mesh = makeRobot(); group.add(mesh);
@@ -422,11 +486,12 @@ export function createTools(ctx) {
     if (!a.alive || a.leaving || a.dying) { a.injured = null; removeBadge(a); return; }
     addBadge(a, 999, true);   // e.g. after an experiment hid it, the badge comes back
     a.injured.t += W.lastTickDt;
+    if (!a.injured.reminded && !a.injured.saving && a.injured.t > a.injured.max - HURT_REMIND) { a.injured.reminded = true; tech.roboAt(a.pos); if (W.onHurt) W.onHurt('remind', a); }
     a.obj.position.set(a.pos.x, a.groundY(a.pos.x, a.pos.z) + (a.loco === 'flying' ? 0.2 : 0), a.pos.z);
     a.vis.update(rdt, { action: 'sleep', speed: 0, t, night: W.nightGlow });
     if (a.injured.t > a.injured.max && !a.injured.saving) {
       a.injured = null; removeBadge(a); a.leave();
-      ui.toast(`${a.sp.name} ${gw(a.sp.id,'לא קיבל עזרה בזמן ועזב','לא קיבלה עזרה בזמן ועזבה','לא קיבלו עזרה בזמן ועזבו','לא קיבלו עזרה בזמן ועזבו')} את היער.`, 'bad');
+      ui.toast(`${a.sp.name} ${gw(a.sp.id,'לא קיבל עזרה בזמן ועזב','לא קיבלה עזרה בזמן ועזבה','לא קיבלו עזרה בזמן ועזבו','לא קיבלו עזרה בזמן ועזבו')} את ${zoneWord()}.`, 'bad');
     }
   }
 
@@ -454,11 +519,12 @@ export function createTools(ctx) {
   function pickTarget(p) {
     const eyeY = env.heightAt(p.x, p.z) + CAM.eyeY;
     let best = null, bs = Infinity;
+    const view = CAM.view * camNight();
     for (const a of W.animals) {
       if (!camOK(a)) continue;
       const until = p.recent.get(a); if (until && until > W.simT) continue;
       const b = bearing(p, a, eyeY);
-      if (b.d > CAM.view || b.d < 0.6 || Math.abs(b.dy) > 14) continue;
+      if (b.d > view || b.d < 0.6 || Math.abs(b.dy) > 14) continue;
       const moving = (a.speed || 0) > 0.15;
       const key = a.sp.id + (W.nightGlow > 0.5 ? ':night' : '');
       // near + moving + not photographed yet wins; a small bias toward what is already in view keeps the swings calm
@@ -491,14 +557,17 @@ export function createTools(ctx) {
     p.yaw = wrapA(p.yaw); p.pitch = clamp(p.pitch, CAM.pitchMin, CAM.pitchMax);
     p.mesh.userData.head.rotation.set(-p.pitch, p.yaw, 0);
   }
+  // threads: a brighter lamp sees farther at night (lamp), a hidden camera has a wider, quicker eye for shy animals (camo)
+  function camNight() { return W.nightGlow > 0.5 ? (boost('camera').night || 1) : 1; }
   /** the animal in the photo cone (the locked one first, else the nearest) */
   function cameraSees(p) {
     const eyeY = env.heightAt(p.x, p.z) + CAM.eyeY;
+    const range = CAM.range * camNight(), half = CAM.half * (boost('camera').shy ? 1.25 : 1);
     let best = null, bd = Infinity;
     for (const a of W.animals) {
       if (!camOK(a)) continue;
       const b = bearing(p, a, eyeY);
-      if (b.d > CAM.range || Math.abs(b.off) > CAM.half || Math.abs(b.dy) > 12) continue;
+      if (b.d > range || Math.abs(b.off) > half || Math.abs(b.dy) > 12) continue;
       const s = a === p.lock ? -1 : b.d;
       if (s < bd) { bd = s; best = a; }
     }
@@ -521,7 +590,19 @@ export function createTools(ctx) {
         f.mesh.position.set(f.start.x + (tx - f.start.x) * k, f.start.y + (ty - f.start.y) * rise, f.start.z + (tz - f.start.z) * k);
         f.mesh.rotation.y = -ang; f.mesh.rotation.z = 0.15;
         if (Math.random() < rdt * 3) markers.burst(_v.set(f.mesh.position.x, env.heightAt(f.mesh.position.x, f.mesh.position.z) + 0.5, f.mesh.position.z), '#6fd0ff', 4, { size: 0.3, speed: 0.6, up: 0.3 });
-        if (u >= 1) { disposeObject(f.mesh); flights.splice(i, 1); if (W.research) W.research.onSurvey?.(); else surveyReport(); }   // a mystery shows its own count
+        if (u >= 1 && f.hover && !f.hv && !W.research) {
+          // threads (hover): it stops in the air over an animal that needs help, and marks it
+          const a = W.animals.find(x => x.injured && x.alive && !x.leaving) || W.animals.filter(x => x.alive && !x.leaving && x.type === 'animal' && x.energy < 0.35).sort((p, q) => p.energy - q.energy)[0];
+          if (a) { f.hv = { a, t: 0, from: f.mesh.position.clone() }; addBadge(a, 30); }
+        }
+        if (f.hv) {
+          f.hv.t += rdt; const a = f.hv.a; a.focusPoint(_v); _v.y += env.underwater ? 3 : 6;
+          f.mesh.position.lerpVectors(f.hv.from, _v, Math.min(1, f.hv.t / 2)); f.mesh.position.y += Math.sin(t * 3) * 0.15; f.mesh.rotation.z = 0;
+          if (Math.random() < rdt * 4) markers.burst(a.focusPoint(_v), '#6fd0ff', 5, { size: 0.35, speed: 0.5 });
+          if (f.hv.t > 4.5) { disposeObject(f.mesh); flights.splice(i, 1); surveyReport(f); }
+          continue;
+        }
+        if (u >= 1) { disposeObject(f.mesh); flights.splice(i, 1); if (W.research) W.research.onSurvey?.(); else surveyReport(f); }   // a mystery shows its own count
       } else {
         const u = clamp(f.t / f.dur);
         if (u < 0.6) f.mesh.position.lerpVectors(f.start, f.target, u / 0.6);
@@ -540,12 +621,13 @@ export function createTools(ctx) {
         a.injured.saving = true;
         const dx = a.pos.x - r.mesh.position.x, dz = a.pos.z - r.mesh.position.z, d = Math.hypot(dx, dz);
         r.mesh.rotation.y = Math.atan2(dx, dz);
-        if (d > 1.6) { const s = Math.min(d, 5 * rdt); r.mesh.position.x += dx / d * s; r.mesh.position.z += dz / d * s; r.mesh.position.y = deckY(r.mesh.position.x, r.mesh.position.z); }
+        if (d > 1.6) { const s = Math.min(d, 5 * (boost('rescue').speed || 1) * rdt); r.mesh.position.x += dx / d * s; r.mesh.position.z += dz / d * s; r.mesh.position.y = deckY(r.mesh.position.x, r.mesh.position.z); }
         else { r.phase = 'heal'; r.t = 0; }
       } else if (r.phase === 'heal') {
         if (!a.alive || !a.injured || a.leaving) { r.phase = 'leave'; r.t = 0; continue; }   // healed by someone else, or gone
         if (Math.random() < rdt * 8) markers.burst(a.focusPoint(_v), '#9fffb0', 6, { size: 0.4, speed: 1 });
-        if (r.t > 3) {
+        const rb = boost('rescue');
+        if (r.t > 3 / ((rb.speed || 1) * (rb.heal || 1))) {   // threads: a gentle gripper and a wet-skin patch heal sooner
           a.injured = null; removeBadge(a); a.energy = 1; a.state = 'idle'; a.timer = 0.5;
           W.points += 8; W.stats.rescues = (W.stats.rescues || 0) + 1;
           ui.toast(`ה${a.sp.name} ${gw(a.sp.id,'טופל וחזר','טופלה וחזרה','טופלו וחזרו','טופלו וחזרו')} לחיות ${zoneWord('in')}! (+8)`, 'good'); audio.play('mission');
@@ -559,6 +641,12 @@ export function createTools(ctx) {
     // devices
     for (const p of placed) {
       p.t += rdt;
+      if (TECH_IDS.has(p.id)) {
+        if (!p.dead) tech.tick(p, dt, rdt, t);
+        if (p.dead && !p.gone) { p.gone = true; tech.removed(p); disposeObject(p.mesh); }
+        continue;
+      }
+      if (p.id === 'buoy' && !W.research) buoyGuard(p, dt);
       if (p.id === 'camera') {
         p.mesh.userData.led.material.emissiveIntensity = (Math.sin(t * 3) > 0.6) ? 1.6 : 0.2;
         aimCamera(p, dt);
@@ -566,13 +654,13 @@ export function createTools(ctx) {
         // it photographs what is in front of the lens (the same cone the camera view shows)
         const a = cameraSees(p);
         if (a) {
-          p.cool = 6;
+          p.cool = boost('camera').shy ? 4 : 6;
           markers.burst(_v.set(p.x, env.heightAt(p.x, p.z) + 2, p.z), '#ffffff', 10, { size: 0.6, speed: 0.4, life: 0.4 });
           const key = a.sp.id + (W.nightGlow > 0.5 ? ':night' : '');
           const fresh = !W.photos.has(key);
           if (fresh) {
             W.photos.add(key); W.points += 3; audio.play('points');
-            if (!W.research) ui.toast(`📷 מצלמת השטח צילמה: ${a.sp.name}${W.nightGlow > 0.5 ? ' – בלילה!' : ''} (+3)`, 'good');   // a mystery reports its counts in its own notebook
+            if (!W.research) (W.amb || ui.toast)(`📷 מצלמת השטח צילמה: ${a.sp.name}${W.nightGlow > 0.5 ? ' – בלילה!' : ''} (+3)`, 'good');   // a mystery reports its counts in its own notebook
           }
           if (hooks.onShot) hooks.onShot(p, a, fresh);
         }
@@ -585,7 +673,10 @@ export function createTools(ctx) {
       if (p.bobY != null) for (const m of p.mesh.userData.top || []) m.position.y = p.bobY + Math.sin(t * 1.3 + p.x) * 0.06;
       else if (p.id === 'nestbox' || p.id === 'listener') {
         // only a really dead host takes the device with it; a host hidden by an experiment just hides it for a while
-        if (p.host && (!p.host.alive || p.host.dying || p.host.falling)) { disposeObject(p.mesh); p.dead = true; continue; }
+        if (p.host && (!p.host.alive || p.host.dying || p.host.falling)) {
+          if (p.id === 'nestbox' && boost('nestbox').storm && rehost(p)) continue;
+          disposeObject(p.mesh); p.dead = true; continue;
+        }
         p.hidden = !!(p.host && p.host.removed);
         p.mesh.visible = !p.hidden;
         if (p.id === 'listener' && !p.hidden) p.mesh.userData.led.material.emissiveIntensity = (Math.sin(t * 2) > 0.8) ? 2 : 0.3;
@@ -604,9 +695,28 @@ export function createTools(ctx) {
       if (W.simT > b.until || !e.alive || e.removed) { disposeObject(b.sprite); badges.splice(i, 1); continue; }
       e.focusPoint(_v); const top = e.isPlant ? e.topY() + 1.2 : _v.y + 1.4;
       b.sprite.position.set(_v.x, top, _v.z);
-      const s = b.pulse ? 1.5 + Math.sin(t * 6) * 0.3 : 1.4; b.sprite.scale.setScalar(s);
+      let s = 1.4;
+      if (b.pulse) {   // an injured animal: a larger "!" that pulses, and keeps its size on the screen when the camera is far
+        const cam = ctx.camera; const d = cam ? cam.position.distanceTo(b.sprite.position) : 30;
+        const base = Math.min(8, Math.max(1.5, d * 0.08));
+        s = base * (1 + Math.sin(t * 6) * 0.16);
+        b.sprite.position.y += base * 0.4;   // a bigger badge floats a little higher, clear of the animal
+      }
+      b.sprite.scale.setScalar(s);
     }
     maybeInjure(dt);
+    tech.frame(rdt, t);
+  }
+  // a mooring buoy that guards more (the "cleaning-station" thread): corals in a wide circle round it are spared the
+  // boats' harm, and recover a little; the circle shows as a faint ring on the sand
+  function buoyGuard(p, dt) {
+    const R = 10 * (boost('buoy').range || 0); if (!R) { if (p.guard) p.guard.visible = false; return; }
+    if (!p.guard) {
+      p.guard = new THREE.Mesh(new THREE.RingGeometry(0.96, 1, 64), new THREE.MeshBasicMaterial({ color: '#7fe8ff', transparent: true, opacity: 0.18, depthWrite: false, toneMapped: false, side: THREE.DoubleSide }));
+      p.guard.rotation.x = -Math.PI / 2; group.add(p.guard);
+    }
+    p.guard.visible = true; p.guard.scale.setScalar(R); p.guard.position.set(p.x, env.heightAt(p.x, p.z) + 0.15, p.z);
+    for (const q of W.plants) if (q.alive && !q.removed && q.sp.kind === 'coral' && q.health < 1 && Math.hypot(q.x - p.x, q.z - p.z) < R) q.health = Math.min(1, q.health + dt * 0.004);
   }
 
   // coral nursery: weak corals around it get a little stronger, and on its branches grow fragments of corals that stood
@@ -653,26 +763,27 @@ export function createTools(ctx) {
   W.waterBonusAt = (x, z) => {
     let b = 0; const h = humidity();
     for (const p of placed) if (p.id === 'watergen') { const d = Math.hypot(p.x - x, p.z - z); if (d < 11) b = Math.max(b, (1 - d / 11) * 0.5 + 0.5); }
-    return b * (0.4 + 0.6 * h);
+    return Math.min(1, b * (0.4 + 0.6 * h) * (boost('watergen').output || 1));   // threads: more power, more water
   };
 
-  function serialize() { return { devices: placed.map(p => ({ id: p.id, x: +p.x.toFixed(2), z: +p.z.toFixed(2), ...(p.id === 'camera' ? { yaw: +p.yaw.toFixed(2), auto: p.auto ? 1 : 0 } : {}), ...(p.id === 'nursery' ? { stock: (p.stock || []).slice(), grow: Math.round(p.grow || 0), made: p.made || 0 } : {}) })), photos: [...W.photos], told: [...told] }; }
+  function serialize() { return { devices: placed.map(p => ({ id: p.id, x: +p.x.toFixed(2), z: +p.z.toFixed(2), ...(p.id === 'camera' ? { yaw: +p.yaw.toFixed(2), auto: p.auto ? 1 : 0 } : {}), ...(p.id === 'nursery' ? { stock: (p.stock || []).slice(), grow: Math.round(p.grow || 0), made: p.made || 0 } : {}), ...(TECH_IDS.has(p.id) ? tech.save(p) : {}) })), photos: [...W.photos], told: [...told] }; }
   function restore(S, findHost) {
     if (!S) return;
     for (const k of S.photos || []) W.photos.add(k);
     for (const k of S.told || []) told.add(k);
-    for (const d of S.devices || []) { const needsHost = d.id === 'listener' || d.id === 'nestbox'; const host = needsHost ? findHost(d.x, d.z) : null; if (needsHost && !host) continue; addDevice(d.id, d.x, d.z, host, d); }
+    for (const d of S.devices || []) { const needsHost = d.id === 'listener' || d.id === 'nestbox' || TECH_HOST.has(d.id); const host = needsHost ? findHost(d.x, d.z) : null; if (needsHost && !host) continue; addDevice(d.id, d.x, d.z, host, d); }
   }
   function dispose() {
+    try { tech.dispose(); } catch (e) { console.error(e); }
     disposeObject(group);
     placed.length = 0; flights.length = 0; robots.length = 0; badges.length = 0;
   }
   // a mystery that starts over takes its devices off the island (nest boxes, buoys, reef balls…)
   function removeDevices(test) {
-    for (let i = placed.length - 1; i >= 0; i--) { const p = placed[i]; if (!test(p)) continue; group.remove(p.mesh); disposeObject(p.mesh); placed.splice(i, 1); }
+    for (let i = placed.length - 1; i >= 0; i--) { const p = placed[i]; if (!test(p)) continue; if (TECH_IDS.has(p.id)) tech.removed(p); if (p.guard) disposeObject(p.guard); group.remove(p.mesh); disposeObject(p.mesh); placed.splice(i, 1); }
   }
   // ───── moving a placed device by dragging it (game.js): the ones standing on the ground (not the nest box / listener on a tree)
-  const MOVABLE_DEV = new Set(['camera', 'watergen', 'insecthotel', 'weather', 'nursery', 'reefball', 'buoy']);
+  const MOVABLE_DEV = new Set(['camera', 'watergen', 'insecthotel', 'weather', 'nursery', 'reefball', 'buoy', 'lidar', 'thermal', 'firetower', 'reefspeaker', 'spawnbot']);
   const _pd = new THREE.Vector3();
   function pickDevice(cx, cy, rect) {
     let best = null, bd = 34;
@@ -702,8 +813,28 @@ export function createTools(ctx) {
     }
     W.stats.moved = (W.stats.moved || 0) + 1;
   }
+  // ───── events (game.js): the choices to show (threads add new ones in the full mode; חוויה keeps two), and what the
+  // devices do when an event starts (a fire tower, the young-corals robot, murky water that clears sooner)
+  function eventChoices(e) {
+    const base = (e && e.choices) || [];
+    if (W.xp) return base.slice(0, 2);
+    let extra = [];
+    try { if (!W.research) extra = choicesFor(e.id) || []; } catch (er) { extra = []; }
+    const ids = new Set(base.map(c => c.id));
+    return base.concat(extra.filter(c => c && !ids.has(c.id)));
+  }
+  function afterEventStart(e) {
+    if (!e || W.research) return;
+    try { tech.afterEventStart(e); } catch (er) { console.error(er); }
+    let b = {}; try { b = eventBoost(e.id) || {}; } catch (er) { b = {}; }
+    if (b.shorter && W.floodT > 0 && (e.start || []).some(fx => fx.type === 'flood')) {
+      W.floodT *= b.shorter;
+      (W.amb || ui.toast)('ההמצאה שלכם עוזרת: המים יתבהרו מהר יותר', 'info');
+    }
+  }
   // does a device (nest box, forest listener) hang on this plant?
   function hostsDevice(plant) { return placed.some(p => p.host === plant && !p.dead); }
-  return { cards, hostsDevice, check, use, update, updateInjured, serialize, restore, dispose, removeDevices, model: toolModel, defs: TOOL_DEFS, humidity, nurseryStock, takeFromNursery, pickDevice, checkDeviceMove, placeDeviceAt,
-    cameras: () => placed.filter(p => p.id === 'camera'), camEye, cameraSees, hooks };
+  return { debugInjure: () => { const d = W.day; W.day = Math.max(2, W.day); injuryT = 0; maybeInjure(0.01); W.day = d; return W.animals.filter((a) => a.injured).length; }, cards, hostsDevice, check, use, update, updateInjured, serialize, restore, dispose, removeDevices, model: toolModel, defs: TOOL_DEFS, humidity, nurseryStock, takeFromNursery, pickDevice, checkDeviceMove, placeDeviceAt,
+    cameras: () => placed.filter(p => p.id === 'camera'), camEye, cameraSees, hooks, eventChoices, afterEventStart, tech, boost };
+
 }

@@ -1,4 +1,5 @@
 [{"wait": 2},
+{"js":"window.__journey && window.__journey.unlockAll('2580'); 1"},
 {"js": "window.__wolLearn.open(); 1"},
 {"wait": 1},
 {"js": "const L=window.__wolLearn; const z={ae:'amazon',ah:'amazon',ge:'grove',gh:'grove',re:'reef',rh:'reef',xe:'all',xh:'all'}; const out=[]; for (const lv of ['easy','hard']) { const c={amazon:0,grove:0,reef:0,all:0}; let rounds=0, lop=0; for (let k=0;k<60;k++){ const r=L._round(lv,'both'); rounds++; const zs=new Set(); for (const q of r){ if (!q.qid||!q.qid.startsWith('qb-')) continue; const zz=z[q.qid.slice(3,5)]; c[zz]++; zs.add(zz);} if (zs.size<2) lop++; } out.push(lv+' both x'+rounds+': '+Object.entries(c).map(([k,v])=>k+' '+v).join(', ')+' · rounds with one place only: '+lop); } out.join(' | ')"},

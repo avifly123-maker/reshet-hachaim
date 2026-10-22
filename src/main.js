@@ -11,12 +11,20 @@ import { KIDS } from './data/kids.js';
 import { ZONES } from './data/zones.js';
 import { loadPack, loadedPack, releasePack } from './core/packs.js';
 import * as profiles from './core/profiles.js';
+import { K, saveKey, readPlayer, writePlayerRaw, removePlayer, readDevice, readDeviceRaw, writeDevice, writeDeviceRaw, removeDevice, playerMode } from './core/storage.js';
 import { createResearchHub } from './research/hub.js';
 import { caseById } from './research/cases/index.js';
 import { initGamepad } from './ui/gamepad.js';
 import { startBadgeToasts } from './ui/badge-toast.js';
 import { howto } from './ui/howto.js';
 import { labHowto, HOWTO_LABELS } from './data/howto-cards.js';
+import * as journey from './core/journey.js';
+import * as threads from './core/threads.js';   // חוטים (1.3.2): the parts feed each other; רובו־דע announces a new thread
+import { createVoice } from './audio/voice.js';
+import { createGuide } from './ui/robo-guide.js';
+import { STAGE_LINES, LEGACY_LINES } from './data/guide-lines.js';
+import './ui/stage-scenes.js';   // window.__stageScene(n): the short film of a new stage (area I)
+import './ui/flourish.js';   // window.__flourish: short flourishes (a part opening, a badge, a thread, the lab's doors, a mission's animal)
 
 // Zones (biomes): the start screen draws them from the registry (data/zones.js); a zone's content and species models
 // arrive in its pack – { zone: { data, plants, animals }, release() } – loaded when the zone is chosen (core/packs.js).
@@ -32,10 +40,10 @@ function kidsBiome(base) {
 }
 // Everything a child saves (mode, forests, cards, tutorial) belongs to the current player – see core/profiles.js.
 let MODE = 'full';
-const readMode = () => { try { MODE = localStorage.getItem(profiles.key('web-of-life-mode')) || 'full'; } catch (e) { MODE = 'full'; } return MODE; };
+const readMode = () => { MODE = playerMode(); return MODE; };
 readMode();
 const biomeFor = (id) => MODE === 'kids' ? kidsBiome(zoneOf(id).data) : zoneOf(id).data;
-const saveKey = (id) => profiles.key('web-of-life-save-' + id + (MODE === 'kids' ? '-kids' : ''));
+const slotOf = (id) => saveKey(id, MODE === 'kids');   // the forest of this level (per player, core/storage.js)
 
 // Some computers draw 3D without a graphics driver (e.g. "Microsoft Basic Render Driver") – everything runs on the CPU.
 function detectSoftwareGL() {
@@ -52,10 +60,10 @@ const SOFTWARE_GL = detectSoftwareGL();
 
 function pickQuality() {
   if (SOFTWARE_GL) return 'min';
-  try { const q = localStorage.getItem('web-of-life-quality'); if (q) return q; } catch (e) { }
+  const q = readDeviceRaw(K.quality); if (q) return q;
   // what the automatic adjustment learned last time on this computer: start there instead of stuttering again
   // (kept for two weeks only, so one slow session – an antivirus scan, an update – does not pin the computer low for good)
-  try { const a = JSON.parse(localStorage.getItem('web-of-life-autoq') || 'null'); if (a && ['min', 'low', 'medium'].includes(a.q) && Date.now() - a.t < 14 * 864e5) return a.q; } catch (e) { }
+  const a = readDevice(K.autoq, null); if (a && ['min', 'low', 'medium'].includes(a.q) && Date.now() - a.t < 14 * 864e5) return a.q;
   const cores = navigator.hardwareConcurrency || 4;
   const mobile = /Mobi|Android|iPad|iPhone/i.test(navigator.userAgent);
   if (mobile || cores <= 2) return 'low';
@@ -86,6 +94,56 @@ async function boot() {
   const music = createMusic(audio);   // soft music on the start screen and in the lab only (see musicWanted below)
   ui.setToggles({ music: music.enabled });
   startBadgeToasts(root, audio);   // a badge (תג) earned anywhere drops in over whatever is open
+  // מסע החוקר (1.3.2): the game opens stage by stage (core/journey.js); רובו־דע presents each new part and speaks
+  journey.applyTextSize();
+  const voice = createVoice(audio);
+  const guide = createGuide(root, { voice });
+  // a stage was reached: its short scene (ui/stage-scenes.js, when present), then רובו־דע says what opened
+  const stageMoment = (n) => {
+    const scene = window.__stageScene ? Promise.resolve(window.__stageScene(n)).catch(() => { }) : Promise.resolve();
+    return scene.then(() => guide.say(STAGE_LINES[n] || [], { key: 'stage:' + n, modal: true, place: 'center' }))
+      .then((r) => { try { window.dispatchEvent(new CustomEvent('wol-stage-done', { detail: { stage: n, result: r } })); } catch (e) { } return r; });
+  };
+  // stage moments wait in line: two stages reached at once play one after the other (the second film is not dropped).
+  // A stage reached in a forest, the lab, a mystery or a game waits for a calm place: the start screen or the learning
+  // hub's home (the child is not pulled out of what they are doing), and for a badge toast to leave (it would sit under
+  // the film). Each moment belongs to the player who reached it.
+  const STAGE_GAP_MS = 600;     // a breath between two stage moments
+  const STAGE_RETRY_MS = 1000;  // how often a waiting moment looks again for a calm place
+  const stageQ = []; let stageRun = null, stageT = 0;
+  const playerId = () => { try { return profiles.current().id; } catch (e) { return ''; } };
+  const calmForStage = () => {
+    if (game || loading || labOpening) return false;
+    if (document.querySelector('.ss, .bdg-pop, #howto, #rguide.modal:not([hidden])')) return false;
+    if (hub && hub.isOpen()) return !!root.querySelector('#wol-learn .wl-home');   // the hub's home (over the lab too)
+    if ((lab && lab.isOpen()) || researchHub.isOpen()) return false;
+    return ui.isStartShown();
+  };
+  function nextStage() {
+    clearTimeout(stageT); stageT = 0;
+    if (stageRun) return;
+    const me = playerId(), i = stageQ.findIndex((q) => q.who === me); if (i < 0) return;
+    if (!calmForStage()) { stageT = setTimeout(nextStage, STAGE_RETRY_MS); return; }
+    const { n } = stageQ.splice(i, 1)[0];
+    stageRun = stageMoment(n).catch((e) => console.error(e)).then(() => { stageRun = null; stageT = setTimeout(nextStage, STAGE_GAP_MS); });
+  }
+  window.addEventListener('wol-stage', (e) => {
+    if (!e.detail || e.detail.legacy) return;
+    const n = e.detail.stage, who = playerId();
+    if (!stageQ.some((q) => q.n === n && q.who === who)) { stageQ.push({ n, who }); stageQ.sort((a, b) => a.n - b.n); }
+    nextStage();
+  });
+  // the first visit of a player: hello from רובו־דע (a new player), or one word about what is new (a player from before)
+  const greetPlayer = () => {
+    const st = journey.state();
+    if (st.legacy) guide.say(LEGACY_LINES, { key: 'legacy', place: 'center', modal: true });
+    else if (st.stage === 1) guide.say(STAGE_LINES[1], { key: 'stage:1', place: 'center', modal: true });
+    journey.check();
+  };
+  window.__app_journey = { stageMoment, greetPlayer, nextStage, waiting: () => stageQ.map((q) => q.n) };
+  const GREET_MS = 900;          // the hello of רובו־דע after the start screen is up
+  const GREET_SWITCH_MS = 600;   // … and after another player was chosen
+  const THREAD_NOTE_MS = 2600;   // a new thread is said on the start screen a little after it shows (after a stage moment)
   let quality = pickQuality();
   let pipe;
   try { pipe = createPipeline(canvas, { quality }); }
@@ -114,12 +172,16 @@ async function boot() {
     pendingBiome = null;
     ui.hideLoading();
     root.classList.remove('kids');
+    try { journey.check(); } catch (e) { console.error(e); }   // a stage reached in a forest, the lab or a game is announced here at the latest
+    threads.announceSoon(THREAD_NOTE_MS);   // a thread opened in a forest, the lab or a game: רובו־דע says it on the start screen (after a stage moment)
     ui.showStart(Object.values(ZONES).map((z) => ({ id: z.id, name: z.name, subtitle: z.subtitle, intro: z.intro, kidsIntro: KIDS[z.id]?.intro, palette: z.palette, dev: !!z.dev })));
+    if (window.__app_journey) window.__app_journey.nextStage();   // a stage moment that waited in a forest or the lab plays now
   }
 
   let gameZone = null;   // the zone whose pack the running (or last) game uses
   // the forest is gone: free the zone pack's cached models too (the pack's code stays loaded for a quick return)
   function closeGame() {
+    guide.close({ scene: 'game' }); guide.setScene('app');   // רובו־דע's bubbles about this forest leave with it
     if (game) { try { game.dispose(); } catch (e) { console.error(e); } game = null; }
     if (gameZone) { releasePack(gameZone); gameZone = null; }
     audio.setBiome(null);   // every way out of an island silences its ambience (rain and river included)
@@ -144,7 +206,7 @@ async function boot() {
     closeGame();
     resetAutoQ(2);   // a fresh island: forget the previous one's frame timing (the loading gap would count as one huge frame)
     try {
-      gameZone = id;
+      gameZone = id; guide.setScene('game');
       const { createGame } = loadedPack('game');
       game = await createGame({ save, research, pipe, ui, audio, bus, biome, plantBuilders: Z.plants, animalBuilders: Z.animals, zoneEnv: Z.env || null, quality, onExit: () => { closeGame(); resetAutoQ(2); audio.setBiome(null); showStart(); if (research) researchHub.open(); } });
       const g = game;
@@ -160,14 +222,14 @@ async function boot() {
       ui.setLoading(0, hasSave ? 'משהו השתבש בטעינה של היער השמור. אפשר לחזור, או להתחיל יער חדש.' : 'משהו השתבש בטעינה. אפשר לחזור למסך הפתיחה ולנסות שוב.');
       ui.setLoadingActions([
         { label: 'חזרה למסך הפתיחה', onClick: () => showStart() },
-        ...(hasSave ? [{ label: 'להתחיל יער חדש (היער השמור יימחק)', onClick: () => { try { localStorage.removeItem(saveKey(id)); } catch (err) { } loadBiome(id); } }] : []),
+        ...(hasSave ? [{ label: 'להתחיל יער חדש (היער השמור יימחק)', onClick: () => { removePlayer(slotOf(id)); loadBiome(id); } }] : []),
       ]);
     }
     loading = false;
   }
 
   // a saved forest? offer to continue it
-  const readSave = (id) => { try { const t = localStorage.getItem(saveKey(id)); return t ? JSON.parse(t) : null; } catch (e) { return null; } };
+  const readSave = (id) => readPlayer(slotOf(id), null);
   function askSaved(id) {
     const sv = readSave(id);
     if (!sv || !Array.isArray(sv.plants) || !sv.plants.length) { pendingBiome = null; loadBiome(id); return; }
@@ -189,19 +251,25 @@ async function boot() {
       ui.showDialog({ title: 'בטוח?', text: 'היער השמור יימחק, ואי אפשר יהיה להחזיר אותו.',
         buttons: [{ id: 'save-new-yes', label: 'כן, להתחיל יער חדש' }, { id: 'save-new-no', label: 'לא, חזרה' }], dismiss: 'save-new-no' });
     }
-    else if (id === 'save-new-yes') { pendingBiome = null; try { localStorage.removeItem(saveKey(b)); } catch (e) { } loadBiome(b); }
+    else if (id === 'save-new-yes') { pendingBiome = null; removePlayer(slotOf(b)); loadBiome(b); }
     else if (id === 'save-new-no') askSaved(b);
     else pendingBiome = null;   // 'save-back', Escape or a click outside the box
   });
-  bus.on('start:mode', ({ mode }) => { MODE = mode; try { localStorage.setItem(profiles.key('web-of-life-mode'), mode); } catch (e) { } });
+  // the level switch (מתחילים ↔ מתקדמים) changes the stage thresholds: the journey keeps the best stage reached under the
+  // old level first, then looks again under the new one (a stage reached now is announced)
+  bus.on('start:mode', ({ mode }) => {
+    try { journey.check(); } catch (e) { console.error(e); }
+    MODE = mode; writePlayerRaw(K.mode, mode);
+    try { journey.check(); } catch (e) { console.error(e); }
+  });
   // players ("מי משחק?") – only reachable from the start screen, so no forest is running while the player changes
-  const playerChanged = () => { readMode(); ui.setMode(MODE); ui.setProfiles(profiles.state()); };
+  const playerChanged = () => { readMode(); journey.reload(); ui.setMode(MODE); ui.setProfiles(profiles.state()); guide.close(); try { window.dispatchEvent(new CustomEvent('wol-journey')); } catch (e) { } setTimeout(greetPlayer, GREET_SWITCH_MS); };
   bus.on('profile:switch', ({ id }) => { if (game || loading) return; if (profiles.setCurrent(id)) playerChanged(); });
   bus.on('profile:add', ({ name, animal }) => { if (game || loading) return; const p = profiles.add(name, animal); if (p) profiles.setCurrent(p.id); playerChanged(); });
   bus.on('profile:edit', ({ id, name, animal }) => { if (name != null) profiles.rename(id, name); if (animal) profiles.setAnimal(id, animal); ui.setProfiles(profiles.state()); });
   bus.on('profile:reset', ({ id }) => { if (game || loading) return; if (profiles.reset(id)) { playerChanged(); ui.toast('השחקן אופס – מתחילים מההתחלה', 'good'); } });
   bus.on('profile:remove', ({ id }) => { if (game || loading) return; if (profiles.remove(id)) playerChanged(); });
-  bus.on('ui:learn', (o) => { audio.start(); const scr = o && o.screen; getHub().then((h) => { if (scr && scr !== 'home' && h.go) h.go(scr); else h.open(); }, (e) => console.error(e)); });
+  bus.on('ui:learn', (o) => { audio.start(); const scr = o && o.screen; getHub().then((h) => { if (scr && scr !== 'home' && h.go) h.go(scr, (o && o.opts) || undefined); else h.open(); }, (e) => console.error(e)); });
   bus.on('ui:lab', () => { audio.start(); openLab('start'); });
   bus.on('ui:click', () => { try { audio.play('click'); } catch (e) { /* */ } });
   // חוקרי הטבע: the research centre and its mysteries
@@ -237,7 +305,8 @@ async function boot() {
     labP.then((L) => { labOpening = false; ui.hideLoading(); L.open(); setTimeout(() => { if (L.isOpen()) showLabHowto(false); }, 700); }, (e) => { labOpening = false; labP = null; ui.hideLoading(); console.error(e); showStart(); });
   }
   bus.on('ui:research', () => { audio.start(); researchHub.open(); });
-  bus.on('audio:mute', ({ muted }) => audio.setMuted(muted));
+  bus.on('audio:mute', ({ muted }) => { audio.setMuted(muted); writeDeviceRaw(K.sound, muted ? 'off' : 'on'); });   // remembered for the computer (1.3.2)
+  if (readDeviceRaw(K.sound) === 'off') { audio.setMuted(true); ui.setToggles({ sound: false }); }
   bus.on('music:toggle', ({ on }) => { music.setEnabled(on); ui.setToggles({ music: music.enabled }); });
   // which piece the screen on top would like: none in a forest, the learning hub, its games or the mysteries' centre
   const musicWanted = () => {
@@ -279,13 +348,13 @@ async function boot() {
     } else { try { r.compile(scene, camera); } catch (e) { } finish(); }
   }
   function applyQuality(q, remember) {
-    quality = q; if (remember) { try { localStorage.setItem('web-of-life-quality', q); } catch (e) { } }
+    quality = q; if (remember) writeDeviceRaw(K.quality, q);
     pipe.setQuality(q); setRes(pipe.resScale); if (game && game.W.env.setQuality) game.W.env.setQuality(q);
     ui.setToggles({ quality: q === 'min' ? 'low' : q });
     if (game) precompileShaders();
     resetAutoQ(Math.max(autoQ.settle, 1));   // the recompile stall must not count as slow frames
   }
-  bus.on('quality', ({ q }) => { autoQ.manual = true; pipe.shadowEvery = 1; applyQuality(q, true); setRes(SOFTWARE_GL ? 0.6 : 1); try { localStorage.removeItem('web-of-life-autoq'); } catch (e) { } });
+  bus.on('quality', ({ q }) => { autoQ.manual = true; pipe.shadowEvery = 1; applyQuality(q, true); setRes(SOFTWARE_GL ? 0.6 : 1); removeDevice(K.autoq); });
 
   // automatic quality: measure the real frame rate while playing and step down only when the slowness is sustained.
   // Order of measures: 1) render slightly fewer pixels (hardly visible), 2) medium → low after ~12 s of slow play,
@@ -293,7 +362,7 @@ async function boot() {
   // Tier steps need < 20 fps for ~12 s; between 20 and 24 fps only the pixel count is trimmed (floor 80%).
   const autoQ = { t: 0, n: 0, last: 0, manual: false, settle: 2, slow: 0, verySlow: 0, cool: 0 };
   function resetAutoQ(settle) { autoQ.last = 0; autoQ.t = 0; autoQ.n = 0; autoQ.settle = settle; autoQ.slow = 0; autoQ.slowRes = 0; autoQ.verySlow = 0; }
-  try { autoQ.manual = !!localStorage.getItem('web-of-life-quality'); } catch (e) { }
+  autoQ.manual = !!readDeviceRaw(K.quality);
   const WIN = 3;                                   // seconds per measuring window
   function autoQuality() {
     const now = performance.now(); const rdt = autoQ.last ? Math.min(1, (now - autoQ.last) / 1000) : 0; autoQ.last = now;
@@ -319,10 +388,11 @@ async function boot() {
     else if (autoQ.verySlow >= 6 && quality === 'low') { applyQuality('min'); changed = true; }
     if (!changed) return;
     autoQ.slow = 0; autoQ.slowRes = 0; autoQ.verySlow = 0; autoQ.cool = changed === true ? 15 : 4; autoQ.t = 0; autoQ.n = 0;   // the quiet steps (pixels, shadow rate) prove themselves faster
-    if (changed === true) { ui.toast('התאמתי את הגרפיקה כדי שהמשחק ירוץ חלק יותר', 'info'); try { localStorage.setItem('web-of-life-autoq', JSON.stringify({ q: quality, t: Date.now() })); } catch (e) { } }
+    if (changed === true) { ui.toast('התאמתי את הגרפיקה כדי שהמשחק ירוץ חלק יותר', 'info'); writeDevice(K.autoq, { q: quality, t: Date.now() }); }
   }
 
   showStart();
+  setTimeout(greetPlayer, GREET_MS);
   // 1.3.1: nothing more is loaded in the background. The learning hub comes when it is opened (or when a forest grants a
   // card pack: window.__wolLearn above loads it then), each zone with its click, the lab when the child enters it.
 
@@ -332,7 +402,7 @@ async function boot() {
     if ((e.key === 'f' || e.key === 'F' || e.key === 'כ') && !e.ctrlKey && !e.metaKey && !(e.target && /input|textarea/i.test(e.target.tagName))) {
       if (fpsEl) { fpsEl.remove(); fpsEl = null; return; }
       fpsEl = document.createElement('div');
-      fpsEl.style.cssText = 'position:fixed;left:8px;bottom:8px;z-index:99;padding:4px 8px;border-radius:8px;background:rgba(0,0,0,.7);color:#cfe;font:12px monospace;direction:ltr;pointer-events:none';
+      fpsEl.style.cssText = 'position:fixed;left:8px;bottom:8px;z-index:var(--z-dev);padding:4px 8px;border-radius:8px;background:rgba(0,0,0,.7);color:#cfe;font:12px monospace;direction:ltr;pointer-events:none';
       document.body.appendChild(fpsEl);
     }
   });
@@ -357,7 +427,7 @@ async function boot() {
     if (fpsEl) { fpsN++; const now = performance.now(); if (now - fpsT > 1000) { const i = pipe.renderer.info.render; fpsEl.textContent = `${Math.round(fpsN * 1000 / (now - fpsT))} fps · ${quality} · x${pipe.resScale.toFixed(2)} · ${i.calls} calls · ${Math.round(i.triangles / 1000)}k tris`; fpsN = 0; fpsT = now; } }
   }
   frame();
-  window.__app = { bus, ui, audio, music, pipe, loadBiome, researchHub, openLab: () => openLab(), openCase: (id, opts) => { let C = caseById(id); if (C && opts && opts.tutorial) C = { ...C, tutorial: true }; if (C) loadBiome(C.zone, null, C); }, get game() { return game; } };
+  window.__app = { bus, ui, audio, music, pipe, voice, guide, journey, loadBiome, researchHub, openLab: () => openLab(), openCase: (id, opts) => { let C = caseById(id); if (C && opts && opts.tutorial) C = { ...C, tutorial: true }; if (C) loadBiome(C.zone, null, C); }, get game() { return game; } };
 }
 
 boot();

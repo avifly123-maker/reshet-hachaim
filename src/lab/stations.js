@@ -7,6 +7,8 @@ import { SAMPLES, sampleById, ZOOMS } from './samples.js';
 import { labProgress, markFound, addTry, invent } from './progress.js';
 import { labKids } from './level.js';
 import { SCOPE_K, SAMPLES_K } from './kids-text.js';
+import { markedSamples } from '../core/threads.js';   // חוטים: a creature photographed on the island marks its sample
+import { markHTML } from '../ui/threads-ui.js';
 
 // ───────────────────────────────────────────── the microscope
 export function openMicroscope(root, { say, thumbs, audio, onDone, onClose, start }) {
@@ -14,7 +16,9 @@ export function openMicroscope(root, { say, thumbs, audio, onDone, onClose, star
   const kids = labKids(), K = SCOPE_K;
   const txt = (s) => (kids ? { ...s, ...(SAMPLES_K[s.id] || {}) } : s);
   const el = document.createElement('div'); el.className = 'lb-panel lb-scope' + (kids ? ' kids' : ''); root.appendChild(el);
-  let cur = (start && sampleById(start)) || SAMPLES[0], level = 0, focus = 18, hintI = 0;   // start: a sample asked for by a research question
+  let isl = new Set(); try { isl = markedSamples(); } catch (e) { /* */ }
+  // start: a sample asked for by a research question, else one "מהאי שלכם" not looked at yet, else the first
+  let cur = (start && sampleById(start)) || SAMPLES.find((x) => isl.has(x.id) && !labProgress().seen[x.id]) || SAMPLES[0], level = 0, focus = 18, hintI = 0;
   const prog = () => labProgress();
   function render() {
     const P = prog(); const found = new Set(P.found[cur.id] || []); const T = txt(cur);
@@ -39,7 +43,7 @@ export function openMicroscope(root, { say, thumbs, audio, onDone, onClose, star
       <section class="lb-side">
         <label class="lb-focus">${kids ? K.focus : 'מיקוד'}<input type="range" min="0" max="100" value="${focus}"></label>
         <h3>${kids ? K.tray : 'מגש הדגימות'}</h3>
-        <div class="lb-tray">${SAMPLES.map((s) => `<button data-s="${s.id}" class="${s === cur ? 'on' : ''} ${P.seen[s.id] ? 'done' : ''}">${thumbs[s.species] ? `<img src="${thumbs[s.species]}" alt="">` : ''}<span>${esc(txt(s).name)}</span></button>`).join('')}
+        <div class="lb-tray">${SAMPLES.map((s) => `<button data-s="${s.id}" class="${s === cur ? 'on' : ''} ${P.seen[s.id] ? 'done' : ''}${isl.has(s.id) ? ' th-isl' : ''}">${isl.has(s.id) ? markHTML('island') : ''}${thumbs[s.species] ? `<img src="${thumbs[s.species]}" alt="">` : ''}<span>${esc(txt(s).name)}</span></button>`).join('')}
           <div class="lb-locked"><span>${kids ? K.more : 'עוד דגימות יגיעו מהתעלומות ומהסביבות'}</span></div></div>
         <button class="lb-btn lb-back">${kids ? K.back : 'חזרה לחדר'}</button>
       </section>`;

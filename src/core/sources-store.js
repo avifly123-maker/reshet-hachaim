@@ -1,14 +1,14 @@
 // Source cards ("קלפי מקור") a player owns – shared by the game (missions) and the learning hub (quiz, sets, album).
-import { key as profileKey } from './profiles.js';
-const K = 'web-of-life-srccards';
+import { K as KEY, readPlayer, writePlayer } from './storage.js';
+const K = KEY.srccards;
 export function ownedSources() {
-  try { const o = JSON.parse(localStorage.getItem(profileKey(K)) || '{}'); return o && typeof o === 'object' ? o : {}; } catch (e) { return {}; }
+  const o = readPlayer(K, {}); return o && typeof o === 'object' ? o : {};
 }
 export function hasSource(id) { return !!ownedSources()[id]; }
 export function grantSource(id) {
   const o = ownedSources(); if (o[id]) return false;
   o[id] = Date.now();
-  try { localStorage.setItem(profileKey(K), JSON.stringify(o)); } catch (e) { return false; }
+  if (!writePlayer(K, o)) return false;
   try { window.dispatchEvent(new CustomEvent('wol-source-granted', { detail: id })); } catch (e) { /* */ }
   return true;
 }

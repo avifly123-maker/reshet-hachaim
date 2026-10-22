@@ -2,7 +2,8 @@
 """Save-compatibility guard. python3 tools/check-old-saves.py <build.html | desktop app folder> [--make]
 --make : play a little (both biomes, cards, a 2nd player) on the CURRENT build and store all localStorage keys in
          tests/fixtures/saves-<version>.json (do this once per released version).
-default: load every fixture into a fresh page of the given build and check the forests, players and albums restore."""
+default: load every fixture into a fresh page of the given build and check the forests, players and albums restore,
+         and that every player with progress is a legacy player of מסע החוקר (every part open, nothing closed)."""
 import sys, json, glob, asyncio, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from apphost import mount
@@ -17,16 +18,19 @@ async def page(p):
 
 async def do_make(p):
     b, pg, errs = await page(p)
-    await pg.goto(await mount(pg, build)); await pg.wait_for_timeout(2500)
+    url = await mount(pg, build); await pg.goto(url); await pg.wait_for_timeout(2500)
     for biome, ids in (('amazon', ['kapok', 'fig', 'heliconia', 'toucan', 'agouti']), ('grove', ['oak', 'carob', 'sage', 'jay', 'hedgehog'])):
         await pg.evaluate(f"window.__app.bus.emit('start:biome',{{id:'{biome}'}})"); await pg.wait_for_timeout(9000)
+        await pg.wait_for_function("window.__game && window.__game.debug", timeout=180000); await pg.wait_for_timeout(2000)
         await pg.evaluate("""(ids) => { const W = window.__game, d = W.debug; d.unlockAll(); W.points = 1e5;
             document.querySelectorAll('.coach button').forEach(b => /דלג/.test(b.textContent) && b.click());
             for (const id of ids) for (let i = 0; i < 12; i++) { const a = Math.random() * 6.28, r = 8 + Math.random() * 22; if (typeof d.place(id, Math.cos(a) * r, Math.sin(a) * r) === 'object') break; }
             for (let k = 0; k < 6; k++) { d.auto(); d.ff(10); } }""", ids)
         await pg.evaluate("window.__app.bus.emit('ui:save')"); await pg.wait_for_timeout(800)
         await pg.evaluate("window.__app.bus.emit('ui:home'); window.__app.bus.emit('ui:exit')"); await pg.wait_for_timeout(1500)
-    await pg.evaluate("window.__wolLearn.open()"); await pg.wait_for_function("window.__wolLearn && window.__wolLearn._collect", timeout=60000)   # 1.3.1: the hub loads when opened
+    for _ in range(24):   # 1.3.1: the hub loads when opened (ask again until the start screen takes it)
+        await pg.evaluate("window.__app.bus.emit('ui:learn', {})"); await pg.wait_for_timeout(10000)
+        if await pg.evaluate("!!(window.__wolLearn && window.__wolLearn._collect)"): break
     await pg.evaluate("window.__wolLearn.open(); window.__wolLearn._collect(25); window.__wolLearn.close()")
     await pg.evaluate("const P = window.__profiles; const q = P.add('יוסף', 'fox'); P.setCurrent(P.list()[0].id)")
     keys = await pg.evaluate("Object.fromEntries(Object.keys(localStorage).filter(k => k.startsWith('web-of-life')).map(k => [k, localStorage.getItem(k)]))")
@@ -45,6 +49,20 @@ async def do_check(p):
         await pg.wait_for_function("window.__profiles && window.__app", timeout=60000)   # the bigger 1.3 page can take longer to start
         players = await pg.evaluate("window.__profiles.list().length")
         res = {'players': players}
+        # מסע החוקר (1.3.2): every player with progress from before is 'legacy' – every part open, nothing closes
+        await pg.wait_for_function("window.__journey && window.__journey.state", timeout=60000)
+        # a player whose save is already from 1.3.2 or later has its own journey (stage by progress, not legacy): skip it
+        had = [k.split('::', 1)[1] for k in fx['keys'] if k.startswith('web-of-life-journey::')]
+        journey = await pg.evaluate("""(had) => { const P = window.__profiles, J = window.__journey, cur = P.current().id, out = [];
+            for (const p of P.list()) {
+              if (had.includes(p.id)) continue;
+              P.setCurrent(p.id); J.reload(); const m = J.metrics();
+              const forest = Object.keys(localStorage).some((k) => k.startsWith('web-of-life-save-') && k.endsWith('::' + p.id));
+              if (!(forest || m.missions + m.badges + m.lab + m.cases + m.cards > 0)) continue;   // a player who never played
+              const st = J.state(); out.push({ id: p.id, legacy: st.legacy, closed: Object.keys(J.PARTS).filter((x) => !J.isOpen(x)) });
+            }
+            P.setCurrent(cur); J.reload(); return out; }""", had)
+        res['journey'] = journey
         for biome in ('amazon', 'grove'):
             saved = await pg.evaluate(f"!!localStorage.getItem(window.__profiles.key('web-of-life-save-{biome}'))")
             await pg.evaluate(f"window.__app.bus.emit('start:biome',{{id:'{biome}'}})"); await pg.wait_for_timeout(2500)
@@ -54,10 +72,11 @@ async def do_check(p):
             n = await pg.evaluate("window.__game ? window.__game.plants.length + window.__game.animals.length : -1")
             res[biome] = {'had_save': saved, 'entities': n}
             await pg.evaluate("window.__app.bus.emit('ui:home'); window.__app.bus.emit('ui:exit')"); await pg.wait_for_timeout(1500)
-        await pg.evaluate("window.__wolLearn.open()"); await pg.wait_for_function("window.__wolLearn && window.__wolLearn._state", timeout=60000)
+        await pg.evaluate("window.__app.bus.emit('ui:learn', {})"); await pg.wait_for_function("window.__wolLearn && window.__wolLearn._state", timeout=240000)
         cards = await pg.evaluate("window.__wolLearn.open(); const n = Object.keys(window.__wolLearn._state().owned).length; window.__wolLearn.close(); n")
         res['cards'] = cards; res['errors'] = errs[:3]
-        ok = players >= 2 and cards >= 20 and not errs and all((not res[b]['had_save']) or res[b]['entities'] > 10 for b in ('amazon', 'grove'))
+        ok = players >= 2 and cards >= 20 and not errs and all((not res[b]['had_save']) or res[b]['entities'] > 10 for b in ('amazon', 'grove')) \
+            and (len(journey) > 0 or bool(had)) and all(j['legacy'] and not j['closed'] for j in journey)
         bad += not ok; print(('OK  ' if ok else 'FAIL'), pathlib.Path(f).name, json.dumps(res, ensure_ascii=False))
         await b.close()
     sys.exit(1 if bad else 0)
