@@ -23,7 +23,8 @@
 import { tally as badgeTally, chooseFrame, grant as grantBadge, hasBadge } from '../../core/badges-store.js';
 import { TORAH, setSourcesOn, sourcesOn } from '../../core/edition.js';
 import { isOpen, state as journeyState, lockInfo, markUsed } from '../../core/journey.js';
-import { current as currentPlayer, key as profileKey } from '../../core/profiles.js';
+import { current as currentPlayer } from '../../core/profiles.js';
+import { writePlayer, playerMode } from '../../core/storage.js';
 import { grantSource, ownedSources } from '../../core/sources-store.js';
 import { setSourceCheck } from '../../core/threads.js';
 import { DIET_VERBS, RELATION_TYPES } from '../../data/common.js';
@@ -58,12 +59,12 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   const reduced = () => { try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } };
   const sfx = (n) => { try { audio && audio.play && audio.play(n); } catch (e) { /* ignore */ } };
   const S = loadState();
-  let SKEY = profileKey(STORE_KEY);   // the player whose album S holds – saves always go back to that player
-  const save = () => { try { window.localStorage.setItem(SKEY, JSON.stringify(S)); } catch (e) { /* storage unavailable – keep in memory */ } };
+  let SID = currentPlayer().id;   // the player whose album S holds – saves always go back to that player
+  const save = () => { writePlayer(STORE_KEY, S, SID); };   // storage unavailable – keep in memory
   // the start screen may have switched player since the hub was created: load that player's album (same object, so every closure sees it)
   function reloadState() {
-    const k = profileKey(STORE_KEY); if (k === SKEY) return;
-    const fresh = loadState(); SKEY = k;
+    const id = currentPlayer().id; if (id === SID) return;
+    const fresh = loadState(); SID = id;
     for (const p of Object.keys(S)) delete S[p];
     Object.assign(S, fresh);
   }
@@ -191,7 +192,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   }
   /* ── card mini-games (each lives in ./games/*.js and gets this context) */
   let MODE = 'full';
-  const readMode = () => { try { MODE = window.localStorage.getItem(profileKey('web-of-life-mode')) || 'full'; } catch (e) { MODE = MODE || 'full'; } };
+  const readMode = () => { MODE = playerMode(); };
   // who is playing: a small, non-interactive label in the top bar
   function paintWho() {
     const p = currentPlayer(), w = $('.wl-who'); if (!w || !p) return;

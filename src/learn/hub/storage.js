@@ -1,7 +1,7 @@
 // מרכז הלמידה – reading a player's album from localStorage ('web-of-life-cards::<player>'; works without it).
 // Exports: loadState() → { owned, packs, quizzes, best, duelsWon, sets, … } (unknown cards and sets are dropped).
 // Needs: core/profiles.js (the player's key), the cards and sets (cards.js). Saving is done by the hub (index.js).
-import { key as profileKey } from '../../core/profiles.js';
+import { readPlayerRaw } from '../../core/storage.js';
 import { START_PACKS, STORE_KEY } from './base.js';
 import { CARD, SET_BY } from './cards.js';
 
@@ -9,7 +9,7 @@ import { CARD, SET_BY } from './cards.js';
 export function loadState() {
   const fresh = { owned: {}, packs: START_PACKS, quizzes: 0, best: 0, duelsWon: 0, sets: {}, v: 1 };
   try {
-    const raw = window.localStorage.getItem(profileKey(STORE_KEY));
+    const raw = readPlayerRaw(STORE_KEY);
     if (!raw) return fresh;
     const s = JSON.parse(raw);
     if (!s || typeof s !== 'object') return fresh;

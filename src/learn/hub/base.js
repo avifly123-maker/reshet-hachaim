@@ -4,12 +4,13 @@
 // (esc, rnd, pick, shuffle, sample, uniq, clamp, firstSentence, rgba, stemOf, maskName, leaksName), icons (sv, IC,
 // PART_ICON, STAT_ICON, IC_CURTAIN) and the quiz's diet words (EASY_PARTS, EASY_PART_LABEL).
 // Needs: the zone data (src/data/*.js) and the name aliases of src/data/common.js. No DOM.
+import { K } from '../../core/storage.js';
 import { BIOME as AMAZON } from '../../data/amazon.js';
 import { ALIASES } from '../../data/common.js';
 import { BIOME as GROVE } from '../../data/grove.js';
 import { BIOME as REEF } from '../../data/reef.js';
 
-export const STORE_KEY = 'web-of-life-cards';
+export const STORE_KEY = K.cards;   // per player (core/storage.js)
 export const ROUND = 10;
 // card packs are a treat, not a flood: a right answer brings one only now and then (at most 2 a round)
 export const PACK_CHANCE = 0.22;
