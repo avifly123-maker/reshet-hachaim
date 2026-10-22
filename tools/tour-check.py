@@ -18,8 +18,11 @@ steps += [
     {'js': helper},
     {'js': "window.__tt.setup()"},
     {'js': "(() => { const d = window.__game.debug; d.auto(); d.ff(20); d.auto(); const t = d.tour(); return JSON.stringify({ ride: t.presentSpecies(), look: t.presentLook() }); })()"},
-    {'js': "(() => { const t = window.__game.debug.tour(), out = []; for (const id of t.presentSpecies()) { try { out.push(JSON.stringify(window.__tt.ride(id))); } catch (e) { out.push(id + ' ERR ' + e); } } return out.join('\\n'); })()"},
+    # one console line per ride (play.py prints them at the end; an eval result is cut at 2000 characters)
+    {'js': "(() => { const t = window.__game.debug.tour(); let n = 0; for (const id of [...t.presentSpecies(), ...t.presentLook()]) { n++; try { console.log('TOUR ' + JSON.stringify(window.__tt.ride(id))); } catch (e) { console.log('TOUR ' + id + ' ERR ' + e); } } return 'rides ' + n + ', absent ' + JSON.stringify(t.absentSpecies().map(id => id + ': ' + t.bringLine(id))); })()"},
 ]
+if shoot:   # clean pictures: no guide bubble and no toasts over the view
+    steps.append({'js': "(() => { const st = document.createElement('style'); st.textContent = '#rguide, .toast { display: none !important; }'; document.head.appendChild(st); return 1; })()"})
 for sid in shoot:
     steps.append({'js': "window.__app.bus.emit('quality',{q:'medium'}); 1"})
     steps.append({'js': f"(() => {{ const d = window.__game.debug, t = d.tour(); d.auto(); t.start('{sid}'); const k = (c, on) => window.dispatchEvent(new KeyboardEvent(on ? 'keydown' : 'keyup', {{ code: c, key: c }})); k('ArrowUp', 1); d.ff(2.5); k('ArrowUp', 0); d.ff(0.6); return t.riding ? 'riding {sid} ' + t.mode : 'no {sid}'; }})()"})

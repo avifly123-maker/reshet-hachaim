@@ -33,7 +33,7 @@ const CSS = `
 #ui.wol .tp-card.tp-shade { cursor: default; background: rgba(255, 255, 255, .22); box-shadow: inset 0 0 0 1.5px rgba(60, 70, 40, .16); }
 #ui.wol .tp-card.tp-shade:hover { transform: none; background: rgba(255, 255, 255, .3); box-shadow: inset 0 0 0 1.5px rgba(60, 70, 40, .22); }
 #ui.wol .tp-card.tp-shade .tp-img { background: rgba(60, 70, 50, .14); box-shadow: 0 0 0 3px #fff6; }
-#ui.wol .tp-card.tp-shade .tp-img img { filter: brightness(0) opacity(.32); }
+#ui.wol .tp-card.tp-shade .tp-img img { filter: grayscale(1) brightness(.62) contrast(.8) opacity(.5); }
 #ui.wol .tp-card.tp-shade b { color: #4a5442; }
 #ui.wol .tp-card.tp-shade small { font-weight: 600; font-size: .82em; line-height: 1.3; color: #55604a; }
 #ui.wol .tp-close { position: absolute; top: 6px; left: 6px; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: var(--ink2); }
@@ -405,22 +405,29 @@ export function createTour({ W, env, reg, camera, canvas, ui, audio, imv, missio
     }
     return p;
   }
-  // the chase camera: over a solid it is in, and over one that hides the animal (between the camera and the head)
+  // the chase camera: out of a solid it is in, and over one that hides the animal (between the camera and the head).
+  // It rises at most 4 m for that; a coral the animal itself is passing through does not count as "in the way".
+  function blockedView(want, head, skip, headIn) {
+    let lift = 0;
+    for (let k = 4; k < 10; k++) {
+      const t = k / 10, sx = head.x + (want.x - head.x) * t, sy = head.y + (want.y - head.y) * t, sz = head.z + (want.z - head.z) * t;
+      const o = solidAt(sx, sy, sz, 0.3, skip); if (!o || o === headIn) continue;
+      lift = Math.max(lift, (o.top + 0.4 - sy) / t);
+    }
+    return lift;
+  }
   function cameraOverSolids(want, head, skip) {
+    const headIn = solidAt(head.x, head.y, head.z, 0, skip);
+    const top = env.surfaceY != null ? env.surfaceY - 0.4 : 40;
+    for (let i = 0; i < 3; i++) { const o = solidAt(want.x, want.y, want.z, 0.3, skip); if (!o) break; want.y = Math.min(top, o.top + 0.4); }
+    let total = 0;
     for (let i = 0; i < 3; i++) {
-      let lift = 0;
-      for (let k = 2; k <= 10; k++) {
-        const t = k / 10, sx = head.x + (want.x - head.x) * t, sy = head.y + (want.y - head.y) * t, sz = head.z + (want.z - head.z) * t;
-        const o = solidAt(sx, sy, sz, 0.3, skip); if (!o) continue;
-        lift = Math.max(lift, (o.top + 0.4 - sy) / t);
-      }
-      if (lift <= 0) break;
-      want.y += Math.min(lift, 6);
+      const lift = blockedView(want, head, skip, headIn); if (lift <= 0) break;
+      const d = Math.min(lift, 4 - total, top - want.y); if (d <= 0.01) break;
+      want.y += d; total += d;
     }
-    if (env.surfaceY != null && want.y > env.surfaceY - 0.4) {   // no room above: come in closer instead
-      want.y = env.surfaceY - 0.4;
-      for (let i = 0; i < 4 && solidAt(want.x, want.y, want.z, 0.25, skip); i++) want.lerp(head, 0.35);
-    }
+    // no room above (or still hidden): come in closer instead
+    for (let i = 0; i < 4 && (solidAt(want.x, want.y, want.z, 0.25, skip) || blockedView(want, head, skip, headIn) > 0); i++) want.lerp(head, 0.35);
   }
 
   // ── steering: ground
