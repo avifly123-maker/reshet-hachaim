@@ -3,6 +3,11 @@
 //
 // export function createLearningHub(rootEl, { onClose, audio }) → { open(), close(), isOpen(), grantPack(n) }
 // Also exposes window.__wolLearn = { open, close, isOpen, grantPack(n), _go(screen, opts), _state() }.
+// 1.3.2 (מסע החוקר): the home is one page (album in the middle, quiz / badges / frames on the right, the card games on the
+// left). Every tile follows core/journey.js isOpen(part): a part that is not open yet is veiled, and a click on it (or
+// go() into it) lets רובו־דע say what opens it. The first visit of each screen: window.__guide.intro(part)
+// (lines in src/data/guide/hub.js). journey.markUsed(part) when a part is really played. _go() is a test hook: it opens
+// a screen even when its part is still locked.
 // Persistence: localStorage 'web-of-life-cards::<player>' (optional – everything works without it). Each player
 // (core/profiles.js) has their own album; the state is re-read from the current player's key every time the hub opens.
 import { BIOME as AMAZON } from '../data/amazon.js';
@@ -34,7 +39,8 @@ import { RELATION_TYPES, DIET_VERBS, gw, activeNameFor, ALIASES, defName } from 
 import { key as profileKey, current as currentPlayer } from '../core/profiles.js';
 import { avatarHTML } from '../ui/avatars.js';
 import { icon } from '../ui/ui.js';
-import { tileIcon } from '../ui/icons-hub.js';   // one icon set for every button of the hub (see the sheet: tools/icon-sheet.mjs)
+import { tileIcon, TILE_TONE } from '../ui/icons-hub.js';   // one icon set for every button of the hub (see the sheet: tools/icon-sheet.mjs)
+import { isOpen, lockInfo, markUsed, state as journeyState, PARTS as JPARTS } from '../core/journey.js';   // מסע החוקר (1.3.2): which parts are open
 
 const STORE_KEY = 'web-of-life-cards';
 const ROUND = 10;
@@ -698,39 +704,8 @@ const CSS = `
 .wol-learn .wl-btn:disabled{filter:grayscale(.8) opacity(.55)}
 .wol-learn .wl-btn .wl-badgeN{min-width:1.6em;height:1.6em;border-radius:99px;background:var(--berry);color:#fff;font-size:.85em;display:inline-grid;place-items:center;padding:0 .35em}
 /* home */
-.wol-learn .wl-home{justify-content:flex-start;gap:1.8em;padding:0 2em 2em;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin}
-.wol-learn .wl-home>:first-child{margin-top:auto}.wol-learn .wl-home>:last-child{margin-bottom:auto}   /* centred when it fits, scrolls (from the top) when it does not */
-@media (max-height:640px){.wol-learn .wl-home{gap:1em;padding-bottom:1em}.wol-learn .wl-hero h1{font-size:2.4em}.wol-learn .wl-hero p{display:none}}
-.wol-learn .wl-hero{text-align:center}
-.wol-learn .wl-hero h1{font-family:var(--serif);font-size:3.4em;line-height:1;color:#f6eed0;text-shadow:0 3px 22px rgba(0,0,0,.45)}
-.wol-learn .wl-hero p{margin-top:.5em;font-family:var(--serif);font-size:1.25em;color:#e2dcbd}
-.wol-learn .wl-tiles{display:flex;gap:2em;justify-content:center;width:100%}
-.wol-learn .wl-tile{position:relative;width:min(25em,42vw);border-radius:24px;padding:0;overflow:hidden;text-align:right;display:flex;flex-direction:column;transition:transform .2s,box-shadow .2s}
-.wol-learn .wl-tile:hover{transform:translateY(-5px) rotate(-.4deg);box-shadow:0 20px 44px rgba(0,0,0,.45)}
-.wol-learn .wl-tart{position:relative;height:13em;display:grid;place-items:center;overflow:hidden}
-.wol-learn .wl-tile.quiz .wl-tart{background:radial-gradient(circle at 50% 60%,rgba(143,208,103,.55),transparent 60%),linear-gradient(180deg,#d8ecc2,#b8d79c)}
-.wol-learn .wl-tile.album .wl-tart{background:radial-gradient(circle at 50% 60%,rgba(240,180,76,.55),transparent 60%),linear-gradient(180deg,#f2deb0,#e2c68a)}
-.wol-learn .wl-tbody{padding:1em 1.4em 1.3em;display:flex;flex-direction:column;gap:.3em}
-.wol-learn .wl-tbody h2{font-family:var(--serif);font-size:2.3em;line-height:1;color:#1f2c1a;display:flex;align-items:center;gap:.3em}
-.wol-learn .wl-tbody p{font-size:1.08em;color:var(--ink2)}
-.wol-learn .wl-qbubble{position:relative;width:8.5em;height:8.5em;border-radius:50%;background:#fbf6e5;box-shadow:0 0 0 .4em rgba(255,255,255,.6),0 12px 26px rgba(40,60,20,.35);display:grid;place-items:center;overflow:hidden}
-.wol-learn .wl-qbubble img{width:92%;height:92%;object-fit:contain}
-.wol-learn .wl-qbubble img.paint{width:100%;height:100%;object-fit:cover;transform:scale(1.55)}
-.wol-learn .wl-cic img.paint{width:100%;height:100%;object-fit:cover;border-radius:50%;transform:scale(1.5)}
-.wol-learn .wl-qbadge{position:absolute;top:1.6em;left:calc(50% - 6.6em);width:3.4em;height:3.4em;color:var(--amber2);filter:drop-shadow(0 4px 6px rgba(0,0,0,.25));animation:wl-bob 2.6s ease-in-out infinite}
-.wol-learn .wl-qbadge .wl-ic{width:100%;height:100%}
-.wol-learn .wl-mchip{position:absolute;padding:.35em .9em;border-radius:99px;background:#fbf6e5;color:var(--ink);font-weight:800;font-size:.9em;box-shadow:0 3px 0 var(--edge),0 6px 12px rgba(0,0,0,.18)}
-.wol-learn .wl-mchip.ok{background:#e3f5d3;box-shadow:0 3px 0 #8cc46b,0 0 0 3px rgba(143,208,103,.6)}
-.wol-learn .wl-fan{position:relative;width:18em;height:11.5em}
-.wol-learn .wl-fan .wl-card{position:absolute;top:.6em;left:50%;margin-left:-5em;--cw:7.2em}
-.wol-learn .wl-fan .wl-card:nth-child(1){transform:translateX(-4.4em) rotate(-12deg)}
-.wol-learn .wl-fan .wl-card:nth-child(2){transform:translateY(-.5em);z-index:2}
-.wol-learn .wl-fan .wl-card:nth-child(3){transform:translateX(4.4em) rotate(12deg)}
-.wol-learn .wl-tile:hover .wl-fan .wl-card:nth-child(1){transform:translateX(-5.2em) rotate(-16deg)}
-.wol-learn .wl-tile:hover .wl-fan .wl-card:nth-child(3){transform:translateX(5.2em) rotate(16deg)}
 .wol-learn .wl-meter{height:.7em;border-radius:99px;background:rgba(80,70,40,.15);overflow:hidden;margin-top:.35em}
 .wol-learn .wl-meter i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--leaf2),var(--leaf))}
-.wol-learn .wl-tnote{position:absolute;top:.9em;right:.9em;z-index:3}
 /* setup */
 .wol-learn .wl-setup{width:min(54em,94%);margin:auto;border-radius:24px;padding:1.6em 2em 1.8em;display:flex;flex-direction:column;gap:1.1em}
 .wol-learn .wl-setup h2{font-family:var(--serif);font-size:2.2em;line-height:1;color:#1f2c1a}
@@ -1073,18 +1048,6 @@ const CSS = `
 .wol-learn .wl-rsay.s-rare{background:linear-gradient(180deg,#ffe9a8,#e8a43a);color:#4a2c06}
 .wol-learn .wl-rsay.s-epic{background:linear-gradient(90deg,#f6cf72,#e79aab,#b9a8e0);color:#3a1630}
 .wol-learn .wl-rsay.s-tech{background:linear-gradient(180deg,#dbeaf0,#8cc3dc);color:#1f3f58}
-.wol-learn .wl-games{margin-top:0}
-.wol-learn .wl-home{gap:1.1em}
-.wol-learn .wl-home .wl-hero h1{font-size:2.8em}
-.wol-learn .wl-home .wl-tart{height:9.6em}
-.wol-learn .wl-home .wl-fan{transform:scale(.8)}
-.wol-learn .wl-home .wl-tbody{padding:.7em 1.3em 1em}
-.wol-learn .wl-home .wl-tbody h2{font-size:1.9em}
-.wol-learn .wl-tile.game .wl-tart{background:radial-gradient(circle at 50% 60%,rgba(120,190,220,.45),transparent 60%),linear-gradient(180deg,#dcebd8,#bcd6b8)}
-.wol-learn .wl-gart{display:flex;align-items:center;justify-content:center;gap:.4em}
-.wol-learn .wl-gart .wl-card{--cw:6.4em;transform:rotate(-4deg)}
-.wol-learn .wl-gart .wl-card:nth-child(odd){transform:rotate(4deg)}
-.wol-learn .wl-gthread{width:2.2em;height:.25em;border-radius:9px;background:linear-gradient(90deg,#f6cf72,#8fd067);box-shadow:0 0 .8em #f6cf72}
 /* badges (תגים) */
 ${BADGE_CSS}
 .wol-learn .wl-badges{gap:1em;padding:0 1.6em 1.6em;overflow-y:auto;overflow-x:hidden;min-height:0;scrollbar-width:thin}
@@ -1120,19 +1083,6 @@ ${FRAME_CSS}
 .wol-learn .wl-settings h3{display:flex;align-items:center;gap:.35em}.wol-learn .wl-settings h3 .ic{width:.9em;height:.9em;color:#7a5a12}
 .wol-learn .wl-settings .wl-srcsw{margin:0;background:rgba(255,255,255,.4);box-shadow:inset 0 0 0 1px rgba(120,90,40,.25)}
 .wol-learn .wl-settings .wl-btn{align-self:center}
-/* the badge showcase on the hub's home */
-.wol-learn .wl-bshow{display:flex;align-items:center;gap:1.2em;width:min(60em,100%);margin:0 auto;padding:.6em 1.3em;border-radius:1.2em;flex:none}
-.wol-learn .wl-bs-new{flex:1;min-width:0;display:flex;flex-direction:column;gap:.2em}
-.wol-learn .wl-bs-new h3{display:flex;align-items:center;gap:.4em;font-family:var(--serif);font-size:1.35em;color:#3a2a10}
-.wol-learn .wl-bs-row{display:flex;gap:.6em;flex-wrap:wrap}
-.wol-learn .wl-bs-empty{color:#5a4a30;font-size:1em}
-.wol-learn .wl-bshow .bdg{--bs:6.6em}
-.wol-learn .wl-bs-next{flex:none;display:flex;flex-direction:column;align-items:center;gap:.15em;padding:.3em .8em;border-radius:1em;background:rgba(80,70,40,.08);box-shadow:inset 0 0 0 1px rgba(120,90,40,.2)}
-.wol-learn .wl-bs-next>small{font-weight:800;color:#6a5020;font-size:.88em}
-.wol-learn .wl-bs-next .bdg{--bs:5.6em}
-.wol-learn .wl-bs-all{flex:none;flex-direction:column;gap:.1em;min-height:0;padding:.55em 1em;line-height:1.1}
-.wol-learn .wl-bs-all b{font-size:.85em;color:var(--ink2);direction:ltr}
-@media (max-width:900px),(max-height:520px){.wol-learn .wl-bshow{gap:.7em;padding:.45em .8em}.wol-learn .wl-bshow .bdg{--bs:5.2em}.wol-learn .wl-bs-next .bdg{--bs:4.6em}.wol-learn .wl-bs-new h3{font-size:1.15em}}
 /* a badge you can point at: it grows and tells its name and how it is earned (the badges screen and the showcase) */
 .wol-learn .wl-bz{position:relative;display:block;border-radius:1em;padding:.25em;z-index:1;-webkit-tap-highlight-color:transparent}
 .wol-learn .wl-bz .bdg-med{transition:transform .28s cubic-bezier(.2,.9,.3,1.3),filter .28s}
@@ -1154,13 +1104,6 @@ ${FRAME_CSS}
 .wol-learn .wl-bzbig .bdg-rib{font-size:calc(var(--bs) * .11)}
 .wol-learn .wl-bzt small{color:#6a5a40;font-weight:700}
 .wol-learn .wl-bzg{display:flex;align-items:center;gap:.4em;font-weight:800}
-/* the source game's tile, and five games in two rows */
-.wol-learn .wl-games.n5{display:grid;grid-template-columns:repeat(6,1fr);gap:1.2em 1.6em;width:min(80em,100%)}
-.wol-learn .wl-games.n5>.wl-tile{width:auto;grid-column:span 2}
-.wol-learn .wl-games.n5>.wl-tile:nth-child(n+4){grid-column:span 3}
-.wol-learn .wl-vmtile .wl-tart{background:radial-gradient(circle at 50% 60%,rgba(246,207,114,.5),transparent 62%),linear-gradient(180deg,#f3e6c4,#e2cf9c)}
-.wol-learn .wl-vmsrc{display:block;width:6.4em;height:6.4em;border-radius:.8em;overflow:hidden;transform:rotate(4deg);box-shadow:0 0 0 .22em #8f5b2e,0 0 0 .34em #f6dfa0,0 .5em 1em rgba(0,0,0,.3)}
-.wol-learn .wl-vmsrc img{width:100%;height:100%;object-fit:cover}
 /* duel */
 .wol-learn .wl-duel{padding:0 1.6em 1em;gap:.7em}
 .wol-learn .wl-dhead{display:flex;align-items:center;gap:1.2em;padding:.55em 1.3em;border-radius:20px;width:min(60em,100%)}
@@ -1256,7 +1199,6 @@ ${FRAME_CSS}
 @keyframes wl-star{0%{opacity:0;transform:scale(.2) rotate(-40deg)}100%{opacity:1;transform:none}}
 @keyframes wl-sheen{0%{background-position:150% 0}100%{background-position:-100% 0}}
 @keyframes wl-conf{0%{opacity:0;transform:translate(-50%,-50%) scale(.4) rotate(0)}15%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) rotate(var(--r)) scale(1)}}
-@media (max-height:620px){.wol-learn .wl-tart{height:10em}.wol-learn .wl-hero h1{font-size:2.6em}}
 @media (prefers-reduced-motion:reduce){.wol-learn,.wol-learn *,.wol-learn *::before,.wol-learn *::after{animation-duration:.01ms!important;animation-delay:0s!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 /* round 2: gentle colour – each corner of the learning centre has its own soft nature hue */
 .wol-learn{--sky2:#8cc3dc;--rose:#e79aab;--lav:#b9a8e0;--sun:#f2cf5b;--clay:#e0a070;--teal:#4fa39a}
@@ -1399,8 +1341,6 @@ const ICON_CSS = `
   background:linear-gradient(160deg,rgba(255,255,255,.24),rgba(0,0,0,.14)),var(--tc,#3a4d5c);box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 .08em .2em rgba(0,0,0,.3)}
 .wol-learn .wl-tic .ic{width:.8em;height:.8em;color:#fff1c4}
 .wol-learn .wl-tbody h2{gap:.32em}
-.wol-learn .wl-home .wl-tile.game .wl-tbody h2{font-size:1.6em}
-@media (max-width:900px){.wol-learn .wl-home .wl-tile.game .wl-tbody h2{font-size:1.35em}}
 .wol-learn .wl-bhead b{display:inline-flex;align-items:center;gap:.4em}
 .wol-learn .wl-frames h3{display:flex;align-items:center;gap:.35em}.wol-learn .wl-frames h3 .ic{width:1.2em;height:1.2em;color:#9c6512}
 .wol-learn .wl-btn .ic{width:1.3em;height:1.3em}
@@ -1422,6 +1362,109 @@ const ICON_CSS = `
 .wol-learn .iv-handbar .iv-f,.wol-learn .ex-tab{display:inline-flex;align-items:center;gap:.3em}
 .wol-learn .iv-handbar .iv-f .ic,.wol-learn .ex-tab .ic{width:1.1em;height:1.1em}
 `;
+/* the home (1.3.2): one page that never scrolls, from 800x460 to 1920x1080. Right: the quiz, my badges, my frames;
+   middle: the album, big; left: the card games as small tiles. The words a child reads grow with var(--ts) (text size).
+   Sizes inside the tiles follow the tile (container units), so the same page fits a small laptop and a big screen. */
+const HOME_CSS = `
+.wol-learn .wl-screen.wl-home{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr) minmax(0,1.05fr);gap:1.1em;width:100%;max-width:100em;max-height:52em;margin:auto;padding:.2em 1.4em 1.3em;align-items:stretch;overflow:hidden}
+.wol-learn .wl-hside{display:grid;grid-template-rows:minmax(0,1.1fr) minmax(0,1fr) minmax(0,1fr);gap:.9em;min-height:0;min-width:0}
+.wol-learn .wl-ht{position:relative;display:flex;min-height:0;min-width:0;border-radius:1.2em;overflow:hidden;text-align:right;transition:transform .2s,box-shadow .2s}
+.wol-learn .wl-ht:hover:not(.is-veiled),.wol-learn .wl-ht:focus-visible{transform:translateY(-3px);box-shadow:0 16px 36px rgba(0,0,0,.42),inset 0 0 0 4px rgba(255,255,255,.22)}
+.wol-learn .wl-hh{display:flex;align-items:center;gap:.35em;font-family:var(--serif);font-weight:700;font-size:calc(1.42em * var(--ts,1));line-height:1.08;color:#1f2c1a}
+.wol-learn .wl-hh .wl-tic{font-size:1.05em}
+.wol-learn .wl-hh.big{font-size:calc(1.9em * var(--ts,1))}
+.wol-learn .wl-htx{display:flex;flex-direction:column;justify-content:center;gap:.3em;min-width:0;flex:1}
+.wol-learn .wl-htx small{font-size:calc(.95em * var(--ts,1));color:var(--ink2);line-height:1.3;font-weight:600}
+.wol-learn .wl-hn{align-self:flex-start;font-weight:800;color:#5a4214;background:rgba(255,255,255,.6);border-radius:99px;padding:.08em .65em;font-size:calc(.9em * var(--ts,1));white-space:nowrap;box-shadow:inset 0 0 0 1px rgba(120,90,40,.25)}
+/* the quiz */
+.wol-learn .wl-hq{container-type:size;align-items:center;gap:.9em;padding:.6em 1em;background:radial-gradient(circle at 82% 50%,rgba(143,208,103,.6),transparent 52%),linear-gradient(180deg,#e3f1d3,#c2dea6)}
+.wol-learn .wl-hqart{position:relative;flex:none;height:min(80cqh,8.5em);aspect-ratio:1}
+.wol-learn .wl-hq .wl-qbubble{width:100%;height:100%;border-radius:50%;background:#fbf6e5;box-shadow:0 0 0 .3em rgba(255,255,255,.65),0 8px 18px rgba(40,60,20,.3);display:grid;place-items:center;overflow:hidden}
+.wol-learn .wl-hq .wl-qbubble img{width:100%;height:100%;object-fit:cover;transform:scale(1.5);transform-origin:58% 36%}
+.wol-learn .wl-hq .wl-qbadge{position:absolute;top:-.15em;left:-.35em;width:40%;height:40%;color:var(--amber2);filter:drop-shadow(0 3px 5px rgba(0,0,0,.25));animation:wl-bob 2.6s ease-in-out infinite}
+.wol-learn .wl-hq .wl-qbadge .wl-ic{width:100%;height:100%}
+/* my badges */
+.wol-learn .wl-hb{flex-direction:column;gap:.3em;padding:.6em .9em .5em;background:radial-gradient(circle at 12% 100%,rgba(246,207,114,.5),transparent 60%),linear-gradient(180deg,#f7ecd2,#e9d6a6)}
+.wol-learn .wl-hrow{display:flex;align-items:center;flex-wrap:wrap;gap:.15em .5em;justify-content:space-between}
+.wol-learn .wl-hb .wl-hh{white-space:nowrap}
+.wol-learn .wl-hrow .wl-hn{align-self:center}
+.wol-learn .wl-hbrow{flex:1;min-height:0;display:flex;align-items:center;justify-content:space-evenly;gap:.2em;container-type:size}
+.wol-learn .wl-hbrow .bdg{--bs:min(7.4em,29cqw,92cqh);width:auto;pointer-events:none}
+.wol-learn .wl-hbrow .bdg-rib{display:none}
+.wol-learn .wl-hempty{font-size:calc(.95em * var(--ts,1));color:#5a4a30;text-align:center;line-height:1.3;font-weight:600}
+/* my frames */
+.wol-learn .wl-hf{container-type:size;align-items:center;gap:.9em;padding:.5em 1em .5em .9em;background:radial-gradient(circle at 84% 50%,rgba(216,166,64,.45),transparent 55%),linear-gradient(180deg,#f1e4c6,#dcc596)}
+.wol-learn .wl-hfcard{flex:none;display:grid;place-items:center;height:100%;width:min(34cqw,calc(80cqh * .78))}
+.wol-learn .wl-hfcard .wl-card{--cw:min(5.4em,23cqw,calc(62cqh / 1.42));transform:rotate(-5deg);pointer-events:none}
+/* the album, in the middle */
+.wol-learn .wl-hmid{position:relative;display:flex;min-height:0;min-width:0}
+.wol-learn .wl-ha{flex:1;flex-direction:column;background:radial-gradient(circle at 50% 40%,rgba(240,180,76,.6),transparent 58%),linear-gradient(180deg,#f5e3b8,#e0c286)}
+.wol-learn .wl-hfan{position:relative;flex:1;min-height:0;width:100%;container-type:size}
+.wol-learn .wl-hfan .wl-card{--cw:min(14em,32cqw,62cqh);position:absolute;left:50%;top:50%;margin:-6.6em 0 0 -5em;pointer-events:none;transition:transform .3s}
+.wol-learn .wl-hfan .wl-card:nth-child(1){transform:translateX(-6.4em) rotate(-11deg)}
+.wol-learn .wl-hfan .wl-card:nth-child(2){transform:translateY(-.6em);z-index:2}
+.wol-learn .wl-hfan .wl-card:nth-child(3){transform:translateX(6.4em) rotate(11deg)}
+.wol-learn .wl-ha:hover:not(.is-veiled) .wl-hfan .wl-card:nth-child(1){transform:translateX(-7.4em) rotate(-15deg)}
+.wol-learn .wl-ha:hover:not(.is-veiled) .wl-hfan .wl-card:nth-child(3){transform:translateX(7.4em) rotate(15deg)}
+.wol-learn .wl-hab{display:flex;flex-direction:column;gap:.3em;padding:.5em 1.5em 1.1em;background:linear-gradient(180deg,rgba(255,250,235,0),rgba(255,250,235,.6) 40%)}
+.wol-learn .wl-hcount{font-size:calc(1.1em * var(--ts,1));color:var(--ink2);font-weight:600}
+.wol-learn .wl-hcount b{color:#1f2c1a;font-weight:800}
+.wol-learn .wl-hab .wl-meter{height:.8em;margin-top:.15em}
+.wol-learn .wl-hpack{position:absolute;top:.8em;left:.8em;z-index:5;min-height:2.6em;padding:.3em 1em;font-size:calc(1em * var(--ts,1))}
+.wol-learn .wl-hpack .ic{width:1.3em;height:1.3em}
+.wol-learn .wl-hnopack{position:absolute;top:.8em;left:.8em;z-index:5;display:flex;align-items:center;gap:.4em;max-width:calc(100% - 1.6em);padding:.35em .9em;border-radius:99px;background:rgba(255,255,255,.7);color:#5a4214;font-weight:700;font-size:calc(.86em * var(--ts,1));pointer-events:none;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.wol-learn .wl-hnopack .wl-ic{color:var(--amber2)}
+/* the card games: small tiles, an icon and a name */
+.wol-learn .wl-hgames{display:flex;flex-direction:column;gap:.5em;min-height:0;min-width:0}
+.wol-learn .wl-hgh{display:flex;align-items:center;gap:.4em;margin:0;padding:.15em .2em 0;font-family:var(--serif);font-size:calc(1.22em * var(--ts,1));color:#f3ecd2;text-shadow:0 2px 8px rgba(0,0,0,.4)}
+.wol-learn .wl-hgh .wl-ic{width:1.15em;height:1.15em;color:#f6cf72}
+.wol-learn .wl-hgrid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:minmax(0,1fr);gap:.7em}
+.wol-learn .wl-hgrid.n5>.wl-gt:last-child{grid-column:span 2}
+.wol-learn .wl-gt{position:relative;container-type:size;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4em;min-height:0;min-width:0;padding:.5em .45em;border-radius:1.1em;overflow:hidden;text-align:center;color:#1f2c1a;
+  background:radial-gradient(circle at 50% 28%,color-mix(in srgb,var(--tc) 34%,transparent),transparent 62%),linear-gradient(180deg,#fbf6e5,#e8ddbd);border:1px solid var(--edge);
+  box-shadow:0 .28em 0 color-mix(in srgb,var(--tc) 60%,#5a4a26),0 8px 18px rgba(0,0,0,.28);transition:transform .15s,box-shadow .15s}
+.wol-learn .wl-gt:hover:not(.is-veiled),.wol-learn .wl-gt:focus-visible{transform:translateY(-3px) rotate(-.6deg);box-shadow:0 .28em 0 color-mix(in srgb,var(--tc) 60%,#5a4a26),0 14px 26px rgba(0,0,0,.38)}
+.wol-learn .wl-gt .wl-tic{font-size:min(3.4em,30cqh,28cqw);border-radius:.32em}
+.wol-learn .wl-gt b{font-family:var(--serif);font-weight:700;font-size:calc(clamp(1.06em,8cqw,1.5em) * var(--ts,1));line-height:1.12;max-width:100%}
+/* a part that is not open yet: dimmed, a soft curtain of stripes, and what opens it (no padlock: it reads as a cross) */
+.wol-learn .is-veiled{cursor:help}
+.wol-learn .is-veiled>:not(.wl-veil){filter:grayscale(.75) brightness(.86);opacity:.55}
+.wol-learn .is-veiled::after{content:"";position:absolute;inset:0;z-index:3;pointer-events:none;background:repeating-linear-gradient(90deg,rgba(60,48,30,.12) 0 .55em,rgba(255,255,255,.05) .55em 1.3em)}
+.wol-learn .wl-veil{position:absolute;inset:auto 0 0 0;z-index:4;display:flex;align-items:center;justify-content:center;gap:.4em;padding:.9em .6em .5em;
+  background:linear-gradient(180deg,rgba(28,40,26,0),rgba(28,40,26,.85) 40%);color:#f6eed0;font-weight:800;font-size:calc(.84em * var(--ts,1));line-height:1.2;text-align:center;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.wol-learn .wl-veil .wl-ic{width:1.35em;height:1.35em;color:#f6cf72}
+/* a small game tile keeps its name readable: the words of what opens it sit under the name as a dark pill */
+.wol-learn .wl-gt.is-veiled{gap:.25em}
+.wol-learn .wl-gt.is-veiled>b{opacity:.78;filter:none}
+.wol-learn .wl-gt.is-veiled .wl-tic{font-size:min(2.6em,22cqh,24cqw)}
+.wol-learn .wl-gt .wl-veil{position:relative;inset:auto;max-width:100%;padding:.22em .6em;border-radius:.8em;gap:.3em;background:rgba(28,40,26,.82);font-size:calc(.76em * var(--ts,1));box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.wol-learn .wl-gt .wl-veil .wl-ic{width:1.15em;height:1.15em;flex:none}
+@media (max-height:540px){.wol-learn .wl-screen.wl-home{gap:.75em;padding:.1em .9em .75em}.wol-learn .wl-hside{gap:.6em}.wol-learn .wl-hgrid{gap:.5em}.wol-learn .wl-hab{padding:.25em 1.1em .7em}
+  .wol-learn .wl-hh.big{font-size:calc(1.55em * var(--ts,1))}.wol-learn .wl-hh{font-size:calc(1.25em * var(--ts,1))}.wol-learn .wl-hgh{font-size:calc(1.08em * var(--ts,1))}.wol-learn .wl-gt b{font-size:calc(.98em * var(--ts,1))}}
+@container (max-height:6.6em){.wol-learn .wl-hq .wl-htx small{display:none}}
+@container (max-height:7.4em){.wol-learn .wl-hf .wl-htx small:not(.wl-hn){display:none}}
+@container (max-width:6.4em){.wol-learn .wl-gt .wl-veil span{display:none}}
+/* the frames screen (its own screen since 1.3.2; the badges screen links to it) */
+.wol-learn .wl-framesx{gap:.9em;padding:0 1.6em 1.2em;overflow-y:auto;overflow-x:hidden;min-height:0;scrollbar-width:thin}
+.wol-learn .wl-framesx .wl-frames{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:.4em 1.6em;margin:auto}
+.wol-learn .wl-fprev{grid-row:1 / 4;align-self:center;display:grid;place-items:center;padding:.6em 1em}
+.wol-learn .wl-fprev .wl-card{--cw:9em;transform:rotate(-3deg)}
+.wol-learn .wl-framesx .wl-frames h3{font-size:calc(1.5em * var(--ts,1))}
+.wol-learn .wl-framesx .wl-frames p{margin:0;font-size:calc(1em * var(--ts,1))}
+.wol-learn .wl-framesx .wl-frow{grid-column:2}
+.wol-learn .wl-frame b{font-size:calc(.95em * var(--ts,1))}
+@media (max-height:620px){.wol-learn .wl-fprev .wl-card{--cw:7em}.wol-learn .wl-framesx .wl-frame{width:7.4em;padding:.4em}.wol-learn .wl-framesx .wl-fsw{width:2.8em;height:3.6em}.wol-learn .wl-framesx .wl-frow{gap:.5em}}
+@media (max-width:860px){.wol-learn .wl-framesx .wl-frames{grid-template-columns:1fr}.wol-learn .wl-fprev{display:none}.wol-learn .wl-framesx .wl-frow{grid-column:1}}
+.wol-learn .wl-bhead .wl-btn{min-height:2.4em;padding:.25em 1em;font-size:.95em}
+.wol-learn .wl-bhead .wl-btn .ic{width:1.2em;height:1.2em}
+.wol-learn .wl-bhead .wl-btn.is-veiled{opacity:.6;filter:grayscale(.6)}
+.wol-learn .wl-bhead .wl-btn.is-veiled::after{display:none}
+`;
+// רובו־דע speaks over the hub (his layer sits under it otherwise: #rguide 70, the hub 80)
+const GUIDE_OVER_HUB = '\n#ui.wl-hubopen #rguide{z-index:90}\n';
+// the curtain of a part that is still closed (two drapes on a rod: nothing that reads as a cross or a padlock)
+const IC_CURTAIN = sv('<path d="M3 3.5h18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M4.5 4.5h6c-.3 5.6-2.2 11.3-6 15.5zM19.5 4.5h-6c.3 5.6 2.2 11.3 6 15.5z" fill="currentColor"/>');
+
 let cssInjected = false;
 function injectCss() {
   if (cssInjected || typeof document === 'undefined') return;
@@ -1429,7 +1472,7 @@ function injectCss() {
   const st = document.createElement('style');
   st.id = 'wol-learn-css';
   // raise specificity above the game's "#ui.wol button" resets
-  st.textContent = (CSS + ICON_CSS).replace(/\.wol-learn/g, '#wol-learn.wol-learn');
+  st.textContent = (CSS + ICON_CSS + HOME_CSS).replace(/\.wol-learn/g, '#wol-learn.wol-learn') + GUIDE_OVER_HUB;
   document.head.appendChild(st);
 }
 
@@ -1530,8 +1573,38 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   }
 
   /* ── navigation */
-  const PARENT = { home: null, setup: 'home', quiz: 'setup', end: 'home', album: 'home', pack: 'album', duel: 'album', webpuzzle: 'home', keepforest: 'home', inventors: 'home', expedition: 'home', badges: 'home', versematch: 'home' };
-  const TITLES = { home: '', setup: 'חידון', quiz: 'חידון', end: 'חידון', album: 'אלבום הקלפים', pack: 'פתיחת חבילה', duel: 'מי חזק ברשת?', webpuzzle: 'חוט הקשר', keepforest: 'מחזיקים את היער', inventors: 'הממציאים', expedition: 'משלחת לעומק', badges: 'התגים שלי', versematch: 'מה הפסוק מלמד?' };
+  const PARENT = { home: null, setup: 'home', quiz: 'setup', end: 'home', album: 'home', pack: 'album', duel: 'home', webpuzzle: 'home', keepforest: 'home', inventors: 'home', expedition: 'home', badges: 'home', frames: 'home', versematch: 'home' };
+  const TITLES = { home: 'מרכז הלמידה', setup: 'חידון', quiz: 'חידון', end: 'חידון', album: 'אלבום הקלפים', pack: 'פתיחת חבילה', duel: 'מי חזק ברשת?', webpuzzle: 'חוט הקשר', keepforest: 'מחזיקים את היער', inventors: 'הממציאים', expedition: 'משלחת לעומק', badges: 'התגים שלי', frames: 'המסגרות שלי', versematch: 'מה הפסוק מלמד?' };
+  /* ── מסע החוקר: the journey part behind each screen (core/journey.js PARTS) */
+  const PART_OF = { setup: 'quiz', quiz: 'quiz', end: 'quiz', album: 'album', pack: 'album', duel: 'duel', webpuzzle: 'webpuzzle', keepforest: 'keepforest', inventors: 'inventors', expedition: 'expedition', badges: 'badges', frames: 'frames', versematch: 'versematch' };
+  // רובו־דע presents a screen the first time it opens (src/data/guide/hub.js); 'learn' is the hub itself
+  const INTRO_OF = { home: 'learn', setup: 'quiz', album: 'album', duel: 'duel', webpuzzle: 'webpuzzle', keepforest: 'keepforest', inventors: 'inventors', expedition: 'expedition', badges: 'badges', frames: 'frames', versematch: 'versematch' };
+  const locked = (part) => { try { return !isOpen(part); } catch (e) { return false; } };
+  const guide = () => (typeof window !== 'undefined' && window.__guide) || null;
+  let tipAt = 0, guideMine = false, entered = null;
+  // a click on a veiled part: רובו־דע says what opens it (one short bubble; a second click soon after does not stack another)
+  function lockTip(part) {
+    const info = lockInfo(part); if (!info) return;
+    sfx('click');
+    const now = Date.now(); if (now - tipAt < 1200) return;
+    let st = null; try { st = journeyState(); } catch (e) { /* */ }
+    const kids = !!(st && st.kids);
+    let txt = `"${info.name}" ${info.text}.`;
+    if (st && st.next && st.next.stage === info.stage && st.next.need && st.next.need.length) txt += ' ' + st.next.need.join(kids ? ' אוֹ ' : ' או ') + '.';
+    const g = guide();
+    if (!g) { toast(`${IC_CURTAIN}<span>${esc(txt)}</span>`, 3200); tipAt = now; return; }
+    if (now - tipAt < 9000 && g.isOpen()) g.close();   // our last tip may still be up: the new one replaces it
+    tipAt = now; guideMine = true;
+    g.tip({ f: txt, k: txt, expr: 'curious' }).then(() => { guideMine = false; });
+  }
+  function introFor(name) {
+    const part = INTRO_OF[name], g = guide(); if (!part || !g || !g.intro) return;
+    later(() => {
+      if (!open_ || screen !== name) return;
+      guideMine = true;
+      g.intro(part, { modal: true }).then(() => { guideMine = false; });
+    }, 450);
+  }
   /* ── card mini-games (each lives in ./games/*.js and gets this context) */
   let MODE = 'full';
   const readMode = () => { try { MODE = window.localStorage.getItem(profileKey('web-of-life-mode')) || 'full'; } catch (e) { MODE = MODE || 'full'; } };
@@ -1552,27 +1625,44 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     grantPack: (n) => grantPack(n), sfx: (n) => sfx(n), toast: (h) => toast(h), confetti: (t, n, p) => confetti(t, n, p),
     later: (fn, ms) => later(fn, ms), reduced, setTitle: (t) => { $('.wl-crumb').textContent = t; },
     exit: () => go('home'), toAlbum: (f) => { if (f) filter = f; go('album'); }, root: () => el,
-    badge: (earn) => grantBadge(earn), tally: (key, add) => badgeTally(key, add), hasBadge: (id) => hasBadge(id),
+    badge: (earn) => { if (GAMES[screen]) played(); return grantBadge(earn); }, tally: (key, add) => badgeTally(key, add), hasBadge: (id) => hasBadge(id),
+    // מסע החוקר: a game marks a part as used (e.g. inventors → 'robots'), asks whether a part is open, or lets רובו־דע say what opens it
+    markUsed: (part) => { try { markUsed(part); } catch (e) { /* */ } }, isOpen: (part) => !locked(part), lockTip: (part) => lockTip(part),
   };
+  // a game is really being played (each game calls ctx.markUsed when a round starts); a badge or cards won count too
+  function played(part = PART_OF[screen]) { if (part) { try { markUsed(part); } catch (e) { /* */ } } }
+  { const ac0 = GAME_CTX.addCards; GAME_CTX.addCards = (ids) => { if (GAMES[screen]) played(); return ac0(ids); }; }
   const GAMES = { webpuzzle: mountWebPuzzle, keepforest: mountKeepForest, inventors: mountInventors, expedition: mountExpedition, versematch: mountVerseMatch };
   let gameInst = null;
   function go(name, opts = {}) {
+    // a part that is not open yet (מסע החוקר): רובו־דע says what opens it, and the screen stays as it is
+    // (the hub itself was just opened into it: the home). opts.force (the _go test hook) opens it anyway.
+    const part = PART_OF[name];
+    if (part && !opts.force && locked(part)) {
+      lockTip(part);
+      if (main.firstElementChild && screen !== name) return;
+      name = 'home';
+    }
+    if (name === 'versematch' && !srcOn()) name = 'home';   // the torah edition's game, only while the sources are on
     clearTimers(); closeModal(); setsOpen = false;
+    const entering = entered !== name; entered = name;   // a repaint of the same screen does not present it again
     if (name === 'home') returnTo = null;
     if (gameInst) { try { gameInst.destroy && gameInst.destroy(); } catch (e) { console.warn(e); } gameInst = null; }
-    if (name === 'versematch' && !srcOn()) name = 'home';   // the torah edition's game, only while the sources are on
+    if (name === 'frames') PARENT.frames = screen === 'badges' ? 'badges' : 'home';
     if (GAMES[name]) {
       screen = name; $('.wl-crumb').textContent = TITLES[name]; $('.wl-back span').textContent = returnTo === name ? (MODE === 'kids' ? 'חֲזָרָה לַמַּעְבָּדָה' : 'חזרה למעבדה') : 'חזרה'; updateChip(false);
       main.innerHTML = '';
       try { gameInst = GAMES[name](main, GAME_CTX, opts) || null; } catch (e) { console.error(e); main.innerHTML = '<p style="padding:2em">אירעה תקלה במשחק.</p>'; }
-      main.scrollTop = 0; return;
+      main.scrollTop = 0; if (entering) introFor(name); return;
     }
     screen = name;
     $('.wl-crumb').textContent = TITLES[name] || '';
     $('.wl-back span').textContent = name === 'home' ? 'חזרה למשחק' : 'חזרה';
     updateChip(false);
-    ({ home: renderHome, setup: renderSetup, quiz: () => startQuiz(opts), end: renderEnd, album: renderAlbum, pack: renderPack, duel: () => startDuel(), badges: renderBadges })[name]();
+    ({ home: renderHome, setup: renderSetup, quiz: () => startQuiz(opts), end: renderEnd, album: renderAlbum, pack: renderPack, duel: () => startDuel(), badges: renderBadges, frames: renderFrames })[name]();
     main.scrollTop = 0;
+    if (screen === name && ['album', 'pack', 'badges', 'frames'].includes(name)) played();   // looking through them is using them
+    if (screen === name && entering) introFor(name);
   }
   // opened from the lab (the inventors table): "חזרה" on that screen goes straight back to the lab
   let returnTo = null;
@@ -1591,81 +1681,73 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     if (srcOn()) { const own = ownedSources(); total += SOURCE_CARDS.length; have += SOURCE_CARDS.filter((c) => own[c.id]).length; }
     return { total, have };
   }
-  /* ── home */
+  /* ── home (1.3.2): one page. Right: the quiz, my badges, my frames; middle: the album; left: the card games.
+     A part that is not open yet (core/journey.js) is veiled: dimmed, a curtain, and the words of what opens it. */
+  const HOME_GAMES = [
+    { part: 'webpuzzle', ic: 'thread', name: 'חוט הקשר' },
+    { part: 'keepforest', ic: 'keep', name: 'מחזיקים את היער' },
+    { part: 'duel', ic: 'strong', name: 'מי חזק ברשת?' },
+    { part: 'inventors', ic: 'invent', name: 'הממציאים' },
+    { part: 'expedition', ic: 'dive', name: 'משלחת לעומק' },
+    { part: 'versematch', ic: 'scroll', name: 'מה הפסוק מלמד?', torah: true },
+  ];
+  const FRAME_SAMPLE = ['amazon:toucan', 'grove:owl', 'reef:clownfish', 'amazon:jaguar', 'grove:jay'];
   function renderHome() {
     const { total, have } = collection();
+    const veiled = (p) => locked(p);
+    const vc = (p) => (veiled(p) ? ' is-veiled' : '');
+    const act = (p, a, extra = '') => (veiled(p) ? `data-wl="locked" data-part="${p}" aria-disabled="true"` : `data-wl="${a}" ${extra}`);
+    const veil = (p) => { if (!veiled(p)) return ''; const L = lockInfo(p); return `<span class="wl-veil">${IC_CURTAIN}<span>${esc(L ? L.text : '')}</span></span>`; };
     const fan = ['amazon:jaguar', 'grove:owl', 'amazon:toucan'].map((id) => CARD.get(id)).filter(Boolean);
     const toucan = spOf('amazon', 'toucan');
+    // my badges: the three newest
+    const ownB = ownedBadges(), mine = vBadges().filter((b) => ownB[b.id]).sort((a, b) => ownB[b.id] - ownB[a.id]);
+    // my frames: the chosen one on one of my cards
+    const fr = chosenFrame(), frame = FRAMES.find((f) => f.id === fr), frOpen = openFrames().filter(visB).length, frAll = FRAMES.filter(visB).length;
+    const sample = CARD.get(FRAME_SAMPLE.find((id) => S.owned[id]) || Object.keys(S.owned).find((id) => CARD.has(id)) || FRAME_SAMPLE[0]);
+    const late = S.packs && !opensLeft();
+    const games = HOME_GAMES.filter((g) => !g.torah || srcOn());
+    const K = (f, k) => (MODE === 'kids' ? k : f);   // beginners read the home's words fully vocalised
+    const of = K('מתוך', 'מִתּוֹךְ');
     main.innerHTML = `<section class="wl-screen wl-home">
-      <div class="wl-hero"><h1>מרכז הלמידה</h1><p>משחקים, לומדים ואוספים את כל היצורים של רשת החיים</p></div>
-      <div class="wl-tiles">
-        <button class="wl-tile quiz paper" data-wl="setup">
-          <div class="wl-tart">
-            <div class="wl-qbubble">${CARD_ART.toucan ? `<img class="paint" src="${CARD_ART.toucan}" alt="" style="transform-origin:58% 36%">` : toucan && toucan.img ? `<img src="${toucan.img}" alt="">` : ''}</div>
-            <span class="wl-qbadge">${IC.quest}</span>
-            <span class="wl-mchip" style="top:2.2em;right:1.6em">פרפר?</span>
-            <span class="wl-mchip ok" style="bottom:2.2em;right:2.4em">טוקן!</span>
-            <span class="wl-mchip" style="bottom:3em;left:1.8em">תנשמת?</span>
-          </div>
-          <div class="wl-tbody"><h2>${tileIcon('quiz', 'wl-tic')}חידון</h2><p>10 שאלות על בעלי החיים והצמחים. תשובה נכונה יכולה להביא חבילת קלפים!</p></div>
-        </button>
-        <button class="wl-tile album paper" data-wl="album">
-          ${S.packs ? `<span class="wl-tnote wl-chip">${icon('pack')}<span>${S.packs} לפתיחה</span></span>` : ''}
-          <div class="wl-tart"><div class="wl-fan">${fan.map((c) => cardHTML(c)).join('')}</div></div>
-          <div class="wl-tbody"><h2>${tileIcon('album', 'wl-tic')}אלבום הקלפים</h2><p>אספתם <b>${have}</b> מתוך <b>${total}</b> קלפים</p>
-            <div class="wl-meter"><i style="width:${Math.round((have / total) * 100)}%"></i></div></div>
-        </button>
+      <div class="wl-hside">
+        <button class="wl-ht wl-hq paper${vc('quiz')}" ${act('quiz', 'setup')} aria-label="חידון">
+          <span class="wl-hqart"><span class="wl-qbubble">${CARD_ART.toucan ? `<img src="${CARD_ART.toucan}" alt="">` : toucan && toucan.img ? `<img src="${toucan.img}" alt="">` : ''}</span><span class="wl-qbadge">${IC.quest}</span></span>
+          <span class="wl-htx"><b class="wl-hh">${tileIcon('quiz', 'wl-tic')}${K('חידון', 'חִידוֹן')}</b><small>${K('עשר שאלות על היצורים. תשובה נכונה יכולה להביא חבילת קלפים!', 'עֶשֶׂר שְׁאֵלוֹת עַל הַיְּצוּרִים. תְּשׁוּבָה נְכוֹנָה יְכוֹלָה לְהָבִיא חֲבִילַת קְלָפִים!')}</small></span>
+          ${veil('quiz')}</button>
+        <button class="wl-ht wl-hb paper${vc('badges')}" ${act('badges', 'badges')} aria-label="התגים שלי">
+          <span class="wl-hrow"><b class="wl-hh">${tileIcon('medal', 'wl-tic')}${K('התגים שלי', 'הַתָּגִים שֶׁלִּי')}</b><span class="wl-hn">${mine.length} ${of} ${vBadges().length}</span></span>
+          <span class="wl-hbrow">${mine.length ? mine.slice(0, 3).map((b) => badgeHTML(b, { own: true })).join('') : `<span class="wl-hempty">${K('עוד אין לכם תגים. משחקים, חוקרים ומקבלים!', 'עוֹד אֵין לָכֶם תָּגִים. מְשַׂחֲקִים, חוֹקְרִים וּמְקַבְּלִים!')}</span>`}</span>
+          ${veil('badges')}</button>
+        <button class="wl-ht wl-hf paper${vc('frames')}" ${act('frames', 'frames')} aria-label="המסגרות שלי">
+          <span class="wl-hfcard">${sample ? cardHTML(sample, { cls: fr !== 'none' ? 'fr-' + fr : '' }) : ''}</span>
+          <span class="wl-htx"><b class="wl-hh">${tileIcon('frame', 'wl-tic')}${K('המסגרות שלי', 'הַמִּסְגָּרוֹת שֶׁלִּי')}</b>
+            <small>${fr === 'none' || !frame ? K('עוד לא בחרתם מסגרת', 'עוֹד לֹא בְּחַרְתֶּם מִסְגֶּרֶת') : K('בחרתם: ', 'בְּחַרְתֶּם: ') + esc(frame.name)}</small>
+            <small class="wl-hn">${frOpen} ${of} ${frAll} ${K('פתוחות', 'פְּתוּחוֹת')}</small></span>
+          ${veil('frames')}</button>
       </div>
-      ${badgeShowHTML()}
-      <div class="wl-tiles wl-games${srcOn() ? ' n5' : ''}">
-        <button class="wl-tile game paper" data-wl="game" data-g="webpuzzle">
-          <div class="wl-tart wl-gart">${['amazon:brazilnut', 'amazon:agouti'].map((id) => CARD.get(id)).filter(Boolean).map((c) => cardHTML(c)).join('<span class="wl-gthread"></span>')}</div>
-          <div class="wl-tbody"><h2>${tileIcon('thread', 'wl-tic')}חוט הקשר</h2><p>חידות רשת: מי מאביק, מי מפיץ זרעים, מי אוכל את מי? השלימו את הרשת וקבלו קלפים.</p></div>
-        </button>
-        <button class="wl-tile game paper" data-wl="game" data-g="keepforest">
-          <div class="wl-tart wl-gart">${['grove:oak', 'grove:jay', 'tool:watergen'].map((id) => CARD.get(id)).filter(Boolean).map((c) => cardHTML(c)).join('')}</div>
-          <div class="wl-tbody"><h2>${tileIcon('keep', 'wl-tic')}מחזיקים את היער</h2><p>בונים יער מהקלפים שלכם ושומרים עליו מבצורת, משריפה ומכריתה.</p></div>
-        </button>
-        <button class="wl-tile game paper" data-wl="game" data-g="inventors">
-          <div class="wl-tart wl-gart">${['reef:reefshark', 'grove:owl', 'amazon:hummingbird'].map((id) => CARD.get(id)).filter(Boolean).map((c) => cardHTML(c)).join('')}</div>
-          <div class="wl-tbody"><h2>${tileIcon('invent', 'wl-tic')}הממציאים</h2><p>פותרים בעיות אמיתיות בעזרת היצורים שלכם, ובונים רובוטים מצחיקים. מותר לטעות!</p></div>
-        </button>
-        <button class="wl-tile game paper" data-wl="game" data-g="expedition">
-          <div class="wl-tart wl-gart">${['reef:octopus', 'reef:turtle', 'tool:rov'].map((id) => CARD.get(id)).filter(Boolean).map((c) => cardHTML(c)).join('')}</div>
-          <div class="wl-tbody"><h2>${tileIcon('dive', 'wl-tic')}משלחת לעומק</h2><p>צוות של ארבעה קלפים צולל לשונית. בכל אתגר בוחרים מי מתמודד, ומחליטים: לרדת עוד או לחזור עם הדגימות.</p></div>
-        </button>
-        ${srcOn() ? `<button class="wl-tile game paper wl-vmtile" data-wl="game" data-g="versematch">
-          <div class="wl-tart wl-gart">${SOURCE_ART.ant ? `<span class="wl-vmsrc"><img src="${SOURCE_ART.ant}" alt="" draggable="false"></span>` : ''}<span class="wl-gthread"></span>${CARD.get('grove:harvesterant') ? cardHTML(CARD.get('grove:harvesterant')) : ''}</div>
-          <div class="wl-tbody"><h2>${tileIcon('scroll', 'wl-tic')}מה הפסוק מלמד?</h2><p>קלף מקור ושלושה קלפים מהאלבום: איזה מהם מתאים למה שהפסוק מלמד? לפעמים יש יותר מתשובה אחת.</p></div>
-        </button>` : ''}
+      <div class="wl-hmid">
+        <button class="wl-ht wl-ha paper${vc('album')}" ${act('album', 'album')} aria-label="אלבום הקלפים">
+          <span class="wl-hfan">${fan.map((c) => cardHTML(c)).join('')}</span>
+          <span class="wl-hab"><b class="wl-hh big">${tileIcon('album', 'wl-tic')}${K('אלבום הקלפים', 'אַלְבּוֹם הַקְּלָפִים')}</b>
+            <span class="wl-hcount">${K('אספתם', 'אֲסַפְתֶּם')} <b>${have}</b> ${of} <b>${total}</b> ${K('קלפים', 'קְלָפִים')}</span>
+            <span class="wl-meter"><i style="width:${Math.round((have / total) * 100)}%"></i></span></span>
+          ${veil('album')}</button>
+        ${veiled('album') ? '' : S.packs ? `<button class="wl-btn gold wl-hpack" data-wl="pack" ${late ? 'disabled' : ''} title="${late ? 'היום כבר פתחתם ' + OPEN_PER_DAY + ' חבילות. מחר אפשר לפתוח עוד' : 'פתחו חבילה'}">${icon('pack')}<span>${late ? K('עוד חבילות מחר', 'עוֹד חֲבִילוֹת מָחָר') : K('פתחו חבילה', 'פִּתְחוּ חֲבִילָה')}</span><span class="wl-badgeN">${S.packs}</span></button>`
+          : `<span class="wl-hnopack">${IC.quest}<span>${K('שחקו בחידון כדי להרוויח חבילות', 'שַׂחֲקוּ בַּחִידוֹן כְּדֵי לְהַרְוִיחַ חֲבִילוֹת')}</span></span>`}
       </div>
-      </section>`;
+      <div class="wl-hgames">
+        <h3 class="wl-hgh">${IC.cards}${K('משחקי קלפים', 'מִשְׂחֲקֵי קְלָפִים')}</h3>
+        <div class="wl-hgrid n${games.length}">${games.map((g) => `<button class="wl-gt${vc(g.part)}" ${act(g.part, 'game', `data-g="${g.part}"`)} style="--tc:${TILE_TONE[g.ic] || '#3a4d5c'}" aria-label="${esc(g.name)}">${tileIcon(g.ic, 'wl-tic')}<b>${esc(MODE === 'kids' && JPARTS[g.part] ? JPARTS[g.part].kname : g.name)}</b>${veil(g.part)}</button>`).join('')}</div>
+      </div>
+    </section>`;
   }
   /* ── badges: the ones this edition shows (the torah edition's own only while "מקורות ופסוקים" is on) */
   const visB = (x) => !x.torah || srcOn();
   const vBadges = () => { const own = ownedBadges(); return BADGES.filter((b) => visB(b) && (!b.retired || own[b.id])); };   /* a retired badge shows only to who earned it */
-  // the next badge worth aiming for: a first step in each corner of the hub, then the rest in order
-  const NEXT_FIRST = ['b_vm1', 'b_inv1', 'b_deep1', 'b_rs1', 'b_scope', 'b_fair', 'b_minireef', 'b_vmeye', 'b_inv5', 'b_q5', 'b_deepcave', 'b_rs3'];
-  function nextBadge() {
-    const own = ownedBadges(), list = vBadges().filter((b) => !own[b.id]);
-    for (const id of NEXT_FIRST) { const b = list.find((x) => x.id === id); if (b) return b; }
-    return list[0] || null;
-  }
   // a badge you can point at: it grows, and shows its name and how it is earned; a click (or a touch) opens it big
   const bzHTML = (b, own, cls = '') => `<button class="wl-bz ${cls}" data-wl="bzoom" data-b="${b.id}" aria-label="${esc(own ? b.name + ': ' + b.how : 'תג נעול: ' + b.how)}">${badgeHTML(b, { own, peek: !own && cls.includes('next') })}
     <span class="wl-btip" aria-hidden="true"><b>${esc(own ? b.name : 'עוד לא: ' + b.name)}</b><small>${esc(b.how)}</small></span></button>`;
-  // the hub's home: the newest badges, big, and the next one to aim for (in place of the old sources switch)
-  function badgeShowHTML() {
-    const own = ownedBadges(), mine = vBadges().filter((b) => own[b.id]).sort((a, b) => own[b.id] - own[a.id]);
-    const nx = nextBadge();
-    return `<section class="wl-bshow paper">
-      <div class="wl-bs-new"><h3>${tileIcon('medal', 'wl-tic')}${mine.length ? 'התגים החדשים שלי' : 'התגים שלי'}</h3>
-        ${mine.length ? `<div class="wl-bs-row">${mine.slice(0, 3).map((b) => bzHTML(b, true)).join('')}</div>`
-          : '<p class="wl-bs-empty">עוד אין לכם תגים. תגים מקבלים במשימות מומחים, במשחקים, במעבדה ובתעלומות.</p>'}</div>
-      ${nx ? `<div class="wl-bs-next"><small>התג הבא שאפשר להשיג</small>${bzHTML(nx, false, 'next')}</div>` : ''}
-      <button class="wl-btn wl-bs-all" data-wl="badges">${icon('medal')}<span>כל התגים</span><b>${mine.length}/${vBadges().length}</b></button>
-    </section>`;
-  }
   function bzoom(id) {
     const b = BADGES.find((x) => x.id === id); if (!b) return;
     const own = ownedBadges(), g = BADGE_GROUPS.find((x) => x.id === b.group);
@@ -1689,17 +1771,31 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     modal.hidden = false;
   }
 
-  /* ── the badges (תגים) and the album frames they open */
+  /* ── the badges (תגים); the frames they open have their own screen (1.3.2), linked from here */
   function renderBadges() {
-    const own = ownedBadges(), cur = chosenFrame(), open = new Set(openFrames().map((f) => f.id));
+    const own = ownedBadges();
+    const frV = locked('frames');
     main.innerHTML = `<section class="wl-screen wl-badges">
-      <div class="wl-bhead paper"><b>${tileIcon('medal', 'wl-tic')}התגים שלי</b><span>אספתם ${vBadges().filter((b) => own[b.id]).length} מתוך ${vBadges().length}</span></div>
+      <div class="wl-bhead paper"><b>${tileIcon('medal', 'wl-tic')}התגים שלי</b><span>אספתם ${vBadges().filter((b) => own[b.id]).length} מתוך ${vBadges().length}</span>
+        <button class="wl-btn${frV ? ' is-veiled' : ''}" ${frV ? 'data-wl="locked" data-part="frames"' : 'data-wl="frames"'}>${icon('frame')}<span>המסגרות שלי</span></button></div>
       ${BADGE_GROUPS.filter(visB).map((g) => { const list = vBadges().filter((b) => b.group === g.id); const have = list.filter((b) => own[b.id]).length;
         return `<section class="wl-bgroup" style="--bg1:${g.col};--bg2:${g.col2}"><h3><span>${tileIcon(BGROUP_IC[g.id] || 'medal', 'wl-tic')}${esc(g.name)}</span><small>${have} מתוך ${list.length}</small></h3>
           <div class="wl-bgrid">${list.map((b) => bzHTML(b, !!own[b.id])).join('')}</div></section>`; }).join('')}
-      <section class="wl-frames paper"><h3>${icon('frame')}מסגרות לקלפים באלבום</h3><p>כל קבוצת תגים פותחת מסגרת. בחרו מסגרת, והיא תופיע על כל הקלפים שלכם באלבום.</p>
-        <div class="wl-frow">${FRAMES.filter(visB).map((f) => { const g = BADGE_GROUPS.find((x) => x.id === f.group);
-          return `<button class="wl-frame fr-${f.id}${cur === f.id ? ' sel' : ''}" data-wl="frame" data-f="${f.id}" ${open.has(f.id) ? '' : 'disabled'}><span class="wl-fsw"></span><b>${esc(f.name)}</b><small>${open.has(f.id) ? (cur === f.id ? 'נבחרה' : 'אפשר לבחור') : f.group === 'all' ? `נפתחת עם ${f.need} תגים` : `נפתחת עם ${f.need} תגים של ${esc(g ? g.short : '')}`}</small></button>`; }).join('')}</div></section>
+    </section>`;
+  }
+  /* ── my frames: choose the frame of the album cards (each group of badges opens one) */
+  function renderFrames() {
+    const cur = chosenFrame(), open = new Set(openFrames().map((f) => f.id));
+    const sample = CARD.get(FRAME_SAMPLE.find((id) => S.owned[id]) || Object.keys(S.owned).find((id) => CARD.has(id)) || FRAME_SAMPLE[0]);
+    const list = FRAMES.filter(visB);
+    main.innerHTML = `<section class="wl-screen wl-framesx">
+      <section class="wl-frames paper">
+        <div class="wl-fprev">${sample ? cardHTML(sample, { cls: cur !== 'none' ? 'fr-' + cur : '' }) : ''}</div>
+        <h3>${icon('frame')}מסגרות לקלפים באלבום</h3>
+        <p>כל קבוצת תגים פותחת מסגרת. בחרו מסגרת, והיא תופיע על כל הקלפים שלכם באלבום. פתוחות: ${list.filter((f) => open.has(f.id)).length} מתוך ${list.length}</p>
+        <div class="wl-frow">${list.map((f) => { const g = BADGE_GROUPS.find((x) => x.id === f.group);
+          return `<button class="wl-frame fr-${f.id}${cur === f.id ? ' sel' : ''}" data-wl="frame" data-f="${f.id}" ${open.has(f.id) ? '' : 'disabled'}><span class="wl-fsw"></span><b>${esc(f.name)}</b><small>${open.has(f.id) ? (cur === f.id ? 'נבחרה' : 'אפשר לבחור') : f.group === 'all' ? `נפתחת עם ${f.need} תגים` : `נפתחת עם ${f.need} תגים של ${esc(g ? g.short : '')}`}</small></button>`; }).join('')}</div>
+      </section>
     </section>`;
   }
 
@@ -1781,6 +1877,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   function answer(k) {
     if (!Q || Q.answered) return;
     const q = Q.qs[Q.i], o = q.options[k]; if (!o) return;
+    played('quiz');
     Q.answered = true;
     const ok = o.ok; Q.res.push(ok);
     const btns = [...main.querySelectorAll('.wl-opt')];
@@ -2207,6 +2304,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   function playCard(k) {
     if (!D || D.phase !== 'pick') return;
     const h = D.hand[k]; if (!h || h.used || !hasStat(h.c, D.stat)) return;
+    played('duel');
     sfx('place');
     h.used = true; D.mine = h.c; D.phase = 'wait';
     let left = D.cpu.filter((x) => !x.used && hasStat(x.c, D.stat));
@@ -2279,12 +2377,15 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
       setSourcesOn(!sourcesOn()); sfx('click');
       if (!sourcesOn() && (filter === 'src' || (filter.startsWith('set:') && SET_BY.get(filter.slice(4))?.torah))) filter = 'all';
       if (screen === 'versematch' && !sourcesOn()) go('home');
-      else if (['home', 'album', 'setup', 'badges'].includes(screen)) go(screen);
+      else if (['home', 'album', 'setup', 'badges', 'frames'].includes(screen)) go(screen, { force: true });
       openSettings();
     },
     settings: () => openSettings(), bzoom: (t) => bzoom(t.dataset.b),
     duel: () => { sfx('click'); go('duel'); }, play: (t) => playCard(+t.dataset.k), dnext: duelNext,
-    badges: () => { sfx('click'); go('badges'); }, frame: (t) => { if (chooseFrame(t.dataset.f)) { sfx('select'); renderBadges(); } },
+    badges: () => { sfx('click'); go('badges'); }, frames: () => { sfx('click'); go('frames'); },
+    frame: (t) => { if (chooseFrame(t.dataset.f)) { sfx('select'); if (screen === 'frames') renderFrames(); else renderBadges(); } },
+    // a veiled part (מסע החוקר): רובו־דע says what opens it
+    locked: (t) => lockTip(t.dataset.part),
   };
   // low screens: the set chips are one scrolling row; the mouse wheel moves it sideways
   el.addEventListener('wheel', (e) => {
@@ -2307,20 +2408,39 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     else if ((e.key === 'Enter' || e.key === ' ') && e.target && e.target.matches && e.target.matches('[data-wl][role=button]')) { e.preventDefault(); e.target.click(); }
   };
 
+  // something opened or was used (מסע החוקר): repaint the screens that show locks (a game in play is left alone)
+  // (only when a lock really changed: a part marked as used must not make the screen rise in again)
+  let journeyT = 0, lockSig = '';
+  const HUB_PARTS = ['album', 'quiz', 'webpuzzle', 'keepforest', 'badges', 'frames', 'inventors', 'expedition', 'duel', 'versematch'];
+  const sigNow = () => HUB_PARTS.map((p) => (locked(p) ? 0 : 1)).join('');
+  function onJourney() {
+    clearTimeout(journeyT);
+    journeyT = setTimeout(() => {
+      if (!open_) return;
+      const sg = sigNow(); if (sg === lockSig) return; lockSig = sg;
+      if (!modal.hidden) return;
+      if (screen === 'home') renderHome(); else if (screen === 'badges') renderBadges(); else return;
+      const sc = main.querySelector('.wl-screen'); if (sc) sc.style.animation = 'none';   // a repaint, not a new screen: no rise
+    }, 60);
+  }
   function open() {
     if (open_) return;
     reloadState(); readMode(); paintWho(); // the start screen may have switched player or מתחילים / מתקדמים since the hub was created
-    open_ = true; el.hidden = false;
+    open_ = true; el.hidden = false; rootEl.classList.add('wl-hubopen');
     window.addEventListener('keydown', onKey, true);
     window.addEventListener('resize', onResize);
+    window.addEventListener('wol-journey', onJourney);
+    lockSig = sigNow();
     go('home');
     try { $('.wl-back').focus({ preventScroll: true }); } catch (e) { /* */ }
   }
   function close() {
     if (!open_) return;
-    open_ = false; clearTimers(); closeModal(); el.hidden = true;
+    open_ = false; entered = null; clearTimers(); closeModal(); el.hidden = true; rootEl.classList.remove('wl-hubopen');
+    if (guideMine) { const g = guide(); try { g && g.isOpen() && g.close(); } catch (e) { /* */ } guideMine = false; }
     window.removeEventListener('keydown', onKey, true);
     window.removeEventListener('resize', onResize);
+    window.removeEventListener('wol-journey', onJourney);
     sfx('click');
     try { onClose && onClose(); } catch (e) { console.warn(e); }
   }
@@ -2328,7 +2448,8 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   try {
     window.__wolLearn = {
       ...api,
-      _go: (name, opts) => { if (!open_) open(); go(name, opts); return screen; },
+      _go: (name, opts) => { if (!open_) open(); go(name, { force: true, ...(opts || {}) }); return screen; },
+      _locks: () => [...el.querySelectorAll('.is-veiled[data-part]')].map((x) => x.dataset.part),
       _answer: (right = true) => { if (!Q) return; const k = Q.qs[Q.i].options.findIndex((o) => !!o.ok === !!right); answer(k < 0 ? 0 : k); },
       _tear: tearPack, _play: (k = 0) => playCard(k), _zoom: zoom,
       _collect: (n = CARDS.length) => { if (!open_) reloadState(); sample(CARDS, n).forEach((c) => { S.owned[c.id] = (S.owned[c.id] || 0) + 1; }); save(); if (open_ && screen === 'album') renderAlbum(); else checkSets(); return ownedCount(); },

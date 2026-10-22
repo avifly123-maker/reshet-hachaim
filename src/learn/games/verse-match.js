@@ -230,7 +230,7 @@ export function mountVerseMatch(root, ctx, opts = {}) {
     if (o.w) {
       it.done = true; it.pts = it.tries === 1 ? 2 : it.tries === 2 ? 1 : 0;
       G.pts += it.pts; if (it.tries === 1) G.firstTry++;
-      ST.met[it.src.id] = (ST.met[it.src.id] || 0) + 1; save();
+      ST.met[it.src.id] = (ST.met[it.src.id] || 0) + 1; save(); ctx.markUsed && ctx.markUsed('versematch');
       ctx.sfx(it.tries === 1 ? 'quizRight' : 'discover');
       renderItem();
       const b = root.querySelectorAll('.vm-opt')[k]; if (b && it.tries === 1) ctx.confetti(b, 16, ['#f6cf72', '#fff1c4', '#8fd067', it.src.col]);

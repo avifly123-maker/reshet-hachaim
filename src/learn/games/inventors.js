@@ -54,6 +54,8 @@ const I = {
   box: sv('<path d="M3.5 8L12 4l8.5 4v8.5L12 20.5l-8.5-4z" fill="currentColor"/><path d="M3.5 8L12 12l8.5-4M12 12v8.5" stroke="#fff" stroke-opacity=".5" stroke-width="1.4" fill="none"/>'),
   check: sv('<path d="M4.5 12.5l4.8 4.8L19.5 7" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'),
   flask: sv('<path d="M9.5 3h5M10.5 3v6L5 18.5A1.8 1.8 0 0 0 6.6 21h10.8a1.8 1.8 0 0 0 1.6-2.5L13.5 9V3" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/><path d="M7.4 15h9.2l2.1 3.6a1 1 0 0 1-.9 1.4H6.2a1 1 0 0 1-.9-1.4z" fill="currentColor"/>'),
+  // the robot workshop's door: a friendly robot head (round eyes, one antenna; nothing that reads as a cross)
+  robot: sv('<path d="M12 2.6v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="2.6" r="1.5" fill="currentColor"/><rect x="4.2" y="6.2" width="15.6" height="12.4" rx="4.2" fill="currentColor"/><circle cx="9.1" cy="12" r="1.9" fill="#fff"/><circle cx="14.9" cy="12" r="1.9" fill="#fff"/><path d="M9.6 15.9h4.8" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><rect x="1.8" y="10" width="2.4" height="5" rx="1.2" fill="currentColor"/><rect x="19.8" y="10" width="2.4" height="5" rx="1.2" fill="currentColor"/><path d="M8 18.6v2.4M16 18.6v2.4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>'),
   gear: sv('<circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M12 2.8v3M12 18.2v3M2.8 12h3M18.2 12h3M5.5 5.5l2.1 2.1M16.4 16.4l2.1 2.1M5.5 18.5l2.1-2.1M16.4 7.6l2.1-2.1" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>'),
   bulbHint: sv('<path d="M12 2.8a6.6 6.6 0 0 0-3.8 12c.8.6 1.3 1.4 1.3 2.3h5c0-.9.5-1.7 1.3-2.3A6.6 6.6 0 0 0 12 2.8z" fill="currentColor"/><path d="M9.6 19.4h4.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>'),
   sun: sv('<circle cx="12" cy="12" r="4.6" fill="currentColor"/><path d="M12 2.6v2.6M12 18.8v2.6M2.6 12h2.6M18.8 12h2.6M5.4 5.4l1.8 1.8M16.8 16.8l1.8 1.8M5.4 18.6l1.8-1.8M16.8 7.2l1.8-1.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'),
@@ -91,10 +93,18 @@ function injectCss() {
   st.textContent = (`
 .wol-learn .iv{position:relative;display:flex;flex-direction:column;gap:.6em;padding:0 1.4em .6em;height:100%;width:100%;box-sizing:border-box;--wood:#7a5232;--brass:#d8a640;--paper:#f3ead0;--ink:#2a2014}
 .wol-learn .iv-top{display:flex;align-items:center;gap:.8em;flex-wrap:wrap}
-.wol-learn .iv-tabs{display:flex;gap:.4em;padding:.3em;border-radius:1em;background:rgba(10,20,14,.45)}
-.wol-learn .iv-tabs button{display:flex;align-items:center;gap:.45em;padding:.5em 1.1em;border-radius:.8em;color:#e8e2c4;font-weight:800}
+.wol-learn .iv-tabs{display:flex;gap:.5em;padding:.3em;border-radius:1.1em;background:rgba(10,20,14,.45)}
+.wol-learn .iv-tabs button{display:flex;align-items:center;gap:.45em;padding:.45em 1.1em;border-radius:.85em;color:#e8e2c4;font-weight:800;font-size:calc(1.08em * var(--ts,1));min-height:2.6em}
 .wol-learn .iv-tabs button.on{background:linear-gradient(180deg,#f6edcf,#e2d3a6);color:var(--ink)}
-.wol-learn .iv-tabs .wl-ic{width:1.3em;height:1.3em}
+.wol-learn .iv-tabs .wl-ic{width:1.4em;height:1.4em}
+/* the robot workshop: a big door of its own, a robot face on it (children did not notice the old small tab) */
+.wol-learn .iv-tabs .iv-rtab{gap:.55em;padding:.3em 1.2em .3em 1em;color:#eafcff;background:linear-gradient(180deg,#3d8fa8,#256a80);box-shadow:inset 0 0 0 2px rgba(127,240,255,.5),0 .2em 0 #184c5c}
+.wol-learn .iv-tabs .iv-rtab .wl-ic{width:2.1em;height:2.1em;color:#bff6ff;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3))}
+.wol-learn .iv-tabs .iv-rtab:not(.on) .wl-ic{animation:iv-rbob 2.4s ease-in-out infinite}
+.wol-learn .iv-tabs .iv-rtab.on{background:linear-gradient(180deg,#d9f6fb,#9fdbe8);color:#163c48;box-shadow:inset 0 0 0 2px #2c9a92,0 .2em 0 #1d6b65}
+.wol-learn .iv-tabs .iv-rtab.on .wl-ic{color:#256a80}
+.wol-learn .iv-tabs .iv-rtab.veiled{filter:grayscale(.7);opacity:.6;cursor:help}
+@keyframes iv-rbob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-2px) rotate(-6deg)}}
 .wol-learn .iv-score{margin-inline-start:auto;display:flex;align-items:center;gap:.5em;font-weight:800;color:#f6cf72}
 .wol-learn .iv-score .wl-ic{width:1.3em;height:1.3em}
 .wol-learn .iv-main{display:grid;grid-template-columns:minmax(12em,15em) 1fr;gap:1em;flex:1 1 auto;min-height:0}
@@ -284,7 +294,9 @@ export function mountInventors(root, ctx, opts = {}) {
   // (a research question of the lab may ask for another problem: it joins the list then)
   const PLIST = kids ? PROBLEMS.filter((p) => p.kids || p.id === opts.problem).map(kidsP) : PROBLEMS;
   const SHELVES = THEMES.filter((t) => PLIST.some((p) => p.theme === t.id));
-  let view = opts.view === 'robots' ? 'robots' : 'problems';
+  // מסע החוקר (1.3.2): the robot workshop is a part of its own (it opens with the inventors, at stage 5)
+  const robotsOpen = () => !ctx.isOpen || ctx.isOpen('robots');
+  let view = opts.view === 'robots' && robotsOpen() ? 'robots' : 'problems';
   let pid = (PLIST.find((p) => p.id === opts.problem) || PLIST.find((p) => !ST.solved[p.id]) || PLIST[0]).id;
   let theme = (PLIST.find((p) => p.id === pid) || PLIST[0]).theme;
   let slots = [null, null], filter = 'all', result = null, failsHere = 0, hintAsk = 0, alive = true;
@@ -376,7 +388,7 @@ export function mountInventors(root, ctx, opts = {}) {
     const p = curP(), cards = slots.filter(Boolean);
     if (!p || !cards.length || result === 'busy') return;
     result = 'busy'; render();
-    ctx.sfx('click');
+    ctx.sfx('click'); ctx.markUsed && ctx.markUsed('inventors');
     ST.tries++;
     const r = evaluate(p, cards), s = sayFor(p, r, cards);
     const g = root.querySelector('.iv-gauge i'); if (g) requestAnimationFrame(() => { g.style.width = r.score + '%'; });
@@ -511,7 +523,7 @@ export function mountInventors(root, ctx, opts = {}) {
     if (!R.body || !m || R.run) return;
     const robot = robotObj();
     const res = m.tests.map((id, i) => { const tl = testOf(id); const x = robotTest(tl, robot); return { tl, ...x, line: tl.fun[x.lv] + ' ' + pick(x.lv === 'win' ? SAY.trialWin : x.lv === 'half' ? SAY.trialHalf : SAY.trialFail, hash(tl.id + R.body.id + i)) }; });
-    R.run = res; R.done = null; ctx.sfx('click'); render();
+    R.run = res; R.done = null; ctx.sfx('click'); ctx.markUsed && ctx.markUsed('robots'); render();
     const rows = root.querySelectorAll('.iv-trial');
     const step = m.free ? 260 : 650;
     res.forEach((r, i) => later(() => {
@@ -624,7 +636,7 @@ export function mountInventors(root, ctx, opts = {}) {
     const solved = PLIST.filter((p) => ST.solved[p.id]).length;
     // the hub's screens rise in once (wl-rise); a re-render after a click must not rise again (it flickered)
     root.innerHTML = `<section class="wl-screen iv${kids ? ' kids' : ''}${shownOnce ? ' still' : ''}">
-      <div class="iv-top"><div class="iv-tabs"><button class="${view === 'problems' ? 'on' : ''}" data-iv="view" data-v="problems">${I.bulb}${ui('בעיות להמציא', 'problems')}</button><button class="${view === 'robots' ? 'on' : ''}" data-iv="view" data-v="robots">${I.gear}${ui('סדנת הרובוטים', 'robots')}</button></div>
+      <div class="iv-top"><div class="iv-tabs"><button class="iv-ptab${view === 'problems' ? ' on' : ''}" data-iv="view" data-v="problems">${I.bulb}${ui('בעיות להמציא', 'problems')}</button><button class="iv-rtab${view === 'robots' ? ' on' : ''}${robotsOpen() ? '' : ' veiled'}" data-iv="view" data-v="robots" aria-pressed="${view === 'robots'}">${I.robot}${ui('סדנת הרובוטים', 'robots')}</button></div>
         <span class="iv-score">${I.check}${ui(`${solved} מתוך ${PLIST.length} המצאות`, 'score', { n: solved, all: PLIST.length })}</span></div>
       ${view === 'problems' ? problemsHTML() : robotsHTML()}</section>`;
   }
@@ -632,7 +644,10 @@ export function mountInventors(root, ctx, opts = {}) {
   function onClick(e) {
     const t = e.target.closest('[data-iv]'); if (!t || !alive) return;
     const a = t.dataset.iv;
-    if (a === 'view') { view = t.dataset.v; result = null; ctx.sfx('click'); render(); return; }
+    if (a === 'view') {
+      if (t.dataset.v === 'robots' && !robotsOpen()) { ctx.lockTip && ctx.lockTip('robots'); return; }   // מסע החוקר: not open yet
+      view = t.dataset.v; result = null; ctx.sfx('click'); render(); return;
+    }
     if (a === 'filter') { filter = t.dataset.v; render(); return; }
     if (a === 'prob') { pid = t.dataset.p; slots = [null, null]; result = null; failsHere = 0; hintAsk = 0; ctx.sfx('click'); render(); return; }
     if (a === 'theme') { theme = t.dataset.t; const first = PLIST.find((x) => x.theme === theme && !ST.solved[x.id]) || PLIST.find((x) => x.theme === theme); if (first && first.id !== pid) { pid = first.id; slots = [null, null]; result = null; failsHere = 0; hintAsk = 0; } ctx.sfx('click'); render(); return; }
