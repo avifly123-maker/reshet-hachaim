@@ -111,7 +111,9 @@ function store() {
   // first visit of this player to 1.3.2: someone who already played keeps everything open and plays the full mode
   const m = metrics();
   // a saved forest counts too (a child who planted but never finished a mission or opened a pack)
-  let forest = false; for (const z of ZONES) { try { if (localStorage.getItem(pk('web-of-life-save-' + z))) forest = true; } catch (e) { } }
+  // (both slots: the full level's web-of-life-save-<zone> and the beginners' web-of-life-save-<zone>-kids, see game/game/save.js)
+  let forest = false;
+  for (const z of ZONES) for (const slot of ['web-of-life-save-' + z, 'web-of-life-save-' + z + '-kids']) { try { if (ls() && ls().getItem(pk(slot))) forest = true; } catch (e) { } }
   const legacy = forest || m.missions + m.badges + m.lab + m.cases + m.cards > 0;
   const fresh = { v: 1, created: Date.now(), legacy, shown: {}, used: {}, intro: {}, mode: legacy ? 'full' : 'experience', text: 'large', voice: true };
   if (legacy) for (const st of STAGES) if (reached(st, m)) fresh.shown[st.id] = Date.now();   // no parade of old stages
