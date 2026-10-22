@@ -2,6 +2,8 @@
 // (play mode, text size, voice) inside the forest's satchel menu.
 //
 //   settingsRowsHTML({ rows })        HTML of the rows; rows: a list of 'mode' | 'text' | 'voice' | 'music' | 'again' | 'staff'
+//                                     | 'sound' | 'quality' | 'sources' (the computer's rows: o.getSound/setSound, o.getQuality/setQuality;
+//                                     'sources' only in the torah edition) | 'h:me' / 'h:pc' (a small heading)
 //                                     (default: the three rows the forest shows: mode, text, voice)
 //   bindSettingsRows(el, { emit, getMusic, onChange })   one delegated click handler on `el` (safe to call again)
 //   paintSettingsRows(el)             re-read the current values (another player, a change elsewhere)
@@ -11,6 +13,7 @@
 // simple mode. The instructors' row never shows the code; it only takes it.
 import { icon, esc } from './ui.js';
 import * as J from '../core/journey.js';
+import { TORAH, sourcesOn, setSourcesOn } from '../core/edition.js';
 
 const kids = () => J.playMode() === 'kids';
 const t = (f, k) => (kids() ? k : f);
@@ -42,6 +45,23 @@ function rowHTML(id, o) {
     const on = J.voiceOn();
     return `<button class="set-row set-tog" data-row="voice" data-set="voice" role="switch" aria-checked="${on}"><span class="set-lab">${icon(on ? 'sound' : 'mute')}<span><b>${t('הקול של רובו־דע', 'הַקּוֹל שֶׁל רוֹבּוֹ־דַּע')}</b><small>${t('הוא מקריא את מה שהוא אומר', 'הוּא מַקְרִיא אֶת מָה שֶׁהוּא אוֹמֵר')}</small></span></span>${sw(on)}</button>`;
   }
+  if (id === 'h:me') return `<p class="set-sub" data-row="h:me">${t('לשחקן', 'לַשַּׂחְקָן')}</p>`;
+  if (id === 'h:pc') return `<p class="set-sub" data-row="h:pc">${t('למחשב הזה (לכל השחקנים)', 'לַמַּחְשֵׁב הַזֶּה')}</p>`;
+  if (id === 'sound') {
+    const on = o.getSound ? !!o.getSound() : true;
+    return `<button class="set-row set-tog" data-row="sound" data-set="sound" role="switch" aria-checked="${on}"><span class="set-lab">${icon(on ? 'sound' : 'mute')}<span><b>${t('צלילים', 'צְלִילִים')}</b><small>${t('קולות הטבע וצלילי המשחק', 'קוֹלוֹת הַטֶּבַע וְהַמִּשְׂחָק')}</small></span></span>${sw(on)}</button>`;
+  }
+  if (id === 'quality') {
+    const q = o.getQuality ? o.getQuality() : 'medium';
+    const Q = [['low', 'פשוטה', 'פְּשׁוּטָה', 'למחשב חלש'], ['medium', 'רגילה', 'רְגִילָה', ''], ['high', 'עשירה', 'עֲשִׁירָה', 'לכרטיס מסך חזק']];
+    return `<div class="set-row" data-row="quality"><div class="set-lab">${icon('quality')}<span><b>${t('איכות התמונה', 'אֵיכוּת הַתְּמוּנָה')}</b><small>${t('לפי כרטיס המסך של המחשב', 'לְפִי הַמַּחְשֵׁב')}</small></span></div>
+      <div class="set-seg" role="radiogroup" aria-label="${t('איכות התמונה', 'אֵיכוּת הַתְּמוּנָה')}">${Q.map(([v, f, k, tip]) => `<button role="radio" data-set="quality" data-v="${v}" aria-checked="${q === v}"${tip ? ` title="${tip}"` : ''}><b>${t(f, k)}</b></button>`).join('')}</div></div>`;
+  }
+  if (id === 'sources') {
+    if (!TORAH) return '';
+    const on = sourcesOn();
+    return `<button class="set-row set-tog" data-row="sources" data-set="sources" role="switch" aria-checked="${on}"><span class="set-lab">${icon('book')}<span><b>${t('מן המקורות', 'מִן הַמְּקוֹרוֹת')}</b><small>${t('פסוקים ומאמרי חז״ל בקלפים, במשימות ובחידון', 'פְּסוּקִים וּמַאַמְרֵי חֲזַ״ל')}</small></span></span>${sw(on)}</button>`;
+  }
   if (id === 'music') {
     const on = o.getMusic ? !!o.getMusic() : true;
     return `<button class="set-row set-tog" data-row="music" data-set="music" role="switch" aria-checked="${on}"><span class="set-lab">${icon(on ? 'music' : 'musicOff')}<span><b>${t('מוזיקה', 'מוּזִיקָה')}</b><small>${t('במסך הפתיחה ובמעבדה', 'בַּמָּסָךְ הָרִאשׁוֹן וּבַמַּעְבָּדָה')}</small></span></span>${sw(on)}</button>`;
@@ -60,13 +80,17 @@ function rowHTML(id, o) {
   return '';
 }
 
-export function settingsRowsHTML({ rows = ['mode', 'text', 'voice'], getMusic } = {}) {
-  return `<div class="set-rows">${rows.map((r) => rowHTML(r, { getMusic })).join('')}</div>`;
+export function settingsRowsHTML({ rows = ['mode', 'text', 'voice'], ...o } = {}) {
+  return `<div class="set-rows">${rows.map((r) => rowHTML(r, o)).join('')}</div>`;
 }
 
 // draw the rows again with the current values (keeps the element, so a bound handler stays)
 export function paintSettingsRows(el, opts = {}) {
-  const box = el && (el.matches && el.matches('.set-rows') ? el : el.querySelector('.set-rows')); if (!box) return;
+  if (!el) return;
+  const boxes = el.matches && el.matches('.set-rows') ? [el] : [...el.querySelectorAll('.set-rows')];   // the sheet has two columns
+  for (const box of boxes) paintBox(box, opts);
+}
+function paintBox(box, opts) {
   const rows = [...box.querySelectorAll('[data-row]')].map((r) => r.dataset.row);
   const wasOpen = !!box.querySelector('.set-staff[open]');
   box.innerHTML = rows.map((r) => rowHTML(r, opts)).join('');
@@ -96,6 +120,9 @@ export function bindSettingsRows(el, opts = {}) {
     if (k === 'mode') { J.setPlayMode(b.dataset.v); after('mode'); }
     else if (k === 'text') { J.setTextSize(b.dataset.v); after('text'); }
     else if (k === 'voice') { const on = !J.voiceOn(); J.setVoice(on); if (!on) { try { window.__app && window.__app.voice && window.__app.voice.stop(); } catch (er) { } } after('voice'); }
+    else if (k === 'sound') { const on = !(o.getSound ? o.getSound() : true); if (o.setSound) o.setSound(on); setTimeout(() => after('sound'), 0); }
+    else if (k === 'quality') { if (o.setQuality) o.setQuality(b.dataset.v); setTimeout(() => after('quality'), 0); }
+    else if (k === 'sources') { setSourcesOn(!sourcesOn()); if (o.emit) o.emit('sources:toggle', { on: sourcesOn() }); after('sources'); }
     else if (k === 'music') { const on = !(o.getMusic ? o.getMusic() : true); if (o.emit) o.emit('music:toggle', { on }); setTimeout(() => after('music'), 0); }
     else if (k === 'again') {
       J.resetIntros(); after('again');
@@ -109,16 +136,17 @@ export function bindSettingsRows(el, opts = {}) {
 }
 
 // the full sheet: a paper card under the gear, with a scrim behind it
-export function openSettings(host, { emit, getMusic, onClose } = {}) {
+export function openSettings(host, { emit, getMusic, getSound, setSound, getQuality, setQuality, onClose } = {}) {
   const old = host.querySelector('.set-layer'); if (old) old.remove();
   const layer = document.createElement('div'); layer.className = 'set-layer';
   layer.innerHTML = `<div class="set-scrim"></div><div class="set-sheet paper" role="dialog" aria-modal="true" aria-label="${esc(t('הגדרות', 'הַגְדָּרוֹת'))}">
     <button class="pp-x set-x" data-x="1" aria-label="סגירה" title="סגירה">${icon('close')}</button>
-    <h3 class="set-h">${icon('sliders')}${t('הגדרות', 'הַגְדָּרוֹת')}</h3>
-    ${settingsRowsHTML({ rows: ['mode', 'text', 'voice', 'music', 'again', 'staff'], getMusic })}</div>`;
+    <h3 class="set-h">${icon('gear')}${t('הגדרות', 'הַגְדָּרוֹת')}</h3>
+    <div class="set-cols">${settingsRowsHTML({ rows: ['h:me', 'mode', 'text', 'voice', 'again'], getMusic, getSound, getQuality })}
+    ${settingsRowsHTML({ rows: ['h:pc', 'sources', 'sound', 'music', 'quality', 'staff'], getMusic, getSound, getQuality })}</div></div>`;
   host.appendChild(layer);
   const sheet = layer.querySelector('.set-sheet');
-  bindSettingsRows(sheet, { emit, getMusic });
+  bindSettingsRows(sheet, { emit, getMusic, getSound, setSound, getQuality, setQuality });
   const close = () => {
     if (!layer.isConnected) return;
     layer.remove(); removeEventListener('keydown', onKey);

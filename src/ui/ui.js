@@ -63,6 +63,7 @@ const I = {
   music: '<ellipse class="f" cx="7" cy="17.5" rx="2.8" ry="2.2"/><ellipse class="f" cx="17" cy="15.5" rx="2.8" ry="2.2"/><ellipse cx="7" cy="17.5" rx="2.8" ry="2.2"/><ellipse cx="17" cy="15.5" rx="2.8" ry="2.2"/><path d="M9.8 17.3V6.2l10-2.2v11.3"/>',
   musicOff: '<ellipse class="f" cx="7" cy="17.5" rx="2.8" ry="2.2"/><ellipse cx="7" cy="17.5" rx="2.8" ry="2.2"/><path d="M9.8 17.3V5c1.2 2.4 4.5 3 4.5 6"/><path d="M16 14.5h5"/>',
   lightmap: '<circle class="f" cx="12" cy="7" r="2.6"/><circle cx="12" cy="7" r="2.6"/><path d="M12 1.8v1.3M7.4 3.4l.9.9M16.6 3.4l-.9.9M6 7h1.2M16.8 7H18"/><path class="f" d="M2.5 15.5L12 12l9.5 3.5L12 19z"/><path d="M2.5 15.5L12 12l9.5 3.5L12 19z"/><path d="M5.5 15.5h13"/>',
+  gear: '<path d="M18.69 9.35 L21.38 9.96 L21.38 14.04 L18.69 14.65 L18.61 14.86 L20.07 17.19 L17.19 20.07 L14.86 18.61 L14.65 18.69 L14.04 21.38 L9.96 21.38 L9.35 18.69 L9.14 18.61 L6.81 20.07 L3.93 17.19 L5.39 14.86 L5.31 14.65 L2.62 14.04 L2.62 9.96 L5.31 9.35 L5.39 9.14 L3.93 6.81 L6.81 3.93 L9.14 5.39 L9.35 5.31 L9.96 2.62 L14.04 2.62 L14.65 5.31 L14.86 5.39 L17.19 3.93 L20.07 6.81 L18.61 9.14 Z" stroke-linejoin="round"/><circle cx="12" cy="12" r="3"/>',
   sliders: '<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/>',
   close: '<circle cx="12" cy="12" r="8"/><path d="M8.2 12h7.6"/>',   // no X anywhere: a circle with a bar
   binoc: '<circle class="f" cx="6.5" cy="15.5" r="3.8"/><circle class="f" cx="17.5" cy="15.5" r="3.8"/><circle cx="6.5" cy="15.5" r="3.8"/><circle cx="17.5" cy="15.5" r="3.8"/><path d="M4 12.5L6.2 5h3l.8 7M20 12.5L17.8 5h-3l-.8 7M10.3 15h3.4"/>',
@@ -338,7 +339,7 @@ export function createUI(root, bus) {
     startEl.innerHTML = `<div class="st-bg">${canopySVG('top')}${canopySVG('bottom')}<i class="st-shaft s1"></i><i class="st-shaft s2"></i><i class="st-tint"></i></div>
       ${S.logo ? `<div class="st-logo"><img src="${S.logo}" alt="בבא דע"></div>` : ''}
       <div class="st-corner"><div class="st-corner-row"><button class="st-who" aria-haspopup="dialog" aria-expanded="false" hidden></button>
-        <button class="st-gear" aria-haspopup="dialog" aria-label="הגדרות" title="הגדרות">${icon('sliders')}</button></div>
+        <button class="st-gear" aria-haspopup="dialog" aria-label="הגדרות" title="הגדרות">${icon('gear')}</button></div>
         <button class="st-jbar" data-part="journey" aria-haspopup="dialog"></button></div>
       <div class="st-pp-layer" hidden><div class="st-pp-scrim"></div><div class="st-pp paper" role="dialog" aria-modal="true" aria-label="מי משחק?"></div></div>
       <div class="st-inner v13">
@@ -494,7 +495,10 @@ export function createUI(root, bus) {
     const gear = startEl.querySelector('.st-gear');
     gear.addEventListener('click', () => {
       emit('ui:click'); gear.setAttribute('aria-expanded', 'true');
-      openSettings(startEl, { emit, getMusic: () => S.toggles.music !== false, onClose: () => { gear.setAttribute('aria-expanded', 'false'); try { gear.focus({ preventScroll: true }); } catch (e) { } } });
+      openSettings(startEl, { emit, getMusic: () => S.toggles.music !== false,
+        getSound: () => S.toggles.sound !== false, setSound: (on) => { S.toggles.sound = on; paintToggles(); emit('audio:mute', { muted: !on }); },
+        getQuality: () => S.toggles.quality || 'medium', setQuality: (q) => { S.toggles.quality = q; paintToggles(); emit('quality', { q }); },
+        onClose: () => { gear.setAttribute('aria-expanded', 'false'); try { gear.focus({ preventScroll: true }); } catch (e) { } } });
       // the first time: רובו־דע presents the rows that are on screen (beginners have no play mode row)
       setTimeout(() => { const g = window.__guide; if (g && startEl.querySelector('.set-layer')) g.say(g.lines('start:settings').filter((l) => !l.at || startEl.querySelector(l.at)), { key: 'g:start:settings' }); }, 300);
     });
