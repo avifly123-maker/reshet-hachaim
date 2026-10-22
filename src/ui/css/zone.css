@@ -110,6 +110,8 @@
   50% { box-shadow: inset 0 0 0 3px var(--paper), 0 0 0 6px #ffd166, 0 0 22px 8px rgba(229, 72, 59, .7); transform: translateY(-7px); } }
 
 @media (max-height: 640px) {
+  #ui.wol .species .sp-head h2 { font-size: 1.45em; }
+  #ui.wol .missions { min-height: calc(64px + 2.5em * var(--ts)); }
   #ui.wol .species.xp .sp-art { height: 84px; margin-bottom: 4px; }
   #ui.wol.play-xp .missions .m-head { display: none; }
   #ui.wol .species.xp .sp-scroll { gap: 9px; padding-top: 14px; }
@@ -117,6 +119,7 @@
   #ui.wol .species.xp .chips { margin-top: 4px; }
 }
 @media (max-height: 520px) {
+  #ui.wol .species .sp-art { height: 70px; margin-bottom: 4px; }
   #ui.wol .species.xp .sp-art { height: 62px; }
   #ui.wol .species.xp .sp-head h2 { font-size: 1.35em; }
   #ui.wol .hurtbar { top: 50px; }
