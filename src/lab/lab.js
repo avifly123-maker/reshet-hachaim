@@ -18,7 +18,8 @@ import { grantSource } from '../core/sources-store.js';
 import { grant as grantBadge } from '../core/badges-store.js';
 import { SAMPLES } from './samples.js';
 import { THINK, OPEN as THINK_OPEN, openThinkMenu, thinkById, thinkDone } from './thinking.js';   // חושבים כמו חוקרים
-import { openQuestions, answeredCount } from './questions.js';
+import { openQuestions, answeredCount, islandQuestions } from './questions.js';
+import { markHTML } from '../ui/threads-ui.js';   // חוטים: "מהאי שלכם" on the atlas's questions button
 import { labKids, fmt, readMs } from './level.js';
 import { ROOM_K, TALK_K, FACTS_K, JOKES_K, ATLAS_K, SAMPLES_K, THINK_K } from './kids-text.js';   // the beginners' words (ניקוד מלא)
 // the station worlds (19.10): the aquarium, the greenhouse and the cabinet open a menu of their own activities
@@ -900,7 +901,7 @@ function openAtlas(root, { say, thumbs, onClose, onQuestions }) {
       <div><b>${esc(K.name)}</b><div class="lb-stamps"><span class="${zoom ? 'on z' : ''}">${kids ? A.zoom : 'הוגדל'}</span><span class="${idea ? 'on i' : ''}">${kids ? A.idea : 'השראה'}</span></div>
       <p>${zoom ? esc(K.found) : kids ? A.notYet : 'עוד לא הסתכלנו במיקרוסקופ.'}</p></div></article>`;
   }).join('');
-  el.innerHTML = `<header><h2>${kids ? A.title : 'האטלס'}</h2><p>${kids ? A.sub : 'כל יצור שחקרתם מקבל דף. כל חותמת פותחת עוד חלק מהסיפור שלו.'}</p>${onQuestions ? `<button class="lb-btn lb-qbtn">${kids ? A.questions : 'שאלות חקר'} · ${answeredCount(undefined, kids)}</button>` : ''}<button class="lb-btn lb-back">${kids ? A.back : 'חזרה לחדר'}</button></header><div class="lb-a-grid">${rows}</div>`;
+  el.innerHTML = `<header><h2>${kids ? A.title : 'האטלס'}</h2><p>${kids ? A.sub : 'כל יצור שחקרתם מקבל דף. כל חותמת פותחת עוד חלק מהסיפור שלו.'}</p>${onQuestions ? `<button class="lb-btn lb-qbtn">${kids ? A.questions : 'שאלות חקר'} · ${answeredCount(undefined, kids)}${islandQuestions(kids) ? markHTML('island') : ''}</button>` : ''}<button class="lb-btn lb-back">${kids ? A.back : 'חזרה לחדר'}</button></header><div class="lb-a-grid">${rows}</div>`;
   el.querySelector('.lb-back').onclick = () => { el.remove(); onClose && onClose(); };
   const qb = el.querySelector('.lb-qbtn'); if (qb) qb.onclick = () => onQuestions();
   say(kids ? A.say : 'באטלס נרשום את כל היצורים שחקרתם. חותמת "הוגדל" מקבלים במיקרוסקופ, וחותמת "השראה" בשולחן הממציאים.', 'happy');

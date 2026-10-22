@@ -40,7 +40,10 @@ import { key as profileKey, current as currentPlayer } from '../core/profiles.js
 import { avatarHTML } from '../ui/avatars.js';
 import { icon } from '../ui/ui.js';
 import { tileIcon, TILE_TONE } from '../ui/icons-hub.js';   // one icon set for every button of the hub (see the sheet: tools/icon-sheet.mjs)
-import { isOpen, lockInfo, markUsed, state as journeyState, PARTS as JPARTS } from '../core/journey.js';   // מסע החוקר (1.3.2): which parts are open
+import { isOpen, lockInfo, markUsed, state as journeyState, PARTS as JPARTS } from '../core/journey.js';
+import { setSourceCheck } from '../core/threads.js';           // חוטים (1.3.2): the card stamps
+import { stampsHTML } from '../ui/threads-ui.js';
+import { VERSE_LINKS } from '../data/torah-links.js';   // מסע החוקר (1.3.2): which parts are open
 
 const STORE_KEY = 'web-of-life-cards';
 const ROUND = 10;
@@ -1479,6 +1482,9 @@ function injectCss() {
 /* ───────────────────────────────────────────── the hub */
 export function createLearningHub(rootEl, { onClose, audio } = {}) {
   injectCss();
+  // the stamp "מן המקורות" (torah edition): a creature with a line in פרק שירה, in "רץ כצבי", or a card a verse speaks of
+  const VERSE_CARDS = new Set(Object.values(VERSE_LINKS || {}).flatMap((v) => (v.links || []).filter((l) => (l.w || 0) >= 2).map((l) => l.c)));
+  setSourceCheck((sp, zone) => { const id = zone + ':' + sp; return !!(SHIRA[id] || TZVI_SET.cards.includes(id) || VERSE_CARDS.has(id)); });
   const reduced = () => { try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } };
   const sfx = (n) => { try { audio && audio.play && audio.play(n); } catch (e) { /* ignore */ } };
   const S = loadState();
@@ -2068,6 +2074,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     const pips = (v) => `<span class="wl-pips">${[1, 2, 3, 4, 5].map((k) => `<i class="${k <= v ? 'on' : ''}"></i>`).join('')}</span>`;
     modal.innerHTML = `${cardHTML(c)}
       <div class="wl-mtext paper"><h3>${esc(c.name)}</h3><p>${esc(c.fact)}</p>
+        ${c.type === 'species' ? stampsHTML(c.sp.id, c.biome, { sources: TORAH && sourcesOn() }) : ''}
         <div class="wl-mrar r-${c.rarity}"><span class="wl-gems">${gems(c.rarity)}</span><span><b>${c.type === 'tool' ? 'כלי טכנולוגי' : RARITY_NAMES[c.rarity]}</b> – ${c.type === 'tool' ? RARITY_MORE.tech : `${c.rarity === 'common' ? 'יהלום נדירות אחד מתוך 3' : RARITY_GEMS[c.rarity] + ' מתוך 3 יהלומי נדירות'}. ${RARITY_MORE[c.rarity]}`}</span></div>
         ${powerHTML(c)}
         ${TORAH && sourcesOn() && SHIRA[id] ? `<div class="wl-src shira"><small>בפרק שירה</small><p class="t"><b>${esc(SHIRA[id].who)}:</b> ${esc(SHIRA[id].text)}</p><small>${esc(SHIRA[id].ref)}</small>${SHIRA[id].note ? `<p class="n">${esc(SHIRA[id].note)}</p>` : ''}</div>` : ''}

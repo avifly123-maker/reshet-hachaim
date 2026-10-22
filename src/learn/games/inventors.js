@@ -6,6 +6,8 @@ import { scoreProblem, gaugeOf, robotTest, robotWeight } from '../../data/invent
 import { invent, markSolved } from '../../lab/progress.js';
 import { TORAH } from '../../core/edition.js';
 import { grantSource } from '../../core/sources-store.js';
+import { problemsWaiting } from '../../core/threads.js';   // חוטים (1.3.2): problems "מחכות לכם"
+import { markHTML } from '../../ui/threads-ui.js';
 // "הממציאים" – a sandbox of inventions for the learning hub and the lab of רובו־דע (single player).
 // Two workshops:
 //  · בעיות להמציא – a real problem people solved by learning from a creature. The child puts one or two of
@@ -293,11 +295,13 @@ export function mountInventors(root, ctx, opts = {}) {
   // the beginners' set: the eight first problems (as before) and a few simple new ones
   // (a research question of the lab may ask for another problem: it joins the list then)
   const PLIST = kids ? PROBLEMS.filter((p) => p.kids || p.id === opts.problem).map(kidsP) : PROBLEMS;
+  // חוטים (core/threads.js): problems "מחכות לכם" since all missions of their zone were done
+  const waiting = () => { try { const w = problemsWaiting(); return (id) => w.has(id) && !ST.solved[id]; } catch (e) { return () => false; } };
   const SHELVES = THEMES.filter((t) => PLIST.some((p) => p.theme === t.id));
   // מסע החוקר (1.3.2): the robot workshop is a part of its own (it opens with the inventors, at stage 5)
   const robotsOpen = () => !ctx.isOpen || ctx.isOpen('robots');
   let view = opts.view === 'robots' && robotsOpen() ? 'robots' : 'problems';
-  let pid = (PLIST.find((p) => p.id === opts.problem) || PLIST.find((p) => !ST.solved[p.id]) || PLIST[0]).id;
+  let pid = (PLIST.find((p) => p.id === opts.problem) || PLIST.find((p) => waiting()(p.id)) || PLIST.find((p) => !ST.solved[p.id]) || PLIST[0]).id;
   let theme = (PLIST.find((p) => p.id === pid) || PLIST[0]).theme;
   let slots = [null, null], filter = 'all', result = null, failsHere = 0, hintAsk = 0, alive = true;
   const R = { mission: null, picking: false, n: 2, body: null, mods: [], pickFor: null, run: null, done: null, nudge: '' };
@@ -481,17 +485,17 @@ export function mountInventors(root, ctx, opts = {}) {
         res += `<div class="iv-fact"><h4>${I.check}${result.creative ? ui('וכך פתרו את זה באמת', 'realWay') : p.need ? ui('מאיפה הרעיונות באו', 'howPair') : ui('כך זה קרה באמת', 'how')}${who ? ` · ${esc(who)}` : ''}${p.need ? `<span class="iv-two">${ui('שילוב', 'pair')}</span>` : ''}</h4><p>${esc(p.fact)}</p></div>`;
       }
     }
-    const inTheme = PLIST.filter((x) => x.theme === theme);
+    const inTheme = PLIST.filter((x) => x.theme === theme), wt = waiting();
     const th = THEMES.find((t) => t.id === theme) || THEMES[0];
     return `<div class="iv-main">
       <div class="iv-side">
         <div class="iv-themes">${SHELVES.map((t) => { const all = PLIST.filter((x) => x.theme === t.id); const full = all.every((x) => ST.solved[x.id]);
-          return `<button class="iv-th${t.id === theme ? ' on' : ''}${full ? ' full' : ''}" data-iv="theme" data-t="${t.id}" title="${esc(t.name)}">${I[t.icon] || I.flask}<span>${esc(t.name)}</span></button>`; }).join('')}</div>
+          return `<button class="iv-th${t.id === theme ? ' on' : ''}${full ? ' full' : ''}${all.some((x) => wt(x.id)) ? ' th-wait' : ''}" data-iv="theme" data-t="${t.id}" title="${esc(t.name)}">${I[t.icon] || I.flask}<span>${esc(t.name)}</span></button>`; }).join('')}</div>
         <h4 class="iv-tname">${esc(th.name)}<small>${ui(`${inTheme.filter((x) => ST.solved[x.id]).length} מתוך ${inTheme.length}`, 'of', { n: inTheme.filter((x) => ST.solved[x.id]).length, all: inTheme.length })}</small></h4>
-        <nav class="iv-plist">${inTheme.map((x) => `<button class="iv-pbtn${x.id === p.id ? ' on' : ''}${ST.solved[x.id] ? ' done' : ''}" data-iv="prob" data-p="${x.id}">${I[x.icon] || I.flask}<span>${esc(x.title)}</span>${x.need ? `<i class="iv-tag">${ui('שילוב', 'pair')}</i>` : ''}</button>`).join('')}</nav>
+        <nav class="iv-plist">${inTheme.map((x) => `<button class="iv-pbtn${x.id === p.id ? ' on' : ''}${ST.solved[x.id] ? ' done' : ''}${wt(x.id) ? ' th-wait' : ''}" data-iv="prob" data-p="${x.id}">${I[x.icon] || I.flask}<span>${esc(x.title)}</span>${x.need ? `<i class="iv-tag">${ui('שילוב', 'pair')}</i>` : ''}</button>`).join('')}</nav>
       </div>
       <div class="iv-bench">
-        <div class="iv-plan"><h3>${I[p.icon] || I.flask}${esc(p.title)}</h3><p>${esc(p.ask)}</p>
+        <div class="iv-plan"><h3>${I[p.icon] || I.flask}${esc(p.title)}${wt(p.id) ? markHTML('waiting') : ''}</h3><p>${esc(p.ask)}</p>
           ${p.need ? `<div class="iv-need">${need.map((t) => `<span class="${missing.includes(t) ? '' : 'ok'}">${stage >= 3 || !missing.includes(t) ? esc(TRAIT[t]) : ui('תכונה ' + (need.indexOf(t) + 1), 'trait', { n: need.indexOf(t) + 1 })}</span>`).join('')}<span>${ui('שני קלפים, שתי תכונות', 'twoCards')}</span></div>` : ''}</div>
         <div class="iv-row">${slot(0)}<span class="iv-plus">${ui('וגם', 'plus')}</span>${slot(1)}
           <div class="iv-go"><button class="iv-test" data-iv="test" ${slots.some(Boolean) && result !== 'busy' ? '' : 'disabled'}>${I.flask}${ui('לבדוק בניסוי!', 'test')}</button>

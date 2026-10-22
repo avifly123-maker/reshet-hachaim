@@ -240,6 +240,7 @@ export function createResearchSession(ctx) {
       measuring[id] = R.note(T('measuring'), { icon: def.icon });
       later(() => reveal(id), 1600);
     } else if (kind === 'quadrat') {
+      try { window.dispatchEvent(new CustomEvent('wol-progress', { detail: { kind: 'tool', id: 'quadrat' } })); } catch (e) { }   // חוטים: the island gets a quadrat (core/threads.js)
       const sage = W.plants.find((p) => alive(p) && p._adult) || W.plants.find(alive);
       const s = sage ? findSpotNear({ kind: 'herb', needs: {} }, sage.x, sage.z, 4) || { x: sage.x + 2, z: sage.z } : { x: 4, z: 4 };
       placeQuadrat(s.x, s.z);
