@@ -918,7 +918,8 @@ export function playStageScene(n, opts = {}) {
     let S = null, sc = null, raf = 0, done = false, t = 0, last = 0, frames = 0, t0 = performance.now(), endShown = false;
     let hold = opts.at != null ? +opts.at : null;   // a fixed time (shots); seek() moves it (recording a film frame by frame)
     seek = (x) => { hold = x == null ? null : +x; };
-    const onKey = (e) => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); finish(); } };
+    // Escape ends the film only: no other listener (a bubble of רובו־דע under it, the map, a sheet) sees it
+    const onKey = (e) => { if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); finish(); } };
     const onResize = () => { if (!S) return; const w = el.clientWidth || innerWidth, h = el.clientHeight || innerHeight; S.renderer.setSize(w, h, false); fitCamera(S.camera, w, h); };
     finish = () => {
       if (done) return; done = true;

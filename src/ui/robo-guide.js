@@ -144,7 +144,8 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
   });
   addEventListener('keydown', (e) => {
     if (!cur) return;
-    if (e.key === 'Escape') { e.stopPropagation(); finish('skip'); }
+    // a stage film on top takes its own Escape (its listener comes after this one: it ends the film, not this bubble)
+    if (e.key === 'Escape' && !document.querySelector('.ss')) { e.stopPropagation(); finish('skip'); }
   }, true);
   addEventListener('resize', () => { if (cur) placeRing(cur.lines[cur.i].at); });
 
