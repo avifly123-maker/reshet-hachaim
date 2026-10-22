@@ -22,7 +22,7 @@
 #ui.wol .toasts { font-size: calc(1em * (1 + (var(--ts) - 1) * .7)); }
 
 /* ---------- "מה עושים עכשיו?" under the missions */
-#ui.wol .m-whatnow { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; margin: 4px 4px 2px; padding: 4px 12px 4px 10px; min-height: 32px;
+#ui.wol .m-whatnow { pointer-events: auto; align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; margin: -4px 4px 0; padding: 4px 12px 4px 10px; min-height: 32px;
   border-radius: 99px; font-weight: 800; font-size: calc(.86em * var(--ts)); color: #10332f; background: #8fd6cd; box-shadow: 0 2px 0 #2c7a72; cursor: pointer; flex: none; }
 #ui.wol .m-whatnow:hover { background: #a9e3db; }
 #ui.wol .m-whatnow:focus-visible { outline: 3px solid var(--honey); outline-offset: 2px; }
@@ -39,6 +39,10 @@
 #ui.wol .m-xic.art { background: #f3ecd2; box-shadow: 0 0 0 2px rgba(230, 169, 60, .7); }
 #ui.wol .m-xic img { width: 100%; height: 100%; object-fit: cover; }
 #ui.wol .m-xic .ic { width: 20px; height: 20px; }
+
+#ui.wol .missions.xp .m-list { flex: none; overflow: visible; }
+#ui.wol .m-list { min-height: 2.4em; }
+#ui.wol .missions[hidden] + .m-whatnow { display: none; }
 
 /* ---------- חוויה: the HUD shows the points and one health meter */
 #ui.wol.play-xp .hud .h-bio, #ui.wol.play-xp .hud .h-day, #ui.wol.play-xp .hud .h-season b { display: none; }
@@ -74,7 +78,7 @@
 #ui.wol .hb-chip:focus-visible { outline: 3px solid #ffd166; outline-offset: 2px; }
 #ui.wol .hb-pic { position: relative; flex: none; width: 42px; height: 42px; border-radius: 50%; background: #fbe9e5; overflow: visible; box-shadow: 0 0 0 2px #fff; }
 #ui.wol .hb-pic img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-#ui.wol .hb-bang { position: absolute; top: -6px; left: -8px; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-weight: 900; font-size: 16px; line-height: 1;
+#ui.wol .hb-bang { position: absolute; top: -7px; right: -7px; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-weight: 900; font-size: 16px; line-height: 1;
   color: #b52a1f; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .35); animation: hb-throb 1s ease-in-out infinite; }
 #ui.wol .hb-txt { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
 #ui.wol .hb-txt b { font-size: calc(1.02em * var(--ts)); font-weight: 900; }
@@ -105,7 +109,16 @@
 @keyframes help-pulse { 0%, 100% { box-shadow: inset 0 0 0 3px var(--paper), 0 0 0 3px #e5483b, 0 0 14px 4px rgba(229, 72, 59, .55); transform: translateY(-3px); }
   50% { box-shadow: inset 0 0 0 3px var(--paper), 0 0 0 6px #ffd166, 0 0 22px 8px rgba(229, 72, 59, .7); transform: translateY(-7px); } }
 
+@media (max-height: 640px) {
+  #ui.wol .species.xp .sp-art { height: 84px; margin-bottom: 4px; }
+  #ui.wol.play-xp .missions .m-head { display: none; }
+  #ui.wol .species.xp .sp-scroll { gap: 9px; padding-top: 14px; }
+  #ui.wol .species.xp .sp-head h2 { font-size: 1.5em; }
+  #ui.wol .species.xp .chips { margin-top: 4px; }
+}
 @media (max-height: 520px) {
+  #ui.wol .species.xp .sp-art { height: 62px; }
+  #ui.wol .species.xp .sp-head h2 { font-size: 1.35em; }
   #ui.wol .hurtbar { top: 50px; }
   #ui.wol .hb-chip { min-height: 44px; padding: 3px 10px 8px 6px; gap: 8px; }
   #ui.wol .hb-pic { width: 34px; height: 34px; }

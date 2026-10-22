@@ -690,11 +690,11 @@ export function createUI(root, bus) {
 
   /* ================================================================ MISSIONS */
   missions.innerHTML = `<header class="m-head"><span class="m-ic">${icon('flower')}</span><h3>משימות</h3><span class="m-count"></span><button class="m-hist" title="משימות שבוצעו" aria-label="משימות שבוצעו">${icon('check')}<span>בוצעו</span></button>
-    <button class="m-fold" title="קפל/פתח" aria-label="קפל או פתח את המשימות" aria-expanded="true">${icon('chevron')}</button></header><ul class="m-list"></ul>
-    <button class="m-whatnow">${icon('robot')}<span>מה עושים עכשיו?</span></button>`;
+    <button class="m-fold" title="קפל/פתח" aria-label="קפל או פתח את המשימות" aria-expanded="true">${icon('chevron')}</button></header><ul class="m-list"></ul>`;
   const mList = missions.querySelector('.m-list'), mCount = missions.querySelector('.m-count');
   // 1.3.2: "מה עושים עכשיו?" – רובו־דע answers in one bubble with the current mission's how-to (game.js 'mission:whatnow')
-  const whatBtn = missions.querySelector('.m-whatnow');
+  const whatBtn = h('button', 'm-whatnow', `${icon('robot')}<span>מה עושים עכשיו?</span>`);   // its own row under the panel: never cut off
+  rightCol.insertBefore(whatBtn, missions.nextSibling);
   whatBtn.addEventListener('click', (e) => { e.stopPropagation(); emit('mission:whatnow'); });
   missions.querySelector('.m-hist').addEventListener('click', (e) => { e.stopPropagation(); emit('missions:history'); });
   missions.querySelector('.m-head').addEventListener('click', () => { const f = missions.classList.toggle('folded'); missions.querySelector('.m-fold').setAttribute('aria-expanded', String(!f)); });

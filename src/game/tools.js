@@ -434,7 +434,7 @@ export function createTools(ctx) {
     a.vis.update(rdt, { action: 'sleep', speed: 0, t, night: W.nightGlow });
     if (a.injured.t > a.injured.max && !a.injured.saving) {
       a.injured = null; removeBadge(a); a.leave();
-      ui.toast(`${a.sp.name} ${gw(a.sp.id,'לא קיבל עזרה בזמן ועזב','לא קיבלה עזרה בזמן ועזבה','לא קיבלו עזרה בזמן ועזבו','לא קיבלו עזרה בזמן ועזבו')} את היער.`, 'bad');
+      ui.toast(`${a.sp.name} ${gw(a.sp.id,'לא קיבל עזרה בזמן ועזב','לא קיבלה עזרה בזמן ועזבה','לא קיבלו עזרה בזמן ועזבו','לא קיבלו עזרה בזמן ועזבו')} את ${zoneWord()}.`, 'bad');
     }
   }
 
@@ -719,6 +719,6 @@ export function createTools(ctx) {
   }
   // does a device (nest box, forest listener) hang on this plant?
   function hostsDevice(plant) { return placed.some(p => p.host === plant && !p.dead); }
-  return { cards, hostsDevice, check, use, update, updateInjured, serialize, restore, dispose, removeDevices, model: toolModel, defs: TOOL_DEFS, humidity, nurseryStock, takeFromNursery, pickDevice, checkDeviceMove, placeDeviceAt,
+  return { debugInjure: () => { const d = W.day; W.day = Math.max(2, W.day); injuryT = 0; maybeInjure(0.01); W.day = d; return W.animals.filter((a) => a.injured).length; }, cards, hostsDevice, check, use, update, updateInjured, serialize, restore, dispose, removeDevices, model: toolModel, defs: TOOL_DEFS, humidity, nurseryStock, takeFromNursery, pickDevice, checkDeviceMove, placeDeviceAt,
     cameras: () => placed.filter(p => p.id === 'camera'), camEye, cameraSees, hooks };
 }

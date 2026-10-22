@@ -841,8 +841,9 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     // חוויה: one line of explanation (and the question) and at most two ways; רובו־דע tells the rest the first time
     const xp = W.xp;
     ui.showEvent({ id: e.id, title: e.title, text: xp ? shortEventText(e.text) : e.text, choices: (xp ? e.choices.slice(0, 2) : e.choices).map(c => ({ id: c.id, label: c.label })) });
-    robo('zone:event:' + e.id);
+    roboEvent = 'zone:event:' + e.id;   // after the outcome is closed: his bubble must not cover the choices
   };
+  let roboEvent = null;
   const sentences = (t) => String(t || '').split('\n')[0].split(/(?<=[.!?])\s+/).filter(Boolean);
   function shortEventText(t) {
     const ss = sentences(t); if (ss.length <= 1) return String(t || '');
@@ -1168,7 +1169,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   });
   on('quiz:answer', ({ id, correct }) => { if (correct && !W.quizDone.has(id)) { W.quizDone.add(id); W.points += 5; audio.play('quizRight'); } else if (!correct) audio.play('quizWrong'); refreshPanel(); });
   on('event:choice', chooseEvent);
-  on('outcome:close', () => { audio.play('click'); });
+  on('outcome:close', () => { audio.play('click'); if (roboEvent) { const k = roboEvent; roboEvent = null; setTimeout(() => { if (!disposed) robo(k); }, 400); } });
   on('view:layer', ({ id }) => { setView(id); audio.play('click'); });
   function setView(id) {
     const L = biome.layers.find(l => l.id === id);
