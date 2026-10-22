@@ -25,8 +25,15 @@ export const SAMPLE_OF = {
   reefshark: 'sharkskin', owl: 'owlfeather', honeybee: 'beeleg', branching: 'coralpolyp', morpho: 'morphowing',
   firefly: 'fireflylamp', toucan: 'toucanbeak', chameleon: 'chameleonskin', octopus: 'octosucker', hedgehog: 'hedgehogspine',
   sloth: 'slothhair', kapok: 'kapokfibre', parrotfish: 'parrottooth', urchin: 'urchinteeth', mushroom: 'mycelium',
-  glowfungus: 'mycelium', clam: 'clammantle', leafcutter: 'leafbac',
+  clam: 'clammantle', leafcutter: 'leafbac',
 };
+// a photo of these marks a sample of a near creature (a glowing fungus grows threads like every fungus)
+export const PHOTO_SAMPLE = { glowfungus: 'mycelium' };
+// the creatures that have a research question in the atlas (src/data/lab-questions.js `sp`), for 'link' → 'question'
+export const QUESTION_SPECIES = ['agama', 'branching', 'brazilnut', 'butterfly', 'chameleon', 'clam', 'clownfish', 'coati', 'dartfrog', 'firefly',
+  'fruitbat', 'glowfungus', 'harvesterant', 'hedgehog', 'honeybee', 'hoopoe', 'hummingbird', 'jellyfish', 'kapok', 'leafcutter', 'liana', 'morpho',
+  'mushroom', 'octopus', 'owl', 'parrotfish', 'pine', 'porcupine', 'reefshark', 'shrimp', 'sloth', 'spinymouse', 'stingray', 'tortoise', 'toucan',
+  'turtle', 'urchin', 'waterlily'];
 // the species each mystery is about (the card stamp 'case'): from the case's board (src/research/cases)
 export const CASE_SPECIES = {
   'mice-owl': ['grove', 'spinymouse', 'owl', 'sage'],
@@ -44,7 +51,7 @@ export const CASE_SPECIES = {
   gazelles: ['grove', 'gazelle'],
 };
 // the regular missions of each zone: [id prefix, count] in the full game and the beginners' count (k1…kN)
-export const REGULAR = { amazon: ['a', 21, 5], grove: ['g', 21, 5], reef: ['r', 13, 6] };
+export const REGULAR = { amazon: ['a', 21, 7], grove: ['g', 21, 7], reef: ['r', 13, 6] };
 // the card stamps, in the order they are drawn on a card (src/learn/hub.js)
 export const STAMPS = ['seen', 'photo', 'scope', 'invent', 'case', 'source'];
 export const STAMP_NAME = {

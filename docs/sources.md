@@ -665,3 +665,28 @@ Only the nursery gives "strong" young corals; they go onto the reef bigger and b
 - **Gulf of Aqaba Stylophora pistillata did not bleach under warmer water in Eilat experiments** (pre-adapted heat tolerance; pollution may lower it) — https://actu.epfl.ch/news/coral-reefs-in-the-gulf-of-aqaba-may-survive-globa/ (with Fine et al. 2013 above). In the game, ordinary corals pale in a heat wave and recover when it ends; none die of the heat alone.
 - **Storms break branching and table corals**; damaged spots are where restoration plants first (game: r_storm, scars) — the table coral text in src/data/reef.js (Acropora, https://en.wikipedia.org/wiki/Acropora , already listed for it); no numbers are quoted.
 - Wording: no "evolution"; the texts say "a fragment of a coral that stood the heat" (שבר של אלמוג שעמד בחום).
+
+## חוטים (1.3.2, the threads between the parts: src/data/threads.js)
+
+A thread rests on a fact that is already checked elsewhere in this file; what the thread changes in the game (a faster robot, a longer camera range, a new event choice) is game logic built on that fact, and is said so. Validated by `node tools/validate-threads.mjs`.
+- `sharkskin`: ridges along the flow, like shark skin denticles, cut friction by about 8% (Bechert et al. 1997, the lab section above); the underwater robot swims faster (game logic, as in 1.3.0).
+- `hover`: the Nano Hummingbird (AeroVironment, 2011) hovers on flapping wings — https://en.wikipedia.org/wiki/AeroVironment_Nano_Hummingbird ; the monitoring drone hovers by an animal that needs help (game logic).
+- `anternet`: harvester ants send out foragers by how fast others come back, nearly the rule the internet uses (הממציאים: anternet, above); several drones share one report (game logic).
+- `lamp`: the jagged scales of the firefly lantern on an LED let out up to 55% more light — https://www.sciencedaily.com/releases/2013/01/130108112453.htm ; the field camera sees farther at night (game logic).
+- `camo`: chameleons change colour with a lattice of tiny crystals — https://www.manep.ch/the-chameleon-reorganizes-its-nano-crystals-to-change-colors-2/ ; camera traps record without disturbing (quiz bank line, https://en.wikipedia.org/wiki/Camera_trap); a hidden camera catches shy animals (game logic).
+- `grip`: Festo's octopus-arm soft gripper holds things gently — https://techxplore.com/news/2017-03-octopus-tentacle-gripper.html ; the rescue robot treats faster (game logic).
+- `bandage`: the octopus-sucker patch sticks to wet skin and under water (הממציאים: bandage, above); an injured animal recovers faster (game logic).
+- `solar`: mirrors in the white butterfly's V shape gave a solar panel almost 50% more power (הממציאים: solar, above); the water-from-air machine gets more power and gives more water (game logic; its tool fact says it cools air to collect drops).
+- `nutshell`: the Brazil nut shell does not crack, and a light tough material was modelled on it (הממציאים: nutshell, above); nest boxes stand in a storm (game logic).
+- `plasma`: the pistol shrimp's collapsing bubble may one day help clean water (הממציאים: plasma, research only); murky water on the reef clears sooner (game logic, said as "helps", not as a real device).
+- `notebook`, `quadrat`, `fair`: research methods, not facts about creatures: a graph of numbers over time (the mysteries), a quadrat as a square frame for counting what grows inside it — https://en.wikipedia.org/wiki/Quadrat , a fair test that changes one thing at a time (חושבים כמו חוקרים, above).
+- `mice-owl`: barn owls in Israel hunt spiny mice and use nest boxes (grove, Barn owl and Spiny mouse lines above).
+- `the-trap`: acorns are eaten by rodents (Palestine oak line), more food raises rodent numbers (Boutin 1990), poison passes to owls and Israel hangs barn owl nest boxes instead (the mystery "המלכודת", above). The new choice in the year of many acorns is game logic on these.
+- `summer-fire`: KKL makes fuel breaks along roads and counts mastic among the shrubs that burn less — https://www.kkl-jnf.org/forestry-and-ecology/fire-prevention/maintaining-forests-to-prevent-fires/ ; the green belt is the mystery's game logic (above).
+- `cleaning-station`, `ev-anchor`: anchors break corals and mooring buoys prevent it — https://en.wikipedia.org/wiki/Mooring_buoy ; the larger area is game logic.
+- `brazil-nut`: orchid bees among the large bees that pollinate the Brazil nut; agoutis open the fruit and bury seeds (the mystery "אגוזי הברזיל", above).
+- `photo-scope`: each sample is of the creature it names (src/lab/samples.js); a glowing fungus is a fungus and grows mycelium threads like the mushroom's sample — https://en.wikipedia.org/wiki/Mycelium , glowing fungi in decaying wood (Foxfire line above).
+- `link-atlas`: the research questions' answers each lean on a fact above (src/data/lab-questions.js).
+- `ev-fire`: dry vegetation is the fuel of summer fires (KKL, above). `ev-heat`: warm water bleaches corals; clean water helps Eilat's corals stand it (the reef, above). `ev-dry`: dart frogs raise tadpoles in rainwater held by bromeliads (Amazon, above). `ev-road`: roads and fences cut gazelle herds (the mystery "הצבאים נעלמים", above).
+- `zone-amazon`, `zone-grove`, `zone-reef`: the three problems of each zone are real inventions learned from its creatures (הממציאים, above): water lily, morpho, kapok; barn owl, hedgehog, tortoise; reef shark, clownfish, octopus.
+- `robot-out`: the robot of the workshop going out to the island is game logic.
