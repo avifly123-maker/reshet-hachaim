@@ -225,7 +225,7 @@ async function boot() {
   bus.on('profile:edit', ({ id, name, animal }) => { if (name != null) profiles.rename(id, name); if (animal) profiles.setAnimal(id, animal); ui.setProfiles(profiles.state()); });
   bus.on('profile:reset', ({ id }) => { if (game || loading) return; if (profiles.reset(id)) { playerChanged(); ui.toast('השחקן אופס – מתחילים מההתחלה', 'good'); } });
   bus.on('profile:remove', ({ id }) => { if (game || loading) return; if (profiles.remove(id)) playerChanged(); });
-  bus.on('ui:learn', (o) => { audio.start(); const scr = o && o.screen; getHub().then((h) => { if (scr && scr !== 'home' && h.go) h.go(scr); else h.open(); }, (e) => console.error(e)); });
+  bus.on('ui:learn', (o) => { audio.start(); const scr = o && o.screen; getHub().then((h) => { if (scr && scr !== 'home' && h.go) h.go(scr, (o && o.opts) || undefined); else h.open(); }, (e) => console.error(e)); });
   bus.on('ui:lab', () => { audio.start(); openLab('start'); });
   bus.on('ui:click', () => { try { audio.play('click'); } catch (e) { /* */ } });
   // חוקרי הטבע: the research centre and its mysteries

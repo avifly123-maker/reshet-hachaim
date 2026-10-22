@@ -129,9 +129,9 @@ export function state() {
 }
 function needWord(k, n, have, kids) {
   const left = Math.max(0, n - have);
-  if (k === 'missions') return kids ? `עוֹד ${left} מְשִׂימוֹת` : `עוד ${left} משימות`;
-  if (k === 'badges') return kids ? `עוֹד ${left} תָּגִים` : `עוד ${left} תגים`;
-  if (k === 'lab') return kids ? `עוֹד ${left} גִּלּוּיִים בַּמַּעְבָּדָה` : `עוד ${left} גילויים במעבדה`;
+  if (k === 'missions') return left === 1 ? (kids ? 'עוֹד מְשִׂימָה אַחַת' : 'עוד משימה אחת') : (kids ? `עוֹד ${left} מְשִׂימוֹת` : `עוד ${left} משימות`);
+  if (k === 'badges') return left === 1 ? (kids ? 'עוֹד תָּג אֶחָד' : 'עוד תג אחד') : (kids ? `עוֹד ${left} תָּגִים` : `עוד ${left} תגים`);
+  if (k === 'lab') return left === 1 ? (kids ? 'עוֹד גִּלּוּי אֶחָד בַּמַּעְבָּדָה' : 'עוד גילוי אחד במעבדה') : (kids ? `עוֹד ${left} גִּלּוּיִים בַּמַּעְבָּדָה` : `עוד ${left} גילויים במעבדה`);
   return '';
 }
 
