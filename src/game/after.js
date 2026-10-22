@@ -151,16 +151,22 @@ export function createAfter({ W, env, reg, scene, camera, canvas, pipe, ui, audi
   }
 
   // ── the rank: checked every few seconds with the island's live numbers; up → רובו־דע says it, the extras grow
+  // the highest rank this island ever reached (per level): a dip and a climb back are not announced again, and the
+  // extras of the highest stay on the island
   let rankT = 2, snapT = 60;
+  const hiKey = kids ? 'kids' : 'full';
+  let hiRank = (() => { const v = +zoneAfter(zone).hi[hiKey]; return Number.isFinite(v) ? v : -1; })();
   function rankCheck(now) {
     const r = rankOf(zone, kids, live());
     const prev = rank; rank = r;
-    if (prev && r.i > prev.i) {
+    const best = hiRank;
+    if (r.i > hiRank) { hiRank = r.i; updateZone(zone, (zz) => { zz.hi[hiKey] = r.i; }); }
+    if (prev && r.i > prev.i && r.i > best) {
       const g = window.__guide, L = g && g.lines('after:rank:' + zone + ':' + r.i);
       if (L && L.length) setTimeout(() => { if (!disposed) g.say(L, { tip: true, ms: 9000 }); }, now ? 5200 : 0);
-      buildDecor(r.i, true);
-      paint();
-    } else if (!prev) buildDecor(r.i, true);
+    }
+    if (prev && r.i !== prev.i) paint();
+    buildDecor(Math.max(r.i, hiRank), true);
   }
 
   // ── the extras of a rank: butterflies (the forests) or a school of fish (the reef), models the zone already has

@@ -8,7 +8,8 @@
 //                          src/core/threads.js (sp, zone).
 //   'web-of-life-visitors' [{ id: speciesId, zone, t }]  one per species (no picture: the cabinet shows its card painting)
 //   'web-of-life-after'    { v: 1, z: { <zone>: { ch: [{ id, lv }] (the last 6), cn: challenges done, cp: their rank points,
-//                            pm: { <photoMissionId>: 1 }, pairs: { 'a>b': 1 } (at most 30), snap: { full|kids: { kinds, links, days, t } } } } }
+//                            pm: { <photoMissionId>: 1 }, pairs: { 'a>b': 1 } (at most 30), snap: { full|kids: { kinds, links, days, t } },
+//                            hi: { full|kids: the highest rank reached (only a new highest is announced) } } } }
 //                          challenges done, photo missions done, linked pairs photographed, and a snapshot of the island
 //                          taken when the child leaves it (kinds alive, active links, days lived). 6 players share
 //                          about 5 MB of storage: everything here stays small.
@@ -62,7 +63,7 @@ export function afterStore() {
 export function zoneAfter(zone, S = afterStore()) {
   const z = obj(S.z[zone]);
   const ch = Array.isArray(z.ch) ? z.ch.filter((c) => c && c.id) : [];
-  return { ch, cn: Math.max(+z.cn || 0, ch.length), cp: Math.max(+z.cp || 0, ch.reduce((t, c) => t + (CH_POINTS[c.lv] || 5), 0)), pm: obj(z.pm), pairs: obj(z.pairs), snap: obj(z.snap) };
+  return { ch, cn: Math.max(+z.cn || 0, ch.length), cp: Math.max(+z.cp || 0, ch.reduce((t, c) => t + (CH_POINTS[c.lv] || 5), 0)), pm: obj(z.pm), pairs: obj(z.pairs), snap: obj(z.snap), hi: obj(z.hi) };
 }
 export function updateZone(zone, fn) {
   const S = afterStore(); const z = zoneAfter(zone, S);
