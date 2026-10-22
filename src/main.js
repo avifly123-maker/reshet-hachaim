@@ -140,6 +140,9 @@ async function boot() {
     journey.check();
   };
   window.__app_journey = { stageMoment, greetPlayer, nextStage, waiting: () => stageQ.map((q) => q.n) };
+  const GREET_MS = 900;          // the hello of רובו־דע after the start screen is up
+  const GREET_SWITCH_MS = 600;   // … and after another player was chosen
+  const THREAD_NOTE_MS = 2600;   // a new thread is said on the start screen a little after it shows (after a stage moment)
   let quality = pickQuality();
   let pipe;
   try { pipe = createPipeline(canvas, { quality }); }
@@ -169,7 +172,7 @@ async function boot() {
     ui.hideLoading();
     root.classList.remove('kids');
     try { journey.check(); } catch (e) { console.error(e); }   // a stage reached in a forest, the lab or a game is announced here at the latest
-    threads.announceSoon(2600);   // a thread opened in a forest, the lab or a game: רובו־דע says it on the start screen (after a stage moment)
+    threads.announceSoon(THREAD_NOTE_MS);   // a thread opened in a forest, the lab or a game: רובו־דע says it on the start screen (after a stage moment)
     ui.showStart(Object.values(ZONES).map((z) => ({ id: z.id, name: z.name, subtitle: z.subtitle, intro: z.intro, kidsIntro: KIDS[z.id]?.intro, palette: z.palette, dev: !!z.dev })));
     if (window.__app_journey) window.__app_journey.nextStage();   // a stage moment that waited in a forest or the lab plays now
   }
@@ -259,7 +262,7 @@ async function boot() {
     try { journey.check(); } catch (e) { console.error(e); }
   });
   // players ("מי משחק?") – only reachable from the start screen, so no forest is running while the player changes
-  const playerChanged = () => { readMode(); journey.reload(); ui.setMode(MODE); ui.setProfiles(profiles.state()); guide.close(); try { window.dispatchEvent(new CustomEvent('wol-journey')); } catch (e) { } setTimeout(greetPlayer, 600); };
+  const playerChanged = () => { readMode(); journey.reload(); ui.setMode(MODE); ui.setProfiles(profiles.state()); guide.close(); try { window.dispatchEvent(new CustomEvent('wol-journey')); } catch (e) { } setTimeout(greetPlayer, GREET_SWITCH_MS); };
   bus.on('profile:switch', ({ id }) => { if (game || loading) return; if (profiles.setCurrent(id)) playerChanged(); });
   bus.on('profile:add', ({ name, animal }) => { if (game || loading) return; const p = profiles.add(name, animal); if (p) profiles.setCurrent(p.id); playerChanged(); });
   bus.on('profile:edit', ({ id, name, animal }) => { if (name != null) profiles.rename(id, name); if (animal) profiles.setAnimal(id, animal); ui.setProfiles(profiles.state()); });
@@ -387,7 +390,7 @@ async function boot() {
   }
 
   showStart();
-  setTimeout(greetPlayer, 900);
+  setTimeout(greetPlayer, GREET_MS);
   // 1.3.1: nothing more is loaded in the background. The learning hub comes when it is opened (or when a forest grants a
   // card pack: window.__wolLearn above loads it then), each zone with its click, the lab when the child enters it.
 

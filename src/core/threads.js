@@ -37,15 +37,11 @@
 //   fresh() → [thread]   opened since last shown;   markShown(ids?);   announce({ modal }) → id | null (one thread)
 // Events listened to: 'wol-progress', 'wol-badge' (announce a little later), 'wol-journey' (a player switch: re-read).
 import { key as profileKey } from './profiles.js';
-import { playMode } from './journey.js';
+import { playMode, readJSON, writeJSON, ZONES } from './journey.js';
 import { THREADS, SAMPLE_OF, PHOTO_SAMPLE, QUESTION_SPECIES, CASE_SPECIES, REGULAR, STAMPS } from '../data/threads.js';
 import { GUIDE } from '../data/guide-lines.js';
 
 const K = 'web-of-life-threads';
-const ZONES = ['amazon', 'grove', 'reef'];
-const ls = () => { try { return window.localStorage || null; } catch (e) { return null; } };
-function readJSON(k, fb) { try { const s = ls(); const t = s && s.getItem(k); return t ? JSON.parse(t) : fb; } catch (e) { return fb; } }
-function writeJSON(k, v) { try { const s = ls(); if (s) s.setItem(k, JSON.stringify(v)); } catch (e) { /* storage full or blocked */ } }
 const pk = (b) => profileKey(b);
 const obj = (v) => (v && typeof v === 'object' && !Array.isArray(v) ? v : {});
 

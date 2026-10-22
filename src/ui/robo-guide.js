@@ -22,6 +22,9 @@ import { GUIDE } from '../data/guide-lines.js';
 const CSS_ID = 'robo-guide-css';
 const RING_CHECK_MS = 500;   // how often the ring looks whether its element is still there
 const TRAY_GAP_PX = 8;        // in a forest a tip sits this far above the tray (its cards stay free to click)
+const WAVE_MS = 2600;         // he waves at the start of a set of bubbles
+const NEXT_SET_MS = 250;      // a breath before the next request in the queue
+const TIP_MS = 9000;          // a tip closes by itself after this (opts.ms changes it)
 const CSS = `
 #ui #rguide { position: absolute; inset: 0; z-index: 70; pointer-events: none; direction: rtl; font-family: var(--sans, sans-serif); }
 #ui #rguide.modal { pointer-events: auto; background: rgba(6, 14, 9, .55); animation: rg-fade .25s ease-out; }
@@ -136,7 +139,7 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
     const expr = ln.expr || (cur.i === 0 ? 'happy' : 'normal');
     if (cv) { drawRoboFace(cv.getContext('2d'), expr, blink, talk); return; }
     // the rendered portraits: he waves on the first bubble of a set, blinks, and his mouth follows the voice
-    const pose = cur.i === 0 && !cur.opts.tip && (now - cur.t0) < 2600 ? 'wave' : 'idle';
+    const pose = cur.i === 0 && !cur.opts.tip && (now - cur.t0) < WAVE_MS ? 'wave' : 'idle';
     let k = blink > 0.5 ? 'blink' : talk > 0.05 ? (talk > 0.55 ? 'talk2' : 'talk1') : expr;
     if (pose === 'wave' && !['blink', 'talk1', 'talk2'].includes(k)) k = 'happy';
     const want = art.frames[pose + '-' + k] ? pose + '-' + k : 'idle-' + (art.frames['idle-' + k] ? k : 'normal');
@@ -150,13 +153,13 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
     el.hidden = true; el.innerHTML = ''; el.className = ''; cancelAnimationFrame(raf); raf = 0;   // no '.modal' left on a hidden guide (others ask for #rguide.modal)
     try { c.opts.onClose && c.opts.onClose(result); } catch (e) { console.error(e); }
     c.resolve(result);
-    if (queue.length) setTimeout(pump, 250);
+    if (queue.length) setTimeout(pump, NEXT_SET_MS);
   }
   function pump() {
     if (cur || !queue.length) return;
     cur = queue.shift(); cur.i = 0; cur.t0 = performance.now(); el.hidden = false; last = 0; render();
     if (!raf) raf = requestAnimationFrame(loop);
-    if (cur.opts.tip) { clearTimeout(tipTimer); tipTimer = setTimeout(() => finish('done'), cur.opts.ms || 9000); }
+    if (cur.opts.tip) { clearTimeout(tipTimer); tipTimer = setTimeout(() => finish('done'), cur.opts.ms || TIP_MS); }
   }
   el.addEventListener('click', (e) => {
     if (!cur) return;

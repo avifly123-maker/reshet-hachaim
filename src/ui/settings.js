@@ -25,6 +25,10 @@ const SIZES = [
   { id: 'xlarge', f: 'גדול מאוד', k: 'גָּדוֹל מְאֹד', em: 1.45 },
 ];
 
+// the instructors' code: after a few wrong tries the field waits a little (no guessing in a row); for this visit only
+const CODE_TRIES = 5, CODE_WAIT_MS = 30e3;
+let codeWrong = 0, codeWaitUntil = 0;
+
 function sw(on) { return `<i class="set-sw${on ? ' on' : ''}" aria-hidden="true"></i>`; }
 
 function rowHTML(id, o) {
@@ -105,8 +109,15 @@ export function bindSettingsRows(el, opts = {}) {
   el._setBound = true;
   const tryUnlock = () => {
     const inp = el.querySelector('#set-code'); if (!inp) return;
+    const err = el.querySelector('.set-err');
+    if (Date.now() < codeWaitUntil) { inp.value = ''; if (err) { err.textContent = 'נסו שוב בעוד חצי דקה'; err.hidden = false; } return; }
     const ok = J.unlockAll(inp.value); inp.value = '';
-    if (!ok) { const e = el.querySelector('.set-err'); if (e) { e.hidden = false; } const c = el.querySelector('.set-code'); if (c) { c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake'); } return; }
+    if (!ok) {
+      codeWrong++; if (codeWrong >= CODE_TRIES) { codeWrong = 0; codeWaitUntil = Date.now() + CODE_WAIT_MS; }
+      if (err) { err.textContent = Date.now() < codeWaitUntil ? 'הקוד לא נכון. נסו שוב בעוד חצי דקה' : 'הקוד לא נכון'; err.hidden = false; }
+      const c = el.querySelector('.set-code'); if (c) { c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake'); } return;
+    }
+    codeWrong = 0;
     after('unlock');
   };
   const after = (what) => {

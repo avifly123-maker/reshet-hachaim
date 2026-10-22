@@ -72,14 +72,15 @@ export const STAGES = [
   { n: 6, id: 'expert', name: 'מומחה', kname: 'מֻמְחֶה', need: [{ missions: 12 }, { badges: 10 }], kneed: [{ missions: 8 }, { badges: 7 }] },
 ];
 
-const ls = () => { try { return window.localStorage || null; } catch (e) { return null; } };
-function readJSON(k, fb) { try { const s = ls(); const t = s && s.getItem(k); return t ? JSON.parse(t) : fb; } catch (e) { return fb; } }
-function writeJSON(k, v) { try { const s = ls(); if (s) s.setItem(k, JSON.stringify(v)); } catch (e) { /* storage full or blocked: the journey still works this visit */ } }
+// storage helpers shared with core/threads.js (reading never throws; a write that fails keeps the visit going)
+export const ls = () => { try { return window.localStorage || null; } catch (e) { return null; } };
+export function readJSON(k, fb) { try { const s = ls(); const t = s && s.getItem(k); return t ? JSON.parse(t) : fb; } catch (e) { return fb; } }
+export function writeJSON(k, v) { try { const s = ls(); if (s) s.setItem(k, JSON.stringify(v)); } catch (e) { /* storage full or blocked: the journey still works this visit */ } }
 const pk = (base) => profileKey(base);
 const isKids = () => { try { return (ls() && ls().getItem(pk('web-of-life-mode'))) === 'kids'; } catch (e) { return false; } };
 
 // ─────────────────────────────── what the child has done (read from the game's own saves)
-const ZONES = ['amazon', 'grove', 'reef'];
+export const ZONES = ['amazon', 'grove', 'reef'];   // the zones whose saves count (core/threads.js reads the same)
 // the missions done in a zone: what its save says now, joined with what this store remembers (a new forest, or the other
 // level, overwrites web-of-life-<zone>.done; a mission done once still counts)
 function doneIn(z, kept) {
@@ -180,7 +181,7 @@ export const partsOf = (stage) => Object.keys(PARTS).filter((p) => PARTS[p].stag
 
 // newly reached stages, announced once each (oldest first)
 export function check() {
-  const s = store();
+  const s = store(), before = JSON.stringify(s);
   // remember every mission done so far (the zone's save may be overwritten by a new forest or the other level)
   const kept = s.done && typeof s.done === 'object' ? s.done : {};
   for (const z of ZONES) kept[z] = [...doneIn(z, kept)];
@@ -193,8 +194,8 @@ export function check() {
     if (!ok) break;
     s.best = Math.max(s.best || 1, st.n);
   }
-  if (out.length) { save(s); for (const n of out) { try { window.dispatchEvent(new CustomEvent('wol-stage', { detail: { stage: n, parts: partsOf(n), legacy: !!s.legacy } })); } catch (e) { } } }
-  else save(s);
+  if (JSON.stringify(s) !== before) save(s);   // written only when something changed (check runs often)
+  for (const n of out) { try { window.dispatchEvent(new CustomEvent('wol-stage', { detail: { stage: n, parts: partsOf(n), legacy: !!s.legacy } })); } catch (e) { } }
   return out;
 }
 export function markUsed(part) { const s = store(); if (s.used[part]) return; s.used[part] = Date.now(); save(s); notify(); }
@@ -216,7 +217,8 @@ export function reload() { mem = null; applyTextSize(); }
 function notify() { try { window.dispatchEvent(new CustomEvent('wol-journey')); } catch (e) { } }
 
 if (typeof window !== 'undefined') {
-  const later = () => setTimeout(() => { try { check(); } catch (e) { console.error(e); } }, 400);
+  const CHECK_DELAY_MS = 400;   // after a badge or progress: let the game finish writing its own save first
+  const later = () => setTimeout(() => { try { check(); } catch (e) { console.error(e); } }, CHECK_DELAY_MS);
   window.addEventListener('wol-badge', later);
   window.addEventListener('wol-progress', later);
   window.__journey = { state, isOpen, check, metrics, markUsed, playMode, setPlayMode, unlockAll, lockAgain, reload, PARTS, STAGES };
