@@ -5,6 +5,7 @@
 // - every child-facing text is { f, k } with full nikud in k, no forbidden words, no em dash
 // - every fact has a source, and docs/sources.md has the threads section naming every thread
 import fs from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { THREADS, SAMPLE_OF, PHOTO_SAMPLE, QUESTION_SPECIES, CASE_SPECIES, REGULAR, STAMPS, STAMP_NAME, THREAD_WORDS } from '../src/data/threads.js';
 import { GUIDE } from '../src/data/guide-lines.js';
 import { PARTS } from '../src/core/journey.js';
@@ -140,6 +141,10 @@ const doc = fs.readFileSync(new URL('../docs/sources.md', import.meta.url), 'utf
 const sec = doc.split(/\n## /).find((s) => s.startsWith('חוטים'));
 if (!sec) err('docs/sources.md: no "## חוטים" section');
 else for (const t of THREADS) if (!sec.includes('`' + t.id + '`')) err(`docs/sources.md חוטים: thread \`${t.id}\` is not listed`);
+
+// the engine itself, against a made-up player (tests/threads/engine.mjs)
+try { execFileSync(process.execPath, [new URL('../tests/threads/engine.mjs', import.meta.url).pathname], { stdio: 'pipe' }); }
+catch (e) { err('tests/threads/engine.mjs failed:\n' + String(e.stdout || '') + String(e.stderr || '').split('\n').filter((l) => !/Warning|Reparsing|eliminate|trace-warnings/.test(l)).join('\n')); }
 
 if (errors.length) { console.log(errors.join('\n')); console.log(`\n${errors.length} error(s)`); process.exit(1); }
 console.log(`threads OK: ${THREADS.length} threads (${exp} in the experience mode), ${Object.keys(SAMPLE_OF).length} samples, ${CASES.length} cases`);
