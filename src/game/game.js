@@ -29,6 +29,8 @@ import { createResearchSession } from '../research/session.js';
 import { howto } from '../ui/howto.js';
 import { zoneHowto, HOWTO_LABELS } from '../data/howto-cards.js';
 import { zoneWord, setPlace } from '../core/place.js';
+import { playMode } from '../core/journey.js';
+import { GUIDE } from '../data/guide-lines.js';
 
 const DAY_LEN = 270;            // seconds of game time per day
 const MAX_PLANTS = 95, MAX_ANIMALS = 75;
@@ -76,6 +78,24 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     research: research || null,
   };
   let report = null;   // "דוח החוקר" daily log (created once the forest is restored or seeded)
+  // 1.3.2 – חוויה (experience) mode: the same forest with much less to read. Only the important reaches the screen
+  // (missions, unlocks, an injured animal, events), the species card is short, the HUD shows points and one health
+  // meter, and רובו־דע says the rest. Never inside a mystery, never for beginners (they have their own simple mode).
+  const calcXP = () => { try { return !W.research && !W.kids && playMode() === 'experience'; } catch (e) { return false; } };
+  W.xp = calcXP();
+  // a toast that only tells what is happening by itself (a birth, a seed, a photo...): shown in the full mode only
+  const amb = (text, kind, ms) => { if (!W.xp) ui.toast(text, kind, ms); };
+  W.amb = amb;
+  // רובו־דע in the forest (src/ui/robo-guide.js, lines in src/data/guide/zone.js). Nothing from him inside a mystery.
+  const guide = () => (W.research ? null : window.__guide || null);
+  function robo(key, opts = {}) {
+    const G = guide(), lines = GUIDE[key]; if (!G || !lines || !lines.length) return Promise.resolve('none');
+    return G.say(lines, { key: 'g:' + key, tip: lines.length === 1, ...opts });
+  }
+  // one line from a list (a different one each time), or a line made of the game's own words (no voice for those)
+  function roboOne(key, i, opts = {}) { const G = guide(), L = GUIDE[key]; if (!G || !L || !L.length) return; G.say([L[((i % L.length) + L.length) % L.length]], { tip: true, ...opts }); }
+  function roboSay(f, k, opts = {}) { const G = guide(); if (!G || !f) return; G.say([{ f, k: k || f, ...(opts.at ? { at: opts.at } : {}) }], { tip: true, ...opts }); }
+  W.robo = robo;
 
   ui.setLoading(0.05, `בונים את ${zoneWord()}...`);
   await tick0();
@@ -218,6 +238,9 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     if (W.research) return;   // a mystery has its own notes: no "new link" cards over the table
     W.points += 5;
     const a = reg.byId.get(e.from), b = reg.byId.get(e.to);
+    // חוויה: a link found by itself (an animal ate, a bee pollinated) only sparkles in the forest; the card comes when the
+    // child asked for it ("גלו את הקשר")
+    if (W.xp && !W._revealing) { markers.burst(entityPos(toE, _v), RELATION_TYPES[type]?.color || '#9ff', 26, { size: 0.5 }); refreshPanel(); return; }
     ui.discovery({ fromName: a.name, toName: b.name, typeName: RELATION_TYPES[type]?.name || '', text: e.text, color: RELATION_TYPES[type]?.color });
     audio.play('discover');
     markers.burst(entityPos(toE, _v), RELATION_TYPES[type]?.color || '#9ff', 26, { size: 0.5 });
@@ -253,7 +276,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     markers.burst(_v.set(at.x, env.heightAt(at.x, at.z) + 0.3, at.z), '#a8e06a', 16, { size: 0.3, speed: 1 });
     const target = p || src || W.plants.find(q => q.sp.id === sp.id && alive(q));
     if (target) W.observe(animal, target, 'disperses');
-    if (p && Math.random() < 0.5) ui.toast(`${animal.sp.name} ${gw(animal.sp.id,'פיזר','פיזרה','פיזרו','פיזרו')} זרע – ${sp.name} ${gw(sp.id,'חדש נובט','חדשה נובטת','חדשים נובטים','חדשות נובטות')}!`, 'good');
+    if (p && Math.random() < 0.5) amb(`${animal.sp.name} ${gw(animal.sp.id,'פיזר','פיזרה','פיזרו','פיזרו')} זרע – ${sp.name} ${gw(sp.id,'חדש נובט','חדשה נובטת','חדשים נובטים','חדשות נובטות')}!`, 'good');
   };
   W.findDisperseFood = (animal) => {
     let best = null, bd = animal.loco === 'flying' ? 80 : 40;
@@ -277,12 +300,12 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     if (pos) { const p = spawnPlant(sp, pos.x, pos.z, { growth: 0.04 }); if (p && parent.wild) p.wild = true; }
   };
   W.pineAfterFire = (p) => { W._pineSeeds = (W._pineSeeds || 0) + 2; W._pineAt = { x: p.x, z: p.z }; };
-  W.note = (type, e) => { if (type === 'resprout' && !W._resproutNoted) { W._resproutNoted = true; setTimeout(() => ui.toast(`${e.sp.name} ${gw(e.sp.id,'נשרף','נשרפה','נשרפו','נשרפו')}, אבל השורשים חיים – ${gw(e.sp.id,'הוא יצמח','היא תצמח','הם יצמחו','הן תצמחנה')} מחדש מהגדם!`, 'info'), 6000); } };
+  W.note = (type, e) => { if (type === 'resprout' && !W._resproutNoted) { W._resproutNoted = true; setTimeout(() => amb(`${e.sp.name} ${gw(e.sp.id,'נשרף','נשרפה','נשרפו','נשרפו')}, אבל השורשים חיים – ${gw(e.sp.id,'הוא יצמח','היא תצמח','הם יצמחו','הן תצמחנה')} מחדש מהגדם!`, 'info'), 6000); } };
   W.onMature = (p) => {
     report?.mature();
     W.points += 4; audio.play('grow');
     markers.burst(_v.set(p.x, p.topY(), p.z), '#c8ff8a', 20, { size: 0.5 });
-    if (p.sp.layer === 'emergent' && !W._emNoted) { W._emNoted = true; ui.toast(`ה${p.sp.name} ${gw(p.sp.id,'הגיע','הגיעה','הגיעו','הגיעו')} לקומת הענקים – עכשיו ${gw(p.sp.id,'הוא מקבל','היא מקבלת','הם מקבלים','הן מקבלות')} את כל אור השמש!`, 'good'); }
+    if (p.sp.layer === 'emergent' && !W._emNoted) { W._emNoted = true; amb(`ה${p.sp.name} ${gw(p.sp.id,'הגיע','הגיעה','הגיעו','הגיעו')} לקומת הענקים – עכשיו ${gw(p.sp.id,'הוא מקבל','היא מקבלת','הם מקבלים','הן מקבלות')} את כל אור השמש!`, 'good'); }
   };
   // the reef: where a coral broke or faded away a "scar" stays: the best place for a strong young coral from the nursery
   W.scars = W.scars || [];
@@ -298,7 +321,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
       W._lastDeathToast = W.simT;
       const g = (m, f, mp, fp) => gw(p.sp.id, m, f, mp, fp);
       const why = p.light < (p.sp.lightNeed ?? 0.5) * 0.6 ? g('לא קיבל', 'לא קיבלה', 'לא קיבלו', 'לא קיבלו') + ' מספיק אור' : W.drought > 0.3 ? g('התייבש', 'התייבשה', 'התייבשו', 'התייבשו') : g('נחלש', 'נחלשה', 'נחלשו', 'נחלשו');
-      ui.toast(`${p.sp.name} ${why} ${g('ונבל', 'ונבלה', 'ונבלו', 'ונבלו')}.`, 'bad');
+      amb(`${p.sp.name} ${why} ${g('ונבל', 'ונבלה', 'ונבלו', 'ונבלו')}.`, 'bad');
     }
     if (W.selected === p) select(null);
   };
@@ -308,7 +331,8 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     if ((W.kids || W.research || a.touring) && reason === 'hunger') { a.energy = 0.35; return; }
     a.leave(); report?.animalLeft(reason);
     if (reason === 'hunger') W.stats.lossT = W.simT;
-    if (reason === 'hunger' && W.simT - (W._lastLeaveToast || -99) > 15) { W._lastLeaveToast = W.simT; ui.toast(`${a.sp.name} ${gw(a.sp.id,`עזב את ${zoneWord()} – לא מצא`,`עזבה את ${zoneWord()} – לא מצאה`,`עזבו את ${zoneWord()} – לא מצאו`,`עזבו את ${zoneWord()} – לא מצאו`)} מספיק אוכל.`, 'bad'); audio.play('remove'); }
+    if (reason === 'hunger' && W.xp && !W._hungryRobo) { W._hungryRobo = true; robo('zone:hungry'); }   // חוויה: רובו־דע says it once
+    if (reason === 'hunger' && W.simT - (W._lastLeaveToast || -99) > 15) { W._lastLeaveToast = W.simT; amb(`${a.sp.name} ${gw(a.sp.id,`עזב את ${zoneWord()} – לא מצא`,`עזבה את ${zoneWord()} – לא מצאה`,`עזבו את ${zoneWord()} – לא מצאו`,`עזבו את ${zoneWord()} – לא מצאו`)} מספיק אוכל.`, 'bad'); audio.play('remove'); }
   };
   W.removeEntity = (e) => {
     if (e.isPlant) { const i = W.plants.indexOf(e); if (i >= 0) W.plants.splice(i, 1); }
@@ -568,6 +592,9 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
       id, name: sp.name, nameEn: sp.nameEn, color: sp.color, thumb: thumbs[id] || null, art: CARD_ART[id] || null, kindName: sp.kindName, layerName: sp.layerName, activeName: sp.isAnimal ? activeNameFor(sp.id, sp.active) : '',
       fact: sp.fact, more: sp.more, alive: ents.length > 0, count: ents.length, health, status: ents.length ? status : (W.unlocked.has(id) ? `עדיין לא ${zoneWord('in')} – גררו אותו מהמגש` : 'נעול – השלימו משימות כדי לפתוח'),
       relations: rels, canRemove: ents.length > 0, one: oneInfo(id), tour: tour ? tour.labelFor(id) : '', question: shuffledQuestion(sp), questionDone: W.quizDone.has(id),
+      // חוויה: a short card (name, painting, one fact, who it lives with); the experiment button only when a mission asks for it
+      xp: !!W.xp, hurt: (() => { const a = W.animals.find(x => x.sp.id === id && x.injured && alive(x)); return a ? hurtText(a) : ''; })(),
+      expNeeded: W.missions?.current()?.goal?.type === 'experiment',
       shira: TORAH && sourcesOn() ? SHIRA[biome.id + ':' + id] || null : null,   // torah edition: its line in פרק שירה
     };
   }
@@ -799,20 +826,30 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   W.runEvent = (e) => {
     if (W.buoy && (e.start || []).some(fx => fx.type === 'anchor')) {
       missions.resolve(e); W.points += 10; audio.play('mission'); report?.event(e.id, 'buoy');
-      ui.showOutcome({ title: 'הסירה נקשרה למצוף!', text: 'הסירה הגיעה לשונית, אבל במקום להטיל עוגן היא נקשרה למצוף העגינה. אף אלמוג לא נשבר. (+10)\n\nבמפרץ אילת יש מצופי עגינה כאלה באמת, כדי לשמור על השונית.' });
+      ui.showOutcome({ title: 'הסירה נקשרה למצוף!', text: W.xp ? 'הסירה נקשרה למצוף העגינה, ולא הטילה עוגן. אף אלמוג לא נשבר. (+10)' : 'הסירה הגיעה לשונית, אבל במקום להטיל עוגן היא נקשרה למצוף העגינה. אף אלמוג לא נשבר. (+10)\n\nבמפרץ אילת יש מצופי עגינה כאלה באמת, כדי לשמור על השונית.' });
       return;
     }
     if (W.listener && (e.start || []).some(fx => fx.type === 'logging')) {
       missions.resolve(e); W.points += 10; audio.play('mission'); report?.event(e.id, 'listener');
-      ui.showOutcome({ title: 'מאזין היער עצר כריתה!', text: 'מאזין היער שמע רעש של מסור חשמלי ושלח התרעה לשומרי היער. הם הגיעו בזמן, והעצים לא נכרתו. (+10)\n\nיש היום חיישנים כאלה באמת: טלפונים ישנים עם לוח סולארי, שנתלים גבוה על עצים ומקשיבים ליער כל היום וכל הלילה.' });
+      ui.showOutcome({ title: 'מאזין היער עצר כריתה!', text: W.xp ? 'מאזין היער שמע מסור חשמלי והזעיק את שומרי היער. העצים לא נכרתו. (+10)' : 'מאזין היער שמע רעש של מסור חשמלי ושלח התרעה לשומרי היער. הם הגיעו בזמן, והעצים לא נכרתו. (+10)\n\nיש היום חיישנים כאלה באמת: טלפונים ישנים עם לוח סולארי, שנתלים גבוה על עצים ומקשיבים ליער כל היום וכל הלילה.' });
       return;
     }
     pendingEvent = e;
     for (const fx of e.start || []) applyEffect(fx);
     audio.play('event');
     if (rig.following) rig.stopFollow();
-    ui.showEvent({ id: e.id, title: e.title, text: e.text, choices: e.choices.map(c => ({ id: c.id, label: c.label })) });
+    // חוויה: one line of explanation (and the question) and at most two ways; רובו־דע tells the rest the first time
+    const xp = W.xp;
+    ui.showEvent({ id: e.id, title: e.title, text: xp ? shortEventText(e.text) : e.text, choices: (xp ? e.choices.slice(0, 2) : e.choices).map(c => ({ id: c.id, label: c.label })) });
+    robo('zone:event:' + e.id);
   };
+  const sentences = (t) => String(t || '').split('\n')[0].split(/(?<=[.!?])\s+/).filter(Boolean);
+  function shortEventText(t) {
+    const ss = sentences(t); if (ss.length <= 1) return String(t || '');
+    const last = ss[ss.length - 1];
+    return /\?$/.test(last) ? ss[0] + ' ' + last : ss[0];
+  }
+  const shortOutcome = (t) => (W.xp ? sentences(t).slice(0, 2).join(' ') : t);
   function chooseEvent({ eventId, choiceId }) {
     const e = missions.events.find(x => x.id === eventId); if (!e) return;
     const c = e.choices.find(x => x.id === choiceId); if (!c) return;
@@ -821,7 +858,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     report?.event(e.id, c.id);
     if (/^(a_noagouti|g_nojay)$/.test(e.id)) W.stats.experiments++;
     pendingEvent = null;
-    ui.showOutcome({ title: e.title, text: c.outcome });
+    ui.showOutcome({ title: e.title, text: shortOutcome(c.outcome) });
   }
   function applyEffect(fx) {
     const sp = fx.species ? reg.byId.get(fx.species) : null;
@@ -838,14 +875,14 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
         break;
       }
       case 'rain': W.rainTarget = 1; W.rainT = Math.max(W.rainT, fx.seconds || 30); W.drought = Math.max(0, W.drought - 0.5); W.droughtT = 0; break;
-      case 'drought': if (W.weatherStation) { fx = { ...fx, strength: (fx.strength ?? 0.6) * 0.55 }; ui.toast('תחנת מזג האוויר התריעה מראש – היער התכונן, והבצורת פחות קשה', 'info'); }
+      case 'drought': if (W.weatherStation) { fx = { ...fx, strength: (fx.strength ?? 0.6) * 0.55 }; amb('תחנת מזג האוויר התריעה מראש – היער התכונן, והבצורת פחות קשה', 'info'); }
         W.drought = fx.strength ?? 0.6; W.droughtT = fx.seconds || 60; W.rainT = 0; W.rainTarget = 0; break;
-      case 'heat': if (W.weatherStation && W.biomeId === 'reef') { fx = { ...fx, seconds: (fx.seconds || 40) * 0.6 }; ui.toast('מצוף החיישנים התריע על מים חמים – השונית נערכה, והנזק קטן יותר', 'info'); }
+      case 'heat': if (W.weatherStation && W.biomeId === 'reef') { fx = { ...fx, seconds: (fx.seconds || 40) * 0.6 }; amb('מצוף החיישנים התריע על מים חמים – השונית נערכה, והנזק קטן יותר', 'info'); }
         W.heat = W.weatherStation && W.biomeId === 'reef' ? 0.6 : 1; W.heatT = fx.seconds || 40; W.drought = Math.max(W.drought, 0.35); W.droughtT = Math.max(W.droughtT, fx.seconds || 40); break;
       case 'flood': W.flood = W.weatherStation ? 0.5 : 1; W.floodT = (fx.seconds || 40) * (W.weatherStation ? 0.6 : 1); break;
       case 'fire': {
         const s = (fx.strength ?? 0.5) * (W.weatherStation ? 0.5 : 1);
-        if (W.weatherStation) ui.toast('תחנת מזג האוויר זיהתה חום ורוח – האש התגלתה מוקדם והייתה קטנה', 'info');
+        if (W.weatherStation) amb('תחנת מזג האוויר זיהתה חום ורוח – האש התגלתה מוקדם והייתה קטנה', 'info');
         let fx0 = null;
         const cand = W.plants.filter(p => alive(p) && (p.isTree || p.sp.kind === 'shrub') && Math.hypot(p.x, p.z) > 12);
         if (cand.length) { const p = cand[(Math.random() * cand.length) | 0]; fx0 = { x: p.x, z: p.z }; }
@@ -901,7 +938,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
         if (n) { rig.focusOn(new THREE.Vector3(trees[0].x, 3, trees[0].z), 30); lightDirty = true; }
         break;
       }
-      case 'protect': W.protected = true; ui.toast('היער הוא עכשיו שמורת טבע 🛡', 'good'); break;
+      case 'protect': W.protected = true; amb('היער הוא עכשיו שמורת טבע 🛡', 'good'); break;
       case 'road': buildRoad(); break;
       case 'ecoBridge': buildBridge(); break;
       case 'removeRoad': removeRoad(); break;
@@ -1057,11 +1094,21 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
         alive: n, thumb: thumbs[sid] || CARD_ART[sid] || null, color: '#e889a8', isNew: !!W.nurseryNew, nursery: true };
     });
   }
+  let toolLocks = null;   // which tools were still locked: a tool that opens now is presented by רובו־דע
   function refreshTray() {
     if (W.research) return;
-    const sp = trayCards(), ns = nurseryCards();
-    ui.setTray(tools ? [...ns, ...sp, ...tools.cards()] : sp);
+    const sp = trayCards(), ns = nurseryCards(), tc = tools ? tools.cards() : [];
+    if (tools) {
+      const now = {}; for (const c of tc) now[c.id] = c.locked;
+      const opened = toolLocks ? tc.filter(c => toolLocks[c.id] && !c.locked) : [];
+      if (opened.length && opened.length <= 2 && W.missionsOn) for (const c of opened) W.roboTool(c.id.slice(5));   // many at once (the rescue robot opened them all): no parade
+      toolLocks = now;
+    }
+    ui.setTray(tools ? [...ns, ...sp, ...tc] : sp);
   }
+  // רובו־דע presents a tool once (src/data/guide/zone.js 'zone:tool:<id>'; the reef's own machines have their own lines)
+  const REEF_TOOL = { drone: 'rov', camera: 'uwcam', weather: 'sensor' };
+  W.roboTool = (id) => robo('zone:tool:' + (W.biomeId === 'reef' && REEF_TOOL[id] ? REEF_TOOL[id] : id));
 
   // ─────────────────────────────────────────── save / load (localStorage, optional)
   const SAVE_KEY = profileKey('web-of-life-' + biome.id);   // per player
@@ -1117,7 +1164,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     if (!selfPresent || !otherPresent) { ui.toast(`כדי לגלות את הקשר, הביאו ${zoneWord('lamed')} גם את ${reg.byId.get(selfPresent ? to : from)?.name}.`, 'info'); return; }
     const A = nearestOf(from, rig.controls.target), B = nearestOf(to, rig.controls.target);
     const [f, t] = r.dir === 'out' ? [A, B] : [B, A];
-    if (f && t) W.observe(f, t, type);
+    if (f && t) { W._revealing = true; try { W.observe(f, t, type); } finally { W._revealing = false; } }
   });
   on('quiz:answer', ({ id, correct }) => { if (correct && !W.quizDone.has(id)) { W.quizDone.add(id); W.points += 5; audio.play('quizRight'); } else if (!correct) audio.play('quizWrong'); refreshPanel(); });
   on('event:choice', chooseEvent);
@@ -1156,7 +1203,21 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     return howtoBox;
   }
   on('ui:help', () => showHowto(true));
-  on('ui:coach', () => startCoach(true));
+  on('ui:coach', () => { if (W.xp) robo('zone:' + biome.id, { tip: false, force: true }); else startCoach(true); });
+  // "מה עושים עכשיו?" next to the missions: רובו־דע answers in one bubble with the current mission's how-to
+  on('mission:whatnow', () => {
+    if (W.research) return;
+    const c = W.missionsOn ? missions.list().find(m => !m.done && !m.locked) : null;
+    if (!c) { robo('zone:alldone', { key: null, force: true }); return; }
+    const how = String(c.how || '').replace(/^איך עושים:\s*/, '');
+    const f = W.kids ? c.text : `${c.title}: ${how || c.text}`;
+    roboSay(f, f, { ms: 16000, force: true, at: '#ui .missions' });
+  });
+  // the red bar of an injured animal: fly to it (the rescue robot's card in the tray pulses, ui.js)
+  on('injured:focus', ({ uid }) => {
+    const a = W.animals.find(x => x.injured && x.injured.uid === uid && alive(x)); if (!a) return;
+    rig.stopFollow(); rig.focusOn(a.focusPoint(new THREE.Vector3()), 14); audio.play('click');
+  });
   on('coach:next', () => coachNext()); on('coach:skip', () => { coachStep = -1; ui.hideCoach(); try { localStorage.setItem(profileKey('web-of-life-coach'), '1'); } catch (e) { } });
   on('dialog:button', () => { });
   on('ui:home', () => { onExit && onExit(); });
@@ -1520,6 +1581,11 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
 
   // ─────────────────────────────────────────── start state
   ui.setBiome({ id: biome.id, name: biome.name, layers: biome.layers.map(l => ({ id: l.id, name: l.name, desc: l.desc })), hasSeasons: biome.id === 'grove' });
+  const modeName = () => (W.kids ? 'kids' : W.xp ? 'experience' : 'full');
+  ui.setPlayMode(W.research ? null : modeName());
+  // the play mode can change while the forest is open (the satchel's settings rows): repaint what depends on it
+  const onJourney = () => { const x = calcXP(); if (x === W.xp) return; W.xp = x; ui.setPlayMode(modeName()); refreshPanel(); refreshTray(); };
+  addEventListener('wol-journey', onJourney);
   ui.setLayers(biome.layers.map(l => ({ id: l.id, name: l.name })), 'all');
   ui.setToggles({ lightmap: false, web: false, sound: !audio.muted, quality: pipe.quality === 'min' ? 'low' : pipe.quality });
   ui.setTips(biome.tips);
@@ -1572,7 +1638,15 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     // time of day / seasons
     const prevFrac = W.dayFrac;
     W.dayFrac = (W.dayFrac + dt / DAY_LEN * (1 + 3 * W.nightGlow)) % 1;   // nights pass quickly
-    if (W.dayFrac < prevFrac) { const ended = report ? report.dayEnded() : null; W.day++; if (biome.id === 'grove') { const i = (SEASONS.indexOf(W.season) + 1) % 4; W.season = SEASONS[i]; ui.toast(`הגיעה עונת ה${SEASON_NAMES[W.season]}`, 'info'); seasonBegins(W.season); } report?.dayBegan(ended); }
+    if (W.dayFrac < prevFrac) {
+      const ended = report ? report.dayEnded() : null; W.day++;
+      if (biome.id === 'grove') { const i = (SEASONS.indexOf(W.season) + 1) % 4; W.season = SEASONS[i]; if (!W.xp) ui.toast(`הגיעה עונת ה${SEASON_NAMES[W.season]}`, 'info'); seasonBegins(W.season); }
+      report?.dayBegan(ended);   // the full mode offers to write "דוח החוקר"; חוויה has no daily report:
+      if (W.xp && !W.research && !(guide() && guide().isOpen())) {   // רובו־דע says one line at the end of the day instead
+        if (biome.id === 'grove') robo('zone:season:' + W.season, { key: null, force: true });
+        else roboOne('zone:dayend', W.day);
+      }
+    }
     W.seasonFrac = W.dayFrac;
     // weather
     weatherUpdate(dt, rdt);
@@ -1580,7 +1654,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     // env
     const night = 1 - smoothstep(-0.12, 0.14, env.sun.elevation ?? 0.5);
     W.nightGlow = night;
-    if (night > 0.6 && prevNight <= 0.6) { audio.play('night'); if (W.plants.some(p => p.sp.id === 'glowfungus' && alive(p)) && !W._glowNoted) { W._glowNoted = true; ui.toast('לילה! הפטריות הזוהרות מאירות את קרקעית היער.', 'good'); } }
+    if (night > 0.6 && prevNight <= 0.6) { audio.play('night'); if (W.plants.some(p => p.sp.id === 'glowfungus' && alive(p)) && !W._glowNoted) { W._glowNoted = true; amb('לילה! הפטריות הזוהרות מאירות את קרקעית היער.', 'good'); } }
     if (night < 0.3 && prevNight >= 0.3) audio.play('dawn');
     prevNight = night;
     // fires
@@ -1631,6 +1705,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
       hudT = 0.25;
       ui.setHUD({ points: Math.floor(W.points), vitality: W.vitality, speciesAlive: W.aliveSpecies().length, speciesTotal: biome.species.length, dayFrac: W.dayFrac, day: W.day, season: W.season ? SEASON_NAMES[W.season] : null, seasonId: W.season, speed: W.speed, isNight: night > 0.6 });
       ui.setMissions(W.missionsOn ? missions.list() : []);
+      ui.setInjured(injuredList());
       panelT -= 0.25; if (panelT <= 0) { panelT = 1; refreshPanel(); refreshTray(); }
     }
     // links (selected / web / temp)
@@ -1660,7 +1735,53 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     fitT -= rdt; if (fitT <= 0) { fitT = 0.5; fitViewToUI(false); }
     // audio ambience
     audio.update({ dayFrac: W.dayFrac, season: W.season, rain: W.rain, wind: W.wind, vitality: W.vitality, night, cameraHeight: camera.position.y, fire: W.fires.length ? 1 : 0, speed: dt > 0 ? W.speed : 0 });
-    if (!coachStarted) { coachStarted = true; if (!W.research) setTimeout(() => { if (disposed) return; const after = W.restored ? null : () => startCoach(false); if (!showHowto(false, after) && after) after(); }, 900); }
+    if (!coachStarted) { coachStarted = true; if (!W.research) setTimeout(() => { if (!disposed) startIntro(); }, 900); }
+    if (W.animals.some(a => a.injured) || hurtArrowsOn) updateHurtArrows();
+  }
+
+  // the first minute in a zone: "איך משחקים" cards, the coach (a player who never saw it), or רובו־דע (1.3.2)
+  const coachSeen = () => { try { return localStorage.getItem(profileKey('web-of-life-coach')) === '1'; } catch (e) { return false; } };
+  function startIntro() {
+    const fresh = missions.doneCount === 0;
+    if (W.xp) { if (fresh) robo('zone:' + biome.id, { tip: false }); return; }   // חוויה: רובו־דע instead of the cards and the coach
+    if (W.kids) { const after = W.restored ? null : () => startCoach(false); if (!showHowto(false, after) && after) after(); return; }
+    const after = () => { if (disposed) return; if (!W.restored && !coachSeen()) startCoach(false); else if (fresh) robo('zone:' + biome.id, { tip: false }); };
+    if (!showHowto(false, after)) after();
+  }
+  // injured animals (1.3.2, Avi: the alert got lost): the red bar at the top (ui.setInjured), an arrow at the screen's
+  // edge when the animal is out of view, רובו־דע the first time and once more before it leaves (tools.js calls W.onHurt)
+  function injuredList() {
+    if (W.research) return [];
+    return W.animals.filter(a => a.injured && alive(a)).map(a => ({ uid: a.injured.uid, id: a.sp.id, name: a.sp.name, cause: a.injured.cause, color: a.sp.color,
+      thumb: CARD_ART[a.sp.id] || thumbs[a.sp.id] || null, saving: !!a.injured.saving, left: clamp(1 - a.injured.t / a.injured.max) }));
+  }
+  W.onHurt = (kind) => {
+    if (W.research) return;
+    if (kind === 'new') robo('zone:hurt');
+    else if (kind === 'remind') robo('zone:hurtlate', { key: null, force: true });
+  };
+  let hurtArrowsOn = false; const _ha = new THREE.Vector3();
+  function updateHurtArrows() {
+    const out = [];
+    if (!W.viewMode && !W.research) {
+      const r = canvas.getBoundingClientRect();
+      const root = document.getElementById('ui');
+      const trayH = root ? parseFloat(getComputedStyle(root).getPropertyValue('--trayH')) || 0 : 0;
+      for (const a of W.animals) {
+        if (!a.injured || !alive(a)) continue;
+        a.focusPoint(_ha); _ha.y += 1.4; _ha.project(camera);
+        const behind = _ha.z > 1; let x = _ha.x, y = _ha.y; if (behind) { x = -x; y = -y; }
+        const sx0 = (x + 1) / 2 * r.width + r.left, sy0 = (1 - y) / 2 * r.height + r.top;
+        if (!behind && sx0 > r.left + 40 && sx0 < r.right - 40 && sy0 > r.top + 60 && sy0 < r.bottom - trayH - 30) continue;   // in view: the "!" over it is enough
+        const k = 1 / Math.max(Math.abs(x) / 0.9, Math.abs(y) / 0.86, 1e-3);
+        const ex = x * k, ey = y * k;
+        let sx = (ex + 1) / 2 * r.width + r.left, sy = (1 - ey) / 2 * r.height + r.top;
+        sx = clamp(sx, r.left + 34, r.right - 34); sy = clamp(sy, r.top + 96, r.bottom - trayH - 34);
+        out.push({ uid: a.injured.uid, x: Math.round(sx), y: Math.round(sy), ang: Math.round(Math.atan2(-y, x) * 180 / Math.PI) });
+      }
+    }
+    hurtArrowsOn = out.length > 0;
+    ui.setHurtArrows(out);
   }
 
   function weatherUpdate(dt, rdt) {
@@ -1686,16 +1807,16 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     // mushrooms after rain (grove), new ferns etc.
     if (W.rain > 0.5 && biome.id === 'grove' && W.unlocked.has('mushroom') && Math.random() < dt * 0.02 && W.countAlive('mushroom') < (reg.byId.get('mushroom')?.maxCount || 4)) {
       const trees = W.plants.filter(p => alive(p) && p.isTree);
-      if (trees.length) { const tr = trees[(Math.random() * trees.length) | 0]; const s = findSpotNear(reg.byId.get('mushroom'), tr.x, tr.z, 4); if (s) { spawnPlant(reg.byId.get('mushroom'), s.x, s.z, { growth: 0.6 }); if (!W._mushNoted) { W._mushNoted = true; ui.toast('אחרי הגשם צצו פטריות ליד העצים!', 'good'); } } }
+      if (trees.length) { const tr = trees[(Math.random() * trees.length) | 0]; const s = findSpotNear(reg.byId.get('mushroom'), tr.x, tr.z, 4); if (s) { spawnPlant(reg.byId.get('mushroom'), s.x, s.z, { growth: 0.6 }); if (!W._mushNoted) { W._mushNoted = true; amb('אחרי הגשם צצו פטריות ליד העצים!', 'good'); } } }
     }
   }
   function seasonBegins(s) {
     if (s === 'winter') { W.rainTarget = 0.8; W.rainT = 30; }
-    if (s === 'summer') ui.toast('קיץ: אין גשם עד הסתיו. הכלניות והרקפות נחות מתחת לאדמה, והחורש חוסך מים.', 'info');
+    if (s === 'summer') amb('קיץ: אין גשם עד הסתיו. הכלניות והרקפות נחות מתחת לאדמה, והחורש חוסך מים.', 'info');
   }
   function afterFire() {
     const pine = reg.byId.get('pine');
-    if (W._pineSeeds && pine) { for (let i = 0; i < W._pineSeeds; i++) { const s = findSpotNear(pine, W._pineAt.x, W._pineAt.z, 6); if (s) spawnPlant(pine, s.x, s.z, { growth: 0.05 }); } ui.toast('האצטרובלים של האורן נפתחו בחום – ונבטו אורנים חדשים!', 'good'); W._pineSeeds = 0; }
+    if (W._pineSeeds && pine) { for (let i = 0; i < W._pineSeeds; i++) { const s = findSpotNear(pine, W._pineAt.x, W._pineAt.z, 6); if (s) spawnPlant(pine, s.x, s.z, { growth: 0.05 }); } amb('האצטרובלים של האורן נפתחו בחום – ונבטו אורנים חדשים!', 'good'); W._pineSeeds = 0; }
     lightDirty = true;
   }
   function births() {
@@ -1717,7 +1838,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
       if (!env.isPlaceable(p.x, p.z) && parent.loco !== 'flying' && parent.loco !== 'arboreal') continue;
       if (parent.loco === 'ground') p.y = env.heightAt(p.x, p.z);
       const baby = spawnAnimal(sp, p, { baby: !sp.isInsect });
-      if (baby) { parent.energy -= 0.15; W.stats.births++; W.points += 1; markers.burst(baby.focusPoint(_v), '#b6ffb0', 12, { size: 0.35 }); audio.play('pop'); if (Math.random() < 0.6) ui.toast(sp.isInsect ? `${gw(sp.id, 'עוד', 'עוד', 'עוד', 'עוד')} ${sp.name} ${gw(sp.id, 'הצטרף', 'הצטרפה', 'הצטרפו', 'הצטרפו')}!` : `משפחת ה${sp.name} גדלה!`, 'good'); }
+      if (baby) { parent.energy -= 0.15; W.stats.births++; W.points += 1; markers.burst(baby.focusPoint(_v), '#b6ffb0', 12, { size: 0.35 }); audio.play('pop'); if (Math.random() < 0.6) amb(sp.isInsect ? `${gw(sp.id, 'עוד', 'עוד', 'עוד', 'עוד')} ${sp.name} ${gw(sp.id, 'הצטרף', 'הצטרפה', 'הצטרפו', 'הצטרפו')}!` : `משפחת ה${sp.name} גדלה!`, 'good'); }
     }
   }
   function hungerWarnings() {
@@ -1726,7 +1847,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
       const k = a.sp.id; if (W.simT - (hungryWarn[k] || -999) < 70) continue;
       hungryWarn[k] = W.simT;
       const foods = a.sp.diet2.map(e => reg.byId.get(e.to)?.name).filter(Boolean).slice(0, 3).join(', ');
-      ui.toast(`ה${a.sp.name} ${gw(a.sp.id,'רעב! הוא אוכל','רעבה! היא אוכלת','רעבים! הם אוכלים','רעבות! הן אוכלות')}: ${foods}.`, 'warn');
+      amb(`ה${a.sp.name} ${gw(a.sp.id,'רעב! הוא אוכל','רעבה! היא אוכלת','רעבים! הם אוכלים','רעבות! הן אוכלות')}: ${foods}.`, 'warn');
     }
   }
 
@@ -1757,6 +1878,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     links.dispose(); markers.dispose(); rig.controls.dispose(); env.dispose(); tools.dispose(); camPad.dispose(); setGamepadRig(null);
     disposeObject(impactGroup); barkMat.dispose(); cutMat.dispose(); W.stumps = []; roadMesh = null; bridgeMesh = null;
     ui.hideSpecies(); ui.hideCoach();
+    removeEventListener('wol-journey', onJourney); ui.setInjured([]); ui.setHurtArrows([]); ui.setPlayMode(null);
     if (window.__game === W) window.__game = null;   // the test hook must not keep the closed island in memory
   }
 

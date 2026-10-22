@@ -2,6 +2,7 @@
 import { zoneWord } from '../core/place.js';
 import { TORAH, sourcesOn } from '../core/edition.js';
 import { TORAH_MISSIONS } from '../data/torah.js';
+import { isOpen } from '../core/journey.js';
 
 // torah edition (sources on, not in the beginners' mode): missions from the sources join the chain, each one right
 // after the mission it names (the mission that used to follow comes after it)
@@ -24,9 +25,11 @@ export function createMissions(W) {
   const queue = [];
   let lastDay = 0;
 
-  // expert missions (משימות מומחים) open only when every regular mission of the zone is done
+  // expert missions (משימות מומחים) open only when every regular mission of the zone is done, and (1.3.2) only when
+  // מסע החוקר opened them (stage 6, or a player from before 1.3.2) and the child plays the full mode, not חוויה
   const regularDone = () => missions.every(m => m.expert || m.done);
-  function current() { return missions.find(m => !m.done && (!m.expert || regularDone()) && (!m.after || missions.find(x => x.id === m.after)?.done)); }
+  const expertsOn = () => !W.xp && isOpen('experts');
+  function current() { return missions.find(m => !m.done && (!m.expert || (regularDone() && expertsOn())) && (!m.after || missions.find(x => x.id === m.after)?.done)); }
 
   function start(m) {
     if (m.started) return;
@@ -212,7 +215,7 @@ export function createMissions(W) {
     if (last) out.push({ id: last.id, title: last.title, text: last.text, hint: last.hint, progress: 1, done: true, note: last.autoNote || '', expert: !!last.expert });
     const c = current();
     if (c) out.push({ id: c.id, title: c.title, text: c.text, hint: c.hint, how: c.how || howTo(c), progress: c.progress, done: false, expert: !!c.expert, checks: checks(c) });
-    const next = c && missions.find(m => m.after === c.id);
+    const next = c && missions.find(m => m.after === c.id && (!m.expert || expertsOn()));
     if (next) out.push({ id: next.id, title: next.title, text: 'המשימה הבאה תיפתח אחרי שתסיימו את הנוכחית.', hint: '', progress: 0, done: false, locked: true, expert: !!next.expert });
     return out;
   }
