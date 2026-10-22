@@ -7,7 +7,9 @@
 // Storage (per player, see core/profiles.js):  'web-of-life-journey' = {
 //   v: 1, created: time, legacy: bool (the player had progress before 1.3.2: every part is open for them),
 //   shown: { <stageId>: time }   (the stage-up moment was shown),  used: { <partId>: time },
-//   intro: { <partId>: time }   (רובו־דע presented the part),  mode: 'experience'|'full', text: 'normal'|'large'|'xlarge', voice: bool }
+//   intro: { <partId>: time }   (רובו־דע presented the part),  mode: 'experience'|'full', text: 'normal'|'large'|'xlarge', voice: bool,
+//   best: n   (the best stage ever reached: a stage never closes again),  done: { <zone>: [missionId] }   (every mission
+//   done so far: a new forest or the other level overwrites web-of-life-<zone>.done, a mission done once still counts) }
 // Device-wide: 'web-of-life-allopen' = '1' – the instructors' switch (everything open on this computer, behind a code).
 //
 // API
@@ -78,9 +80,18 @@ const isKids = () => { try { return (ls() && ls().getItem(pk('web-of-life-mode')
 
 // ─────────────────────────────── what the child has done (read from the game's own saves)
 const ZONES = ['amazon', 'grove', 'reef'];
+// the missions done in a zone: what its save says now, joined with what this store remembers (a new forest, or the other
+// level, overwrites web-of-life-<zone>.done; a mission done once still counts)
+function doneIn(z, kept) {
+  const o = readJSON(pk('web-of-life-' + z), null);
+  const ids = new Set(o && Array.isArray(o.done) ? o.done : []);
+  for (const id of (kept && Array.isArray(kept[z]) ? kept[z] : [])) ids.add(id);
+  return ids;
+}
 export function metrics() {
   let missions = 0;
-  for (const z of ZONES) { const o = readJSON(pk('web-of-life-' + z), null); if (o && Array.isArray(o.done)) missions += o.done.length; }
+  const kept = (readJSON(pk(K), null) || {}).done;
+  for (const z of ZONES) missions += doneIn(z, kept).size;
   const b = readJSON(pk('web-of-life-badges'), {}); const badges = b && b.own ? Object.keys(b.own).length : 0;
   const L = readJSON(pk('web-of-life-lab'), {}) || {};
   const n = (o) => (o && typeof o === 'object' ? Object.keys(o).length : 0);
@@ -108,13 +119,19 @@ function store() {
   return fresh;
 }
 function save(s) { const o = { ...s }; delete o._key; writeJSON(pk(K), o); mem = { ...o, _key: pk(K) }; }
+// the best stage this player ever reached: it never drops (the store's `best`, and every stage already announced)
+function bestStage(s) {
+  let b = Math.max(1, +(s && s.best) || 1);
+  for (const st of STAGES) if (s && s.shown && s.shown[st.id]) b = Math.max(b, st.n);
+  return Math.min(b, STAGES.length);
+}
 function reached(st, m) { const need = isKids() ? st.kneed : st.need; if (!need) return true; return need.some((w) => Object.keys(w).every((k) => (m[k] || 0) >= w[k])); }
 
 export const allOpen = () => { try { return (ls() && ls().getItem(ALL_OPEN)) === '1'; } catch (e) { return false; } };
 export function unlockAll(code) { if (String(code).trim() !== INSTRUCTOR_CODE) return false; try { ls() && ls().setItem(ALL_OPEN, '1'); } catch (e) { } notify(); return true; }
 export function lockAgain() { try { ls() && ls().removeItem(ALL_OPEN); } catch (e) { } notify(); }
 
-export function stageNow(m = metrics()) { let s = 1; for (const st of STAGES) if (reached(st, m)) s = st.n; else break; return s; }
+export function stageNow(m = metrics()) { let s = 1; for (const st of STAGES) if (reached(st, m)) s = st.n; else break; return Math.max(s, bestStage(store())); }
 
 export function state() {
   const m = metrics(), s = store(), stage = stageNow(m), kids = isKids();
@@ -157,11 +174,18 @@ export const partsOf = (stage) => Object.keys(PARTS).filter((p) => PARTS[p].stag
 
 // newly reached stages, announced once each (oldest first)
 export function check() {
-  const s = store(); const m = metrics(); const out = [];
+  const s = store();
+  // remember every mission done so far (the zone's save may be overwritten by a new forest or the other level)
+  const kept = s.done && typeof s.done === 'object' ? s.done : {};
+  for (const z of ZONES) kept[z] = [...doneIn(z, kept)];
+  s.done = kept;
+  const m = metrics(), best = bestStage(s); const out = [];
   for (const st of STAGES) {
     if (st.n === 1) { if (!s.shown[st.id]) { s.shown[st.id] = Date.now(); } continue; }
-    if (reached(st, m) && !s.shown[st.id]) { s.shown[st.id] = Date.now(); out.push(st.n); }
-    if (!reached(st, m)) break;
+    const ok = st.n <= best || reached(st, m);
+    if (ok && !s.shown[st.id]) { s.shown[st.id] = Date.now(); out.push(st.n); }
+    if (!ok) break;
+    s.best = Math.max(s.best || 1, st.n);
   }
   if (out.length) { save(s); for (const n of out) { try { window.dispatchEvent(new CustomEvent('wol-stage', { detail: { stage: n, parts: partsOf(n), legacy: !!s.legacy } })); } catch (e) { } } }
   else save(s);

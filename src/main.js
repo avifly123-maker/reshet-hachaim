@@ -221,7 +221,13 @@ async function boot() {
     else if (id === 'save-new-no') askSaved(b);
     else pendingBiome = null;   // 'save-back', Escape or a click outside the box
   });
-  bus.on('start:mode', ({ mode }) => { MODE = mode; try { localStorage.setItem(profiles.key('web-of-life-mode'), mode); } catch (e) { } });
+  // the level switch (מתחילים ↔ מתקדמים) changes the stage thresholds: the journey keeps the best stage reached under the
+  // old level first, then looks again under the new one (a stage reached now is announced)
+  bus.on('start:mode', ({ mode }) => {
+    try { journey.check(); } catch (e) { console.error(e); }
+    MODE = mode; try { localStorage.setItem(profiles.key('web-of-life-mode'), mode); } catch (e) { }
+    try { journey.check(); } catch (e) { console.error(e); }
+  });
   // players ("מי משחק?") – only reachable from the start screen, so no forest is running while the player changes
   const playerChanged = () => { readMode(); journey.reload(); ui.setMode(MODE); ui.setProfiles(profiles.state()); guide.close(); try { window.dispatchEvent(new CustomEvent('wol-journey')); } catch (e) { } setTimeout(greetPlayer, 600); };
   bus.on('profile:switch', ({ id }) => { if (game || loading) return; if (profiles.setCurrent(id)) playerChanged(); });
