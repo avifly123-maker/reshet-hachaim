@@ -158,17 +158,17 @@ export function createAfter({ W, env, reg, scene, camera, canvas, pipe, ui, audi
     if (prev && r.i > prev.i) {
       const g = window.__guide, L = g && g.lines('after:rank:' + zone + ':' + r.i);
       if (L && L.length) setTimeout(() => { if (!disposed) g.say(L, { tip: true, ms: 9000 }); }, now ? 5200 : 0);
-      buildDecor(r.i);
+      buildDecor(r.i, true);
       paint();
-    } else if (!prev) buildDecor(r.i);
+    } else if (!prev) buildDecor(r.i, true);
   }
 
   // ── the extras of a rank: butterflies (the forests) or a school of fish (the reef), models the zone already has
-  const flock = []; let decorI = -1;
+  const flock = []; let decorI = -1, decorForced = false;   // forced: a test chose the extras
   const rng = makeRng(77);
   function clearDecor() { for (const f of flock) { try { f.obj.removeFromParent(); f.vis.dispose && f.vis.dispose(); } catch (e) { } } flock.length = 0; }
-  function buildDecor(i) {
-    if (i === decorI || W.research) return; decorI = i;
+  function buildDecor(i, auto) {
+    if (i === decorI || W.research || (auto && decorForced)) return; decorI = i;
     clearDecor();
     const id = DECOR[zone], make = W.animalBuilders && W.animalBuilders[id]; if (!make) return;
     const n = (DECOR_N[zone] || [0, 0, 0, 0])[i] || 0;
@@ -181,7 +181,7 @@ export function createAfter({ W, env, reg, scene, camera, canvas, pipe, ui, audi
       obj.scale.setScalar(visScale(vis.length || 1) * (fish ? 0.9 : 1));
       scene.add(obj);
       const a = rng() * 6.28, rr = R * (0.2 + rng() * 0.45);
-      flock.push({ vis, obj, k, fish, school, ph: rng() * 6.28, cx: Math.cos(a) * rr, cz: Math.sin(a) * rr, r: 2.5 + rng() * 3.5, h: 2 + rng() * 2.5, sp: 0.5 + rng() * 0.4, off: [(rng() - 0.5) * 3, (rng() - 0.5) * 1.6, (rng() - 0.5) * 3] });
+      flock.push({ vis, obj, k, fish, school, ph: rng() * 6.28, cx: Math.cos(a) * rr, cz: Math.sin(a) * rr, r: 2.5 + rng() * 3.5, h: 2 + rng() * 2.5, sp: 0.5 + rng() * 0.4, off: [(rng() - 0.5) * 5, (rng() - 0.5) * 2, (rng() - 0.5) * 5] });
     }
   }
   function updateDecor(dt, rdt, tt) {
@@ -238,6 +238,6 @@ export function createAfter({ W, env, reg, scene, camera, canvas, pipe, ui, audi
     photos.dispose(); visitors.dispose(); clearDecor(); panel.remove(); root.classList.remove('af-done', 'af-shoot');
   }
   const api = { update, dispose, photos, visitors, challenges, get rank() { return rank; }, get on() { return afterOn; }, turnOn, paint, offerChallenge: () => { chOffered = false; offerChallenge(false); },
-    decor: (i) => buildDecor(i), get flock() { return flock.length; }, flockAt: (k) => (flock[k] ? flock[k].obj.position.clone() : null) };   // tests: the extras of rank i
+    decor: (i) => { decorForced = true; decorI = -1; buildDecor(i); }, get flock() { return flock.length; }, flockAt: (k) => (flock[k] ? flock[k].obj.position.clone() : null) };   // tests: the extras of rank i
   return api;
 }
