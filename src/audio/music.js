@@ -11,12 +11,13 @@
 // and is let go, and the decoded sound is dropped a little later, so nothing is held while a forest is open.
 // The sound goes through audio.musicOut() → the master gain, so the "צלילים" switch (mute) silences it too.
 
-const KEY = 'web-of-life-music';   // 'off' when the child turned the music off; a new key, no old data changes
+import { K, readDeviceRaw, writeDeviceRaw } from '../core/storage.js';
+const KEY = K.music;   // 'off' when the child turned the music off; for the whole computer (core/storage.js)
 const LEVEL = 1;
 const FADE_IN = 3, CROSS = 2.5, FADE_OUT = 1.6;
 const FORGET_AFTER = 25000;        // ms of silence before the decoded music is released
 
-export function readMusicPref() { try { return localStorage.getItem(KEY) !== 'off'; } catch (e) { return true; } }
+export function readMusicPref() { return readDeviceRaw(KEY) !== 'off'; }
 
 export function createMusic(audio) {
   let enabled = readMusicPref();
@@ -85,7 +86,7 @@ export function createMusic(audio) {
 
   function setEnabled(b) {
     enabled = !!b;
-    try { localStorage.setItem(KEY, enabled ? 'on' : 'off'); } catch (e) { /* private mode */ }
+    writeDeviceRaw(KEY, enabled ? 'on' : 'off');   // private mode: kept for this visit only
     wantSince = 0; want(wantId);
   }
 
