@@ -114,6 +114,14 @@ const HOME_CSS = `
   .wol-learn .wl-hh.big{font-size:calc(1.55em * var(--ts,1))}.wol-learn .wl-hh{font-size:calc(1.25em * var(--ts,1))}.wol-learn .wl-hgh{font-size:calc(1.08em * var(--ts,1))}.wol-learn .wl-gt b{font-size:calc(.98em * var(--ts,1))}}
 @container (max-height:6.6em){.wol-learn .wl-hq .wl-htx small{display:none}}
 @container (max-height:7.4em){.wol-learn .wl-hf .wl-htx small:not(.wl-hn){display:none}}
+/* bigger letters (html.ts-large / ts-xlarge, --ts 1.18 / 1.36) need a taller tile for the small description: the same
+   two thresholds, grown with the words (a container query cannot read var(--ts), so one pair per size) */
+@container (max-height:11em){html.ts-large .wol-learn .wl-hq .wl-htx small{display:none}}
+@container (max-height:8.6em){html.ts-large .wol-learn .wl-hf .wl-htx small:not(.wl-hn){display:none}}
+@container (max-height:12em){html.ts-xlarge .wol-learn .wl-hq .wl-htx small{display:none}}
+@container (max-height:10em){html.ts-xlarge .wol-learn .wl-hf .wl-htx small:not(.wl-hn){display:none}}
+/* the count of open frames may take two lines in a narrow tile (it never runs out of it) */
+.wol-learn .wl-hf .wl-hn{white-space:normal;max-width:100%}
 @container (max-width:6.4em){.wol-learn .wl-gt .wl-veil span{display:none}}
 /* the frames screen (its own screen since 1.3.2; the badges screen links to it) */
 .wol-learn .wl-framesx{gap:.9em;padding:0 1.6em 1.2em;overflow-y:auto;overflow-x:hidden;min-height:0;scrollbar-width:thin}
