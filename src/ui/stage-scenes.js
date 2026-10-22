@@ -911,12 +911,13 @@ export function playStageScene(n, opts = {}) {
     <button class="ss-skip" type="button">${kids ? 'דַּלֵּג' : 'דלג'}</button><i class="ss-wait" aria-hidden="true"></i>`;
   host.appendChild(el);
   const cv = el.querySelector('.ss-cv');
-  let finish = () => { };
+  let finish = () => { }, seek = () => { };
   const promise = new Promise((resolve) => {
     const animals = [];   // the rigged animals of the scene (their holders carry the visual), disposed at the end
     const tCall = performance.now(); let readyMs = -1;
     let S = null, sc = null, raf = 0, done = false, t = 0, last = 0, frames = 0, t0 = performance.now(), endShown = false;
     let hold = opts.at != null ? +opts.at : null;   // a fixed time (shots); seek() moves it (recording a film frame by frame)
+    seek = (x) => { hold = x == null ? null : +x; };
     const onKey = (e) => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); finish(); } };
     const onResize = () => { if (!S) return; const w = el.clientWidth || innerWidth, h = el.clientHeight || innerHeight; S.renderer.setSize(w, h, false); fitCamera(S.camera, w, h); };
     finish = () => {
@@ -964,7 +965,7 @@ export function playStageScene(n, opts = {}) {
       } catch (e) { console.error('stage scene', n, e); finish(); }
     })();
   });
-  running = { promise, finish: () => finish(), seek: (x) => { hold = x == null ? null : +x; } };
+  running = { promise, finish: () => finish(), seek: (x) => seek(x) };
   return promise;
 }
 
