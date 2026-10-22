@@ -2,14 +2,16 @@
 // No three.js here: the start screen (src/ui/ui.js) reads the rank of each island without opening a zone.
 //
 // Storage (per player, core/profiles.js key()):
-//   'web-of-life-photos'   [{ id, sp, sps: [speciesId], zone, t, img (JPEG data URL ≤ 12 kB), pair?: [a, b], visitor?: 1 }]
-//                          newest last, at most 40 (the oldest drops out). Read by src/lab/cabinet.js (img, sp, zone, t,
-//                          id) and src/core/threads.js (sp, zone).
-//   'web-of-life-visitors' [{ id: speciesId, zone, t, img? }]  one per species, the last photo of it (cabinet: "מבקרים נדירים")
-//   'web-of-life-after'    { v: 1, z: { <zone>: { ch: [{ id, lv, t }], pm: { <photoMissionId>: t }, pairs: { 'a>b': t },
-//                            snap: { full|kids: { kinds, links, days, t } } } } }
+//   'web-of-life-photos'   [{ id, sp, sps: [speciesId], zone, t, img (JPEG data URL ≤ 10 kB, 160x120), pair?: [a, b], visitor?: 1 }]
+//                          newest last, at most 24 (the oldest drops out; on a full storage the oldest go first and
+//                          the write is tried once more). Read by src/lab/cabinet.js (img, sp, zone, t, id) and
+//                          src/core/threads.js (sp, zone).
+//   'web-of-life-visitors' [{ id: speciesId, zone, t }]  one per species (no picture: the cabinet shows its card painting)
+//   'web-of-life-after'    { v: 1, z: { <zone>: { ch: [{ id, lv }] (the last 6), cn: challenges done, cp: their rank points,
+//                            pm: { <photoMissionId>: 1 }, pairs: { 'a>b': 1 } (at most 30), snap: { full|kids: { kinds, links, days, t } } } } }
 //                          challenges done, photo missions done, linked pairs photographed, and a snapshot of the island
-//                          taken when the child leaves it (kinds alive, active links, days lived)
+//                          taken when the child leaves it (kinds alive, active links, days lived). 6 players share
+//                          about 5 MB of storage: everything here stays small.
 // Rank (per zone): points from kinds alive, active links, days (the grove: seasons) lived, challenges, rare visitors and
 // photos → one of four ranks (RANKS). rankOf(zone, kids) → { i, name, pts, next, progress, parts }.
 import { key as profileKey } from '../core/profiles.js';
@@ -17,7 +19,7 @@ import { key as profileKey } from '../core/profiles.js';
 export const PHOTOS_KEY = 'web-of-life-photos';
 export const VISITORS_KEY = 'web-of-life-visitors';
 export const AFTER_KEY = 'web-of-life-after';
-export const MAX_PHOTOS = 40;
+export const MAX_PHOTOS = 24;
 
 const ls = () => { try { return window.localStorage || null; } catch (e) { return null; } };
 export function readJSON(base, fb) { try { const s = ls(); const t = s && s.getItem(profileKey(base)); return t ? JSON.parse(t) : fb; } catch (e) { return fb; } }
@@ -29,10 +31,11 @@ export function readPhotos() { const p = readJSON(PHOTOS_KEY, []); return Array.
 export function addPhoto(rec) {
   const list = readPhotos(); list.push(rec);
   while (list.length > MAX_PHOTOS) list.shift();
-  // storage nearly full: drop more of the oldest until it fits (the photos must never break the saves)
-  while (!writeJSON(PHOTOS_KEY, list) && list.length > 1) list.shift();
-  try { window.dispatchEvent(new CustomEvent('wol-progress', { detail: { kind: 'photo', id: rec.sp, zone: rec.zone } })); } catch (e) { }
-  return list;
+  // a full storage: drop the oldest photos and try once more (the photos must never crowd out the saves)
+  let ok = writeJSON(PHOTOS_KEY, list);
+  if (!ok) { list.splice(0, Math.max(1, Math.min(list.length - 1, 6))); ok = writeJSON(PHOTOS_KEY, list); }
+  if (ok) { try { window.dispatchEvent(new CustomEvent('wol-progress', { detail: { kind: 'photo', id: rec.sp, zone: rec.zone } })); } catch (e) { } }
+  return ok ? list : null;
 }
 
 // ─────────────────────────────── rare visitors (one entry per species: the last time it was photographed)
@@ -42,8 +45,9 @@ export function readVisitors() {
   return Object.entries(obj(v)).map(([id, x]) => ({ id, ...obj(x) }));   // a map by id (never written so, but read kindly)
 }
 export function addVisitor(rec) {
-  const list = readVisitors().filter((x) => x.id !== rec.id); list.push(rec);
-  if (!writeJSON(VISITORS_KEY, list)) { const lean = list.map((x) => (x === rec ? x : { id: x.id, zone: x.zone, t: x.t })); writeJSON(VISITORS_KEY, lean); }
+  const list = readVisitors().filter((x) => x.id !== rec.id).map((x) => ({ id: x.id, zone: x.zone, t: x.t }));
+  list.push({ id: rec.id, zone: rec.zone, t: Math.round((rec.t || Date.now()) / 1000) * 1000 });
+  writeJSON(VISITORS_KEY, list);
   try { window.dispatchEvent(new CustomEvent('wol-progress', { detail: { kind: 'visitor', id: rec.id, zone: rec.zone } })); } catch (e) { }
 }
 export const visitorsOf = (zone) => readVisitors().filter((v) => v.zone === zone);
@@ -55,13 +59,20 @@ export function afterStore() {
 }
 export function zoneAfter(zone, S = afterStore()) {
   const z = obj(S.z[zone]);
-  return { ch: Array.isArray(z.ch) ? z.ch.filter((c) => c && c.id) : [], pm: obj(z.pm), pairs: obj(z.pairs), snap: obj(z.snap) };
+  const ch = Array.isArray(z.ch) ? z.ch.filter((c) => c && c.id) : [];
+  return { ch, cn: Math.max(+z.cn || 0, ch.length), cp: Math.max(+z.cp || 0, ch.reduce((t, c) => t + (CH_POINTS[c.lv] || 5), 0)), pm: obj(z.pm), pairs: obj(z.pairs), snap: obj(z.snap) };
 }
 export function updateZone(zone, fn) {
   const S = afterStore(); const z = zoneAfter(zone, S);
-  fn(z); S.z[zone] = z; writeJSON(AFTER_KEY, S);
+  fn(z);
+  // keep it small: the last six challenges (their count and points stay), at most 30 pairs
+  if (z.ch.length > 6) z.ch = z.ch.slice(-6).map((c) => ({ id: c.id, lv: c.lv }));
+  const pk = Object.keys(z.pairs); if (pk.length > 30) for (const k of pk.slice(0, pk.length - 30)) delete z.pairs[k];
+  S.z[zone] = z; writeJSON(AFTER_KEY, S);
   return z;
 }
+// a challenge done: kept as its id and level, counted, its points added
+export function addChallenge(zone, id, lv) { updateZone(zone, (z) => { z.ch.push({ id, lv }); z.cn += 1; z.cp += CH_POINTS[lv] || 5; }); }
 export function snapshot(zone, kids, snap) { updateZone(zone, (z) => { z.snap[kids ? 'kids' : 'full'] = { ...snap, t: Date.now() }; }); }
 
 // ─────────────────────────────── the ranks
@@ -95,7 +106,7 @@ export function rankPoints(zone, kids, live = null) {
     kinds: Math.min(kids ? 32 : 50, n.kinds * (kids ? 4 : 2)),
     links: Math.min(40, n.links),
     days: Math.min(30, n.days),
-    challenges: z.ch.reduce((t, c) => t + (CH_POINTS[c.lv] || 5), 0),
+    challenges: z.cp,
     visitors: Math.min(24, vis * 8),
     photos: Math.min(15, new Set(ph.map((p) => p.sp)).size) + Object.keys(z.pm).length * 5 + Math.min(10, Object.keys(z.pairs).length * 2),
   };

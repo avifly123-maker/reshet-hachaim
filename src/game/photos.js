@@ -1,7 +1,7 @@
 // צילום (1.3.2, area H): the photo mode of the forest. A "צילום" button in the dock (left, under the toolbar) opens a
 // frame with rounded corner brackets (no cross, no crosshair, no centre mark). The child turns and zooms the view as
 // usual; a click on an animal brings it to the middle of the frame. The big round button takes a small JPEG of what is
-// inside the frame (160 px wide, at most 12 kB) and keeps it in 'web-of-life-photos' (src/game/rank.js addPhoto: 40 per
+// inside the frame (160 px wide, at most 10 kB) and keeps it in 'web-of-life-photos' (src/game/rank.js addPhoto: 24 per
 // player, the oldest drops out), with the species that were in the frame. Two species that are linked in the web in
 // one photo count more (src/game/after.js gives the points). The field camera's own view gets the same shutter.
 // "האלבום שלי": every photo of this player, newest first, in one screen without scrolling at 800x460.
@@ -69,16 +69,16 @@ const T = {
   inFrame: ['בתמונה:', 'בַּתְּמוּנָה:'], nobody: ['עוד אין אף אחד בתוך המסגרת', 'עוֹד אֵין אַף אֶחָד בְּתוֹךְ הַמִּסְגֶּרֶת'],
   linked: ['קשר ברשת!', 'קֶשֶׁר בָּרֶשֶׁת!'], saved: ['נשמר באלבום', 'נִשְׁמַר בָּאַלְבּוֹם'], landscape: ['נוף', 'נוֹף'],
   empty: ['עוד אין תמונות באלבום. צלמו משהו!', 'עוֹד אֵין תְּמוּנוֹת בָּאַלְבּוֹם. צַלְּמוּ מַשֶּׁהוּ!'],
-  count: ['{n} תמונות מתוך 40', '{n} תְּמוּנוֹת מִתּוֹךְ 40'], close: ['סגירה', 'סְגִירָה'], also: ['וגם:', 'וְגַם:'],
+  count: ['{n} תמונות מתוך 24', '{n} תְּמוּנוֹת מִתּוֹךְ 24'], close: ['סגירה', 'סְגִירָה'], also: ['וגם:', 'וְגַם:'],
   zones: { amazon: ['באמזונס', 'בָּאָמָזוֹנָס'], grove: ['בחורש', 'בַּחֹרֶשׁ'], reef: ['בשונית', 'בַּשּׁוּנִית'] },
-  oldest: ['כשיש 40 תמונות, הישנה ביותר יוצאת', 'כְּשֶׁיֵּשׁ 40 תְּמוּנוֹת, הַיְּשָׁנָה בְּיוֹתֵר יוֹצֵאת'],
+  oldest: ['כשיש 24 תמונות, הישנה ביותר יוצאת', 'כְּשֶׁיֵּשׁ 24 תְּמוּנוֹת, הַיְּשָׁנָה בְּיוֹתֵר יוֹצֵאת'],
   visitor: ['מבקר נדיר', 'מְבַקֵּר נָדִיר'],
 };
 // a camera: a rounded body, a lens and a small flash window (no tripod, nothing that crosses)
 export const CAM_SVG = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="f" d="M4.5 8h3l1.6-2.4h5.8L16.5 8h3a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5v-8A1.5 1.5 0 0 1 4.5 8z"/><path d="M4.5 8h3l1.6-2.4h5.8L16.5 8h3a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5v-8A1.5 1.5 0 0 1 4.5 8z"/><circle cx="12" cy="13.2" r="3.4"/><circle cx="17.6" cy="10.6" r=".7" fill="currentColor" stroke="none"/></svg>';
 
 const _v = new THREE.Vector3(), _p = new THREE.Vector3();
-const PW = 160, PH = 120, MAX_BYTES = 12000;
+const PW = 160, PH = 120, MAX_BYTES = 10000;
 
 export function createPhotos({ W, reg, camera, canvas, pipe, ui, audio, imv, bus, rig, markers, onShot }) {
   const root = document.getElementById('ui');
@@ -204,8 +204,7 @@ export function createPhotos({ W, reg, camera, canvas, pipe, ui, audio, imv, bus
     const rec = { id: 'ph' + Date.now().toString(36), sp: info.main || '', sps: info.ids.slice(0, 6), zone: W.biomeId, t: Date.now(), img };
     if (info.pairs.length) rec.pair = info.pairs[0];
     if (info.visitors.length) rec.visitor = 1;
-    if (W.kids) rec.k = 1;
-    addPhoto(rec);
+    if (!addPhoto(rec)) return;   // the storage is full even without the oldest photos: nothing is kept
     paintAlbumBtn();
     const res = onShot ? onShot(rec, info, from) || {} : {};
     showPrint(rec, info, res);

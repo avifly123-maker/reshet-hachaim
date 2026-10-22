@@ -12,7 +12,7 @@ import { esc, icon } from '../ui/ui.js';
 import { createPhotos, photoMissions, photoMatches, CAM_SVG } from './photos.js';
 import { createVisitors } from './visitors.js';
 import { createChallenges } from './challenges.js';
-import { rankOf, rankEmblem, zoneAfter, updateZone, snapshot, readPhotos, addVisitor, CH_POINTS } from './rank.js';
+import { rankOf, rankEmblem, zoneAfter, updateZone, snapshot, readPhotos, addVisitor, addChallenge, CH_POINTS } from './rank.js';
 import { makeRng } from '../core/util.js';
 import { visScale } from '../world/animals.js';
 
@@ -70,14 +70,14 @@ export function createAfter({ W, env, reg, scene, camera, canvas, pipe, ui, audi
     if (rec.sp && !before.some((p) => p.sp === rec.sp)) pts += 3;
     const z = zoneAfter(zone); let newPair = false;
     const fresh = info.pairs.map((p) => p.join('>')).filter((k) => !z.pairs[k]);
-    if (fresh.length) { pts += 5 * Math.min(2, fresh.length); newPair = true; updateZone(zone, (zz) => { for (const k of fresh) zz.pairs[k] = Date.now(); }); }
-    for (const a of info.visitors) if (visitors.photographedNow(a)) { addVisitor({ id: a.sp.id, zone, t: Date.now(), img: rec.img }); pts += 10; }
+    if (fresh.length) { pts += 5 * Math.min(2, fresh.length); newPair = true; updateZone(zone, (zz) => { for (const k of fresh) zz.pairs[k] = 1; }); }
+    for (const a of info.visitors) if (visitors.photographedNow(a)) { addVisitor({ id: a.sp.id, zone, t: Date.now() }); pts += 10; }
     if (full()) challenges.onPhoto(info);
     // the photo mission
     const pm = currentPM();
     let pmDone = false;
     if (pm && afterOn && photoMatches(pm, info, W)) {
-      updateZone(zone, (zz) => { zz.pm[pm.id] = Date.now(); });
+      updateZone(zone, (zz) => { zz.pm[pm.id] = 1; });
       const reward = kids ? 20 : 30; pts += reward; pmDone = true;
       ui.missionDone({ title: pm.f, rewardText: kids ? `קִבַּלְתֶּם ${reward} נְקֻדּוֹת` : `${reward} נקודות חיים · דרגת האי עולה` });
       audio && audio.play && audio.play('mission');
@@ -137,12 +137,12 @@ export function createAfter({ W, env, reg, scene, camera, canvas, pipe, ui, audi
   function offerChallenge(announce) {
     if (chOffered || !full()) return;
     chOffered = true;
-    const c = challenges.offer(zoneAfter(zone).ch.length);
+    const c = challenges.offer(zoneAfter(zone).cn);
     if (c && announce) { const g = window.__guide; if (g) setTimeout(() => { if (!disposed) g.say(g.lines('after:challenge'), { key: 'g:after:challenge', tip: true }); }, 16000); }
     paint();
   }
   function challengeDone(c) {
-    updateZone(zone, (z) => { z.ch.push({ id: c.id, lv: c.lv, t: Date.now() }); });
+    addChallenge(zone, c.id, c.lv);
     const reward = [20, 35, 50][c.lv - 1] || 20; W.points += reward;
     ui.missionDone({ title: T.ch + ': ' + c.title, rewardText: `${reward} נקודות חיים · ${CH_POINTS[c.lv]} נקודות לדרגת האי` });
     audio && audio.play && audio.play('mission');
