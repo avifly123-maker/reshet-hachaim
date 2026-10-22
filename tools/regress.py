@@ -25,7 +25,7 @@ SCEN = {
   'players': [{'js': "const P = window.__profiles; ['יוסי', 'מוישי', 'שמוליק'].forEach((n) => P.add(n)); location.reload(); 1"}, {'wait': 10}, {'q': 1},
               {'click': '.st-who'}, {'wait': 1.5}, {'q': 1}, {'shot': 'players'}],
   'map': [{'wait': 6}, {'q': 1}, {'click': '.st-jbar'}, {'wait': 2}, {'q': 1}, {'shot': 'map'}],
-  'tabs': [{'wait': 6}, {'js': OPEN}, {'q': 1}, {'js': "document.querySelectorAll('[data-tab]').forEach((b) => b.dataset.tab === 'sci' && b.click()); 1"}, {'wait': 1}, {'q': 1}, {'shot': 'tab-sci'},
+  'tabs': [{'wait': 6}, {'js': OPEN}, {'wait': 2.5}, {'q': 1}, {'js': "document.querySelectorAll('[data-tab]').forEach((b) => b.dataset.tab === 'sci' && b.click()); 1"}, {'wait': 1}, {'q': 1}, {'shot': 'tab-sci'},
            {'js': "document.querySelectorAll('[data-tab]').forEach((b) => b.dataset.tab === 'learn' && b.click()); 1"}, {'wait': 1}, {'q': 1}, {'shot': 'tab-learn'}],
   'hub': [{'wait': 4}, {'js': OPEN}, {'js': "window.__noRender = true; window.__app.bus.emit('ui:learn', {}); 1"}, {'wait': 12}, {'q': 1}, {'wait': 1}, {'q': 1}, {'shot': 'hub-home'},
           {'js': "window.__wolLearn._go('album'); 1"}, {'wait': 2}, {'q': 1}, {'shot': 'hub-album'},
