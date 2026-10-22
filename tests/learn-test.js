@@ -1,6 +1,6 @@
 // Learning hub test harness. Build: node build.mjs tests/learn-test.js scratch/learn.html --dev
 // Screens: window.__wolLearn._go('home'|'setup'|'quiz'|'end'|'album'|'pack'|'duel', {level, biome})
-import { createLearningHub } from '../src/learn/hub.js';
+import { createLearningHub } from '../src/learn/hub/index.js';
 const ui = document.getElementById('ui');
 ui.className = 'wol';           // same root class as the real game UI (tests the CSS specificity guard)
 const cv = document.getElementById('game');
