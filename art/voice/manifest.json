@@ -2183,5 +2183,35 @@
   "h": "07de46c4cd26",
   "text": "לַתּוּכִינוֹן יֵשׁ שִׁנַּיִם שֶׁנִּרְאוֹת כְּמוֹ מַקּוֹר שֶׁל תֻּכִּי!",
   "ipa": "latuχinˈon jˈeʃ ʃinˈajim ʃeniʁʔˈot kemˈo makˈoʁ ʃˈel tukˈi!"
+ },
+ "hub.robots.1": {
+  "h": "87aee9d9563f",
+  "text": "זוֹ סַדְנַת הָרוֹבּוֹטִים! כָּאן בּוֹנִים רוֹבּוֹט מִתְּכוּנוֹת שֶׁל יְצוּרִים.",
+  "ipa": "zˈo sadnˈat haʁobotˈim! kˈan bonˈim ʁobˈot miteχunˈot ʃˈel jetsuʁˈim."
+ },
+ "hub.robots.2": {
+  "h": "f651aa7fd25e",
+  "text": "קוֹדֶם בּוֹחֲרִים מְשִׂימָה, וְאַחַר כָּךְ גּוּף וּתְכוּנוֹת מֵהַקְּלָפִים שֶׁלָּכֶם.",
+  "ipa": "kˈodem boχaʁˈim mesimˈa, veˈaχaʁ kˈaχ gˈuf utχunˈot mehakelafˈim ʃelaχˈem."
+ },
+ "hub.robots.2.k": {
+  "h": "f004c7e618b4",
+  "text": "קֹדֶם בּוֹחֲרִים מְשִׂימָה, וְאַחַר כָּךְ גּוּף וּתְכוּנוֹת מֵהַקְּלָפִים שֶׁלָּכֶם.",
+  "ipa": "kˈodem boχaʁˈim mesimˈa, veˈaχaʁ kˈaχ gˈuf utχunˈot mehakelafˈim ʃelaχˈem."
+ },
+ "hub.robots.3": {
+  "h": "3eed8089127f",
+  "text": "בַּסּוֹף בּוֹדְקִים אֶת הָרוֹבּוֹט בַּשֶּׁטַח. מוּתָּר לְשַׁפֵּר וּלְנַסּוֹת שׁוּב!",
+  "ipa": "basˈof bodkˈim ˈet haʁobˈot baʃˈetaχ. mutˈaʁ leʃapˈeʁ ulnasˈot ʃˈuv!"
+ },
+ "hub.robots.3.k": {
+  "h": "543665b50213",
+  "text": "בַּסּוֹף בּוֹדְקִים אֶת הָרוֹבּוֹט בַּשֶּׁטַח. מֻתָּר לְשַׁפֵּר וּלְנַסּוֹת שׁוּב!",
+  "ipa": "basˈof bodkˈim ˈet haʁobˈot baʃˈetaχ. mutˈaʁ leʃapˈeʁ ulnasˈot ʃˈuv!"
+ },
+ "hub.robots.4": {
+  "h": "3b8a381277c9",
+  "text": "וּבַכַּפְתּוֹר הַשֵּׁנִי פּוֹתְרִים בְּעָיוֹת בְּעֶזְרַת הַיְּצוּרִים שֶׁבַּקְּלָפִים.",
+  "ipa": "uvakaftˈoʁ haʃenˈi potʁˈim beajˈot beezʁˈat hajetsuʁˈim ʃebakelafˈim."
  }
 }
