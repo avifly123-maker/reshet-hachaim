@@ -166,10 +166,10 @@ async function mission(speciesId, opts = {}) {
     const ban = document.querySelector('.mission-banner');
     const r = ban ? ban.getBoundingClientRect() : null;
     const W = innerHeight < 620 ? 150 : 210, H = innerHeight < 620 ? 136 : 190;
-    const left = r ? Math.min(innerWidth - W - 8, Math.max(8, r.left - W * 0.8)) : innerWidth / 2 - W / 2;
-    const top = r ? Math.max(8, r.top + r.height / 2 - H / 2) : innerHeight * 0.36;
+    // (without a banner: high on the left, clear of the middle where the coach and the cards open)
+    const left = r ? Math.min(innerWidth - W - 8, Math.max(8, r.left - W * 0.8)) : Math.max(8, innerWidth * 0.2 - W / 2);
+    const top = r ? Math.max(8, r.top + r.height / 2 - H / 2) : Math.max(70, innerHeight * 0.16);
     box.style.left = left + 'px'; box.style.top = top + 'px';
-    host().appendChild(box);
     renderer = new THREE.WebGLRenderer({ canvas: cv, alpha: true, antialias: !low, powerPreference: 'low-power' });
     renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.setPixelRatio(low ? 0.75 : Math.min(devicePixelRatio || 1, 1.5)); renderer.setSize(W, H, false); renderer.setClearColor(0x000000, 0);
@@ -181,6 +181,10 @@ async function mission(speciesId, opts = {}) {
     cam.position.set(0, 0.35, 2.6); cam.lookAt(0, 0.05, 0);
     const acts = v.actions || [];
     const kind = acts.includes('fly') && !acts.includes('walk') ? 'swim' : acts.includes('fly') ? 'fly' : 'hop';
+    // the first picture is made before the box shows (a slow computer compiles the shaders first), then the clock starts
+    try { renderer.compile(scene, cam); } catch (e) { }
+    v.update(0.016, { action: kind === 'hop' ? 'idle' : kind === 'fly' ? 'fly' : 'swim' }); renderer.render(scene, cam);
+    host().appendChild(box);
     try { const a = window.__app && window.__app.audio; if (a) setTimeout(() => a.play('pop'), 200); } catch (e) { }
     const t0 = performance.now(); let last = t0;
     await new Promise((res) => {
