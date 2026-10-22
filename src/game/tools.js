@@ -454,7 +454,7 @@ export function createTools(ctx) {
     if (W.missions?.current()?.goal?.type === 'rescue') injuryT = Math.min(injuryT, 25);
     injuryT -= dt; if (injuryT > 0) return;
     injuryT = 150 + Math.random() * 120;
-    const cand = W.animals.filter(a => a.alive && !a.leaving && !a.touring && a.type === 'animal' && a.visible && (a.loco === 'ground' || a.loco === 'flying') && !a.sp.isInsect && (a.loco !== 'flying' || !a.perch));
+    const cand = W.animals.filter(a => a.alive && !a.leaving && !a.touring && !a.visitor && a.type === 'animal' && a.visible && (a.loco === 'ground' || a.loco === 'flying') && !a.sp.isInsect && (a.loco !== 'flying' || !a.perch));
     if (!cand.length) return;
     const a = cand[(Math.random() * cand.length) | 0];
     let cause;

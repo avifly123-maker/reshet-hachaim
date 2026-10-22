@@ -242,7 +242,7 @@ export function createUpdate(ctx) {
   }
   function births() {
     const groups = new Map();
-    for (const a of W.animals) { if (!alive(a) || a.leaving || a.type !== 'animal') continue; if (!groups.has(a.sp.id)) groups.set(a.sp.id, []); groups.get(a.sp.id).push(a); }
+    for (const a of W.animals) { if (!alive(a) || a.leaving || a.visitor || a.type !== 'animal') continue; if (!groups.has(a.sp.id)) groups.set(a.sp.id, []); groups.get(a.sp.id).push(a); }
     for (const [id, arr] of groups) {
       const sp = reg.byId.get(id);
       if (arr.length >= sp.maxCount || W.animals.length >= animalCap(sp)) continue;

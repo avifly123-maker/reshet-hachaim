@@ -25,9 +25,9 @@ export function createEcology(ctx) {
     let n = 0; for (const p of W.plants) if (!SMALL_PLANT.has(p.sp.kind)) n++;
     return n < MAX_PLANTS;
   };
-  W.countAlive = (id) => { let n = 0; for (const p of W.plants) if (p.sp.id === id && alive(p)) n++; for (const a of W.animals) if (a.sp.id === id && alive(a) && !a.leaving) n++; return n; };
+  W.countAlive = (id) => { let n = 0; for (const p of W.plants) if (p.sp.id === id && alive(p)) n++; for (const a of W.animals) if (a.sp.id === id && alive(a) && !a.leaving && !a.visitor) n++; return n; };   /* H: a rare visitor is a guest, not a resident */
   W.countPlaced = (id) => { let n = 0; for (const p of W.plants) if (p.sp.id === id && alive(p) && !p.wild) n++; for (const a of W.animals) if (a.sp.id === id && alive(a) && !a.leaving && !a.visitor) n++; return n; };   /* H: a rare visitor is not placed */
-  W.aliveSpecies = () => { const s = new Set(); for (const p of W.plants) if (alive(p)) s.add(p.sp.id); for (const a of W.animals) if (alive(a) && !a.leaving) s.add(a.sp.id); return [...s]; };
+  W.aliveSpecies = () => { const s = new Set(); for (const p of W.plants) if (alive(p)) s.add(p.sp.id); for (const a of W.animals) if (alive(a) && !a.leaving && !a.visitor) s.add(a.sp.id); return [...s]; };
   W.nearWater = (x, z, r) => {
     if (env.isWater(x, z)) return true;
     for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2; if (env.isWater(x + Math.cos(a) * r, z + Math.sin(a) * r) || env.isWater(x + Math.cos(a) * r * 0.5, z + Math.sin(a) * r * 0.5)) return true; }
