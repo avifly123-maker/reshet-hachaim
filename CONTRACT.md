@@ -25,10 +25,12 @@ tests/rig.js              shared lighting rig for model galleries (ACES tone map
 src/core/util.js          makeRng, hashString, clamp/lerp/smoothstep/damp, makeNoise2D, makeBus, cachedMaterial, jitterColor, mergeGeometries, paint, SEASONS
 src/env/pipeline.js       renderer + post-processing                         (ENV agent)
 src/env/environment/      island, sky, sun/moon, fog, water, weather, shafts  (ENV agent; index.js + one file per part)
-src/models/amazon-plants.js   PLANTS map for amazon                          (AMAZON-PLANTS agent)
-src/models/grove-plants.js    PLANTS map for grove                           (GROVE-PLANTS agent)
-src/models/amazon-animals.js  ANIMALS map for amazon                         (AMAZON-ANIMALS agent)
-src/models/grove-animals.js   ANIMALS map for grove                          (GROVE-ANIMALS agent)
+src/models/amazon-plants/     PLANTS map for amazon                          (AMAZON-PLANTS agent)
+src/models/grove-plants/      PLANTS map for grove                           (GROVE-PLANTS agent)
+src/models/amazon-animals/    ANIMALS map for amazon (+ extra/: ANIMALS_EXTRA) (AMAZON-ANIMALS agent)
+src/models/grove-animals/     ANIMALS map for grove (+ extra/: ANIMALS_EXTRA)  (GROVE-ANIMALS agent)
+                              (1.3.2: each folder = index.js + one file per part, listed in its header; the old
+                              src/models/<biome>-<kind>[-extra].js files only re-export the folders)
 src/data/amazon.js, src/data/grove.js   BIOME content objects                (CONTENT agent)
 src/data/common.js        shared Hebrew labels (relation type names, layer names...) (CONTENT agent)
 docs/sources.md           sources for every fact                             (CONTENT agent)
@@ -127,7 +129,7 @@ ambient particles (dust motes visible in light shafts, pollen, seeds), **light s
 from canopy gaps, aligned with `sun.direction`, fading with sun elevation), fire visuals, season tinting of ground
 (grove: green winter/spring with flower dots, golden-dry summer), drought tint.
 
-## 3. Plant models — `src/models/<biome>-plants.js`
+## 3. Plant models — `src/models/<biome>-plants/` (index.js; `src/models/<biome>-plants.js` re-exports it)
 ```js
 export const PLANTS = { <speciesId>: (opts) => PlantVisual, ... }
 opts = { seed, rng (makeRng(seed)), hostHeight?, hostRadius? }   // host* only for 'liana'
@@ -152,7 +154,7 @@ with leaves along it and a burst at the top. bromeliad/orchid: rosette meant to 
 waterlily: big round pads with upturned rims + a flower, origin on the water surface. glowfungus: cluster of small
 mushrooms that glow green at night. fig: the strangler fig (aerial roots wrapping a trunk, broad canopy, figs).
 
-## 4. Animal models — `src/models/<biome>-animals.js`
+## 4. Animal models — `src/models/<biome>-animals/` (index.js, and extra/; `src/models/<biome>-animals[-extra].js` re-export them)
 ```js
 export const ANIMALS = { <speciesId>: (opts) => AnimalVisual | ColonyVisual | SwarmVisual }
 AnimalVisual = {
