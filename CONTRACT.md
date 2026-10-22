@@ -32,7 +32,7 @@ src/models/grove-animals.js   ANIMALS map for grove                          (GR
 src/data/amazon.js, src/data/grove.js   BIOME content objects                (CONTENT agent)
 src/data/common.js        shared Hebrew labels (relation type names, layer names...) (CONTENT agent)
 docs/sources.md           sources for every fact                             (CONTENT agent)
-src/ui/ui.js + src/ui/style.css   DOM overlay UI                             (UI agent)
+src/ui/ui/ + src/ui/style.css     DOM overlay UI (index.js + one file per part; src/ui/ui.js re-exports it) (UI agent)
 src/audio/audio.js        procedural Web Audio                               (AUDIO agent)
 src/main.js, src/sim/*, src/world/*   core loop, light map, ecology, entities, links, camera (CORE – lead)
 ```
@@ -214,7 +214,7 @@ Effect types (core implements exactly these):
   {type:'boost', species, amount} | {type:'plant', species, count, where:'gap'|'any'}
 ```
 
-## 6. UI — `src/ui/ui.js` (+ `src/ui/style.css`)
+## 6. UI — `src/ui/ui/` (index.js; the parts are listed in its header; `src/ui/ui.js` re-exports it) (+ `src/ui/style.css`)
 `export function createUI(root, bus) → ui` — DOM overlay over the canvas, RTL Hebrew. Talks to core only through
 the methods below (core → UI) and `bus.emit(name, payload)` (UI → core). See the UI agent brief for the exact list.
 
