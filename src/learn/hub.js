@@ -1581,7 +1581,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   const INTRO_OF = { home: 'learn', setup: 'quiz', album: 'album', duel: 'duel', webpuzzle: 'webpuzzle', keepforest: 'keepforest', inventors: 'inventors', expedition: 'expedition', badges: 'badges', frames: 'frames', versematch: 'versematch' };
   const locked = (part) => { try { return !isOpen(part); } catch (e) { return false; } };
   const guide = () => (typeof window !== 'undefined' && window.__guide) || null;
-  let tipAt = 0, guideMine = false;
+  let tipAt = 0, guideMine = false, entered = null;
   // a click on a veiled part: רובו־דע says what opens it (one short bubble; a second click soon after does not stack another)
   function lockTip(part) {
     const info = lockInfo(part); if (!info) return;
@@ -1643,16 +1643,17 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
       if (main.firstElementChild && screen !== name) return;
       name = 'home';
     }
+    if (name === 'versematch' && !srcOn()) name = 'home';   // the torah edition's game, only while the sources are on
     clearTimers(); closeModal(); setsOpen = false;
+    const entering = entered !== name; entered = name;   // a repaint of the same screen does not present it again
     if (name === 'home') returnTo = null;
     if (gameInst) { try { gameInst.destroy && gameInst.destroy(); } catch (e) { console.warn(e); } gameInst = null; }
-    if (name === 'versematch' && !srcOn()) name = 'home';   // the torah edition's game, only while the sources are on
     if (name === 'frames') PARENT.frames = screen === 'badges' ? 'badges' : 'home';
     if (GAMES[name]) {
       screen = name; $('.wl-crumb').textContent = TITLES[name]; $('.wl-back span').textContent = returnTo === name ? (MODE === 'kids' ? 'חֲזָרָה לַמַּעְבָּדָה' : 'חזרה למעבדה') : 'חזרה'; updateChip(false);
       main.innerHTML = '';
       try { gameInst = GAMES[name](main, GAME_CTX, opts) || null; } catch (e) { console.error(e); main.innerHTML = '<p style="padding:2em">אירעה תקלה במשחק.</p>'; }
-      main.scrollTop = 0; introFor(name); return;
+      main.scrollTop = 0; if (entering) introFor(name); return;
     }
     screen = name;
     $('.wl-crumb').textContent = TITLES[name] || '';
@@ -1661,7 +1662,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     ({ home: renderHome, setup: renderSetup, quiz: () => startQuiz(opts), end: renderEnd, album: renderAlbum, pack: renderPack, duel: () => startDuel(), badges: renderBadges, frames: renderFrames })[name]();
     main.scrollTop = 0;
     if (screen === name && ['album', 'pack', 'badges', 'frames'].includes(name)) played();   // looking through them is using them
-    if (screen === name) introFor(name);
+    if (screen === name && entering) introFor(name);
   }
   // opened from the lab (the inventors table): "חזרה" on that screen goes straight back to the lab
   let returnTo = null;
@@ -2432,7 +2433,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   }
   function close() {
     if (!open_) return;
-    open_ = false; clearTimers(); closeModal(); el.hidden = true; rootEl.classList.remove('wl-hubopen');
+    open_ = false; entered = null; clearTimers(); closeModal(); el.hidden = true; rootEl.classList.remove('wl-hubopen');
     if (guideMine) { const g = guide(); try { g && g.isOpen() && g.close(); } catch (e) { /* */ } guideMine = false; }
     window.removeEventListener('keydown', onKey, true);
     window.removeEventListener('resize', onResize);
