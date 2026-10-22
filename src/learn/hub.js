@@ -1366,7 +1366,7 @@ const ICON_CSS = `
    middle: the album, big; left: the card games as small tiles. The words a child reads grow with var(--ts) (text size).
    Sizes inside the tiles follow the tile (container units), so the same page fits a small laptop and a big screen. */
 const HOME_CSS = `
-.wol-learn .wl-screen.wl-home{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr) minmax(0,1.05fr);gap:1.1em;width:100%;max-width:96em;max-height:46em;margin:auto;padding:.2em 1.4em 1.3em;align-items:stretch;overflow:hidden}
+.wol-learn .wl-screen.wl-home{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr) minmax(0,1.05fr);gap:1.1em;width:100%;max-width:100em;max-height:52em;margin:auto;padding:.2em 1.4em 1.3em;align-items:stretch;overflow:hidden}
 .wol-learn .wl-hside{display:grid;grid-template-rows:minmax(0,1.1fr) minmax(0,1fr) minmax(0,1fr);gap:.9em;min-height:0;min-width:0}
 .wol-learn .wl-ht{position:relative;display:flex;min-height:0;min-width:0;border-radius:1.2em;overflow:hidden;text-align:right;transition:transform .2s,box-shadow .2s}
 .wol-learn .wl-ht:hover:not(.is-veiled),.wol-learn .wl-ht:focus-visible{transform:translateY(-3px);box-shadow:0 16px 36px rgba(0,0,0,.42),inset 0 0 0 4px rgba(255,255,255,.22)}
@@ -1385,10 +1385,11 @@ const HOME_CSS = `
 .wol-learn .wl-hq .wl-qbadge .wl-ic{width:100%;height:100%}
 /* my badges */
 .wol-learn .wl-hb{flex-direction:column;gap:.3em;padding:.6em .9em .5em;background:radial-gradient(circle at 12% 100%,rgba(246,207,114,.5),transparent 60%),linear-gradient(180deg,#f7ecd2,#e9d6a6)}
-.wol-learn .wl-hrow{display:flex;align-items:center;gap:.5em;justify-content:space-between}
+.wol-learn .wl-hrow{display:flex;align-items:center;flex-wrap:wrap;gap:.15em .5em;justify-content:space-between}
+.wol-learn .wl-hb .wl-hh{white-space:nowrap}
 .wol-learn .wl-hrow .wl-hn{align-self:center}
 .wol-learn .wl-hbrow{flex:1;min-height:0;display:flex;align-items:center;justify-content:space-evenly;gap:.2em;container-type:size}
-.wol-learn .wl-hbrow .bdg{--bs:min(5.4em,29cqw,92cqh);width:auto;pointer-events:none}
+.wol-learn .wl-hbrow .bdg{--bs:min(7.4em,29cqw,92cqh);width:auto;pointer-events:none}
 .wol-learn .wl-hbrow .bdg-rib{display:none}
 .wol-learn .wl-hempty{font-size:calc(.95em * var(--ts,1));color:#5a4a30;text-align:center;line-height:1.3;font-weight:600}
 /* my frames */
@@ -1399,7 +1400,7 @@ const HOME_CSS = `
 .wol-learn .wl-hmid{position:relative;display:flex;min-height:0;min-width:0}
 .wol-learn .wl-ha{flex:1;flex-direction:column;background:radial-gradient(circle at 50% 40%,rgba(240,180,76,.6),transparent 58%),linear-gradient(180deg,#f5e3b8,#e0c286)}
 .wol-learn .wl-hfan{position:relative;flex:1;min-height:0;width:100%;container-type:size}
-.wol-learn .wl-hfan .wl-card{--cw:min(11.5em,34cqw,64cqh);position:absolute;left:50%;top:50%;margin:-6.6em 0 0 -5em;pointer-events:none;transition:transform .3s}
+.wol-learn .wl-hfan .wl-card{--cw:min(14em,32cqw,62cqh);position:absolute;left:50%;top:50%;margin:-6.6em 0 0 -5em;pointer-events:none;transition:transform .3s}
 .wol-learn .wl-hfan .wl-card:nth-child(1){transform:translateX(-6.4em) rotate(-11deg)}
 .wol-learn .wl-hfan .wl-card:nth-child(2){transform:translateY(-.6em);z-index:2}
 .wol-learn .wl-hfan .wl-card:nth-child(3){transform:translateX(6.4em) rotate(11deg)}
@@ -1423,8 +1424,8 @@ const HOME_CSS = `
   background:radial-gradient(circle at 50% 28%,color-mix(in srgb,var(--tc) 34%,transparent),transparent 62%),linear-gradient(180deg,#fbf6e5,#e8ddbd);border:1px solid var(--edge);
   box-shadow:0 .28em 0 color-mix(in srgb,var(--tc) 60%,#5a4a26),0 8px 18px rgba(0,0,0,.28);transition:transform .15s,box-shadow .15s}
 .wol-learn .wl-gt:hover:not(.is-veiled),.wol-learn .wl-gt:focus-visible{transform:translateY(-3px) rotate(-.6deg);box-shadow:0 .28em 0 color-mix(in srgb,var(--tc) 60%,#5a4a26),0 14px 26px rgba(0,0,0,.38)}
-.wol-learn .wl-gt .wl-tic{font-size:min(2.5em,30cqh);border-radius:.32em}
-.wol-learn .wl-gt b{font-family:var(--serif);font-weight:700;font-size:calc(1.06em * var(--ts,1));line-height:1.12;max-width:100%}
+.wol-learn .wl-gt .wl-tic{font-size:min(3.4em,30cqh,28cqw);border-radius:.32em}
+.wol-learn .wl-gt b{font-family:var(--serif);font-weight:700;font-size:calc(clamp(1.06em,8cqw,1.5em) * var(--ts,1));line-height:1.12;max-width:100%}
 /* a part that is not open yet: dimmed, a soft curtain of stripes, and what opens it (no padlock: it reads as a cross) */
 .wol-learn .is-veiled{cursor:help}
 .wol-learn .is-veiled>:not(.wl-veil){filter:grayscale(.75) brightness(.86);opacity:.55}
@@ -1432,7 +1433,12 @@ const HOME_CSS = `
 .wol-learn .wl-veil{position:absolute;inset:auto 0 0 0;z-index:4;display:flex;align-items:center;justify-content:center;gap:.4em;padding:.9em .6em .5em;
   background:linear-gradient(180deg,rgba(28,40,26,0),rgba(28,40,26,.85) 40%);color:#f6eed0;font-weight:800;font-size:calc(.84em * var(--ts,1));line-height:1.2;text-align:center;text-shadow:0 1px 3px rgba(0,0,0,.5)}
 .wol-learn .wl-veil .wl-ic{width:1.35em;height:1.35em;color:#f6cf72}
-.wol-learn .wl-gt .wl-veil{padding:.6em .3em .35em;font-size:calc(.78em * var(--ts,1))}
+/* a small game tile keeps its name readable: the words of what opens it sit under the name as a dark pill */
+.wol-learn .wl-gt.is-veiled{gap:.25em}
+.wol-learn .wl-gt.is-veiled>b{opacity:.78;filter:none}
+.wol-learn .wl-gt.is-veiled .wl-tic{font-size:min(2.6em,22cqh,24cqw)}
+.wol-learn .wl-gt .wl-veil{position:relative;inset:auto;max-width:100%;padding:.22em .6em;border-radius:.8em;gap:.3em;background:rgba(28,40,26,.82);font-size:calc(.76em * var(--ts,1));box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.wol-learn .wl-gt .wl-veil .wl-ic{width:1.15em;height:1.15em;flex:none}
 @media (max-height:540px){.wol-learn .wl-screen.wl-home{gap:.75em;padding:.1em .9em .75em}.wol-learn .wl-hside{gap:.6em}.wol-learn .wl-hgrid{gap:.5em}.wol-learn .wl-hab{padding:.25em 1.1em .7em}
   .wol-learn .wl-hh.big{font-size:calc(1.55em * var(--ts,1))}.wol-learn .wl-hh{font-size:calc(1.25em * var(--ts,1))}.wol-learn .wl-hgh{font-size:calc(1.08em * var(--ts,1))}.wol-learn .wl-gt b{font-size:calc(.98em * var(--ts,1))}}
 @container (max-height:6.6em){.wol-learn .wl-hq .wl-htx small{display:none}}
@@ -1737,28 +1743,9 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   /* ── badges: the ones this edition shows (the torah edition's own only while "מקורות ופסוקים" is on) */
   const visB = (x) => !x.torah || srcOn();
   const vBadges = () => { const own = ownedBadges(); return BADGES.filter((b) => visB(b) && (!b.retired || own[b.id])); };   /* a retired badge shows only to who earned it */
-  // the next badge worth aiming for: a first step in each corner of the hub, then the rest in order
-  const NEXT_FIRST = ['b_vm1', 'b_inv1', 'b_deep1', 'b_rs1', 'b_scope', 'b_fair', 'b_minireef', 'b_vmeye', 'b_inv5', 'b_q5', 'b_deepcave', 'b_rs3'];
-  function nextBadge() {
-    const own = ownedBadges(), list = vBadges().filter((b) => !own[b.id]);
-    for (const id of NEXT_FIRST) { const b = list.find((x) => x.id === id); if (b) return b; }
-    return list[0] || null;
-  }
   // a badge you can point at: it grows, and shows its name and how it is earned; a click (or a touch) opens it big
   const bzHTML = (b, own, cls = '') => `<button class="wl-bz ${cls}" data-wl="bzoom" data-b="${b.id}" aria-label="${esc(own ? b.name + ': ' + b.how : 'תג נעול: ' + b.how)}">${badgeHTML(b, { own, peek: !own && cls.includes('next') })}
     <span class="wl-btip" aria-hidden="true"><b>${esc(own ? b.name : 'עוד לא: ' + b.name)}</b><small>${esc(b.how)}</small></span></button>`;
-  // the hub's home: the newest badges, big, and the next one to aim for (in place of the old sources switch)
-  function badgeShowHTML() {
-    const own = ownedBadges(), mine = vBadges().filter((b) => own[b.id]).sort((a, b) => own[b.id] - own[a.id]);
-    const nx = nextBadge();
-    return `<section class="wl-bshow paper">
-      <div class="wl-bs-new"><h3>${tileIcon('medal', 'wl-tic')}${mine.length ? 'התגים החדשים שלי' : 'התגים שלי'}</h3>
-        ${mine.length ? `<div class="wl-bs-row">${mine.slice(0, 3).map((b) => bzHTML(b, true)).join('')}</div>`
-          : '<p class="wl-bs-empty">עוד אין לכם תגים. תגים מקבלים במשימות מומחים, במשחקים, במעבדה ובתעלומות.</p>'}</div>
-      ${nx ? `<div class="wl-bs-next"><small>התג הבא שאפשר להשיג</small>${bzHTML(nx, false, 'next')}</div>` : ''}
-      <button class="wl-btn wl-bs-all" data-wl="badges">${icon('medal')}<span>כל התגים</span><b>${mine.length}/${vBadges().length}</b></button>
-    </section>`;
-  }
   function bzoom(id) {
     const b = BADGES.find((x) => x.id === id); if (!b) return;
     const own = ownedBadges(), g = BADGE_GROUPS.find((x) => x.id === b.group);
@@ -1782,17 +1769,31 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     modal.hidden = false;
   }
 
-  /* ── the badges (תגים) and the album frames they open */
+  /* ── the badges (תגים); the frames they open have their own screen (1.3.2), linked from here */
   function renderBadges() {
-    const own = ownedBadges(), cur = chosenFrame(), open = new Set(openFrames().map((f) => f.id));
+    const own = ownedBadges();
+    const frV = locked('frames');
     main.innerHTML = `<section class="wl-screen wl-badges">
-      <div class="wl-bhead paper"><b>${tileIcon('medal', 'wl-tic')}התגים שלי</b><span>אספתם ${vBadges().filter((b) => own[b.id]).length} מתוך ${vBadges().length}</span></div>
+      <div class="wl-bhead paper"><b>${tileIcon('medal', 'wl-tic')}התגים שלי</b><span>אספתם ${vBadges().filter((b) => own[b.id]).length} מתוך ${vBadges().length}</span>
+        <button class="wl-btn${frV ? ' is-veiled' : ''}" ${frV ? 'data-wl="locked" data-part="frames"' : 'data-wl="frames"'}>${icon('frame')}<span>המסגרות שלי</span></button></div>
       ${BADGE_GROUPS.filter(visB).map((g) => { const list = vBadges().filter((b) => b.group === g.id); const have = list.filter((b) => own[b.id]).length;
         return `<section class="wl-bgroup" style="--bg1:${g.col};--bg2:${g.col2}"><h3><span>${tileIcon(BGROUP_IC[g.id] || 'medal', 'wl-tic')}${esc(g.name)}</span><small>${have} מתוך ${list.length}</small></h3>
           <div class="wl-bgrid">${list.map((b) => bzHTML(b, !!own[b.id])).join('')}</div></section>`; }).join('')}
-      <section class="wl-frames paper"><h3>${icon('frame')}מסגרות לקלפים באלבום</h3><p>כל קבוצת תגים פותחת מסגרת. בחרו מסגרת, והיא תופיע על כל הקלפים שלכם באלבום.</p>
-        <div class="wl-frow">${FRAMES.filter(visB).map((f) => { const g = BADGE_GROUPS.find((x) => x.id === f.group);
-          return `<button class="wl-frame fr-${f.id}${cur === f.id ? ' sel' : ''}" data-wl="frame" data-f="${f.id}" ${open.has(f.id) ? '' : 'disabled'}><span class="wl-fsw"></span><b>${esc(f.name)}</b><small>${open.has(f.id) ? (cur === f.id ? 'נבחרה' : 'אפשר לבחור') : f.group === 'all' ? `נפתחת עם ${f.need} תגים` : `נפתחת עם ${f.need} תגים של ${esc(g ? g.short : '')}`}</small></button>`; }).join('')}</div></section>
+    </section>`;
+  }
+  /* ── my frames: choose the frame of the album cards (each group of badges opens one) */
+  function renderFrames() {
+    const cur = chosenFrame(), open = new Set(openFrames().map((f) => f.id));
+    const sample = CARD.get(FRAME_SAMPLE.find((id) => S.owned[id]) || Object.keys(S.owned).find((id) => CARD.has(id)) || FRAME_SAMPLE[0]);
+    const list = FRAMES.filter(visB);
+    main.innerHTML = `<section class="wl-screen wl-framesx">
+      <section class="wl-frames paper">
+        <div class="wl-fprev">${sample ? cardHTML(sample, { cls: cur !== 'none' ? 'fr-' + cur : '' }) : ''}</div>
+        <h3>${icon('frame')}מסגרות לקלפים באלבום</h3>
+        <p>כל קבוצת תגים פותחת מסגרת. בחרו מסגרת, והיא תופיע על כל הקלפים שלכם באלבום. פתוחות: ${list.filter((f) => open.has(f.id)).length} מתוך ${list.length}</p>
+        <div class="wl-frow">${list.map((f) => { const g = BADGE_GROUPS.find((x) => x.id === f.group);
+          return `<button class="wl-frame fr-${f.id}${cur === f.id ? ' sel' : ''}" data-wl="frame" data-f="${f.id}" ${open.has(f.id) ? '' : 'disabled'}><span class="wl-fsw"></span><b>${esc(f.name)}</b><small>${open.has(f.id) ? (cur === f.id ? 'נבחרה' : 'אפשר לבחור') : f.group === 'all' ? `נפתחת עם ${f.need} תגים` : `נפתחת עם ${f.need} תגים של ${esc(g ? g.short : '')}`}</small></button>`; }).join('')}</div>
+      </section>
     </section>`;
   }
 
@@ -2372,12 +2373,15 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
       setSourcesOn(!sourcesOn()); sfx('click');
       if (!sourcesOn() && (filter === 'src' || (filter.startsWith('set:') && SET_BY.get(filter.slice(4))?.torah))) filter = 'all';
       if (screen === 'versematch' && !sourcesOn()) go('home');
-      else if (['home', 'album', 'setup', 'badges'].includes(screen)) go(screen);
+      else if (['home', 'album', 'setup', 'badges', 'frames'].includes(screen)) go(screen, { force: true });
       openSettings();
     },
     settings: () => openSettings(), bzoom: (t) => bzoom(t.dataset.b),
     duel: () => { sfx('click'); go('duel'); }, play: (t) => playCard(+t.dataset.k), dnext: duelNext,
-    badges: () => { sfx('click'); go('badges'); }, frame: (t) => { if (chooseFrame(t.dataset.f)) { sfx('select'); renderBadges(); } },
+    badges: () => { sfx('click'); go('badges'); }, frames: () => { sfx('click'); go('frames'); },
+    frame: (t) => { if (chooseFrame(t.dataset.f)) { sfx('select'); if (screen === 'frames') renderFrames(); else renderBadges(); } },
+    // a veiled part (מסע החוקר): רובו־דע says what opens it
+    locked: (t) => lockTip(t.dataset.part),
   };
   // low screens: the set chips are one scrolling row; the mouse wheel moves it sideways
   el.addEventListener('wheel', (e) => {
@@ -2400,20 +2404,29 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     else if ((e.key === 'Enter' || e.key === ' ') && e.target && e.target.matches && e.target.matches('[data-wl][role=button]')) { e.preventDefault(); e.target.click(); }
   };
 
+  // something opened or was used (מסע החוקר): repaint the screens that show locks (a game in play is left alone)
+  let journeyT = 0;
+  function onJourney() {
+    clearTimeout(journeyT);
+    journeyT = setTimeout(() => { if (!open_ || !modal.hidden) return; if (screen === 'home') renderHome(); else if (screen === 'badges') renderBadges(); }, 60);
+  }
   function open() {
     if (open_) return;
     reloadState(); readMode(); paintWho(); // the start screen may have switched player or מתחילים / מתקדמים since the hub was created
-    open_ = true; el.hidden = false;
+    open_ = true; el.hidden = false; rootEl.classList.add('wl-hubopen');
     window.addEventListener('keydown', onKey, true);
     window.addEventListener('resize', onResize);
+    window.addEventListener('wol-journey', onJourney);
     go('home');
     try { $('.wl-back').focus({ preventScroll: true }); } catch (e) { /* */ }
   }
   function close() {
     if (!open_) return;
-    open_ = false; clearTimers(); closeModal(); el.hidden = true;
+    open_ = false; clearTimers(); closeModal(); el.hidden = true; rootEl.classList.remove('wl-hubopen');
+    if (guideMine) { const g = guide(); try { g && g.isOpen() && g.close(); } catch (e) { /* */ } guideMine = false; }
     window.removeEventListener('keydown', onKey, true);
     window.removeEventListener('resize', onResize);
+    window.removeEventListener('wol-journey', onJourney);
     sfx('click');
     try { onClose && onClose(); } catch (e) { console.warn(e); }
   }
@@ -2421,7 +2434,8 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   try {
     window.__wolLearn = {
       ...api,
-      _go: (name, opts) => { if (!open_) open(); go(name, opts); return screen; },
+      _go: (name, opts) => { if (!open_) open(); go(name, { force: true, ...(opts || {}) }); return screen; },
+      _locks: () => [...el.querySelectorAll('.is-veiled[data-part]')].map((x) => x.dataset.part),
       _answer: (right = true) => { if (!Q) return; const k = Q.qs[Q.i].options.findIndex((o) => !!o.ok === !!right); answer(k < 0 ? 0 : k); },
       _tear: tearPack, _play: (k = 0) => playCard(k), _zoom: zoom,
       _collect: (n = CARDS.length) => { if (!open_) reloadState(); sample(CARDS, n).forEach((c) => { S.owned[c.id] = (S.owned[c.id] || 0) + 1; }); save(); if (open_ && screen === 'album') renderAlbum(); else checkSets(); return ownedCount(); },
