@@ -4,6 +4,7 @@
 //   desktop – its own app id and data folder (desktop/builder-torah.json);
 //   browser – the torah edition keeps its keys under 'torah:' (the shim below), so both files can live side by side.
 /* global __EDITION__ */
+import { K, readDeviceRaw, writeDeviceRaw } from './storage.js';
 export const EDITION = typeof __EDITION__ !== 'undefined' ? __EDITION__ : 'general';
 export const TORAH = EDITION === 'torah';
 export const EDITION_NAME = TORAH ? 'מהדורה תורנית' : '';
@@ -18,12 +19,12 @@ if (TORAH && typeof window !== 'undefined' && !window.wolDesktop && typeof Stora
   } catch (e) { /* storage unavailable */ }
 }
 
-const SRC_KEY = 'web-of-life-sources';
+// the switch is for the whole computer (core/storage.js K.sources)
 export function sourcesOn() {
   if (!TORAH) return false;
-  try { return localStorage.getItem(SRC_KEY) !== 'off'; } catch (e) { return true; }
+  return readDeviceRaw(K.sources) !== 'off';
 }
 export function setSourcesOn(on) {
-  try { localStorage.setItem(SRC_KEY, on ? 'on' : 'off'); } catch (e) { /* */ }
+  writeDeviceRaw(K.sources, on ? 'on' : 'off');
   try { window.dispatchEvent(new CustomEvent('wol-sources', { detail: !!on })); } catch (e) { /* */ }
 }
