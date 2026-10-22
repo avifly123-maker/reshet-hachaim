@@ -6,7 +6,9 @@
     "build": "node build.mjs",
     "build:torah": "node build.mjs --edition=torah",
     "build:desktop": "node build.mjs --desktop",
-    "validate": "node tools/validate-content.mjs && node tools/validate-kids.mjs"
+    "validate": "bash tools/check-all.sh --quick",
+    "check": "bash tools/check-all.sh",
+    "check:quick": "bash tools/check-all.sh --quick"
   },
   "author": "Avi Fleischman",
   "license": "UNLICENSED",
