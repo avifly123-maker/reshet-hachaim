@@ -85,7 +85,7 @@ export function createAfter({ W, env, reg, scene, camera, canvas, pipe, ui, audi
     W.points += pts;
     const g = window.__guide;
     if (g) {
-      if (pmDone) setTimeout(() => g.say(g.lines('after:pmdone'), { tip: true }), 4400);
+      if (pmDone) setTimeout(() => { if (!disposed) g.say(g.lines('after:pmdone'), { tip: true }); }, 4400);
       else if (newPair) g.say(g.lines('after:pair'), { key: 'g:after:pair', tip: true });
     }
     paint(); rankCheck(true);
