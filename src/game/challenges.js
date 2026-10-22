@@ -24,7 +24,7 @@ export const TEMPLATES = [
       return { title: `צלמו ${n} מינים שונים`, how: 'לחצו על "צילום" משמאל, כוונו וצלמו.', goal: { kind: 'photos', n } }; } },
   { id: 'pairs', ok: () => true,
     make: (lv) => { const n = lv;
-      return { title: n === 1 ? 'צלמו שני מינים שקשורים זה לזה' : `צלמו ${n} זוגות של מינים שקשורים זה לזה`, how: 'למשל ציפור ליד העץ שהיא אוכלת ממנו, באותה תמונה.', goal: { kind: 'pairs', n } }; } },
+      return { title: n === 1 ? 'צלמו שני מינים שקשורים זה לזה' : `צלמו ${n} זוגות של מינים קשורים`, how: 'למשל ציפור ליד העץ שהיא אוכלת ממנו, באותה תמונה.', goal: { kind: 'pairs', n } }; } },
   { id: 'visitor', ok: (c) => c.visitorsPossible(),
     make: (lv) => ({ title: lv >= 3 ? 'צלמו שני מבקרים נדירים' : 'משכו מבקר נדיר וצלמו אותו', how: 'מבקר נדיר בא כשיש לו מה שהוא מחפש: אוכל, עצים גבוהים או מחבוא.', goal: { kind: 'visitor', n: lv >= 3 ? 2 : 1 } }) },
   { id: 'chain', ok: (c) => c.chain() < 5,
@@ -32,10 +32,10 @@ export const TEMPLATES = [
       return { title: `בנו שרשרת מזון של ${n} חוליות`, how: 'צמח, מי שאוכל אותו, ומי שאוכל אותו. בכרטיסים רואים מי אוכל את מי.', goal: { kind: 'chain', n } }; } },
   { id: 'kinds', ok: (c) => c.kinds() + 2 <= c.total(),
     make: (lv, c) => { const n = Math.min(c.total(), c.kinds() + [2, 3, 4][lv - 1]);
-      return { title: `הביאו ${zoneWord('to')} ${n} מינים חיים`, how: 'מינים שחיים יחד וניזונים זה מזה נשארים.', goal: { kind: 'kinds', n } }; } },
+      return { title: `הגיעו ל־${n} מינים חיים ${zoneWord('in')}`, how: 'מינים שחיים יחד וניזונים זה מזה נשארים.', goal: { kind: 'kinds', n } }; } },
   { id: 'health', ok: () => true,
     make: (lv) => { const p = [55, 65, 75][lv - 1], s = [60, 90, 120][lv - 1];
-      return { title: `החזיקו את הבריאות של ${zoneWord()} מעל ${p}% במשך ${s} שניות`, how: 'הרבה מינים, צמחים בריאים ובעלי חיים שבעים.', goal: { kind: 'health', p: p / 100, s } }; } },
+      return { title: `שמרו על בריאות מעל ${p}% במשך ${s} שניות`, how: 'הרבה מינים, צמחים בריאים ובעלי חיים שבעים.', goal: { kind: 'health', p: p / 100, s } }; } },
 ];
 
 export const levelOf = (done) => Math.min(3, 1 + Math.floor(done / 3));

@@ -43,7 +43,7 @@ export function createAfter({ W, env, reg, scene, camera, canvas, pipe, ui, audi
 
   // ── the parts
   let visitors = null;
-  const photos = createPhotos({ W, reg, camera, canvas, pipe, ui, audio, imv, bus, rig, onShot: (rec, info) => onPhoto(rec, info) });
+  const photos = createPhotos({ W, reg, camera, canvas, pipe, ui, audio, imv, bus, rig, markers, onShot: (rec, info) => onPhoto(rec, info) });
   visitors = createVisitors({ W, env, reg, ui, audio, markers, rig, imv, spawnAnimal, art, Q, photoOpen: () => photos.isOpen, openPhoto: () => photos.open() });
   const chCtx = {
     grove: zone === 'grove',
@@ -108,9 +108,10 @@ export function createAfter({ W, env, reg, scene, camera, canvas, pipe, ui, audi
     const simple = !full();
     const pmRow = pm ? `<button type="button" class="af-row af-pm"><i class="af-ric">${CAM_SVG}</i><span><small>${esc(t('pm'))}</small><b>${esc(pm.f)}</b><em>${esc(pm.hint || '')}</em></span></button>`
       : `<div class="af-row af-pm all"><i class="af-ric">${icon('check')}</i><span><small>${esc(t('pmAll'))}</small><b>${esc(t('pmMore'))}</b></span></div>`;
-    const chRow = ch ? `<button type="button" class="af-row af-ch${ch.done ? ' done' : ''}${chOpen ? ' open' : ''}"><span class="af-lv" aria-label="${T.lv} ${ch.lv}">${[1, 2, 3].map((k) => `<i class="${k <= ch.lv ? 'on' : ''}"></i>`).join('')}</span>
-        <span><small>${esc(T.ch)}</small><b>${esc(ch.done ? T.chNext : ch.title)}</b>${chOpen && !ch.done ? `<em>${esc(ch.how)}</em>` : ''}</span>
-        <span class="af-pc" style="--p:${Math.round((ch.progress || 0) * 100)}%">${ch.done ? icon('check') : Math.round((ch.progress || 0) * 100) + '%'}</span></button>` : '';
+    const pc = ch ? Math.round((ch.progress || 0) * 100) : 0;
+    const chRow = ch ? `<button type="button" class="af-row af-ch${ch.done ? ' done' : ''}${chOpen ? ' open' : ''}">
+        <span><small><i class="af-lv" aria-label="${T.lv} ${ch.lv}">${[1, 2, 3].map((k) => `<i class="${k <= ch.lv ? 'on' : ''}"></i>`).join('')}</i>${esc(T.ch)}<i class="af-pc" style="--p:${pc}%">${ch.done ? icon('check') : pc + '%'}</i></small>
+        <b>${esc(ch.done ? T.chNext : ch.title)}</b>${chOpen && !ch.done ? `<em>${esc(ch.how)}</em>` : ''}</span></button>` : '';
     const html = `<header class="af-head">${rankEmblem(zone, r.i)}<span><small>${esc(t('title'))}</small><b>${esc(r.name)}</b></span>
         ${simple || r.next == null ? '' : `<i class="af-rbar" title="${esc(t('next'))}"><i style="width:${Math.round(r.progress * 100)}%"></i></i>`}</header>${pmRow}${chRow}`;
     if (html !== paintSig) { panel.innerHTML = html; paintSig = html; }

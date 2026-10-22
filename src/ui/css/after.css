@@ -22,7 +22,8 @@
 @keyframes af-pop { 0% { transform: scale(.4); opacity: 0; } 70% { transform: scale(1.08); opacity: 1; } 100% { transform: scale(1); } }
 
 /* ---------- the photo mode: everything else steps aside */
-#ui.wol.af-shoot > :not(.af-photo):not(#rguide):not(.mission-banner):not(.modal-layer) { opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; transition: opacity .25s, visibility .25s; }
+#ui.wol.af-shoot > :not(.af-photo):not(#rguide):not(.mission-banner):not(.modal-layer) { opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; transition: none !important; }
+#ui.wol .af-photo.printing .af-tag { visibility: hidden; }
 #ui.wol .af-photo { position: absolute; inset: 0; z-index: 40; pointer-events: none; direction: rtl; }
 #ui.wol .af-photo[hidden] { display: none; }
 #ui.wol .af-frame { position: absolute; left: 50%; top: calc(50% - 16px); width: min(66vw, calc((100vh - 156px) * 4 / 3), 760px); aspect-ratio: 4 / 3; transform: translate(-50%, -50%);
@@ -121,26 +122,29 @@
 #ui.wol .af-ric { flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: #9fe0d6; color: #10332f; }
 #ui.wol .af-ric .ic { width: 19px; height: 19px; }
 #ui.wol .af-pm.all .af-ric { background: var(--leaf2); color: #fff; }
-#ui.wol .af-lv { flex: none; display: flex; flex-direction: column; gap: 3px; padding-top: 4px; }
+#ui.wol .af-row small { display: flex; align-items: center; gap: 6px; }
+#ui.wol .af-lv { flex: none; display: inline-flex; gap: 3px; }
 #ui.wol .af-lv i { width: 7px; height: 7px; border-radius: 50%; background: rgba(233, 230, 204, .22); }
 #ui.wol .af-lv i.on { background: var(--honey); }
-#ui.wol .af-pc { flex: none; min-width: 38px; height: 26px; padding: 0 6px; border-radius: 99px; display: grid; place-items: center; font-weight: 800; font-size: calc(.78em * var(--ts));
-  background: linear-gradient(90deg, rgba(95, 154, 62, .85) var(--p, 0%), rgba(233, 230, 204, .14) 0); }
-#ui.wol .af-pc .ic { width: 16px; height: 16px; }
+#ui.wol .af-pc { margin-right: auto; flex: none; min-width: 36px; height: 18px; padding: 0 6px; border-radius: 99px; display: inline-grid; place-items: center; font-style: normal; font-weight: 800; color: var(--chalk);
+  background: linear-gradient(90deg, rgba(95, 154, 62, .9) var(--p, 0%), rgba(233, 230, 204, .16) 0); }
+#ui.wol .af-pc .ic { width: 14px; height: 14px; }
+#ui.wol .af-ch:not(.open) b { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 #ui.wol .af-ch.done .af-pc { background: var(--leaf2); }
 #ui.wol .af-ch:not(.open) em { display: none; }
 /* an expert mission is running: the panel folds to its header (a click shows it for a moment) */
 #ui.wol .af-panel.min:not(.peek) .af-row { display: none; }
 #ui.wol .af-panel.min .af-head { cursor: pointer; }
 @media (max-height: 520px) {
-  #ui.wol .af-row em { display: none; }
+  #ui.wol .af-row:not(.open) em { display: none; }
+  #ui.wol .af-pm b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   #ui.wol .af-row { padding: 4px 6px; }
   #ui.wol .af-shut { height: 52px; } #ui.wol .af-shut i { width: 38px; height: 38px; }
   #ui.wol .af-hint { font-size: calc(.8em * var(--ts)); padding: 4px 12px; }
 }
 
 /* ---------- the start screen: the island's rank, small, under the island in front of the carousel */
-.af-srank { position: absolute; left: 50%; bottom: 2%; transform: translate(-50%, 6px); display: inline-flex; align-items: center; gap: 7px; padding: 3px 12px 3px 4px; border-radius: 999px;
+.af-srank { position: absolute; left: 50%; bottom: 7%; transform: translate(-50%, 6px); display: inline-flex; align-items: center; gap: 7px; padding: 3px 12px 3px 4px; border-radius: 999px;
   background: rgba(17, 36, 26, .78); color: #f4ecd0; box-shadow: 0 0 0 1.5px rgba(244, 236, 208, .28), 0 4px 12px rgba(0, 0, 0, .3); white-space: nowrap; pointer-events: none;
   opacity: 0; transition: opacity .35s, transform .35s; direction: rtl; z-index: 3; }
 .st-isl[data-k="0"] .af-srank { opacity: 1; transform: translate(-50%, 0); }

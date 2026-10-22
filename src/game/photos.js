@@ -80,7 +80,7 @@ export const CAM_SVG = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" f
 const _v = new THREE.Vector3(), _p = new THREE.Vector3();
 const PW = 160, PH = 120, MAX_BYTES = 12000;
 
-export function createPhotos({ W, reg, camera, canvas, pipe, ui, audio, imv, bus, rig, onShot }) {
+export function createPhotos({ W, reg, camera, canvas, pipe, ui, audio, imv, bus, rig, markers, onShot }) {
   const root = document.getElementById('ui');
   const kids = !!W.kids;
   const t = (k, o) => { let s = T[k][kids ? 1 : 0]; if (o) for (const x in o) s = s.replace('{' + x + '}', o[x]); return s; };
@@ -115,6 +115,7 @@ export function createPhotos({ W, reg, camera, canvas, pipe, ui, audio, imv, bus
     isOpen = true; el.hidden = false; root.classList.add('af-shoot');
     paintAlbumBtn(); lastTag = ''; tagT = 0;
     try { ui.hideSpecies(); bus.emit('species:close'); } catch (e) { }
+    try { markers && markers.locate(null); } catch (e) { }   // the beacons would be in the picture: the view follows the animal instead
     audio && audio.play && audio.play('click');
     const g = window.__guide; if (g) g.intro('after:photo');
   }
@@ -193,6 +194,7 @@ export function createPhotos({ W, reg, camera, canvas, pipe, ui, audio, imv, bus
     const now = performance.now(); if (now - shootT < 700) return; shootT = now;
     // a selected thing would leave its ring in the picture
     if (W.selected) { try { bus.emit('species:close'); ui.hideSpecies(); } catch (e) { } }
+    try { markers && markers.locate(null); } catch (e) { }
     const info = analyse(rect);
     const img = capture(rect);
     const f = flashIn ? flashIn.querySelector('.fc-flash') || flashEl : flashEl;
@@ -216,7 +218,7 @@ export function createPhotos({ W, reg, camera, canvas, pipe, ui, audio, imv, bus
     if (info.pairs.length) parts.push(t('linked') + ' ' + info.pairs[0].map(nameOf).join(' · '));
     if (res.points) parts.push(kids ? `קִבַּלְתֶּם ${res.points} נְקֻדּוֹת` : `קיבלתם ${res.points} נקודות חיים`);
     printEl.querySelector('small').textContent = parts.join(' · ');
-    printEl.hidden = false; printEl.classList.remove('go'); void printEl.offsetWidth; printEl.classList.add('go');
+    printEl.hidden = false; el.classList.add('printing'); printEl.classList.remove('go'); void printEl.offsetWidth; printEl.classList.add('go');
     printT = 3.6;
   }
 
@@ -252,7 +254,7 @@ export function createPhotos({ W, reg, camera, canvas, pipe, ui, audio, imv, bus
   // ── per frame: the names in the frame (a few times a second); a click on a creature brings it to the middle
   const _f = new THREE.Vector3();
   function update(rdt) {
-    if (printT > 0) { printT -= rdt; if (printT <= 0) printEl.hidden = true; }
+    if (printT > 0) { printT -= rdt; if (printT <= 0) { printEl.hidden = true; el.classList.remove('printing'); } }
     if (!isOpen) return;
     if (imv.active) { close(); return; }
     if (W.selected) {
