@@ -35,46 +35,39 @@
   "ipa": "niftˈaχ laχˈem albˈom hakelafˈim, ˈim χavilˈot veχidˈon."
  },
  "st3.1": {
-  "h": "9f216870fd14",
+  "h": "5bd0f86326d5",
   "text": "מְעוּלֶּה! עַכְשָׁיו אַתֶּם שׁוֹמְרֵי טֶבַע.",
-  "ipa": "meʔulˈe! aχʃˈav atˈem ʃomʁˈej tˈeva.",
-  "heard": "מעולה, עכשיו אתם שומרי טבע"
+  "ipa": "meʔulˈe! aχʃˈav atˈem ʃomʁˈej tˈeva."
  },
  "st3.1.k": {
-  "h": "1ec993434396",
+  "h": "6cb6b59e8df4",
   "text": "מְצֻיָּן! עַכְשָׁו אַתֶּם שׁוֹמְרֵי טֶבַע.",
-  "ipa": "metsujˈan! aχʃˈav atˈem ʃomʁˈej tˈeva.",
-  "heard": "מצוין, עכשיו אתם שומרי טבע"
+  "ipa": "metsujˈan! aχʃˈav atˈem ʃomʁˈej tˈeva."
  },
  "st4.2": {
-  "h": "82331743ff39",
+  "h": "ddfa4b1d4762",
   "text": "נִפְתְּחָה הַשּׁוּנִית שֶׁל אֵילַת, וְנִפְתְּחָה הַמַּעְבָּדָה שֶׁלִּי!",
-  "ipa": "nifteχˈa haʃunˈit ʃˈel ejlˈat, venifteχˈa hamabadˈa ʃelˈi!",
-  "heard": "נפתחה שונית של אילת ונפתחה המעבד"
+  "ipa": "nifteχˈa haʃunˈit ʃˈel ejlˈat, venifteχˈa hamabadˈa ʃelˈi!"
  },
  "st6.3": {
-  "h": "7408f292c4ed",
+  "h": "f6480b63afe7",
   "text": "וְגַם מְשִׂימוֹת הַמּוּמְחִים בְּכָל אִי. בְּהַצְלָחָה!",
-  "ipa": "vegˈam mesimˈot hamumχˈim beχˈol ˈi. behatslaχˈa!",
-  "heard": "וגם משימות המומחים בחולי בהצלחה"
+  "ipa": "vegˈam mesimˈot hamumχˈim beχˈol ˈi. behatslaχˈa!"
  },
  "st6.3.k": {
-  "h": "fd656add452c",
+  "h": "4ae2dcc42e7c",
   "text": "בְּהַצְלָחָה, מֻמְחִים!",
-  "ipa": "behatslaχˈa, mumχˈim!",
-  "heard": "בהצלחה, מומחים"
+  "ipa": "behatslaχˈa, mumχˈim!"
  },
  "leg.2": {
-  "h": "7c8143cfb9ee",
+  "h": "01e25d583207",
   "text": "כָּל מָה שֶׁשִּׁיחַקְתֶּם נִשְׁאַר פָּתוּחַ. בְּמַפַּת הַמַּסָּע רוֹאִים אֶת הַדַּרְגָּה שֶׁלָּכֶם.",
-  "ipa": "kˈol mˈa ʃesiχaktˈem niʃˈaʁ patˈuaχ. bemapˈat hamasˈa ʁoˈim ˈet hadaʁgˈa ʃelaχˈem.",
-  "heard": "כל מה ששיחקתם אישה פתוח, ומפת המסע רואים את הדראה"
+  "ipa": "kˈol mˈa ʃesiχaktˈem niʃˈaʁ patˈuaχ. bemapˈat hamasˈa ʁoˈim ˈet hadaʁgˈa ʃelaχˈem."
  },
  "leg.2.k": {
-  "h": "7f74eb0a67af",
+  "h": "d7a17cd792a7",
   "text": "כָּל מָה שֶׁשִּׂחַקְתֶּם נִשְׁאַר פָּתוּחַ. בְּמַפַּת הַמַּסָּע רוֹאִים אֶת הַדַּרְגָּה שֶׁלָּכֶם.",
-  "ipa": "kˈol mˈa ʃesiχaktˈem niʃˈaʁ patˈuaχ. bemapˈat hamasˈa ʁoˈim ˈet hadaʁgˈa ʃelaχˈem.",
-  "heard": "כל מה ששיחקתם נשאר פתוח. במפת המסע רואים את הדרה"
+  "ipa": "kˈol mˈa ʃesiχaktˈem niʃˈaʁ patˈuaχ. bemapˈat hamasˈa ʁoˈim ˈet hadaʁgˈa ʃelaχˈem."
  },
  "st2.3": {
   "h": "80a30c9a9427",
@@ -82,1899 +75,1583 @@
   "ipa": "beχˈol kelˈaf jˈeʃ jetsˈuʁ mehatˈeva. boʔˈu leesˈof!"
  },
  "st2.3.k": {
-  "h": "db6681ff2822",
+  "h": "d2133ffcea4a",
   "text": "בְּכָל קְלָף יֵשׁ יְצוּר מֵהַטֶּבַע. בּוֹאוּ לֶאֱסֹף!",
-  "ipa": "beχˈol kelˈaf jˈeʃ jetsˈuʁ mehatˈeva. boʔˈu leesˈof!",
-  "heard": "בכל כלף יש יצוא מהטבע, והוא לסוף"
+  "ipa": "beχˈol kelˈaf jˈeʃ jetsˈuʁ mehatˈeva. boʔˈu leesˈof!"
  },
  "st3.2": {
-  "h": "0f1358cc16b8",
+  "h": "10ba4adf21c2",
   "text": "נִפְתְּחוּ שְׁנֵי מִשְׂחֲקֵי קְלָפִים: חוּט הַקֶּשֶׁר וּמַחֲזִיקִים אֶת הַיַּעַר.",
-  "ipa": "nifteχˈu ʃenˈej misχakˈej kelafˈim, χˈut hakˈeʃeʁ umaχazikˈim ˈet hajˈaaʁ.",
-  "heard": "נפתחו שני משחקי כלפים, קחו את הקשר ומחזיקים את היער."
+  "ipa": "nifteχˈu ʃenˈej misχakˈej kelafˈim, χˈut hakˈeʃeʁ umaχazikˈim ˈet hajˈaaʁ."
  },
  "st3.3": {
-  "h": "a5f268537986",
+  "h": "3c8ef840ad5c",
   "text": "וְגַם מָסַךְ הַתָּגִים שֶׁלָּכֶם.",
-  "ipa": "vegˈam masˈaχ hatagˈim ʃelaχˈem.",
-  "heard": "והמסך הטלג"
+  "ipa": "vegˈam masˈaχ hatagˈim ʃelaχˈem."
  },
  "st3.3.k": {
-  "h": "ad16ca6772c6",
+  "h": "45bd07b65f05",
   "text": "וְגַם הַתָּגִים שֶׁלָּכֶם.",
-  "ipa": "vegˈam hatagˈim ʃelaχˈem.",
-  "heard": "וגם התבעים שלכם."
+  "ipa": "vegˈam hatagˈim ʃelaχˈem."
  },
  "st4.1": {
-  "h": "79276fc237a3",
+  "h": "eb5aef2add28",
   "text": "וּוָאוּ! עַכְשָׁיו אַתֶּם חוֹקְרִים.",
-  "ipa": "uvaʔˈu! aχʃˈav atˈem χokʁˈim.",
-  "heard": "והוא עכשיו אתם חוקרים"
+  "ipa": "uvaʔˈu! aχʃˈav atˈem χokʁˈim."
  },
  "st4.1.k": {
-  "h": "8725a47ecc32",
+  "h": "a8623e5de375",
   "text": "וָאוּ! עַכְשָׁו אַתֶּם חוֹקְרִים.",
-  "ipa": "vaʔˈu! aχʃˈav atˈem χokʁˈim.",
-  "heard": "והוא, עכשיו אתם חוקרים"
+  "ipa": "vaʔˈu! aχʃˈav atˈem χokʁˈim."
  },
  "st4.3": {
-  "h": "051e0d1b8083",
+  "h": "247de76ad097",
   "text": "בַּמַּעְבָּדָה יֵשׁ מִיקְרוֹסְקוֹפּ וְאַטְלָס. בּוֹאוּ לְבַקֵּר!",
-  "ipa": "bamabadˈa jˈeʃ mikʁoskˈop veatlˈas. boʔˈu levakˈeʁ!",
-  "heard": "במעבדה יש מיקרוסקופ ואתלס, ברור לבקר"
+  "ipa": "bamabadˈa jˈeʃ mikʁoskˈop veatlˈas. boʔˈu levakˈeʁ!"
  },
  "st5.1": {
-  "h": "504817fc7715",
+  "h": "208374d58d0f",
   "text": "עַכְשָׁיו אַתֶּם מַמְצִיאִים!",
-  "ipa": "aχʃˈav atˈem mamtsiˈim!",
-  "heard": "עכשיו אתם ממציאים"
+  "ipa": "aχʃˈav atˈem mamtsiˈim!"
  },
  "st5.1.k": {
-  "h": "c950a793895a",
+  "h": "455544c7ef13",
   "text": "עַכְשָׁו אַתֶּם מַמְצִיאִים!",
-  "ipa": "aχʃˈav atˈem mamtsiˈim!",
-  "heard": "עכשיו אתם ממ"
+  "ipa": "aχʃˈav atˈem mamtsiˈim!"
  },
  "st5.2": {
-  "h": "385abe879ae6",
+  "h": "b08cbc9bc2e1",
   "text": "נִפְתְּחוּ שׁוּלְחַן הַמַּמְצִיאִים, סַדְנַת הָרוֹבּוֹטִים וְחוֹקְרֵי הַטֶּבַע.",
-  "ipa": "nifteχˈu ʃulχˈan hamamtsiˈim, sadnˈat haʁobotˈim veχokʁˈej hatˈeva.",
-  "heard": "נפתחו שולחן הממציאים, סדנת הרובוטים וחוקרי הטבע"
+  "ipa": "nifteχˈu ʃulχˈan hamamtsiˈim, sadnˈat haʁobotˈim veχokʁˈej hatˈeva."
  },
  "st5.2.k": {
-  "h": "158eea6b72df",
+  "h": "8ae10f6cb0e6",
   "text": "נִפְתְּחוּ שֻׁלְחַן הַמַּמְצִיאִים, סַדְנַת הָרוֹבּוֹטִים וְחוֹקְרֵי הַטֶּבַע.",
-  "ipa": "nifteχˈu ʃulχˈan hamamtsiˈim, sadnˈat haʁobotˈim veχokʁˈej hatˈeva.",
-  "heard": "נפתחו שולחן הממצים, סדנת הרובוטים וחוקרי הטבע."
+  "ipa": "nifteχˈu ʃulχˈan hamamtsiˈim, sadnˈat haʁobotˈim veχokʁˈej hatˈeva."
  },
  "st5.3": {
-  "h": "202e9412484a",
+  "h": "d17611873142",
   "text": "שָׁם לוֹמְדִים מֵהַטֶּבַע, וּבוֹנִים בְּעֶזְרָתוֹ.",
-  "ipa": "ʃˈam lomdˈim mehatˈeva, uvonˈim beezʁatˈo.",
-  "heard": "שהם לומדים מהטבע ובונים בעזרתו"
+  "ipa": "ʃˈam lomdˈim mehatˈeva, uvonˈim beezʁatˈo."
  },
  "st6.1": {
-  "h": "fe54a31c093c",
+  "h": "5977d2a17723",
   "text": "אַתֶּם מוּמְחִים אֲמִיתִּיִּים!",
-  "ipa": "atˈem mumχˈim amitijˈim!",
-  "heard": "אתם מומחים אמיתיים"
+  "ipa": "atˈem mumχˈim amitijˈim!"
  },
  "st6.1.k": {
-  "h": "31f99d51d307",
+  "h": "6695c4cd699f",
   "text": "אַתֶּם מֻמְחִים אֲמִתִּיִּים!",
-  "ipa": "atˈem mumχˈim amitijˈim!",
-  "heard": "אתם מומחים אמית"
+  "ipa": "atˈem mumχˈim amitijˈim!"
  },
  "st6.2": {
-  "h": "c8049ca42204",
+  "h": "82ec4458133e",
   "text": "נִפְתְּחוּ מִסְגְּרוֹת לִקְּלָפִים, מְשְׁלַחַת לָעוֹמֶק וּמִי חָזָק בָּרֶשֶׁת.",
-  "ipa": "nifteχˈu misgeʁˈot likelafˈim, meʃlˈaχat laʔˈomek umˈi χazˈak baʁˈeʃet.",
-  "heard": "נפתחו מסירותי קלפים, משלחת לעומק ומי חזק ברשת"
+  "ipa": "nifteχˈu misgeʁˈot likelafˈim, meʃlˈaχat laʔˈomek umˈi χazˈak baʁˈeʃet."
  },
  "st6.2.k": {
-  "h": "734d2200fc62",
+  "h": "536ae24d9db1",
   "text": "נִפְתְּחוּ מִסְגָּרוֹת לַקְּלָפִים, מִשְׁלַחַת לָעֹמֶק וּמִי חָזָק בָּרֶשֶׁת.",
-  "ipa": "nifteχˈu misgaʁˈot lakelafˈim, miʃlˈaχat laˈomek umˈi χazˈak baʁˈeʃet.",
-  "heard": "נפתחו משערות הקלפים, נשלחת לעומק ומי חזק ברשת."
+  "ipa": "nifteχˈu misgaʁˈot lakelafˈim, miʃlˈaχat laˈomek umˈi χazˈak baʁˈeʃet."
  },
  "leg.1": {
-  "h": "c847600f43ae",
+  "h": "b4c00ad82648",
   "text": "שָׁלוֹם! יֵשׁ חָדָשׁ בַּמִּשְׂחָק: מַסַּע הַחוֹקֵר.",
-  "ipa": "ʃalˈom! jˈeʃ χadˈaʃ bamisχˈak, masˈa haχokˈeʁ.",
-  "heard": "שלום, יש חדש במשחק, מסע החוקר"
+  "ipa": "ʃalˈom! jˈeʃ χadˈaʃ bamisχˈak, masˈa haχokˈeʁ."
  },
  "start.journey.1": {
-  "h": "b2b8900022cd",
+  "h": "3825156813e3",
   "text": "כָּאן רוֹאִים בְּאֵיזֶה שָׁלָב שֶׁל הַמַּסָּע אַתֶּם.",
-  "ipa": "kˈan ʁoˈim beejzˈe ʃalˈav ʃˈel hamasˈa atˈem.",
-  "heard": "כמה רואים בזה שהלב של המסע אתם"
+  "ipa": "kˈan ʁoˈim beejzˈe ʃalˈav ʃˈel hamasˈa atˈem."
  },
  "start.journey.2": {
-  "h": "f8f9d5e3083c",
+  "h": "5679a225b90e",
   "text": "הַפַּס מִתְמַלֵּא כְּשֶׁמַּשְׁלִימִים מְשִׂימוֹת וּמְקַבְּלִים תָּגִים.",
-  "ipa": "hapˈas mitmalˈe keʃemaʃlimˈim mesimˈot umkabelˈim tagˈim.",
-  "heard": "הפס מתמלא כשמשלימים משימות ומקבלים תאים"
+  "ipa": "hapˈas mitmalˈe keʃemaʃlimˈim mesimˈot umkabelˈim tagˈim."
  },
  "start.journey.3": {
-  "h": "efc907e9b280",
+  "h": "d67b61b010e5",
   "text": "לַחֲצוּ כָּאן, וְתִרְאוּ אֶת כָּל מַפַּת הַמַּסָּע.",
-  "ipa": "laχatsˈu kˈan, vetiʁʔˈu ˈet kˈol mapˈat hamasˈa.",
-  "heard": "לחצו כאן ותראו את כל מפת המסע"
+  "ipa": "laχatsˈu kˈan, vetiʁʔˈu ˈet kˈol mapˈat hamasˈa."
  },
  "start.journey.4": {
-  "h": "684187bdbfcd",
+  "h": "484ba6060f78",
   "text": "בַּכַּפְתּוֹר הַזֶּה מְשַׁנִּים אֶת גּוֹדֶל הָאוֹתִיּוֹת וְאֶת הַקּוֹל שֶׁלִּי.",
-  "ipa": "bakaftˈoʁ hazˈe meʃanˈim ˈet gˈodel haʔotiˈot vˈeet hakˈol ʃelˈi.",
-  "heard": "בכפתור הזה משנים את אודל האותיות ואת"
+  "ipa": "bakaftˈoʁ hazˈe meʃanˈim ˈet gˈodel haʔotiˈot vˈeet hakˈol ʃelˈi."
  },
  "start.journey.4.k": {
-  "h": "930905da906e",
+  "h": "ce9d5a453157",
   "text": "בַּכַּפְתּוֹר הַזֶּה מְשַׁנִּים אֶת גֹּדֶל הָאוֹתִיּוֹת וְאֶת הַקּוֹל שֶׁלִּי.",
-  "ipa": "bakaftˈoʁ hazˈe meʃanˈim ˈet gˈodel haʔotiˈot vˈeet hakˈol ʃelˈi.",
-  "heard": "בכפתור הזה משנים את עודל האותיות ואת"
+  "ipa": "bakaftˈoʁ hazˈe meʃanˈim ˈet gˈodel haʔotiˈot vˈeet hakˈol ʃelˈi."
  },
  "start.map.1": {
-  "h": "b1d2c8829321",
+  "h": "c0f5001224a4",
   "text": "זוֹ מַפַּת הַמַּסָּע: שִׁישָּׁה שְׁלַבִּים, מִיָּמִין לִשְׂמֹאל.",
-  "ipa": "zˈo mapˈat hamasˈa, ʃiʃˈa ʃelabˈim, mijamˈin lismˈol.",
-  "heard": "זו מפת המסע, שישה שלבים מימין לשמאל"
+  "ipa": "zˈo mapˈat hamasˈa, ʃiʃˈa ʃelabˈim, mijamˈin lismˈol."
  },
  "start.map.1.k": {
-  "h": "74d51733de8c",
+  "h": "39e11d211aae",
   "text": "זוֹ מַפַּת הַמַּסָּע: שִׁשָּׁה שְׁלַבִּים, מִיָּמִין לִשְׂמֹאל.",
-  "ipa": "zˈo mapˈat hamasˈa, ʃiʃˈa ʃelabˈim, mijamˈin lismˈol.",
-  "heard": "זו מפת המסע, שישה שלבים מימין לשמאל"
+  "ipa": "zˈo mapˈat hamasˈa, ʃiʃˈa ʃelabˈim, mijamˈin lismˈol."
  },
  "start.map.2": {
-  "h": "0934be7cbc08",
+  "h": "3f7f7de269da",
   "text": "הַשָּׁלָב שֶׁזּוֹהַר הוּא הַשָּׁלָב שֶׁלָּכֶם עַכְשָׁיו.",
-  "ipa": "haʃalˈav ʃezohˈaʁ hˈu haʃalˈav ʃelaχˈem aχʃˈav.",
-  "heard": "השלב שזוהר הוא השלב שלכם עכשיו."
+  "ipa": "haʃalˈav ʃezohˈaʁ hˈu haʃalˈav ʃelaχˈem aχʃˈav."
  },
  "start.map.2.k": {
-  "h": "e5402500b937",
+  "h": "e5af0e00724f",
   "text": "הַשָּׁלָב שֶׁזּוֹהֵר הוּא הַשָּׁלָב שֶׁלָּכֶם עַכְשָׁו.",
-  "ipa": "haʃalˈav ʃezohˈeʁ hˈu haʃalˈav ʃelaχˈem aχʃˈav.",
-  "heard": "השלב שזוהר הוא השלב שלכם עכשיו."
+  "ipa": "haʃalˈav ʃezohˈeʁ hˈu haʃalˈav ʃelaχˈem aχʃˈav."
  },
  "start.map.3": {
-  "h": "681c0e96ef0e",
+  "h": "94b50641175d",
   "text": "מִתַּחַת לְכָל שָׁלָב רוֹאִים מָה הוּא פּוֹתֵחַ בַּמִּשְׂחָק.",
-  "ipa": "mitˈaχat leχˈol ʃalˈav ʁoˈim mˈa hˈu potˈeaχ bamisχˈak.",
-  "heard": "מתחת לכל שלב רואים מה הוא פותח במשחק"
+  "ipa": "mitˈaχat leχˈol ʃalˈav ʁoˈim mˈa hˈu potˈeaχ bamisχˈak."
  },
  "start.map.4": {
-  "h": "ce9e15174b3b",
+  "h": "c681d5d6fcc0",
   "text": "וְכָאן כָּתוּב מָה עוֹד חָסֵר כְּדֵי לְהַגִּיעַ לַשָּׁלָב הַבָּא.",
-  "ipa": "veχˈan katˈuv mˈa ʔˈod χasˈeʁ kedˈej lehagˈia laʃalˈav habˈa.",
-  "heard": "וכאן כתוב מה עוד חסר כדי להגיע לשלב"
+  "ipa": "veχˈan katˈuv mˈa ʔˈod χasˈeʁ kedˈej lehagˈia laʃalˈav habˈa."
  },
  "start.settings.1": {
-  "h": "70d16ede3b77",
+  "h": "b45b3781c915",
   "text": "כָּאן בּוֹחֲרִים כַּמָּה גְּדוֹלוֹת יִהְיוּ הָאוֹתִיּוֹת.",
-  "ipa": "kˈan boχaʁˈim kamˈa gedolˈot jihjˈu haʔotiˈot.",
-  "heard": "כאן בוחרים כמה עדולות יהיו האותיות"
+  "ipa": "kˈan boχaʁˈim kamˈa gedolˈot jihjˈu haʔotiˈot."
  },
  "start.settings.2": {
-  "h": "130c5f384e91",
+  "h": "cbc9a0229553",
   "text": "כָּאן מַדְלִיקִים אוֹ מְכַבִּים אֶת הַקּוֹל שֶׁלִּי.",
-  "ipa": "kˈan madlikˈim ʔˈo meχabˈim ˈet hakˈol ʃelˈi.",
-  "heard": "כאן מדליקים או מכבים את הקול שלי"
+  "ipa": "kˈan madlikˈim ʔˈo meχabˈim ˈet hakˈol ʃelˈi."
  },
  "start.settings.3": {
-  "h": "cdbf6a45330c",
+  "h": "9662665ae96f",
   "text": "בְּמַצָּב חֲוָויָה יֵשׁ בַּיַּעַר פָּחוֹת מִילִּים, וּבְמַצָּב מָלֵא כָּל הַפְּרָטִים.",
-  "ipa": "bematsˈav χavavjˈa jˈeʃ bajˈaaʁ paχˈot milˈim, uvmatsˈav malˈe kˈol hapeʁatˈim.",
-  "heard": "במצב חרבייה יש ביער פחות מילים ובמצב מלא כל הפרטים"
+  "ipa": "bematsˈav χavavjˈa jˈeʃ bajˈaaʁ paχˈot milˈim, uvmatsˈav malˈe kˈol hapeʁatˈim."
  },
  "start.settings.3.k": {
-  "h": "09c9e658f996",
+  "h": "eda36cafd11d",
   "text": "בְּמַצַּב חֲוָיָה יֵשׁ בַּיַּעַר פָּחוֹת מִלִּים, וּבְמַצַּב מָלֵא כָּל הַפְּרָטִים.",
-  "ipa": "bematsˈav χavajˈa jˈeʃ bajˈaaʁ paχˈot milˈim, uvmatsˈav malˈe kˈol hapeʁatˈim.",
-  "heard": "במצב חוויה יש בה יער פחות מילים, ובמצב מלא כל אופרטים"
+  "ipa": "bematsˈav χavajˈa jˈeʃ bajˈaaʁ paχˈot milˈim, uvmatsˈav malˈe kˈol hapeʁatˈim."
  },
  "start.settings.4": {
-  "h": "cb6b8a47831a",
+  "h": "d0d8c8c8586c",
   "text": "שֶׁכַחְתֶּם מַשֶּׁהוּ? כָּאן אֶפְשָׁר לִשְׁמוֹעַ שׁוּב אֶת כָּל הַהֶסְבֵּרִים.",
-  "ipa": "ʃeχˈaχtem maʃehˈu? kˈan efʃˈaʁ liʃmˈoa ʃˈuv ˈet kˈol hahesbeʁˈim.",
-  "heard": "שכח הם אשור, כאן אפשר לשמוע שוב את כל ההסברים"
+  "ipa": "ʃeχˈaχtem maʃehˈu? kˈan efʃˈaʁ liʃmˈoa ʃˈuv ˈet kˈol hahesbeʁˈim."
  },
  "start.settings.4.k": {
-  "h": "656501e7bcd7",
+  "h": "124ebf2370ff",
   "text": "שְׁכַחְתֶּם מַשֶּׁהוּ? כָּאן אֶפְשָׁר לִשְׁמֹעַ שׁוּב אֶת כָּל הַהֶסְבֵּרִים.",
-  "ipa": "ʃeχˈaχtem maʃehˈu? kˈan efʃˈaʁ liʃmˈoa ʃˈuv ˈet kˈol hahesbeʁˈim.",
-  "heard": "שכחתם משהו, כאן אפשר לשמוע שוב את כל ההסברים"
+  "ipa": "ʃeχˈaχtem maʃehˈu? kˈan efʃˈaʁ liʃmˈoa ʃˈuv ˈet kˈol hahesbeʁˈim."
  },
  "start.go.ask": {
-  "h": "954bab5b8e2f",
+  "h": "9d3d7780b5b6",
   "text": "רוֹצִים לָלֶכֶת לְשָׁם עַכְשָׁיו?",
-  "ipa": "ʁotsˈim lalˈeχet leʃˈam aχʃˈav?",
-  "heard": "רוצים ללכת לש"
+  "ipa": "ʁotsˈim lalˈeχet leʃˈam aχʃˈav?"
  },
  "start.go.ask.k": {
-  "h": "40d1a3656884",
+  "h": "c90f830b8f1d",
   "text": "רוֹצִים לָלֶכֶת לְשָׁם עַכְשָׁו?",
-  "ipa": "ʁotsˈim lalˈeχet leʃˈam aχʃˈav?",
-  "heard": "רוצים ללכת לש"
+  "ipa": "ʁotsˈim lalˈeχet leʃˈam aχʃˈav?"
  },
  "start.go.2": {
-  "h": "539ec27851ff",
+  "h": "a967d46cbc4e",
   "text": "הִנֵּה אַלְבּוֹם הַקְּלָפִים. לָחֲצוּ כְּדֵי לְהִיכָּנֵס!",
-  "ipa": "hinˈe albˈom hakelafˈim. laχatsˈu kedˈej lehikanˈes!",
-  "heard": "הנה אלבום הכלפים לחצו כדי להיכנס"
+  "ipa": "hinˈe albˈom hakelafˈim. laχatsˈu kedˈej lehikanˈes!"
  },
  "start.go.2.k": {
-  "h": "df51fac2f353",
+  "h": "47e635b15382",
   "text": "הִנֵּה אַלְבּוֹם הַקְּלָפִים. לַחֲצוּ כְּדֵי לְהִכָּנֵס!",
-  "ipa": "hinˈe albˈom hakelafˈim. laχatsˈu kedˈej lehikanˈes!",
-  "heard": "הנה אלבום הכלפים לחצו כדי להיכנס"
+  "ipa": "hinˈe albˈom hakelafˈim. laχatsˈu kedˈej lehikanˈes!"
  },
  "start.go.3": {
-  "h": "4dd40661ab39",
+  "h": "2f98ff4ebe8b",
   "text": "הִנֵּה מִשְׂחֲקֵי הַקְּלָפִים הַחֲדָשִׁים. לַחֲצוּ וּנְשַׂחֵק!",
-  "ipa": "hinˈe misχakˈej hakelafˈim haχadaʃˈim. laχatsˈu unsaχˈek!",
-  "heard": "הנה משחקי הכלפים החדשים לחצו במשחק"
+  "ipa": "hinˈe misχakˈej hakelafˈim haχadaʃˈim. laχatsˈu unsaχˈek!"
  },
  "start.go.4": {
-  "h": "a3ffae7bfca7",
+  "h": "e86458297b51",
   "text": "הִנֵּה הַמַּעְבָּדָה שֶׁלִּי. לָחֲצוֹ כְּדֵי לְהִיכָּנֵס!",
-  "ipa": "hinˈe hamabadˈa ʃelˈi. laχatsˈo kedˈej lehikanˈes!",
-  "heard": "הנה המעבדה שלי, לחצו כדי להיכנס"
+  "ipa": "hinˈe hamabadˈa ʃelˈi. laχatsˈo kedˈej lehikanˈes!"
  },
  "start.go.4.k": {
-  "h": "d8e41aa1d6e2",
+  "h": "69a4e859d20d",
   "text": "הִנֵּה הַמַּעְבָּדָה שֶׁלִּי. לַחֲצוּ כְּדֵי לְהִכָּנֵס!",
-  "ipa": "hinˈe hamabadˈa ʃelˈi. laχatsˈu kedˈej lehikanˈes!",
-  "heard": "הנה המעבדה שלי, לחצו כדי להיכנס"
+  "ipa": "hinˈe hamabadˈa ʃelˈi. laχatsˈu kedˈej lehikanˈes!"
  },
  "start.go.5": {
-  "h": "11908b404948",
+  "h": "4b775495b5da",
   "text": "הִנֵּה חוֹקְרֵי הַטֶּבַע. תַּעֲלוּמוֹת מְחַכּוֹת לָכֶם!",
-  "ipa": "hinˈe χokʁˈej hatˈeva. taalumˈot meχakˈot laχˈem!",
-  "heard": "הנה חוקרי הטבע, תעלומות מחכות לכם"
+  "ipa": "hinˈe χokʁˈej hatˈeva. taalumˈot meχakˈot laχˈem!"
  },
  "start.go.6": {
-  "h": "365cc3643160",
+  "h": "50b2c3e3ae34",
   "text": "הִנֵּה מְשְׁלַחַת לָעוֹמֶק. צוֹלְלִים עִם הַקְּלָפִים!",
-  "ipa": "hinˈe meʃlˈaχat laʔˈomek. tsollˈim ˈim hakelafˈim!",
-  "heard": "הנה משלחת לעומק, צוללים עם"
+  "ipa": "hinˈe meʃlˈaχat laʔˈomek. tsollˈim ˈim hakelafˈim!"
  },
  "start.go.6.k": {
-  "h": "9ac90b325331",
+  "h": "a4e320b3989e",
   "text": "הִנֵּה מִשְׁלַחַת לָעֹמֶק. צוֹלְלִים עִם הַקְּלָפִים!",
-  "ipa": "hinˈe miʃlˈaχat laˈomek. tsollˈim ˈim hakelafˈim!",
-  "heard": "הנה משלחת לעומק, צוללים עם הכלפים"
+  "ipa": "hinˈe miʃlˈaχat laˈomek. tsollˈim ˈim hakelafˈim!"
  },
  "start.again.1": {
-  "h": "81a975e82a51",
+  "h": "a576970927e0",
   "text": "אַסְבִּיר שׁוּב כָּל חֵלֶק כְּשֶׁתִּיכָּנְסוּ אֵלָיו.",
-  "ipa": "asbˈiʁ ʃˈuv kˈol χˈelek keʃetikansˈu elˈajv.",
-  "heard": "אסביר שוב כל חלק שתיכנסו לייב"
+  "ipa": "asbˈiʁ ʃˈuv kˈol χˈelek keʃetikansˈu elˈajv."
  },
  "start.again.1.k": {
-  "h": "e823b9ae0b29",
+  "h": "41e042b5990f",
   "text": "אַסְבִּיר שׁוּב כָּל חֵלֶק כְּשֶׁתִּכָּנְסוּ אֵלָיו.",
-  "ipa": "asbˈiʁ ʃˈuv kˈol χˈelek keʃetikansˈu elˈajv.",
-  "heard": "אסביר שוב כל חלק כשתיכנסו לייב"
+  "ipa": "asbˈiʁ ʃˈuv kˈol χˈelek keʃetikansˈu elˈajv."
  },
  "hub.learn.1": {
-  "h": "5d5ccad0600a",
+  "h": "0fd1e8382b49",
   "text": "בְּרוּכִים הַבָּאִים לְמֶרְכַּז הַלְּמִידָה! כָּאן מְשַׂחֲקִים עִם הַקְּלָפִים שֶׁאֲסַפְתֶּם.",
-  "ipa": "beʁuχˈim habaˈim lemeʁkˈaz halemidˈa! kˈan mesaχakˈim ˈim hakelafˈim ʃeasˈaftem.",
-  "heard": "ברוכים הבאים למרכז הלמידה, כאן משחקים עם הכלפים שאספתם"
+  "ipa": "beʁuχˈim habaˈim lemeʁkˈaz halemidˈa! kˈan mesaχakˈim ˈim hakelafˈim ʃeasˈaftem."
  },
  "hub.learn.2": {
-  "h": "5248c2e0afac",
+  "h": "afd378776ee4",
   "text": "בָּאֶמְצַע הָאַלְבּוֹם. שָׁם רוֹאִים אֶת כָּל הַקְּלָפִים, וּפוֹתְחִים חֲבִילוֹת.",
-  "ipa": "baemtsˈa haalbˈom. ʃˈam ʁoˈim ˈet kˈol hakelafˈim, ufotχˈim χavilˈot.",
-  "heard": "באמצע האלבום, שאמורים את כל הכלפים ופותחים חבילות."
+  "ipa": "baemtsˈa haalbˈom. ʃˈam ʁoˈim ˈet kˈol hakelafˈim, ufotχˈim χavilˈot."
  },
  "hub.learn.3": {
-  "h": "5048c98c02a5",
+  "h": "70285eb92e81",
   "text": "מִיָּמִין הַחִידּוֹן: עוֹנִים נָכוֹן וּמַרְוִויחִים חֲבִילוֹת קְלָפִים.",
-  "ipa": "mijamˈin haχidˈon, ʔonˈim naχˈon umaʁvivjχˈim χavilˈot kelafˈim.",
-  "heard": "מימין החידון עונים נכון ומביאכם חבילות כלפים"
+  "ipa": "mijamˈin haχidˈon, ʔonˈim naχˈon umaʁvivjχˈim χavilˈot kelafˈim."
  },
  "hub.learn.3.k": {
-  "h": "3ebde9e14c36",
+  "h": "0d2f423efcb7",
   "text": "מִיָּמִין הַחִידוֹן: עוֹנִים נָכוֹן וּמַרְוִיחִים חֲבִילוֹת קְלָפִים.",
-  "ipa": "mijamˈin haχidˈon, ʔonˈim naχˈon umaʁviχˈim χavilˈot kelafˈim.",
-  "heard": "מימין החידון עונים מכון ומרוויחים חבילות כלפים"
+  "ipa": "mijamˈin haχidˈon, ʔonˈim naχˈon umaʁviχˈim χavilˈot kelafˈim."
  },
  "hub.learn.4": {
-  "h": "1022f72cd3a7",
+  "h": "f1589bed4981",
   "text": "מִשְּׂמֹאל מִשְׂחֲקֵי הַקְּלָפִים. מִשְׂחָק שֶׁעוֹד מְכוּסֶּה יִיפָּתַח בַּהֶמְשֵׁךְ הַמַּסָּע.",
-  "ipa": "misemˈol misχakˈej hakelafˈim. misχˈak ʃeʔˈod meχusˈe jipatˈaχ bahemʃˈeχ hamasˈa.",
-  "heard": "מסימון משחקי הכלפים, משחק שעוד מכוסה היא פתח בהמשך המסה."
+  "ipa": "misemˈol misχakˈej hakelafˈim. misχˈak ʃeʔˈod meχusˈe jipatˈaχ bahemʃˈeχ hamasˈa."
  },
  "hub.learn.4.k": {
-  "h": "83d0552fa875",
+  "h": "ee83c489bdbb",
   "text": "מִשְּׂמֹאל מִשְׂחֲקֵי הַקְּלָפִים. מִשְׂחָק שֶׁעוֹד מְכֻסֶּה יִפָּתַח בְּהֶמְשֵׁךְ הַמַּסָּע.",
-  "ipa": "misemˈol misχakˈej hakelafˈim. misχˈak ʃeʔˈod meχusˈe jipatˈaχ behemʃˈeχ hamasˈa.",
-  "heard": "מסמון משחקי הקלפים, משחק של עוד מכוסה ייפתח בהמשך המסע"
+  "ipa": "misemˈol misχakˈej hakelafˈim. misχˈak ʃeʔˈod meχusˈe jipatˈaχ behemʃˈeχ hamasˈa."
  },
  "hub.album.1": {
-  "h": "4937e3a7157e",
+  "h": "650e70c78e27",
   "text": "זֶה הָאַלְבּוֹם שֶׁלָּכֶם. כָּל קְלָף הוּא יְצוּר מֵהַטֶּבַע, אוֹ כְּלִי שֶׁל חוֹקְרִים.",
-  "ipa": "zˈe haalbˈom ʃelaχˈem. kˈol kelˈaf hˈu jetsˈuʁ mehatˈeva, ʔˈo kelˈi ʃˈel χokʁˈim.",
-  "heard": "זה האלבום שלכם. כלכלה פה הוא יצור מהטבע, או כלי של חוקרים"
+  "ipa": "zˈe haalbˈom ʃelaχˈem. kˈol kelˈaf hˈu jetsˈuʁ mehatˈeva, ʔˈo kelˈi ʃˈel χokʁˈim."
  },
  "hub.album.2": {
-  "h": "06e0b99aa7c6",
+  "h": "094e0c7789c8",
   "text": "לְמַעְלָה בּוֹחֲרִים מָקוֹם: אַמְזוֹנְס, חוֹרֶשׁ אוֹ שׁוֹנִית.",
-  "ipa": "lemalˈa boχaʁˈim makˈom, amazˈonas, χˈoʁeʃ ʔˈo ʃonˈit.",
-  "heard": "למעלה בוחרים מקום, אמזונס, חורש או שוני"
+  "ipa": "lemalˈa boχaʁˈim makˈom, amazˈonas, χˈoʁeʃ ʔˈo ʃonˈit."
  },
  "hub.album.2.k": {
-  "h": "69a314e6865a",
+  "h": "23301eb94d66",
   "text": "לְמַעְלָה בּוֹחֲרִים מָקוֹם: אָמָזוֹנָס, חֹרֶשׁ אוֹ שׁוּנִית.",
-  "ipa": "lemalˈa boχaʁˈim makˈom, amazˈonas, χˈoʁeʃ ʔˈo ʃunˈit.",
-  "heard": "למעלה בוחרים מקום, אמזונס, חורש"
+  "ipa": "lemalˈa boχaʁˈim makˈom, amazˈonas, χˈoʁeʃ ʔˈo ʃunˈit."
  },
  "hub.album.3": {
-  "h": "ad3696c5c84e",
+  "h": "4f69220908bd",
   "text": "יֵשׁ לָכֶם חֲבִילָה? לַחֲצוּ כָּאן וּפִתְחוּ אוֹתָהּ.",
-  "ipa": "jˈeʃ laχˈem χavilˈa? laχatsˈu kˈan ufitχˈu ʔotˈah.",
-  "heard": "יש לכם חבילה, לחצו כאן ופית"
+  "ipa": "jˈeʃ laχˈem χavilˈa? laχatsˈu kˈan ufitχˈu ʔotˈah."
  },
  "hub.album.4": {
-  "h": "db230e21d506",
+  "h": "3154a1fc2b2d",
   "text": "אִסְפוּ סִדְרָה שְׁלֵמָה, וּתְקַבְּלוּ חֲבִילָה בְּמַתָּנָה!",
-  "ipa": "isfˈu sidʁˈa ʃelemˈa, utkabelˈu χavilˈa bematanˈa!",
-  "heard": "ספוס סדרה שלמה ותקבלו חבילה במתנה"
+  "ipa": "isfˈu sidʁˈa ʃelemˈa, utkabelˈu χavilˈa bematanˈa!"
  },
  "hub.quiz.1": {
-  "h": "ce7c11c967e3",
+  "h": "2c75463167ef",
   "text": "בַּחִידוֹן יֵשׁ עֶשֶׂר שְׁאֵלוֹת עַל הַיְּצוּרִים שֶׁל רֶשֶׁת הַחַיִּים.",
-  "ipa": "baχidˈon jˈeʃ ˈeseʁ ʃeelˈot ˈal hajetsuʁˈim ʃˈel ʁˈeʃet haχajˈim.",
-  "heard": "בחידון יש עשר שאלות על היצורים של רשת החיים."
+  "ipa": "baχidˈon jˈeʃ ˈeseʁ ʃeelˈot ˈal hajetsuʁˈim ʃˈel ʁˈeʃet haχajˈim."
  },
  "hub.quiz.2": {
-  "h": "c4cb8c737a07",
+  "h": "b56f92881922",
   "text": "קוֹדֶם בּוֹחֲרִים רָמָה וּמָקוֹם.",
-  "ipa": "kˈodem boχaʁˈim ʁamˈa umakˈom.",
-  "heard": "קודם בוחרים רמה ומקום"
+  "ipa": "kˈodem boχaʁˈim ʁamˈa umakˈom."
  },
  "hub.quiz.2.k": {
-  "h": "aea1c8b44fa7",
+  "h": "5fc9e30c674c",
   "text": "קֹדֶם בּוֹחֲרִים רָמָה וּמָקוֹם.",
-  "ipa": "kˈodem boχaʁˈim ʁamˈa umakˈom.",
-  "heard": "קודם בוחרים ר"
+  "ipa": "kˈodem boχaʁˈim ʁamˈa umakˈom."
  },
  "hub.quiz.3": {
-  "h": "a6f80206dbaa",
+  "h": "43f9f4b89b4b",
   "text": "עוֹנִים נָכוֹן, וְאוּלַי תְּקַבְּלוּ חֲבִילַת קְלָפִים. בְּהַצְלָחָה!",
-  "ipa": "ʔonˈim naχˈon, veʔulˈaj tekabelˈu χavilˈat kelafˈim. behatslaχˈa!",
-  "heard": "עונים נכון ואולי תקבלו חבילת כלפים בהצלחה."
+  "ipa": "ʔonˈim naχˈon, veʔulˈaj tekabelˈu χavilˈat kelafˈim. behatslaχˈa!"
  },
  "hub.badges.1": {
-  "h": "3e8137b4a3a0",
+  "h": "aa06f6890d5c",
   "text": "כָּאן כָּל הַתָּגִים שֶׁלָּכֶם. תָּג מְקַבְּלִים עַל מַשֶּׁהוּ מְיוּחָד שֶׁעֲשִׂיתֶם.",
-  "ipa": "kˈan kˈol hatagˈim ʃelaχˈem. tˈag mekabelˈim ˈal maʃehˈu mejuχˈad ʃeasˈitem.",
-  "heard": "כאן כל התלים שלכם, אתה מקבל אימון משהו מיוחד שעשיתם"
+  "ipa": "kˈan kˈol hatagˈim ʃelaχˈem. tˈag mekabelˈim ˈal maʃehˈu mejuχˈad ʃeasˈitem."
  },
  "hub.badges.1.k": {
-  "h": "a828f0cfd99a",
+  "h": "db7f76ecb136",
   "text": "כָּאן כָּל הַתָּגִים שֶׁלָּכֶם. תָּג מְקַבְּלִים עַל מַשֶּׁהוּ מְיֻחָד שֶׁעֲשִׂיתֶם.",
-  "ipa": "kˈan kˈol hatagˈim ʃelaχˈem. tˈag mekabelˈim ˈal maʃehˈu mejuχˈad ʃeasˈitem.",
-  "heard": "כאן כל התווים שלכם. תת מקבלים משהו מיוחד שעשיתם."
+  "ipa": "kˈan kˈol hatagˈim ʃelaχˈem. tˈag mekabelˈim ˈal maʃehˈu mejuχˈad ʃeasˈitem."
  },
  "hub.badges.2": {
-  "h": "abbed58330db",
+  "h": "69291f35dcbb",
   "text": "תָּג עִם סִימַן שְׁאֵלָה עוֹד מְחַכֶּה לָכֶם. לַחֲצוּ עָלָיו וְתִרְאוּ אֵיךְ מַשִּׂיגִים אוֹתוֹ.",
-  "ipa": "tˈag ˈim simˈan ʃeelˈa ʔˈod meχakˈe laχˈem. laχatsˈu alˈajv vetiʁʔˈu ˈejχ masigˈim ʔotˈo.",
-  "heard": "טענים סימן שאלה עוד מחכה לכם, לחצו עליי ותראו איך מסיעים אותו"
+  "ipa": "tˈag ˈim simˈan ʃeelˈa ʔˈod meχakˈe laχˈem. laχatsˈu alˈajv vetiʁʔˈu ˈejχ masigˈim ʔotˈo."
  },
  "hub.badges.3": {
-  "h": "4b1d93229318",
+  "h": "0b459b6cb0c9",
   "text": "כַּמָּה תָּגִים מֵאוֹתָהּ קְבוּצָה פּוֹתְחִים מִסְגֶּרֶת חֲדָשָׁה לַקְּלָפִים.",
-  "ipa": "kamˈa tagˈim meʔotˈah kevutsˈa potχˈim misgˈeʁet χadaʃˈa lakelafˈim.",
-  "heard": "כמה טעים מאותה קבוצה פותחים מסרט חדשה לכלפים"
+  "ipa": "kamˈa tagˈim meʔotˈah kevutsˈa potχˈim misgˈeʁet χadaʃˈa lakelafˈim."
  },
  "hub.frames.1": {
-  "h": "83ecd915b7fe",
+  "h": "c4b323d5dfe8",
   "text": "כָּאן בּוֹחֲרִים מִסְגֶּרֶת לְכָל הַקְּלָפִים בָּאַלְבּוֹם.",
-  "ipa": "kˈan boχaʁˈim misgˈeʁet leχˈol hakelafˈim baalbˈom.",
-  "heard": "כאן בוחרים מסרט לכל הכלפים באלבום"
+  "ipa": "kˈan boχaʁˈim misgˈeʁet leχˈol hakelafˈim baalbˈom."
  },
  "hub.frames.2": {
-  "h": "9dea9ee80998",
+  "h": "0d813233ccf8",
   "text": "מִסְגֶּרֶת פְּתוּחָה אֶפְשָׁר לִבְחוֹר. אֶת הַשְּׁאָר פּוֹתְחִים בְּעֶזְרַת תָּגִים.",
-  "ipa": "misgˈeʁet petuχˈa efʃˈaʁ livχˈoʁ. ˈet haʃeˈaʁ potχˈim beezʁˈat tagˈim.",
-  "heard": "מסרט פתוחה אפשר לבחור, את השאר פותחים בעזרת אלים"
+  "ipa": "misgˈeʁet petuχˈa efʃˈaʁ livχˈoʁ. ˈet haʃeˈaʁ potχˈim beezʁˈat tagˈim."
  },
  "hub.frames.2.k": {
-  "h": "07b3f7c3a8ea",
+  "h": "4ea4f7713b7c",
   "text": "מִסְגֶּרֶת פְּתוּחָה אֶפְשָׁר לִבְחֹר. אֶת הַשְּׁאָר פּוֹתְחִים בְּעֶזְרַת תָּגִים.",
-  "ipa": "misgˈeʁet petuχˈa efʃˈaʁ livχˈoʁ. ˈet haʃeˈaʁ potχˈim beezʁˈat tagˈim.",
-  "heard": "מסירת פתוחה אפשר לבחור. את השאר הפותחים בעזרת ערים"
+  "ipa": "misgˈeʁet petuχˈa efʃˈaʁ livχˈoʁ. ˈet haʃeˈaʁ potχˈim beezʁˈat tagˈim."
  },
  "hub.frames.3": {
-  "h": "6108b613ba90",
+  "h": "ed7e14753e93",
   "text": "כָּאן רוֹאִים אֵיךְ הַקְּלָף יֵירָאֶה.",
-  "ipa": "kˈan ʁoˈim ˈejχ hakelˈaf jejʁaˈe.",
-  "heard": "כאן רואים לך כל"
+  "ipa": "kˈan ʁoˈim ˈejχ hakelˈaf jejʁaˈe."
  },
  "hub.frames.3.k": {
-  "h": "796d11259350",
+  "h": "4578202bc313",
   "text": "כָּאן רוֹאִים אֵיךְ הַקְּלָף יֵרָאֶה.",
-  "ipa": "kˈan ʁoˈim ˈejχ hakelˈaf jeʁaˈe.",
-  "heard": "כאן רואים לך כלף ייראה"
+  "ipa": "kˈan ʁoˈim ˈejχ hakelˈaf jeʁaˈe."
  },
  "hub.webpuzzle.1": {
-  "h": "553736da972e",
+  "h": "04e3c2053b34",
   "text": "בְּחוּט הַקֶּשֶׁר מַשְׁלִימִים רֶשֶׁת: מִי אוֹכֵל אֶת מִי, וּמִי עוֹזֵר לְמִי.",
-  "ipa": "beχˈut hakˈeʃeʁ maʃlimˈim ʁˈeʃet, mˈi ʔoχˈel ˈet mˈi, umˈi ʔozˈeʁ lemˈi.",
-  "heard": "בחוט הקשר משלימים רשת מי אוכלת מי ומי עוזר למי"
+  "ipa": "beχˈut hakˈeʃeʁ maʃlimˈim ʁˈeʃet, mˈi ʔoχˈel ˈet mˈi, umˈi ʔozˈeʁ lemˈi."
  },
  "hub.webpuzzle.2": {
-  "h": "3202ae6869ed",
+  "h": "6f762f321a74",
   "text": "לְמַעְלָה בּוֹחֲרִים מָקוֹם. לְכָל מָקוֹם יֵשׁ חִידוֹת מִשֶּׁלּוֹ.",
-  "ipa": "lemalˈa boχaʁˈim makˈom. leχˈol makˈom jˈeʃ χidˈot miʃelˈo.",
-  "heard": "למעלה בוחרים מקום, לכל מקום יש חי"
+  "ipa": "lemalˈa boχaʁˈim makˈom. leχˈol makˈom jˈeʃ χidˈot miʃelˈo."
  },
  "hub.webpuzzle.3": {
-  "h": "df617c6b1f47",
+  "h": "39fdeb375d5d",
   "text": "בּוֹחֲרִים שָׁלָב, וּמַנִּיחִים כָּל קְלָף בַּמָּקוֹם הַנָּכוֹן בָּרֶשֶׁת.",
-  "ipa": "boχaʁˈim ʃalˈav, umaniχˈim kˈol kelˈaf bamakˈom hanaχˈon baʁˈeʃet.",
-  "heard": "בוחרים שלב ומניחים כל כליו במקום הנכון ברשת"
+  "ipa": "boχaʁˈim ʃalˈav, umaniχˈim kˈol kelˈaf bamakˈom hanaχˈon baʁˈeʃet."
  },
  "hub.webpuzzle.4": {
-  "h": "22e974e9f426",
+  "h": "2132da0c47ec",
   "text": "פְּתַרְתֶּם בְּלִי טָעוּיוֹת? תְּקַבְּלוּ שְׁלוֹשָׁה כּוֹכָבִים!",
-  "ipa": "petˈaʁtem belˈi taʔujˈot? tekabelˈu ʃeloʃˈa koχavˈim!",
-  "heard": "פתרתם בלי טעויות, תקבלו שלושה כוכבים"
+  "ipa": "petˈaʁtem belˈi taʔujˈot? tekabelˈu ʃeloʃˈa koχavˈim!"
  },
  "hub.webpuzzle.4.k": {
-  "h": "ceba5c0f3096",
+  "h": "63439800f609",
   "text": "פְּתַרְתֶּם בְּלִי טָעֻיּוֹת? תְּקַבְּלוּ שְׁלוֹשָׁה כּוֹכָבִים!",
-  "ipa": "petˈaʁtem belˈi taujˈot? tekabelˈu ʃeloʃˈa koχavˈim!",
-  "heard": "פתרתם בליטריות, תקבלו שלושה כוכבים"
+  "ipa": "petˈaʁtem belˈi taujˈot? tekabelˈu ʃeloʃˈa koχavˈim!"
  },
  "hub.keepforest.1": {
-  "h": "1e8352bc57b5",
+  "h": "7636b3a8050e",
   "text": "בְּמַחֲזִיקִים אֶת הַיַּעַר בּוֹנִים יַעַר מֵהַקְּלָפִים שֶׁלָּכֶם.",
-  "ipa": "bemaχazikˈim ˈet hajˈaaʁ bonˈim jˈaaʁ mehakelafˈim ʃelaχˈem.",
-  "heard": "במחזיקים את הים, בונים ים הכלפים שלכם"
+  "ipa": "bemaχazikˈim ˈet hajˈaaʁ bonˈim jˈaaʁ mehakelafˈim ʃelaχˈem."
  },
  "hub.keepforest.2": {
-  "h": "bd16d9d7dc21",
+  "h": "3a6f37f0fbab",
   "text": "אַחַר כָּךְ בָּאִים קְשָׁיִים: בְּצוּרַת, שְׂרֵיפָה אוֹ כְּרִיתָה.",
-  "ipa": "ˈaχaʁ kˈaχ baˈim keʃajˈim, betsuʁˈat, seʁejfˈa ʔˈo keʁitˈa.",
-  "heard": "אחר כך באים קשים בצורת צרף או כריתה"
+  "ipa": "ˈaχaʁ kˈaχ baˈim keʃajˈim, betsuʁˈat, seʁejfˈa ʔˈo keʁitˈa."
  },
  "hub.keepforest.2.k": {
-  "h": "e696c9c70d2d",
+  "h": "86504b5e0100",
   "text": "אַחַר כָּךְ בָּאִים קְשָׁיִים: בַּצֹּרֶת, שְׂרֵפָה אוֹ כְּרִיתָה.",
-  "ipa": "ˈaχaʁ kˈaχ baˈim keʃajˈim, batsˈoʁet, seʁefˈa ʔˈo keʁitˈa.",
-  "heard": "אחר כך באים קשיים, בצורת צרפה"
+  "ipa": "ˈaχaʁ kˈaχ baˈim keʃajˈim, batsˈoʁet, seʁefˈa ʔˈo keʁitˈa."
  },
  "hub.keepforest.3": {
-  "h": "6714df358bce",
+  "h": "ba1aa15a42f3",
   "text": "יַעַר עִם הַרְבֵּה קְשָׁרִים מַחֲזִיק מַעֲמָד. בַּחֲרוּ מָקוֹם וְיוֹצְאִים לַדֶּרֶךְ!",
-  "ipa": "jˈaaʁ ˈim haʁbˈe keʃaʁˈim maχazˈik maamˈad. baχaʁˈu makˈom vejotsˈim ladˈeʁeχ!",
-  "heard": "יערים הרבה קשרים מחזיק מעמד, בחרו מקום, ויוצאים לדרך"
+  "ipa": "jˈaaʁ ˈim haʁbˈe keʃaʁˈim maχazˈik maamˈad. baχaʁˈu makˈom vejotsˈim ladˈeʁeχ!"
  },
  "hub.duel.1": {
-  "h": "087125bc0249",
+  "h": "f43a10c8b8a8",
   "text": "בְּמִי חָזָק בָּרֶשֶׁת הַקְּלָפִים שֶׁלָּכֶם מִתְמוֹדְדִים מוּל קַלְפֵי הַמַּחְשֵׁב.",
-  "ipa": "bemˈi χazˈak baʁˈeʃet hakelafˈim ʃelaχˈem mitmoddˈim mˈul kalfˈej hamaχʃˈev.",
-  "heard": "במי חזק ברשת הקלפים שלכם מתמודדים מול קלפי המחשב"
+  "ipa": "bemˈi χazˈak baʁˈeʃet hakelafˈim ʃelaχˈem mitmoddˈim mˈul kalfˈej hamaχʃˈev."
  },
  "hub.duel.2": {
-  "h": "fcbb58322e51",
+  "h": "4a46b823479a",
   "text": "בְּכָל סֶבֶב יֵשׁ תְּכוּנָה אַחַת, לְמָשָׁל אוֹר אוֹ מַיִם.",
-  "ipa": "beχˈol sˈevev jˈeʃ teχunˈa ˈaχat, lemaʃˈal ʔˈoʁ ʔˈo mˈajim.",
-  "heard": "בכל סבב יש תכונה אחת, למשל, או מים"
+  "ipa": "beχˈol sˈevev jˈeʃ teχunˈa ˈaχat, lemaʃˈal ʔˈoʁ ʔˈo mˈajim."
  },
  "hub.duel.3": {
-  "h": "0637c73a971a",
+  "h": "2ca0aa8e0fd0",
   "text": "בַּחֲרוּ קְלָף מִלְּמַטָּה. הַמִּסְפָּר הַגָּבוֹהַּ מְנַצֵּחַ!",
-  "ipa": "baχaʁˈu kelˈaf milematˈa. hamispˈaʁ hagavohˈa menatsˈeaχ!",
-  "heard": "מכרו כלף מלמטה המספר האבוהה מנצח"
+  "ipa": "baχaʁˈu kelˈaf milematˈa. hamispˈaʁ hagavohˈa menatsˈeaχ!"
  },
  "hub.inventors.1": {
-  "h": "baac7df70b83",
+  "h": "a69dc320f0f2",
   "text": "כָּאן פּוֹתְרִים בְּעָיוֹת אֲמִיתִּיּוֹת בְּעֶזְרַת הַיְּצוּרִים שֶׁבַּקְּלָפִים שֶׁלָּכֶם.",
-  "ipa": "kˈan potʁˈim beajˈot amitiˈot beezʁˈat hajetsuʁˈim ʃebakelafˈim ʃelaχˈem.",
-  "heard": "כאן פותרים בעיות אמיתיות בעזרת היצורים שבקלפים שלכם"
+  "ipa": "kˈan potʁˈim beajˈot amitiˈot beezʁˈat hajetsuʁˈim ʃebakelafˈim ʃelaχˈem."
  },
  "hub.inventors.1.k": {
-  "h": "772193a3f088",
+  "h": "d3e9f8eba0b2",
   "text": "כָּאן פּוֹתְרִים בְּעָיוֹת אֲמִתִּיּוֹת בְּעֶזְרַת הַיְּצוּרִים שֶׁבַּקְּלָפִים שֶׁלָּכֶם.",
-  "ipa": "kˈan potʁˈim beajˈot amitiˈot beezʁˈat hajetsuʁˈim ʃebakelafˈim ʃelaχˈem.",
-  "heard": "כאן פותרים בעיות מיתיות בעזרת היצורים שבקלפים שלכם"
+  "ipa": "kˈan potʁˈim beajˈot amitiˈot beezʁˈat hajetsuʁˈim ʃebakelafˈim ʃelaχˈem."
  },
  "hub.inventors.2": {
-  "h": "5f556e6587d0",
+  "h": "3a13e62cce71",
   "text": "בּוֹחֲרִים בְּעָיָה, שָׂמִים קְלָף אוֹ שְׁנַיִים, וּבוֹדְקִים. מוּתָּר לִטְעוֹת!",
-  "ipa": "boχaʁˈim beajˈa, samˈim kelˈaf ʔˈo ʃenajˈim, uvodkˈim. mutˈaʁ litʔˈot!",
-  "heard": "בוחרים בעיה, שמים כלח או שיניים ובודקים, מותר"
+  "ipa": "boχaʁˈim beajˈa, samˈim kelˈaf ʔˈo ʃenajˈim, uvodkˈim. mutˈaʁ litʔˈot!"
  },
  "hub.inventors.2.k": {
-  "h": "cd21f99ecb39",
+  "h": "744840d88732",
   "text": "בּוֹחֲרִים בְּעָיָה, שָׂמִים קְלָף אוֹ שְׁנַיִם, וּבוֹדְקִים. מֻתָּר לִטְעוֹת!",
-  "ipa": "boχaʁˈim beajˈa, samˈim kelˈaf ʔˈo ʃenˈajim, uvodkˈim. mutˈaʁ litʔˈot!",
-  "heard": "בוחרים בעיה, שמים כלף ראש עיניים ובודקים מותר"
+  "ipa": "boχaʁˈim beajˈa, samˈim kelˈaf ʔˈo ʃenˈajim, uvodkˈim. mutˈaʁ litʔˈot!"
  },
  "hub.inventors.3": {
-  "h": "3d69c9bb5f6b",
+  "h": "059fd2c2d250",
   "text": "וְהַכַּפְתּוֹר הַזֶּה הוּא סַדְנַת הָרוֹבּוֹטִים! שָׁם בּוֹנִים רוֹבּוֹט מִתְּכוּנוֹת שֶׁל יְצוּרִים.",
-  "ipa": "vehakaftˈoʁ hazˈe hˈu sadnˈat haʁobotˈim! ʃˈam bonˈim ʁobˈot miteχunˈot ʃˈel jetsuʁˈim.",
-  "heard": "והכפתור הזה הוא סדנת הרובוטים, שם בונים רובוט מתיכונות של יצורים"
+  "ipa": "vehakaftˈoʁ hazˈe hˈu sadnˈat haʁobotˈim! ʃˈam bonˈim ʁobˈot miteχunˈot ʃˈel jetsuʁˈim."
  },
  "hub.inventors.4": {
-  "h": "84b40b75c11b",
+  "h": "0b19aa2834bb",
   "text": "הָרוֹבּוֹט עוֹבֵר מִבְחָנִים בַּשֶּׁטַח. נַסּוּ גַּם אַתֶּם!",
-  "ipa": "haʁobˈot ʔovˈeʁ mivχanˈim baʃˈetaχ. nasˈu gˈam atˈem!",
-  "heard": "הרובוט עובר מבחנים בשטח, נסעו גם אתם"
+  "ipa": "haʁobˈot ʔovˈeʁ mivχanˈim baʃˈetaχ. nasˈu gˈam atˈem!"
  },
  "hub.expedition.1": {
-  "h": "644c719aa21b",
+  "h": "fb06aa980e75",
   "text": "בַּמִּשְׁלַחַת לְעוֹמֶק צוֹלְלִים לְשׁוֹנִית עִם צֶוֶות שֶׁל אַרְבָּעָה קְלָפִים.",
-  "ipa": "bamiʃlˈaχat leʔˈomek tsollˈim leʃonˈit ˈim tsevˈevt ʃˈel aʁbaˈa kelafˈim.",
-  "heard": "במשלחת לעומק צוללים לשונית עם צווית של ארבעה קלפים"
+  "ipa": "bamiʃlˈaχat leʔˈomek tsollˈim leʃonˈit ˈim tsevˈevt ʃˈel aʁbaˈa kelafˈim."
  },
  "hub.expedition.1.k": {
-  "h": "5b85bb546b7d",
+  "h": "a541f6926b3e",
   "text": "בְּמִשְׁלַחַת לָעֹמֶק צוֹלְלִים לַשּׁוּנִית עִם צֶוֶת שֶׁל אַרְבָּעָה קְלָפִים.",
-  "ipa": "bemiʃlˈaχat laˈomek tsollˈim laʃunˈit ˈim tsˈevet ʃˈel aʁbaˈa kelafˈim.",
-  "heard": "במשלחת לעומק צוללים לשונית עם צוות של ארבעה קלפים"
+  "ipa": "bemiʃlˈaχat laˈomek tsollˈim laʃunˈit ˈim tsˈevet ʃˈel aʁbaˈa kelafˈim."
  },
  "hub.expedition.2": {
-  "h": "2751401467ed",
+  "h": "ed14896d1dd6",
   "text": "בָּחֲרוּ אֶת הַצֶּוֶות מֵהַקְּלָפִים שֶׁלָּכֶם.",
-  "ipa": "baχaʁˈu ˈet hatsevˈevt mehakelafˈim ʃelaχˈem.",
-  "heard": "בחרו את הצוות מהקלפים שלכם"
+  "ipa": "baχaʁˈu ˈet hatsevˈevt mehakelafˈim ʃelaχˈem."
  },
  "hub.expedition.2.k": {
-  "h": "f254fabc701a",
+  "h": "5caba1961381",
   "text": "בַּחֲרוּ אֶת הַצֶּוֶת מֵהַקְּלָפִים שֶׁלָּכֶם.",
-  "ipa": "baχaʁˈu ˈet hatsˈevet mehakelafˈim ʃelaχˈem.",
-  "heard": "בחרו את הצוות מהקלפים שלכם"
+  "ipa": "baχaʁˈu ˈet hatsˈevet mehakelafˈim ʃelaχˈem."
  },
  "hub.expedition.3": {
-  "h": "8d588b6a1cfb",
+  "h": "c6d0512512da",
   "text": "בְּכָל עוֹמֶק מַחֲלִיטִים: לָרֶדֶת עוֹד, אוֹ לַחֲזוֹר לַסִּירָה עִם הַדְּגִימוֹת.",
-  "ipa": "beχˈol ʔˈomek maχalitˈim, laʁˈedet ʔˈod, ʔˈo laχazˈoʁ lasiʁˈa ˈim hadegimˈot.",
-  "heard": "בכל אומק מחליטים לרדת עוד או לחזור לסירה עם הדהימות"
+  "ipa": "beχˈol ʔˈomek maχalitˈim, laʁˈedet ʔˈod, ʔˈo laχazˈoʁ lasiʁˈa ˈim hadegimˈot."
  },
  "hub.expedition.3.k": {
-  "h": "65834515becc",
+  "h": "22016ea79270",
   "text": "בְּכָל עֹמֶק מַחְלִיטִים: לָרֶדֶת עוֹד, אוֹ לַחֲזֹר לַסִּירָה עִם הַדְּגִימוֹת.",
-  "ipa": "beχˈol ˈomek maχlitˈim, laʁˈedet ʔˈod, ʔˈo laχazˈoʁ lasiʁˈa ˈim hadegimˈot.",
-  "heard": "בכל עומק מחליטים לרדת עוד, או לחזור לסירה עם הדעימות"
+  "ipa": "beχˈol ˈomek maχlitˈim, laʁˈedet ʔˈod, ʔˈo laχazˈoʁ lasiʁˈa ˈim hadegimˈot."
  },
  "hub.versematch.1": {
-  "h": "7f0addf057bd",
+  "h": "77ce490bf74f",
   "text": "בְּמָה הַפָּסוּק מְלַמֵּד יֵשׁ קְלַף מָקוֹר עִם פָּסוּק.",
-  "ipa": "bemˈa hapasˈuk melamˈed jˈeʃ kelˈaf makˈoʁ ˈim pasˈuk.",
-  "heard": "ומה הפסוק מלמד יש כלף מקור עם פסוק."
+  "ipa": "bemˈa hapasˈuk melamˈed jˈeʃ kelˈaf makˈoʁ ˈim pasˈuk."
  },
  "hub.versematch.2": {
-  "h": "aa6768d18414",
+  "h": "d84df54067ee",
   "text": "קוֹרְאִים אֶת הַפָּסוּק, וּבוֹחֲרִים קְלָף מֵהָאַלְבּוֹם שֶׁמַּתְאִים לְמָה שֶׁהוּא מְלַמֵּד.",
-  "ipa": "koʁˈim ˈet hapasˈuk, uvoχaʁˈim kelˈaf mehaalbˈom ʃematˈim lemˈa ʃehˈu melamˈed.",
-  "heard": "קוראים את הפסוק ובוחרים כלף מאלבום שמתאים למה שהוא מלמד"
+  "ipa": "koʁˈim ˈet hapasˈuk, uvoχaʁˈim kelˈaf mehaalbˈom ʃematˈim lemˈa ʃehˈu melamˈed."
  },
  "hub.versematch.3": {
-  "h": "de0db4d72b98",
+  "h": "475a799bc852",
   "text": "לִפְעָמִים יֵשׁ יוֹתֵר מִתְּשׁוּבָה אַחַת. חִשְׁבוּ בְּעִיּוּן!",
-  "ipa": "lifamˈim jˈeʃ jotˈeʁ miteʃuvˈa ˈaχat. χiʃvˈu beiˈun!",
-  "heard": "לפעמים יש יותר מתשובה אחת, תשבו בעיון"
+  "ipa": "lifamˈim jˈeʃ jotˈeʁ miteʃuvˈa ˈaχat. χiʃvˈu beiˈun!"
  },
  "lab.scope.1": {
-  "h": "3510080170d4",
+  "h": "e9a6b1c90a64",
   "text": "זֶה הַמִּיקְרוֹסְקוֹפּ. הוּא מַגְדִּיל דְּבָרִים קְטַנִּים מְאוֹד.",
-  "ipa": "zˈe hamikʁoskˈop. hˈu magdˈil devaʁˈim ketanˈim meʔˈod.",
-  "heard": "זה המיקרוסקופ, הוא מדאי דברים קטנים"
+  "ipa": "zˈe hamikʁoskˈop. hˈu magdˈil devaʁˈim ketanˈim meʔˈod."
  },
  "lab.scope.1.k": {
-  "h": "67565a9da43a",
+  "h": "89dee7ec61ee",
   "text": "זֶה הַמִּיקְרוֹסְקוֹפּ. הוּא מַגְדִּיל דְּבָרִים קְטַנִּים מְאֹד.",
-  "ipa": "zˈe hamikʁoskˈop. hˈu magdˈil devaʁˈim ketanˈim meˈod.",
-  "heard": "זה המיקרוסקופ, הוא מדהיל דברים קטנים מאוד"
+  "ipa": "zˈe hamikʁoskˈop. hˈu magdˈil devaʁˈim ketanˈim meˈod."
  },
  "lab.scope.2": {
-  "h": "423c4178625b",
+  "h": "1948d7ac13df",
   "text": "בַּחֲרוּ דְּגִימָה מֵהַמַּגָּשׁ שֶׁבַּצַּד.",
-  "ipa": "baχaʁˈu degimˈa mehamagˈaʃ ʃebatsˈad.",
-  "heard": "בחרו דמא מהמע"
+  "ipa": "baχaʁˈu degimˈa mehamagˈaʃ ʃebatsˈad."
  },
  "lab.scope.3": {
-  "h": "2e2846defd73",
+  "h": "195c214b6b9a",
   "text": "הֵזִיזוּ אֶת הַמִּיקּוּד עַד שֶׁהַתְּמוּנָה חַדָּה, וְאָז הִגְדִּילוּ.",
-  "ipa": "hezizˈu ˈet hamikˈud ˈad ʃehatemunˈa χadˈa, veˈaz higdilˈu.",
-  "heard": "זו את המיקוד עד שהתמון החדה ואז ידילו"
+  "ipa": "hezizˈu ˈet hamikˈud ˈad ʃehatemunˈa χadˈa, veˈaz higdilˈu."
  },
  "lab.scope.3.k": {
-  "h": "a3cf48663722",
+  "h": "fe85bb84f7e3",
   "text": "הָזִיזוּ אֶת הַמִּקּוּד עַד שֶׁהַתְּמוּנָה חַדָּה, וְאָז הַגְדִּילוּ.",
-  "ipa": "hazizˈu ˈet hamikˈud ˈad ʃehatemunˈa χadˈa, veˈaz hagdilˈu.",
-  "heard": "הזזו את המיקוד עד שאת אמונה חדה ואז"
+  "ipa": "hazizˈu ˈet hamikˈud ˈad ʃehatemunˈa χadˈa, veˈaz hagdilˈu."
  },
  "lab.scope.4": {
-  "h": "a31baacddb84",
+  "h": "8734b25e651d",
   "text": "בְּכָל דְּגִימָה מִסְתַּתְּרִים שְׁלוֹשָׁה סוֹדוֹת. לָחֲצוּ עֲלֵיהֶם כְּשֶׁתִּמְצְאוּ!",
-  "ipa": "beχˈol degimˈa mistateʁˈim ʃeloʃˈa sodˈot. laχatsˈu alejhˈem keʃetimtseʔˈu!",
-  "heard": "בכל דעימה מסתתרים שלושה סודות, לחצור עליהם כשתמצאו."
+  "ipa": "beχˈol degimˈa mistateʁˈim ʃeloʃˈa sodˈot. laχatsˈu alejhˈem keʃetimtseʔˈu!"
  },
  "lab.scope.4.k": {
-  "h": "e3254fb87bcd",
+  "h": "4706cf1c241d",
   "text": "בְּכָל דְּגִימָה מִסְתַּתְּרִים שְׁלֹשָׁה סוֹדוֹת. לִחְצוּ עֲלֵיהֶם!",
-  "ipa": "beχˈol degimˈa mistateʁˈim ʃeloʃˈa sodˈot. liχtsˈu alejhˈem!",
-  "heard": "בכל דעימה מסתתר עם שלושה סודות, לחצו עליהם"
+  "ipa": "beχˈol degimˈa mistateʁˈim ʃeloʃˈa sodˈot. liχtsˈu alejhˈem!"
  },
  "lab.atlas.1": {
-  "h": "b21e607d6b23",
+  "h": "be6e34a74836",
   "text": "זֶה הָאַטְלָס, הַסֵּפֶר שֶׁל כָּל הַיְּצוּרִים שֶׁחֲקַרְתֶּם.",
-  "ipa": "zˈe haatlˈas, hasˈefeʁ ʃˈel kˈol hajetsuʁˈim ʃeχakˈaʁtem.",
-  "heard": "זה אטלס, הספר של כל היצורים שחקרתם"
+  "ipa": "zˈe haatlˈas, hasˈefeʁ ʃˈel kˈol hajetsuʁˈim ʃeχakˈaʁtem."
  },
  "lab.atlas.2": {
-  "h": "8867629048f2",
+  "h": "a4af4d388e8f",
   "text": "כָּל יְצוּר מְקַבֵּל דַּף, וְעָלָיו חוֹתָמוֹת.",
-  "ipa": "kˈol jetsˈuʁ mekabˈel dˈaf, vealˈajv χotamˈot.",
-  "heard": "כל יצור מקבל דף ועלייב חות"
+  "ipa": "kˈol jetsˈuʁ mekabˈel dˈaf, vealˈajv χotamˈot."
  },
  "lab.atlas.3": {
-  "h": "388b61a31ba1",
+  "h": "d34cd188ae29",
   "text": "חוֹתֶמֶת אַחַת מְקַבְּלִים בַּמִיקְרוֹסְקוֹפּ, וְאַחַת בְּשׁוּלְחַן הַמַּמְצִיאִים.",
-  "ipa": "χotˈemet ˈaχat mekabelˈim bamikʁoskˈop, veˈaχat beʃulχˈan hamamtsiˈim.",
-  "heard": "חותמת אחת מקבלים במיקרוסקופ ואחת בשולחן הממצים"
+  "ipa": "χotˈemet ˈaχat mekabelˈim bamikʁoskˈop, veˈaχat beʃulχˈan hamamtsiˈim."
  },
  "lab.atlas.3.k": {
-  "h": "6dcdd90a9100",
+  "h": "066f6de37dae",
   "text": "חוֹתֶמֶת אַחַת מְקַבְּלִים בַּמִּיקְרוֹסְקוֹפּ, וְאַחַת בְּשֻׁלְחַן הַמַּמְצִיאִים.",
-  "ipa": "χotˈemet ˈaχat mekabelˈim bamikʁoskˈop, veˈaχat beʃulχˈan hamamtsiˈim.",
-  "heard": "חותמת, אחת מקבלים במיקרוסקופ, ואחת בשולחן הממציאים"
+  "ipa": "χotˈemet ˈaχat mekabelˈim bamikʁoskˈop, veˈaχat beʃulχˈan hamamtsiˈim."
  },
  "lab.atlas.4": {
-  "h": "cbeaf050f74a",
+  "h": "c395bc160f69",
   "text": "וְיֵשׁ כָּאן גַּם שְׁאֵלוֹת חֵקֶר. לִחְצוּ עַל הַכַּפְתּוֹר לְמַעְלָה.",
-  "ipa": "vejˈeʃ kˈan gˈam ʃeelˈot χˈekeʁ. liχtsˈu ˈal hakaftˈoʁ lemalˈa.",
-  "heard": "ויש כאן אמשלות חקר, לחצו על הכפתור למעלה"
+  "ipa": "vejˈeʃ kˈan gˈam ʃeelˈot χˈekeʁ. liχtsˈu ˈal hakaftˈoʁ lemalˈa."
  },
  "lab.table.1": {
-  "h": "f0be7c35ef4b",
+  "h": "9d9b7b25476a",
   "text": "זֶה שׁוּלְחַן הַמַּמְצִיאִים. כָּאן לוֹמְדִים מֵהַטֶּבַע, וּמַמְצִיאִים.",
-  "ipa": "zˈe ʃulχˈan hamamtsiˈim. kˈan lomdˈim mehatˈeva, umamtsiˈim.",
-  "heard": "זה שולחן הממציאים, כאן לומדים מהטבע ומומצי"
+  "ipa": "zˈe ʃulχˈan hamamtsiˈim. kˈan lomdˈim mehatˈeva, umamtsiˈim."
  },
  "lab.table.1.k": {
-  "h": "9a7b2a23a281",
+  "h": "649dd0d492b9",
   "text": "זֶה שֻׁלְחַן הַמַּמְצִיאִים. כָּאן לוֹמְדִים מֵהַטֶּבַע, וּמַמְצִיאִים.",
-  "ipa": "zˈe ʃulχˈan hamamtsiˈim. kˈan lomdˈim mehatˈeva, umamtsiˈim.",
-  "heard": "זה שולחן הממציאים, כאן לומדים הטבע וממציאים"
+  "ipa": "zˈe ʃulχˈan hamamtsiˈim. kˈan lomdˈim mehatˈeva, umamtsiˈim."
  },
  "lab.table.2": {
-  "h": "aadfeaab1981",
+  "h": "c5824b7423f3",
   "text": "בַּדֶּלֶת הַזֹּאת פּוֹתְרִים בְּעָיוֹת בְּעֶזְרַת הַיְּצוּרִים מֵהַקְּלָפִים שֶׁלָּכֶם.",
-  "ipa": "badˈelet hazˈot potʁˈim beajˈot beezʁˈat hajetsuʁˈim mehakelafˈim ʃelaχˈem.",
-  "heard": "בדלת הזאת פותרים בעיות בעזרת היצורים האקלפים שלכם"
+  "ipa": "badˈelet hazˈot potʁˈim beajˈot beezʁˈat hajetsuʁˈim mehakelafˈim ʃelaχˈem."
  },
  "lab.table.3": {
-  "h": "6d539de42c03",
+  "h": "c8ff52e9a2e8",
   "text": "וּבַדֶּלֶת הַזֹּאת בּוֹנִים רוֹבּוֹט, וְשׁוֹלְחִים אוֹתוֹ לִמְשִׂימָה!",
-  "ipa": "uvadˈelet hazˈot bonˈim ʁobˈot, veʃolχˈim ʔotˈo limsimˈa!",
-  "heard": "ובדלת הזאת בונים רובוט ושולחים אותו למשימה"
+  "ipa": "uvadˈelet hazˈot bonˈim ʁobˈot, veʃolχˈim ʔotˈo limsimˈa!"
  },
  "lab.table.4": {
-  "h": "13d7a8c0f4c9",
+  "h": "24ebbdf31156",
   "text": "מוּתָּר לִטְעוֹת. כָּכָה מַמְצִיאִים!",
-  "ipa": "mutˈaʁ litʔˈot. kaχˈa mamtsiˈim!",
-  "heard": "מותר לטעות ככה ממציאים"
+  "ipa": "mutˈaʁ litʔˈot. kaχˈa mamtsiˈim!"
  },
  "lab.table.4.k": {
-  "h": "e8d25e01e688",
+  "h": "4e92234d85e2",
   "text": "מֻתָּר לִטְעוֹת. כָּכָה מַמְצִיאִים!",
-  "ipa": "mutˈaʁ litʔˈot. kaχˈa mamtsiˈim!",
-  "heard": "מותר לטעות ככה ממציאים"
+  "ipa": "mutˈaʁ litʔˈot. kaχˈa mamtsiˈim!"
  },
  "lab.greenhouse.1": {
-  "h": "e3570bd3d776",
+  "h": "56c1cab72fdf",
   "text": "זוֹ הַחֲמָמָה. כָּאן צְמָחִים גְּדֵלִים מַהֵר מְאוֹד.",
-  "ipa": "zˈo haχamamˈa. kˈan tsemaχˈim gedelˈim mahˈeʁ meʔˈod.",
-  "heard": "זו חממה, קאנץ מכים בדלים מהר"
+  "ipa": "zˈo haχamamˈa. kˈan tsemaχˈim gedelˈim mahˈeʁ meʔˈod."
  },
  "lab.greenhouse.1.k": {
-  "h": "08faef37e6ff",
+  "h": "bc1e2fc0e8e0",
   "text": "זוֹ הַחֲמָמָה. כָּאן צְמָחִים גְּדֵלִים מַהֵר מְאֹד.",
-  "ipa": "zˈo haχamamˈa. kˈan tsemaχˈim gedelˈim mahˈeʁ meˈod.",
-  "heard": "זו חממה, קאנץ מכין בדלי מהר"
+  "ipa": "zˈo haχamamˈa. kˈan tsemaχˈim gedelˈim mahˈeʁ meˈod."
  },
  "lab.greenhouse.2": {
-  "h": "f0a745e7127b",
+  "h": "e76fbaf274b8",
   "text": "אֶפְשָׁר לְגַדֵּל חַמָנִיָּיה, וְלִרְאוֹת מָה עוֹזֵר לָהּ לִגְדּוֹל.",
-  "ipa": "efʃˈaʁ legadˈel χamanijˈaj, veliʁʔˈot mˈa ʔozˈeʁ lˈah ligdˈol.",
-  "heard": "אפשר להדל לך מה נהיי ולראות מה עוזר לה לגדול"
+  "ipa": "efʃˈaʁ legadˈel χamanijˈaj, veliʁʔˈot mˈa ʔozˈeʁ lˈah ligdˈol."
  },
  "lab.greenhouse.2.k": {
-  "h": "ce8b35c20ce7",
+  "h": "1955daee864d",
   "text": "אֶפְשָׁר לְגַדֵּל חַמָּנִיָּה, וְלִרְאוֹת מָה עוֹזֵר לָהּ לִגְדֹּל.",
-  "ipa": "efʃˈaʁ legadˈel χamanijˈa, veliʁʔˈot mˈa ʔozˈeʁ lˈah ligdˈol.",
-  "heard": "אפשר לאדל לך מנייה ולראות מה עוזר לה"
+  "ipa": "efʃˈaʁ legadˈel χamanijˈa, veliʁʔˈot mˈa ʔozˈeʁ lˈah ligdˈol."
  },
  "lab.greenhouse.3": {
-  "h": "26eb892f0d85",
+  "h": "bebec22e4bd1",
   "text": "אֶפְשָׁר לִבְנוֹת זֶרַע, וְלִבְדּוֹק לְאָן הוּא יַגִּיעַ.",
-  "ipa": "efʃˈaʁ livnˈot zˈeʁa, velivdˈok leˈan hˈu jagˈia.",
-  "heard": "אפשר לבנות זרע ולבדוק לאן הוא יהיה"
+  "ipa": "efʃˈaʁ livnˈot zˈeʁa, velivdˈok leˈan hˈu jagˈia."
  },
  "lab.greenhouse.3.k": {
-  "h": "2fb82c7eb8c6",
+  "h": "cc5478d6d125",
   "text": "אֶפְשָׁר לִבְנוֹת זֶרַע, וְלִבְדֹּק לְאָן הוּא יַגִּיעַ.",
-  "ipa": "efʃˈaʁ livnˈot zˈeʁa, velivdˈok leˈan hˈu jagˈia.",
-  "heard": "אפשר לבנות זרע ולבדוק לנו יהיה"
+  "ipa": "efʃˈaʁ livnˈot zˈeʁa, velivdˈok leˈan hˈu jagˈia."
  },
  "lab.greenhouse.4": {
-  "h": "8eb71e0811e8",
+  "h": "c387d69b7b8d",
   "text": "וּבְנִיסּוּי הַהוֹגֵן מְשַׁנִים רַק דָּבָר אֶחָד בְּכָל פַּעַם.",
-  "ipa": "uvnisˈuj hahogˈen meʃanˈim ʁˈak davˈaʁ eχˈad beχˈol pˈaam.",
-  "heard": "ובניסוי האוהן משנים רק דבר אחד"
+  "ipa": "uvnisˈuj hahogˈen meʃanˈim ʁˈak davˈaʁ eχˈad beχˈol pˈaam."
  },
  "lab.greenhouse.4.k": {
-  "h": "b11f91df91a1",
+  "h": "5c9b78821a36",
   "text": "וּבַנִּסּוּי הַהוֹגֵן מְשַׁנִּים רַק דָּבָר אֶחָד בְּכָל פַּעַם.",
-  "ipa": "uvanisˈuj hahogˈen meʃanˈim ʁˈak davˈaʁ eχˈad beχˈol pˈaam.",
-  "heard": "ובניסוי ההוא הם משנים רק דבר אחד בכל פעם"
+  "ipa": "uvanisˈuj hahogˈen meʃanˈim ʁˈak davˈaʁ eχˈad beχˈol pˈaam."
  },
  "lab.aquarium.1": {
-  "h": "3c036cf52603",
+  "h": "2d33f6a33eb0",
   "text": "זֶה הָאַקְוַורְיוּם. הַדָּגִים כָּאן בָּאוּ מֵהַשּׁוֹנִית שֶׁל אֵילַת.",
-  "ipa": "zˈe haakvavʁjˈum. hadagˈim kˈan baʔˈu mehaʃonˈit ʃˈel ejlˈat.",
-  "heard": "זעק ובריום, הדאים כאן באו מהשונית של אילת"
+  "ipa": "zˈe haakvavʁjˈum. hadagˈim kˈan baʔˈu mehaʃonˈit ʃˈel ejlˈat."
  },
  "lab.aquarium.1.k": {
-  "h": "213ef42d9709",
+  "h": "f25a0f031bdc",
   "text": "זֶה הָאַקְוַרְיוּם. הַדָּגִים כָּאן בָּאוּ מֵהַשּׁוּנִית שֶׁל אֵילַת.",
-  "ipa": "zˈe haakvaʁjˈum. hadagˈim kˈan baʔˈu mehaʃunˈit ʃˈel ejlˈat.",
-  "heard": "זה הקבריום, הדאים כאן באומה שונית של אילת"
+  "ipa": "zˈe haakvaʁjˈum. hadagˈim kˈan baʔˈu mehaʃunˈit ʃˈel ejlˈat."
  },
  "lab.aquarium.2": {
-  "h": "a269022140f5",
+  "h": "008095c33183",
   "text": "בְּשׁוֹנִית בַּקּוּפְסָה בּוֹחֲרִים מִי גָּר בָּהּ, וְרוֹאִים מִי נִשְׁאַר.",
-  "ipa": "beʃonˈit bakufsˈa boχaʁˈim mˈi gˈaʁ bˈah, veʁoˈim mˈi niʃˈaʁ.",
-  "heard": "בשנים בקופסה בוחרים מארבע ורואים מי נשאר"
+  "ipa": "beʃonˈit bakufsˈa boχaʁˈim mˈi gˈaʁ bˈah, veʁoˈim mˈi niʃˈaʁ."
  },
  "lab.aquarium.2.k": {
-  "h": "3716fe40396f",
+  "h": "c05dcfb11056",
   "text": "בַּשּׁוּנִית בַּקֻּפְסָה בּוֹחֲרִים מִי גָּר בָּהּ, וְרוֹאִים מִי נִשְׁאָר.",
-  "ipa": "baʃunˈit bakufsˈa boχaʁˈim mˈi gˈaʁ bˈah, veʁoˈim mˈi niʃˈaʁ.",
-  "heard": "השומעית בקופסה בוחרים מארבע ורואים"
+  "ipa": "baʃunˈit bakufsˈa boχaʁˈim mˈi gˈaʁ bˈah, veʁoˈim mˈi niʃˈaʁ."
  },
  "lab.aquarium.3": {
-  "h": "abe14f8c09be",
+  "h": "e47126a70fb6",
   "text": "בְּמִשְׂחָק \"יוֹם וָלַיְלָה\" מְגַלִּים מִי עֵר בַּחוֹשֶׁךְ.",
-  "ipa": "bemisχˈak jˈom valajlˈa megalˈim mˈi ˈeʁ baχˈoʃeχ.",
-  "heard": "במשחק יום ולילה מעלים יר בחושך"
+  "ipa": "bemisχˈak jˈom valajlˈa megalˈim mˈi ˈeʁ baχˈoʃeχ."
  },
  "lab.aquarium.3.k": {
-  "h": "cc6224157df7",
+  "h": "024dfdcdd9e7",
   "text": "בַּמִּשְׂחָק \"יוֹם וָלַיְלָה\" מְגַלִּים מִי עֵר בַּחֹשֶׁךְ.",
-  "ipa": "bamisχˈak jˈom valajlˈa megalˈim mˈi ˈeʁ baχˈoʃeχ.",
-  "heard": "במשחק יום ולילה מעלים מעיר בחושך"
+  "ipa": "bamisχˈak jˈom valajlˈa megalˈim mˈi ˈeʁ baχˈoʃeχ."
  },
  "lab.aquarium.4": {
-  "h": "608eb41da0a3",
+  "h": "d4e2e7d46a65",
   "text": "וּבַמִּשְׂחָק \"צָף אוֹ שׁוֹקֵעַ?\" מְנַחֲשִׁים, וְרַק אַחַר כָּךְ בּוֹדְקִים.",
-  "ipa": "uvamisχˈak tsˈaf ʔˈo ʃokˈea? menaχaʃˈim, veʁˈak ˈaχaʁ kˈaχ bodkˈim.",
-  "heard": "במשחק צף או שוקע מנחשים, ורק אחר כך בודקים."
+  "ipa": "uvamisχˈak tsˈaf ʔˈo ʃokˈea? menaχaʃˈim, veʁˈak ˈaχaʁ kˈaχ bodkˈim."
  },
  "lab.cabinet.1": {
-  "h": "7eea27407054",
+  "h": "3d51f2d19326",
   "text": "זֶה אֲרוֹן הָאוֹסֶף. כָּאן שׁוֹמְרִים כָּל מָה שֶׁמָּצָאתֶם.",
-  "ipa": "zˈe aʁˈon haʔˈosef. kˈan ʃomʁˈim kˈol mˈa ʃematsˈatem.",
-  "heard": "זה ארון האוסף, כאן שאומרים כל מה"
+  "ipa": "zˈe aʁˈon haʔˈosef. kˈan ʃomʁˈim kˈol mˈa ʃematsˈatem."
  },
  "lab.cabinet.1.k": {
-  "h": "93e34e132fd0",
+  "h": "252a7745467a",
   "text": "זֶה אֲרוֹן הָאֹסֶף. כָּאן שׁוֹמְרִים כָּל מָה שֶׁמְּצָאתֶם.",
-  "ipa": "zˈe aʁˈon haˈosef. kˈan ʃomʁˈim kˈol mˈa ʃemetsˈatem.",
-  "heard": "זה ארון האוסף. כאן שומרים כל מה שמצא"
+  "ipa": "zˈe aʁˈon haˈosef. kˈan ʃomʁˈim kˈol mˈa ʃemetsˈatem."
  },
  "lab.cabinet.2": {
-  "h": "183075ba74e7",
+  "h": "bfccaa7f4ac1",
   "text": "עַל הַמַּדָּפִים יֵשׁ מִמְצָאִים מֵהַתַּעֲלוּמוֹת, מֵהַמִּשְׁלַחַת וּמֵהַמַּמְצִיאִים.",
-  "ipa": "ˈal hamadafˈim jˈeʃ mimtsaˈim mehataalumˈot, mehamiʃlˈaχat umehamamtsiˈim.",
-  "heard": "על המדפים יש ממצאים מהתעלומות, מהמשלחת ומהממציא"
+  "ipa": "ˈal hamadafˈim jˈeʃ mimtsaˈim mehataalumˈot, mehamiʃlˈaχat umehamamtsiˈim."
  },
  "lab.cabinet.3": {
-  "h": "1596a97f5e2d",
+  "h": "0866a2fdd706",
   "text": "בְּמִשְׂחַק הַמִּיּוּן אַתֶּם מְמַיְּינִים, וַאֲנִי מְנַחֵשׁ אֶת הַכְּלָל.",
-  "ipa": "bemisχˈak hamiˈun atˈem memajejnˈim, vaanˈi menaχˈeʃ ˈet hakelˈal.",
-  "heard": "במשחק המיון אתם ממיינים, ואני מנחש את הכלר"
+  "ipa": "bemisχˈak hamiˈun atˈem memajejnˈim, vaanˈi menaχˈeʃ ˈet hakelˈal."
  },
  "lab.cabinet.3.k": {
-  "h": "72a15c9c3d4d",
+  "h": "9eb7d68a1fed",
   "text": "בְּמִשְׂחַק הַמִּיּוּן אַתֶּם מְמַיְּנִים, וַאֲנִי מְנַחֵשׁ אֶת הַכְּלָל.",
-  "ipa": "bemisχˈak hamiˈun atˈem memajenˈim, vaanˈi menaχˈeʃ ˈet hakelˈal.",
-  "heard": "במשחק המיון אתם ממאיינים, ואני מנחש את הכלל"
+  "ipa": "bemisχˈak hamiˈun atˈem memajenˈim, vaanˈi menaχˈeʃ ˈet hakelˈal."
  },
  "lab.cabinet.4": {
-  "h": "95f65627e74d",
+  "h": "1e7855ca167d",
   "text": "וּבַמִּשְׂחָק \"מִי הִשְׁאִיר אֶת זֶה?\" מְגַלִּים מִי עָבַר כָּאן, לְפִי רְמָזִים.",
-  "ipa": "uvamisχˈak mˈi hiʃˈiʁ ˈet zˈe? megalˈim mˈi avˈaʁ kˈan, lefˈi ʁemazˈim.",
-  "heard": "ובמשחק מי השאיר את זה, מעלים מעבר כאן? לפי רמזים"
+  "ipa": "uvamisχˈak mˈi hiʃˈiʁ ˈet zˈe? megalˈim mˈi avˈaʁ kˈan, lefˈi ʁemazˈim."
  },
  "lab.locks.stage4": {
-  "h": "c3bbdc525713",
+  "h": "690f71475bbe",
   "text": "אֶת זֶה נִפְתַּח כְּשֶׁתִּהְיוּ חוֹקְרִים. עוֹד כַּמָּה מְשִׂימוֹת בָּאִיִּים!",
-  "ipa": "ˈet zˈe niftˈaχ keʃetihjˈu χokʁˈim. ʔˈod kamˈa mesimˈot baijˈim!",
-  "heard": "וזה נפתח כשתהיו חוקרים, עוד כמה משימות באים"
+  "ipa": "ˈet zˈe niftˈaχ keʃetihjˈu χokʁˈim. ʔˈod kamˈa mesimˈot baijˈim!"
  },
  "lab.locks.stage5": {
-  "h": "426cf124a212",
+  "h": "0651b22ef7c4",
   "text": "אֶת זֶה נִפְתַּח כְּשֶׁתִּהְיוּ מַמְצִיאִים. כָּל גִּילּוּי בְּמִיקְרוֹסְקוֹפּ מְקָּרֵב אֶתְכֶם!",
-  "ipa": "ˈet zˈe niftˈaχ keʃetihjˈu mamtsiˈim. kˈol gilˈuj bemikʁoskˈop mekaʁˈev etχˈem!",
-  "heard": "את זה נפתח כשתהיו ממציאים, כל עילוי במיקרוסקופ מקרב אתכם"
+  "ipa": "ˈet zˈe niftˈaχ keʃetihjˈu mamtsiˈim. kˈol gilˈuj bemikʁoskˈop mekaʁˈev etχˈem!"
  },
  "lab.locks.stage5.k": {
-  "h": "b3a4d2729a77",
+  "h": "59ac0ca7a141",
   "text": "אֶת זֶה נִפְתַּח כְּשֶׁתִּהְיוּ מַמְצִיאִים. כָּל גִּלּוּי בַּמִּיקְרוֹסְקוֹפּ מְקָרֵב אֶתְכֶם!",
-  "ipa": "ˈet zˈe niftˈaχ keʃetihjˈu mamtsiˈim. kˈol gilˈuj bamikʁoskˈop mekaʁˈev etχˈem!",
-  "heard": "זה נפתח כשתהיו ממציאים. כל עילוי במיקרוסקופ מק"
+  "ipa": "ˈet zˈe niftˈaχ keʃetihjˈu mamtsiˈim. kˈol gilˈuj bamikʁoskˈop mekaʁˈev etχˈem!"
  },
  "lab.locks.later": {
-  "h": "994ea7aa8365",
+  "h": "f24eb29fbf58",
   "text": "אֶת זֶה נִפְתַּח בְּהֶמְשֵׁךְ הַמַּסָּע.",
-  "ipa": "ˈet zˈe niftˈaχ behemʃˈeχ hamasˈa.",
-  "heard": "אז אני אפתח בהמשך"
+  "ipa": "ˈet zˈe niftˈaχ behemʃˈeχ hamasˈa."
  },
  "lab.locks.greenhouse": {
-  "h": "80ef1e206025",
+  "h": "14f425dd7e8e",
   "text": "אֶת זֶה נִפְתַּח אַחֲרֵי שֶׁתְּנַסּוּ מַשֶּׁהוּ בַּחֲמָמָה.",
-  "ipa": "ˈet zˈe niftˈaχ aχaʁˈej ʃetenasˈu maʃehˈu baχamamˈa.",
-  "heard": "את זה נפתח אחרי שתנסו משהו בחממה"
+  "ipa": "ˈet zˈe niftˈaχ aχaʁˈej ʃetenasˈu maʃehˈu baχamamˈa."
  },
  "lab.locks.aquarium": {
-  "h": "3c303862eced",
+  "h": "c6322e26fa67",
   "text": "אֶת זֶה נִפְתַּח אַחֲרֵי שֶׁתְּנַסּוּ מַשֶּׁהוּ בָּאַקְוַורְיוּם.",
-  "ipa": "ˈet zˈe niftˈaχ aχaʁˈej ʃetenasˈu maʃehˈu baakvavʁjˈum.",
-  "heard": "איזה מבטח חרשתן עשו משהו, באקווריום"
+  "ipa": "ˈet zˈe niftˈaχ aχaʁˈej ʃetenasˈu maʃehˈu baakvavʁjˈum."
  },
  "lab.locks.aquarium.k": {
-  "h": "ec541765493e",
+  "h": "a22ed6671d1b",
   "text": "אֶת זֶה נִפְתַּח אַחֲרֵי שֶׁתְּנַסּוּ מַשֶּׁהוּ בָּאַקְוַרְיוּם.",
-  "ipa": "ˈet zˈe niftˈaχ aχaʁˈej ʃetenasˈu maʃehˈu baakvaʁjˈum.",
-  "heard": "איזה מבטח אחרי שתנסו משהו בא כבר איום"
+  "ipa": "ˈet zˈe niftˈaχ aχaʁˈej ʃetenasˈu maʃehˈu baakvaʁjˈum."
  },
  "research.intro.1": {
-  "h": "1fdc4b83e41b",
+  "h": "fa69eb70343a",
   "text": "בְּרוּכִים הַבָּאִים לְחוֹקְרֵי הַטֶּבַע!",
-  "ipa": "beʁuχˈim habaˈim leχokʁˈej hatˈeva!",
-  "heard": "ברוכים הבאים לחוקרי הטבע"
+  "ipa": "beʁuχˈim habaˈim leχokʁˈej hatˈeva!"
  },
  "research.intro.2": {
-  "h": "6430bb87a9b3",
+  "h": "776850df99f2",
   "text": "בְּכָל תַּעֲלוּמָה מַשֶּׁהוּ בַּטֶּבַע יָצָא מֵאִיזּוּן. אַתֶּם מְגַלִּים לָמָּה.",
-  "ipa": "beχˈol taalumˈa maʃehˈu batˈeva jatsˈa meizˈun. atˈem megalˈim lamˈa.",
-  "heard": "בכל תלומם, שהוא בטבע יצא מאיזון. אתם מיילאים"
+  "ipa": "beχˈol taalumˈa maʃehˈu batˈeva jatsˈa meizˈun. atˈem megalˈim lamˈa."
  },
  "research.intro.2.k": {
-  "h": "8f2b9eab99f4",
+  "h": "1a3f029639e7",
   "text": "בְּכָל תַּעֲלוּמָה מַשֶּׁהוּ בַּטֶּבַע יָצָא מֵאִזּוּן. אַתֶּם מְגַלִּים לָמָּה.",
-  "ipa": "beχˈol taalumˈa maʃehˈu batˈeva jatsˈa meizˈun. atˈem megalˈim lamˈa.",
-  "heard": "בכל תעלומה משהו בטבע יצא מיזון. אתם מעלים למה. מה?"
+  "ipa": "beχˈol taalumˈa maʃehˈu batˈeva jatsˈa meizˈun. atˈem megalˈim lamˈa."
  },
  "research.intro.3": {
-  "h": "009cb09b2b4e",
+  "h": "a5f6ad02be9b",
   "text": "מַתְחִילִים בָּרָמָה הַקַּלָּה, וְעוֹלִים כְּשֶׁמַּרְגִּישִׁים מוּכָנִים.",
-  "ipa": "matχilˈim baʁamˈa hakalˈa, veʔolˈim keʃemaʁgiʃˈim muχanˈim.",
-  "heard": "מתחילים ברמה הקלה ועולים כשמרעישים מוכנים"
+  "ipa": "matχilˈim baʁamˈa hakalˈa, veʔolˈim keʃemaʁgiʃˈim muχanˈim."
  },
  "research.intro.4": {
-  "h": "ac7af4145c99",
+  "h": "260b13986f87",
   "text": "פַּעַם רִאשׁוֹנָה? כָּאן נִפְתּוֹר יַחַד תַּעֲלוּמָה, צַעַד אַחַר צַעַד.",
-  "ipa": "pˈaam ʁiʃonˈa? kˈan niftˈoʁ jˈaχad taalumˈa, tsˈaad ˈaχaʁ tsˈaad.",
-  "heard": "פעם ראשונה כאן נפתור יחד על מה צעד אחר צעד"
+  "ipa": "pˈaam ʁiʃonˈa? kˈan niftˈoʁ jˈaχad taalumˈa, tsˈaad ˈaχaʁ tsˈaad."
  },
  "research.intro.4.k": {
-  "h": "d61cb85dff36",
+  "h": "a9ac2f28423f",
   "text": "פַּעַם רִאשׁוֹנָה? כָּאן נִפְתֹּר יַחַד תַּעֲלוּמָה, צַעַד אַחַר צַעַד.",
-  "ipa": "pˈaam ʁiʃonˈa? kˈan niftˈoʁ jˈaχad taalumˈa, tsˈaad ˈaχaʁ tsˈaad.",
-  "heard": "פעם ראשונה כאן יפתורי החתה לו מה, צעד אחר צעד"
+  "ipa": "pˈaam ʁiʃonˈa? kˈan niftˈoʁ jˈaχad taalumˈa, tsˈaad ˈaχaʁ tsˈaad."
  },
  "research.intro.5": {
-  "h": "36f5014d5fc9",
+  "h": "2b940eef7b15",
   "text": "בַּכַּפְתּוֹר הַזֶּה תִּמְצְאוּ שׁוּב אֶת הַהֶסְבֵּר הַקָּצָר.",
-  "ipa": "bakaftˈoʁ hazˈe timtseʔˈu ʃˈuv ˈet hahesbˈeʁ hakatsˈaʁ.",
-  "heard": "בכפתור הזה תמצאו שוב את ההסבר הקצר"
+  "ipa": "bakaftˈoʁ hazˈe timtseʔˈu ʃˈuv ˈet hahesbˈeʁ hakatsˈaʁ."
  },
  "zone.amazon.1": {
-  "h": "3cd05d0e2b96",
+  "h": "a1a87fe601ea",
   "text": "בְּרוּכִים הַבָּאִים לָאַמְזוֹנְס! כָּאן כּוּלָּם נֶאֱבָקִים עַל אוֹר הַשֶּׁמֶשׁ.",
-  "ipa": "beʁuχˈim habaˈim laamzˈon! kˈan kulˈam neevakˈim ˈal ʔˈoʁ haʃˈemeʃ.",
-  "heard": "ברוכים הבאים למזון, כאן כולם נאבקים על אור השמש."
+  "ipa": "beʁuχˈim habaˈim laamzˈon! kˈan kulˈam neevakˈim ˈal ʔˈoʁ haʃˈemeʃ."
  },
  "zone.amazon.1.k": {
-  "h": "26e73825fcd2",
+  "h": "4be9258bddcc",
   "text": "בְּרוּכִים הַבָּאִים לָאָמָזוֹנָס! כָּאן כֻּלָּם נֶאֱבָקִים עַל אוֹר הַשֶּׁמֶשׁ.",
-  "ipa": "beʁuχˈim habaˈim laamazonˈas! kˈan kulˈam neevakˈim ˈal ʔˈoʁ haʃˈemeʃ.",
-  "heard": "ברוכים הבאים למזונס, כאן כולם נאבקים על אור השמש"
+  "ipa": "beʁuχˈim habaˈim laamazonˈas! kˈan kulˈam neevakˈim ˈal ʔˈoʁ haʃˈemeʃ."
  },
  "zone.amazon.2": {
-  "h": "6c9d5163ab3a",
+  "h": "db8aa0c9dbe0",
   "text": "כָּאן מְחַכֶּה הַמְּשִׂימָה שֶׁלָּכֶם. הִיא אוֹמֶרֶת מָה לַעֲשׂוֹת עַכְשָׁיו.",
-  "ipa": "kˈan meχakˈe hamesimˈa ʃelaχˈem. hˈi ʔomˈeʁet mˈa laasˈot aχʃˈav.",
-  "heard": "כאן מחכה המשימה שלכם. היא אומרת מה לעשות עכשיו"
+  "ipa": "kˈan meχakˈe hamesimˈa ʃelaχˈem. hˈi ʔomˈeʁet mˈa laasˈot aχʃˈav."
  },
  "zone.amazon.2.k": {
-  "h": "f3cc4a5fa0ef",
+  "h": "4ac9e2f1aa42",
   "text": "כָּאן מְחַכָּה הַמְּשִׂימָה שֶׁלָּכֶם. הִיא אוֹמֶרֶת מָה לַעֲשׂוֹת עַכְשָׁו.",
-  "ipa": "kˈan meχakˈa hamesimˈa ʃelaχˈem. hˈi ʔomˈeʁet mˈa laasˈot aχʃˈav.",
-  "heard": "כאן מחכה משימה שלכם. היא אומרת מה לעשות עכשיו"
+  "ipa": "kˈan meχakˈa hamesimˈa ʃelaχˈem. hˈi ʔomˈeʁet mˈa laasˈot aχʃˈav."
  },
  "zone.amazon.3": {
-  "h": "fe24f593f89e",
+  "h": "40a2adb30a0b",
   "text": "גִּרְרוּ קְלָף מֵהַמַּגָּשׁ אֶל הַיַּעַר. כָּךְ מְבִיאִים צֶמַח אוֹ בַּעַל חַיִּים.",
-  "ipa": "giʁʁˈu kelˈaf mehamagˈaʃ ˈel hajˈaaʁ. kˈaχ meviˈim tsˈemaχ ʔˈo bˈaal χajˈim.",
-  "heard": "יראו כלאף מאמר של היער, כך מביאים צמח או בעל חיים."
+  "ipa": "giʁʁˈu kelˈaf mehamagˈaʃ ˈel hajˈaaʁ. kˈaχ meviˈim tsˈemaχ ʔˈo bˈaal χajˈim."
  },
  "zone.amazon.4": {
-  "h": "acb38fb651a8",
+  "h": "1c14392cc852",
   "text": "כָּאן הַנְּקוּדּוֹת שֶׁלָּכֶם. מְשַׁלְּמִים בָּהֶן עַל כָּל קְלָף.",
-  "ipa": "kˈan hanekudˈot ʃelaχˈem. meʃalemˈim bahˈen ˈal kˈol kelˈaf.",
-  "heard": "כאן הנקודות שלכם משלמים בהן על כל כליו"
+  "ipa": "kˈan hanekudˈot ʃelaχˈem. meʃalemˈim bahˈen ˈal kˈol kelˈaf."
  },
  "zone.amazon.4.k": {
-  "h": "6c9ddf40dd96",
+  "h": "12c035dcf4ca",
   "text": "כָּאן הַנְּקֻדּוֹת שֶׁלָּכֶם. מְשַׁלְּמִים בָּהֶן עַל כָּל קְלָף.",
-  "ipa": "kˈan hanekudˈot ʃelaχˈem. meʃalemˈim bahˈen ˈal kˈol kelˈaf.",
-  "heard": "כאן הנקודות שלכם, משלמים בהן על כל כלף."
+  "ipa": "kˈan hanekudˈot ʃelaχˈem. meʃalemˈim bahˈen ˈal kˈol kelˈaf."
  },
  "zone.amazon.5": {
-  "h": "88c64b6695d6",
+  "h": "d849fbb49bea",
   "text": "לֹא בְּטוּחִים מָה עַכְשָׁיו? לָחֲצוּ עַל \"מָה עוֹשִׂים עַכְשָׁיו?\" וַאֲנִי אֶעֱזוֹר.",
-  "ipa": "lˈo betuχˈim mˈa aχʃˈav? laχatsˈu ˈal mˈa ʔosˈim aχʃˈav? vaanˈi eezˈoʁ.",
-  "heard": "לא בטוחים עכשיו, לחצו, על מה עושים עכשיו ואני אזור"
+  "ipa": "lˈo betuχˈim mˈa aχʃˈav? laχatsˈu ˈal mˈa ʔosˈim aχʃˈav? vaanˈi eezˈoʁ."
  },
  "zone.amazon.5.k": {
-  "h": "f0c19dac2f8f",
+  "h": "5130bda41c0b",
   "text": "לֹא בְּטוּחִים מָה עַכְשָׁו? לִחֲצוּ עַל \"מָה עוֹשִׂים עַכְשָׁו?\" וַאֲנִי אֶעֱזֹר.",
-  "ipa": "lˈo betuχˈim mˈa aχʃˈav? liχatsˈu ˈal mˈa ʔosˈim aχʃˈav? vaanˈi eezˈoʁ.",
-  "heard": "לא בטוחים עכשיו, ייחצו על מה עושים עכשיו, ואני אזור"
+  "ipa": "lˈo betuχˈim mˈa aχʃˈav? liχatsˈu ˈal mˈa ʔosˈim aχʃˈav? vaanˈi eezˈoʁ."
  },
  "zone.grove.1": {
-  "h": "f845c816b80f",
+  "h": "26a866f83005",
   "text": "בְּרוּכִים הַבָּאִים לַחוֹרֶשׁ! כָּאן רוֹאִים אֵיךְ הַטֶּבַע מִשְׁתַּנֶּה בְּכָל עוֹנָה.",
-  "ipa": "beʁuχˈim habaˈim laχˈoʁeʃ! kˈan ʁoˈim ˈejχ hatˈeva miʃtanˈe beχˈol ʔonˈa.",
-  "heard": "ברוכים הבאים לחורש, כאן רואים איך הטבע משתנה בכל עונה"
+  "ipa": "beʁuχˈim habaˈim laχˈoʁeʃ! kˈan ʁoˈim ˈejχ hatˈeva miʃtanˈe beχˈol ʔonˈa."
  },
  "zone.grove.1.k": {
-  "h": "b14bacc0c654",
+  "h": "90342223094c",
   "text": "בְּרוּכִים הַבָּאִים לַחֹרֶשׁ! כָּאן רוֹאִים אֵיךְ הַטֶּבַע מִשְׁתַּנֶּה בְּכָל עוֹנָה.",
-  "ipa": "beʁuχˈim habaˈim laχˈoʁeʃ! kˈan ʁoˈim ˈejχ hatˈeva miʃtanˈe beχˈol ʔonˈa.",
-  "heard": "ברוכים הבאים לחורש, כאן רואים איך הטבע משתנה בכל עונה"
+  "ipa": "beʁuχˈim habaˈim laχˈoʁeʃ! kˈan ʁoˈim ˈejχ hatˈeva miʃtanˈe beχˈol ʔonˈa."
  },
  "zone.grove.2": {
-  "h": "6c9d5163ab3a",
+  "h": "db8aa0c9dbe0",
   "text": "כָּאן מְחַכֶּה הַמְּשִׂימָה שֶׁלָּכֶם. הִיא אוֹמֶרֶת מָה לַעֲשׂוֹת עַכְשָׁיו.",
-  "ipa": "kˈan meχakˈe hamesimˈa ʃelaχˈem. hˈi ʔomˈeʁet mˈa laasˈot aχʃˈav.",
-  "heard": "כאן מחכה המשימה שלכם. היא אומרת מה לעשות עכשיו"
+  "ipa": "kˈan meχakˈe hamesimˈa ʃelaχˈem. hˈi ʔomˈeʁet mˈa laasˈot aχʃˈav."
  },
  "zone.grove.2.k": {
-  "h": "f3cc4a5fa0ef",
+  "h": "4ac9e2f1aa42",
   "text": "כָּאן מְחַכָּה הַמְּשִׂימָה שֶׁלָּכֶם. הִיא אוֹמֶרֶת מָה לַעֲשׂוֹת עַכְשָׁו.",
-  "ipa": "kˈan meχakˈa hamesimˈa ʃelaχˈem. hˈi ʔomˈeʁet mˈa laasˈot aχʃˈav.",
-  "heard": "כאן מחכה המשימה שלכם. היא אומרת מה לעשות עכשיו"
+  "ipa": "kˈan meχakˈa hamesimˈa ʃelaχˈem. hˈi ʔomˈeʁet mˈa laasˈot aχʃˈav."
  },
  "zone.grove.3": {
-  "h": "2ad374431eca",
+  "h": "51e50b162e6e",
   "text": "גָּרְרוּ קְלָף מֵהַמַּגָּשׁ אֶל הַחוֹרֶשׁ. כָּךְ מְבִיאִים צֶמַח אוֹ בַּעַל חַיִּים.",
-  "ipa": "gaʁʁˈu kelˈaf mehamagˈaʃ ˈel haχˈoʁeʃ. kˈaχ meviˈim tsˈemaχ ʔˈo bˈaal χajˈim.",
-  "heard": "ארו כליו מהמראה של החורש, כך מביאים צמחו בעל חיים."
+  "ipa": "gaʁʁˈu kelˈaf mehamagˈaʃ ˈel haχˈoʁeʃ. kˈaχ meviˈim tsˈemaχ ʔˈo bˈaal χajˈim."
  },
  "zone.grove.3.k": {
-  "h": "6b2322d5a7af",
+  "h": "f6bc34d2ee4a",
   "text": "גִּרְרוּ קְלָף מֵהַמַּגָּשׁ אֶל הַחֹרֶשׁ. כָּךְ מְבִיאִים צֶמַח אוֹ בַּעַל חַיִּים.",
-  "ipa": "giʁʁˈu kelˈaf mehamagˈaʃ ˈel haχˈoʁeʃ. kˈaχ meviˈim tsˈemaχ ʔˈo bˈaal χajˈim.",
-  "heard": "עירו כלף מהמרה של החורש, כך מביאים צמחו בעל חיים."
+  "ipa": "giʁʁˈu kelˈaf mehamagˈaʃ ˈel haχˈoʁeʃ. kˈaχ meviˈim tsˈemaχ ʔˈo bˈaal χajˈim."
  },
  "zone.grove.4": {
-  "h": "acb38fb651a8",
+  "h": "1c14392cc852",
   "text": "כָּאן הַנְּקוּדּוֹת שֶׁלָּכֶם. מְשַׁלְּמִים בָּהֶן עַל כָּל קְלָף.",
-  "ipa": "kˈan hanekudˈot ʃelaχˈem. meʃalemˈim bahˈen ˈal kˈol kelˈaf.",
-  "heard": "כאן הנקודות שלכם משלמים בהן על כל כלף"
+  "ipa": "kˈan hanekudˈot ʃelaχˈem. meʃalemˈim bahˈen ˈal kˈol kelˈaf."
  },
  "zone.grove.4.k": {
-  "h": "6c9ddf40dd96",
+  "h": "12c035dcf4ca",
   "text": "כָּאן הַנְּקֻדּוֹת שֶׁלָּכֶם. מְשַׁלְּמִים בָּהֶן עַל כָּל קְלָף.",
-  "ipa": "kˈan hanekudˈot ʃelaχˈem. meʃalemˈim bahˈen ˈal kˈol kelˈaf.",
-  "heard": "כאן הנקודות שלכם משלמים בהן על כל כליו"
+  "ipa": "kˈan hanekudˈot ʃelaχˈem. meʃalemˈim bahˈen ˈal kˈol kelˈaf."
  },
  "zone.grove.5": {
-  "h": "88c64b6695d6",
+  "h": "d849fbb49bea",
   "text": "לֹא בְּטוּחִים מָה עַכְשָׁיו? לָחֲצוּ עַל \"מָה עוֹשִׂים עַכְשָׁיו?\" וַאֲנִי אֶעֱזוֹר.",
-  "ipa": "lˈo betuχˈim mˈa aχʃˈav? laχatsˈu ˈal mˈa ʔosˈim aχʃˈav? vaanˈi eezˈoʁ.",
-  "heard": "לא בטוחים עכשיו, לחצו על מה עושים עכשיו, ואני אזור"
+  "ipa": "lˈo betuχˈim mˈa aχʃˈav? laχatsˈu ˈal mˈa ʔosˈim aχʃˈav? vaanˈi eezˈoʁ."
  },
  "zone.grove.5.k": {
-  "h": "f0c19dac2f8f",
+  "h": "5130bda41c0b",
   "text": "לֹא בְּטוּחִים מָה עַכְשָׁו? לִחֲצוּ עַל \"מָה עוֹשִׂים עַכְשָׁו?\" וַאֲנִי אֶעֱזֹר.",
-  "ipa": "lˈo betuχˈim mˈa aχʃˈav? liχatsˈu ˈal mˈa ʔosˈim aχʃˈav? vaanˈi eezˈoʁ.",
-  "heard": "לא בטוחים עכשיו ייחצו על מה עושים עכשיו, ואני אזור"
+  "ipa": "lˈo betuχˈim mˈa aχʃˈav? liχatsˈu ˈal mˈa ʔosˈim aχʃˈav? vaanˈi eezˈoʁ."
  },
  "zone.reef.1": {
-  "h": "f9e7ea7c7435",
+  "h": "df5540256e57",
   "text": "בְּרוּכִים הַבָּאִים לְשׁוֹנִית שֶׁל אֵילַת! כָּאן הָאַלְמוֹגִּים בּוֹנִים בַּיִת לְכוּלָּם.",
-  "ipa": "beʁuχˈim habaˈim leʃonˈit ʃˈel ejlˈat! kˈan haalmogˈim bonˈim bajˈit leχulˈam.",
-  "heard": "ברוכים הבאים לשונית של אלה, כהנא אלמוים בונים בית לכולם"
+  "ipa": "beʁuχˈim habaˈim leʃonˈit ʃˈel ejlˈat! kˈan haalmogˈim bonˈim bajˈit leχulˈam."
  },
  "zone.reef.1.k": {
-  "h": "648de40cb287",
+  "h": "fbdb63eb4508",
   "text": "בְּרוּכִים הַבָּאִים לַשּׁוּנִית שֶׁל אֵילַת! כָּאן הָאַלְמוֹגִים בּוֹנִים בַּיִת לְכֻלָּם.",
-  "ipa": "beʁuχˈim habaˈim laʃunˈit ʃˈel ejlˈat! kˈan haalmogˈim bonˈim bajˈit leχulˈam.",
-  "heard": "ברוכים הבאים לשונית של הילה. כאן נעלמו אם בונים בית לכולם"
+  "ipa": "beʁuχˈim habaˈim laʃunˈit ʃˈel ejlˈat! kˈan haalmogˈim bonˈim bajˈit leχulˈam."
  },
  "zone.reef.2": {
-  "h": "6c9d5163ab3a",
+  "h": "db8aa0c9dbe0",
   "text": "כָּאן מְחַכֶּה הַמְּשִׂימָה שֶׁלָּכֶם. הִיא אוֹמֶרֶת מָה לַעֲשׂוֹת עַכְשָׁיו.",
-  "ipa": "kˈan meχakˈe hamesimˈa ʃelaχˈem. hˈi ʔomˈeʁet mˈa laasˈot aχʃˈav.",
-  "heard": "כאן מחכה המשימה שלכם. היא אומרת מה לעשות עכשיו"
+  "ipa": "kˈan meχakˈe hamesimˈa ʃelaχˈem. hˈi ʔomˈeʁet mˈa laasˈot aχʃˈav."
  },
  "zone.reef.2.k": {
-  "h": "f3cc4a5fa0ef",
+  "h": "4ac9e2f1aa42",
   "text": "כָּאן מְחַכָּה הַמְּשִׂימָה שֶׁלָּכֶם. הִיא אוֹמֶרֶת מָה לַעֲשׂוֹת עַכְשָׁו.",
-  "ipa": "kˈan meχakˈa hamesimˈa ʃelaχˈem. hˈi ʔomˈeʁet mˈa laasˈot aχʃˈav.",
-  "heard": "כאן מחכה המשימה שלכם. היא אומרת מה לעשות עכשיו"
+  "ipa": "kˈan meχakˈa hamesimˈa ʃelaχˈem. hˈi ʔomˈeʁet mˈa laasˈot aχʃˈav."
  },
  "zone.reef.3": {
-  "h": "66cfe825f7c4",
+  "h": "743201f8c876",
   "text": "גִּרְרוּ קְלָף מֵהַמַּגָּשׁ אֶל הַשּׁוּנִית. כָּךְ מְבִיאִים צֶמַח אוֹ בַּעַל חַיִּים.",
-  "ipa": "giʁʁˈu kelˈaf mehamagˈaʃ ˈel haʃunˈit. kˈaχ meviˈim tsˈemaχ ʔˈo bˈaal χajˈim.",
-  "heard": "ערעו כלף מאמרה של השוני, כך מביאים צמח או בעל חיים."
+  "ipa": "giʁʁˈu kelˈaf mehamagˈaʃ ˈel haʃunˈit. kˈaχ meviˈim tsˈemaχ ʔˈo bˈaal χajˈim."
  },
  "zone.reef.4": {
-  "h": "acb38fb651a8",
+  "h": "1c14392cc852",
   "text": "כָּאן הַנְּקוּדּוֹת שֶׁלָּכֶם. מְשַׁלְּמִים בָּהֶן עַל כָּל קְלָף.",
-  "ipa": "kˈan hanekudˈot ʃelaχˈem. meʃalemˈim bahˈen ˈal kˈol kelˈaf.",
-  "heard": "כאן הנקודות שלכם משלמים בהן על כל כלף"
+  "ipa": "kˈan hanekudˈot ʃelaχˈem. meʃalemˈim bahˈen ˈal kˈol kelˈaf."
  },
  "zone.reef.4.k": {
-  "h": "6c9ddf40dd96",
+  "h": "12c035dcf4ca",
   "text": "כָּאן הַנְּקֻדּוֹת שֶׁלָּכֶם. מְשַׁלְּמִים בָּהֶן עַל כָּל קְלָף.",
-  "ipa": "kˈan hanekudˈot ʃelaχˈem. meʃalemˈim bahˈen ˈal kˈol kelˈaf.",
-  "heard": "כמה נקודות שלכם משלמים בהן על כל כליו"
+  "ipa": "kˈan hanekudˈot ʃelaχˈem. meʃalemˈim bahˈen ˈal kˈol kelˈaf."
  },
  "zone.reef.5": {
-  "h": "88c64b6695d6",
+  "h": "d849fbb49bea",
   "text": "לֹא בְּטוּחִים מָה עַכְשָׁיו? לָחֲצוּ עַל \"מָה עוֹשִׂים עַכְשָׁיו?\" וַאֲנִי אֶעֱזוֹר.",
-  "ipa": "lˈo betuχˈim mˈa aχʃˈav? laχatsˈu ˈal mˈa ʔosˈim aχʃˈav? vaanˈi eezˈoʁ.",
-  "heard": "לא בטוחים מה עכשיו, לחצו על מה עושים עכשיו, ואני אזור"
+  "ipa": "lˈo betuχˈim mˈa aχʃˈav? laχatsˈu ˈal mˈa ʔosˈim aχʃˈav? vaanˈi eezˈoʁ."
  },
  "zone.reef.5.k": {
-  "h": "f0c19dac2f8f",
+  "h": "5130bda41c0b",
   "text": "לֹא בְּטוּחִים מָה עַכְשָׁו? לִחֲצוּ עַל \"מָה עוֹשִׂים עַכְשָׁו?\" וַאֲנִי אֶעֱזֹר.",
-  "ipa": "lˈo betuχˈim mˈa aχʃˈav? liχatsˈu ˈal mˈa ʔosˈim aχʃˈav? vaanˈi eezˈoʁ.",
-  "heard": "לא בטוחים מה עכשיו, לייחצו, על מה עושים עכשיו, ואני אזור"
+  "ipa": "lˈo betuχˈim mˈa aχʃˈav? liχatsˈu ˈal mˈa ʔosˈim aχʃˈav? vaanˈi eezˈoʁ."
  },
  "zone.alldone": {
-  "h": "4400ee570816",
+  "h": "e989c5bd00ff",
   "text": "כָּל הַמְּשִׂימוֹת כָּאן הוּשְׁלְמוּ! עַכְשָׁיו אֶפְשָׁר לְשַׂחֵק וּלְגַלּוֹת עוֹד קְשָׁרִים.",
-  "ipa": "kˈol hamesimˈot kˈan huʃlemˈu! aχʃˈav efʃˈaʁ lesaχˈek ulgalˈot ʔˈod keʃaʁˈim.",
-  "heard": "כל המשימות כאן הושלמו, עכשיו אפשר לשחק ולהעלות עוד קשרים"
+  "ipa": "kˈol hamesimˈot kˈan huʃlemˈu! aχʃˈav efʃˈaʁ lesaχˈek ulgalˈot ʔˈod keʃaʁˈim."
  },
  "zone.alldone.k": {
-  "h": "511781525439",
+  "h": "85079c87af43",
   "text": "כָּל הַמְּשִׂימוֹת כָּאן הֻשְׁלְמוּ! עַכְשָׁו אֶפְשָׁר לְשַׂחֵק וּלְגַלּוֹת עוֹד קְשָׁרִים.",
-  "ipa": "kˈol hamesimˈot kˈan huʃlemˈu! aχʃˈav efʃˈaʁ lesaχˈek ulgalˈot ʔˈod keʃaʁˈim.",
-  "heard": "כל המשימות כאן הושלמו, עכשיו אפשר לשחק ולהעלות עוד קשרים"
+  "ipa": "kˈol hamesimˈot kˈan huʃlemˈu! aχʃˈav efʃˈaʁ lesaχˈek ulgalˈot ʔˈod keʃaʁˈim."
  },
  "zone.hurt.1": {
-  "h": "0f3396b577fc",
+  "h": "fd2877094cd9",
   "text": "בַּעַל חַיִּים נִפְגַּע! הַפָּס הָאָדוֹם לְמַעְלָה מַרְאָה מִי, וּלְחִיצָה עָלָיו מְבִיאָה אֶתְכֶם אֵלָיו.",
-  "ipa": "bˈaal χajˈim nifgˈa! hapˈas haadˈom lemalˈa maʁˈa mˈi, ulχitsˈa alˈajv meviˈa etχˈem elˈajv.",
-  "heard": "בעל חיים מפא, הפס אדום, ממלא מרמי ולחיצה לייב מביאה אתכם הלייב."
+  "ipa": "bˈaal χajˈim nifgˈa! hapˈas haadˈom lemalˈa maʁˈa mˈi, ulχitsˈa alˈajv meviˈa etχˈem elˈajv."
  },
  "zone.hurt.1.k": {
-  "h": "ae83cb181d16",
+  "h": "d995c041f08b",
   "text": "בַּעַל חַיִּים נִפְגַּע! הַפַּס הָאָדֹם לְמַעְלָה מַרְאֶה מִי, וּלְחִיצָה עָלָיו מְבִיאָה אֶתְכֶם אֵלָיו.",
-  "ipa": "bˈaal χajˈim nifgˈa! hapˈas haadˈom lemalˈa maʁˈe mˈi, ulχitsˈa alˈajv meviˈa etχˈem elˈajv.",
-  "heard": "בעל חיים מפע, הפס אדום למלא מראה מי ללחיצה עלייב מביאה אתכם אלייב."
+  "ipa": "bˈaal χajˈim nifgˈa! hapˈas haadˈom lemalˈa maʁˈe mˈi, ulχitsˈa alˈajv meviˈa etχˈem elˈajv."
  },
  "zone.hurt.2": {
-  "h": "60da2a56c4b5",
+  "h": "33a0d1b65458",
   "text": "גָּרְרוּ אֶת רוֹבּוֹט הַהַצָּלָה מֵהַלְּשׁוֹנִית \"טֶכְנוֹלוֹגְיָה\" אֶל סִימַן הַקְּרִיאָה הָאָדוֹם.",
-  "ipa": "gaʁʁˈu ˈet ʁobˈot hahatsalˈa mehaleʃonˈit teχnologjˈa ˈel simˈan hakeʁiˈa haadˈom.",
-  "heard": "הראו את רובוט ההצלם הלשונית טכנולוגיה אל סימן הקריאה הדום."
+  "ipa": "gaʁʁˈu ˈet ʁobˈot hahatsalˈa mehaleʃonˈit teχnologjˈa ˈel simˈan hakeʁiˈa haadˈom."
  },
  "zone.hurt.2.k": {
-  "h": "954d27925ba1",
+  "h": "2e6a30bb8bd6",
   "text": "גִּרְרוּ אֶת רוֹבּוֹט הַהַצָּלָה מֵהַלְּשׁוֹנִית \"טֶכְנוֹלוֹגְיָה\" אֶל סִימַן הַקְּרִיאָה הָאָדֹם.",
-  "ipa": "giʁʁˈu ˈet ʁobˈot hahatsalˈa mehaleʃonˈit teχnologjˈa ˈel simˈan hakeʁiˈa haadˈom.",
-  "heard": "ערעו את רובוט ההצלם הלשוני-טכנולוגיה את סימן הקריאה האדום"
+  "ipa": "giʁʁˈu ˈet ʁobˈot hahatsalˈa mehaleʃonˈit teχnologjˈa ˈel simˈan hakeʁiˈa haadˈom."
  },
  "zone.hurtlate": {
-  "h": "e55afbcee15b",
+  "h": "f2d893ddaa1c",
   "text": "מַהֲרוּ! בַּעַל הַחַיִּים הַפָּגוּעַ עוֹד מְחַכֶּה לְעֶזְרָה.",
-  "ipa": "mahaʁˈu! bˈaal haχajˈim hapagˈua ʔˈod meχakˈe leezʁˈa.",
-  "heard": "מהרו, בעל החיים הפרוע עוד מחכה לעזרה"
+  "ipa": "mahaʁˈu! bˈaal haχajˈim hapagˈua ʔˈod meχakˈe leezʁˈa."
  },
  "zone.hungry": {
-  "h": "98c12d3606aa",
+  "h": "3bfa2c13342e",
   "text": "בַּעַל חַיִּים עָזַב כִּי לֹא מָצָא אוֹכֶל. לִפְנֵי שֶׁמְּבִיאִים חַיָה, דּוֹאֲגִים לָהּ לְאוֹכֶל.",
-  "ipa": "bˈaal χajˈim azˈav kˈi lˈo matsˈa ʔˈoχel. lifnˈej ʃemeviˈim χajˈa, doagˈim lˈah leʔˈoχel.",
-  "heard": "בעל חיים עזב כי לא מצא אוכל לפני שמביאים חיה, דואים לה לאוכל."
+  "ipa": "bˈaal χajˈim azˈav kˈi lˈo matsˈa ʔˈoχel. lifnˈej ʃemeviˈim χajˈa, doagˈim lˈah leʔˈoχel."
  },
  "zone.hungry.k": {
-  "h": "4561a3c7193d",
+  "h": "a7912ed4ffa4",
   "text": "בַּעַל חַיִּים עָזַב כִּי לֹא מָצָא אֹכֶל. לִפְנֵי שֶׁמְּבִיאִים חַיָּה, דּוֹאֲגִים לָהּ לְאֹכֶל.",
-  "ipa": "bˈaal χajˈim azˈav kˈi lˈo matsˈa ˈoχel. lifnˈej ʃemeviˈim χajˈa, doagˈim lˈah leˈoχel.",
-  "heard": "בעל חיים עזב כי לא מצא אוכל לפני שמביאים חיה, דואים לה לא אוכל."
+  "ipa": "bˈaal χajˈim azˈav kˈi lˈo matsˈa ˈoχel. lifnˈej ʃemeviˈim χajˈa, doagˈim lˈah leˈoχel."
  },
  "zone.dayend.1": {
-  "h": "a7a51139f48d",
+  "h": "22551b0069aa",
   "text": "עוֹד יוֹם עָבַר. כָּל צֶמַח שֶׁגָּדַל הַיּוֹם עוֹזֵר לְכָל הָרֶשֶׁת.",
-  "ipa": "ʔˈod jˈom avˈaʁ. kˈol tsˈemaχ ʃegadˈal hajˈom ʔozˈeʁ leχˈol haʁˈeʃet.",
-  "heard": "עוד יום עבר, כל צמח שעדה ליום עוזר לכל הרשת"
+  "ipa": "ʔˈod jˈom avˈaʁ. kˈol tsˈemaχ ʃegadˈal hajˈom ʔozˈeʁ leχˈol haʁˈeʃet."
  },
  "zone.dayend.2": {
-  "h": "a2d90b0dd06d",
+  "h": "7309942595fa",
   "text": "יוֹם יָפֶה עָבַר! לִחֲצוּ עַל בַּעַל חַיִּים כְּדֵי לִרְאוֹת עִם מִי הוּא חַי.",
-  "ipa": "jˈom jafˈe avˈaʁ! liχatsˈu ˈal bˈaal χajˈim kedˈej liʁʔˈot ˈim mˈi hˈu χˈaj.",
-  "heard": "יום יפה עבר, ליחצוב על בעל חיים כדי לראות אם מי הוא חי"
+  "ipa": "jˈom jafˈe avˈaʁ! liχatsˈu ˈal bˈaal χajˈim kedˈej liʁʔˈot ˈim mˈi hˈu χˈaj."
  },
  "zone.dayend.3": {
-  "h": "32c98a30ccf6",
+  "h": "a875a7b12d48",
   "text": "עוֹד יוֹם הִסְתַּיֵּים. כְּשֶׁיֵּשׁ הַרְבֵּה מִינִים שׁוֹנִים, הָרֶשֶׁת חֲזָקָה יוֹתֵר.",
-  "ipa": "ʔˈod jˈom histajˈejm. keʃejˈeʃ haʁbˈe minˈim ʃonˈim, haʁˈeʃet χazakˈa jotˈeʁ.",
-  "heard": "עוד יום הסתיים, כשיש הרבה מינים שונים, הרשת חזקה יותר."
+  "ipa": "ʔˈod jˈom histajˈejm. keʃejˈeʃ haʁbˈe minˈim ʃonˈim, haʁˈeʃet χazakˈa jotˈeʁ."
  },
  "zone.dayend.3.k": {
-  "h": "729e498d063f",
+  "h": "df132f524cce",
   "text": "עוֹד יוֹם הִסְתַּיֵּם. כְּשֶׁיֵּשׁ הַרְבֵּה מִינִים שׁוֹנִים, הָרֶשֶׁת חֲזָקָה יוֹתֵר.",
-  "ipa": "ʔˈod jˈom histajˈem. keʃejˈeʃ haʁbˈe minˈim ʃonˈim, haʁˈeʃet χazakˈa jotˈeʁ.",
-  "heard": "עוד יום מסתיים, כשיש הרבה מינים שונים, הרשת חזקה יותר."
+  "ipa": "ʔˈod jˈom histajˈem. keʃejˈeʃ haʁbˈe minˈim ʃonˈim, haʁˈeʃet χazakˈa jotˈeʁ."
  },
  "zone.dayend.4": {
-  "h": "1f2ddc6509bc",
+  "h": "fda695dad3e4",
   "text": "יוֹם חָדָשׁ מַתְחִיל. הַפָּס הַיָּרוֹק לְמַעְלָה מַרְאָה כַּמָּה טוֹב לְכוּלָּם.",
-  "ipa": "jˈom χadˈaʃ matχˈil. hapˈas hajaʁˈok lemalˈa maʁˈa kamˈa tˈov leχulˈam.",
-  "heard": "יום חדש מתחיל, הפס הירוק למלא מראה כמה טוב לכולם"
+  "ipa": "jˈom χadˈaʃ matχˈil. hapˈas hajaʁˈok lemalˈa maʁˈa kamˈa tˈov leχulˈam."
  },
  "zone.dayend.4.k": {
-  "h": "d3572bbb4482",
+  "h": "4b9dc18bcaea",
   "text": "יוֹם חָדָשׁ מַתְחִיל. הַפַּס הַיָּרֹק לְמַעְלָה מַרְאֶה כַּמָּה טוֹב לְכֻלָּם.",
-  "ipa": "jˈom χadˈaʃ matχˈil. hapˈas hajaʁˈok lemalˈa maʁˈe kamˈa tˈov leχulˈam.",
-  "heard": "יום חדש מתחיל, הפס הירוק למלאם הרקע מה טוב לכולם"
+  "ipa": "jˈom χadˈaʃ matχˈil. hapˈas hajaʁˈok lemalˈa maʁˈe kamˈa tˈov leχulˈam."
  },
  "zone.dayend.5": {
-  "h": "4edf53b18d70",
+  "h": "624895965409",
   "text": "עוֹד יוֹם עָבַר. נַסּוּ לְגַלּוֹת קֶשֶׁר חָדָשׁ בֵּין שְׁנֵי מִינִים.",
-  "ipa": "ʔˈod jˈom avˈaʁ. nasˈu legalˈot kˈeʃeʁ χadˈaʃ bˈejn ʃenˈej minˈim.",
-  "heard": "עוד יום עבר, נסו להעלות קשר חדש בין שני מינים."
+  "ipa": "ʔˈod jˈom avˈaʁ. nasˈu legalˈot kˈeʃeʁ χadˈaʃ bˈejn ʃenˈej minˈim."
  },
  "zone.season.winter": {
-  "h": "6087eca7de6f",
+  "h": "04b2f0c39c47",
   "text": "הִגִּיעַ הַחוֹרֶף! הַגֶּשֶׁם מַשְׁקֶה אֶת הַחוֹרֶשׁ, וְהַכּוֹל מִתְעוֹרֵר.",
-  "ipa": "higˈia haχˈoʁef! hagˈeʃem maʃkˈe ˈet haχˈoʁeʃ, vehakˈol mitʔoʁˈeʁ.",
-  "heard": "יהיה החורף, אחרי שמשקה את החורש והכל מתעורר"
+  "ipa": "higˈia haχˈoʁef! hagˈeʃem maʃkˈe ˈet haχˈoʁeʃ, vehakˈol mitʔoʁˈeʁ."
  },
  "zone.season.winter.k": {
-  "h": "48bad7b16e9f",
+  "h": "3d8a66241624",
   "text": "הִגִּיעַ הַחֹרֶף! הַגֶּשֶׁם מַשְׁקֶה אֶת הַחֹרֶשׁ, וְהַכֹּל מִתְעוֹרֵר.",
-  "ipa": "higˈia haχˈoʁef! hagˈeʃem maʃkˈe ˈet haχˈoʁeʃ, vehakˈol mitʔoʁˈeʁ.",
-  "heard": "יהיה החורף, יש שם משקה את החורש והכל מתעורר"
+  "ipa": "higˈia haχˈoʁef! hagˈeʃem maʃkˈe ˈet haχˈoʁeʃ, vehakˈol mitʔoʁˈeʁ."
  },
  "zone.season.spring": {
-  "h": "4b1159420067",
+  "h": "0c4c80e3a915",
   "text": "הִגִּיעַ הָאָבִיב! הַחוֹרֶשׁ מִתְמַלֵּא פְּרָחִים, וְהַדִּבוּרִים יוֹצְאוֹת לַעֲבוֹד.",
-  "ipa": "higˈia haavˈiv! haχˈoʁeʃ mitmalˈe peʁaχˈim, vehadivuʁˈim jotsʔˈot laavˈod.",
-  "heard": "יהיה אביב החורש מתמלא פרחים והדיבורים יוצאות לעבוד"
+  "ipa": "higˈia haavˈiv! haχˈoʁeʃ mitmalˈe peʁaχˈim, vehadivuʁˈim jotsʔˈot laavˈod."
  },
  "zone.season.spring.k": {
-  "h": "1228c62e521c",
+  "h": "2d1bbc826715",
   "text": "הִגִּיעַ הָאָבִיב! הַחֹרֶשׁ מִתְמַלֵּא פְּרָחִים, וְהַדְּבוֹרִים יוֹצְאוֹת לַעֲבֹד.",
-  "ipa": "higˈia haavˈiv! haχˈoʁeʃ mitmalˈe peʁaχˈim, vehadevoʁˈim jotsʔˈot laavˈod.",
-  "heard": "יהיה אביב, החורש מתמלא פרחים והדבורים יוצאות לעבוד"
+  "ipa": "higˈia haavˈiv! haχˈoʁeʃ mitmalˈe peʁaχˈim, vehadevoʁˈim jotsʔˈot laavˈod."
  },
  "zone.season.summer": {
-  "h": "9cb272ef7c72",
+  "h": "17854dc914c2",
   "text": "הִגִּיעַ הַקַּיִץ! אֵין גֶּשֶׁם עַד הַסְּתָיו, וְהַחוֹרֶשׁ חוֹסֵךְ מַיִם.",
-  "ipa": "higˈia hakajˈits! ˈejn gˈeʃem ˈad hasetˈajv, vehaχˈoʁeʃ χosˈeχ mˈajim.",
-  "heard": "הגיע קיץ, אין שם הדסה טייב והחורש חוסך מים."
+  "ipa": "higˈia hakajˈits! ˈejn gˈeʃem ˈad hasetˈajv, vehaχˈoʁeʃ χosˈeχ mˈajim."
  },
  "zone.season.summer.k": {
-  "h": "888c2a4fffa9",
+  "h": "708b598b8109",
   "text": "הִגִּיעַ הַקַּיִץ! אֵין גֶּשֶׁם עַד הַסְּתָו, וְהַחֹרֶשׁ חוֹסֵךְ מַיִם.",
-  "ipa": "higˈia hakajˈits! ˈejn gˈeʃem ˈad hasetˈav, vehaχˈoʁeʃ χosˈeχ mˈajim.",
-  "heard": "הגיע הקיץ, הנה שם עד עשה תו, והחוש חוסך מים"
+  "ipa": "higˈia hakajˈits! ˈejn gˈeʃem ˈad hasetˈav, vehaχˈoʁeʃ χosˈeχ mˈajim."
  },
  "zone.season.autumn": {
-  "h": "97f7b8a6c830",
+  "h": "aadf06a9772c",
   "text": "הִגִּיעַ הַסְּתָיו! מְחַכִּים לַגֶשֶׁם הָרִאשׁוֹן, וְהַבְּלוּטִים נוֹפְלִים מֵהָאַלּוֹנִים.",
-  "ipa": "higˈia hasetˈajv! meχakˈim lagˈeʃem haʁiʃˈon, vehabelutˈim noflˈim mehaalonˈim.",
-  "heard": "יעשה טייב מחכים לאשם הראשון והבלוטים נופלים העלונים"
+  "ipa": "higˈia hasetˈajv! meχakˈim lagˈeʃem haʁiʃˈon, vehabelutˈim noflˈim mehaalonˈim."
  },
  "zone.season.autumn.k": {
-  "h": "c82c4fb1492b",
+  "h": "c388306b633b",
   "text": "הִגִּיעַ הַסְּתָו! מְחַכִּים לַגֶּשֶׁם הָרִאשׁוֹן, וְהַבַּלּוּטִים נוֹפְלִים מֵהָאַלּוֹנִים.",
-  "ipa": "higˈia hasetˈav! meχakˈim lagˈeʃem haʁiʃˈon, vehabalutˈim noflˈim mehaalonˈim.",
-  "heard": "יעשיתיו מחכים לאשם הראשון והבלוטים נופלים מהעלונים"
+  "ipa": "higˈia hasetˈav! meχakˈim lagˈeʃem haʁiʃˈon, vehabalutˈim noflˈim mehaalonˈim."
  },
  "zone.tool.drone": {
-  "h": "4f6ec8f35162",
+  "h": "dd90385f51cc",
   "text": "רַחֲפָן הַנִּיטּוֹר טָס מֵעַל הַיַּעַר וּמְגַלֶּה מִי רָעֵב וּמִי בָּצֵל. נִסוּ אוֹתוֹ!",
-  "ipa": "ʁaχafˈan hanitˈoʁ tˈas meˈal hajˈaaʁ umgalˈe mˈi ʁaˈev umˈi batsˈel. nisˈu ʔotˈo!",
-  "heard": "אך הפעל הניטור טס מעל היער ומעלה מרעב ומבצל. ניסו אותו"
+  "ipa": "ʁaχafˈan hanitˈoʁ tˈas meˈal hajˈaaʁ umgalˈe mˈi ʁaˈev umˈi batsˈel. nisˈu ʔotˈo!"
  },
  "zone.tool.drone.k": {
-  "h": "5d36cea5b082",
+  "h": "ac21b8c487cd",
   "text": "רַחְפַן הַנִּטּוּר טָס מֵעַל הַיַּעַר וּמְגַלֶּה מִי רָעֵב וּמִי בַּצֵּל. נַסּוּ אוֹתוֹ!",
-  "ipa": "ʁaχfˈan hanitˈuʁ tˈas meˈal hajˈaaʁ umgalˈe mˈi ʁaˈev umˈi batsˈel. nasˈu ʔotˈo!",
-  "heard": "רחפן הניטור טס מעל היער, הוא מלא מררב ומבצל, נשאו אותו"
+  "ipa": "ʁaχfˈan hanitˈuʁ tˈas meˈal hajˈaaʁ umgalˈe mˈi ʁaˈev umˈi batsˈel. nasˈu ʔotˈo!"
  },
  "zone.tool.rov": {
-  "h": "a422317ba26b",
+  "h": "111cc23aa44f",
   "text": "הָרוֹבּוֹט הַצּוֹלֵל שׂוֹחֶה לְאוֹרֶךְ הַשּׁוֹנִית וּמְגַלֶּה אֵיפֹה יֵשׁ בְּעָיָה.",
-  "ipa": "haʁobˈot hatsolˈel soχˈe leʔˈoʁeχ haʃonˈit umgalˈe ejfˈo jˈeʃ beajˈa.",
-  "heard": "הרובוט הצולל סוחה לאורך השוני הוא מעלה איפה יש בעיה."
+  "ipa": "haʁobˈot hatsolˈel soχˈe leʔˈoʁeχ haʃonˈit umgalˈe ejfˈo jˈeʃ beajˈa."
  },
  "zone.tool.rov.k": {
-  "h": "dbaf2d6e7e54",
+  "h": "bfc214f8bd57",
   "text": "הָרוֹבּוֹט הַצּוֹלֵל שׂוֹחֶה לְאֹרֶךְ הַשּׁוּנִית וּמְגַלֶּה אֵיפֹה יֵשׁ בְּעָיָה.",
-  "ipa": "haʁobˈot hatsolˈel soχˈe leˈoʁeχ haʃunˈit umgalˈe ejfˈo jˈeʃ beajˈa.",
-  "heard": "הרובוט הצולל סוחה לאורך השונית, מעלה איפה יש בעיה."
+  "ipa": "haʁobˈot hatsolˈel soχˈe leˈoʁeχ haʃunˈit umgalˈe ejfˈo jˈeʃ beajˈa."
  },
  "zone.tool.camera": {
-  "h": "27f28866ce28",
+  "h": "f8cfe8c66df2",
   "text": "מַצְלֵמַת הַשֶּׁטַח מְצַלֶּמֶת לְבַד כָּל בַּעַל חַיִּים שֶׁעוֹבֵר לְיָדָהּ, גַּם בַּלַּיְלָה.",
-  "ipa": "matslemˈat haʃˈetaχ metsalˈemet levˈad kˈol bˈaal χajˈim ʃeʔovˈeʁ lejadˈah, gˈam balajlˈa.",
-  "heard": "מצלמת השטח מצלמת לבד כל בעל חיים שעובר לידה, העם בלילה"
+  "ipa": "matslemˈat haʃˈetaχ metsalˈemet levˈad kˈol bˈaal χajˈim ʃeʔovˈeʁ lejadˈah, gˈam balajlˈa."
  },
  "zone.tool.uwcam": {
-  "h": "5e5e79ae977b",
+  "h": "1c9fa20efd16",
   "text": "הַמַּצְלֵמָה הַתַּת־יַמִּית מְצַלֶּמֶת לְבַד כָּל דָּג שֶׁעוֹבֵר לְיָדָהּ, גַּם בַּלַּיְלָה.",
-  "ipa": "hamatslemˈa hatˈat jamˈit metsalˈemet levˈad kˈol dˈag ʃeʔovˈeʁ lejadˈah, gˈam balajlˈa.",
-  "heard": "המצלמה התת-ימית מצלמת לוועד כל דש עובר לידה, המלילה."
+  "ipa": "hamatslemˈa hatˈat jamˈit metsalˈemet levˈad kˈol dˈag ʃeʔovˈeʁ lejadˈah, gˈam balajlˈa."
  },
  "zone.tool.rescue": {
-  "h": "c095875af37a",
+  "h": "1df57c4f99ee",
   "text": "רוֹבּוֹט הַהַצָּלָה מְטַפֵּל בְּבַעַל חַיִּים פָּגוּעַ. גָּרְרוּ אוֹתוֹ אֶל סִימַן הַקְּרִיאָה הָאָדוֹם.",
-  "ipa": "ʁobˈot hahatsalˈa metapˈel bevˈaal χajˈim pagˈua. gaʁʁˈu ʔotˈo ˈel simˈan hakeʁiˈa haadˈom.",
-  "heard": "רובות ההצלה מטפלת בבעל חיים ברורה. הראו אותו אל סימן הקריאה האדום."
+  "ipa": "ʁobˈot hahatsalˈa metapˈel bevˈaal χajˈim pagˈua. gaʁʁˈu ʔotˈo ˈel simˈan hakeʁiˈa haadˈom."
  },
  "zone.tool.rescue.k": {
-  "h": "58ef6c4ae169",
+  "h": "56c1051e4bcc",
   "text": "רוֹבּוֹט הַהַצָּלָה מְטַפֵּל בְּבַעַל חַיִּים פָּגוּעַ. גִּרְרוּ אוֹתוֹ אֶל סִימַן הַקְּרִיאָה הָאָדֹם.",
-  "ipa": "ʁobˈot hahatsalˈa metapˈel bevˈaal χajˈim pagˈua. giʁʁˈu ʔotˈo ˈel simˈan hakeʁiˈa haadˈom.",
-  "heard": "רובות ההצלה מטפל בבעל חיים פרוע, יראו אותו סימן הקריה האדום"
+  "ipa": "ʁobˈot hahatsalˈa metapˈel bevˈaal χajˈim pagˈua. giʁʁˈu ʔotˈo ˈel simˈan hakeʁiˈa haadˈom."
  },
  "zone.tool.watergen": {
-  "h": "dadc1f4f5393",
+  "h": "122c17058edd",
   "text": "הַמַּכְשִׁיר הַזֶּה אוֹסֵף טִיפּוֹת מַיִם מֵהָאֲוִויר, כְּמוֹ טַל שֶׁל בּוֹקֶר.",
-  "ipa": "hamaχʃˈiʁ hazˈe ʔosˈef tipˈot mˈajim mehaavˈivjʁ, kemˈo tˈal ʃˈel bˈokeʁ.",
-  "heard": "המכשיר הזה אוסף טיפות מים מהוויביר כמו טל של בוקר"
+  "ipa": "hamaχʃˈiʁ hazˈe ʔosˈef tipˈot mˈajim mehaavˈivjʁ, kemˈo tˈal ʃˈel bˈokeʁ."
  },
  "zone.tool.watergen.k": {
-  "h": "3c0a2c8c8983",
+  "h": "5fdb63ee110e",
   "text": "הַמַּכְשִׁיר הַזֶּה אוֹסֵף טִפּוֹת מַיִם מֵהָאֲוִיר, כְּמוֹ טַל שֶׁל בֹּקֶר.",
-  "ipa": "hamaχʃˈiʁ hazˈe ʔosˈef tipˈot mˈajim mehaavˈiʁ, kemˈo tˈal ʃˈel bˈokeʁ.",
-  "heard": "המכשיר הזה אוסף טיפות מים מהאוויר כמו טל של בוקר"
+  "ipa": "hamaχʃˈiʁ hazˈe ʔosˈef tipˈot mˈajim mehaavˈiʁ, kemˈo tˈal ʃˈel bˈokeʁ."
  },
  "zone.tool.seeddrone": {
-  "h": "4cfa3fd308fe",
+  "h": "f09529a006e8",
   "text": "רַחְפַן הַזְּרִיעָה מְפַזֵּר כַּדּוּרֵי זְרָעִים עַל אֲדָמָה חֲשׂוּפָה, וּשְׁתִילִים חֲדָשִׁים נוֹבְטִים.",
-  "ipa": "ʁaχfˈan hazeʁiˈa mefazˈeʁ kaduʁˈej zeʁaˈim ˈal adamˈa χasufˈa, uʃtilˈim χadaʃˈim novtˈim.",
-  "heard": "רחפן עזריה מפזר כדורי זרעים על אדמה חשופה ושטילים חדשים נובטים."
+  "ipa": "ʁaχfˈan hazeʁiˈa mefazˈeʁ kaduʁˈej zeʁaˈim ˈal adamˈa χasufˈa, uʃtilˈim χadaʃˈim novtˈim."
  },
  "zone.tool.listener": {
-  "h": "f04e2b8f7c44",
+  "h": "02594f7e15fb",
   "text": "מַאֲזִין הַיַּעַר שׁוֹמֵעַ מַסּוֹר חַשְׁמַלִּי וּמַזְעִיק אֶת שׁוֹמְרֵי הַיַּעַר.",
-  "ipa": "maazˈin hajˈaaʁ ʃomˈea masˈoʁ χaʃmalˈi umazˈik ˈet ʃomʁˈej hajˈaaʁ.",
-  "heard": "מזין היה שומע מסוך חשמלי ומזיק את שומרו היער."
+  "ipa": "maazˈin hajˈaaʁ ʃomˈea masˈoʁ χaʃmalˈi umazˈik ˈet ʃomʁˈej hajˈaaʁ."
  },
  "zone.tool.nestbox": {
-  "h": "b89f3881540b",
+  "h": "3fd93e87c9da",
   "text": "תֵּיבַת קִינּוּן הִיא בֵּית מֵעֵץ לַצִּיפּוֹרִים. תָּלוּ אוֹתָהּ עַל עֵץ.",
-  "ipa": "tejvˈat kinˈun hˈi bˈejt meˈets latsipoʁˈim. talˈu ʔotˈah ˈal ˈets.",
-  "heard": "תיבת קינוני בית מעץ לציפורים. תלו אותה על עץ"
+  "ipa": "tejvˈat kinˈun hˈi bˈejt meˈets latsipoʁˈim. talˈu ʔotˈah ˈal ˈets."
  },
  "zone.tool.nestbox.k": {
-  "h": "4feb52053415",
+  "h": "fc2f407386ba",
   "text": "תֵּבַת קִנּוּן הִיא בַּיִת מֵעֵץ לְצִפּוֹרִים. תְּלוּ אוֹתָהּ עַל עֵץ.",
-  "ipa": "tevˈat kinˈun hˈi bajˈit meˈets letsipoʁˈim. telˈu ʔotˈah ˈal ˈets.",
-  "heard": "תיבת כינוני עם בית מעצת הציפורים. תעלו אותה על עץ"
+  "ipa": "tevˈat kinˈun hˈi bajˈit meˈets letsipoʁˈim. telˈu ʔotˈah ˈal ˈets."
  },
  "zone.tool.insecthotel": {
-  "h": "89ffc8981964",
+  "h": "6ee289504866",
   "text": "בְּמָלוֹן הַחֲרָקִים דְּבוֹרֵי בָּר וּפַרְפָּרִים מוֹצְאִים מַחְסֶה. שִׂימוּ אוֹתוֹ לְיַד פְּרָחִים.",
-  "ipa": "bemalˈon haχaʁakˈim devoʁˈej bˈaʁ ufaʁpaʁˈim motsˈim maχsˈe. simˈu ʔotˈo lejˈad peʁaχˈim.",
-  "heard": "במלון החרקים דבורי בר ופרפרים מוצאים מחסה, שימו אותו ליד פרחים"
+  "ipa": "bemalˈon haχaʁakˈim devoʁˈej bˈaʁ ufaʁpaʁˈim motsˈim maχsˈe. simˈu ʔotˈo lejˈad peʁaχˈim."
  },
  "zone.tool.weather": {
-  "h": "2e0205a516ea",
+  "h": "d9b6648e572a",
   "text": "תַּחֲנַת מֶזֶג הָאֲוִויר מַזְהִירָה מֵרֹאשׁ מִבְּצוֹרֶת, מַשְׂרֵיפָה וּמִשִּׁיטְפוֹן.",
-  "ipa": "taχanˈat mˈezeg haavˈivjʁ mazhiʁˈa meʁˈoʃ mibetsˈoʁet, masʁejfˈa umiʃitfˈon.",
-  "heard": "תחנת מזע אביב מזהירה מראש מבצורת, מסרפה ומשיטפון."
+  "ipa": "taχanˈat mˈezeg haavˈivjʁ mazhiʁˈa meʁˈoʃ mibetsˈoʁet, masʁejfˈa umiʃitfˈon."
  },
  "zone.tool.weather.k": {
-  "h": "1738012bab2a",
+  "h": "bb2858dff594",
   "text": "תַּחֲנַת מֶזֶג הָאֲוִיר מַזְהִירָה מֵרֹאשׁ מִבַּצֹּרֶת, מִשְּׂרֵפָה וּמִשִּׁטָּפוֹן.",
-  "ipa": "taχanˈat mˈezeg haavˈiʁ mazhiʁˈa meʁˈoʃ mibatsˈoʁet, miseʁefˈa umiʃitafˈon.",
-  "heard": "תחנת מזהבים מזהירה מראש מבצורת, משרפה ומשיטפון."
+  "ipa": "taχanˈat mˈezeg haavˈiʁ mazhiʁˈa meʁˈoʃ mibatsˈoʁet, miseʁefˈa umiʃitafˈon."
  },
  "zone.tool.sensor": {
-  "h": "ad908aaf5eb4",
+  "h": "3fa14b802d44",
   "text": "מִצּוּף הַחַיְישָׁנִים מוֹדֵד אֶת חוֹם הַמַּיִם, וּמַתְרִיעַ מֵרֹאשׁ כְּשֶׁהֵם מְתְחַמְמִים.",
-  "ipa": "mitsˈuf haχajjʃanˈim modˈed ˈet χˈom hamˈajim, umatʁˈia meʁˈoʃ keʃehˈem metχammˈim.",
-  "heard": "מיצוף החיישנים מודד את חומה מים ומתריע מראש כשמתחממים"
+  "ipa": "mitsˈuf haχajjʃanˈim modˈed ˈet χˈom hamˈajim, umatʁˈia meʁˈoʃ keʃehˈem metχammˈim."
  },
  "zone.tool.sensor.k": {
-  "h": "a2a248fc8ccd",
+  "h": "b6ee44d8acc4",
   "text": "מְצוֹף הַחַיְשָׁנִים מוֹדֵד אֶת חֹם הַמַּיִם, וּמַתְרִיעַ מֵרֹאשׁ כְּשֶׁהֵם מִתְחַמְּמִים.",
-  "ipa": "metsˈof haχajʃanˈim modˈed ˈet χˈom hamˈajim, umatʁˈia meʁˈoʃ keʃehˈem mitχamemˈim.",
-  "heard": "בצוף החשנים מודד את חום המים ומתריע מראש כשהם מתחממים"
+  "ipa": "metsˈof haχajʃanˈim modˈed ˈet χˈom hamˈajim, umatʁˈia meʁˈoʃ keʃehˈem mitχamemˈim."
  },
  "zone.tool.nursery": {
-  "h": "c920dac53982",
+  "h": "86ab8ba0b29d",
   "text": "בַּמִּשְׁתָּלָה גְּדֵלִים אַלְמוֹגִים חֲזָקִים. אַחַר כָּךְ שׁוֹתְלִים אוֹתָם בַּשּׁוּנִית.",
-  "ipa": "bamiʃtalˈa gedelˈim almogˈim χazakˈim. ˈaχaʁ kˈaχ ʃotlˈim ʔotˈam baʃunˈit.",
-  "heard": "במשטרה אדלים אלמוים חזקים, אחר כך שותלים אותם השונית"
+  "ipa": "bamiʃtalˈa gedelˈim almogˈim χazakˈim. ˈaχaʁ kˈaχ ʃotlˈim ʔotˈam baʃunˈit."
  },
  "zone.tool.reefball": {
-  "h": "5c7df5a66036",
+  "h": "1e9db86b83e0",
   "text": "בַּשּׁוּנִית הַמְּלָאכוּתִית יֵשׁ הַרְבֵּה חוֹרִים. דָּגִים קְטַנִּים מִתְחַבְּאִים בָּהֶם.",
-  "ipa": "baʃunˈit hamelaχutˈit jˈeʃ haʁbˈe χoʁˈim. dagˈim ketanˈim mitχabeˈim bahˈem.",
-  "heard": "רשומית המלאכותית יש הרבה חורים, דעים קטנים מתחבאים בהם"
+  "ipa": "baʃunˈit hamelaχutˈit jˈeʃ haʁbˈe χoʁˈim. dagˈim ketanˈim mitχabeˈim bahˈem."
  },
  "zone.tool.buoy": {
-  "h": "8e0e703e7903",
+  "h": "2b295fcb4363",
   "text": "סִירוֹת נִקְשָׁרוֹת לְמִצוֹף הָעֲגִינָה, וְלֹא מְטִילוֹת עוֹגֶן עַל הָאַלְמוֹגִּים.",
-  "ipa": "siʁˈot nikʃaʁˈot lemitsˈof haaginˈa, velˈo metilˈot ʔˈogen ˈal haalmogˈim.",
-  "heard": "צירות נשארות למצוא העינה ולא מטיל אותו, אין על האלמוים."
+  "ipa": "siʁˈot nikʃaʁˈot lemitsˈof haaginˈa, velˈo metilˈot ʔˈogen ˈal haalmogˈim."
  },
  "zone.tool.buoy.k": {
-  "h": "3fd63a07f04d",
+  "h": "98b16b7c6967",
   "text": "סִירוֹת נִקְשָׁרוֹת לִמְצוֹף הָעֲגִינָה, וְלֹא מְטִילוֹת עֹגֶן עַל הָאַלְמוֹגִים.",
-  "ipa": "siʁˈot nikʃaʁˈot limtsˈof haaginˈa, velˈo metilˈot ˈogen ˈal haalmogˈim.",
-  "heard": "צעירות נקשרות למצוא פיימנה ולא מטילות או אין על האלמוים"
+  "ipa": "siʁˈot nikʃaʁˈot limtsˈof haaginˈa, velˈo metilˈot ˈogen ˈal haalmogˈim."
  },
  "zone.event.a_storm": {
-  "h": "7155db824ffa",
+  "h": "26092a589bcb",
   "text": "כְּשֶׁעֵץ עֲנָק נוֹפֵל, הָאוֹר מַגִּיעַ לַקַּרְקָעִית, וּצְמָחִים מִתְחָרִים עָלָיו.",
-  "ipa": "keʃeˈets anˈak nofˈel, haʔˈoʁ magˈia lakaʁkaˈit, utsmaχˈim mitχaʁˈim alˈajv.",
-  "heard": "כשצנק נופל, האור מה יהיה על הקרקווית, וצמחים מתחרים עלייב."
+  "ipa": "keʃeˈets anˈak nofˈel, haʔˈoʁ magˈia lakaʁkaˈit, utsmaχˈim mitχaʁˈim alˈajv."
  },
  "zone.event.a_flood": {
-  "h": "fa7657545db9",
+  "h": "9b2ed157f4d3",
   "text": "לְיַד הַנָּהָר צוֹמְחִים צְמָחִים שֶׁאוֹהֲבִים מַיִם, כְּמוֹ דֶּקֶל הָאָסָאִי.",
-  "ipa": "lejˈad hanahˈaʁ tsomχˈim tsemaχˈim ʃeʔohavˈim mˈajim, kemˈo dˈekel haasaˈi.",
-  "heard": "יד על ההר צורכים צמחים שאוהבים מים כמו דקל עשאי"
+  "ipa": "lejˈad hanahˈaʁ tsomχˈim tsemaχˈim ʃeʔohavˈim mˈajim, kemˈo dˈekel haasaˈi."
  },
  "zone.event.a_dry": {
-  "h": "956f0ab08fff",
+  "h": "eecdbe66cf10",
   "text": "חוֹפָּה צְפוּפָה שׁוֹמֶרֶת עַל צֵל וְלַחוּת. כָּךְ הַיַּעַר מַחֲזִיק מַעֲמָד.",
-  "ipa": "χopˈa tsefufˈa ʃomˈeʁet ˈal tsˈel velaχˈut. kˈaχ hajˈaaʁ maχazˈik maamˈad.",
-  "heard": "חופה צפופה שומרת על צל ולחות, כך היה מחזיק מעמד"
+  "ipa": "χopˈa tsefufˈa ʃomˈeʁet ˈal tsˈel velaχˈut. kˈaχ hajˈaaʁ maχazˈik maamˈad."
  },
  "zone.event.a_dry.k": {
-  "h": "7dab3e3171a9",
+  "h": "ca62fdcc52ac",
   "text": "חֻפָּה צְפוּפָה שׁוֹמֶרֶת עַל צֵל וְלַחוּת. כָּךְ הַיַּעַר מַחֲזִיק מַעֲמָד.",
-  "ipa": "χupˈa tsefufˈa ʃomˈeʁet ˈal tsˈel velaχˈut. kˈaχ hajˈaaʁ maχazˈik maamˈad.",
-  "heard": "חופה הצפוף השומרת הצל ולחות, כך היה מחזיק מעמד."
+  "ipa": "χupˈa tsefufˈa ʃomˈeʁet ˈal tsˈel velaχˈut. kˈaχ hajˈaaʁ maχazˈik maamˈad."
  },
  "zone.event.a_sick": {
-  "h": "996269303c2b",
+  "h": "b6b8aadad028",
   "text": "כְּשֶׁיֵּשׁ הַרְבֵּה מִינִים שׁוֹנִים, מַחֲלָה לֹא פּוֹגַעַת בְּכוּלָּם יַחַד.",
-  "ipa": "keʃejˈeʃ haʁbˈe minˈim ʃonˈim, maχalˈa lˈo pogˈaat beχulˈam jˈaχad.",
-  "heard": "כשיש הרבה מינים שונים, מחלה לא פועלת בכולם יחד"
+  "ipa": "keʃejˈeʃ haʁbˈe minˈim ʃonˈim, maχalˈa lˈo pogˈaat beχulˈam jˈaχad."
  },
  "zone.event.a_sick.k": {
-  "h": "15aac35884ce",
+  "h": "e9eaa19669ee",
   "text": "כְּשֶׁיֵּשׁ הַרְבֵּה מִינִים שׁוֹנִים, מַחֲלָה לֹא פּוֹגַעַת בְּכֻלָּם יַחַד.",
-  "ipa": "keʃejˈeʃ haʁbˈe minˈim ʃonˈim, maχalˈa lˈo pogˈaat beχulˈam jˈaχad.",
-  "heard": "כשיש הרבה מיניים שונים, מחלה לא פועת בכולם יחד"
+  "ipa": "keʃejˈeʃ haʁbˈe minˈim ʃonˈim, maχalˈa lˈo pogˈaat beχulˈam jˈaχad."
  },
  "zone.event.a_figs": {
-  "h": "a4bf95c29a19",
+  "h": "0c048dae405d",
   "text": "עֵץ פִיקוּס אֶחָד מַאֲכִיל הָמוֹן בַּעֲלֵי חַיִּים, בַּיּוֹם וּבַלַּיְלָה.",
-  "ipa": "ˈets fikˈus eχˈad maaχˈil hamˈon baalˈej χajˈim, bajˈom uvalajlˈa.",
-  "heard": "את סיכוס אחד מאכיל המון בעלי חיים ביום ובלילה."
+  "ipa": "ˈets fikˈus eχˈad maaχˈil hamˈon baalˈej χajˈim, bajˈom uvalajlˈa."
  },
  "zone.event.a_smoke": {
-  "h": "49f98b72876c",
+  "h": "ea230ee00b31",
   "text": "אַחֲרֵי שְׂרֵיפָה צוֹמְחִים קוֹדֶם צְמָחִים מְהִירִים, וְאַחֲרֵיהֶם הָעֵצִים הַגְּדוֹלִים.",
-  "ipa": "aχaʁˈej seʁejfˈa tsomχˈim kˈodem tsemaχˈim mehiʁˈim, veaχaʁejhˈem haetsˈim hagedolˈim.",
-  "heard": "אחרי שריפה צורכים קודם צמחים מהירים ואחריהם העצים הגדולים."
+  "ipa": "aχaʁˈej seʁejfˈa tsomχˈim kˈodem tsemaχˈim mehiʁˈim, veaχaʁejhˈem haetsˈim hagedolˈim."
  },
  "zone.event.a_smoke.k": {
-  "h": "57f6b35b79cd",
+  "h": "e01edfecd71e",
   "text": "אַחֲרֵי שְׂרֵפָה צוֹמְחִים קֹדֶם צְמָחִים מְהִירִים, וְאַחֲרֵיהֶם הָעֵצִים הַגְּדוֹלִים.",
-  "ipa": "aχaʁˈej seʁefˈa tsomχˈim kˈodem tsemaχˈim mehiʁˈim, veaχaʁejhˈem haetsˈim hagedolˈim.",
-  "heard": "אחרי שרפה צורכים קודם צמחים מהירים ואחרי הם העצים העדולים."
+  "ipa": "aχaʁˈej seʁefˈa tsomχˈim kˈodem tsemaχˈim mehiʁˈim, veaχaʁejhˈem haetsˈim hagedolˈim."
  },
  "zone.event.a_noagouti": {
-  "h": "17fbf7cff307",
+  "h": "9e7c91774c8b",
   "text": "הָאָגוּטִי קוֹבֵר אֱגוֹזִים, וּמֵאֵלֶּה שֶׁהוּא שׁוֹכֵחַ צוֹמְחִים עֵצִים חֲדָשִׁים.",
-  "ipa": "haagutˈi kovˈeʁ egozˈim, umeelˈe ʃehˈu ʃoχˈeaχ tsomχˈim etsˈim χadaʃˈim.",
-  "heard": "האותי קובר עוזים, הוא מלא שהוא שוכח צורכים עצים חדשים."
+  "ipa": "haagutˈi kovˈeʁ egozˈim, umeelˈe ʃehˈu ʃoχˈeaχ tsomχˈim etsˈim χadaʃˈim."
  },
  "zone.event.a_logging": {
-  "h": "881cda978e96",
+  "h": "e4f384fd9f33",
   "text": "עֵצִים גְּדוֹלִים הֵם בַּיִת וּמָזוֹן לְהַרְבֵּה בַּעֲלֵי חַיִּים. שׁוֹמְרִים עֲלֵיהֶם.",
-  "ipa": "etsˈim gedolˈim hˈem bajˈit umazˈon lehaʁbˈe baalˈej χajˈim. ʃomʁˈim alejhˈem.",
-  "heard": "עצים גדולים הם בית כמו מזון להרבה בעלי חיים, שומרים עליהם"
+  "ipa": "etsˈim gedolˈim hˈem bajˈit umazˈon lehaʁbˈe baalˈej χajˈim. ʃomʁˈim alejhˈem."
  },
  "zone.event.a_road": {
-  "h": "5c7393d1e1e9",
+  "h": "5add07e29fc4",
   "text": "בַּעֲלֵי חַיִּים שֶׁהוֹלְכִים עַל הַקַּרְקַע צְרִיכִים דֶּרֶךְ בְּטוּחָה לַעֲבוֹר.",
-  "ipa": "baalˈej χajˈim ʃeholχˈim ˈal hakaʁkˈa tseʁiχˈim dˈeʁeχ betuχˈa laavˈoʁ.",
-  "heard": "בעלי חיים שהולכים על הקקה צריכים דרך בטוחה לעבור"
+  "ipa": "baalˈej χajˈim ʃeholχˈim ˈal hakaʁkˈa tseʁiχˈim dˈeʁeχ betuχˈa laavˈoʁ."
  },
  "zone.event.a_road.k": {
-  "h": "a3602ff90beb",
+  "h": "804ba708a47e",
   "text": "בַּעֲלֵי חַיִּים שֶׁהוֹלְכִים עַל הַקַּרְקַע צְרִיכִים דֶּרֶךְ בְּטוּחָה לַעֲבֹר.",
-  "ipa": "baalˈej χajˈim ʃeholχˈim ˈal hakaʁkˈa tseʁiχˈim dˈeʁeχ betuχˈa laavˈoʁ.",
-  "heard": "בעלי חיים שהולכים על הקקץ צריכים דרך בטוחה לעבור"
+  "ipa": "baalˈej χajˈim ʃeholχˈim ˈal hakaʁkˈa tseʁiχˈim dˈeʁeχ betuχˈa laavˈoʁ."
  },
  "zone.event.g_rain": {
-  "h": "2133fd1f47f7",
+  "h": "1d8a98b38bcb",
   "text": "אַחֲרֵי הַגֶּשֶׁם הָרִאשׁוֹן הָרַקָּפוֹת מִתְעוֹרְרוֹת, וּפִטְרִיּוֹת צָצוֹת לְיַד הָעֵצִים.",
-  "ipa": "aχaʁˈej hagˈeʃem haʁiʃˈon haʁakafˈot mitʔoʁʁˈot, ufitʁiˈot tsatsˈot lejˈad haetsˈim.",
-  "heard": "אחרי האשם הראשון על הקפות מתעוררות ופטטריות צצות ליד העצים."
+  "ipa": "aχaʁˈej hagˈeʃem haʁiʃˈon haʁakafˈot mitʔoʁʁˈot, ufitʁiˈot tsatsˈot lejˈad haetsˈim."
  },
  "zone.event.g_cold": {
-  "h": "6a20930d7588",
+  "h": "dff0459a8234",
   "text": "בְּלַיְלָה קַר הַזּוֹחֲלִים מִתְחַבְּאִים בֵּין הַסְּלָעִים וּמְחַכִּים לַשֶּׁמֶשׁ.",
-  "ipa": "belajlˈa kˈaʁ hazoχalˈim mitχabeˈim bˈejn haselaˈim umχakˈim laʃˈemeʃ.",
-  "heard": "בלילה קר הזוחלים מתחבאים בעין הסלעגים ומחכים לשמש."
+  "ipa": "belajlˈa kˈaʁ hazoχalˈim mitχabeˈim bˈejn haselaˈim umχakˈim laʃˈemeʃ."
  },
  "zone.event.g_drought": {
-  "h": "e711120ac48b",
+  "h": "45bbd10836cb",
   "text": "עֵצִים יְרוֹקִּי עַד, כְּמוֹ הָאַלוֹן וְהֶחָרוּב, יוֹדְעִים לַעֲבוֹר קַיִץ אָרוֹךְ.",
-  "ipa": "etsˈim jeʁokˈi ˈad, kemˈo haalˈon veheχaʁˈuv, jodˈim laavˈoʁ kajˈits aʁˈoχ.",
-  "heard": "עצים ירוקי עד כמו אלון וחרוב יודעים לעבור קיץ ארוך"
+  "ipa": "etsˈim jeʁokˈi ˈad, kemˈo haalˈon veheχaʁˈuv, jodˈim laavˈoʁ kajˈits aʁˈoχ."
  },
  "zone.event.g_drought.k": {
-  "h": "e6c1b1b9b13c",
+  "h": "33d2ccdd4cc6",
   "text": "עֵצִים יְרֻקֵּי עַד, כְּמוֹ הָאַלּוֹן וְהֶחָרוּב, יוֹדְעִים לַעֲבֹר קַיִץ אָרֹךְ.",
-  "ipa": "etsˈim jeʁukˈej ˈad, kemˈo haalˈon veheχaʁˈuv, jodˈim laavˈoʁ kajˈits aʁˈoχ.",
-  "heard": "עצים ירוקי עד כמו אלון דרך הרוב, יודעים לעבור קיץ ארוך"
+  "ipa": "etsˈim jeʁukˈej ˈad, kemˈo haalˈon veheχaʁˈuv, jodˈim laavˈoʁ kajˈits aʁˈoχ."
  },
  "zone.event.g_fire": {
-  "h": "115ca2517648",
+  "h": "e27ac739eeb8",
   "text": "הַחוֹרֶשׁ יוֹדֵעַ לְהִתְחַדֵּשׁ: הָאַלוֹן צוֹמֵחַ מֵהַשּׁוֹרָשִׁים, וְהָאוֹרֶן מִזְרָעִים.",
-  "ipa": "haχˈoʁeʃ jodˈea lehitχadˈeʃ, haalˈon tsomˈeaχ mehaʃoʁaʃˈim, vehaʔˈoʁen mizʁaˈim.",
-  "heard": "החורש הוא יודע להתחדש, אלון צומח מהשורשים והאורן מזרעים"
+  "ipa": "haχˈoʁeʃ jodˈea lehitχadˈeʃ, haalˈon tsomˈeaχ mehaʃoʁaʃˈim, vehaʔˈoʁen mizʁaˈim."
  },
  "zone.event.g_fire.k": {
-  "h": "9c7c5a9e9a02",
+  "h": "c307633efc26",
   "text": "הַחֹרֶשׁ יוֹדֵעַ לְהִתְחַדֵּשׁ: הָאַלּוֹן צוֹמֵחַ מֵהַשָּׁרָשִׁים, וְהָאֹרֶן מִזְּרָעִים.",
-  "ipa": "haχˈoʁeʃ jodˈea lehitχadˈeʃ, haalˈon tsomˈeaχ mehaʃaʁaʃˈim, vehaˈoʁen mizeʁaˈim.",
-  "heard": "החור שיודע להתחדש, אלון צומח מהשורשים ואהרון מזרעים"
+  "ipa": "haχˈoʁeʃ jodˈea lehitχadˈeʃ, haalˈon tsomˈeaχ mehaʃaʁaʃˈim, vehaˈoʁen mizeʁaˈim."
  },
  "zone.event.g_acorns": {
-  "h": "e4e6e8e60051",
+  "h": "f92c32fce493",
   "text": "הָעוֹרְבָנִי מַסְתִּיר בַּלּוּטִים בָּאֲדָמָה, וּמֵאֵלֶּה שֶׁהוּא שׁוֹכֵחַ צוֹמְחִים אַלּוֹנִים.",
-  "ipa": "haʔoʁvanˈi mastˈiʁ balutˈim baadamˈa, umeelˈe ʃehˈu ʃoχˈeaχ tsomχˈim alonˈim.",
-  "heard": "האורבנים הסתיר בלוטין בדמה הוא מאלה שהוא שוכח, צורכים עלונים."
+  "ipa": "haʔoʁvanˈi mastˈiʁ balutˈim baadamˈa, umeelˈe ʃehˈu ʃoχˈeaχ tsomχˈim alonˈim."
  },
  "zone.event.g_bloom": {
-  "h": "ed48369183fd",
+  "h": "03c735c95eb3",
   "text": "בָּאָבִיב הַפְּרָחִים נוֹתְנִים צוּף, וְהַדְּבוֹרִים מַאֲבִיקוֹת אוֹתָם.",
-  "ipa": "baavˈiv hapeʁaχˈim notnˈim tsˈuf, vehadevoʁˈim maavikˈot ʔotˈam.",
-  "heard": "באביב הפרחים נותנים צוף והדבורים מביקות אותם."
+  "ipa": "baavˈiv hapeʁaχˈim notnˈim tsˈuf, vehadevoʁˈim maavikˈot ʔotˈam."
  },
  "zone.event.g_nojay": {
-  "h": "0c7875906233",
+  "h": "c105d88c0e20",
   "text": "הָעוֹרְבָנִי שׁוֹתֵל אַלּוֹנִים בְּלִי לָדַעַת. מָה יִקְרֶה בִּלְעָדָיו?",
-  "ipa": "haʔoʁvanˈi ʃotˈel alonˈim belˈi ladˈaat. mˈa jikʁˈe biladˈajv?",
-  "heard": "אהובה נישות אלונים בלי לדעת. מה יקרה בלעדייב"
+  "ipa": "haʔoʁvanˈi ʃotˈel alonˈim belˈi ladˈaat. mˈa jikʁˈe biladˈajv?"
  },
  "zone.event.g_logging": {
-  "h": "edd82169f479",
+  "h": "b8cd4d101c04",
   "text": "הָעֵצִים בַּחוֹרֶשׁ נוֹתְנִים צֵל, מָזוֹן וּבַיִת. שׁוֹמְרִים עֲלֵיהֶם.",
-  "ipa": "haetsˈim baχˈoʁeʃ notnˈim tsˈel, mazˈon uvajˈit. ʃomʁˈim alejhˈem.",
-  "heard": "עצים בחורש נותנים צל, מזון ובית, שומרים עליהם."
+  "ipa": "haetsˈim baχˈoʁeʃ notnˈim tsˈel, mazˈon uvajˈit. ʃomʁˈim alejhˈem."
  },
  "zone.event.g_logging.k": {
-  "h": "98bac4847061",
+  "h": "39c24bff383f",
   "text": "הָעֵצִים בַּחֹרֶשׁ נוֹתְנִים צֵל, מָזוֹן וּבַיִת. שׁוֹמְרִים עֲלֵיהֶם.",
-  "ipa": "haetsˈim baχˈoʁeʃ notnˈim tsˈel, mazˈon uvajˈit. ʃomʁˈim alejhˈem.",
-  "heard": "עצים בחורש, נותנים צל, מזון ובית, שומרים עליהם"
+  "ipa": "haetsˈim baχˈoʁeʃ notnˈim tsˈel, mazˈon uvajˈit. ʃomʁˈim alejhˈem."
  },
  "zone.event.g_road": {
-  "h": "decdfd28d4e9",
+  "h": "ad934da928d8",
   "text": "בַּעֲלֵי הַחַיִּים בַּחוֹרֶשׁ צְרִיכִים דֶּרֶךְ בְּטוּחָה לַעֲבוֹר מִצַּד לְצַד.",
-  "ipa": "baalˈej haχajˈim baχˈoʁeʃ tseʁiχˈim dˈeʁeχ betuχˈa laavˈoʁ mitsˈad letsˈad.",
-  "heard": "בעלי החיים בחורש צריכים דרך בתוכל לבוא מצד לצד"
+  "ipa": "baalˈej haχajˈim baχˈoʁeʃ tseʁiχˈim dˈeʁeχ betuχˈa laavˈoʁ mitsˈad letsˈad."
  },
  "zone.event.g_road.k": {
-  "h": "2db2a0e03d23",
+  "h": "c549174307d8",
   "text": "בַּעֲלֵי הַחַיִּים בַּחֹרֶשׁ צְרִיכִים דֶּרֶךְ בְּטוּחָה לַעֲבֹר מִצַּד לְצַד.",
-  "ipa": "baalˈej haχajˈim baχˈoʁeʃ tseʁiχˈim dˈeʁeχ betuχˈa laavˈoʁ mitsˈad letsˈad.",
-  "heard": "בעלי החיים בחור שצריכים דרך בתוכל לבוא מצד לצד"
+  "ipa": "baalˈej haχajˈim baχˈoʁeʃ tseʁiχˈim dˈeʁeχ betuχˈa laavˈoʁ mitsˈad letsˈad."
  },
  "zone.event.r_heatx": {
-  "h": "b9227fd4e57c",
+  "h": "9350d06b5c26",
   "text": "חוֹם אָרוֹךְ מַחֲלִישׁ אֶת הָאַלְמוֹגִּים. אַלְמוֹגִים חֲזָקִים מֵהַמִּשְׁתָּלָה עוֹמְדִים בּוֹ יוֹתֵר.",
-  "ipa": "χˈom aʁˈoχ maχalˈiʃ ˈet haalmogˈim. almogˈim χazakˈim mehamiʃtalˈa ʔomdˈim bˈo jotˈeʁ.",
-  "heard": "חרום ארוך מחליש את אלמואים. אלמואים חזקים מהמשתלה עומדים בו יותר"
+  "ipa": "χˈom aʁˈoχ maχalˈiʃ ˈet haalmogˈim. almogˈim χazakˈim mehamiʃtalˈa ʔomdˈim bˈo jotˈeʁ."
  },
  "zone.event.r_heatx.k": {
-  "h": "82f009dbbfdb",
+  "h": "a80223c94039",
   "text": "חֹם אָרֹךְ מַחְלִישׁ אֶת הָאַלְמוֹגִים. אַלְמוֹגִים חֲזָקִים מֵהַמִּשְׁתָּלָה עוֹמְדִים בּוֹ יוֹתֵר.",
-  "ipa": "χˈom aʁˈoχ maχlˈiʃ ˈet haalmogˈim. almogˈim χazakˈim mehamiʃtalˈa ʔomdˈim bˈo jotˈeʁ.",
-  "heard": "חום ארוך מחליש את אלמואים, אלמואים חזקים המשתלה עומדים בו יותר"
+  "ipa": "χˈom aʁˈoχ maχlˈiʃ ˈet haalmogˈim. almogˈim χazakˈim mehamiʃtalˈa ʔomdˈim bˈo jotˈeʁ."
  },
  "zone.event.r_heat": {
-  "h": "1cd97aa1ecc1",
+  "h": "b5cee1692160",
   "text": "כְּשֶׁהַמַּיִם חַמִּים מִדַּי, הָאַלְמוֹגִים מַלְבִּינִים. מַיִם נְקִיִּים עוֹזְרִים לָהֶם.",
-  "ipa": "keʃehamˈajim χamˈim midˈaj, haalmogˈim malbinˈim. mˈajim nekijˈim ʔozʁˈim lahˈem.",
-  "heard": "קשה המים, חמים מדי, עלמו עם מלבימים, מים מקים עוזרים להם"
+  "ipa": "keʃehamˈajim χamˈim midˈaj, haalmogˈim malbinˈim. mˈajim nekijˈim ʔozʁˈim lahˈem."
  },
  "zone.event.r_flood": {
-  "h": "f60c33652ee0",
+  "h": "b572bb601bcf",
   "text": "בּוֹץ בְּמַיִם מַסְתִּיר אֶת הָאוֹר. עֵשֶׂב יָם מַחֲזִיק אֶת הַחוֹל בַּמָּקוֹם.",
-  "ipa": "bˈots bemˈajim mastˈiʁ ˈet haʔˈoʁ. ˈesev jˈam maχazˈik ˈet haχˈol bamakˈom.",
-  "heard": "בוט במים, הסתיר את האור. עשב ים מחזיק את החול במקום."
+  "ipa": "bˈots bemˈajim mastˈiʁ ˈet haʔˈoʁ. ˈesev jˈam maχazˈik ˈet haχˈol bamakˈom."
  },
  "zone.event.r_flood.k": {
-  "h": "fcb36d3fd46b",
+  "h": "d69fc55d94bb",
   "text": "בֹּץ בַּמַּיִם מַסְתִּיר אֶת הָאוֹר. עֵשֶׂב יָם מַחֲזִיק אֶת הַחוֹל בַּמָּקוֹם.",
-  "ipa": "bˈots bamˈajim mastˈiʁ ˈet haʔˈoʁ. ˈesev jˈam maχazˈik ˈet haχˈol bamakˈom.",
-  "heard": "בוץ במים מסתיר את האור. עשביה מחזיק את החול במקום"
+  "ipa": "bˈots bamˈajim mastˈiʁ ˈet haʔˈoʁ. ˈesev jˈam maχazˈik ˈet haχˈol bamakˈom."
  },
  "zone.event.r_starfish": {
-  "h": "796d3bf813f6",
+  "h": "156aaa3344d1",
   "text": "כְּשֶׁיֵּשׁ יוֹתֵר מִדַּי מֵהֶם, הֵם אוֹכְלִים יוֹתֵר אַלְמוֹגִים מִמָּה שֶׁגָּדֵל.",
-  "ipa": "keʃejˈeʃ jotˈeʁ midˈaj mehˈem, hˈem ʔoχlˈim jotˈeʁ almogˈim mimˈa ʃegadˈel.",
-  "heard": "כשיש יותר מדי מהם, הם אוכלים יותר אלמואים ממה שהדל"
+  "ipa": "keʃejˈeʃ jotˈeʁ midˈaj mehˈem, hˈem ʔoχlˈim jotˈeʁ almogˈim mimˈa ʃegadˈel."
  },
  "zone.event.r_anchor": {
-  "h": "5cd8482af9ca",
+  "h": "3269270f3303",
   "text": "אַלְמוֹג גָּדֵל לְאַט מְאוֹד. מָצּוּף עֲגִינָה שׁוֹמֵר עָלָיו מִפְּנֵי עוֹגֶן.",
-  "ipa": "almˈog gadˈel leˈat meʔˈod. matsˈuf aginˈa ʃomˈeʁ alˈajv mipenˈej ʔˈogen.",
-  "heard": "אלמו עד אלעט מאוד, מצאו פינה שאומר הלייב מפני אורן"
+  "ipa": "almˈog gadˈel leˈat meʔˈod. matsˈuf aginˈa ʃomˈeʁ alˈajv mipenˈej ʔˈogen."
  },
  "zone.event.r_anchor.k": {
-  "h": "0ce7821d547c",
+  "h": "882a01b38bb4",
   "text": "אַלְמוֹג גָּדֵל לְאַט מְאֹד. מְצוֹף עֲגִינָה שׁוֹמֵר עָלָיו מִפְּנֵי עֹגֶן.",
-  "ipa": "almˈog gadˈel leˈat meˈod. metsˈof aginˈa ʃomˈeʁ alˈajv mipenˈej ˈogen.",
-  "heard": "אלמו עד אלת מאוד, מצוף אינה שומר עלייב מפני אורן"
+  "ipa": "almˈog gadˈel leˈat meˈod. metsˈof aginˈa ʃomˈeʁ alˈajv mipenˈej ˈogen."
  },
  "zone.event.r_spawn": {
-  "h": "95f07b1ae947",
+  "h": "fe8e655b7968",
   "text": "בַּלֵּילוֹת שֶׁל הַקַּיִץ הָאַלְמוֹגִים מְשַׁחְרְרִים בֵּיצִים קְטַנְטַנּוֹת אֶל הַמַּיִם.",
-  "ipa": "balejlˈot ʃˈel hakajˈits haalmogˈim meʃaχʁeʁˈim bejtsˈim ketantanˈot ˈel hamˈajim.",
-  "heard": "בלילות של הקיץ האנמואים משחררים ביצים קטנטנות אל המים."
+  "ipa": "balejlˈot ʃˈel hakajˈits haalmogˈim meʃaχʁeʁˈim bejtsˈim ketantanˈot ˈel hamˈajim."
  },
  "zone.event.r_storm": {
-  "h": "a8be2f8f1efa",
+  "h": "d73700274903",
   "text": "אַחֲרֵי סְעָרָה, אַלְמוֹגִים צְעִירִים מֵהַמִּשְׁתָּלָה עוֹזְרִים לַשּׁוּנִית לְהִתְאוֹשֵׁשׁ.",
-  "ipa": "aχaʁˈej seaʁˈa, almogˈim tseiʁˈim mehamiʃtalˈa ʔozʁˈim laʃunˈit lehitʔoʃˈeʃ.",
-  "heard": "אחרי סערה, אלמואים צעירים מהמשתלה עוזרים לשונית להתאושש"
+  "ipa": "aχaʁˈej seaʁˈa, almogˈim tseiʁˈim mehamiʃtalˈa ʔozʁˈim laʃunˈit lehitʔoʃˈeʃ."
  },
  "zone.event.r_algae": {
-  "h": "8dee33752708",
+  "h": "378bb0e2ca3c",
   "text": "דָּגִים שֶׁרוֹעִים אַצּוֹת שׁוֹמְרִים עַל הָאַלְמוֹגִים נְקִיִּים.",
-  "ipa": "dagˈim ʃeʁoˈim atsˈot ʃomʁˈim ˈal haalmogˈim nekijˈim.",
-  "heard": "האם שרואים מצות שומרים על האלמואיים נקיים"
+  "ipa": "dagˈim ʃeʁoˈim atsˈot ʃomʁˈim ˈal haalmogˈim nekijˈim."
  },
  "th.sharkskin": {
-  "h": "0d596881ba26",
+  "h": "308af242c0c7",
   "text": "בִּזְכוּת עוֹר הַכָּרִישׁ שֶׁהִמְצֵאתֶם, הָרוֹבּוֹט הַצּוֹלֵל בַּשּׁוּנִית שׂוֹחֶה מַהֵר יוֹתֵר!",
-  "ipa": "bizχˈut ʔˈoʁ hakaʁˈiʃ ʃehimtsˈetem, haʁobˈot hatsolˈel baʃunˈit soχˈe mahˈeʁ jotˈeʁ!",
-  "heard": "בזכות אור הכרי שהמצאתם, הרובוט הצולל בשום ניצוחה מהר יותר"
+  "ipa": "bizχˈut ʔˈoʁ hakaʁˈiʃ ʃehimtsˈetem, haʁobˈot hatsolˈel baʃunˈit soχˈe mahˈeʁ jotˈeʁ!"
  },
  "th.hover": {
-  "h": "74f45d295912",
+  "h": "5fd74911d6c2",
   "text": "לְמַדְתָּם מְיוּנָק הַדְּבַשׁ! עַכְשָׁיו רַחֲפָן הַנִּיטּוֹר עוֹמֵד בָּאֲוִויר לְיַד בַּעַל חַיִּים שֶׁצָּרִיךְ עֶזְרָה.",
-  "ipa": "lemadtˈam mejunˈak hadevˈaʃ! aχʃˈav ʁaχafˈan hanitˈoʁ ʔomˈed baavˈivjʁ lejˈad bˈaal χajˈim ʃetsaʁˈiχ ezʁˈa.",
-  "heard": "אם אתה מיונה כדבש, עכשיו רחפן הניטור עומד באוויביה, ליד בעל חיים שצריך עזרה"
+  "ipa": "lemadtˈam mejunˈak hadevˈaʃ! aχʃˈav ʁaχafˈan hanitˈoʁ ʔomˈed baavˈivjʁ lejˈad bˈaal χajˈim ʃetsaʁˈiχ ezʁˈa."
  },
  "th.hover.k": {
-  "h": "0fc2cb246425",
+  "h": "9534061c3166",
   "text": "לְמַדְתֶּם מִיּוֹנֵק הַדְּבַשׁ! עַכְשָׁו רַחְפַן הַנִּטּוּר עוֹמֵד בָּאֲוִיר לְיַד בַּעַל חַיִּים שֶׁצָּרִיךְ עֶזְרָה.",
-  "ipa": "lemˈadtem mionˈek hadevˈaʃ! aχʃˈav ʁaχfˈan hanitˈuʁ ʔomˈed baavˈiʁ lejˈad bˈaal χajˈim ʃetsaʁˈiχ ezʁˈa.",
-  "heard": "למדתם יונק הדבש, עכשיו רפן הניתור עומד באוויר ליד בעל חיים שצריך עזרה"
+  "ipa": "lemˈadtem mionˈek hadevˈaʃ! aχʃˈav ʁaχfˈan hanitˈuʁ ʔomˈed baavˈiʁ lejˈad bˈaal χajˈim ʃetsaʁˈiχ ezʁˈa."
  },
  "th.anternet": {
-  "h": "d5e036469189",
+  "h": "885915ecc462",
   "text": "כְּמוֹ נִמְלֵי הַקָּצִיר: כַּמָּה רַחֲפָנִי נִיטּוֹר חוֹלְקִים עַכְשָׁיו דּוּחַ אֶחָד.",
-  "ipa": "kemˈo nimlˈej hakatsˈiʁ, kamˈa ʁaχafanˈi nitˈoʁ χolkˈim aχʃˈav dˈuaχ eχˈad.",
-  "heard": "כמו נמלי הקציר, כמה רחפני איתו חולקים עכשיו דוח אחד."
+  "ipa": "kemˈo nimlˈej hakatsˈiʁ, kamˈa ʁaχafanˈi nitˈoʁ χolkˈim aχʃˈav dˈuaχ eχˈad."
  },
  "th.anternet.k": {
-  "h": "2427a5c93931",
+  "h": "e50c008312fe",
   "text": "כְּמוֹ נְמָלֵי הַקָּצִיר: כַּמָּה רַחְפָנֵי נִטּוּר חוֹלְקִים עַכְשָׁו דּוּחַ אֶחָד.",
-  "ipa": "kemˈo nemalˈej hakatsˈiʁ, kamˈa ʁaχfanˈej nitˈuʁ χolkˈim aχʃˈav dˈuaχ eχˈad.",
-  "heard": "כי מול נמלא הקציר, כמה ערפניני ניטור חולקים עכשיו דוח חד."
+  "ipa": "kemˈo nemalˈej hakatsˈiʁ, kamˈa ʁaχfanˈej nitˈuʁ χolkˈim aχʃˈav dˈuaχ eχˈad."
  },
  "th.lamp": {
-  "h": "2a2979c2f579",
+  "h": "d09b22ba33a7",
   "text": "לְמַדְתָּם מֵהַגַּחְלִילִית! מַצְלֵמַת הַשֶּׁטַח רוֹאֶה עַכְשָׁיו רָחוֹק יוֹתֵר בַּלַּיְלָה.",
-  "ipa": "lemadtˈam mehagaχlilˈit! matslemˈat haʃˈetaχ ʁoˈe aχʃˈav ʁaχˈok jotˈeʁ balajlˈa.",
-  "heard": "למטה מהכלילית, מצלמת השטח רואה עכשיו רחוק יותר בלילה"
+  "ipa": "lemadtˈam mehagaχlilˈit! matslemˈat haʃˈetaχ ʁoˈe aχʃˈav ʁaχˈok jotˈeʁ balajlˈa."
  },
  "th.lamp.k": {
-  "h": "7db3fb9e846c",
+  "h": "cbc2736bc6c8",
   "text": "לְמַדְתֶּם מֵהַגַּחְלִילִית! מַצְלֵמַת הַשָּׂטַח רוֹאָה עַכְשָׁו רָחוֹק יוֹתֵר בַּלַּיְלָה.",
-  "ipa": "lemˈadtem mehagaχlilˈit! matslemˈat hasatˈaχ ʁoˈa aχʃˈav ʁaχˈok jotˈeʁ balajlˈa.",
-  "heard": "למה אתם מאכלי לי? מצלמת הסת\"ח רואה עכשיו רחוק יותר בלילה"
+  "ipa": "lemˈadtem mehagaχlilˈit! matslemˈat hasatˈaχ ʁoˈa aχʃˈav ʁaχˈok jotˈeʁ balajlˈa."
  },
  "th.camo": {
-  "h": "f5ced6495653",
+  "h": "432e0febb2ad",
   "text": "כְּמוֹ הַזִּיקִית: מַצְלֵמַת הַשֶּׁטַח מִתְחַבֵּאת, וּבַעֲלֵי חַיִּים בַּיְישָׁנִים לֹא בּוֹרְחִים מִמֶּנָּה.",
-  "ipa": "kemˈo hazikˈit, matslemˈat haʃˈetaχ mitχabˈet, uvaalˈej χajˈim bajjʃanˈim lˈo boʁχˈim mimenˈa.",
-  "heard": "כמו זיקית מצמת השטח מתחבאת, ובעלי חיים ביישנים לא בורחים ממנה"
+  "ipa": "kemˈo hazikˈit, matslemˈat haʃˈetaχ mitχabˈet, uvaalˈej χajˈim bajjʃanˈim lˈo boʁχˈim mimenˈa."
  },
  "th.camo.k": {
-  "h": "49c167bf2aac",
+  "h": "fa4548d22c98",
   "text": "כְּמוֹ הַזִּקִּית: מַצְלֵמַת הַשָּׂטַח מִתְחַבֵּאת, וּבַעֲלֵי חַיִּים בַּיְשָׁנִים לֹא בּוֹרְחִים מִמֶּנָּה.",
-  "ipa": "kemˈo hazikˈit, matslemˈat hasatˈaχ mitχabˈet, uvaalˈej χajˈim bajʃanˈim lˈo boʁχˈim mimenˈa.",
-  "heard": "כי מוזי קיט, מצלמת הסת\"ח מתחבאת, ובעלי חיים בישנים לא בורחים ממנה"
+  "ipa": "kemˈo hazikˈit, matslemˈat hasatˈaχ mitχabˈet, uvaalˈej χajˈim bajʃanˈim lˈo boʁχˈim mimenˈa."
  },
  "th.grip": {
-  "h": "a9f2af1aa3d7",
+  "h": "f0455bbd4e8e",
   "text": "לְמַדְתָּם מֵהַתִּמָנוּן! רוֹבּוֹט הַהַצָּלָה מְטַפֵּל עַכְשָׁיו בַּעֲדִינוּת, וּמַהֵר יוֹתֵר.",
-  "ipa": "lemadtˈam mehatimanˈun! ʁobˈot hahatsalˈa metapˈel aχʃˈav baadinˈut, umahˈeʁ jotˈeʁ.",
-  "heard": "למתן מעטים מנון, רובוט ההצלה מטפל עכשיו בדינות ומהר יותר."
+  "ipa": "lemadtˈam mehatimanˈun! ʁobˈot hahatsalˈa metapˈel aχʃˈav baadinˈut, umahˈeʁ jotˈeʁ."
  },
  "th.grip.k": {
-  "h": "879a28c5b34a",
+  "h": "175cfcbb14a5",
   "text": "לְמַדְתֶּם מֵהַתְּמָנוּן! רוֹבּוֹט הַהַצָּלָה מְטַפֵּל עַכְשָׁו בַּעֲדִינוּת, וּמַהֵר יוֹתֵר.",
-  "ipa": "lemˈadtem mehatemanˈun! ʁobˈot hahatsalˈa metapˈel aχʃˈav baadinˈut, umahˈeʁ jotˈeʁ.",
-  "heard": "מה אתם, אתם מנון, או באותה הצלה מטפל עכשיו בעדינות ומהר יותר"
+  "ipa": "lemˈadtem mehatemanˈun! ʁobˈot hahatsalˈa metapˈel aχʃˈav baadinˈut, umahˈeʁ jotˈeʁ."
  },
  "th.bandage": {
-  "h": "63826caad8f3",
+  "h": "e68315c992ce",
   "text": "הַפְלַסְטֵר שֶׁל הַתִּמְנוּן עוֹבֵד! בַּעַל חַיִּים פָּגוּעַ מַחֲלִים עַכְשָׁיו מַהֵר יוֹתֵר.",
-  "ipa": "haflastˈeʁ ʃˈel hatimnˈun ʔovˈed! bˈaal χajˈim pagˈua maχalˈim aχʃˈav mahˈeʁ jotˈeʁ.",
-  "heard": "הפלסטר של התמנון עובד, בעל חיים פרוע מחלים עכשיו מהר יותר."
+  "ipa": "haflastˈeʁ ʃˈel hatimnˈun ʔovˈed! bˈaal χajˈim pagˈua maχalˈim aχʃˈav mahˈeʁ jotˈeʁ."
  },
  "th.bandage.k": {
-  "h": "9a23b4a8190c",
+  "h": "f56cb103c346",
   "text": "הַפְּלַסְטֶר שֶׁל הַתְּמָנוּן עוֹבֵד! בַּעַל חַיִּים פָּגוּעַ מַחְלִים עַכְשָׁו מַהֵר יוֹתֵר.",
-  "ipa": "hapelˈasteʁ ʃˈel hatemanˈun ʔovˈed! bˈaal χajˈim pagˈua maχlˈim aχʃˈav mahˈeʁ jotˈeʁ.",
-  "heard": "הפלסטר של התמנון עובד בעל חיים פה, והוא המחלים עכשיו מהר יותר"
+  "ipa": "hapelˈasteʁ ʃˈel hatemanˈun ʔovˈed! bˈaal χajˈim pagˈua maχlˈim aχʃˈav mahˈeʁ jotˈeʁ."
  },
  "th.solar": {
-  "h": "22c96c3b0541",
+  "h": "a87bdf08c9ac",
   "text": "כְּמוֹ כַּנְפֵי הַפַּרְפַּר: יוֹתֵר אוֹר שֶׁמֶשׁ, יוֹתֵר חַשְׁמַל, וּמְחוֹלֵל הַמַּיִם נוֹתֵן יוֹתֵר מַיִם.",
-  "ipa": "kemˈo kanfˈej hapaʁpˈaʁ, jotˈeʁ ʔˈoʁ ʃˈemeʃ, jotˈeʁ χaʃmˈal, umχolˈel hamˈajim notˈen jotˈeʁ mˈajim.",
-  "heard": "מוקפי הפרפר, יותר או שמש, יותר חשמל, ומחולל המים נוטים יותר מים"
+  "ipa": "kemˈo kanfˈej hapaʁpˈaʁ, jotˈeʁ ʔˈoʁ ʃˈemeʃ, jotˈeʁ χaʃmˈal, umχolˈel hamˈajim notˈen jotˈeʁ mˈajim."
  },
  "th.nutshell": {
-  "h": "72f1679915d1",
+  "h": "d42c08a94031",
   "text": "כְּמוֹ קְלִיפַּת אֱגוֹז הַבְּרָזִיל: תֵּיבוֹת הַקִּינּוּן שֶׁלָּכֶם עוֹמְדוֹת עַכְשָׁיו גַּם בִּסְעָרָה.",
-  "ipa": "kemˈo kelipˈat egˈoz habeʁazˈil, tejvˈot hakinˈun ʃelaχˈem ʔomdˈot aχʃˈav gˈam bisaʁˈa.",
-  "heard": "כמו קליפתיו זה ברזיל תיבות הקניון שלכם עומדות עכשיו, והמסרה"
+  "ipa": "kemˈo kelipˈat egˈoz habeʁazˈil, tejvˈot hakinˈun ʃelaχˈem ʔomdˈot aχʃˈav gˈam bisaʁˈa."
  },
  "th.nutshell.k": {
-  "h": "2ea47e0bc11d",
+  "h": "c4448195f123",
   "text": "כְּמוֹ קְלִפַּת אֱגוֹז הַבְּרָזִיל: תֵּבוֹת הַקִּנּוּן שֶׁלָּכֶם עוֹמְדוֹת עַכְשָׁו גַּם בִּסְעָרָה.",
-  "ipa": "kemˈo kelipˈat egˈoz habeʁazˈil, tevˈot hakinˈun ʃelaχˈem ʔomdˈot aχʃˈav gˈam bisaʁˈa.",
-  "heard": "כמו קליפת יוזה, ברזיל, תיבות הכינון שלכם עומדות עכשיו המסרה"
+  "ipa": "kemˈo kelipˈat egˈoz habeʁazˈil, tevˈot hakinˈun ʃelaχˈem ʔomdˈot aχʃˈav gˈam bisaʁˈa."
  },
  "th.plasma": {
-  "h": "82079a998706",
+  "h": "8b2f70fc5c75",
   "text": "הַבּוּעָה שֶׁל הַחֲסִילוֹן עוֹזֶרֶת: כְּשֶׁהַמַּיִם בַּשּׁוּנִית עֲכוּרִים, הֵם מִתְבַּהֲרִים מַהֵר יוֹתֵר.",
-  "ipa": "habuˈa ʃˈel haχasilˈon ʔozˈeʁet, keʃehamˈajim baʃunˈit aχuʁˈim, hˈem mitbahaʁˈim mahˈeʁ jotˈeʁ.",
-  "heard": "הבועה של החסילונו עוזרת כשהמים בשונית עכורים הם מתבהרים מהר יותר."
+  "ipa": "habuˈa ʃˈel haχasilˈon ʔozˈeʁet, keʃehamˈajim baʃunˈit aχuʁˈim, hˈem mitbahaʁˈim mahˈeʁ jotˈeʁ."
  },
  "th.notebook": {
-  "h": "debbdcdb04e5",
+  "h": "44102cf1eca3",
   "text": "פְּתַרְתֶּם תַּעֲלוּמָה! עַכְשָׁיו מֵחֶבֶרַת הַחוֹקֵר מְצַיֶּירֶת גְּרַף גַּם בָּאִי שֶׁלָּכֶם.",
-  "ipa": "petˈaʁtem taalumˈa! aχʃˈav meχeveʁˈat haχokˈeʁ metsajˈejʁet geʁˈaf gˈam baˈi ʃelaχˈem.",
-  "heard": "פתרתם את הלומה עכשיו מחברת החוקר מציירת את רף פעם באיש שלכם"
+  "ipa": "petˈaʁtem taalumˈa! aχʃˈav meχeveʁˈat haχokˈeʁ metsajˈejʁet geʁˈaf gˈam baˈi ʃelaχˈem."
  },
  "th.notebook.k": {
-  "h": "682cf9dfc45e",
+  "h": "82ed879b807f",
   "text": "פְּתַרְתֶּם תַּעֲלוּמָה! עַכְשָׁו מַחְבֶּרֶת הַחוֹקֵר מְצַיֶּרֶת גְּרָף גַּם בָּאִי שֶׁלָּכֶם.",
-  "ipa": "petˈaʁtem taalumˈa! aχʃˈav maχbˈeʁet haχokˈeʁ metsajˈeʁet geʁˈaf gˈam baˈi ʃelaχˈem.",
-  "heard": "פתרתם את הלומה, עכשיו נחבר את החוק למצייר את הרף אמבאי שלכם"
+  "ipa": "petˈaʁtem taalumˈa! aχʃˈav maχbˈeʁet haχokˈeʁ metsajˈeʁet geʁˈaf gˈam baˈi ʃelaχˈem."
  },
  "th.quadrat": {
-  "h": "ca11ba8fdbf8",
+  "h": "cf5254031069",
   "text": "מִדַּדְתָם בְּרִיבּוּעַ הַדְגִּימָה. עַכְשָׁיו אֶפְשָׁר לִסְפּוֹר בּוֹ צְמָחִים גַּם בָּאִי שֶׁלָּכֶם.",
-  "ipa": "midadtˈam beʁibˈua hadgimˈa. aχʃˈav efʃˈaʁ lispˈoʁ bˈo tsemaχˈim gˈam baˈi ʃelaχˈem.",
-  "heard": "מידתם בריבוע עדימה. עכשיו אפשר לספור בעצם הכי מהמביי שלכם"
+  "ipa": "midadtˈam beʁibˈua hadgimˈa. aχʃˈav efʃˈaʁ lispˈoʁ bˈo tsemaχˈim gˈam baˈi ʃelaχˈem."
  },
  "th.quadrat.k": {
-  "h": "25082cb46c75",
+  "h": "142f0ef98390",
   "text": "מְדַדְתֶּם בְּרִבּוּעַ הַדְּגִימָה. עַכְשָׁו אֶפְשָׁר לִסְפֹּר בּוֹ צְמָחִים גַּם בָּאִי שֶׁלָּכֶם.",
-  "ipa": "medˈadtem beʁibˈua hadegimˈa. aχʃˈav efʃˈaʁ lispˈoʁ bˈo tsemaχˈim gˈam baˈi ʃelaχˈem.",
-  "heard": "מידעתם בריבוע עדימה, עכשיו אפשר לספור בו צמחים במאי שלכם"
+  "ipa": "medˈadtem beʁibˈua hadegimˈa. aχʃˈav efʃˈaʁ lispˈoʁ bˈo tsemaχˈim gˈam baˈi ʃelaχˈem."
  },
  "th.mice-owl": {
-  "h": "e8ab69380900",
+  "h": "94872ae05399",
   "text": "בַּחוֹרֶשׁ שֶׁלָּכֶם מְסוּמָּן עַכְשָׁיו: הִתְנַשַּׁמַת צִדָה קוֹצָנִים, וְתֵיבַת הַקִּינּוּן הִיא הַבַּיִת שֶׁלָּהּ.",
-  "ipa": "baχˈoʁeʃ ʃelaχˈem mesumˈan aχʃˈav, hitnaʃamˈat tsidˈa kotsanˈim, vetejvˈat hakinˈun hˈi habajˈit ʃelˈah.",
-  "heard": "בחור שלכם מסומן עכשיו, התנשמה צידה קוצנים וטיבת הכינון היא הבית שלה."
+  "ipa": "baχˈoʁeʃ ʃelaχˈem mesumˈan aχʃˈav, hitnaʃamˈat tsidˈa kotsanˈim, vetejvˈat hakinˈun hˈi habajˈit ʃelˈah."
  },
  "th.mice-owl.k": {
-  "h": "26b2d2ff417c",
+  "h": "5c6f7318177e",
   "text": "בַּחֹרֶשׁ שֶׁלָּכֶם מְסֻמָּן עַכְשָׁו: הַתִּנְשֶׁמֶת צָדָה קוֹצָנִים, וְתֵבַת הַקִּנּוּן הִיא הַבַּיִת שֶׁלָּהּ.",
-  "ipa": "baχˈoʁeʃ ʃelaχˈem mesumˈan aχʃˈav, hatinʃˈemet tsadˈa kotsanˈim, vetevˈat hakinˈun hˈi habajˈit ʃelˈah.",
-  "heard": "בחור שלכם מסומן עכשיו, את עם שם את צדק או צענים ותיבת הכינון היא הבית שלה"
+  "ipa": "baχˈoʁeʃ ʃelaχˈem mesumˈan aχʃˈav, hatinʃˈemet tsadˈa kotsanˈim, vetevˈat hakinˈun hˈi habajˈit ʃelˈah."
  },
  "th.the-trap": {
-  "h": "521c166f6113",
+  "h": "54d8d080a75d",
   "text": "לְמַדְתָּם מֵהַמַּלְכּוֹדֶת. בְּשָׁנָה שֶׁל הָמוֹן בְּלוֹטִים תּוּכְלוּ לִבְחוֹר תַּנְשָׁמוֹת בִּמָקוֹם רַעַל.",
-  "ipa": "lemadtˈam mehamalkˈodet. beʃanˈa ʃˈel hamˈon belotˈim tuχlˈu livχˈoʁ tanʃamˈot bimakˈom ʁˈaal.",
-  "heard": "למטה מהמלכודת, בשנה של המון בלוטים תוכלו לבחור את השמות במקום רעל."
+  "ipa": "lemadtˈam mehamalkˈodet. beʃanˈa ʃˈel hamˈon belotˈim tuχlˈu livχˈoʁ tanʃamˈot bimakˈom ʁˈaal."
  },
  "th.the-trap.k": {
-  "h": "6a617ac59ead",
+  "h": "e3a3dd3f27da",
   "text": "לְמַדְתֶּם מֵהַמַּלְכֹּדֶת. בְּשָׁנָה שֶׁל הָמוֹן בַּלּוּטִים תּוּכְלוּ לִבְחֹר תִּנְשָׁמוֹת בִּמְקוֹם רַעַל.",
-  "ipa": "lemˈadtem mehamalkˈodet. beʃanˈa ʃˈel hamˈon balutˈim tuχlˈu livχˈoʁ tinʃamˈot bimkˈom ʁˈaal.",
-  "heard": "למדתם מהמלכודת, ושינה של המון בלוטים תוכלו לפחות עם שמות במקום רעל"
+  "ipa": "lemˈadtem mehamalkˈodet. beʃanˈa ʃˈel hamˈon balutˈim tuχlˈu livχˈoʁ tinʃamˈot bimkˈom ʁˈaal."
  },
  "th.summer-fire": {
-  "h": "04c8686efe2a",
+  "h": "685248419dba",
   "text": "לְמַדְתָּם מֵהַתַעֲלוּמָה \"אֵשׁ בַּקַּיִץ\". בִּשְׂרֵיפָה בַּחוֹרֶשׁ יֵשׁ עַכְשָׁיו עוֹד דֶּרֶךְ: פַּס שְׁמִירָה יָרוֹק.",
-  "ipa": "lemadtˈam mehataalumˈa ˈeʃ bakajˈits. bisʁejfˈa baχˈoʁeʃ jˈeʃ aχʃˈav ʔˈod dˈeʁeχ, pˈas ʃemiʁˈa jaʁˈok.",
-  "heard": "למדתם מהתעלומה אש בקיץ, ושרף הבחור שיש עכשיו עוד דרך, פס שמאירה ירוק."
+  "ipa": "lemadtˈam mehataalumˈa ˈeʃ bakajˈits. bisʁejfˈa baχˈoʁeʃ jˈeʃ aχʃˈav ʔˈod dˈeʁeχ, pˈas ʃemiʁˈa jaʁˈok."
  },
  "th.summer-fire.k": {
-  "h": "8768a5512761",
+  "h": "2f3da07af313",
   "text": "לְמַדְתֶּם מֵהַתַּעֲלוּמָה \"אֵשׁ בַּקַּיִץ\". בִּשְׂרֵפָה בַּחֹרֶשׁ יֵשׁ עַכְשָׁו עוֹד דֶּרֶךְ: פַּס שְׁמִירָה יָרֹק.",
-  "ipa": "lemˈadtem mehataalumˈa ˈeʃ bakajˈits. bisʁefˈa baχˈoʁeʃ jˈeʃ aχʃˈav ʔˈod dˈeʁeχ, pˈas ʃemiʁˈa jaʁˈok.",
-  "heard": "למדתם מטלמה אש בקיץ, בשריפה בחורש יש עכשיו עוד דרך. פס שמירה ירוק"
+  "ipa": "lemˈadtem mehataalumˈa ˈeʃ bakajˈits. bisʁefˈa baχˈoʁeʃ jˈeʃ aχʃˈav ʔˈod dˈeʁeχ, pˈas ʃemiʁˈa jaʁˈok."
  },
  "th.cleaning-station": {
-  "h": "cdad746a32a2",
+  "h": "ebc398a9fe47",
   "text": "לְמַדְתָּם שֶׁעוֹגָנִים שׁוֹבְרִים אַלְמוֹגִּים. מִצּוֹף הָעֲגִינָה שׁוֹמֵר עַכְשָׁיו עַל שֶׁטַח גָּדוֹל יוֹתֵר.",
-  "ipa": "lemadtˈam ʃeʔoganˈim ʃovʁˈim almogˈim. mitsˈof haaginˈa ʃomˈeʁ aχʃˈav ˈal ʃˈetaχ gadˈol jotˈeʁ.",
-  "heard": "למטה המשוענים שוברים על מורים. מצופהין השומר עכשיו על שטח הדו ליותר"
+  "ipa": "lemadtˈam ʃeʔoganˈim ʃovʁˈim almogˈim. mitsˈof haaginˈa ʃomˈeʁ aχʃˈav ˈal ʃˈetaχ gadˈol jotˈeʁ."
  },
  "th.cleaning-station.k": {
-  "h": "6823ddc480e4",
+  "h": "994e7ebd9720",
   "text": "לְמַדְתֶּם שֶׁעֹגְנִים שׁוֹבְרִים אַלְמֻגִּים. מְצוֹף הָעֲגִינָה שׁוֹמֵר עַכְשָׁו עַל שֶׁטַח גָּדוֹל יוֹתֵר.",
-  "ipa": "lemˈadtem ʃeognˈim ʃovʁˈim almugˈim. metsˈof haaginˈa ʃomˈeʁ aχʃˈav ˈal ʃˈetaχ gadˈol jotˈeʁ.",
-  "heard": "למה אתם שונים שעוברים על מוגים? בסוף העניין השומר עכשיו על שטח עדול יותר"
+  "ipa": "lemˈadtem ʃeognˈim ʃovʁˈim almugˈim. metsˈof haaginˈa ʃomˈeʁ aχʃˈav ˈal ʃˈetaχ gadˈol jotˈeʁ."
  },
  "th.brazil-nut": {
-  "h": "d41b5b4ed4a1",
+  "h": "d3cc509753d0",
   "text": "בְּאַמְזוֹנְס שֶׁלָּכֶם מְסוּמָּן עַכְשָׁיו: דְּבוּרַת הַסַּחְלַבִים מֵאֲבִיקָה, וְהָאֱגוֹטִי טוֹמֵן אֶת הָאֱגוֹזִים.",
-  "ipa": "beamzˈon ʃelaχˈem mesumˈan aχʃˈav, devuʁˈat hasaχlavˈim meavikˈa, vehaegotˈi tomˈen ˈet haegozˈim.",
-  "heard": "בן זון שלכם מסומן עכשיו דבורת הסחבים מהביקה, והאותי התומנת הפרוזים"
+  "ipa": "beamzˈon ʃelaχˈem mesumˈan aχʃˈav, devuʁˈat hasaχlavˈim meavikˈa, vehaegotˈi tomˈen ˈet haegozˈim."
  },
  "th.brazil-nut.k": {
-  "h": "254ea65fdc78",
+  "h": "c3edc8f900df",
   "text": "בָּאָמָזוֹנָס שֶׁלָּכֶם מְסֻמָּן עַכְשָׁו: דְּבוֹרַת הַסַּחְלָבִים מַאֲבִיקָה, וְהָאָגוּטִי טוֹמֵן אֶת הָאֱגוֹזִים.",
-  "ipa": "baamazonˈas ʃelaχˈem mesumˈan aχʃˈav, devoʁˈat hasaχlavˈim maavikˈa, vehaagutˈi tomˈen ˈet haegozˈim.",
-  "heard": "במזונה שלכם מסומן עכשיו, תבורת הסחלבים אביקה והאותית אומנת אבוזיים."
+  "ipa": "baamazonˈas ʃelaχˈem mesumˈan aχʃˈav, devoʁˈat hasaχlavˈim maavikˈa, vehaagutˈi tomˈen ˈet haegozˈim."
  },
  "th.fair": {
-  "h": "4fabd5c1617e",
+  "h": "3bf389e00168",
   "text": "עֲשִׂיתֶם נִיסּוּי הוֹגֵן! עַכְשָׁיו הַנִּיסּוּי בְּאִי מַרְאֶה גְּרַף שֶׁל לִפְנֵי וְאַחֲרֵי.",
-  "ipa": "asˈitem nisˈuj hogˈen! aχʃˈav hanisˈuj beˈi maʁˈe geʁˈaf ʃˈel lifnˈej veaχaʁˈej.",
-  "heard": "עשיתם ניסוי או האם עכשיו הניסוי באימרה רף שלפני ואחרי"
+  "ipa": "asˈitem nisˈuj hogˈen! aχʃˈav hanisˈuj beˈi maʁˈe geʁˈaf ʃˈel lifnˈej veaχaʁˈej."
  },
  "th.fair.k": {
-  "h": "0f932e25fbcf",
+  "h": "b6d4c12f4fe7",
   "text": "עֲשִׂיתֶם נִסּוּי הוֹגֵן! עַכְשָׁו הַנִּסּוּי בָּאִי מַרְאֶה גְּרָף שֶׁל לִפְנֵי וְאַחֲרֵי.",
-  "ipa": "asˈitem nisˈuj hogˈen! aχʃˈav hanisˈuj baˈi maʁˈe geʁˈaf ʃˈel lifnˈej veaχaʁˈej.",
-  "heard": "עשיתם ניסוי אורן, עכשיו הניסוי באים רב שלפני ואחרי"
+  "ipa": "asˈitem nisˈuj hogˈen! aχʃˈav hanisˈuj baˈi maʁˈe geʁˈaf ʃˈel lifnˈej veaχaʁˈej."
  },
  "th.photo-scope": {
-  "h": "df7daab3df6c",
+  "h": "fb580df8e89b",
   "text": "צִילַּמְתֶּם בָּאִי יְצוּר שֶׁיֵּשׁ לוֹ דְּגִימָה. הִיא מְחַכָּה לָכֶם בְּמִיקְרוֹסְקוֹפּ!",
-  "ipa": "tsilˈamtem baˈi jetsˈuʁ ʃejˈeʃ lˈo degimˈa. hˈi meχakˈa laχˈem bemikʁoskˈop!",
-  "heard": "צילמתם באי ייצוא שיש, לא יודעים מה, היא מחכה לכם במיקרוסקו"
+  "ipa": "tsilˈamtem baˈi jetsˈuʁ ʃejˈeʃ lˈo degimˈa. hˈi meχakˈa laχˈem bemikʁoskˈop!"
  },
  "th.photo-scope.k": {
-  "h": "4473198e1bdd",
+  "h": "0175c5f2359b",
   "text": "צִלַּמְתֶּם בָּאִי יְצוּר שֶׁיֵּשׁ לוֹ דְּגִימָה. הִיא מְחַכָּה לָכֶם בַּמִּיקְרוֹסְקוֹפּ!",
-  "ipa": "tsilˈamtem baˈi jetsˈuʁ ʃejˈeʃ lˈo degimˈa. hˈi meχakˈa laχˈem bamikʁoskˈop!",
-  "heard": "צילמתם באי יצור שיש לו דעימה, היא מחכה לכם במיקרוסקופ"
+  "ipa": "tsilˈamtem baˈi jetsˈuʁ ʃejˈeʃ lˈo degimˈa. hˈi meχakˈa laχˈem bamikʁoskˈop!"
  },
  "th.link-atlas": {
-  "h": "61a3a18eb006",
+  "h": "e89172dc3503",
   "text": "גִּילִּיתָם קֶשֶׁר בָּאִי. בָּאטְלָס מְחַכֶּה לָכֶם שְׁאֵלַת חֵקֶר עַל אוֹתוֹ יְצוּר.",
-  "ipa": "gilitˈam kˈeʃeʁ baˈi. batlˈas meχakˈe laχˈem ʃeelˈat χˈekeʁ ˈal ʔotˈo jetsˈuʁ.",
-  "heard": "היא ליתם קשר ביי, בטלס מחכה לכם שלעת חקר על באותו יצור."
+  "ipa": "gilitˈam kˈeʃeʁ baˈi. batlˈas meχakˈe laχˈem ʃeelˈat χˈekeʁ ˈal ʔotˈo jetsˈuʁ."
  },
  "th.link-atlas.k": {
-  "h": "c37961cd0e53",
+  "h": "d29e6969b463",
   "text": "גִּלִּיתֶם קֶשֶׁר בָּאִי. בָּאַטְלָס מְחַכָּה לָכֶם שְׁאֵלַת חֵקֶר עַל אוֹתוֹ יְצוּר.",
-  "ipa": "gilˈitem kˈeʃeʁ baˈi. baatlˈas meχakˈa laχˈem ʃeelˈat χˈekeʁ ˈal ʔotˈo jetsˈuʁ.",
-  "heard": "עיליתם קשר ביי, בתל\"ס מחכה לכם שאלת חקר על אותו בייצור"
+  "ipa": "gilˈitem kˈeʃeʁ baˈi. baatlˈas meχakˈa laχˈem ʃeelˈat χˈekeʁ ˈal ʔotˈo jetsˈuʁ."
  },
  "th.ev-fire": {
-  "h": "b4cce5665335",
+  "h": "3fb6462ec862",
   "text": "הַחוֹרֶשׁ שֶׁלָּכֶם עָבַר קַיִץ קָשֶׁה. אֲנִי מַמְלִיץ לָכֶם עַל הַתַעֲלוּמָה \"אֵשׁ בַּקַּיִץ\".",
-  "ipa": "haχˈoʁeʃ ʃelaχˈem avˈaʁ kajˈits kaʃˈe. anˈi mamlˈits laχˈem ˈal hataalumˈa ˈeʃ bakajˈits.",
-  "heard": "החוש שלכם עבר קיץ קשה, אני ממליץ לכם על התעלומה אש בקיץ"
+  "ipa": "haχˈoʁeʃ ʃelaχˈem avˈaʁ kajˈits kaʃˈe. anˈi mamlˈits laχˈem ˈal hataalumˈa ˈeʃ bakajˈits."
  },
  "th.ev-fire.k": {
-  "h": "0c448f1d5c4b",
+  "h": "548255c8a09f",
   "text": "הַחֹרֶשׁ שֶׁלָּכֶם עָבַר קַיִץ קָשֶׁה. אֲנִי מַמְלִיץ לָכֶם עַל הַתַּעֲלוּמָה \"אֵשׁ בַּקַּיִץ\".",
-  "ipa": "haχˈoʁeʃ ʃelaχˈem avˈaʁ kajˈits kaʃˈe. anˈi mamlˈits laχˈem ˈal hataalumˈa ˈeʃ bakajˈits.",
-  "heard": "החוש שלכם עבר קיץ קשה, אני ממליץ לכם על התעלומה אש בקיץ"
+  "ipa": "haχˈoʁeʃ ʃelaχˈem avˈaʁ kajˈits kaʃˈe. anˈi mamlˈits laχˈem ˈal hataalumˈa ˈeʃ bakajˈits."
  },
  "th.ev-heat": {
-  "h": "e61696813a2d",
+  "h": "b22d7ab3482e",
   "text": "הַמַּיִם בַּשׁוֹנִית שֶׁלָּכֶם הִתְחַמְּמוּ. אֲנִי מַמְלִיץ לָכֶם עַל הַתַעֲלוּמָה \"הָאַלְמוֹג הַלָּבָן\".",
-  "ipa": "hamˈajim baʃonˈit ʃelaχˈem hitχamemˈu. anˈi mamlˈits laχˈem ˈal hataalumˈa haalmˈog halavˈan.",
-  "heard": "המים השונית שלכם התחממו, אני ממליץ לכם על התעלומה, אלמו הלבן"
+  "ipa": "hamˈajim baʃonˈit ʃelaχˈem hitχamemˈu. anˈi mamlˈits laχˈem ˈal hataalumˈa haalmˈog halavˈan."
  },
  "th.ev-heat.k": {
-  "h": "85515bcc7212",
+  "h": "e9cfbb0478fb",
   "text": "הַמַּיִם בַּשּׁוּנִית שֶׁלָּכֶם הִתְחַמְּמוּ. אֲנִי מַמְלִיץ לָכֶם עַל הַתַּעֲלוּמָה \"הָאַלְמֹג הַלָּבָן\".",
-  "ipa": "hamˈajim baʃunˈit ʃelaχˈem hitχamemˈu. anˈi mamlˈits laχˈem ˈal hataalumˈa haalmˈog halavˈan.",
-  "heard": "המים השונית שלכם התחממו, אני ממליץ לכם על התעלומה אלמו הלבן"
+  "ipa": "hamˈajim baʃunˈit ʃelaχˈem hitχamemˈu. anˈi mamlˈits laχˈem ˈal hataalumˈa haalmˈog halavˈan."
  },
  "th.ev-dry": {
-  "h": "b9737f22c43f",
+  "h": "66f6decc000f",
   "text": "בַּיַּעַר שֶׁלָּכֶם לֹא יָרַד גֶּשֶׁם. מָה עִם הַצְּפַרְדְּעִים? נַסּוּ אֶת \"אֵיפֹה הַצְּפַרְדְּעִים?\".",
-  "ipa": "bajˈaaʁ ʃelaχˈem lˈo jaʁˈad gˈeʃem. mˈa ˈim hatsefaʁdeˈim? nasˈu ˈet ejfˈo hatsefaʁdeˈim?.",
-  "heard": "ביער שלכם לא ירה תשם. מה עם הציפרדעים? עשו את איפה הציפרדעים"
+  "ipa": "bajˈaaʁ ʃelaχˈem lˈo jaʁˈad gˈeʃem. mˈa ˈim hatsefaʁdeˈim? nasˈu ˈet ejfˈo hatsefaʁdeˈim?."
  },
  "th.ev-anchor": {
-  "h": "e178b308077a",
+  "h": "7cfbda1c77be",
   "text": "עוֹגֶן פָּגַע בַּשּׁוֹנִית שֶׁלָּכֶם. אֲנִי מַמְלִיץ לָכֶם עַל \"תַּחֲנַת הַנִּיקּוּי נִסְגְּרָה\".",
-  "ipa": "ʔˈogen pagˈa baʃonˈit ʃelaχˈem. anˈi mamlˈits laχˈem ˈal taχanˈat hanikˈuj nisgeʁˈa.",
-  "heard": "או אין פאה בשונית שלכם. אני ממליץ לכם על תחנת הניקוי מסרה."
+  "ipa": "ʔˈogen pagˈa baʃonˈit ʃelaχˈem. anˈi mamlˈits laχˈem ˈal taχanˈat hanikˈuj nisgeʁˈa."
  },
  "th.ev-anchor.k": {
-  "h": "e00e866faab7",
+  "h": "d8522e0105d1",
   "text": "עֹגֶן פָּגַע בַּשּׁוּנִית שֶׁלָּכֶם. אֲנִי מַמְלִיץ לָכֶם עַל \"תַּחֲנַת הַנִּקּוּי נִסְגְּרָה\".",
-  "ipa": "ˈogen pagˈa baʃunˈit ʃelaχˈem. anˈi mamlˈits laχˈem ˈal taχanˈat hanikˈuj nisgeʁˈa.",
-  "heard": "אוהנטה בשונית שלכם. אני ממליץ לכם על תחנת הניקוי מסרה."
+  "ipa": "ˈogen pagˈa baʃunˈit ʃelaχˈem. anˈi mamlˈits laχˈem ˈal taχanˈat hanikˈuj nisgeʁˈa."
  },
  "th.ev-road": {
-  "h": "c7855ad2fd64",
+  "h": "380edb011256",
   "text": "כְּבִישׁ עָבַר לְיַד הַחוֹרֶשׁ שֶׁלָּכֶם. אֲנִי מַמְלִיץ לָכֶם עַל \"הַצְּבָאִים נֶעֱלָמִים\".",
-  "ipa": "kevˈiʃ avˈaʁ lejˈad haχˈoʁeʃ ʃelaχˈem. anˈi mamlˈits laχˈem ˈal hatsevaˈim neelamˈim.",
-  "heard": "כביש עבר ליד החורש שלכם, אני ממליץ לכם על הצבעים נעלמים"
+  "ipa": "kevˈiʃ avˈaʁ lejˈad haχˈoʁeʃ ʃelaχˈem. anˈi mamlˈits laχˈem ˈal hatsevaˈim neelamˈim."
  },
  "th.ev-road.k": {
-  "h": "15185e457652",
+  "h": "9b89232d1b68",
   "text": "כְּבִישׁ עָבַר לְיַד הַחֹרֶשׁ שֶׁלָּכֶם. אֲנִי מַמְלִיץ לָכֶם עַל \"הַצְּבָאִים נֶעֱלָמִים\".",
-  "ipa": "kevˈiʃ avˈaʁ lejˈad haχˈoʁeʃ ʃelaχˈem. anˈi mamlˈits laχˈem ˈal hatsevaˈim neelamˈim.",
-  "heard": "כביש עבר ליד החורה שלכם, אני ממליץ לכם על הצבעים נעלמים"
+  "ipa": "kevˈiʃ avˈaʁ lejˈad haχˈoʁeʃ ʃelaχˈem. anˈi mamlˈits laχˈem ˈal hatsevaˈim neelamˈim."
  },
  "th.zone-amazon": {
-  "h": "f0af0eae0d10",
+  "h": "5160ea9e634b",
   "text": "הִשְׁלַמְתֶּם אֶת הָאַמְזוֹנְס! אֵצֶל הַמַּמְצִיאִים מְחַכּוֹת לָכֶם שָׁלוֹשׁ בְּעָיוֹת מֵהַיַּעַר.",
-  "ipa": "hiʃlˈamtem ˈet haamazˈonas! ˈetsel hamamtsiˈim meχakˈot laχˈem ʃalˈoʃ beajˈot mehajˈaaʁ.",
-  "heard": "השלמתם את המזונס אצל הממציא מחכות לכם שלוש בעיות מהיער"
+  "ipa": "hiʃlˈamtem ˈet haamazˈonas! ˈetsel hamamtsiˈim meχakˈot laχˈem ʃalˈoʃ beajˈot mehajˈaaʁ."
  },
  "th.zone-amazon.k": {
-  "h": "da33df1eee9b",
+  "h": "5bb337ea13f6",
   "text": "הִשְׁלַמְתֶּם אֶת הָאָמָזוֹנָס! אֵצֶל הַמַּמְצִיאִים מְחַכּוֹת לָכֶם שָׁלֹשׁ בְּעָיוֹת מֵהַיַּעַר.",
-  "ipa": "hiʃlˈamtem ˈet haamazˈonas! ˈetsel hamamtsiˈim meχakˈot laχˈem ʃalˈoʃ beajˈot mehajˈaaʁ.",
-  "heard": "השלמתם את המזונס אצל הממציאים מחכות לכם שלוש בעיות מה היה"
+  "ipa": "hiʃlˈamtem ˈet haamazˈonas! ˈetsel hamamtsiˈim meχakˈot laχˈem ʃalˈoʃ beajˈot mehajˈaaʁ."
  },
  "th.zone-grove": {
-  "h": "e308b911f217",
+  "h": "caf170623694",
   "text": "הִשְׁלַמְתֶּם אֶת הַחוֹרֶשׁ! אֵצֶל הַמַּמְצִיאִים מְחַכּוֹת לָכֶם שָׁלוֹשׁ בְּעָיוֹת מֵהַחוֹרֶשׁ.",
-  "ipa": "hiʃlˈamtem ˈet haχˈoʁeʃ! ˈetsel hamamtsiˈim meχakˈot laχˈem ʃalˈoʃ beajˈot mehaχˈoʁeʃ.",
-  "heard": "השלמתם את החוש אצל הממציאים מחכות לכם שלוש בעיות מהחורש"
+  "ipa": "hiʃlˈamtem ˈet haχˈoʁeʃ! ˈetsel hamamtsiˈim meχakˈot laχˈem ʃalˈoʃ beajˈot mehaχˈoʁeʃ."
  },
  "th.zone-grove.k": {
-  "h": "429d737123fb",
+  "h": "541e9a3d54cc",
   "text": "הִשְׁלַמְתֶּם אֶת הַחֹרֶשׁ! אֵצֶל הַמַּמְצִיאִים מְחַכּוֹת לָכֶם שָׁלֹשׁ בְּעָיוֹת מֵהַחֹרֶשׁ.",
-  "ipa": "hiʃlˈamtem ˈet haχˈoʁeʃ! ˈetsel hamamtsiˈim meχakˈot laχˈem ʃalˈoʃ beajˈot mehaχˈoʁeʃ.",
-  "heard": "השלמתם את החוש אצל הממציאים מחכות לכם שלוש בעיות מהחורש"
+  "ipa": "hiʃlˈamtem ˈet haχˈoʁeʃ! ˈetsel hamamtsiˈim meχakˈot laχˈem ʃalˈoʃ beajˈot mehaχˈoʁeʃ."
  },
  "th.zone-reef": {
-  "h": "5b3d50c9c9f8",
+  "h": "182805151fbe",
   "text": "הִשְׁלַמְתֶּם אֶת הַשּׁוֹנִית! אֵצֶל הַמַּמְצִיאִים מְחַכּוֹת לָכֶם שָׁלוֹשׁ בְּעָיוֹת מֵהַיָּם.",
-  "ipa": "hiʃlˈamtem ˈet haʃonˈit! ˈetsel hamamtsiˈim meχakˈot laχˈem ʃalˈoʃ beajˈot mehajˈam.",
-  "heard": "השלמתם את השוני אצל הממציאים מחכות לכם שלוש בעיות מהים."
+  "ipa": "hiʃlˈamtem ˈet haʃonˈit! ˈetsel hamamtsiˈim meχakˈot laχˈem ʃalˈoʃ beajˈot mehajˈam."
  },
  "th.zone-reef.k": {
-  "h": "2720c7f79bc3",
+  "h": "9b44368f087c",
   "text": "הִשְׁלַמְתֶּם אֶת הַשּׁוּנִית! אֵצֶל הַמַּמְצִיאִים מְחַכּוֹת לָכֶם שָׁלֹשׁ בְּעָיוֹת מֵהַיָּם.",
-  "ipa": "hiʃlˈamtem ˈet haʃunˈit! ˈetsel hamamtsiˈim meχakˈot laχˈem ʃalˈoʃ beajˈot mehajˈam.",
-  "heard": "השלמתם את השוני אצל הממציאים לחכות לכם שלוש בעיות מהים"
+  "ipa": "hiʃlˈamtem ˈet haʃunˈit! ˈetsel hamamtsiˈim meχakˈot laχˈem ʃalˈoʃ beajˈot mehajˈam."
  },
  "th.robot-out": {
-  "h": "5b0ca2508c38",
+  "h": "ba056face8e3",
   "text": "הָרוֹבּוֹט שֶׁבְּנִיתָם יוֹצֵא לַעֲבוֹד בָּאִי! חִפְּשׂוּ אוֹתוֹ כְּשֶׁתַּחְזְרוּ לְשֵׁם.",
-  "ipa": "haʁobˈot ʃebenitˈam jotsˈe laavˈod baˈi! χipesˈu ʔotˈo keʃetaχzeʁˈu leʃˈem.",
-  "heard": "הרובוט שבניתם יוצא לעבוד באי, חיפשו אותו כשתחזרו לשם"
+  "ipa": "haʁobˈot ʃebenitˈam jotsˈe laavˈod baˈi! χipesˈu ʔotˈo keʃetaχzeʁˈu leʃˈem."
  },
  "th.robot-out.k": {
-  "h": "5dd04534bc9e",
+  "h": "fa52b075da4f",
   "text": "הָרוֹבּוֹט שֶׁבְּנִיתֶם יוֹצֵא לַעֲבֹד בָּאִי! חַפְּשׂוּ אוֹתוֹ כְּשֶׁתַּחְזְרוּ לְשָׁם.",
-  "ipa": "haʁobˈot ʃebenˈitem jotsˈe laavˈod baˈi! χapesˈu ʔotˈo keʃetaχzeʁˈu leʃˈam.",
-  "heard": "הרובוט שבניתם יוצא לעבוד בה היא קפסו אותו כשתחזרו לשם"
+  "ipa": "haʁobˈot ʃebenˈitem jotsˈe laavˈod baˈi! χapesˈu ʔotˈo keʃetaχzeʁˈu leʃˈam."
  }
 }

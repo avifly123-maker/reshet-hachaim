@@ -1,4 +1,4 @@
-// רשת החיים – player profiles: up to 4 children can share one copy on one offline computer.
+// רשת החיים – player profiles: up to 6 children can share one copy on one offline computer.
 //
 // Storage (localStorage, every access wrapped in try/catch – the game also works without storage):
 //   'web-of-life-profiles' = { list: [{ id, name, animal }], current: id }      (device-wide)
@@ -12,7 +12,7 @@
 //      remove(id), key(base), state(), MAX, NAME_MAX.   Exposed as window.__profiles for tests.
 
 export const STORE = 'web-of-life-profiles';
-export const MAX = 4;
+export const MAX = 6;   // 1.3.2: six children (was four)
 export const NAME_MAX = 14;
 const PREFIX = 'web-of-life-';
 const SEP = '::';

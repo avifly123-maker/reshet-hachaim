@@ -585,7 +585,7 @@ export function createUI(root, bus) {
   }
   function ppRender() {
     const box = ppBox(); if (!box) return;
-    const st = S.profiles || { list: [], current: null, max: 4, nameMax: 14 };
+    const st = S.profiles || { list: [], current: null, max: 6, nameMax: 14 };
     const cur = st.current && st.current.id;
     const x = `<button class="pp-x" data-a="close" aria-label="סגירה" title="סגירה">${icon('close')}</button>`;
     box.dataset.view = PP.view;
@@ -611,11 +611,12 @@ export function createUI(root, bus) {
         <div class="pp-actions"><button class="btn danger" data-a="del-yes">${icon('trash')}כן, למחוק</button><button class="btn soft" data-a="del-no">לא, חזרה</button></div>`;
       return;
     }
+    box.classList.toggle('many', PP.view === 'list' && st.list.length > 4);   // five or six players: two columns, no scrolling
     box.innerHTML = `${x}<h3 class="pp-h">מי משחק?</h3><p class="pp-sub">בחרו את השם שלכם</p>
-      <ul class="pp-list">${st.list.map((p) => `<li class="pp-row${p.id === cur ? ' cur' : ''}">
+      <ul class="pp-list${st.list.length > 4 ? ' many' : ''}">${st.list.map((p) => `<li class="pp-row${p.id === cur ? ' cur' : ''}">
         <button class="pp-pick" data-pick="${esc(p.id)}" aria-pressed="${p.id === cur}">${avatarHTML(p.animal)}<span class="pp-name">${esc(p.name)}</span>${p.id === cur ? `<span class="pp-tick" title="זה השחקן שבחרתם">${icon('check')}</span>` : ''}</button>
         <button class="pp-edit" data-edit="${esc(p.id)}" aria-label="עריכה: ${esc(p.name)}" title="עריכה">${icon('pencil')}</button></li>`).join('')}</ul>
-      ${st.list.length < (st.max || 4) ? `<button class="pp-add" data-a="add">${icon('plus')}<span>שחקן חדש</span></button>` : `<p class="pp-note">אפשר עד ${st.max || 4} שחקנים</p>`}`;
+      ${st.list.length < (st.max || 6) ? `<button class="pp-add" data-a="add">${icon('plus')}<span>שחקן חדש</span></button>` : `<p class="pp-note">אפשר עד ${st.max || 6} שחקנים</p>`}`;
   }
   function ppSave() {
     const d = PP.draft; if (!d) return;
