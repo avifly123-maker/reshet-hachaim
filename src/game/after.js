@@ -237,6 +237,7 @@ export function createAfter({ W, env, reg, scene, camera, canvas, pipe, ui, audi
     if (tools && tools.hooks && prevShot !== undefined) tools.hooks.onShot = prevShot;
     photos.dispose(); visitors.dispose(); clearDecor(); panel.remove(); root.classList.remove('af-done', 'af-shoot');
   }
-  const api = { update, dispose, photos, visitors, challenges, get rank() { return rank; }, get on() { return afterOn; }, turnOn, paint, offerChallenge: () => { chOffered = false; offerChallenge(false); } };
+  const api = { update, dispose, photos, visitors, challenges, get rank() { return rank; }, get on() { return afterOn; }, turnOn, paint, offerChallenge: () => { chOffered = false; offerChallenge(false); },
+    decor: (i) => buildDecor(i), get flock() { return flock.length; } };   // tests: the extras of rank i
   return api;
 }
