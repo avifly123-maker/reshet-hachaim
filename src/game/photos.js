@@ -69,9 +69,9 @@ const T = {
   inFrame: ['בתמונה:', 'בַּתְּמוּנָה:'], nobody: ['עוד אין אף אחד בתוך המסגרת', 'עוֹד אֵין אַף אֶחָד בְּתוֹךְ הַמִּסְגֶּרֶת'],
   linked: ['קשר ברשת!', 'קֶשֶׁר בָּרֶשֶׁת!'], saved: ['נשמר באלבום', 'נִשְׁמַר בָּאַלְבּוֹם'], landscape: ['נוף', 'נוֹף'],
   empty: ['עוד אין תמונות באלבום. צלמו משהו!', 'עוֹד אֵין תְּמוּנוֹת בָּאַלְבּוֹם. צַלְּמוּ מַשֶּׁהוּ!'],
-  count: ['{n} תמונות מתוך 24', '{n} תְּמוּנוֹת מִתּוֹךְ 24'], close: ['סגירה', 'סְגִירָה'], also: ['וגם:', 'וְגַם:'],
+  count: ['{n} תמונות מתוך {m}', '{n} תְּמוּנוֹת מִתּוֹךְ {m}'], close: ['סגירה', 'סְגִירָה'], also: ['וגם:', 'וְגַם:'],
   zones: { amazon: ['באמזונס', 'בָּאָמָזוֹנָס'], grove: ['בחורש', 'בַּחֹרֶשׁ'], reef: ['בשונית', 'בַּשּׁוּנִית'] },
-  oldest: ['כשיש 24 תמונות, הישנה ביותר יוצאת', 'כְּשֶׁיֵּשׁ 24 תְּמוּנוֹת, הַיְּשָׁנָה בְּיוֹתֵר יוֹצֵאת'],
+  oldest: ['כשיש {m} תמונות, הישנה ביותר יוצאת', 'כְּשֶׁיֵּשׁ {m} תְּמוּנוֹת, הַיְּשָׁנָה בְּיוֹתֵר יוֹצֵאת'],   // {m}: MAX_PHOTOS (rank.js)
   visitor: ['מבקר נדיר', 'מְבַקֵּר נָדִיר'],
   savedT: ['התמונה נשמרה באלבום', 'הַתְּמוּנָה נִשְׁמְרָה בָּאַלְבּוֹם'],
   full: ['האלבום מלא, והתמונה לא נשמרה', 'הָאַלְבּוֹם מָלֵא, וְהַתְּמוּנָה לֹא נִשְׁמְרָה'],
@@ -251,7 +251,7 @@ export function createPhotos({ W, reg, camera, canvas, pipe, ui, audio, imv, bus
     const z = zoomId && list.find((p) => p.id === zoomId);
     const zname = (p) => (T.zones[p.zone] ? T.zones[p.zone][kids ? 1 : 0] : '');
     const pname = (p) => (p.sp ? nameOf(p.sp) : t('landscape'));
-    albumEl.innerHTML = `<div class="af-ahead"><b>${icon('book')}${esc(t('album'))}</b><small>${esc(t('count', { n: list.length }))} · ${esc(t('oldest'))}</small>
+    albumEl.innerHTML = `<div class="af-ahead"><b>${icon('book')}${esc(t('album'))}</b><small>${esc(t('count', { n: list.length, m: MAX_PHOTOS }))} · ${esc(t('oldest', { m: MAX_PHOTOS }))}</small>
         <button type="button" class="af-aclose">${icon('close')}<span>${esc(t('close'))}</span></button></div>
       ${z ? `<div class="af-zoom"><img src="${z.img}" alt=""><div class="af-ztx"><b>${esc(pname(z))}</b><small>${esc(zname(z))}${z.visitor ? ' · ' + esc(t('visitor')) : ''}</small>
           ${(z.sps || []).length > 1 ? `<p>${esc(t('also'))} ${esc(z.sps.filter((s) => s !== z.sp).map(nameOf).join(', '))}</p>` : ''}
