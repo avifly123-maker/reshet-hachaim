@@ -18,6 +18,7 @@ import { startBadgeToasts } from './ui/badge-toast.js';
 import { howto } from './ui/howto.js';
 import { labHowto, HOWTO_LABELS } from './data/howto-cards.js';
 import * as journey from './core/journey.js';
+import * as threads from './core/threads.js';   // חוטים (1.3.2): the parts feed each other; רובו־דע announces a new thread
 import { createVoice } from './audio/voice.js';
 import { createGuide } from './ui/robo-guide.js';
 import { STAGE_LINES, LEGACY_LINES } from './data/guide-lines.js';
@@ -138,6 +139,7 @@ async function boot() {
     ui.hideLoading();
     root.classList.remove('kids');
     try { journey.check(); } catch (e) { console.error(e); }   // a stage reached in a forest, the lab or a game is announced here at the latest
+    threads.announceSoon(2600);   // a thread opened in a forest, the lab or a game: רובו־דע says it on the start screen (after a stage moment)
     ui.showStart(Object.values(ZONES).map((z) => ({ id: z.id, name: z.name, subtitle: z.subtitle, intro: z.intro, kidsIntro: KIDS[z.id]?.intro, palette: z.palette, dev: !!z.dev })));
   }
 

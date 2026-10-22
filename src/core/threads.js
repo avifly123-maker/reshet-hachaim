@@ -205,9 +205,10 @@ export function markShown(ids) {
 }
 export const lineOf = (id) => ((GUIDE['threads:' + id] || [])[0] || null);
 // one fresh thread, as a short tip (or a modal bubble); the lab has its own robot, so the guide waits until it closes
+let stageBusy = 0;   // until when a stage moment (its scene, then רובו־דע's words) is on: the thread waits for it
 export function announce({ modal = false } = {}) {
   const g = typeof window !== 'undefined' && window.__guide; if (!g) return null;
-  if (document.querySelector('#ui .lb.on')) return null;
+  if (Date.now() < stageBusy || document.querySelector('#ui .lb.on, #ui .jm')) return null;   // the lab has its own robot; the map announces by itself
   const f = fresh(); if (!f.length) return null;
   const t = f.find((x) => x.mode === 'exp') || f[0];
   const ln = lineOf(t.id); markShown(t.id);
@@ -229,6 +230,8 @@ if (typeof window !== 'undefined') {
   });
   window.addEventListener('wol-badge', () => { snapV = null; announceSoon(); });
   window.addEventListener('wol-journey', () => { reload(); });
+  window.addEventListener('wol-stage', (e) => { if (e && e.detail && !e.detail.legacy) stageBusy = Date.now() + 40000; });
+  window.addEventListener('wol-stage-done', () => { stageBusy = 0; announceSoon(1200); });
   window.__threads = { active, all, has, toolBoost, eventBoost, choicesFor, reveals, measures, robotsOut, markedSamples, sampleMarked, questionMarked,
     problemsWaiting, problemWaiting, recommended, stamps, fresh, markShown, announce, announceSoon, noteUsed, reload, THREADS };
 }

@@ -160,7 +160,44 @@
 #ui.wol .jm-bar i { position: absolute; top: 0; bottom: 0; right: 0; border-radius: 999px; background: linear-gradient(270deg, #d99a2e, #f6d27a); }
 #ui.wol .jm-note { margin: 0; font-size: .85em; color: #6a5a32; font-weight: 700; flex: 0 1 auto; }
 #ui.wol .jm-threads:empty { display: none; }
-#ui.wol .jm-threads { flex: 1 1 100%; }
+#ui.wol .jm-threads { flex: 1 1 100%; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+
+/* ===================================================== חוטים on the map (src/ui/threads-ui.js): lines behind the tiles, chips */
+#ui.wol .jm-th-svg { position: absolute; top: 0; left: 0; pointer-events: none; overflow: visible; z-index: 0; }
+#ui.wol .jm-stages { z-index: 1; }
+#ui.wol .jm-th-ln { fill: none; stroke: #9a8558; stroke-width: 2; stroke-dasharray: .012 .018; stroke-linecap: round; opacity: .55; transition: opacity .2s, stroke-width .2s; }
+#ui.wol .jm-th-ln.on { stroke: #2c9a92; stroke-width: 3.2; stroke-dasharray: none; opacity: .55; filter: drop-shadow(0 0 2px rgba(44, 154, 146, .35)); }
+#ui.wol .jm-th-ln.hot { opacity: 1; stroke-width: 4.4; }
+#ui.wol .jm-th-ln:not(.on).hot { stroke: #b0602c; stroke-width: 2.6; }
+#ui.wol .jm-th-ln.new { stroke: #e8a43a; opacity: 1; stroke-width: 5; stroke-dasharray: 1 1; animation: jm-th-draw 1.4s ease-out both, jm-th-glow 1.6s 1.4s ease-in-out infinite; }
+@keyframes jm-th-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes jm-th-glow { 0%, 100% { filter: drop-shadow(0 0 2px rgba(232, 164, 58, .5)); } 50% { filter: drop-shadow(0 0 8px rgba(232, 164, 58, .95)); } }
+#ui.wol .jm-th-end { fill: #f6efd6; stroke: #9a8558; stroke-width: 1.5; }
+#ui.wol .jm-th-end.on { fill: #2c9a92; stroke: #f6efd6; }
+#ui.wol .jm-part.th-hot { box-shadow: inset 0 0 0 2px #2c9a92, 0 0 0 3px rgba(44, 154, 146, .25), 0 2px 0 rgba(125, 100, 50, .18); }
+#ui.wol .jm-th-head { display: flex; align-items: center; gap: 6px 10px; min-width: 0; flex-wrap: wrap; }
+#ui.wol .jm-th-head .jm-th-ic { width: 20px; height: 20px; color: #a3466e; flex: none; }
+#ui.wol .jm-th-head b { font-family: var(--serif); font-weight: 400; font-size: calc(1.08em * var(--ts, 1)); color: var(--moss); }
+#ui.wol .jm-th-head small { font-weight: 800; font-size: .8em; color: #6a5a32; padding: 1px 8px; border-radius: 999px; background: rgba(44, 154, 146, .12); }
+#ui.wol .jm-th-cap { flex: 1 1 240px; margin: 0; min-width: 0; font-weight: 700; font-size: calc(.84em * var(--ts, 1)); color: #3e5a2e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#ui.wol .jm-th-row { display: flex; gap: 6px; overflow-x: auto; overflow-y: hidden; padding: 2px 2px 4px; scrollbar-width: thin; }
+#ui.wol .jm-th { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 3px 11px 3px 9px; border-radius: 999px; font-weight: 700; font-size: calc(.8em * var(--ts, 1));
+  color: #7d7460; background: rgba(255, 252, 240, .45); box-shadow: inset 0 0 0 1.5px rgba(125, 100, 50, .4); border: 0; outline-offset: 2px; transition: transform .15s, background .15s;
+  background-image: none; }
+#ui.wol .jm-th:not(.on) { box-shadow: none; border: 1.5px dashed rgba(125, 100, 50, .5); padding: 2px 10px 2px 8px; }
+#ui.wol .jm-th.on { color: #fff; background: linear-gradient(180deg, #34a89f, #23807a); box-shadow: 0 2px 0 #1d6b65; }
+#ui.wol .jm-th:hover, #ui.wol .jm-th.hot { transform: translateY(-1px); }
+#ui.wol .jm-th.hot:not(.on) { background: rgba(255, 252, 240, .9); color: #5a4a26; }
+#ui.wol .jm-th.on.hot { box-shadow: 0 2px 0 #1d6b65, 0 0 0 3px rgba(232, 164, 58, .65); }
+#ui.wol .jm-th:focus-visible { outline: 3px solid var(--honey); }
+#ui.wol .jm-th-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; box-shadow: inset 0 0 0 2px currentColor; }
+#ui.wol .jm-th.on .jm-th-dot { background: #f6d27a; box-shadow: 0 0 6px rgba(246, 210, 122, .9); }
+@media (max-height: 520px) {
+  #ui.wol .jm-th { min-height: 28px; font-size: calc(.74em * var(--ts, 1)); }
+  #ui.wol .jm-th-head b { font-size: 1em; } #ui.wol .jm-th-cap { font-size: .78em; }
+  #ui.wol .jm-foot { gap: 4px 12px; }
+}
+@media (prefers-reduced-motion: reduce) { #ui.wol .jm-th-ln.new { animation: none; } }
 
 /* ===================================================== settings: the sheet (start screen) and the rows (also the satchel) */
 #ui.wol .set-layer { position: fixed; inset: 0; z-index: 5; }

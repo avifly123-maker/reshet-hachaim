@@ -8,12 +8,14 @@
 //   lockWords(part)         short words for a veiled part ("פותחים בשלב 4: חוקר"), beginners with nikud
 //   lockTip(part)           רובו־דע says in one bubble what opens a veiled part (and what is still missing)
 //   partLabel(part)         the part's name (beginners: with nikud)
-// The map leaves an empty `.jm-threads` container: the threads between the parts (wave 3) are drawn there.
+// The threads between the parts (חוטים, wave 3: src/ui/threads-ui.js) are drawn over the trail (soft lines between the
+// part tiles, dashed while not open) and listed as chips in `.jm-threads`; new ones are announced when the map opens.
 import { icon, esc } from './ui.js';
 import * as J from '../core/journey.js';
 import { TORAH } from '../core/edition.js';
 import { BABA_DA_LOGO } from '../data/logo.js';
 import { STAGE_LINES } from '../data/guide-lines.js';
+import { mountMapThreads } from './threads-ui.js';
 
 const kids = () => J.playMode() === 'kids';
 const t = (f, k) => (kids() ? k : f);
@@ -119,7 +121,9 @@ export function openJourneyMap(host, { onPart, emit, onClose } = {}) {
         <footer class="jm-foot">${nextHTML}${note ? `<p class="jm-note">${esc(note)}</p>` : ''}<div class="jm-threads" aria-live="polite"></div></footer>
       </div>`;
   }
-  render();
+  let threads = null;
+  const drawThreads = () => { try { threads = mountMapThreads(el, { emit }); } catch (e) { console.error(e); } };
+  render(); drawThreads();
 
   let busy = false;
   async function replay(n) {
@@ -144,7 +148,7 @@ export function openJourneyMap(host, { onPart, emit, onClose } = {}) {
   // bubble phase: an open bubble of רובו־דע takes Escape first (robo-guide.js stops it in the capture phase)
   const onKey = (e) => { if (e.key === 'Escape' && !(window.__guide && window.__guide.isOpen())) { e.preventDefault(); close(); } };
   addEventListener('keydown', onKey);
-  const repaint = () => { if (el.isConnected) render(); };
+  const repaint = () => { if (el.isConnected) { render(); drawThreads(); } };
   addEventListener('wol-journey', repaint);
   addEventListener('wol-stage-done', repaint);
   function close() {
@@ -155,6 +159,10 @@ export function openJourneyMap(host, { onPart, emit, onClose } = {}) {
   }
   requestAnimationFrame(() => { try { el.querySelector('.jm-back').focus({ preventScroll: true }); } catch (e) { } });
   // the first visit: רובו־דע shows how to read the map
-  setTimeout(() => { if (el.isConnected && window.__guide) window.__guide.intro('start:map', { modal: true }); }, 450);
+  // then the threads that opened since רובו־דע last spoke: their lines glow while he says them
+  setTimeout(() => {
+    if (!el.isConnected || !window.__guide) return;
+    Promise.resolve(window.__guide.intro('start:map', { modal: true })).then(() => { if (el.isConnected && threads) return threads.announceFresh(); }).catch((e) => console.error(e));
+  }, 450);
   return { close, el, repaint };
 }
