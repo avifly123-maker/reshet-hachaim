@@ -30,6 +30,7 @@ def _stress(segs):
         if re.search('ֶ[א-ת]ּ?$', letters) and not letters.endswith('ה') : idx = n - 2
         elif re.search('ֶ[א-ת]ּ?ַ?[חע]ַ$', letters): idx = n - 2
         elif re.search('ַיִם$', letters): idx = n - 2                  # -ayim
+        elif re.search('\u05B7[\u05D7\u05E2\u05D4\u05D0]\u05B7[\u05D0-\u05EA]\u05BC?$', letters): idx = n - 2   # יַעַר, נַעַר, שַׁעַר
         elif re.search('נוּ$', letters) or re.search('תּ?ִי$', letters): idx = n - 2   # -nu, -ti
     pieces = []
     for i, s in enumerate(segs):

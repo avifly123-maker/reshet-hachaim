@@ -8,7 +8,7 @@
 //   voice.level() → 0..1                how loud he is right now (the face's mouth follows it)
 //   voice.has(id) → Promise<boolean>
 // The words always stay on screen too; the switch "הקול של רובו־דע" (core/journey.js voiceOn) turns the sound off.
-import { voiceOn } from '../core/journey.js';
+import { voiceOn, playMode } from '../core/journey.js';
 
 export function createVoice(audio) {
   let data = null, cur = null, analyser = null, buf = null;
@@ -37,6 +37,8 @@ export function createVoice(audio) {
     if (!id || !voiceOn()) return false;
     try { audio.start && audio.start(); } catch (e) { }
     const ac = ctx(); const out = audio && audio.voiceOut && audio.voiceOut(); if (!ac || !out) return false;
+    // beginners hear their own words (<id>.k) when they differ from the others'
+    const V = await lib(); if (playMode() === 'kids' && V[id + '.k']) id = id + '.k';
     let b; try { b = await decode(id); } catch (e) { return false; }
     if (!b) return false;
     return new Promise((done) => {
