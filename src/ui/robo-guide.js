@@ -24,7 +24,7 @@ const CSS = `
 #ui #rguide .rg-wrap { position: absolute; right: max(12px, 2vw); bottom: max(10px, 2vh); display: flex; align-items: flex-end; gap: 10px; pointer-events: auto; max-width: min(760px, calc(100vw - 24px)); }
 #ui #rguide.center .rg-wrap { right: 50%; bottom: 50%; transform: translate(50%, 50%); }
 #ui #rguide .rg-fig { position: relative; flex: none; width: clamp(92px, 13vw, 150px); aspect-ratio: 200 / 240; animation: rg-bob 3.2s ease-in-out infinite; filter: drop-shadow(0 6px 10px rgba(0,0,0,.35)); }
-#ui #rguide .rg-fig svg, #rguide .rg-fig img.rg-pic { position: absolute; inset: 0; width: 100%; height: 100%; }
+#ui #rguide .rg-fig svg, #ui #rguide .rg-fig img.rg-pic { position: absolute; inset: 0; width: 100%; height: 100%; }
 #ui #rguide .rg-fig.art { width: clamp(104px, 13.5vw, 168px); aspect-ratio: 300 / 446; }
 #ui #rguide .rg-fig .rg-fr { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; }
 #ui #rguide .rg-fig .rg-fr.on { opacity: 1; }
@@ -40,8 +40,8 @@ const CSS = `
 #ui #rguide .rg-dots i { width: 8px; height: 8px; border-radius: 50%; background: rgba(31, 127, 120, .25); }
 #ui #rguide .rg-dots i.on { width: 20px; border-radius: 6px; background: #1f7f78; }
 #ui #rguide button { font: inherit; cursor: pointer; border: 0; border-radius: 999px; min-height: 42px; padding: 6px 18px; font-weight: 800; }
-#ui #rguide .rg-next, #rguide .rg-act.primary { background: #2c9a92; color: #fff; box-shadow: 0 3px 0 #1d6b65; }
 #ui #rguide .rg-act { background: #e9e2c8; color: #2c3a26; }
+#ui #rguide .rg-next, #ui #rguide .rg-act.primary { background: #2c9a92; color: #fff; box-shadow: 0 3px 0 #1d6b65; }
 #ui #rguide .rg-skip { background: transparent; color: #5a5a40; padding: 6px 10px; }
 #ui #rguide .rg-say { background: transparent; color: #1f7f78; padding: 6px 8px; min-width: 42px; }
 #ui #rguide .rg-say svg { width: 22px; height: 22px; display: block; }
@@ -52,7 +52,7 @@ const CSS = `
 @keyframes rg-talk { 0%,100% { rotate: 0deg; } 50% { rotate: -1.5deg; } }
 @keyframes rg-pulse { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
 @keyframes rg-fade { from { opacity: 0; } to { opacity: 1; } }
-@media (max-height: 520px) { #ui #rguide .rg-txt { font-size: 1.05em; } #rguide .rg-bub { padding: 10px 14px 9px; margin-bottom: 18px; } #ui #rguide .rg-fig { width: 84px; } }
+@media (max-height: 520px) { #ui #rguide .rg-txt { font-size: 1.05em; } #ui #rguide .rg-bub { padding: 10px 14px 9px; margin-bottom: 18px; } #ui #rguide .rg-fig, #ui #rguide .rg-fig.art { width: 84px; } }
 @media (max-width: 560px) { #ui #rguide .rg-bub { min-width: 0; } }
 @media (prefers-reduced-motion: reduce) { #ui #rguide .rg-fig, #ui #rguide .rg-fig.talk, #ui #rguide .rg-ring { animation: none; } }
 `;
