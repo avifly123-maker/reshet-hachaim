@@ -690,3 +690,48 @@ A thread rests on a fact that is already checked elsewhere in this file; what th
 - `ev-fire`: dry vegetation is the fuel of summer fires (KKL, above). `ev-heat`: warm water bleaches corals; clean water helps Eilat's corals stand it (the reef, above). `ev-dry`: dart frogs raise tadpoles in rainwater held by bromeliads (Amazon, above). `ev-road`: roads and fences cut gazelle herds (the mystery "הצבאים נעלמים", above).
 - `zone-amazon`, `zone-grove`, `zone-reef`: the three problems of each zone are real inventions learned from its creatures (הממציאים, above): water lily, morpho, kapok; barn owl, hedgehog, tortoise; reef shark, clownfish, octopus.
 - `robot-out`: the robot of the workshop going out to the island is game logic.
+
+## Technologies on the island (1.3.2, area G: src/game/tool-defs.js TECH_DEFS, src/world/tech.js)
+
+Six devices, each resting on one real kind of research. The tool facts keep the claims modest; what the device does in
+the game (how often, how many, how strong) is game logic and is said so here. Checked 22.10.2026 from search results
+(WebFetch of full pages was not used); the claims marked "general knowledge" are textbook-level and kept vague on purpose.
+- **רובוט הצמרת (canopybot)**: canopy research is hard because the treetops are hard to reach; robots are being built to
+  climb or hang in the canopy and collect data, e.g. the ETH Zurich / WSL "Avocado" robot that swings between branches
+  (2024): https://techxplore.com/news/2024-01-avocado-robot-unexplored-treetops.amp ,
+  https://snf.ch/en/ayVlsYIYyyrSPKJS/news/robot-swings-its-way-to-unexplored-treetops . That many rainforest animals live
+  in the canopy is already in the Amazon layers (src/data/amazon.js, "Light and layers" above). Game logic: it climbs a
+  trunk and counts the animals near the tree by height, using the zone's own layer heights.
+- **רחפן לידאר (lidar)**: LiDAR sends short pulses of laser light and times their return to measure distance; flown over
+  a forest it maps the height of every crown (airborne laser scanning of tropical forest structure):
+  https://hal.umontpellier.fr/hal-01943016 , https://jagst.utm.my/index.php/jagst/article/view/62 (general knowledge for
+  the pulse-and-time principle). Game logic: a point cloud coloured by height, binned by the zone's layers; the numbers
+  are the island's own trees (metres as the game's units).
+- **רחפן מצלמת חום (thermal)**: drones with thermal infrared cameras count animals at night by their body heat, without
+  disturbing them; accuracy was tested e.g. on red deer counts in night flights:
+  https://napier-repository.worktribe.com/output/3007362/assessment-of-the-accuracy-of-counting-large-ungulate-species-red-deer-cervus-elaphus-with-uavmounted-thermal-infrared-cameras-during-night-flights ,
+  https://wildlife.org/wsb-study-tests-accuracy-of-thermal-drone-surveys/ . Birds and mammals keep a warm body; reptiles
+  take the temperature around them, so at night they show weakly (general knowledge). Game logic: warm animals within
+  reach of the drone glow; chameleon, agama and tortoise do not.
+- **מגדל תצפית אש (firetower)**: fire lookouts watch forests from high places to spot smoke early, so firefighters arrive
+  while a fire is small; KKL runs fire prevention and watch in Israel's forests:
+  https://www.kkl-jnf.org/about-kkl-jnf/green-israel-news/press-releases-2021/kkl-jnf-firefighters.aspx ,
+  https://en.wikipedia.org/wiki/Fire_lookout_tower . The tool fact says only "גם ביערות בארץ יש תצפיות אש". Game logic: a
+  fire event with a tower is 60% of the size and ends sooner; the fire-danger gauge (season, drought, heat, wind, rain)
+  is a game simplification.
+- **רמקול של שונית בריאה (reefspeaker)**: "acoustic enrichment": loudspeakers playing the sounds of a healthy reef on
+  degraded patches of the Great Barrier Reef drew more young fish (about twice as many settled, with more species):
+  Gordon et al. 2019, Nature Communications 10:5414: https://doaj.org/article/13c20fa466534b2f980d7dfb9a645d2a ,
+  https://www.sciencedaily.com/releases/2019/11/191130092054.htm , https://bristol.ac.uk/news/2019/november/coral-reef-restoration.html .
+  The tool fact says only that more young fish came. Game logic: on a hurt reef (bare places, few or weak corals) one
+  young reef fish arrives every 40 game seconds.
+- **רובוט האלמוגים הצעירים (spawnbot)**: after a mass spawning, researchers collect coral spawn, rear the larvae, and
+  "LarvalBot" (QUT and Southern Cross University, Great Barrier Reef, December 2018) spread the young corals over damaged
+  reef: https://www.qut.edu.au/research/article?id=138931 ,
+  https://robohub.org/robot-makes-world-first-baby-coral-delivery-to-great-barrier-reef/ ,
+  https://www.eurekalert.org/news-releases/777139 . The robot does not collect the eggs itself (the fact says researchers
+  rear them and the robot spreads them). Corals releasing eggs together a few nights after a full moon is already in the
+  reef event r_spawn. Game logic: each night a small outing near the robot, on the spawning night (r_spawn) eggs rise from
+  every coral; where the reef was hurt (W.scars) a young coral is planted, one a night (two on the spawning night).
+- Not claimed: no numbers of eggs, larvae survival rates or fish counts from the studies appear in the game; the board
+  numbers are the island's own.

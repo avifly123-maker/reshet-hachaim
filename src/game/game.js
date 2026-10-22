@@ -837,11 +837,12 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     }
     pendingEvent = e;
     for (const fx of e.start || []) applyEffect(fx);
+    tools.afterEventStart(e);   // area G: a fire tower, the young-corals robot, murky water that clears sooner (tools.js)
     audio.play('event');
     if (rig.following) rig.stopFollow();
     // חוויה: one line of explanation (and the question) and at most two ways; רובו־דע tells the rest the first time
     const xp = W.xp;
-    ui.showEvent({ id: e.id, title: e.title, text: xp ? shortEventText(e.text) : e.text, choices: (xp ? e.choices.slice(0, 2) : e.choices).map(c => ({ id: c.id, label: c.label })) });
+    ui.showEvent({ id: e.id, title: e.title, text: xp ? shortEventText(e.text) : e.text, choices: tools.eventChoices(e).map(c => ({ id: c.id, label: c.label })) });   // חוויה: two; full: the threads may add a way
     roboEvent = 'zone:event:' + e.id;   // after the outcome is closed: his bubble must not cover the choices
   };
   let roboEvent = null;
@@ -854,7 +855,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   const shortOutcome = (t) => { if (!W.xp) return t; const ss = sentences(t); const pts = (String(t).match(/\(\+\d+\)/) || [''])[0]; return ss[0] + (pts && !ss[0].includes(pts) ? ' ' + pts : ''); };
   function chooseEvent({ eventId, choiceId }) {
     const e = missions.events.find(x => x.id === eventId); if (!e) return;
-    const c = e.choices.find(x => x.id === choiceId); if (!c) return;
+    const c = tools.eventChoices(e).find(x => x.id === choiceId) || e.choices.find(x => x.id === choiceId); if (!c) return;
     for (const fx of c.effects || []) applyEffect(fx);
     missions.resolve(e);
     report?.event(e.id, c.id);
@@ -1575,7 +1576,8 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   }
 
   const camPad = createCameraPad(document.getElementById('ui'), rig, { onHome: () => bus.emit('view:reset') });
-  tools = createTools({ W, env, scene, markers, ui, audio, rig, reg, spawnPlant, findSpotNear, camera });
+  tools = createTools({ W, env, scene, markers, ui, audio, rig, reg, spawnPlant, spawnAnimal, findSpotNear, camera, canvas });
+
   W.tools = tools;
   imv = createImmersive({ W, rig, camera, ui, camPad, refit: () => fitViewToUI(true), deselect: () => { select(null); panelId = null; rig.stopFollow(); } });
   fieldcam = createFieldCam({ W, env, tools, camera, canvas, ui, audio, imv });

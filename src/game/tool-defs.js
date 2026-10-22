@@ -21,6 +21,13 @@ const ICONS = {
   reefball: svg('<path d="M10 50a22 22 0 0 1 44 0z" fill="#a8a29a"/><g fill="#4a4a48"><circle cx="22" cy="42" r="4"/><circle cx="36" cy="38" r="4"/><circle cx="46" cy="46" r="3"/><circle cx="30" cy="31" r="3"/></g><path d="M14 46l3-5M48 36l3-3" stroke="#e889a8" stroke-width="2.5"/><path d="M8 50h48" stroke="#d8c8a0" stroke-width="3"/>', '#d8f0f4'),
   buoy: svg('<path d="M8 22h48" stroke="#5ab0d8" stroke-width="2"/><circle cx="32" cy="20" r="9" fill="#f4f4f0"/><rect x="23" y="18" width="18" height="4" fill="#2a6ad8"/><path d="M32 29v22" stroke="#e8d8a8" stroke-width="2"/><rect x="26" y="50" width="12" height="5" rx="1" fill="#8a8a84"/><path d="M14 50l6 4" stroke="#e889a8" stroke-width="3"/>', '#cfeaf2'),
   sensor: svg('<path d="M8 34h48" stroke="#5ab0d8" stroke-width="2"/><rect x="24" y="28" width="16" height="10" rx="3" fill="#f2c21a"/><path d="M32 28V12" stroke="#f2c21a" stroke-width="3"/><rect x="22" y="18" width="14" height="7" fill="#1c3a6a" transform="rotate(-15 29 21)"/><circle cx="32" cy="11" r="2" fill="#ffb020"/><path d="M32 38v12" stroke="#c0c0b8" stroke-width="3"/><rect x="29" y="49" width="6" height="4" fill="#3a4048"/>', '#cfeaf2'),
+  // 1.3.2 (area G): the new technologies (src/world/tech.js). No cross shapes: no rods meeting at right angles.
+  canopybot: svg('<circle cx="27" cy="18" r="12" fill="#4f9a45"/><circle cx="39" cy="21" r="8" fill="#63b056"/><rect x="23" y="24" width="8" height="32" rx="2" fill="#7a5532"/><rect x="31" y="33" width="15" height="13" rx="6.5" fill="#f3f1ea" stroke="#b9c3c2"/><rect x="34" y="36" width="9" height="5" rx="2.5" fill="#1d2b36"/><circle cx="36.6" cy="38.5" r="1.2" fill="#8ff2ff"/><circle cx="40.4" cy="38.5" r="1.2" fill="#8ff2ff"/><path d="M50 34a7 7 0 0 1 0 11M54 31a11 11 0 0 1 0 17" stroke="#2c9a92" stroke-width="2" fill="none" stroke-linecap="round"/>', '#dff1e6'),
+  lidar: svg('<g fill="#2f7a5a"><rect x="11" y="42" width="8" height="14" rx="3"/><rect x="21" y="30" width="8" height="26" rx="3"/><rect x="33" y="37" width="8" height="19" rx="3"/><rect x="45" y="26" width="8" height="30" rx="3"/></g><path d="M32 19L15 41M32 19L25 29M32 19L37 36M32 19L49 25" stroke="#3ccf8e" stroke-width="1.5" opacity=".85"/><g><circle cx="15" cy="42" r="2.4" fill="#2fc0a8"/><circle cx="25" cy="30" r="2.4" fill="#9be15d"/><circle cx="37" cy="37" r="2.4" fill="#57d28a"/><circle cx="49" cy="26" r="2.4" fill="#ffd34d"/></g><ellipse cx="32" cy="14" rx="13" ry="4.5" fill="#f3f1ea" stroke="#2c9a92" stroke-width="2"/><ellipse cx="32" cy="12" rx="5" ry="3" fill="#f3f1ea"/><circle cx="32" cy="18" r="2.2" fill="#7dffb0"/>', '#e4f0f7'),
+  thermal: svg('<defs><radialGradient id="th"><stop offset="0" stop-color="#fff6c0"/><stop offset=".45" stop-color="#ffb347"/><stop offset="1" stop-color="#ff5a3a" stop-opacity="0"/></radialGradient></defs><path d="M47 9a8 8 0 1 0 7 12a6.5 6.5 0 1 1 -7 -12z" fill="#f4e6a8"/><path d="M21 18L9 52h25z" fill="#ffb347" opacity=".2"/><ellipse cx="22" cy="45" rx="11" ry="7" fill="url(#th)"/><ellipse cx="40" cy="49" rx="7" ry="5" fill="url(#th)"/><ellipse cx="21" cy="15" rx="10" ry="3.6" fill="#f3f1ea" stroke="#2c9a92" stroke-width="2"/><circle cx="21" cy="18.5" r="2.2" fill="#ff8a3a"/>', '#1f2a44'),
+  firetower: svg('<path d="M27 56l3-33h4l3 33z" fill="#f3f1ea" stroke="#b9c3c2"/><rect x="29" y="38" width="6" height="3" fill="#2c9a92"/><rect x="22" y="14" width="20" height="9" rx="3" fill="#f3f1ea" stroke="#2c9a92" stroke-width="2"/><rect x="25" y="16.5" width="14" height="4" rx="2" fill="#1d2b36"/><path d="M20 14l12-8 12 8z" fill="#2c9a92"/><path d="M42 18l15 6V11z" fill="#ffd166" opacity=".55"/><path d="M50 55c-5 0-6.5-5-3.5-9 .5 2.5 2 3 2 3 0-4 3-6 3-8.5 2 3 5.5 6 4.5 10.5-.7 3-3 4-6 4z" fill="#ff8a3a"/>', '#f6e9d6'),
+  reefspeaker: svg('<path d="M12 55a20 10 0 0 1 40 0z" fill="#e8dcc0"/><rect x="30" y="40" width="4" height="9" fill="#9aa6a8"/><circle cx="32" cy="31" r="11" fill="#f3f1ea" stroke="#2c9a92" stroke-width="3"/><circle cx="32" cy="31" r="5.5" fill="#1d2b36"/><circle cx="32" cy="31" r="2.2" fill="#2c9a92"/><path d="M46 25a9 9 0 0 1 0 12M51 21a15 15 0 0 1 0 20" stroke="#2c9a92" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M9 18c4-4 9-4 12 0-3 4-8 4-12 0zM9 18l-4-3v6z" fill="#f2a33a"/><path d="M14 30c3-3 6-3 8 0-2 3-5 3-8 0zM14 30l-3-2v4z" fill="#f2c94a"/>', '#cfeaf2'),
+  spawnbot: svg('<path d="M8 56c2-6 6-6 6-12M15 56c0-4 4-6 6-10" stroke="#e889a8" stroke-width="3" fill="none" stroke-linecap="round"/><rect x="18" y="34" width="30" height="14" rx="7" fill="#f3f1ea" stroke="#b9c3c2"/><rect x="39" y="37" width="7" height="6" rx="3" fill="#1d2b36"/><circle cx="42.5" cy="40" r="1.3" fill="#8ff2ff"/><path d="M24 34l-3-10h14l-3 10z" fill="#ffffff" stroke="#2c9a92" stroke-width="2"/><g fill="#ff9cc0"><circle cx="26" cy="17" r="2.2"/><circle cx="34" cy="11" r="2"/><circle cx="20" cy="8" r="1.8"/><circle cx="44" cy="20" r="2.2"/></g><g fill="#ffc39a"><circle cx="40" cy="9" r="1.8"/><circle cx="14" cy="16" r="2"/><circle cx="50" cy="12" r="1.6"/></g>', '#ece4f4'),
 };
 
 export const TOOL_DEFS = [
@@ -65,6 +72,31 @@ export const TOOL_DEFS = [
     fact: 'סירה שמטילה עוגן על השונית שוברת אלמוגים. מצוף עגינה קשור לטבעת שקבועה בחול, והסירות נקשרות אליו במקום להטיל עוגן.',
     hint: 'שימו על החול ליד השונית – סירות ייקשרו אליו ולא יטילו עוגן על האלמוגים' },
 ];
+// 1.3.2 (area G): six new technologies, one idea each from real research (docs/sources.md "Technologies on the island").
+// Kept apart from TOOL_DEFS: the learning hub builds album cards and quiz questions from TOOL_DEFS, and these have no
+// card paintings or quiz lines yet. The island uses ISLAND_TOOLS (both lists); toolDef() finds either.
+// The models and what they do: src/world/tech.js.
+export const TECH_DEFS = [
+  { id: 'canopybot', zones: ['amazon'], name: 'רובוט הצמרת', cost: 30, max: 2, needs: 8, color: '#2c9a92', host: true, tech: true,
+    fact: 'רובוט הצמרת מטפס לאט על הגזע של עץ גבוה, ובודק מי גר בכל קומה של היער. חוקרים בונים רובוטים כאלה, כי קשה מאוד להגיע אל הצמרות.',
+    hint: 'גררו אל עץ גבוה – הרובוט יטפס ויספור מי גר בכל קומה' },
+  { id: 'lidar', zones: ['amazon'], name: 'רחפן לידאר', cost: 30, max: 1, needs: 10, color: '#3ccf8e', tech: true,
+    fact: 'רחפן לידאר שולח למטה הבזקים קטנים של אור, ומודד כמה זמן לוקח להם לחזור. כך הוא מצייר מפה של הגובה של כל עץ ביער.',
+    hint: 'שימו במקום פתוח – הרחפן ימריא לבד וימדוד את גובה העצים' },
+  { id: 'thermal', zones: ['grove'], name: 'רחפן מצלמת חום', cost: 30, max: 1, needs: 8, color: '#ff8a3a', tech: true,
+    fact: 'מצלמת חום רואה את החום שבעלי חיים מפיצים, גם בחושך. חוקרים שולחים רחפנים כאלה בלילה, כדי לספור בעלי חיים בלי להפריע להם.',
+    hint: 'שימו במקום פתוח – בלילה הרחפן ימריא ויספור את בעלי החיים החמים' },
+  { id: 'firetower', zones: ['grove'], name: 'מגדל תצפית אש', cost: 35, max: 1, needs: 7, color: '#e8743a', tech: true,
+    fact: 'ממגדל תצפית גבוה רואים עשן מרחוק. כשמגלים שריפה מוקדם, הכבאים מגיעים כשהיא עוד קטנה. גם ביערות בארץ יש תצפיות אש.',
+    hint: 'שימו במקום פתוח – בשריפה המגדל יגלה את העשן מוקדם' },
+  { id: 'reefspeaker', zones: ['reef'], name: 'רמקול שונית בריאה', cost: 25, max: 2, needs: 7, color: '#2a9ab8', tech: true,
+    fact: 'דגים צעירים מחפשים בית לפי הקולות של שונית בריאה. חוקרים השמיעו קולות כאלה ברמקול ליד שונית פגועה, ויותר דגים צעירים הגיעו אליה.',
+    hint: 'שימו על החול ליד מקום שבו השונית נפגעה – הקולות יקראו לדגים צעירים' },
+  { id: 'spawnbot', zones: ['reef'], name: 'רובוט אלמוגים צעירים', cost: 30, max: 1, needs: 8, color: '#e889a8', tech: true,
+    fact: 'אחרי לילה של ביצים, חוקרים מגדלים מהביצים אלמוגים זעירים. רובוט מיוחד מפזר אותם במקומות שבהם השונית נפגעה.',
+    hint: 'שימו על החול – בלילה הרובוט יפזר אלמוגים צעירים במקומות שנפגעו' },
+];
+export const ISLAND_TOOLS = [...TOOL_DEFS, ...TECH_DEFS];
 export const TOOL_ICONS = ICONS;
 // on the reef the shared devices are their underwater versions: the same job, another machine
 const REEF_SKIN = {
@@ -75,7 +107,7 @@ const REEF_SKIN = {
 };
 /** the definition of a tool as it looks in this zone (name, icon, fact and hint change on the reef) */
 export function toolDef(id, biome) {
-  const d = TOOL_DEFS.find(t => t.id === id); if (!d) return null;
+  const d = ISLAND_TOOLS.find(t => t.id === id); if (!d) return null;
   const k = biome === 'reef' ? REEF_SKIN[id] : null;
   return k ? { ...d, ...k } : d;
 }
