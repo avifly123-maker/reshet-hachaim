@@ -37,11 +37,15 @@ for (const [bid, K] of Object.entries(KIDS)) {
   if (!B) { err(bid, 'unknown biome'); continue; }
   const byId = new Map(B.species.map((s) => [s.id, s]));
   const set = new Set(K.species || []);
+  // roamers (1.3.2, the reef shark): visitors that find their food outside the set; they may not eat anyone in it
+  const roamers = new Set(K.roamers || []);
+  for (const id of roamers) { if (!set.has(id)) err(bid, `roamer "${id}" not in species`); if (!byId.get(id)?.roams) err(bid, `roamer "${id}" has no roams flag in ${bid}.js`); }
+  if (roamers.size > 1) err(bid, `roamers ${roamers.size} (max 1)`);
   const isPlant = (id) => PLANT_KINDS.has(byId.get(id)?.kind);
 
   // ── species
   if (set.size !== (K.species || []).length) err(bid, 'duplicate species ids');
-  if (set.size < 7 || set.size > 8) err(bid, `species count ${set.size} (want 7–8)`);
+  if (set.size - roamers.size < 7 || set.size - roamers.size > 8) err(bid, `species count ${set.size - roamers.size} without roamers (want 7–8)`);
   for (const id of set) if (!byId.has(id)) err(bid, `species "${id}" not in ${bid}.js`);
   const plants = [...set].filter(isPlant), animals = [...set].filter((id) => byId.has(id) && !isPlant(id));
   if (plants.length < 3 || plants.length > 4) err(bid, `plants ${plants.length} (want 3–4)`);
@@ -65,7 +69,8 @@ for (const [bid, K] of Object.entries(KIDS)) {
 
   // no hunting inside the set; every animal has food in the set
   for (const e of edges) if (e.type === 'eats' && (e.part === 'animals' || e.part === 'insects')) err(bid, `${e.from} hunts ${e.to}`);
-  for (const a of animals) if (!edges.some((e) => e.from === a && e.type === 'eats' && isPlant(e.to))) err(bid, `animal ${a} has no food in the set`);
+  for (const a of animals) if (!roamers.has(a) && !edges.some((e) => e.from === a && e.type === 'eats' && isPlant(e.to))) err(bid, `animal ${a} has no food in the set`);
+  for (const a of roamers) if (edges.some((e) => e.from === a && e.type === 'eats')) err(bid, `roamer ${a} eats something in the set`);
   // the reef has no flowers and no seeds to carry: its story is partnership, so it needs a home / partner relation instead
   if (bid === 'reef') { if (!edges.some((e) => e.type === 'partner' || e.type === 'home')) err(bid, 'no partnership in the set'); }
   else {
@@ -147,7 +152,7 @@ for (const [bid, K] of Object.entries(KIDS)) {
       unlockedBy.set(id, m.id);
       avail.add(id);
     }
-    if ((r.unlock || []).length > 1) warn(bid, `${w}: unlocks more than one species`);
+    if ((r.unlock || []).filter((id) => !roamers.has(id)).length > 1) warn(bid, `${w}: unlocks more than one species`);
   });
   for (const id of set) if (!start.has(id) && !unlockedBy.has(id)) err(bid, `"${id}" is never unlocked`);
 

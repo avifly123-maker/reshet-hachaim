@@ -180,7 +180,7 @@ export class Animal {
       else { const p = this.randomGroundPoint(dest, 4) || dest; this.startWalk(p, { run: true }); }
       this.timer = 3; return;
     }
-    if (!active) { this.goSleep(); return; }
+    if (!active && !this.touring) { this.goSleep(); return; }   // the animal the child tours with stays awake (src/game/tour.js)
     if (this.sp.disperses?.length && !this.carrying && this.eatCD <= 0 && this.rng() < 0.6) {
       const f = W.findDisperseFood(this);
       if (f) { this.goEat(f); return; }
@@ -267,12 +267,14 @@ export class Animal {
 
   wander() {
     const W = this.world;
+    // on tour it roams on from where it is: no flying home, no long rest by a coral (it looked stuck)
+    const home = this.touring ? this.pos : this.home;
     if (this.loco === 'flying') {
       // perch for a while, then fly to a random tree / flower / ground
       if (this.state === 'perch' && this.timer > 0) return;
-      const r = this.rng();
+      const r = this.touring && this.sp.swims ? 1 : this.rng();
       if (r < 0.65) {
-        const t = W.randomPerchPlant(this.home, this.range, this);
+        const t = W.randomPerchPlant(home, this.range, this);
         if (t) {
           if (this.sp.isInsect || this.sp.id === 'hummingbird') {
             const c = t.vis.crown(); const s = t.obj.scale.x; const a = this.rng() * TAU;
@@ -286,18 +288,18 @@ export class Animal {
         }
       }
       if (r < 0.85 && !this.sp.isInsect && this.sp.id !== 'hummingbird' && this.sp.id !== 'fruitbat') {
-        const g = this.randomGroundPoint(this.home, this.range * 0.6);
+        const g = this.randomGroundPoint(home, this.range * 0.6);
         if (g) { this.startFlight(g, { onArrive: () => { this.state = 'perch'; this.timer = 2 + this.rng() * 4; this.onGround = true; this.dropSeed(); } }); return; }
       }
-      const a = this.rng() * TAU, rr = this.rng() * this.range;
-      const x = clamp(this.home.x + Math.cos(a) * rr, -34, 34), z = clamp(this.home.z + Math.sin(a) * rr, -34, 34);
+      const a = this.rng() * TAU, rr = this.touring ? 4 + this.rng() * 10 : this.rng() * this.range;
+      const x = clamp(home.x + Math.cos(a) * rr, -34, 34), z = clamp(home.z + Math.sin(a) * rr, -34, 34);
       const p = new THREE.Vector3(x, W.env.heightAt(x, z) + (this.sp.isInsect ? 1.5 + this.rng() * 2 : 6 + this.rng() * 14), z);
       this.startFlight(p, { onArrive: () => { this.state = 'idle'; this.action = this.sp.isInsect || this.sp.id === 'hummingbird' ? 'hover' : 'glide'; this.timer = 0.3; } });
       return;
     }
     if (this.loco === 'arboreal') {
       if (this.perch && this.rng() < 0.55) { this.state = 'perch'; this.timer = 3 + this.rng() * 6; return; }
-      const t = W.randomPerchPlant(this.perch ? this.pos : this.home, this.sp.id === 'sloth' ? 9 : 16, this, true);
+      const t = W.randomPerchPlant(this.perch ? this.pos : home, this.sp.id === 'sloth' ? 9 : 16, this, true);
       if (t) {
         const idx = (this.rng() * 50) | 0; const p = this.perchWorld(t, idx, new THREE.Vector3());
         if (p) {
@@ -311,7 +313,7 @@ export class Animal {
     }
     // ground
     if (this.rng() < 0.45) { this.state = 'idle'; this.timer = 2 + this.rng() * 5; return; }
-    const g = this.randomGroundPoint(this.home, this.range);
+    const g = this.randomGroundPoint(home, this.touring ? 8 : this.range);
     if (g) this.startWalk(g, { onArrive: () => { this.state = 'idle'; this.timer = 1 + this.rng() * 3; this.dropSeed(); } });
     else { this.state = 'idle'; this.timer = 3; }
   }
@@ -319,7 +321,7 @@ export class Animal {
   forage() {
     const W = this.world;
     const done = () => { this.energy = clamp(this.energy + 0.12 + 0.12 * W.vitality, 0, 1); this.eatCD = 8; };
-    if (this.loco === 'flying') { const g = this.randomGroundPoint(this.home, this.range * 0.5); if (g) { this.startFlight(this.sp.isInsect ? g.add(_w.set(0, 0.6, 0)) : g, { onArrive: () => { this.state = 'eat'; this.onGround = true; this.timer = 3; done(); } }); return; } }
+    if (this.loco === 'flying') { const g = this.randomGroundPoint(this.touring ? this.pos : this.home, this.range * 0.5); if (g) { this.startFlight(this.sp.isInsect ? g.add(_w.set(0, 0.6, 0)) : g, { onArrive: () => { this.state = 'eat'; this.onGround = true; this.timer = 3; done(); } }); return; } }
     else if (this.loco === 'arboreal' && this.perch) { this.state = 'eat'; this.timer = 4; done(); return; }
     else { const g = this.randomGroundPoint(this.pos, 6); if (g) { this.startWalk(g, { onArrive: () => { this.state = 'eat'; this.timer = 3; done(); } }); return; } }
     this.state = 'idle'; this.timer = 2;
@@ -449,7 +451,7 @@ export class Animal {
         }
       }
     } else if (this.timer <= 0 && (st === 'idle' || st === 'perch' || st === 'eat' || st === 'sleep')) {
-      if (st === 'sleep' && !this.isActive() && !(W.fires.length && W.fireNear(this.pos.x, this.pos.z, 10))) this.timer = 4 + this.rng() * 4;
+      if (st === 'sleep' && !this.isActive() && !this.touring && !(W.fires.length && W.fireNear(this.pos.x, this.pos.z, 10))) this.timer = 4 + this.rng() * 4;
       else this.think();
     }
     // flee if threatened (ground prey)
@@ -498,7 +500,8 @@ export class Animal {
     const drain = (this.state === 'sleep' ? 0.0013 : pred ? 0.0022 : 0.0034) * (this.sp.diet2.length ? 1 : 0.2);
     this.energy = clamp(this.energy - drain * dt, 0, 1);
     if (!this.sp.diet2.length) this.energy = Math.max(this.energy, 0.6);
-    if (this.energy <= 0.001) W.animalLeaves(this, 'hunger');
+    if (this.sp.roams) this.energy = Math.max(this.energy, 0.3);   // a roaming hunter (the reef shark) also feeds beyond the reef edge: it does not leave hungry
+    else if (this.energy <= 0.001) W.animalLeaves(this, 'hunger');
   }
 
   leave() { if (!this.leaving) this.leaving = 0.0001; }
