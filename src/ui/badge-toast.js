@@ -31,7 +31,7 @@ export function startBadgeToasts(root, audio) {
   function next() {
     if (busy || !queue.length) return;
     // a mission banner ("משימה הושלמה!") is showing: the badge waits until it is gone, so they never cover each other
-    if (root.querySelector('.mission-banner')) { if (!waitT) waitT = setTimeout(() => { waitT = 0; next(); }, 300); return; }
+    if (root.querySelector('.mission-banner') || document.querySelector('.ss')) { if (!waitT) waitT = setTimeout(() => { waitT = 0; next(); }, 300); return; }
     const b = badgeById(queue.shift()); if (!b) { next(); return; }
     busy = true;
     const el = document.createElement('div'); el.className = 'bdg-pop'; el.setAttribute('role', 'status');
