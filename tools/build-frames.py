@@ -1,7 +1,7 @@
 # Album card frames (the badge frames, FRAMES in src/data/badges.js), rendered in Blender: art/frames/<id>.png,
 # square 512x512 with a transparent centre, made for CSS border-image 9-slice (ornamented corners, continuous edges,
 # slice about 22% from each side). Packs them into src/data/frame-art.js (an asset module: in the desktop build each
-# picture becomes its own file). The hub (src/learn/hub.js) uses a frame's picture when it is here, and its box-shadow
+# picture becomes its own file). The hub (src/learn/hub/) uses a frame's picture when it is here, and its box-shadow
 # frame when it is not.
 # Usage: python3 tools/build-frames.py            (webp with alpha, quality 92; --png keeps the PNGs as they are)
 import base64, glob, io, json, os, sys

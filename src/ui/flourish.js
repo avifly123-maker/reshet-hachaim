@@ -9,7 +9,7 @@
 //     thread(fromEl, toEl)  a new thread: a glowing line drawn between two elements (or {x,y} points), a light runs on it
 //     labDoors()            the lab's doors part as the child comes in (src/lab/lab.js calls it on open)
 //     mission(speciesId)    the animal of a finished mission celebrates beside the "משימה הושלמה!" banner (a small
-//                           canvas of its own; the forest calls it, see the report: src/game/game.js W.missionCompleted)
+//                           canvas of its own; the forest calls it, see the report: src/game/game/ W.missionCompleted)
 //   }
 // The album of the learning hub plays its own opening (the cards come up one after the other) when it is entered.
 // Nothing here touches the game's renderer; the mission's animal is drawn by a small WebGLRenderer made for it and

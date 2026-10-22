@@ -1,7 +1,7 @@
 // רובו־דע presents the parts of the zone area (1.3.2). Keys: part ids of src/core/journey.js PARTS, or 'zone:<place>'.
 // { id: 'zone.<key>.<n>', f, k (full nikud), at?, expr? } – short bubbles, one idea each, up to about 15 words.
 //
-// Used by src/game/game.js and tools.js:
+// Used by src/game/game/ and tools.js:
 //   zone:amazon / zone:grove / zone:reef   the first mission of a zone (and the satchel's "הדרכה" in the חוויה mode)
 //   zone:tool:<id>        the first time a tool opens or is used (the reef's own machines: rov, uwcam, sensor)
 //   zone:event:<id>       the first time an event happens (one more sentence next to the short event card)

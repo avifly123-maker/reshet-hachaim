@@ -1,4 +1,4 @@
-// רשת החיים – the quiz's hand-written question bank (מרכז הלמידה, src/learn/hub.js buildRound).
+// רשת החיים – the quiz's hand-written question bank (מרכז הלמידה, src/learn/hub/ buildRound).
 // Each round mixes these with the generated questions; every player gets the ones not asked lately first (S.seen).
 //   id   unique, never reused (the player's "asked lately" list keeps it)
 //   z    'amazon' | 'grove' | 'reef' | 'all' (shown in every place)

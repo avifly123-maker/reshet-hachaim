@@ -1,4 +1,4 @@
-// מהדורה תורנית – the larger bank of the quiz corner "מן המקורות" (src/learn/hub.js buildTorahRound).
+// מהדורה תורנית – the larger bank of the quiz corner "מן המקורות" (src/learn/hub/ buildTorahRound).
 // TQUIZ_ALL = torah.js TQUIZ + these. Same fields as TQUIZ: q, o (the right answer first), e (plain Hebrew, no nikud),
 // src (the quote, vocalised), ref, optional art ('zone:speciesId'), plus id (stable, for the "asked lately" list) and
 // lvl (1 = easier, 2 = harder; a round has 6 easier then 4 harder).

@@ -66,7 +66,7 @@ part in his voice, a lighter "חוויה" mode trims text in the forests, and th
 - Research hub (`src/research/hub.js`): the Baba Da logo in its top bar, `guide.intro('research')` on first entry.
 - Guide lines: start (the journey bar, the map, settings), research hub intro.
 
-### B. Learning hub (`src/learn/hub.js`, `src/learn/games/inventors.js` entry only, `src/data/guide/hub.js`)
+### B. Learning hub (`src/learn/hub/`, `src/learn/games/inventors.js` entry only, `src/data/guide/hub.js`)
 - One page, no scrolling at 800x460 / 1024x600 / larger: the album in the middle (big tile), on the right the quiz,
   "התגים שלי" (3 newest + count) and a separate "המסגרות שלי" tile (shows the chosen frame; opens a frames screen that
   is separate from the badges screen), on the left all the card games as small tiles in a grid (icon + name only):
@@ -124,7 +124,7 @@ part in his voice, a lighter "חוויה" mode trims text in the forests, and th
 
 ## Wave 3 (after wave 2 is merged)
 
-### F. Threads engine and their screens (`src/core/threads.js`, `src/data/threads.js`, the `.jm-threads` part of `src/ui/journey-map.js`, card stamps in `src/learn/hub.js`, recommended mystery in `src/research/hub.js`, the "from your island" marks in `src/lab/`)
+### F. Threads engine and their screens (`src/core/threads.js`, `src/data/threads.js`, the `.jm-threads` part of `src/ui/journey-map.js`, card stamps in `src/learn/hub/`, recommended mystery in `src/research/hub.js`, the "from your island" marks in `src/lab/`)
 - `src/data/threads.js`: `THREADS = [{ id, mode: 'exp'|'full', from: { kind, id }, to: { kind, id }, effect, f, k, fact, src }]`.
   `from.kind`: 'invention' (lab progress inventions / solved problems), 'case' (a solved mystery), 'photo' (a species
   photographed on the island), 'link' (a relation discovered), 'event' (an island event lived), 'zone' (all regular

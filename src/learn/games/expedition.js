@@ -409,7 +409,7 @@ export function mountExpedition(root, ctx, opts = {}) {
 function injectCss() {
   if (document.getElementById(CSS_ID)) return;
   const st = document.createElement('style'); st.id = CSS_ID;
-  // the hub's own rules are '#wol-learn.wol-learn …' (src/learn/hub.js): the game's rules get the same weight
+  // the hub's own rules are '#wol-learn.wol-learn …' (src/learn/hub/): the game's rules get the same weight
   st.textContent = CSS_TEXT.replace(/\.wol-learn/g, '#wol-learn.wol-learn');
   document.head.appendChild(st);
 }

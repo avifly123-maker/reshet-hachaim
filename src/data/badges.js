@@ -4,7 +4,7 @@
 //       | 'lab:<key>' (the lab of רובו־דע) | 'research:<key>' (חוקרי הטבע)
 // art: a CARD_ART key (the card painting inside the medallion)
 // Frames for the album cards open when a player has enough badges of a group (FRAMES).
-// `torah: true` (a group, a badge, a frame): the torah edition only, shown while "מקורות ופסוקים" is on (src/learn/hub.js).
+// `torah: true` (a group, a badge, a frame): the torah edition only, shown while "מקורות ופסוקים" is on (src/learn/hub/).
 
 export const BADGE_GROUPS = [
   { id: 'amazon', name: 'יער הגשם של האמזונס', short: 'אמזונס', col: '#2f7a4a', col2: '#e8c050' },

@@ -52,7 +52,7 @@ export const CASE_SPECIES = {
 };
 // the regular missions of each zone: [id prefix, count] in the full game and the beginners' count (k1…kN)
 export const REGULAR = { amazon: ['a', 21, 7], grove: ['g', 21, 7], reef: ['r', 13, 6] };
-// the card stamps, in the order they are drawn on a card (src/learn/hub.js)
+// the card stamps, in the order they are drawn on a card (src/learn/hub/)
 export const STAMPS = ['seen', 'photo', 'scope', 'invent', 'case', 'source'];
 export const STAMP_NAME = {
   seen: { f: 'ראיתם באי', k: 'רְאִיתֶם בָּאִי' },

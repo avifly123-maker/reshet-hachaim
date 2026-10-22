@@ -1,4 +1,4 @@
-// חוטים (1.3.2) on screen: the card stamps (src/learn/hub.js), the small "מהאי שלכם" / "מחכה לכם" / "רובו־דע ממליץ"
+// חוטים (1.3.2) on screen: the card stamps (src/learn/hub/), the small "מהאי שלכם" / "מחכה לכם" / "רובו־דע ממליץ"
 // marks (src/lab, src/research/hub.js, the inventors game), and the threads layer of מפת המסע (src/ui/journey-map.js).
 //
 //   stampsHTML(spId, zone)        a row of small stamp icons for a card's detail (all six, the earned ones lit)
