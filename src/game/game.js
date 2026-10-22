@@ -5,7 +5,7 @@ import { grantSource } from '../core/sources-store.js';
 import { grant as grantBadge } from '../core/badges-store.js';
 import { createSourceMoments } from './sources.js';
 import * as THREE from 'three';
-import { createEnvironment } from '../env/environment.js';
+import { createEnvironment } from '../env/environment/index.js';
 import { createLightSystem } from '../sim/light.js';
 import { buildRegistry, relKey, RESPROUTERS, SWIMMERS } from '../sim/species.js';
 import { Plant } from '../world/plants.js';
