@@ -1,7 +1,7 @@
 /* 1.3.2 (area G): the small cards that float over the new technologies on the island (src/world/tech.js).
    The experience mode shows the title and one short line; the full mode also a number, small bars or a line graph.
    Never catches the mouse: the island stays playable under it. */
-#ui .tk-boards { position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; direction: rtl; }
+#ui .tk-boards { position: absolute; inset: 0; pointer-events: none; z-index: var(--z-world); overflow: hidden; direction: rtl; }
 #ui .tk-b { position: absolute; left: 0; top: 0; pointer-events: none; opacity: 0; transition: opacity .35s ease;
   min-width: 150px; max-width: min(250px, 46vw); padding: 7px 11px 8px; border-radius: 14px;
   background: rgba(251, 246, 230, .95); color: #1f2c1a; font-family: var(--sans, sans-serif);
