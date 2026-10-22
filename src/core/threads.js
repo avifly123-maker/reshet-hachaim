@@ -8,6 +8,7 @@
 //   shown: { <threadId>: time }   (רובו־דע announced it),   open: { <threadId>: time }   (it was open once: it stays open,
 //   even if a forest is started anew or an old photo drops out),   used: { quadrat: time }   (a research tool used in a
 //   mystery: the research session fires wol-progress { kind: 'tool', id }),   ph: { <speciesId>: 1 }   (photographed) }
+//   init: time (the first announcement round of this player)
 // Read (never written): web-of-life-lab, web-of-life-research, web-of-life-<zone> ({ done, discovered, placed }),
 //   web-of-life-save-<zone>[-kids] (events lived: save.events, save.report days ev), web-of-life-photos ([{ sp, zone }]),
 //   web-of-life-cards (the hub: games.inventors.solved / robots).
@@ -54,7 +55,7 @@ function store() {
   if (mem && mem._key === pk(K)) return mem;
   const s = readJSON(pk(K), null);
   const o = s && typeof s === 'object' && s.v === 1 ? s : { v: 1 };
-  mem = { v: 1, shown: obj(o.shown), open: obj(o.open), used: obj(o.used), ph: obj(o.ph), _key: pk(K) };
+  mem = { v: 1, shown: obj(o.shown), open: obj(o.open), used: obj(o.used), ph: obj(o.ph), init: o.init || 0, _key: pk(K) };
   return mem;
 }
 function save() { const o = { ...store() }; delete o._key; writeJSON(pk(K), o); }
@@ -197,7 +198,17 @@ export function stamps(spId, zone) {
 }
 
 // ─────────────────────────────── announcing (רובו־דע, once per thread)
-export function fresh() { const S0 = store(); return active().filter((t) => !S0.shown[t.id]); }
+// the first time a player meets the threads (e.g. one who played long before 1.3.2), many may be open at once:
+// רובו־דע announces three of them (the simple ones first); the others are on the map without a parade
+export function fresh() {
+  const S0 = store(); let f = active().filter((t) => !S0.shown[t.id]);
+  if (!S0.init) {
+    S0.init = Date.now();
+    if (f.length > 3) { const keep = new Set([...f.filter((t) => t.mode === 'exp'), ...f].slice(0, 3)); for (const t of f) if (!keep.has(t)) S0.shown[t.id] = Date.now(); f = f.filter((t) => keep.has(t)); }
+    save();
+  }
+  return f;
+}
 export function markShown(ids) {
   const S0 = store(); const list = ids ? [].concat(ids) : fresh().map((t) => t.id);
   for (const id of list) if (!S0.shown[id]) S0.shown[id] = Date.now();
