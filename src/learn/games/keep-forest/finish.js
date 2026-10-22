@@ -89,19 +89,19 @@ export function createFinish(K) {
     const st = (n) => `<span class="kf-hst">${Array.from({ length: n }, () => I.star).join('')}</span>`;
     const pics = {
       place: `<div class="kf-hp kf-hp-rows">${ROWSH().map((w) => `<i>${w}</i>`).join('')}<div class="kf-hcard">${ctx.cardHTML(plant)}</div></div>`,
-      thread: `<div class="kf-hp kf-hp-pair">${ctx.cardHTML(pair[0])}<svg viewBox="0 0 60 30" aria-hidden="true"><path d="M2 20Q30 -4 58 20" stroke="#f0b44c" stroke-width="4" fill="none" stroke-linecap="round"/></svg>${ctx.cardHTML(pair[1])}<b dir="ltr">+1</b></div>`,
+      thread: `<div class="kf-hp kf-hp-pair">${ctx.cardHTML(pair[0])}<svg viewBox="0 0 60 30" aria-hidden="true"><path d="M2 20Q30 -4 58 20" stroke="#f0b44c" stroke-width="4" fill="none" stroke-linecap="round"/></svg>${ctx.cardHTML(pair[1])}<b>${I.star}</b></div>`,
       event: `<div class="kf-hp kf-hp-ev"><div class="kf-hev">${Y(I.sun, I.cloud)}<small>${Y('בצורת', 'מים עכורים')}</small></div><div class="kf-hneed"><span>${Y(I.drop + 'מים', ctx.STAT_ICON.shelter + 'מחסה')}</span><span>${I.sun}אור</span><span>${I.thread}קשרים</span></div></div>`,
       tool: `<div class="kf-hp kf-hp-tool">${tool ? ctx.cardHTML(tool) : ''}<b>1</b></div>`,
       stars: `<div class="kf-hp kf-hp-stars"><span>${st(1)}<b>${t1}</b></span><span>${st(2)}<b>${t2}</b></span><span>${st(3)}<b>${t3}</b></span></div>`,
     };
     const steps = kids ? [
       ['place', 'שמים קלף', Y('בכל תור שמים קלף אחד ביער. צמח גדל רק בקומה שלו.', 'בכל תור שמים קלף אחד בשונית. אלמוג או צמח גדל רק בשורה שלו.')],
-      ['thread', 'חוט זהב', 'יצורים שקשורים זה לזה מקבלים חוט זהב. כל חוט = \u2066+1\u2069 חִיּוּת.'],
+      ['thread', 'חוט זהב', 'יצורים שקשורים זה לזה מקבלים חוט זהב. כל חוט נותן עוד נקודת חִיּוּת.'],
       ['stars', 'כוכבים', `כל 2 תורות הטבע מביא אירוע. בסוף מקבלים כוכבים לפי החִיּוּת.`],
     ] : [
       ['place', 'שמים קלף', Y('בכל תור שמים קלף אחד ביער. צמח גדל רק בקומה שלו: חופה, ביניים או קרקע.', 'בכל תור שמים קלף אחד בשונית. אלמוג או צמח גדל רק בשורה שלו: מים רדודים, מדרון או קרקעית.')],
-      ['thread', 'חוט זהב', 'יצורים שקשורים בטבע מקבלים חוט זהב. כל חוט = \u2066+1\u2069 חִיּוּת.'],
-      ['event', 'הטבע מביא אירוע', Y('כל 2 תורות הטבע הופך קלף ומראה מה היער צריך. יער מוכן מקבל \u2066+1\u2069, ואם לא – קלף אחד נובל.', 'כל 2 תורות הטבע הופך קלף ומראה מה השונית צריכה. שונית מוכנה מקבלת \u2066+1\u2069, ואם לא – קלף אחד נובל.')],
+      ['thread', 'חוט זהב', 'יצורים שקשורים בטבע מקבלים חוט זהב. כל חוט נותן עוד נקודת חִיּוּת.'],
+      ['event', 'הטבע מביא אירוע', Y('כל 2 תורות הטבע הופך קלף ומראה מה היער צריך. יער מוכן מקבל עוד נקודה, ואם לא – קלף אחד נובל.', 'כל 2 תורות הטבע הופך קלף ומראה מה השונית צריכה. שונית מוכנה מקבלת עוד נקודה, ואם לא – קלף אחד נובל.')],
       ['tool', 'כלים עוזרים', 'קלפי טכנולוגיה עוזרים פעם אחת, ולא תופסים את התור.'],
       ['stars', 'כוכבים בסוף', `בסוף מקבלים כוכבים לפי החִיּוּת של ${Y('היער', 'השונית')}.`],
     ];
@@ -112,7 +112,7 @@ export function createFinish(K) {
         <ol class="kf-hsteps">${steps.map(([p, t, x], i) => `<li>${pics[p]}<h4><span>${i + 1}</span>${t}</h4><p>${x}</p></li>`).join('')}</ol>
         <div class="kf-hrar">
           <span class="kf-hr e"><i class="kf-key">${I.key}</i><span><b>נדיר מאוד = מין מפתח.</b> ${Y('אם היער לא מוכן לאירוע – הוא שומר עליו', 'אם השונית לא מוכנה לאירוע – הוא שומר עליה')}, פעם אחת.</span></span>
-          <span class="kf-hr r"><i class="kf-rb">+1</i><span><b>נדיר:</b> אם הוא מתחבר בחוט זהב כשמניחים אותו – עוד <bdi dir="ltr">+1</bdi> חִיּוּת.</span></span>
+          <span class="kf-hr r"><i class="kf-rb">${I.star}</i><span><b>נדיר:</b> אם הוא מתחבר בחוט זהב כשמניחים אותו – עוד נקודת חִיּוּת אחת.</span></span>
         </div>
         <div class="kf-hlose">${I.wilt}<span><b>אפשר גם להפסיד:</b> ${kids ? `אם בסוף יש ${Y('ליער', 'לשונית')} פחות מ-${t1} חִיּוּת – ${Y('היער לא החזיק', 'השונית לא החזיקה')} מעמד, ומנסים שוב.` : `אם החִיּוּת של ${Y('היער', 'השונית')} יורדת מתחת ל-${t1} בסוף, או ש${Y('כל היער נובל – היער לא החזיק', 'כל השונית נובלת – השונית לא החזיקה')} מעמד. לא נורא, מנסים שוב!`}</span></div>
         <div class="kf-hleg">

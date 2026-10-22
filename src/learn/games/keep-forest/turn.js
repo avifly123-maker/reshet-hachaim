@@ -7,7 +7,7 @@
 // Functions of later parts through late(): msg, say, render, thresholds, finish.
 // Shared state it reads or changes: K.S, K.sel, K.quiet.
 import { genderOf, gw, prefName } from '../../../data/common.js';
-import { dn, HAND, late, mid, rnd } from './data.js';
+import { dn, HAND, late, mid, moreLife, rnd } from './data.js';
 import { EV } from './events.js';
 import { I } from './icons.js';
 
@@ -37,7 +37,7 @@ export function createTurn(K) {
     if (fresh.length) {
       ctx.sfx('link');
       const gain = fresh.reduce((s, t) => s + t.w, 0) + rb;
-      msg('ok', `${I.thread}<span>${esc(fresh.slice(0, 2).map((t) => t.e.text).join(' '))} <b>\u2066+${gain}\u2069 חִיּוּת</b>${rb ? ' <span class="kf-rbm">(כולל <bdi dir="ltr">+1</bdi> לקלף נדיר)</span>' : ''}</span>`);
+      msg('ok', `${I.thread}<span>${esc(fresh.slice(0, 2).map((t) => t.e.text).join(' '))} <b>${moreLife(gain)}</b>${rb ? ' <span class="kf-rbm">(כולל נקודה נוספת מהקלף הנדיר)</span>' : ''}</span>`);
       const o = fresh[0]; const other = C(K.S.board[o.i === k ? o.j : o.i].ref);
       say(`יפה! <b>${esc(dn(c))}</b> ו<b>${esc(dn(other))}</b> ${genderOf(c.sp.id)[0] === 'f' && genderOf(other.sp.id)[0] === 'f' ? 'קשורות' : 'קשורים'} – ${Y('היער מתחזק', 'השונית מתחזקת')}.`);
     } else {
@@ -76,7 +76,7 @@ export function createTurn(K) {
       if (best >= 0) { K.S.board[best].wilted = false; K.S.board[best].fresh = true; return dn(C(K.S.board[best].ref)); }
       return '';
     };
-    if (t === 'watergen') { K.S.waterBoost += 4; text = 'המחולל אוסף מים מהאוויר: \u2066+4\u2069 מים לאירוע הבא.'; }
+    if (t === 'watergen') { K.S.waterBoost += 4; text = 'המחולל אוסף מים מהאוויר: עוד 4 מים לאירוע הבא.'; }
     else if (t === 'weather') { K.S.revealed.add(K.S.evIdx); const ev = K.S.events[K.S.evIdx]; text = `תחנת מזג האוויר מזהירה: ${evName(ev)}! ${EV[ev.id].good ? '' : 'צריך: ' + needOf(ev)}`; }
     else if (t === 'sensor') { K.S.revealed.add(K.S.evIdx); const ev = K.S.events[K.S.evIdx]; text = `מצוף החיישנים מזהיר: ${evName(ev)}! ${EV[ev.id].good ? '' : 'צריך: ' + needOf(ev)}`; }
     else if (t === 'uwcam') { for (let i = K.S.evIdx; i < Math.min(K.S.events.length, K.S.evIdx + 3); i++) K.S.revealed.add(i); K.S.watch = true; text = 'המצלמה התת־ימית מגלה מה מחכה לשונית, ושומרת עליה.'; }
@@ -139,14 +139,14 @@ export function createTurn(K) {
     const ev = K.S.cur.ev; const D = EV[ev.id];
     let res;
     if (D.good) {
-      if (ev.id === 'rain') { K.S.bonus += 2; res = { ok: true, good: true, text: Y('היער שמח בגשם', 'השונית שמחה במים הצלולים') + ': \u2066+2\u2069 חִיּוּת!' }; }
+      if (ev.id === 'rain') { K.S.bonus += 2; res = { ok: true, good: true, text: Y('היער שמח בגשם', 'השונית שמחה במים הצלולים') + ': ' + moreLife(2) + '!' }; }
       else { draw(2); res = { ok: true, good: true, text: Y('פריחה!', 'לילה של הטלה!') + ' שלפתם 2 קלפים.' }; }
     } else {
       const c = check(ev);
       if (c.ok) {
         K.S.bonus += 1;
         if (c.guard) K.S.watch = false;
-        res = { ok: true, have: c.have, text: (c.guard ? 'כלי השמירה הזעיק עזרה בזמן. ' : '') + Y('היער החזיק מעמד!', 'השונית החזיקה מעמד!') + ' \u2066+1\u2069 חִיּוּת' };
+        res = { ok: true, have: c.have, text: (c.guard ? 'כלי השמירה הזעיק עזרה בזמן. ' : '') + Y('היער החזיק מעמד!', 'השונית החזיקה מעמד!') + ' ' + moreLife(1) + '.' };
       } else if (keystone() >= 0) {
         // a keystone species holds the forest together: nothing wilts, no −1 (once per keystone card)
         const k = keystone(); const b = K.S.board[k]; const kc = C(b.ref);

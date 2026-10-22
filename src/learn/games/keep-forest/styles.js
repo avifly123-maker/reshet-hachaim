@@ -233,6 +233,7 @@ const CSS = `
 .kf-rb{position:absolute;top:-.45em;left:-.45em;z-index:6;padding:.05em .45em;border-radius:99px;pointer-events:none;font-style:normal;font-weight:900;font-size:.82em;line-height:1.4;direction:ltr;color:#4a2c06;
   background:linear-gradient(180deg,#ffe9a8,#e8a43a);box-shadow:0 0 0 .12em #fff6dc,0 .15em .35em rgba(0,0,0,.3)}
 .kf-hc .kf-key,.kf-hc .kf-rb{top:1.9em}
+.kf-rb .wl-ic,.kf-hp-pair b .wl-ic{width:1em;height:1em;vertical-align:-.12em}
 .kf-slot.keyfire .wl-card{animation:kf-keypop .9s cubic-bezier(.2,.9,.3,1.3) both}
 .kf-slot.keyfire::before{content:"";position:absolute;inset:-.5em;border-radius:1.2em;z-index:5;pointer-events:none;border:3px solid #f6cf72;box-shadow:0 0 1.4em .4em rgba(246,207,114,.9),inset 0 0 1em rgba(231,154,171,.7);animation:kf-keyring 1.6s ease-out 2 both}
 .kf-rbm{font-family:var(--sans);font-size:.85em;color:#8a5a12}

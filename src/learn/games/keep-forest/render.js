@@ -9,7 +9,7 @@
 // Shared state it reads or changes: K.S, K.biome, K.sel, K.drag, K.ro, K.seenThreads, K.quiet.
 import { tileIcon } from '../../../ui/icons-hub.js';
 import { icon } from '../../../ui/ui.js';
-import { BIOMES, BNAME, late, ROW_SUB } from './data.js';
+import { BIOMES, BNAME, late, moreLife, ROW_SUB } from './data.js';
 import { EV, TOOL_FX } from './events.js';
 import { I, OWL } from './icons.js';
 
@@ -86,7 +86,7 @@ export function createRender(K) {
     if (K.S.fish) flags.push(`<span class="kf-flag">דגים פי 2</span>`);
     $('.kf-bar').innerHTML = `
       <span class="kf-stat s-light" title="סכום האור של ${Y('היער', 'השונית')}">${ctx.STAT_ICON.light}<small>אור</small><b>${T.light}</b></span>
-      <span class="kf-stat s-water" title="${Y('סכום המים של היער', 'סכום המחסה של השונית')}">${Y(ctx.STAT_ICON.water, ctx.STAT_ICON.shelter)}<small>${Y('מים', 'מחסה')}</small><b>${T.water}</b>${K.S.waterBoost ? `<span class="kf-boost">+${K.S.waterBoost}</span>` : ''}</span>
+      <span class="kf-stat s-water" title="${Y('סכום המים של היער', 'סכום המחסה של השונית')}">${Y(ctx.STAT_ICON.water, ctx.STAT_ICON.shelter)}<small>${Y('מים', 'מחסה')}</small><b>${T.water}</b>${K.S.waterBoost ? `<span class="kf-boost">עוד ${K.S.waterBoost}</span>` : ''}</span>
       <span class="kf-stat s-thr" title="חוטי זהב בין יצורים קשורים">${I.thread}<small>קשרים</small><b>${T.threads}</b></span>
       <span class="kf-goal${T.life < thresholds()[0] && K.S.events.length - K.S.evIdx <= 2 ? ' low' : ''}" title="המטרה: לעבור ${K.S.events.length} אירועים עם ${Y('יער חי', 'שונית חיה')}. הכוכבים נקבעים לפי החִיּוּת בסוף.">
         <span class="kf-gev">אירוע ${Math.min(K.S.evIdx + 1, K.S.events.length)} מתוך ${K.S.events.length}</span>
@@ -102,14 +102,14 @@ export function createRender(K) {
     renderSide();
     renderHand();
   }
-  // rarity badge on a card: a glowing key while a keystone is charged (dim once used), "+1" while a rare bonus waits
+  // rarity badge on a card: a glowing key while a keystone is charged (dim once used), a star while a rare bonus waits
   function rarBadge(ref, wilted) {
     const c = C(ref);
     if (c.rarity === 'epic') {
       const on = keyCharged(ref) && !wilted;
       return `<span class="kf-key${on ? '' : ' used'}" title="${on ? `מין מפתח: אם ${Y('היער לא מוכן לאירוע – שומר עליו', 'השונית לא מוכנה לאירוע – שומר עליה')} פעם אחת` : `מין מפתח: כבר שמר על ${Y('היער', 'השונית')} בסיבוב הזה`}">${I.key}</span>`;
     }
-    if (c.rarity === 'rare' && rareReady(ref) && !wilted) return '<span class="kf-rb" title="קלף נדיר: אם הוא מתחבר בחוט זהב כשמניחים אותו – עוד \u2066+1\u2069 חִיּוּת">+1</span>';
+    if (c.rarity === 'rare' && rareReady(ref) && !wilted) return `<span class="kf-rb" title="קלף נדיר: אם הוא מתחבר בחוט זהב כשמניחים אותו – עוד נקודת חִיּוּת אחת">${I.star}</span>`;
     return '';
   }
   function renderBoard(fresh) {
@@ -154,7 +154,7 @@ export function createRender(K) {
       if (fresh && fresh.length) {
         const t = fresh[0]; const A = ctr(t.i), B = ctr(t.j);
         const f = document.createElement('div'); f.className = 'kf-float';
-        f.textContent = `\u2066+${fresh.reduce((s, x) => s + x.w, 0) + (fresh.rb || 0)}\u2069 חִיּוּת`;
+        f.textContent = moreLife(fresh.reduce((s, x) => s + x.w, 0) + (fresh.rb || 0));
         f.style.left = ((A.x + B.x) / 2) + 'px'; f.style.top = ((A.y + B.y) / 2) + 'px';
         board.appendChild(f); later(() => f.remove(), 1300);
       }

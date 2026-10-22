@@ -345,7 +345,7 @@ export function mountExpedition(root, ctx, opts = {}) {
       <div class="ex-actions">${S.phase === 'choose' ? `<span class="ex-hint">${I.team} בחרו קלף מהצוות</span>` : `
         ${sonar ? `<button class="wl-btn" data-ex="peek">${I.eye} הצצה עם ${esc(sonar.c.name)}</button>` : ''}
         ${canUp ? `<button class="wl-btn go" data-ex="up">${I.down} לרדת ${esc(DEPTHS[S.depth + 1].into)}</button>` : ''}
-        <button class="wl-btn gold" data-ex="back">${I.up} חזרה לסירה${bagV ? ` (+${bagV})` : ''}</button>`}</div>
+        <button class="wl-btn gold" data-ex="back">${I.up} חזרה לסירה${bagV ? ` (${bagV === 1 ? 'נקודה אחת' : bagV + ' נקודות'})` : ''}</button>`}</div>
       <div class="ex-team">${S.team.map(memberHTML).join('')}</div>`;
     root.innerHTML = `<section class="wl-screen ex-run${kids ? ' ex-kids' : ''}${S.phase === 'choose' ? ' choosing' : ''}">
       <div class="ex-sea" style="--top:${L.top};--bot:${L.bot};--dk:${S.depth / 3}"><i class="ex-rays"></i>${bubbles(12)}

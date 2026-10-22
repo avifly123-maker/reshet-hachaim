@@ -43,7 +43,7 @@ export const RARITY_MORE = {
 };
 // what the rarity does in "מחזיקים את היער" (keep-forest.js): a keystone guards the forest once, a rare card gives +1
 export const RARITY_POWER = {
-  rare: 'במשחק "מחזיקים את היער": אם הוא מתחבר בחוט זהב כשמניחים אותו – עוד \u2066+1\u2069 חִיּוּת.',
+  rare: 'במשחק "מחזיקים את היער": אם הוא מתחבר בחוט זהב כשמניחים אותו – עוד נקודת חִיּוּת אחת.',
   epic: 'מין מפתח – הרבה יצורים צריכים אותו. במשחק "מחזיקים את היער" הוא שומר על היער פעם אחת, כשהיער לא מוכן לאירוע.',
 };
 
