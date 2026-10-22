@@ -1,7 +1,7 @@
 /* ===================================================== מעבדת רובו־דע
    The room is a Cycles render that fills the screen; the controls sit on it like labels in a museum: dark glass plates,
    herbarium paper for the working panels (the microscope, the inventors table, the atlas), honey accents. */
-#ui.wol .lb { position: absolute; inset: 0; z-index: 40; display: none; pointer-events: none; }
+#ui.wol .lb { position: absolute; inset: 0; z-index: var(--z-panels); display: none; pointer-events: none; }
 #ui.wol .lb.on { display: block; }
 #ui.wol .lb > * { pointer-events: auto; }
 #ui.wol .lb .lb-btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border: 0; border-radius: 22px; background: #fbf6e4; color: #2a1a0e; font: inherit; font-weight: 700; cursor: pointer; box-shadow: 0 3px 0 #c9b98a, 0 6px 16px rgba(0, 0, 0, .25); transition: transform .15s; }

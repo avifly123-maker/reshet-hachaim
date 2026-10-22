@@ -68,7 +68,7 @@
 #ui.wol .sp-hurt .ic { flex: none; width: 22px; height: 22px; color: #fff; background: #e5483b; border-radius: 50%; padding: 2px; }
 
 /* ---------- the injured bar: fixed at the top, under the HUD, one chip per animal */
-#ui.wol .hurtbar { position: absolute; top: 62px; left: 50%; transform: translateX(-50%); z-index: 31; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
+#ui.wol .hurtbar { position: absolute; top: 62px; left: 50%; transform: translateX(-50%); z-index: var(--z-hurt); display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
   max-width: calc(100vw - var(--rcW) - 40px); pointer-events: none; }
 #ui.wol.sp-open .hurtbar { left: calc(14px + var(--spW) + (100vw - var(--spW) - var(--rcW) - 28px) / 2); max-width: calc(100vw - var(--spW) - var(--rcW) - 40px); }
 #ui.wol .hurtbar[hidden] { display: none; }
@@ -99,7 +99,7 @@
 @keyframes hb-late { 0%, 100% { box-shadow: 0 0 0 2px #ffd0c8, 0 6px 16px rgba(60, 0, 0, .45); } 50% { box-shadow: 0 0 0 5px #ffd166, 0 6px 22px rgba(255, 80, 40, .6); } }
 
 /* ---------- edge arrows to an injured animal out of view (a red circle with "!" and a pointer; never a cross) */
-#ui.wol .hurt-arrows { position: absolute; inset: 0; pointer-events: none; z-index: 29; }
+#ui.wol .hurt-arrows { position: absolute; inset: 0; pointer-events: none; z-index: var(--z-hurt-arrows); }
 #ui.wol .hurt-arrows .ha { position: absolute; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%; display: grid; place-items: center; pointer-events: auto; cursor: pointer;
   color: #fff; background: #e5483b; box-shadow: 0 0 0 3px #fff, 0 4px 12px rgba(60, 0, 0, .5); animation: ha-pulse 1.1s ease-in-out infinite; }
 #ui.wol .hurt-arrows .ha b { font-size: 28px; font-weight: 900; line-height: 1; font-family: var(--sans); }

@@ -17,7 +17,7 @@
 #ui.wol.rs-kids .rs-meter, #ui.wol.rs-kids .rs-board, #ui.wol.rs-kids .rs-table, #ui.wol.rs-kids .rs-note, #ui.wol.rs-kids .rs-modal { line-height: 1.75; }
 
 /* ───────────── balance meter */
-#ui.wol .rs-meter { position: absolute; top: 76px; left: 50%; transform: translateX(-50%); z-index: 6; min-width: 330px; padding: 2px 10px 4px; text-align: center; color: var(--chalk); pointer-events: none; }
+#ui.wol .rs-meter { position: absolute; top: 76px; left: 50%; transform: translateX(-50%); z-index: var(--z-rs-gauge); min-width: 330px; padding: 2px 10px 4px; text-align: center; color: var(--chalk); pointer-events: none; }
 #ui.wol .rs-m-title { font-family: var(--serif); font-size: .95em; color: var(--honey); letter-spacing: .02em; }
 #ui.wol .rs-lights { display: flex; justify-content: center; gap: 18px; margin: 2px 0 4px; }
 #ui.wol .rs-light { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 84px; }
@@ -36,7 +36,7 @@
 @keyframes rsGlow { 50% { filter: drop-shadow(0 0 14px rgba(150, 230, 90, .55)); } }
 
 /* ───────────── board of measurements (right) */
-#ui.wol .rs-board { position: absolute; top: 76px; right: 10px; z-index: 5; width: 232px; padding: 2px 4px 2px; }
+#ui.wol .rs-board { position: absolute; top: 76px; right: 10px; z-index: var(--z-panel); width: 232px; padding: 2px 4px 2px; }
 #ui.wol .rs-board h3 { font-family: var(--serif); font-size: 1.05em; color: var(--moss); margin: 0 4px 4px; border-bottom: 1.5px solid rgba(90, 80, 50, .35); padding-bottom: 2px; }
 #ui.wol .rs-rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
 #ui.wol .rs-rows li { display: grid; grid-template-columns: 30px 1fr auto auto; align-items: center; gap: 6px; padding: 2px 2px; border-radius: 6px; }
@@ -53,7 +53,7 @@
 #ui.wol .rs-r-tool { width: 20px; height: 20px; border-radius: 50%; }
 
 /* ───────────── research desk (bottom) */
-#ui.wol .rs-table { position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; padding: 0 10px 8px; pointer-events: none; }
+#ui.wol .rs-table { position: absolute; left: 0; right: 0; bottom: 0; z-index: var(--z-rs-gauge); padding: 0 10px 8px; pointer-events: none; }
 #ui.wol .rs-desk { pointer-events: auto; display: flex; gap: 10px; align-items: stretch; padding: 10px 12px 10px; border-radius: 14px 14px 10px 10px;
   background: repeating-linear-gradient(176deg, rgba(255, 255, 255, .025) 0 2px, transparent 2px 9px), linear-gradient(180deg, #7a4f2c, #5a3a20 55%, #4a2f19);
   box-shadow: inset 0 2px 0 rgba(255, 220, 160, .25), inset 0 -3px 0 rgba(0, 0, 0, .35), 0 -6px 18px rgba(4, 12, 7, .35); }
@@ -102,7 +102,7 @@
 #ui.wol .rs-hint:hover, #ui.wol .rs-lab:hover { transform: translateY(-1px); }
 
 /* ───────────── notes from the notebook (left) */
-#ui.wol .rs-notes { position: absolute; top: 76px; left: 78px; z-index: 8; width: min(320px, calc(50vw - 256px));   /* never under the balance meter */ display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+#ui.wol .rs-notes { position: absolute; top: 76px; left: 78px; z-index: var(--z-rs-notes); width: min(320px, calc(50vw - 256px));   /* never under the balance meter */ display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
 /* plain paper slips (no filter and no rotation: some software-drawn screens lose filtered, moving layers) */
 #ui.wol .rs-note { position: relative; pointer-events: auto; display: flex; gap: 8px; align-items: flex-start; padding: 10px 12px 10px 26px; color: var(--ink); border-radius: 4px 10px 10px 4px;
   background: linear-gradient(180deg, #fbf5df, #efe5c4); box-shadow: 0 6px 14px rgba(4, 12, 7, .35), inset 3px 0 0 #c9a55a, inset 0 0 0 1px rgba(150, 120, 70, .35);
@@ -130,7 +130,7 @@
 #ui.wol .rs-n-x .ic { width: 16px; height: 16px; }
 
 /* ───────────── "see what happens" */
-#ui.wol .rs-ff { position: absolute; left: 50%; bottom: calc(var(--trayH) + 18px); z-index: 7; transform: translate(-50%, 20px); opacity: 0; pointer-events: none; transition: opacity .3s, transform .35s; }
+#ui.wol .rs-ff { position: absolute; left: 50%; bottom: calc(var(--trayH) + 18px); z-index: var(--z-rs-run); transform: translate(-50%, 20px); opacity: 0; pointer-events: none; transition: opacity .3s, transform .35s; }
 #ui.wol .rs-ff.on { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
 #ui.wol .rs-see { display: flex; align-items: center; gap: 10px; padding: 10px 22px; border-radius: 30px; font-family: var(--serif); font-size: 1.15em; color: #2a1a06; background: linear-gradient(180deg, #ffd978, #e6a93c); box-shadow: 0 4px 0 #8a5a12, 0 8px 22px rgba(0, 0, 0, .35); cursor: pointer; animation: rsBob 1.6s ease-in-out infinite; }
 #ui.wol .rs-see .ic { width: 22px; height: 22px; }
@@ -142,7 +142,7 @@
 #ui.wol .rs-w-bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #ffd978, #9fe06a); transition: width .3s linear; }
 
 /* ───────────── sheets: intro, lab, the end */
-#ui.wol .rs-modal { position: absolute; inset: 0; z-index: 40; display: grid; place-items: center; opacity: 0; transition: opacity .3s; }
+#ui.wol .rs-modal { position: absolute; inset: 0; z-index: var(--z-panels); display: grid; place-items: center; opacity: 0; transition: opacity .3s; }
 #ui.wol .rs-modal.on { opacity: 1; }
 #ui.wol .rs-scrim { position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(8, 18, 12, .45), rgba(4, 10, 6, .78)); }
 #ui.wol .rs-sheet { position: relative; max-width: min(760px, 94vw); max-height: 92vh; overflow: auto; transform: translateY(14px) scale(.98); transition: transform .35s cubic-bezier(.2, .9, .3, 1.2); }
@@ -239,7 +239,7 @@
 #ui.wol .rs-stay-b { color: var(--ink); background: #efe2bf; box-shadow: 0 3px 0 #8a7a5a; }
 
 /* ───────────── the research centre (picker) */
-#ui.wol .rs-hub { position: absolute; inset: 0; z-index: 52; overflow: auto; pointer-events: auto; opacity: 0; visibility: hidden; transition: opacity .35s, visibility .35s; }
+#ui.wol .rs-hub { position: absolute; inset: 0; z-index: var(--z-research); overflow: auto; pointer-events: auto; opacity: 0; visibility: hidden; transition: opacity .35s, visibility .35s; }
 #ui.wol .rs-hub.on { opacity: 1; visibility: visible; }
 #ui.wol .rs-h-bg { position: fixed; inset: 0; background: radial-gradient(ellipse at 50% 0, #2a4a30, #10231a 60%, #0a160f); }
 #ui.wol .rs-h-bg::after { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgba(180, 203, 102, .05) 1px, transparent 1px), linear-gradient(90deg, rgba(180, 203, 102, .05) 1px, transparent 1px); background-size: 28px 28px; }
@@ -363,7 +363,7 @@
 
 /* ───────────── 1.3.1: the five steps, רובו־דע's bubble, the notebook, what happened and why */
 /* the step bar sits under the top bar; the meter, the board and the notes move down one row */
-#ui.wol .rs-steps { position: absolute; top: 66px; left: 50%; transform: translateX(-50%); z-index: 9; display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-radius: 24px; pointer-events: auto;
+#ui.wol .rs-steps { position: absolute; top: 66px; left: 50%; transform: translateX(-50%); z-index: var(--z-rs-steps); display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-radius: 24px; pointer-events: auto;
   background: rgba(17, 36, 26, .88); box-shadow: 0 4px 14px rgba(0, 0, 0, .3), inset 0 0 0 1.5px rgba(180, 203, 102, .3); white-space: nowrap; }
 #ui.wol .rs-steps ol { display: flex; align-items: center; list-style: none; margin: 0; padding: 0; }
 #ui.wol .rs-steps li { display: flex; align-items: center; }
@@ -399,14 +399,14 @@
 }
 
 /* רובו־דע's bubble: "what now?", a tapped step, the guided mystery */
-#ui.wol .rs-say { position: absolute; top: 216px; left: 50%; z-index: 46; width: min(470px, calc(100vw - 32px)); display: flex; gap: 10px; align-items: flex-start; padding: 10px 14px 10px 30px; border-radius: 14px;
+#ui.wol .rs-say { position: absolute; top: 216px; left: 50%; z-index: var(--z-coach-ring); width: min(470px, calc(100vw - 32px)); display: flex; gap: 10px; align-items: flex-start; padding: 10px 14px 10px 30px; border-radius: 14px;
   color: var(--ink); background: linear-gradient(180deg, #fffbea, #f6ead0); box-shadow: 0 10px 28px rgba(0, 0, 0, .4), inset 0 0 0 1.5px #d8c79a; pointer-events: none; opacity: 0; transform: translate(-50%, -8px); transition: opacity .25s, transform .3s; }
 #ui.wol .rs-say.on { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
 #ui.wol .rs-say.low { top: auto; bottom: 12px; }
 @media (max-height: 640px) { #ui.wol .rs-say { top: 200px; } }
 @media (max-height: 520px) { #ui.wol .rs-say { top: 98px; } }
 /* "see what happens" stays on top of רובו־דע's bubble, so it can always be pressed */
-#ui.wol .rs-ff.on { z-index: 47; }
+#ui.wol .rs-ff.on { z-index: var(--z-coach); }
 #ui.wol .rs-say-ic { flex: none; display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(160deg, rgba(255, 255, 255, .24), rgba(0, 0, 0, .14)), var(--tc, #3a4d5c); }
 #ui.wol .rs-say-ic .ic { width: 26px; height: 26px; color: #fff1c4; }
 #ui.wol .rs-say-body { flex: 1; min-width: 0; }
@@ -423,7 +423,7 @@
 
 /* the next button of the guided mystery, and a short glow on a tapped step's part of the desk */
 @keyframes rsHi { 0%, 100% { box-shadow: 0 0 0 3px #ffd23a, 0 0 14px 4px rgba(255, 210, 60, .65); } 50% { box-shadow: 0 0 0 5px #ffd23a, 0 0 26px 10px rgba(255, 210, 60, .85); } }
-#ui.wol .rs-hi { position: relative; z-index: 3; animation: rsHi 1.1s ease-in-out infinite !important; border-radius: 12px; }
+#ui.wol .rs-hi { position: relative; z-index: 3;   /* a highlighted control: 3 over its neighbours in the same box */ animation: rsHi 1.1s ease-in-out infinite !important; border-radius: 12px; }
 #ui.wol .rs-pulse { animation: rsHi .8s ease-in-out 3; border-radius: 12px; }
 
 /* ───────────── the researcher's notebook */

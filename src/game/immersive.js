@@ -7,7 +7,7 @@ const CSS = `
 #ui.wol.imv-on .cam-pad, #ui.wol.imv-on .coach, #ui.wol.imv-on .coach-ring, #ui.wol.imv-on .hover, #ui.wol.imv-on .experiment {
   opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; transition: opacity .3s, visibility 0s .3s !important; }
 /* shared pieces of the view overlays */
-#ui.wol .imv { position: absolute; inset: 0; z-index: 25; pointer-events: none; opacity: 0; visibility: hidden; transition: opacity .35s, visibility 0s .35s; }
+#ui.wol .imv { position: absolute; inset: 0; z-index: var(--z-hover); pointer-events: none; opacity: 0; visibility: hidden; transition: opacity .35s, visibility 0s .35s; }
 #ui.wol .imv.on { opacity: 1; visibility: visible; transition: opacity .35s; }
 #ui.wol .imv-exit { position: absolute; top: 12px; left: 12px; pointer-events: auto; display: inline-flex; align-items: center; gap: 8px; min-height: 48px;
   padding: 6px 18px 6px 12px; border-radius: 999px; background: var(--honey); color: #2e1d05; font-weight: 800; font-size: 1.05em;

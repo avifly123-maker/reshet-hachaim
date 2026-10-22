@@ -8,7 +8,7 @@ export const CSS_MAIN = `
   --sans:"wol-text","Segoe UI","Arial Hebrew","Noto Sans Hebrew",Arial,"Liberation Sans",sans-serif;
   --serif:"wol-display","wol-text","Segoe UI",Arial,serif;
   --shadow:0 10px 30px rgba(6,18,10,.35),0 2px 6px rgba(6,18,10,.25);
-  position:fixed;inset:0;z-index:80;pointer-events:auto;direction:rtl;display:flex;flex-direction:column;overflow:hidden;
+  position:fixed;inset:0;z-index:var(--z-hub);pointer-events:auto;direction:rtl;display:flex;flex-direction:column;overflow:hidden;
   font-family:var(--sans);color:var(--cream);font-size:clamp(13px,min(1.18vw,2.3vh),19px);line-height:1.4;
   -webkit-font-smoothing:antialiased;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;
   background:radial-gradient(110% 85% at 85% -15%,#4b8a3f 0%,transparent 55%),radial-gradient(80% 70% at -5% 115%,#6b5323 0%,transparent 60%),linear-gradient(180deg,#1e3d28 0%,#12271b 100%);

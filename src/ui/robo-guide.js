@@ -26,7 +26,7 @@ const WAVE_MS = 2600;         // he waves at the start of a set of bubbles
 const NEXT_SET_MS = 250;      // a breath before the next request in the queue
 const TIP_MS = 9000;          // a tip closes by itself after this (opts.ms changes it)
 const CSS = `
-#ui #rguide { position: absolute; inset: 0; z-index: 70; pointer-events: none; direction: rtl; font-family: var(--sans, sans-serif); }
+#ui #rguide { position: absolute; inset: 0; z-index: var(--z-guide); pointer-events: none; direction: rtl; font-family: var(--sans, sans-serif); }
 #ui #rguide.modal { pointer-events: auto; background: rgba(6, 14, 9, .55); animation: rg-fade .25s ease-out; }
 #ui #rguide .rg-wrap { position: absolute; right: max(12px, 2vw); bottom: max(10px, 2vh); display: flex; align-items: flex-end; gap: 10px; pointer-events: none; max-width: min(760px, calc(100vw - 24px)); }
 #ui #rguide.center .rg-wrap { right: 50%; bottom: 50%; transform: translate(50%, 50%); }

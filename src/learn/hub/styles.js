@@ -147,8 +147,8 @@ const HOME_CSS = `
 .wol-learn .wl-bhead .wl-btn.is-veiled{opacity:.6;filter:grayscale(.6)}
 .wol-learn .wl-bhead .wl-btn.is-veiled::after{display:none}
 `;
-// רובו־דע speaks over the hub (his layer sits under it otherwise: #rguide 70, the hub 80)
-const GUIDE_OVER_HUB = '\n#ui.wl-hubopen #rguide{z-index:90}\n';
+// רובו־דע speaks over the hub (his layer sits under it otherwise: --z-guide under --z-hub, src/ui/css/00-layers.css)
+const GUIDE_OVER_HUB = '\n#ui.wl-hubopen #rguide{z-index:var(--z-guide-over-hub)}\n';
 
 let cssInjected = false;
 export function injectCss() {

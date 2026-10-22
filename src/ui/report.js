@@ -49,7 +49,7 @@ const CSS = `
 /* ===================================================== דוח החוקר – a page from a field notebook */
 #ui.wol .km-row[data-a="report"] .ic { color: #a8475f; }
 #ui.wol .km-row[data-a="report"]:hover { background: rgba(231, 154, 171, .22); }
-#ui.wol .rep-layer { position: absolute; inset: 0; z-index: 48; display: none; place-items: center; padding: 16px; pointer-events: auto; }
+#ui.wol .rep-layer { position: absolute; inset: 0; z-index: var(--z-report); display: none; place-items: center; padding: 16px; pointer-events: auto; }
 #ui.wol .rep-layer.on { display: grid; }
 #ui.wol .rep-backdrop { position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(10, 24, 15, .45), rgba(6, 14, 9, .78)); animation: rep-fade .3s both; }
 #ui.wol .rep-page { --acc: #1f5f58; --acc2: #2f7f73; --tint: #dbe5d6; --pin: #2f6f8a;

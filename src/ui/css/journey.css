@@ -83,7 +83,7 @@
 #ui.wol .st-lgrid button.jv:hover { transform: none; background: linear-gradient(180deg, rgba(66, 58, 44, .9), rgba(46, 40, 30, .9)); }
 
 /* ===================================================== מפת המסע */
-#ui.wol .jm { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: clamp(6px, 2vh, 22px) clamp(8px, 2vw, 26px); direction: rtl; pointer-events: auto; animation: jm-in .3s ease-out both; }
+#ui.wol .jm { position: fixed; inset: 0; z-index: var(--z-map); display: grid; place-items: center; padding: clamp(6px, 2vh, 22px) clamp(8px, 2vw, 26px); direction: rtl; pointer-events: auto; animation: jm-in .3s ease-out both; }
 #ui.wol .jm.out { animation: jm-out .22s ease-in both; }
 @keyframes jm-in { from { opacity: 0; transform: scale(.985); } to { opacity: 1; transform: none; } }
 @keyframes jm-out { to { opacity: 0; transform: scale(.985); } }
@@ -202,7 +202,7 @@
 @media (prefers-reduced-motion: reduce) { #ui.wol .jm-th-ln.new { animation: none; } }
 
 /* ===================================================== settings: the sheet (start screen) and the rows (also the satchel) */
-#ui.wol .set-layer { position: fixed; inset: 0; z-index: 5; }
+#ui.wol .set-layer { position: fixed; inset: 0; z-index: 5; }   /* inside the start screen: 5 only counts there (00-layers.css) */
 #ui.wol .set-scrim { position: absolute; inset: 0; background: rgba(6, 16, 10, .45); animation: wol-pop .2s both; }
 #ui.wol .set-sheet { position: absolute; top: 74px; right: 14px; width: min(400px, calc(100vw - 28px)); max-height: calc(100vh - 88px); overflow: auto;
   padding: 10px 10px 8px; display: flex; flex-direction: column; gap: 8px; text-align: right; animation: wol-pop .2s both; transform-origin: top right; }

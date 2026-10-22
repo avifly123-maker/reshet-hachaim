@@ -400,7 +400,7 @@ async function boot() {
     if ((e.key === 'f' || e.key === 'F' || e.key === 'כ') && !e.ctrlKey && !e.metaKey && !(e.target && /input|textarea/i.test(e.target.tagName))) {
       if (fpsEl) { fpsEl.remove(); fpsEl = null; return; }
       fpsEl = document.createElement('div');
-      fpsEl.style.cssText = 'position:fixed;left:8px;bottom:8px;z-index:99;padding:4px 8px;border-radius:8px;background:rgba(0,0,0,.7);color:#cfe;font:12px monospace;direction:ltr;pointer-events:none';
+      fpsEl.style.cssText = 'position:fixed;left:8px;bottom:8px;z-index:var(--z-dev);padding:4px 8px;border-radius:8px;background:rgba(0,0,0,.7);color:#cfe;font:12px monospace;direction:ltr;pointer-events:none';
       document.body.appendChild(fpsEl);
     }
   });
