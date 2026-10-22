@@ -162,6 +162,25 @@ export function createUpdate(ctx) {
     else if (kind === 'remind') robo('zone:hurtlate', { key: null, force: true });
   };
   let hurtArrowsOn = false; const _ha = new THREE.Vector3();
+  // the arrow stays in the free part of the screen: off the layers strip, the missions, the HUD, the left buttons
+  const HA_OBST = '#ui .rightcol > :not(.rc-spacer), #ui .toolbar, #ui .imv-dock, #ui .hud, #ui .cam-pad, #ui .hud-logo, #ui .hurtbar';
+  function avoidUI(sx, sy, r, trayH) {
+    const R = 34, rects = [];   // the circle (23) and its pointing tip
+    for (const el of document.querySelectorAll(HA_OBST)) { if (el.hidden) continue; const b = el.getBoundingClientRect(); if (b.width && b.height) rects.push(b); }
+    const minX = r.left + 30, maxX = r.right - 30, minY = r.top + 30, maxY = r.bottom - trayH - 30;
+    const hits = (x, y) => rects.some((b) => !(x + R <= b.left || x - R >= b.right || y + R <= b.top || y - R >= b.bottom));
+    if (!hits(sx, sy)) return [sx, sy];
+    // the nearest free spot just beside one of the buttons (sideways, up or down, or past a corner)
+    let best = null, bd = Infinity;
+    for (const b of rects) {
+      for (const [x, y] of [[b.left - R, sy], [b.right + R, sy], [sx, b.top - R], [sx, b.bottom + R],
+        [b.left - R, b.top - R], [b.right + R, b.top - R], [b.left - R, b.bottom + R], [b.right + R, b.bottom + R]]) {
+        if (x < minX || x > maxX || y < minY || y > maxY || hits(x, y)) continue;
+        const d = Math.hypot(x - sx, y - sy); if (d < bd) { bd = d; best = [x, y]; }
+      }
+    }
+    return best || [sx, sy];
+  }
   function updateHurtArrows() {
     const out = [];
     if (!W.viewMode && !W.research) {
@@ -178,6 +197,7 @@ export function createUpdate(ctx) {
         const ex = x * k, ey = y * k;
         let sx = (ex + 1) / 2 * r.width + r.left, sy = (1 - ey) / 2 * r.height + r.top;
         sx = clamp(sx, r.left + 34, r.right - 34); sy = clamp(sy, r.top + 96, r.bottom - trayH - 34);
+        [sx, sy] = avoidUI(sx, sy, r, trayH);
         out.push({ uid: a.injured.uid, x: Math.round(sx), y: Math.round(sy), ang: Math.round(Math.atan2(-y, x) * 180 / Math.PI) });
       }
     }
