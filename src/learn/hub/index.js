@@ -182,8 +182,10 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     const box = document.querySelector('#rguide.tip'), t = box && box.querySelector('.rg-txt');
     if (t && t.textContent === words) { const b = box.querySelector('[data-g="next"]'); if (b) b.click(); }
   }
-  function introFor(name) {
-    const part = INTRO_OF[name], g = guide(); if (!part || !g || !g.intro) return;
+  // (הממציאים opened on the robot workshop, from the lab's robots door: the workshop is presented first, by its own lines)
+  function introFor(name, opts = {}) {
+    const robots = name === 'inventors' && opts.view === 'robots' && !locked('robots');
+    const part = robots ? 'robots' : INTRO_OF[name], g = guide(); if (!part || !g || !g.intro) return;
     later(() => {
       if (!open_ || screen !== name) return;
       guideMine = true;
@@ -240,7 +242,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
       screen = name; $('.wl-crumb').textContent = TITLES[name]; $('.wl-back span').textContent = returnTo === name ? (MODE === 'kids' ? 'חֲזָרָה לַמַּעְבָּדָה' : 'חזרה למעבדה') : 'חזרה'; updateChip(false);
       main.innerHTML = '';
       try { gameInst = GAMES[name](main, GAME_CTX, opts) || null; } catch (e) { console.error(e); main.innerHTML = '<p style="padding:2em">אירעה תקלה במשחק.</p>'; }
-      main.scrollTop = 0; if (entering) introFor(name); return;
+      main.scrollTop = 0; if (entering) introFor(name, opts); return;
     }
     screen = name;
     $('.wl-crumb').textContent = TITLES[name] || '';
