@@ -214,7 +214,7 @@ export function createMissions(W) {
     const last = doneList[doneList.length - 1];
     if (last) out.push({ id: last.id, title: last.title, text: last.text, hint: last.hint, progress: 1, done: true, note: last.autoNote || '', expert: !!last.expert });
     const c = current();
-    if (c) out.push({ id: c.id, title: c.title, text: c.text, hint: c.hint, how: c.how || howTo(c), progress: c.progress, done: false, expert: !!c.expert, checks: checks(c),
+    if (c) out.push({ id: c.id, title: c.title, text: c.text, hint: c.hint, k: c.k, how: c.how || howTo(c), progress: c.progress, done: false, expert: !!c.expert, checks: checks(c),
       kind: c.goal?.type || '', sp: c.goal?.species || c.goal?.from || (c.goal?.tool ? 'tool:' + c.goal.tool : '') });   // kind + sp: the icon of the one-line mission (חוויה)
     const next = c && missions.find(m => m.after === c.id && (!m.expert || expertsOn()));
     if (next) out.push({ id: next.id, title: next.title, text: 'המשימה הבאה תיפתח אחרי שתסיימו את הנוכחית.', hint: '', progress: 0, done: false, locked: true, expert: !!next.expert });
