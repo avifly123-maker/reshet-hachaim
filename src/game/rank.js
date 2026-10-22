@@ -121,3 +121,12 @@ export function rankEmblem(zone, i) {
     : (a) => `<path transform="rotate(${a} 24 40)" d="M24 40Q15 30 24 13Q33 30 24 40z" fill="${c}"/>`;
   return `<svg class="af-emb" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22" fill="rgba(17,36,26,.85)" stroke="${c}" stroke-opacity=".7" stroke-width="2"/>${spread.slice(0, n).map(shape).join('')}</svg>`;
 }
+
+// the start screen (src/ui/ui.js, under the island in front of the carousel): the emblem and the rank's name; the full
+// mode also shows a thin bar to the next rank. kids: the beginners' save and words; simple: חוויה (no bar).
+export function islandRankHTML(zone, kids, simple) {
+  if (!RANKS[zone]) return '';
+  let r; try { r = rankOf(zone, !!kids); } catch (e) { return ''; }
+  const label = kids ? 'דַּרְגָּה' : 'דרגה';
+  return `${rankEmblem(zone, r.i)}<span><small>${label}</small><b>${r.name}</b>${!simple && r.next != null ? `<i class="af-sbar"><i style="width:${Math.round(r.progress * 100)}%"></i></i>` : ''}</span>`;
+}
