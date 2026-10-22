@@ -103,7 +103,19 @@ async function boot() {
     return scene.then(() => guide.say(STAGE_LINES[n] || [], { key: 'stage:' + n, modal: true, place: 'center' }))
       .then((r) => { try { window.dispatchEvent(new CustomEvent('wol-stage-done', { detail: { stage: n, result: r } })); } catch (e) { } return r; });
   };
-  window.addEventListener('wol-stage', (e) => { if (!e.detail || e.detail.legacy) return; stageMoment(e.detail.stage); });
+  // stage moments wait in line: two stages reached at once play one after the other (the second film is not dropped)
+  const STAGE_GAP_MS = 600;   // a breath between two stage moments
+  const stageQ = []; let stageRun = null;
+  function nextStage() {
+    if (stageRun || !stageQ.length) return;
+    const n = stageQ.shift();
+    stageRun = stageMoment(n).catch((e) => console.error(e)).then(() => { stageRun = null; setTimeout(nextStage, STAGE_GAP_MS); });
+  }
+  window.addEventListener('wol-stage', (e) => {
+    if (!e.detail || e.detail.legacy) return;
+    const n = e.detail.stage; if (!stageQ.includes(n)) { stageQ.push(n); stageQ.sort((a, b) => a - b); }
+    nextStage();
+  });
   // the first visit of a player: hello from רובו־דע (a new player), or one word about what is new (a player from before)
   const greetPlayer = () => {
     const st = journey.state();
