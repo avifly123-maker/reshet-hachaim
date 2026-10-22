@@ -298,7 +298,7 @@ const CSS = `
 .wp-hc.hint .wl-card{box-shadow:0 0 0 .22em var(--amber),0 0 1.4em rgba(240,180,76,.9);animation:wp-breath 1s ease-in-out infinite}
 .wp-hc.lift{opacity:.25}
 .wp-hc.gone{visibility:hidden}
-.wp-ghost{position:fixed;z-index:60;pointer-events:none;transform:translate(-50%,-50%) rotate(-3deg) scale(1.06);filter:drop-shadow(0 14px 18px rgba(0,0,0,.4))}
+.wp-ghost{position:fixed;z-index:60;/* inside the hub (its own layer): 60 only counts there */pointer-events:none;transform:translate(-50%,-50%) rotate(-3deg) scale(1.06);filter:drop-shadow(0 14px 18px rgba(0,0,0,.4))}
 .wp-ghost .wl-card{--cw:min(6.8em,13.2vh)}
 .wp-ghost.fly{transition:left .45s cubic-bezier(.3,.8,.3,1.1),top .45s cubic-bezier(.3,.8,.3,1.1),transform .45s}
 /* finished */

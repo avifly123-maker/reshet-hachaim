@@ -3,7 +3,7 @@
    lab's doors, the animal of a finished mission). Sparkles are round: no stars with arms, no cross shapes. */
 
 /* ===================================================== the stage scene */
-#ui.wol .ss { position: fixed; inset: 0; z-index: 900; pointer-events: auto; direction: rtl; overflow: hidden;
+#ui.wol .ss { position: fixed; inset: 0; z-index: var(--z-scene); pointer-events: auto; direction: rtl; overflow: hidden;
   background: radial-gradient(ellipse at 50% 40%, #1d3a3a, #0b1714 70%); animation: ss-in .35s ease-out both;
   font-family: var(--sans, "Segoe UI", Arial, sans-serif); color: #fbf3d8; user-select: none; -webkit-user-select: none; }
 #ui.wol .ss.out { animation: ss-out .42s ease-in both; }
@@ -44,7 +44,7 @@
 /* a part that just opened: its tile lifts, a band of light runs over it, a soft ring of light breathes once */
 #ui.wol .fl-lift { animation: fl-lift 1.7s cubic-bezier(.3, 1.4, .5, 1) both; }
 @keyframes fl-lift { 0% { translate: 0 0; scale: 1; } 30% { translate: 0 -7px; scale: 1.05; } 70% { translate: 0 -4px; scale: 1.03; } 100% { translate: 0 0; scale: 1; } }
-#ui.wol .fl-shine { position: absolute; inset: 0; z-index: 6; pointer-events: none; overflow: hidden; border-radius: inherit; }
+#ui.wol .fl-shine { position: absolute; inset: 0; z-index: 6;   /* inside the tile it shines on */ pointer-events: none; overflow: hidden; border-radius: inherit; }
 #ui.wol .fl-shine::before { content: ""; position: absolute; top: -20%; bottom: -20%; width: 45%; left: -60%;
   background: linear-gradient(100deg, transparent, rgba(255, 246, 210, .75), transparent); animation: fl-sweep 1.1s .15s ease-in-out both; }
 #ui.wol .fl-shine::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 2px rgba(246, 207, 114, .9), 0 0 22px rgba(246, 207, 114, .6); animation: fl-ring 1.6s ease-out both; }
@@ -52,16 +52,16 @@
 @keyframes fl-ring { 0% { opacity: 0; } 25% { opacity: 1; } 100% { opacity: 0; } }
 
 /* round sparks (dots and small rings) flying out from a point */
-#ui.wol .fl-sparks { position: fixed; z-index: 905; width: 0; height: 0; pointer-events: none; }
+#ui.wol .fl-sparks { position: fixed; z-index: var(--z-flourish-sparks); width: 0; height: 0; pointer-events: none; }
 #ui.wol .fl-sparks i { position: absolute; left: 0; top: 0; width: var(--s, 8px); height: var(--s, 8px); margin: calc(var(--s, 8px) / -2) 0 0 calc(var(--s, 8px) / -2); border-radius: 50%;
   background: radial-gradient(circle, #fffbe9 0 30%, var(--c, #f6cf72) 55%, transparent 72%); animation: fl-spark var(--d, 1s) cubic-bezier(.15, .7, .3, 1) both; }
 #ui.wol .fl-sparks i.r { background: none; border: 2px solid var(--c, #f6cf72); }
 @keyframes fl-spark { 0% { transform: translate(0, 0) scale(.3); opacity: 0; } 15% { opacity: 1; } 100% { transform: translate(var(--x), var(--y)) scale(1); opacity: 0; } }
-#ui.wol .fl-pulse { position: fixed; z-index: 904; pointer-events: none; border-radius: 50%; border: 3px solid var(--c, #f6cf72); animation: fl-pulse 1s ease-out both; }
+#ui.wol .fl-pulse { position: fixed; z-index: var(--z-flourish-pulse); pointer-events: none; border-radius: 50%; border: 3px solid var(--c, #f6cf72); animation: fl-pulse 1s ease-out both; }
 @keyframes fl-pulse { from { transform: scale(.4); opacity: .9; } to { transform: scale(1.6); opacity: 0; } }
 
 /* a new thread: a glowing line drawn from one part to another, a light running along it */
-#ui.wol .fl-thread { position: fixed; inset: 0; z-index: 903; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+#ui.wol .fl-thread { position: fixed; inset: 0; z-index: var(--z-flourish); width: 100%; height: 100%; pointer-events: none; overflow: visible; }
 #ui.wol .fl-thread path { fill: none; stroke-linecap: round; }
 #ui.wol .fl-thread .g { stroke: rgba(246, 207, 114, .35); stroke-width: 10; filter: blur(3px); }
 #ui.wol .fl-thread .l { stroke: #ffe39a; stroke-width: 3; }
@@ -74,7 +74,7 @@
 @keyframes fl-bar-in { from { opacity: 0; translate: 0 -10px; } }
 
 /* the lab's doors: two panels part in the middle as the child comes in (רובו־דע waves behind them) */
-#ui.wol .fl-doors { position: fixed; inset: 0; z-index: 880; pointer-events: none; display: flex; direction: rtl; }
+#ui.wol .fl-doors { position: fixed; inset: 0; z-index: var(--z-scene-doors); pointer-events: none; display: flex; direction: rtl; }
 #ui.wol .fl-doors i { flex: 1; position: relative; background: linear-gradient(180deg, #f6f4ee, #dcdcd2); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .08); }
 #ui.wol .fl-doors i:first-child { border-left: 3px solid #2c9a92; animation: fl-door-r 1.1s .25s cubic-bezier(.6, 0, .3, 1) both; }
 #ui.wol .fl-doors i:last-child { border-right: 3px solid #2c9a92; animation: fl-door-l 1.1s .25s cubic-bezier(.6, 0, .3, 1) both; }
@@ -86,7 +86,7 @@
 @keyframes fl-door-l { to { transform: translateX(-102%); } }
 
 /* the animal of a finished mission celebrates beside the banner */
-#ui.wol .fl-hero { position: fixed; z-index: 45; pointer-events: none; width: 210px; height: 190px; border-radius: 50%;
+#ui.wol .fl-hero { position: fixed; z-index: var(--z-modal); pointer-events: none; width: 210px; height: 190px; border-radius: 50%;
   background: radial-gradient(circle at 50% 55%, rgba(255, 236, 170, .38), rgba(255, 236, 170, 0) 68%); animation: fl-hero 2.6s ease-in-out both; }
 #ui.wol .fl-hero canvas { width: 100%; height: 100%; display: block; }
 @keyframes fl-hero { 0% { opacity: 0; transform: scale(.6) translateY(16px); } 14% { opacity: 1; transform: scale(1.04); } 22% { transform: scale(1); } 84% { opacity: 1; } 100% { opacity: 0; transform: scale(.92) translateY(-8px); } }

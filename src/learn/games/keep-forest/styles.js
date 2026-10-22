@@ -206,7 +206,7 @@ const CSS = `
 .kf-use{position:absolute;bottom:20%;left:50%;transform:translateX(-50%);z-index:4;white-space:nowrap;min-height:2.3em!important;padding:.2em .9em!important;font-size:.95em!important}
 .kf-acts{flex:none;width:6.6em;display:flex;flex-direction:column;gap:.4em;align-items:stretch;padding-bottom:.6em}
 .kf-acts .wl-btn{min-height:2.4em;padding:.25em .5em;font-size:.86em;line-height:1.15}
-.kf-ghost{position:fixed;z-index:60;pointer-events:none;transform:translate(-50%,-50%) rotate(-3deg) scale(1.06);filter:drop-shadow(0 14px 18px rgba(0,0,0,.4))}
+.kf-ghost{position:fixed;z-index:60;/* inside the hub (its own layer): 60 only counts there */pointer-events:none;transform:translate(-50%,-50%) rotate(-3deg) scale(1.06);filter:drop-shadow(0 14px 18px rgba(0,0,0,.4))}
 .kf-ghost .wl-card{--cw:min(6.2em,11.6vh)}
 .kf-float{position:absolute;z-index:8;pointer-events:none;font-weight:900;font-size:1.3em;color:#ffe39a;text-shadow:0 2px 6px rgba(0,0,0,.6);animation:kf-up 1.2s ease-out both}
 /* end */

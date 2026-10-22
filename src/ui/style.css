@@ -41,7 +41,7 @@
   --rcW: clamp(210px, 18vw, 270px);
   --tbW: 0px;
   --ui-scale: 1;
-  position: fixed; inset: 0; z-index: 10; pointer-events: none;
+  position: fixed; inset: 0; z-index: var(--z-ui); pointer-events: none;
   font-family: var(--sans); color: var(--chalk); direction: rtl;
   font-size: 15px; line-height: 1.4; -webkit-font-smoothing: antialiased;
   user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent;
@@ -92,7 +92,7 @@
 
 /* ===================================================== LOADING */
 #ui.wol .loading {
-  position: absolute; inset: 0; z-index: 60; display: grid; place-items: center; pointer-events: auto;
+  position: absolute; inset: 0; z-index: var(--z-map); display: grid; place-items: center; pointer-events: auto;
   background: #0f2118; opacity: 0; visibility: hidden; transition: opacity .7s, visibility .7s;
 }
 #ui.wol .loading.on { opacity: 1; visibility: visible; }
@@ -114,7 +114,7 @@
 #ui.wol .emblem.spin .em-n:nth-of-type(3n) { animation-delay: -1.6s; }
 
 /* ===================================================== START: under the canopy */
-#ui.wol .start { position: absolute; inset: 0; z-index: 50; pointer-events: auto; overflow: auto; opacity: 0; visibility: hidden; transition: opacity .6s, visibility .6s; display: grid; background: #0f2118; }
+#ui.wol .start { position: absolute; inset: 0; z-index: var(--z-start); pointer-events: auto; overflow: auto; opacity: 0; visibility: hidden; transition: opacity .6s, visibility .6s; display: grid; background: #0f2118; }
 #ui.wol .start.on { opacity: 1; visibility: visible; }
 #ui.wol .st-bg { position: fixed; inset: 0; overflow: hidden; pointer-events: none; }
 #ui.wol .st-canopy { position: absolute; left: 0; width: 100%; display: block; }
@@ -426,7 +426,7 @@
   background: var(--honey); transform: rotate(4deg); box-shadow: 0 2px 4px rgba(0, 0, 0, .3); }
 #ui.wol .c-new .ic { width: 12px; height: 12px; }
 /* the "drag to move" handle under the selected plant (game.js placeMoveHandle) */
-#ui.wol .mv-handle { position: absolute; left: 0; top: 0; z-index: 14; pointer-events: auto; touch-action: none; display: inline-flex; align-items: center; gap: 6px;
+#ui.wol .mv-handle { position: absolute; left: 0; top: 0; z-index: var(--z-move); pointer-events: auto; touch-action: none; display: inline-flex; align-items: center; gap: 6px;
   min-height: 40px; padding: 4px 14px 4px 10px; border-radius: 999px; background: rgba(17, 36, 26, .9); color: var(--chalk); font-weight: 800; font-size: .92em; white-space: nowrap;
   box-shadow: 0 0 0 2px rgba(180, 203, 102, .55), 0 5px 12px rgba(0, 0, 0, .35); cursor: grab; -webkit-user-select: none; user-select: none; }
 #ui.wol .mv-handle svg { width: 20px; height: 20px; flex: none; color: var(--lichen, #b4cb66); }
@@ -458,7 +458,7 @@
 #ui.wol .card.shake { animation: wol-shake .4s; }
 
 /* drag ghost + hint */
-#ui.wol .ghost { position: absolute; left: 0; top: 0; z-index: 40; pointer-events: none; opacity: 0; display: flex; flex-direction: column; align-items: center; gap: 2px;
+#ui.wol .ghost { position: absolute; left: 0; top: 0; z-index: var(--z-panels); pointer-events: none; opacity: 0; display: flex; flex-direction: column; align-items: center; gap: 2px;
   margin: -40px 0 0 -40px; width: 80px; transition: opacity .15s; }
 #ui.wol .ghost.on { opacity: 1; }
 #ui.wol .ghost .g-thumb { --c: #6a9; width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; overflow: hidden;
@@ -468,7 +468,7 @@
 #ui.wol .ghost.invalid .g-thumb { box-shadow: 0 0 0 3px #f19a8c, 0 10px 24px rgba(0, 0, 0, .45); filter: saturate(.6); }
 #ui.wol .ghost > span { font-weight: 800; font-size: .85em; color: #fff; text-shadow: 0 1px 3px rgba(0, 0, 0, .8); white-space: nowrap; }
 #ui.wol .ghost.drop { opacity: 1; transition: none; animation: wol-drop .3s forwards; }
-#ui.wol .drag-hint { position: absolute; left: 0; top: 0; z-index: 41; pointer-events: none; opacity: 0; display: flex; align-items: center; gap: 6px; padding: 6px 14px 6px 12px; border-radius: 99px; font-weight: 700; font-size: .9em; white-space: nowrap;
+#ui.wol .drag-hint { position: absolute; left: 0; top: 0; z-index: var(--z-drag-hint); pointer-events: none; opacity: 0; display: flex; align-items: center; gap: 6px; padding: 6px 14px 6px 12px; border-radius: 99px; font-weight: 700; font-size: .9em; white-space: nowrap;
   translate: -50% 0; transition: opacity .15s; box-shadow: 0 4px 14px rgba(0, 0, 0, .35); }
 #ui.wol .drag-hint.on { opacity: 1; }
 #ui.wol .drag-hint .ic { width: 18px; height: 18px; }
@@ -479,7 +479,7 @@
 /* ===================================================== SPECIES PANEL (left) */
 #ui.wol .species {
   --c: #6a9;
-  position: absolute; left: 14px; top: 14px; bottom: calc(var(--trayH) + 12px); width: var(--spW); z-index: 5;
+  position: absolute; left: 14px; top: 14px; bottom: calc(var(--trayH) + 12px); width: var(--spW); z-index: var(--z-panel);
   border-radius: var(--r-lg); pointer-events: auto; display: flex; flex-direction: column; overflow: hidden;
   transform: translateX(calc(-100% - 30px)); opacity: 0; transition: transform .45s cubic-bezier(.2, .8, .25, 1), opacity .3s; visibility: hidden;
 }
@@ -552,7 +552,7 @@
 #ui.wol .sp-actions .btn.sp-locate { flex: .8; }
 
 /* ===================================================== MODALS */
-#ui.wol .modal-layer { position: absolute; inset: 0; z-index: 45; pointer-events: none; }
+#ui.wol .modal-layer { position: absolute; inset: 0; z-index: var(--z-modal); pointer-events: none; }
 #ui.wol .modal { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: auto; padding: 24px; }
 #ui.wol .backdrop { position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(10, 24, 15, .45), rgba(6, 14, 9, .75)); opacity: 0; transition: opacity .3s; }
 #ui.wol .modal.on .backdrop { opacity: 1; }
@@ -613,10 +613,10 @@
 #ui.wol .jc.unknown small { font-size: .78em; }
 
 /* ===================================================== COACH */
-#ui.wol .coach-ring { position: absolute; z-index: 46; border-radius: 26px; pointer-events: none; opacity: 0; transition: opacity .3s, left .4s, top .4s, width .4s, height .4s;
+#ui.wol .coach-ring { position: absolute; z-index: var(--z-coach-ring); border-radius: 26px; pointer-events: none; opacity: 0; transition: opacity .3s, left .4s, top .4s, width .4s, height .4s;
   box-shadow: 0 0 0 3px var(--amber), 0 0 0 9999px rgba(6, 16, 10, .45); animation: wol-ring 1.8s ease-in-out infinite; }
 #ui.wol .coach-ring.on { opacity: 1; }
-#ui.wol .coach { position: absolute; z-index: 47; width: min(380px, 88vw); padding: 18px 20px 12px; border-radius: 20px; pointer-events: auto; opacity: 0; visibility: hidden; transform: scale(.95);
+#ui.wol .coach { position: absolute; z-index: var(--z-coach); width: min(380px, 88vw); padding: 18px 20px 12px; border-radius: 20px; pointer-events: auto; opacity: 0; visibility: hidden; transform: scale(.95);
   transition: opacity .3s, transform .3s cubic-bezier(.2, .8, .3, 1.3), left .4s, top .4s, visibility .3s; }
 #ui.wol .coach.on { opacity: 1; visibility: visible; transform: none; }
 #ui.wol .c-body { display: flex; gap: 12px; align-items: flex-start; }
@@ -636,7 +636,7 @@
 #ui.wol .coach[data-arrow="none"] .c-arrow { display: none; }
 
 /* ===================================================== TOASTS */
-#ui.wol .toasts { position: absolute; top: 88px; left: 50%; transform: translateX(-50%); z-index: 30; display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; width: min(440px, 90vw); }
+#ui.wol .toasts { position: absolute; top: 88px; left: 50%; transform: translateX(-50%); z-index: var(--z-hud); display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; width: min(440px, 90vw); }
 #ui.wol .toast { pointer-events: auto; cursor: pointer; opacity: 0; transform: translateY(-12px) scale(.96); transition: opacity .3s, transform .35s cubic-bezier(.2, .8, .3, 1.3); }
 #ui.wol .toast.on { opacity: 1; transform: none; }
 #ui.wol .toast.off { opacity: 0; transform: translateY(-8px); }
@@ -660,7 +660,7 @@
 #ui.wol .discovery p { font-size: .95em; line-height: 1.5; color: #3d4636; }
 
 /* mission banner + confetti */
-#ui.wol .mission-banner { position: absolute; top: 22%; left: 50%; z-index: 44; transform: translate(-50%, -20px) scale(.9); opacity: 0; pointer-events: none; text-align: center;
+#ui.wol .mission-banner { position: absolute; top: 22%; left: 50%; z-index: var(--z-banner); transform: translate(-50%, -20px) scale(.9); opacity: 0; pointer-events: none; text-align: center;
   padding: 26px 56px 22px; border-radius: 26px; color: #fff; background: radial-gradient(120% 140% at 50% 0%, #6fb24d, #2f6a2a); box-shadow: 0 20px 50px rgba(0, 0, 0, .45), inset 0 0 0 2px rgba(255, 255, 255, .25), inset 0 0 0 7px rgba(255, 255, 255, .06);
   transition: opacity .35s, transform .5s cubic-bezier(.2, .8, .3, 1.5); }
 #ui.wol .mission-banner.on { opacity: 1; transform: translate(-50%, 0) scale(1); }
@@ -670,13 +670,13 @@
 #ui.wol .mission-banner small { display: block; font-weight: 800; color: #ffe08a; font-size: 1em; margin-top: 4px; }
 #ui.wol .mission-banner h3 { font-family: var(--serif); font-size: 2.3em; line-height: 1.1; margin: 4px 0; text-shadow: 0 2px 8px rgba(0, 0, 0, .3); }
 #ui.wol .mission-banner p { font-size: 1.05em; color: #e6f5d6; }
-#ui.wol .fx { position: absolute; inset: 0; z-index: 43; pointer-events: none; overflow: hidden; }
+#ui.wol .fx { position: absolute; inset: 0; z-index: var(--z-fx); pointer-events: none; overflow: hidden; }
 #ui.wol .leafbit { position: absolute; top: -40px; width: 26px; height: 26px; animation: wol-fall linear forwards; }
 #ui.wol .leafbit .ic { width: 100%; height: 100%; fill: currentColor; stroke: rgba(0, 0, 0, .25); stroke-width: 1; }
 #ui.wol .float { position: absolute; transform: translate(-50%, -50%); font-weight: 900; font-size: 1.6em; color: #ffe08a; text-shadow: 0 2px 0 rgba(0, 0, 0, .35), 0 0 12px rgba(0, 0, 0, .35); white-space: nowrap; animation: wol-float 1.6s ease-out forwards; }
 
 /* hover label */
-#ui.wol .hover { position: absolute; left: 0; top: 0; z-index: 25; pointer-events: none; opacity: 0; padding: 6px 14px 7px; border-radius: 12px; text-align: center; white-space: nowrap;
+#ui.wol .hover { position: absolute; left: 0; top: 0; z-index: var(--z-hover); pointer-events: none; opacity: 0; padding: 6px 14px 7px; border-radius: 12px; text-align: center; white-space: nowrap;
   background: rgba(14, 30, 20, .86); border: 1px solid var(--glass-line); box-shadow: 0 6px 16px rgba(0, 0, 0, .35); transition: opacity .15s; }
 #ui.wol .hover.on { opacity: 1; }
 #ui.wol .hover::after { content: ""; position: absolute; left: 50%; bottom: -6px; width: 10px; height: 10px; margin-left: -5px; transform: rotate(45deg); background: rgba(14, 30, 20, .86); border-right: 1px solid var(--glass-line); border-bottom: 1px solid var(--glass-line); }
@@ -684,7 +684,7 @@
 #ui.wol .hover small { display: block; font-size: .78em; color: rgba(210, 230, 190, .75); }
 
 /* experiment banner */
-#ui.wol .experiment { position: absolute; top: 86px; left: 50%; z-index: 20; transform: translate(-50%, -16px); opacity: 0; visibility: hidden; pointer-events: auto;
+#ui.wol .experiment { position: absolute; top: 86px; left: 50%; z-index: var(--z-experiment); transform: translate(-50%, -16px); opacity: 0; visibility: hidden; pointer-events: auto;
   display: flex; align-items: center; gap: 14px; padding: 8px 10px 8px 10px; padding-inline-start: 10px; border-radius: 99px;
   background: linear-gradient(180deg, rgba(70, 48, 90, .88), rgba(44, 30, 62, .88)); border: 1px solid rgba(220, 200, 255, .25); box-shadow: var(--shadow), 0 0 0 4px rgba(171, 144, 220, .18);
   transition: opacity .3s, transform .4s cubic-bezier(.2, .8, .3, 1.3), visibility .3s; }
@@ -772,7 +772,7 @@
 @media (max-width: 860px) {
   #ui.wol .hud { top: auto; bottom: calc(var(--trayH) + 10px); }
   #ui.wol .mission-banner { top: 9%; }   /* the HUD is low here: the banner stays above it */
-  #ui.wol .species { width: min(360px, calc(100vw - 28px)); z-index: 30; }
+  #ui.wol .species { width: min(360px, calc(100vw - 28px)); z-index: var(--z-hud); }
   #ui.wol .tr-filter { display: none; }
   /* a species card is open: a narrower card, and the HUD (time buttons included) stays beside it, not under it */
   #ui.wol.sp-open .species { width: min(310px, calc(100vw - 28px)); }
@@ -832,7 +832,7 @@
 /* ===================================================== performance + misc */
 /* backdrop blur over a live 3D canvas is very expensive on school PCs: solid panels only */
 #ui.wol *, #ui.wol *::before, #ui.wol *::after { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
-#ui.wol.has-modal .modal-layer { z-index: 55; }   /* an open dialog (e.g. "continue saved forest?") sits above the start screen */
+#ui.wol.has-modal .modal-layer { z-index: var(--z-modal-over-start); }   /* an open dialog (e.g. "continue saved forest?") sits above the start screen */
 /* Baba Da logo */
 #ui.wol .ld-logo { position: absolute; bottom: 4vh; left: 50%; transform: translateX(-50%); height: 52px; width: auto; background: #fbfaf2; border-radius: 4px; padding: 8px 14px; }
 #ui.wol .hud-logo { position: absolute; left: 10px; bottom: calc(var(--trayH) + 10px); height: 28px; width: auto; background: rgba(251, 250, 242, .92); border-radius: 3px; padding: 4px 7px; pointer-events: none; box-shadow: 0 2px 6px rgba(0,0,0,.25); display: none; }
@@ -1027,7 +1027,7 @@
 #ui.wol .who-chev { width: 18px; height: 18px; color: var(--lichen); opacity: .8; transition: transform .2s; }
 #ui.wol .st-who[aria-expanded="true"] .who-chev { transform: rotate(180deg); }
 
-#ui.wol .st-pp-layer { position: fixed; inset: 0; z-index: 4; }
+#ui.wol .st-pp-layer { position: fixed; inset: 0; z-index: 4; }   /* inside the start screen: 4 only counts there */
 #ui.wol .st-pp-scrim { position: absolute; inset: 0; background: rgba(6, 16, 10, .45); animation: wol-pop .2s both; }
 #ui.wol .st-pp { position: absolute; top: 74px; right: 14px; width: min(350px, calc(100vw - 28px)); max-height: calc(100vh - 88px); overflow: auto;
   padding: 10px 10px 8px; display: flex; flex-direction: column; gap: 8px; text-align: right; animation: wol-pop .2s both; transform-origin: top right; }
@@ -1106,7 +1106,7 @@
 #ui.wol .src-text { margin: 0; font-family: var(--serif); font-size: 1.12em; line-height: 1.95; }
 #ui.wol .src-ref { display: block; margin-top: 2px; font-size: .82em; color: #8a6a3a; }
 #ui.wol .src-note { margin: 6px 0 0; font-size: .9em; color: #5a4a2a; }
-#ui.wol .srcm { position: absolute; z-index: 26; top: 84px; left: 50%; width: min(560px, calc(100% - 32px)); transform: translate(-50%, -14px); opacity: 0; pointer-events: none;
+#ui.wol .srcm { position: absolute; z-index: var(--z-sources); top: 84px; left: 50%; width: min(560px, calc(100% - 32px)); transform: translate(-50%, -14px); opacity: 0; pointer-events: none;
   transition: opacity .6s, transform .6s cubic-bezier(.2, .8, .3, 1); }
 #ui.wol .srcm.on { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
 #ui.wol .srcm .src-box { margin: 0; padding: 12px 18px 12px 44px; position: relative; box-shadow: 0 10px 30px rgba(0, 0, 0, .35), inset 0 0 0 3px rgba(255, 255, 255, .5); cursor: pointer; text-align: center; }
@@ -1336,7 +1336,7 @@
 
 /* background music switch (ui.js musicBtn): only where music plays – the start screen and the lab; bottom-left corner,
    over the start screen (50) and the lab (40), under an open dialog (55) */
-#ui.wol .mus-btn { position: absolute; left: 16px; bottom: 16px; z-index: 52; width: 44px; height: 44px; padding: 0; display: grid; place-items: center;
+#ui.wol .mus-btn { position: absolute; left: 16px; bottom: 16px; z-index: var(--z-research); width: 44px; height: 44px; padding: 0; display: grid; place-items: center;
   border-radius: 50%; border: 1.5px solid rgba(251, 246, 228, .55); background: rgba(14, 26, 20, .62); color: #fbf6e4; cursor: pointer; pointer-events: auto;
   box-shadow: 0 4px 12px rgba(0, 0, 0, .3); transition: background .2s, opacity .2s, transform .15s; }
 #ui.wol .mus-btn[hidden] { display: none; }

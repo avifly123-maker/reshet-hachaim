@@ -7,7 +7,7 @@
 // Over a list or a panel that scrolls, the right stick scrolls it instead of moving the view.
 // Standard mapping (Xbox / PlayStation controllers in Chrome and Electron). setGamepadRig(rig) links the 3D view.
 const CSS = `
-.gp-cursor { position: fixed; left: 0; top: 0; width: 30px; height: 30px; margin: -3px 0 0 -3px; z-index: 2147483000; pointer-events: none;
+.gp-cursor { position: fixed; left: 0; top: 0; width: 30px; height: 30px; margin: -3px 0 0 -3px; z-index: var(--z-top); pointer-events: none;
   opacity: 0; transition: opacity .25s; filter: drop-shadow(0 2px 3px rgba(0,0,0,.45)); }
 .gp-cursor.on { opacity: 1; }
 .gp-cursor.down svg { transform: scale(.86); transform-origin: 3px 3px; }

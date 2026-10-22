@@ -4,7 +4,7 @@
 const CSS_ID = 'camera-pad-css';
 const CSS = `
 /* a brass-and-canopy compass rose: turn (west/east), tilt (north/south), home in the middle, zoom on the side; folds to one button */
-.cam-pad { position: absolute; left: 10px; bottom: calc(var(--trayH, 140px) + 48px); z-index: 30; display: flex; gap: 4px; align-items: center;
+.cam-pad { position: absolute; left: 10px; bottom: calc(var(--trayH, 140px) + 48px); z-index: var(--z-hud); display: flex; gap: 4px; align-items: center;
   direction: ltr; pointer-events: auto; user-select: none; -webkit-user-select: none; touch-action: none; transition: opacity .25s, transform .25s; }
 .cam-pad.cp-hidden { opacity: 0; transform: translateY(10px); pointer-events: none; visibility: hidden; transition: opacity .25s, transform .25s, visibility 0s .25s; }
 /* the species info panel reaches down to the tray: the pad would cover its relations list and buttons, so it steps aside while the panel is open */

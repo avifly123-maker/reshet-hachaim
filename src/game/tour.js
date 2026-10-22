@@ -12,7 +12,7 @@ import { zoneWord } from '../core/place.js';
 
 const CSS_ID = 'tour-css';
 const CSS = `
-#ui.wol .tour-pick { position: absolute; inset: 0; z-index: 27; display: grid; place-items: center; pointer-events: none; opacity: 0; visibility: hidden; transition: opacity .3s, visibility 0s .3s; }
+#ui.wol .tour-pick { position: absolute; inset: 0; z-index: var(--z-tour); display: grid; place-items: center; pointer-events: none; opacity: 0; visibility: hidden; transition: opacity .3s, visibility 0s .3s; }
 #ui.wol .tour-pick.on { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity .3s; }
 #ui.wol .tour-pick .tp-back { position: absolute; inset: 0; background: rgba(6, 14, 9, .45); }
 #ui.wol .tour-pick .tp-box { position: relative; width: min(680px, calc(100vw - 40px)); max-height: calc(100vh - 40px); overflow: auto; padding: 18px 22px 20px; text-align: center; }

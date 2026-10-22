@@ -8,7 +8,7 @@
 const STORE = 'web-of-life-howto';
 const CSS_ID = 'howto-css';
 const CSS = `
-#howto { position: absolute; inset: 0; z-index: 62; display: grid; place-items: center; pointer-events: auto; direction: rtl; font-family: var(--sans, sans-serif);
+#howto { position: absolute; inset: 0; z-index: var(--z-howto); display: grid; place-items: center; pointer-events: auto; direction: rtl; font-family: var(--sans, sans-serif);
   background: rgba(6, 14, 9, .5); animation: howto-in .25s ease-out; }
 #howto .howto-box { position: relative; width: min(600px, calc(100vw - 32px)); max-height: calc(100vh - 32px); overflow: auto; box-sizing: border-box; padding: 18px 20px 16px;
   border-radius: 18px; background: #f3ecd6; color: #24301f; box-shadow: 0 0 0 2px rgba(120, 100, 60, .35), 0 14px 34px rgba(0, 0, 0, .45); }

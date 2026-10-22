@@ -26,7 +26,7 @@
 /* רובו־דע's bubble sits higher in the photo mode, so "צלמו" (bottom middle, 58 px + 10 px) stays free */
 #ui.wol.af-shoot #rguide:not(.center) .rg-wrap { bottom: 78px; }
 #ui.wol .af-photo.printing .af-tag { visibility: hidden; }
-#ui.wol .af-photo { position: absolute; inset: 0; z-index: 40; pointer-events: none; direction: rtl; }
+#ui.wol .af-photo { position: absolute; inset: 0; z-index: var(--z-panels); pointer-events: none; direction: rtl; }
 #ui.wol .af-photo[hidden] { display: none; }
 #ui.wol .af-frame { position: absolute; left: 50%; top: calc(50% - 16px); width: min(66vw, calc((100vh - 156px) * 4 / 3), 760px); aspect-ratio: 4 / 3; transform: translate(-50%, -50%);
   border-radius: 20px; box-shadow: 0 0 0 200vmax rgba(8, 16, 11, .42); }
