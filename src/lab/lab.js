@@ -23,7 +23,11 @@ import { labKids, fmt, readMs } from './level.js';
 import { ROOM_K, TALK_K, FACTS_K, JOKES_K, ATLAS_K, SAMPLES_K, THINK_K } from './kids-text.js';   // the beginners' words (ניקוד מלא)
 // the station worlds (19.10): the aquarium, the greenhouse and the cabinet open a menu of their own activities
 import { openStationMenu, one, face as stFace, injectStationCss } from './station-kit.js';
-import { MENU_T, COMMON_T } from './station-text.js';
+import { MENU_T, COMMON_T, DOORS_T } from './station-text.js';
+// מסע החוקר (1.3.2): the stations open one after the other; רובו־דע presents each one the first time
+import { isOpen as partOpen, lockInfo, markUsed, introSeen, markIntro, state as journeyState, PARTS } from '../core/journey.js';
+import { LAB_GUIDE } from '../data/guide/lab.js';
+import { BABA_DA_LOGO } from '../data/logo.js';
 import { stOf, thinkOf } from './progress.js';
 import { openMiniReef, openDayNight } from './aquarium.js';
 import { openGrow, openSeeds } from './greenhouse.js';
@@ -279,13 +283,13 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
       <button class="lb-btn lb-talk"><i class="lb-tface"></i><span></span></button>
       <button class="lb-btn lb-think">${icon('flask')}<span></span></button>
       <div class="lb-title"><small></small><h1></h1></div>
-      <button class="lb-btn lb-home">${icon('home')}<span></span></button></div>
+      <button class="lb-btn lb-home">${icon('home')}<span></span></button><img class="lb-logo" src="${BABA_DA_LOGO}" alt="בבא דע" draggable="false"></div>
     <div class="lb-hots" role="group"></div>
     <button class="lb-turn lb-turn-l" data-turn="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button>
     <button class="lb-turn lb-turn-r" data-turn="1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 5.5L16 12l-6.5 6.5"/></svg></button>
     <div class="lb-look" hidden><svg viewBox="0 0 32 16" aria-hidden="true"><path d="M3 8h26M8 3L3 8l5 5M24 3l5 5-5 5"/></svg><span></span></div>
     <nav class="lb-bar">${ORDER.map((id) => `<button data-st="${id}" class="${id === 'home' ? 'on' : ''}">${icon(STATION_INFO[id].ic || 'leaf')}<span></span></button>`).join('')}</nav>
-    <div class="lb-panels"></div><div class="lb-say" hidden><i class="lb-face"></i><p></p></div>`;
+    <div class="lb-panels"></div><div class="lb-say" hidden><i class="lb-face"></i><p></p></div><i class="lb-ring" hidden></i>`;
   const hots = el.querySelector('.lb-hots'), sayEl = el.querySelector('.lb-say'), panels = el.querySelector('.lb-panels'), topEl = el.querySelector('.lb-top');
   el.querySelector('.lb-exit').onclick = () => { close(); onExit && onExit(); };
   el.querySelector('.lb-talk').onclick = () => openTalk();
@@ -347,9 +351,78 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
   }
   paintChrome();
 
+  // ── מסע החוקר (1.3.2): a station that is not open yet is veiled (a dim spot, a dim button in the bar, its name and
+  // what opens it in the tip); a click lets רובו־דע say what opens it. Repainted whenever the journey changes.
+  const partOf = (id) => 'lab:' + id;
+  const stOpen = (id) => id === 'home' || partOpen(partOf(id));
+  function paintLocks() {
+    for (const b of el.querySelectorAll('[data-hot],[data-st]')) {
+      const id = b.dataset.hot || b.dataset.st; if (id === 'home' || !STATION_INFO[id]) continue;
+      const open = stOpen(id), n = stName(id), L = open ? null : lockInfo(partOf(id));
+      b.classList.toggle('veil', !open);
+      const tip = b.querySelector('.lb-tip'); if (tip) tip.textContent = L ? `${n} · ${L.text}` : n;
+      if (b.dataset.hot) b.setAttribute('aria-label', L ? `${n}, ${L.text}` : n); else b.title = L ? L.text : '';
+    }
+  }
+  addEventListener('wol-journey', () => { if (open_) paintLocks(); });
+  // something done at a station (any lab progress while the child is there) opens the next one (core/journey.js `after`)
+  addEventListener('wol-progress', (e) => { if (open_ && station !== 'home' && e.detail && e.detail.kind === 'lab' && stOpen(station)) markUsed(partOf(station)); });
+  // the line that says what opens a part (src/data/guide/lab.js 'lab:locks'): its stage, or the station before it
+  function lockLine(part) {
+    const P = PARTS[part] || {}, L = LAB_GUIDE['lab:locks'] || [], by = (k) => L.find((x) => x.id === 'lab.locks.' + k);
+    let ln = null;
+    try { if (journeyState().stage < (P.stage || 0)) ln = by('stage' + P.stage); else if (P.after) ln = by(P.after.replace(/^lab:/, '')); } catch (e) { /* */ }
+    return ln || by('later');
+  }
+  function sayLocked(part) {
+    try { audio && audio.play('click'); } catch (e) { /* */ }
+    const ln = lockLine(part);
+    if (ln) sayLines([ln]); else { const L = lockInfo(part); if (L) say(L.text, 'curious'); }
+  }
+  // his presentation lines (src/data/guide/lab.js): one bubble after the other, in his own voice when it exists
+  // (__app.voice), each ringing the thing it talks about; a click on anything else (another station, an activity, a
+  // panel's own words) stops them
+  const ringEl = el.querySelector('.lb-ring');
+  let introTok = 0, introT = 0, introWait = 0, ringAt = null, introVoice = false;
+  // leaving the place (another station, an activity, closing the lab) also drops a presentation that is about to begin
+  function cancelIntro() { clearTimeout(introWait); stopIntro(); }
+  function stopIntro() {
+    introTok++; clearTimeout(introT); setRing(null);
+    if (introVoice) { introVoice = false; try { window.__app && window.__app.voice && window.__app.voice.stop(); } catch (e) { /* */ } }
+  }
+  function setRing(at) { ringAt = at || null; if (!ringAt) ringEl.hidden = true; else placeRing(); }
+  function placeRing() {
+    const t = ringAt && el.querySelector(ringAt);
+    if (!t || !t.getClientRects().length) { ringEl.hidden = true; return; }
+    const r = t.getBoundingClientRect(), o = el.getBoundingClientRect();
+    ringEl.hidden = false; ringEl.style.cssText = `left:${r.left - o.left - 5}px;top:${r.top - o.top - 5}px;width:${r.width + 10}px;height:${r.height + 10}px`;
+  }
+  function sayLines(lines) {
+    stopIntro(); const tok = introTok;
+    const step = (i) => {
+      if (tok !== introTok || !open_) return;
+      if (i >= lines.length) { setRing(null); return; }
+      const ln = lines[i], text = kids ? ln.k : ln.f, ex = ln.expr || 'happy';
+      if (panel && panel.talk) panel.talk(text, ex); else say(text, ex, true);
+      setRing(ln.at);
+      const t0 = Date.now(), need = readMs(text);
+      let p = null; try { const v = window.__app && window.__app.voice; if (v && ln.id) { p = v.say(ln.id); introVoice = true; } } catch (e) { p = null; }
+      const next = (ok) => { if (tok !== introTok) return; introVoice = false; introT = setTimeout(() => step(i + 1), ok ? 500 : Math.max(400, need - (Date.now() - t0))); };
+      Promise.resolve(p).then(next, () => next(false));
+    };
+    step(0);
+  }
+  // the first time a child enters a station he says what can be done there (once per player: journey introSeen)
+  function maybeIntro(st) {
+    const part = partOf(st), lines = LAB_GUIDE[part];
+    if (!lines || !lines.length || introSeen(part)) return;
+    clearTimeout(introWait); introWait = setTimeout(() => { if (open_ && station === st && !walk) { markIntro(part); sayLines(lines); } }, 650);
+  }
+
   // a list is a few short bubbles (the beginners' texts), shown one after the other
   let sayQT = 0;
-  function say(text, expr = 'happy') {
+  function say(text, expr = 'happy', keep) {
+    if (!keep) stopIntro();
     clearTimeout(sayQT); let rest = [];
     if (Array.isArray(text)) { rest = text.slice(1); text = text[0]; }
     text = String(text ?? '');
@@ -375,8 +448,10 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
   // every "חזרה לחדר" goes to the room's main view; a station activity's own back button goes to its station's menu
   const toRoom = () => { panel = null; if (!quiet && open_ && station !== 'home') go('home'); };
   const toStation = () => { panel = null; if (!quiet && open_) arrive(); };
-  function go(id) {
+  function go(id, force) {
     if (!STATION_INFO[id]) return;
+    if (!force && !stOpen(id)) { sayLocked(partOf(id)); return; }   // a veiled station: he says what opens it
+    cancelIntro();
     if (walk && walk.st && id === walk.st) { finishWalk(); return; }   // asked again during the walk: straight in
     dropPanel();
     if (talkEl) { talkEl.remove(); talkEl = null; }   // the conversation does not stay open under the next station
@@ -502,20 +577,38 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
   }
   function arrive() {
     const info = STATION_INFO[station];
+    const picked = !!(pendingThink || pendingAct);   // straight into an activity: no presentation over it
     if (info.open === 'scope') panel = framed((r, done) => openMicroscope(r, { say, thumbs, audio, start: takeSample(), onDone: () => { robot.wave(); const P = labProgress(); if (SAMPLES.every((x) => P.seen[x.id])) grantBadge('lab:scope'); }, onClose: () => { done(); toRoom(); } }));
-    else if (info.open === 'inventors') {
-      // the inventors table is the hub's "הממציאים" (problems and robots, with the child's own cards); the lab stays underneath
-      robot.wave(); say(kids ? ROOM_K.table : 'שולחן הממציאים! כאן פותרים בעיות אמיתיות בעזרת היצורים שלכם, ובונים רובוטים. מותר לטעות, ככה ממציאים.', 'happy');
-      if (openGame) setTimeout(() => { if (open_ && station === 'table') openGame('inventors'); }, 700);
-      else panel = framed((r, done) => openInventors(r, { say, thumbs, audio, onInvented: () => robot.wave(), onClose: () => { done(); toRoom(); }, goScope: () => setTimeout(() => go('scope'), 900) }));
-    }
-    else if (info.open === 'atlas') panel = framed((r, done) => openAtlas(r, { say, thumbs, onClose: () => { done(); toRoom(); }, onQuestions: () => openQuest() }));
+    else if (info.open === 'inventors') { robot.wave(); panel = openDoors(); }
+    else if (info.open === 'atlas') { markUsed(partOf('atlas')); panel = framed((r, done) => openAtlas(r, { say, thumbs, onClose: () => { done(); toRoom(); }, onQuestions: () => openQuest() })); }
     else if (pendingThink) { const id = pendingThink; pendingThink = null; openThink(id); }
     else if (pendingAct) { const id = pendingAct; pendingAct = null; openAct(id); }
     else if (info.menu) stationMenu();
     else if (info.say) say(info.say, 'happy');
     else if (station === 'home' && kids) say(ROOM_K.home, 'happy');
     else if (station === 'home') say('לאן הולכים עכשיו? המיקרוסקופ מחכה לכם, וגם שולחן הממציאים. ובחממה ובאקווריום מחכים ניסויים.', 'happy');
+    if (station !== 'home' && !picked) maybeIntro(station);
+  }
+  // ── the inventors table (1.3.2): two big doors into the hub's "הממציאים": solving a problem with the child's cards,
+  // or the robot workshop (its own part of the journey: veiled until it opens)
+  const BULB = '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 6a18 18 0 0 0-10 33v7h20v-7A18 18 0 0 0 32 6z" fill="#ffd978"/><path d="M26 30q6 7 12 0" stroke="#e0a43a" stroke-width="2.6" fill="none" stroke-linecap="round"/><rect x="24" y="48" width="16" height="5" rx="2.5" fill="#8a6a3a"/><rect x="27" y="55" width="10" height="4" rx="2" fill="#8a6a3a"/></svg>';
+  const ROBO = '<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="7" r="4" fill="#ffd978"/><rect x="30" y="9" width="4" height="9" rx="2" fill="#5a6a74"/><rect x="13" y="18" width="38" height="26" rx="11" fill="#f3f1ea"/><rect x="18" y="23" width="28" height="15" rx="7" fill="#0a1016"/><circle cx="26" cy="30.5" r="3" fill="#8ff2ff"/><circle cx="38" cy="30.5" r="3" fill="#8ff2ff"/><rect x="17" y="46" width="30" height="14" rx="6" fill="#2c9a92"/></svg>';
+  function openDoors() {
+    const O = (v) => one(v, kids), robOpen = partOpen('robots'), rl = robOpen ? null : lockInfo('robots');
+    const d = document.createElement('div'); d.className = 'lb-panel lb-doors' + (kids ? ' kids' : ''); panels.appendChild(d);
+    d.innerHTML = `<header><h2>${esc(O(DOORS_T.title))}</h2><p>${esc(O(DOORS_T.sub))}</p></header>
+      <div class="lb-drow"><button class="lb-door d-inv" data-door="inv"><span class="lb-dpic">${BULB}</span><b>${esc(O(DOORS_T.inv))}</b><small>${esc(O(DOORS_T.invLine))}</small></button>
+        <button class="lb-door d-robot${robOpen ? '' : ' veil'}" data-door="robot"><span class="lb-dpic">${ROBO}</span><b>${esc(O(DOORS_T.robot))}</b><small>${esc(rl ? rl.text : O(DOORS_T.robotLine))}</small></button></div>`;
+    d.querySelectorAll('[data-door]').forEach((b) => b.onclick = () => {
+      const rob = b.dataset.door === 'robot';
+      if (rob && !partOpen('robots')) { sayLocked('robots'); return; }
+      try { audio && audio.play('select'); } catch (e) { /* */ }
+      cancelIntro(); markUsed(partOf('table')); robot.wave();
+      if (openGame) openGame('inventors', rob ? { view: 'robots' } : {});
+      else if (!rob) { dropPanel(); panel = framed((r, done) => openInventors(r, { say, thumbs, audio, onInvented: () => robot.wave(), onClose: () => { done(); toRoom(); }, goScope: () => setTimeout(() => go('scope'), 900) })); }
+    });
+    say(one(DOORS_T.hello, kids), 'happy');
+    return { close: () => d.remove(), el: d };
   }
   let pendingAct = null;
   const _fromP = new THREE.Vector3(), _toP = new THREE.Vector3();
@@ -600,7 +693,7 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
       robot.update(dt, walk && walk.look && walk.t > 0 ? walk.look : camera.position);
       updateFish(dt);
       if (station === 'home') placeHotsRoom();
-      placeSay(dt);
+      placeSay(dt); if (ringAt) placeRing();
       return;
     }
     setCamera(station);
@@ -616,7 +709,7 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     updateFish(dt);
     // hotspots (home) and the speech bubble above the robot's head
     if (station === 'home' && move === 0) placeHots();
-    placeSay(dt);
+    placeSay(dt); if (ringAt) placeRing();
   }
   function updateFish(dt) {
     for (const f of fish) {
@@ -651,6 +744,7 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     if (pipe.setBloom) pipe.setBloom(0.12);
     scene.add(group);
     station = 'home'; move = 0; bgU.tA.value = texOf('home'); bgU.uMix.value = 0; bgU.uZoomA.value = 1;
+    paintLocks();
     hots.classList.add('on'); el.classList.remove('at-st'); el.querySelectorAll('[data-st]').forEach((b) => b.classList.toggle('on', b.dataset.st === 'home'));
     if (room) {
       // the look-around room: the robot beside the table, the view a little to the left (the robot, the books, the
@@ -667,7 +761,7 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     else say(kids ? ROOM_K.back : 'ברוכים השבים למעבדה!', 'happy');
   }
   function close() {
-    if (!open_) return; open_ = false; el.classList.remove('on'); clearTimeout(sayQT);
+    if (!open_) return; open_ = false; el.classList.remove('on'); clearTimeout(sayQT); cancelIntro();
     dropPanel(); if (talkEl) { talkEl.remove(); talkEl = null; }
     scene.remove(group); camera.clearViewOffset();
     // the pictures leave the GPU (they stay decoded and go up again on the next visit)
@@ -761,7 +855,7 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
 
   // ── חושבים כמו חוקרים (src/lab/thinking.js): a panel per activity; the menu lists all five
   let pendingThink = null;
-  function hush() { sayEl.hidden = true; sayT = 0; }
+  function hush() { sayEl.hidden = true; sayT = 0; cancelIntro(); }
   function openThink(id) {
     if (talkEl) { talkEl.remove(); talkEl = null; }
     dropPanel();
@@ -776,11 +870,12 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     hush();
     // its back button: the station's own menu, or the room (a pick opens something else at once: nothing to do then)
     const back = () => { panel = null; if (quiet) return; setTimeout(() => { if (!panel && move <= 0 && open_ && station !== 'home') { if (STATION_INFO[station].menu) arrive(); else go('home'); } }, 0); };
-    panel = openThinkMenu(panels, { robot, audio, onClose: back, onPick: (id) => { const a = thinkById(id); pendingThink = id; if (a.st === station && move <= 0) { pendingThink = null; openThink(id); } else go(a.st); } });
+    // (the thinking corner follows the lab itself: its activities open even at a station that is still veiled)
+    panel = openThinkMenu(panels, { robot, audio, onClose: back, onPick: (id) => { const a = thinkById(id); pendingThink = id; if (a.st === station && move <= 0) { pendingThink = null; openThink(id); } else go(a.st, true); } });
   }
 
-  window.__labDebug = { go, say, openTalk, openQuestions: (id) => openQuest(id), think: (id) => (id ? (pendingThink = id, go(thinkById(id).st)) : thinkMenu()), get panel() { return panel; }, get station() { return station; }, robot, openPanel: (k) => { station = k; arrive(); },
-    act: (id) => { const st = Object.keys(STATION_INFO).find((k) => (STATION_INFO[k].menu || []).includes(id)); if (st === station && move <= 0) openAct(id); else { pendingAct = id; go(st); } },
+  window.__labDebug = { go, say, openTalk, sayLines, locks: () => ORDER.filter((id) => id !== 'home').map((id) => ({ id, open: stOpen(id) })), get ring() { return ringAt; }, doors: () => panel && panel.el && panel.el.classList.contains('lb-doors'), openQuestions: (id) => openQuest(id), think: (id) => (id ? (pendingThink = id, go(thinkById(id).st, true)) : thinkMenu()), get panel() { return panel; }, get station() { return station; }, robot, openPanel: (k) => { station = k; arrive(); },
+    act: (id) => { const st = Object.keys(STATION_INFO).find((k) => (STATION_INFO[k].menu || []).includes(id)); if (st === station && move <= 0) openAct(id); else { pendingAct = id; go(st, true); } },
     hots: () => [...hots.querySelectorAll('.lb-hot')].map((b) => ({ id: b.dataset.hot, x: b.style.left, y: b.style.top, edge: b.dataset.edge || '', hidden: b.hidden })),
     // the look-around room: where the view looks (degrees), turn it, and the robot's walk
     room: room && { face: (yaw, pitch = VIEW0.pitch, now = true) => room.face(yaw * Math.PI / 180, pitch * Math.PI / 180, now), get yaw() { return Math.round(wrapA(room.S.yaw) * 180 / Math.PI); },

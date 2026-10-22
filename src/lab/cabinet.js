@@ -51,10 +51,14 @@ const SHAPES = {
   photo: '<path fill-rule="evenodd" d="M16 24h68v54H16zM24 70l18-24 12 14 8-8 16 18z"/>',
   bird: '<path d="M14 60Q36 38 60 46Q70 32 84 38Q76 42 74 50Q68 72 44 74Q28 74 14 60z"/>',
   round: '<circle cx="50" cy="52" r="32"/>',
+  table: '<ellipse cx="50" cy="44" rx="40" ry="14"/><rect x="43" y="50" width="14" height="22" rx="5"/><ellipse cx="50" cy="80" rx="26" ry="9"/>',
+  paw: '<ellipse cx="50" cy="66" rx="20" ry="16"/><ellipse cx="24" cy="42" rx="8" ry="10"/><ellipse cx="40" cy="30" rx="8" ry="10"/><ellipse cx="60" cy="30" rx="8" ry="10"/><ellipse cx="76" cy="42" rx="8" ry="10"/>',
+  cone: '<ellipse cx="50" cy="56" rx="22" ry="32"/><rect x="47" y="14" width="6" height="12" rx="3"/>',
+  oneleaf: '<path d="M18 80Q14 30 70 16Q86 14 84 30Q78 76 18 80z"/>',
   patent: '<rect x="20" y="10" width="60" height="80" rx="4"/>',
 };
-const FIND_SHAPE = { 'mice-owl': 'box', 'flowers-bees': 'reeds', 'brazil-nut': 'pod', 'green-reef': 'ball', 'cleaning-station': 'buoy', 'white-coral': 'coral',
-  'the-trap': 'tuft', frogs: 'rosette', 'young-oaks': 'sprout', leafcutters: 'leaf', 'no-predators': 'feather', 'summer-fire': 'branch', gazelles: 'track' };
+const FIND_SHAPE = { 'mice-owl': 'box', 'flowers-bees': 'rosette', 'brazil-nut': 'pod', 'green-reef': 'ball', 'cleaning-station': 'coral', 'white-coral': 'table',
+  'the-trap': 'feather', frogs: 'leaf', 'young-oaks': 'sprout', leafcutters: 'oneleaf', 'no-predators': 'paw', 'summer-fire': 'cone', gazelles: 'track' };
 const SHELF_SHAPE = { scope: 'round', jars: 'jar', patents: 'patent', robots: 'robot', photos: 'photo', visitors: 'bird', clues: 'pod', cases: 'pod' };
 export const shadowHTML = (shape, cls = '') => `<i class="cb-ghost ${cls}" aria-hidden="true"><svg viewBox="0 0 100 100"><g fill="currentColor">${SHAPES[shape] || SHAPES.round}</g></svg></i>`;
 // what other parts of the game keep (read only; a missing store is an empty shelf)
@@ -150,7 +154,8 @@ export function collection(kids, thumbs = {}) {
   const byId = expeditionFound();
   let jars;
   if (byId) {
-    jars = byId.map((id, k) => { const J = JARS_T[id], src = picSrc('jar-' + id); return { key: 'jar:' + id, name: O(J.name), fact: O(J.fact), pic: 'jar-' + id, img: src || svgUrl(jar(k)), svg: !src }; });
+    // a jar's painting when it exists (art/lab-items/jar-<id>.webp), else the soft tile with its name
+    jars = byId.map((id) => { const J = JARS_T[id]; return { key: 'jar:' + id, name: O(J.name), fact: O(J.fact), pic: 'jar-' + id, img: picSrc('jar-' + id) }; });
     shelves.push({ id: 'jars', items: jars, ghosts: Object.keys(JARS_T).length - jars.length });
   } else {
     let n = 0; try { n = tally('deep:samples'); } catch (e) { /* */ }
@@ -214,7 +219,7 @@ export function openCollection(root, ctx) {
         <div class="cb-row ${s.id === 'patents' ? 'pt-row' : ''}">${s.items.map((it) => it.patent
           ? `<button class="cb-pt" data-k="${esc(it.key)}" aria-label="${esc(it.name)}">${patentHTML(it.patent, kids)}</button>`
           : `<button class="cb-it ${it.round ? 'round' : ''} ${it.svg ? 'svg' : ''}" data-k="${esc(it.key)}">${itemPic(it)}<span>${esc(it.name)}</span></button>`).join('')}
-        ${s.ghosts ? [...Array(Math.min(s.ghosts, s.items.length ? 2 : 3))].map(() => `<i class="cb-ghost ${s.id === 'patents' ? 'pt' : ''}">?</i>`).join('') + (COLL_T.shelves[s.id].how ? `<em class="cb-how">${icon('lock')}${esc(O(COLL_T.shelves[s.id].how))}</em>` : '') : ''}</div></section>`).join('')}</div>
+        ${s.ghosts ? [...Array(Math.min(s.ghosts, s.items.length ? 2 : 3))].map((_, i) => `<button class="cb-gbtn ${s.id === 'patents' ? 'pt' : ''}" data-g="${s.id}" aria-label="${esc(O(COLL_T.notYet))}">${shadowHTML((s.gshapes && s.gshapes[i]) || SHELF_SHAPE[s.id] || 'round', s.id === 'patents' ? 'pt' : '')}</button>`).join('') + (COLL_T.shelves[s.id].how ? `<em class="cb-how">${esc(O(COLL_T.shelves[s.id].how))}</em>` : '') : ''}</div></section>`).join('')}</div>
       ${zoomed ? zoomHTML(zoomed) : ''}`;
     if (zoomed && zoomed.img) wireZoom();
   }
@@ -223,7 +228,8 @@ export function openCollection(root, ctx) {
       <button class="ls-soft" data-act="unzoom">${icon('arrowR')}${esc(O(COMMON_T.close))}</button></div></div>`;
     const pic = it.img ? `<div class="cb-zpic" style="background-image:url('${it.img}')"><i class="cb-lens" hidden style="background-image:url('${it.img}')"></i></div>` : `<div class="cb-zpic ph">${picHTML(it.pic, it.name)}</div>`;
     return `<div class="cb-zoom" role="dialog" aria-label="${esc(it.name)}"><div class="cb-zcard">${pic}
-      <div class="cb-ztx"><h3>${esc(it.name)}</h3>${it.from ? `<small>${esc(O(COLL_T.from))} ${esc(it.from)}</small>` : ''}<p>${esc(it.fact || '')}</p>
+      <div class="cb-ztx">${it.sub ? `<small class="cb-zsub">${esc(it.sub)}</small>` : ''}<h3>${esc(it.name)}</h3>${it.from ? `<small>${esc(O(COLL_T.from))} ${esc(it.from)}</small>` : ''}${it.fact ? `<p>${esc(it.fact)}</p>` : ''}
+        ${it.learn ? `<div class="cb-learn"><b>${esc(O(COLL_T.learnt))}</b> ${esc(it.learn)}</div>` : ''}
         ${it.img ? `<small class="cb-lhelp">${icon('search')}${esc(O(COLL_T.lensHelp))}</small>` : ''}
         <button class="ls-soft" data-act="unzoom">${icon('arrowR')}${esc(O(COMMON_T.close))}</button></div></div></div>`;
   }
@@ -244,6 +250,7 @@ export function openCollection(root, ctx) {
     const b = e.target.closest('button');
     if (!b) { if (zoomed && e.target.classList.contains('cb-zoom')) { zoomed = null; render(); } return; }
     if (b.dataset.act === 'unzoom') { zoomed = null; S.sfx('click'); render(); return; }
+    if (b.dataset.g) { S.sfx('click'); const how = COLL_T.shelves[b.dataset.g] && COLL_T.shelves[b.dataset.g].how; S.talk(how ? T(how) : T(COLL_T.notYet), 'curious'); return; }
     if (b.dataset.k) {
       zoomed = C.shelves.flatMap((s) => s.items).find((it) => it.key === b.dataset.k); S.sfx('select'); render();
       S.talk(T(COLL_T.look), 'curious');
@@ -501,8 +508,16 @@ const CB_CSS = PICS_CSS + `
 #ui.wol .cb-it.svg img{object-fit:contain;box-shadow:none;border-radius:0;filter:drop-shadow(0 3px 3px rgba(0,0,0,.25))}
 #ui.wol .cb-it.round img{border-radius:50%;box-shadow:0 0 0 3px #fff}
 #ui.wol .cb-it:hover img,#ui.wol .cb-it:focus-visible img{transform:scale(1.12) rotate(-3deg)}
-#ui.wol .cb-ghost{display:grid;place-items:center;width:54px;height:54px;border-radius:12px;border:2px dashed #b9a77a;color:#b9a77a;font-style:normal;font-weight:900;font-size:1.3em}
+#ui.wol .cb-gbtn{display:grid;place-items:center;padding:0;border:0;background:transparent;cursor:help;border-radius:12px}
+#ui.wol .cb-gbtn:focus-visible{outline:3px solid #e0a43a}
+#ui.wol .cb-ghost{display:grid;place-items:center;width:60px;height:60px;border-radius:14px;color:rgba(90,66,30,.2);background:radial-gradient(circle at 50% 60%,rgba(90,66,30,.08),transparent 70%);font-style:normal}
+#ui.wol .cb-ghost svg{width:84%;height:84%;filter:blur(.6px)}
+#ui.wol .cb-gbtn:hover .cb-ghost{color:rgba(90,66,30,.32)}
 #ui.wol .cb-ghost.pt{width:92px;height:120px;border-radius:6px}
+#ui.wol .cb-ghost.pt svg{width:70%;height:70%}
+#ui.wol .cb-zsub{color:#1d6680!important}
+#ui.wol .cb-learn{padding:6px 10px;border-radius:10px;background:#eaf6dc;color:#2c4a22;font-size:.95em;line-height:1.4}
+#ui.wol .cb-learn b{color:#3a6a2a}
 #ui.wol .cb-how{display:inline-flex;align-items:center;gap:5px;font-style:normal;font-size:.82em;font-weight:700;color:#7a6a40;max-width:280px;line-height:1.3}
 #ui.wol .cb-how .ic{width:15px;height:15px;flex:none}
 #ui.wol .cb-zoom{position:absolute;inset:56px 0 0 0;display:grid;place-items:center;background:rgba(30,24,14,.55);z-index:5;border-radius:18px}
@@ -525,6 +540,8 @@ const CB_CSS = PICS_CSS + `
 #ui.wol .pt-cert.framed{background:#f6ecd0 center/100% 100% no-repeat;box-shadow:0 3px 8px rgba(60,40,10,.35)}
 #ui.wol .pt-in{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;height:100%;padding:4px 4px 0;padding-bottom:20%;border:1px solid rgba(138,100,32,.45);border-radius:3px}
 #ui.wol .pt-no{font-size:.56em!important;font-weight:800;letter-spacing:.02em;color:#8a6420!important}
+#ui.wol .pt-logo{position:absolute;top:3px;left:4px;width:24%;height:auto;opacity:.92;pointer-events:none}
+#ui.wol .pt-cert.big .pt-logo{top:6px;left:8px;width:20%}
 #ui.wol .pt-pic{width:62%;aspect-ratio:1;border-radius:50%;overflow:hidden;box-shadow:0 0 0 2px #b8893a,0 0 0 4px #f6e8c4,0 0 0 5px #8a6420;flex:none}
 #ui.wol .pt-pic img,#ui.wol .pt-pic .lp-ph{width:100%;height:100%;border-radius:50%}
 #ui.wol .pt-name{font-size:.62em;line-height:1.15;margin-top:3px}
