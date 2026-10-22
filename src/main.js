@@ -103,17 +103,33 @@ async function boot() {
     return scene.then(() => guide.say(STAGE_LINES[n] || [], { key: 'stage:' + n, modal: true, place: 'center' }))
       .then((r) => { try { window.dispatchEvent(new CustomEvent('wol-stage-done', { detail: { stage: n, result: r } })); } catch (e) { } return r; });
   };
-  // stage moments wait in line: two stages reached at once play one after the other (the second film is not dropped)
-  const STAGE_GAP_MS = 600;   // a breath between two stage moments
-  const stageQ = []; let stageRun = null;
+  // stage moments wait in line: two stages reached at once play one after the other (the second film is not dropped).
+  // A stage reached in a forest, the lab, a mystery or a game waits for a calm place: the start screen or the learning
+  // hub's home (the child is not pulled out of what they are doing), and for a badge toast to leave (it would sit under
+  // the film). Each moment belongs to the player who reached it.
+  const STAGE_GAP_MS = 600;     // a breath between two stage moments
+  const STAGE_RETRY_MS = 1000;  // how often a waiting moment looks again for a calm place
+  const stageQ = []; let stageRun = null, stageT = 0;
+  const playerId = () => { try { return profiles.current().id; } catch (e) { return ''; } };
+  const calmForStage = () => {
+    if (game || loading || labOpening) return false;
+    if (document.querySelector('.ss, .bdg-pop, #howto, #rguide.modal:not([hidden])')) return false;
+    if (hub && hub.isOpen()) return !!root.querySelector('#wol-learn .wl-home');   // the hub's home (over the lab too)
+    if ((lab && lab.isOpen()) || researchHub.isOpen()) return false;
+    return ui.isStartShown();
+  };
   function nextStage() {
-    if (stageRun || !stageQ.length) return;
-    const n = stageQ.shift();
-    stageRun = stageMoment(n).catch((e) => console.error(e)).then(() => { stageRun = null; setTimeout(nextStage, STAGE_GAP_MS); });
+    clearTimeout(stageT); stageT = 0;
+    if (stageRun) return;
+    const me = playerId(), i = stageQ.findIndex((q) => q.who === me); if (i < 0) return;
+    if (!calmForStage()) { stageT = setTimeout(nextStage, STAGE_RETRY_MS); return; }
+    const { n } = stageQ.splice(i, 1)[0];
+    stageRun = stageMoment(n).catch((e) => console.error(e)).then(() => { stageRun = null; stageT = setTimeout(nextStage, STAGE_GAP_MS); });
   }
   window.addEventListener('wol-stage', (e) => {
     if (!e.detail || e.detail.legacy) return;
-    const n = e.detail.stage; if (!stageQ.includes(n)) { stageQ.push(n); stageQ.sort((a, b) => a - b); }
+    const n = e.detail.stage, who = playerId();
+    if (!stageQ.some((q) => q.n === n && q.who === who)) { stageQ.push({ n, who }); stageQ.sort((a, b) => a.n - b.n); }
     nextStage();
   });
   // the first visit of a player: hello from רובו־דע (a new player), or one word about what is new (a player from before)
@@ -123,7 +139,7 @@ async function boot() {
     else if (st.stage === 1) guide.say(STAGE_LINES[1], { key: 'stage:1', place: 'center', modal: true });
     journey.check();
   };
-  window.__app_journey = { stageMoment, greetPlayer };
+  window.__app_journey = { stageMoment, greetPlayer, nextStage, waiting: () => stageQ.map((q) => q.n) };
   let quality = pickQuality();
   let pipe;
   try { pipe = createPipeline(canvas, { quality }); }
@@ -155,6 +171,7 @@ async function boot() {
     try { journey.check(); } catch (e) { console.error(e); }   // a stage reached in a forest, the lab or a game is announced here at the latest
     threads.announceSoon(2600);   // a thread opened in a forest, the lab or a game: רובו־דע says it on the start screen (after a stage moment)
     ui.showStart(Object.values(ZONES).map((z) => ({ id: z.id, name: z.name, subtitle: z.subtitle, intro: z.intro, kidsIntro: KIDS[z.id]?.intro, palette: z.palette, dev: !!z.dev })));
+    if (window.__app_journey) window.__app_journey.nextStage();   // a stage moment that waited in a forest or the lab plays now
   }
 
   let gameZone = null;   // the zone whose pack the running (or last) game uses

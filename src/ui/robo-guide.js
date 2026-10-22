@@ -137,7 +137,7 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
     cur = null; clearTimeout(tipTimer);
     if (voice) voice.stop();
     if (c.opts.key && result !== 'abort') markIntro(c.opts.key);
-    el.hidden = true; el.innerHTML = ''; cancelAnimationFrame(raf); raf = 0;
+    el.hidden = true; el.innerHTML = ''; el.className = ''; cancelAnimationFrame(raf); raf = 0;   // no '.modal' left on a hidden guide (others ask for #rguide.modal)
     try { c.opts.onClose && c.opts.onClose(result); } catch (e) { console.error(e); }
     c.resolve(result);
     if (queue.length) setTimeout(pump, 250);
