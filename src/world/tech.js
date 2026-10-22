@@ -195,7 +195,7 @@ function makeCloud(n, size, blending = THREE.NormalBlending) {
   geo.setAttribute('position', new THREE.BufferAttribute(P, 3).setUsage(THREE.DynamicDrawUsage));
   geo.setAttribute('color', new THREE.BufferAttribute(Cc, 3).setUsage(THREE.DynamicDrawUsage));
   geo.setDrawRange(0, 0);
-  const mat = new THREE.PointsMaterial({ size, map: dot(), vertexColors: true, transparent: true, opacity: 1, depthWrite: false, blending, toneMapped: false, sizeAttenuation: true, alphaTest: 0.02 });
+  const mat = new THREE.PointsMaterial({ size, map: dot(), vertexColors: true, transparent: true, opacity: 1, depthWrite: false, blending, toneMapped: false, sizeAttenuation: true, alphaTest: 0.02, fog: false });
   const pts = new THREE.Points(geo, mat); pts.frustumCulled = false; pts.renderOrder = 5;
   return { pts, P, Cc, geo, mat, n: 0, max: n };
 }
@@ -690,12 +690,12 @@ export function createTech(ctx) {
     const cor = W.plants.filter((q) => alive(q) && q.sp.kind === 'coral' && (big || Math.hypot(q.x - p.x, q.z - p.z) < 20));
     if (p.eggs) { scene.remove(p.eggs.pts); p.eggs.geo.dispose(); p.eggs.mat.dispose(); }
     const per = big ? 26 : 14, n = Math.min(big ? 900 : 320, Math.max(40, cor.length * per));
-    const E = p.eggs = makeCloud(n, big ? 0.32 : 0.28); scene.add(E.pts);
+    const E = p.eggs = makeCloud(n, big ? 0.62 : 0.55); scene.add(E.pts);
     const cols = ['#ff9cc0', '#ffc39a', '#ffb0d0', '#ffd8a8'];
     for (let i = 0; i < n; i++) {
       const q = cor.length ? cor[i % cor.length] : { x: p.x + (Math.random() - 0.5) * 12, z: p.z + (Math.random() - 0.5) * 12 };
       const x = q.x + (Math.random() - 0.5) * 2.4, z = q.z + (Math.random() - 0.5) * 2.4;
-      E.P[i * 3] = x; E.P[i * 3 + 1] = gY(x, z) + 0.6 - Math.random() * 3; E.P[i * 3 + 2] = z;
+      E.P[i * 3] = x; E.P[i * 3 + 1] = gY(x, z) + 0.3 + Math.random() * (big ? 2.5 : 1.5); E.P[i * 3 + 2] = z;
       _c.set(cols[i % cols.length]); E.Cc[i * 3] = _c.r; E.Cc[i * 3 + 1] = _c.g; E.Cc[i * 3 + 2] = _c.b;
     }
     E.n = n; E.geo.setDrawRange(0, n); E.geo.attributes.color.needsUpdate = true; E.geo.attributes.position.needsUpdate = true;
@@ -723,7 +723,8 @@ export function createTech(ctx) {
   }
   function sowCloud(x, z) {
     // tiny glowing larvae sink to the rock (they are not the eggs any more: a few days old, ready to settle)
-    const L = makeCloud(160, 0.22, THREE.AdditiveBlending); L.t = 0;
+    const L = makeCloud(160, 0.4, THREE.AdditiveBlending); L.t = 0;
+
     for (let i = 0; i < 160; i++) {
       const a = Math.random() * Math.PI * 2, r = Math.random() * 2.2;
       L.P[i * 3] = x + Math.cos(a) * r; L.P[i * 3 + 1] = gY(x, z) + 2 + Math.random() * 1.2; L.P[i * 3 + 2] = z + Math.sin(a) * r;
