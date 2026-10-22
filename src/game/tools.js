@@ -255,7 +255,7 @@ export function createTools(ctx) {
   function unlocked(def) { if (W.kids && !['drone', 'camera'].includes(def.id)) return false; return (W.missions?.doneCount || 0) >= def.needs || W.allToolsUnlocked; }
 
   function cards() {
-    return ISLAND_TOOLS.filter(d => (!W.kids || ['drone', 'camera'].includes(d.id)) && toolInZone(d, W.biomeId)).map(d0 => {
+    return ISLAND_TOOLS.filter(d => (!W.kids || ['drone', 'camera'].includes(d.id)) && toolInZone(d, W.biomeId) && !(d.tech && W.research)).map(d0 => {
       const d = toolDef(d0.id, W.biomeId);
       return {
         id: 'tool:' + d.id, name: d.name, kind: 'tool', layer: null, layerName: '', cost: d.cost,

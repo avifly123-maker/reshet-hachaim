@@ -20,6 +20,7 @@
 //   tech.removed(p), tech.dispose()
 import * as THREE from 'three';
 import { drawRoboFace } from '../ui/robo-face.js';
+import { toolDef } from '../game/tool-defs.js';
 
 export const TECH_IDS = new Set(['canopybot', 'lidar', 'thermal', 'firetower', 'reefspeaker', 'spawnbot']);
 export const TECH_HOST = new Set(['canopybot']);   // hangs on a tree (like the forest listener)
@@ -301,7 +302,7 @@ export function createTech(ctx) {
       p.boardY = 2; p.ph = 'rest'; p.flew = !!saved && W.nightGlow > 0.6; p.sown = saved?.sown || 0; p.nights = saved?.nights || 0;
     }
   }
-  const toolName = (id) => ({ canopybot: 'רובוט הצמרת', lidar: 'רחפן לידאר', thermal: 'רחפן מצלמת חום', firetower: 'מגדל תצפית אש', reefspeaker: 'רמקול של שונית בריאה', spawnbot: 'רובוט האלמוגים הצעירים' }[id]);
+  const toolName = (id) => (toolDef(id) || {}).name || '';
   function save(p) {
     if (p.id === 'reefspeaker') return { came: p.came || 0, hist: (p.hist || []).slice(-8) };
     if (p.id === 'spawnbot') return { sown: p.sown || 0, nights: p.nights || 0 };
