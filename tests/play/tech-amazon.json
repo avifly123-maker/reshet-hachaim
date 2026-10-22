@@ -10,7 +10,7 @@
 {"js":"__T.close(); 1"},{"shot":"shots/g/a2-canopy-top.png"},
 {"js":"const T=__T.tools(); T.tech.debug.go('lidar'); __T.G().debug.ff(9, 0.05); __T.look(0, 10, 0, 95); 1"},{"wait":3},
 {"js":"__T.close(); 1"},{"shot":"shots/g/a3-lidar-scan.png"},
-{"js":"__T.G().debug.ff(30, 0.05); __T.look(0, 10, 0, 90); __T.tools().tech.debug.boards().join(' | ')"},{"wait":2},
+{"js":"__T.G().debug.ff(30, 0.05); __T.look(0, 10, 0, 90); document.querySelectorAll('#ui .toast').forEach(e=>e.remove()); __T.tools().tech.debug.boards().join(' | ')"},{"wait":2},
 {"js":"__T.close(); 1"},{"shot":"shots/g/a4-lidar-cloud.png"},
 {"js":"window.__guide.say([{f:'בדיקה: אני עף אל העץ הזה.',k:'בדיקה'}],{}); const t=window.__tree; __T.tools().tech.roboAt({x:t.x,y:t.y+6,z:t.z}); 1"},{"wait":5},
 {"shot":"shots/g/a5-robo-island.png"},
