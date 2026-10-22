@@ -316,6 +316,9 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   for (const ev of ['pointerdown', 'pointerup', 'pointermove', 'wheel', 'contextmenu', 'mousedown', 'touchstart']) el.addEventListener(ev, (e) => e.stopPropagation(), { passive: ev !== 'contextmenu' });
   const onKey = (e) => {
     if (!open_) return;
+    // רובו־דע's bubble takes the key first (its own capture listener, added before this one, closes the bubble and stops
+    // the event): the same Escape must not also leave the hub. cancelBubble reads that stop; isOpen() covers any order.
+    if (e.cancelBubble || (window.__guide && window.__guide.isOpen())) return;
     e.stopPropagation();
     if (e.key === 'Escape') { e.preventDefault(); back(); }
     else if ((e.key === 'Enter' || e.key === ' ') && e.target && e.target.matches && e.target.matches('[data-wl][role=button]')) { e.preventDefault(); e.target.click(); }
