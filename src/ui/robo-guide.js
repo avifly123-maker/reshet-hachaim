@@ -11,14 +11,16 @@
 //              modal: dim the screen behind (a new part being presented); actions: buttons on the last bubble
 //   guide.intro(part, opts)       the lines of src/data/guide-lines.js GUIDE[part], once per player
 //   guide.tip(line, opts)         one bubble that closes by itself after a while (no buttons but a close)
-//   guide.close(match?), guide.isOpen()   close everything, or only one request (its promise, or { key }); a dropped
-//                                          request resolves with 'abort'
+//   guide.close(match?), guide.isOpen()   close everything, or only one request (its promise, or { key }), or the
+//                                          requests made in a place ({ scene: 'game' }); a dropped request resolves 'abort'
+//   guide.setScene('game'|'app')          main.js: a forest runs / no forest (requests remember where they were made)
 // Several requests wait in a queue: one bubble set at a time. Everything is RTL; the figure sits at the bottom right.
 import { drawRoboFace, ROBO_SVG, VISOR } from './robo-face.js';
 import { introSeen, markIntro, playMode } from '../core/journey.js';
 import { GUIDE } from '../data/guide-lines.js';
 
 const CSS_ID = 'robo-guide-css';
+const RING_CHECK_MS = 500;   // how often the ring looks whether its element is still there
 const CSS = `
 #ui #rguide { position: absolute; inset: 0; z-index: 70; pointer-events: none; direction: rtl; font-family: var(--sans, sans-serif); }
 #ui #rguide.modal { pointer-events: auto; background: rgba(6, 14, 9, .55); animation: rg-fade .25s ease-out; }
@@ -64,6 +66,9 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
   if (!document.getElementById(CSS_ID)) { const st = document.createElement('style'); st.id = CSS_ID; st.textContent = CSS; document.head.appendChild(st); }
   const el = document.createElement('div'); el.id = 'rguide'; el.hidden = true; root.appendChild(el);
   const queue = []; let cur = null, raf = 0, blinkT = 0, nextBlink = 2.5, last = 0, synthTalk = 0, tipTimer = 0;
+  // where the child is: 'game' while a forest (or a mystery's island) runs, set by main.js. Each request keeps the place
+  // it was made in, so leaving a forest closes the forest's bubbles only (close({ scene: 'game' })).
+  let scene = 'app', ringAt = null, ringCheck = 0;
   let pic = portrait, art = null;
   // his rendered portraits (src/data/robo-art.js, made from the lab's model): loaded the first time he appears
   const artP = import('../data/robo-art.js').then((m) => { art = m.ROBO_ART; if (cur) render(); }, () => { });
@@ -88,11 +93,18 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
     if (voice && ln.id && c.spokenI !== c.i) { c.spokenI = c.i; voice.say(ln.id).catch(() => { }); }
     const btn = el.querySelector('.rg-next, .rg-act'); try { btn && btn.focus({ preventScroll: true }); } catch (e) { }
   }
+  // an element the child can see now (a ring around a removed or hidden one would float over nothing)
+  function shown(t) {
+    if (!t || !t.isConnected || !t.getBoundingClientRect || t.closest('[hidden]')) return false;
+    const r = t.getBoundingClientRect(); if (!r.width && !r.height) return false;
+    const cs = getComputedStyle(t); return cs.visibility !== 'hidden' && cs.display !== 'none';
+  }
   function placeRing(at) {
     const old = el.querySelector('.rg-ring'); if (old) old.remove();
+    ringAt = null;
     if (!at) return;
-    const t = typeof at === 'string' ? document.querySelector(at) : at; if (!t || !t.getBoundingClientRect) return;
-    const r = t.getBoundingClientRect(); if (!r.width && !r.height) return;
+    const t = typeof at === 'string' ? document.querySelector(at) : at; if (!shown(t)) return;
+    ringAt = t; const r = t.getBoundingClientRect();
     const ring = document.createElement('i'); ring.className = 'rg-ring';
     ring.style.cssText = `left:${r.left - 6}px;top:${r.top - 6}px;width:${r.width + 12}px;height:${r.height + 12}px`;
     el.appendChild(ring);
@@ -101,6 +113,8 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
     raf = requestAnimationFrame(loop);
     const dt = last ? Math.min(0.1, (now - last) / 1000) : 0; last = now;
     const fig = el.querySelector('.rg-fig'); if (!fig || !cur) return;
+    // the ringed thing went away (a forest closed, a panel changed): the ring goes too
+    if (ringAt && now - ringCheck > RING_CHECK_MS) { ringCheck = now; if (!shown(ringAt)) placeRing(null); }
     const cv = fig.querySelector('canvas');
     blinkT += dt; let blink = 0;
     if (blinkT > nextBlink) { const k = (blinkT - nextBlink) / 0.16; blink = k < 1 ? Math.sin(k * Math.PI) : 0; if (k >= 1) { blinkT = 0; nextBlink = 2 + Math.random() * 3; } }
@@ -153,7 +167,7 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
     lines = (lines || []).filter((l) => l && (l.f || l.k)); if (!lines.length) return Promise.resolve('none');
     if (opts.key && !opts.force && introSeen(opts.key)) return Promise.resolve('seen');
     if (opts.key && (queue.some((q) => q.opts.key === opts.key) || (cur && cur.opts.key === opts.key))) return Promise.resolve('queued');
-    const item = { lines, opts, resolve: null };
+    const item = { lines, opts, resolve: null, scene: opts.scene || scene };
     const p = new Promise((resolve) => { item.resolve = resolve; });
     item.promise = p; queue.push(item); pump();
     return p;
@@ -161,7 +175,7 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
   // close what matches (nothing given: everything). A match is the promise say() / intro() / tip() returned, or
   // { key } – so a screen closes only its own bubble. Every dropped request resolves with 'abort'.
   function close(match) {
-    const hit = (q) => match == null || q.promise === match || (match && match.key != null && q.opts.key === match.key);
+    const hit = (q) => match == null || q.promise === match || (match && match.key != null && q.opts.key === match.key) || (match && match.scene != null && q.scene === match.scene);
     for (let i = queue.length - 1; i >= 0; i--) if (hit(queue[i])) { const q = queue.splice(i, 1)[0]; try { q.resolve('abort'); } catch (e) { } }
     if (cur && hit(cur)) finish('abort');
   }
@@ -170,6 +184,7 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
   const G = {
     say, intro, tip,
     close,
+    setScene: (s) => { scene = s || 'app'; },
     isOpen: () => !!cur,
     setPortrait: (src) => { pic = src || null; if (cur) render(); },
     lines: (part) => GUIDE[part] || [],

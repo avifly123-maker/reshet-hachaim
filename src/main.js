@@ -160,6 +160,7 @@ async function boot() {
   let gameZone = null;   // the zone whose pack the running (or last) game uses
   // the forest is gone: free the zone pack's cached models too (the pack's code stays loaded for a quick return)
   function closeGame() {
+    guide.close({ scene: 'game' }); guide.setScene('app');   // רובו־דע's bubbles about this forest leave with it
     if (game) { try { game.dispose(); } catch (e) { console.error(e); } game = null; }
     if (gameZone) { releasePack(gameZone); gameZone = null; }
     audio.setBiome(null);   // every way out of an island silences its ambience (rain and river included)
@@ -184,7 +185,7 @@ async function boot() {
     closeGame();
     resetAutoQ(2);   // a fresh island: forget the previous one's frame timing (the loading gap would count as one huge frame)
     try {
-      gameZone = id;
+      gameZone = id; guide.setScene('game');
       const { createGame } = loadedPack('game');
       game = await createGame({ save, research, pipe, ui, audio, bus, biome, plantBuilders: Z.plants, animalBuilders: Z.animals, zoneEnv: Z.env || null, quality, onExit: () => { closeGame(); resetAutoQ(2); audio.setBiome(null); showStart(); if (research) researchHub.open(); } });
       const g = game;
