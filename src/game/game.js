@@ -29,7 +29,7 @@ import { createResearchSession } from '../research/session.js';
 import { howto } from '../ui/howto.js';
 import { zoneHowto, HOWTO_LABELS } from '../data/howto-cards.js';
 import { zoneWord, setPlace } from '../core/place.js';
-import { playMode } from '../core/journey.js';
+import { playMode, introSeen } from '../core/journey.js';
 import { GUIDE } from '../data/guide-lines.js';
 
 const DAY_LEN = 270;            // seconds of game time per day
@@ -90,10 +90,11 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   const guide = () => (W.research ? null : window.__guide || null);
   function robo(key, opts = {}) {
     const G = guide(), lines = GUIDE[key]; if (!G || !lines || !lines.length) return Promise.resolve('none');
+    if (!(opts.key !== null && !opts.force && introSeen('g:' + key))) W._roboT = W.simT;   // when he last spoke (the day-end line waits for quiet)
     return G.say(lines, { key: 'g:' + key, tip: lines.length === 1, ...opts });
   }
   // one line from a list (a different one each time), or a line made of the game's own words (no voice for those)
-  function roboOne(key, i, opts = {}) { const G = guide(), L = GUIDE[key]; if (!G || !L || !L.length) return; G.say([L[((i % L.length) + L.length) % L.length]], { tip: true, ...opts }); }
+  function roboOne(key, i, opts = {}) { const G = guide(), L = GUIDE[key]; if (!G || !L || !L.length) return; W._roboT = W.simT; G.say([L[((i % L.length) + L.length) % L.length]], { tip: true, ...opts }); }
   function roboSay(f, k, opts = {}) { const G = guide(); if (!G || !f) return; G.say([{ f, k: k || f, ...(opts.at ? { at: opts.at } : {}) }], { tip: true, ...opts }); }
   W.robo = robo;
 
@@ -850,7 +851,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     const last = ss[ss.length - 1];
     return /\?$/.test(last) ? ss[0] + ' ' + last : ss[0];
   }
-  const shortOutcome = (t) => (W.xp ? sentences(t).slice(0, 2).join(' ') : t);
+  const shortOutcome = (t) => { if (!W.xp) return t; const ss = sentences(t); const pts = (String(t).match(/\(\+\d+\)/) || [''])[0]; return ss[0] + (pts && !ss[0].includes(pts) ? ' ' + pts : ''); };
   function chooseEvent({ eventId, choiceId }) {
     const e = missions.events.find(x => x.id === eventId); if (!e) return;
     const c = e.choices.find(x => x.id === choiceId); if (!c) return;
@@ -1217,7 +1218,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   // the red bar of an injured animal: fly to it (the rescue robot's card in the tray pulses, ui.js)
   on('injured:focus', ({ uid }) => {
     const a = W.animals.find(x => x.injured && x.injured.uid === uid && alive(x)); if (!a) return;
-    rig.stopFollow(); rig.focusOn(a.focusPoint(new THREE.Vector3()), 14); audio.play('click');
+    rig.stopFollow(); rig.focusOn(a.focusPoint(new THREE.Vector3()), 20); audio.play('click');
   });
   on('coach:next', () => coachNext()); on('coach:skip', () => { coachStep = -1; ui.hideCoach(); try { localStorage.setItem(profileKey('web-of-life-coach'), '1'); } catch (e) { } });
   on('dialog:button', () => { });
@@ -1645,7 +1646,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
       report?.dayBegan(ended);   // the full mode offers to write "דוח החוקר"; חוויה has no daily report:
       if (W.xp && !W.research && !(guide() && guide().isOpen())) {   // רובו־דע says one line at the end of the day instead
         if (biome.id === 'grove') robo('zone:season:' + W.season, { key: null, force: true });
-        else roboOne('zone:dayend', W.day);
+        else if (W.day % 3 === 0 && W.simT - (W._roboT ?? -999) > 150) roboOne('zone:dayend', W.day / 3);   // every third day, and only after a quiet while
       }
     }
     W.seasonFrac = W.dayFrac;

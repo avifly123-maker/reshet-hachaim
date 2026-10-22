@@ -615,7 +615,7 @@ export function createTools(ctx) {
       let s = 1.4;
       if (b.pulse) {   // an injured animal: a larger "!" that pulses, and keeps its size on the screen when the camera is far
         const cam = ctx.camera; const d = cam ? cam.position.distanceTo(b.sprite.position) : 30;
-        const base = Math.max(2.2, d * 0.07);
+        const base = Math.min(8, Math.max(1.5, d * 0.08));
         s = base * (1 + Math.sin(t * 6) * 0.16);
         b.sprite.position.y += base * 0.4;   // a bigger badge floats a little higher, clear of the animal
       }
