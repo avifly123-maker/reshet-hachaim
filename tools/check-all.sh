@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # All the checks in one command (1.3.2):   npm run check     (or: bash tools/check-all.sh [--quick])
-#   1. content and data validators (Hebrew text rules, nikud for beginners, guide lines, threads, lab, quiz, verses, mysteries)
+#   1. content and data validators (Hebrew text rules, nikud for beginners, guide lines, threads, lab, quiz, verses, mysteries, storage keys)
 #   2. both editions build (general and torah)
 #   3. the integration run at 800x460 (amazon, grove, reef, the hub) in both editions, with no script or page errors
 #   4. saves of every released version load (tests/fixtures/saves-*.json)
@@ -11,7 +11,7 @@ fail() { echo; echo "FAILED: $1"; exit 1; }
 step() { echo; echo "== $1"; }
 
 step "validators"
-for v in validate-content validate-kids validate-guide validate-threads validate-lab validate-quiz validate-verse; do
+for v in validate-content validate-kids validate-guide validate-threads validate-lab validate-quiz validate-verse validate-storage; do
   raw=$(node tools/$v.mjs 2>&1); code=$?
   out=$(echo "$raw" | grep -v -i "warning\|Reparsing\|trace-warnings"); echo "$v: $(echo "$out" | tail -1)"
   [ $code -ne 0 ] && { echo "$out" | tail -20; fail "$v (exit code $code)"; }

@@ -242,3 +242,21 @@ HUD) → the forest and mystery HUD pieces (`--z-panel` … `--z-hurt`) → thin
 The Amazon environment exports `bridges` (log end points), `bridgeAt(x, z)` → deck height or null, and
 `walkRoute(x0, z0, x1, z1)` → `[]` or the two log ends to walk over. Ground animals use them in `canStand`,
 `groundY` and `startWalk` (goal.via waypoints); hunts across the river walk over the log first.
+
+## Saves — `src/core/storage.js` (1.3.2)
+Every localStorage key the game uses is in one list, `KEYS` in `src/core/storage.js` (names in `K`, per-zone keys from
+`zoneKey(zone)` / `saveKey(zone, kids)`), each with its scope:
+- **per player**: stored as `<key>::<playerId>` through `core/profiles.js` `key()` — mode, coach, cards, badges, srccards,
+  lab, research, journey, threads, photos, visitors, after, and per zone `web-of-life-<zone>`, `web-of-life-save-<zone>[-kids]`;
+- **per device** (the same for every player on the computer): profiles, quality, autoq, campad, howto, music, sources, allopen.
+
+Rules: modules never touch `localStorage` or type a key string; they use `readPlayer(base, fallback)` / `writePlayer(base, value)`
+(JSON; a write returns true/false, reading never throws), `readPlayerRaw` / `writePlayerRaw` for plain strings, `removePlayer`,
+the same four for the device (`readDevice`, `writeDevice`, `readDeviceRaw`, `writeDeviceRaw`, `removeDevice`), and
+`playerMode()` ('kids' | 'full') for the level. A key's string, scope and stored format never change: saves of every released
+version must load (`tests/fixtures/saves-*.json`, `tools/check-old-saves.py`). The desktop shell mirrors every `web-of-life*` key
+to a file (`desktop/preload.js`); the torah edition's browser build prefixes them with `torah:` (`core/edition.js`).
+
+A new key: add it to `K` and `KEYS` with its scope (decide once: it can never move), read and write it only through these
+functions, and run `node tools/validate-storage.mjs` (part of `tools/check-all.sh`): it checks the list, that
+`profiles.js` agrees with it, and that no other module types a `web-of-life…` key.
