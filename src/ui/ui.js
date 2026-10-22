@@ -13,6 +13,7 @@ import { HUB_ICONS, tileIcon } from './icons-hub.js';   // the learning hub's ic
 import * as JR from '../core/journey.js';
 import { openJourneyMap, stageEmblem, mapIcon, STAGE_COLOR, lockWords, lockTip } from './journey-map.js';
 import { openSettings, settingsRowsHTML, bindSettingsRows } from './settings.js';
+import { islandRankHTML } from '../game/rank.js';   /* H: the island's rank under the island */
 
 /* ------------------------------------------------------------------ helpers */
 export const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -356,7 +357,7 @@ export function createUI(root, bus) {
         <div class="st-car" aria-roledescription="קרוסלה">
           <button class="st-arrow prev" data-car="-1" aria-label="הסביבה הקודמת">${icon('arrowR')}</button>
           <div class="st-ring">${biomes.map((b, i) => `<button class="st-isl" data-i="${i}" data-id="${esc(b.id)}" data-part="zone:${esc(b.id)}" style="--zc:${(b.palette && b.palette[1]) || '#6a9'};--zc2:${(b.palette && b.palette[2]) || '#f0b44c'}" aria-label="${esc(b.name)}">
-            <i class="st-glow"></i><img src="${isl(b.id)}" alt="" draggable="false"><i class="jv-curtain" aria-hidden="true"></i><span class="jv-note"></span></button>`).join('')}</div>
+            <i class="st-glow"></i><img src="${isl(b.id)}" alt="" draggable="false"><i class="jv-curtain" aria-hidden="true"></i><span class="jv-note"></span><span class="af-srank" aria-hidden="true"></span></button>`).join('')}</div>
           <button class="st-arrow next" data-car="1" aria-label="הסביבה הבאה">${icon('arrowL')}</button>
         </div>
         <div class="st-info"></div>
@@ -420,6 +421,8 @@ export function createUI(root, bus) {
       info.querySelector('.st-go').addEventListener('click', () => { if (veiled(isls[S.stCur])) lockTip('zone:' + b.id, { emit }); else emit('start:biome', { id: b.id }); });
       startEl.style.setProperty('--zc', (b.palette && b.palette[1]) || '#2d5a35');
       startEl.dataset.zone = b.id;   // the background takes the chosen environment's light and colours (style.css)
+      /* H: each island's rank (src/game/rank.js), shown small under the island in front */
+      isls.forEach((el) => { const r = el.querySelector('.af-srank'); if (r) r.innerHTML = islandRankHTML(el.dataset.id, S.mode === 'kids', S.mode !== 'kids' && JR.playMode() === 'experience'); });
     };
     const paintCar = () => {
       isls.forEach((el, i) => {

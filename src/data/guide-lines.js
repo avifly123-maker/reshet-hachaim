@@ -9,9 +9,10 @@ import { LAB_GUIDE } from './guide/lab.js';
 import { ZONE_GUIDE } from './guide/zone.js';
 import { RESEARCH_GUIDE } from './guide/research.js';
 import { THREAD_GUIDE } from './guide/threads.js';
+import { AFTER_GUIDE } from './guide/after.js';   // area H: visitors, photos, challenges, the island's rank
 export { STAGE_LINES, LEGACY_LINES };
 // THREAD_GUIDE: 'threads:<id>' → the line רובו־דע says when that thread opens (src/core/threads.js)
-export const GUIDE = { ...START_GUIDE, ...HUB_GUIDE, ...LAB_GUIDE, ...ZONE_GUIDE, ...RESEARCH_GUIDE, ...THREAD_GUIDE };
+export const GUIDE = { ...START_GUIDE, ...HUB_GUIDE, ...LAB_GUIDE, ...ZONE_GUIDE, ...RESEARCH_GUIDE, ...THREAD_GUIDE, ...AFTER_GUIDE };
 // every line in the game, for the voice maker and the validator
 export function allGuideLines() {
   const out = [];

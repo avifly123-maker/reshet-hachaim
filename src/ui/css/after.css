@@ -1,0 +1,161 @@
+/* ===================================================== 1.3.2 – after the missions (area H)
+   The photo mode (frame with rounded corner brackets: no cross, no crosshair, no centre mark), the album, the rare
+   visitor's button in the dock, the "שומרי האי" panel in the right column, and the island's rank on the start screen.
+   Words a child reads are multiplied by --ts (core/journey.js text size). */
+
+/* ---------- the dock: the photo button and the visitor's button show their names */
+#ui.wol .imv-dock .tb.af-pbtn, #ui.wol .imv-dock .tb.af-vbtn { justify-content: flex-start; padding: 0 12px 0 8px; border-radius: 999px; }
+#ui.wol .imv-dock .tb.af-pbtn .tb-lab, #ui.wol .imv-dock .tb.af-vbtn .tb-lab { display: inline; font-size: calc(.9em * var(--ts)); }
+#ui.wol .imv-dock .tb.af-pbtn .ic { color: #9fe0d6; }
+#ui.wol .imv-dock .tb.af-pbtn::after, #ui.wol .imv-dock .tb.af-vbtn::after { display: none; }
+#ui.wol .tb.af-vbtn { height: 40px; background: #f4e2b0; color: #2e1d05; box-shadow: 0 0 0 2px var(--honey); animation: af-call 2s ease-in-out infinite; }
+#ui.wol .tb.af-vbtn[hidden] { display: none; }
+#ui.wol .tb.af-vbtn:hover { background: #f8ebc6; color: #1e1203; }
+#ui.wol .tb.af-vbtn.shot { animation: none; background: #cfe9c0; box-shadow: 0 0 0 2px var(--leaf2); }
+#ui.wol .af-vimg { position: relative; width: 32px; height: 32px; flex: none; border-radius: 50%; overflow: hidden; background: #e9e2c8; }
+#ui.wol .af-vimg img { width: 100%; height: 100%; object-fit: cover; }
+/* the time left: a ring that empties (a conic gradient behind the picture) */
+#ui.wol .af-vring { position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+  background: conic-gradient(rgba(230, 169, 60, 0) calc(var(--left, 1) * 360deg), rgba(30, 42, 28, .55) 0); }
+#ui.wol .tb.af-vbtn.new { animation: af-pop .6s ease-out, af-call 2s ease-in-out .6s infinite; }
+@keyframes af-call { 0%, 100% { box-shadow: 0 0 0 2px var(--honey), 0 0 0 0 rgba(230, 169, 60, .55); } 50% { box-shadow: 0 0 0 2px var(--honey), 0 0 0 8px rgba(230, 169, 60, 0); } }
+@keyframes af-pop { 0% { transform: scale(.4); opacity: 0; } 70% { transform: scale(1.08); opacity: 1; } 100% { transform: scale(1); } }
+
+/* ---------- the photo mode: everything else steps aside */
+#ui.wol.af-shoot > :not(.af-photo):not(#rguide):not(.mission-banner):not(.modal-layer) { opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; transition: none !important; }
+#ui.wol .af-photo.printing .af-tag { visibility: hidden; }
+#ui.wol .af-photo { position: absolute; inset: 0; z-index: 40; pointer-events: none; direction: rtl; }
+#ui.wol .af-photo[hidden] { display: none; }
+#ui.wol .af-frame { position: absolute; left: 50%; top: calc(50% - 16px); width: min(66vw, calc((100vh - 156px) * 4 / 3), 760px); aspect-ratio: 4 / 3; transform: translate(-50%, -50%);
+  border-radius: 20px; box-shadow: 0 0 0 200vmax rgba(8, 16, 11, .42); }
+#ui.wol .af-c { position: absolute; width: 46px; height: 46px; border: 4px solid #f4ecd0; filter: drop-shadow(0 1px 3px rgba(0, 0, 0, .6)); }
+#ui.wol .af-c.tl { top: -3px; left: -3px; border-right: 0; border-bottom: 0; border-radius: 22px 0 0 0; }
+#ui.wol .af-c.tr { top: -3px; right: -3px; border-left: 0; border-bottom: 0; border-radius: 0 22px 0 0; }
+#ui.wol .af-c.bl { bottom: -3px; left: -3px; border-right: 0; border-top: 0; border-radius: 0 0 0 22px; }
+#ui.wol .af-c.br { bottom: -3px; right: -3px; border-left: 0; border-top: 0; border-radius: 0 0 22px 0; }
+#ui.wol .af-tag { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); max-width: calc(100% - 28px); padding: 5px 14px; border-radius: 999px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  background: rgba(17, 36, 26, .86); color: var(--chalk); font-weight: 700; font-size: calc(.9em * var(--ts)); box-shadow: 0 0 0 1.5px rgba(180, 203, 102, .4); }
+#ui.wol .af-tag b { color: var(--leaf); margin-left: 4px; }
+#ui.wol .af-tag em { font-style: normal; margin-right: 6px; padding: 1px 8px; border-radius: 99px; background: var(--honey); color: #2e1d05; }
+#ui.wol .af-tag.pair { box-shadow: 0 0 0 2px var(--honey); }
+#ui.wol .af-tag .af-none { opacity: .85; font-weight: 600; }
+#ui.wol .af-hint { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: max-content; max-width: calc(100vw - 330px); margin: 0; padding: 6px 14px; border-radius: 14px; text-align: center;
+  background: rgba(17, 36, 26, .82); color: var(--chalk); font-weight: 600; font-size: calc(.86em * var(--ts)); line-height: 1.35; }
+#ui.wol .af-photo button { pointer-events: auto; font: inherit; cursor: pointer; border: 0; }
+#ui.wol .af-back, #ui.wol .af-albtn { position: absolute; top: 10px; display: inline-flex; align-items: center; gap: 6px; min-height: 42px; padding: 4px 14px 4px 10px; border-radius: 999px;
+  background: rgba(17, 36, 26, .92); color: var(--chalk); font-weight: 800; font-size: calc(.92em * var(--ts)); box-shadow: 0 0 0 1.5px rgba(180, 203, 102, .45), 0 6px 14px rgba(0, 0, 0, .35); }
+#ui.wol .af-back { right: 12px; } #ui.wol .af-albtn { left: 12px; }
+#ui.wol .af-back:hover, #ui.wol .af-albtn:hover { background: rgba(27, 54, 38, .96); }
+#ui.wol .af-back .ic, #ui.wol .af-albtn .ic { width: 20px; height: 20px; }
+#ui.wol .af-albtn em { font-style: normal; min-width: 22px; padding: 0 6px; border-radius: 99px; background: rgba(233, 230, 204, .18); text-align: center; font-size: .86em; }
+#ui.wol .af-shut { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 10px; height: 58px; padding: 0 24px 0 8px; border-radius: 999px;
+  background: linear-gradient(180deg, #f2c66a, #d99a2e); color: #2e1d05; font-weight: 900; font-size: calc(1.12em * var(--ts)); box-shadow: 0 4px 0 #8a5a14, 0 10px 22px rgba(0, 0, 0, .4); }
+#ui.wol .af-shut:hover { background: linear-gradient(180deg, #f6d27e, #e0a63a); }
+#ui.wol .af-shut:active { transform: translateX(-50%) translateY(3px); box-shadow: 0 1px 0 #8a5a14, 0 6px 14px rgba(0, 0, 0, .4); }
+#ui.wol .af-shut i { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: #fffaf0; color: #2e1d05; box-shadow: inset 0 0 0 2px rgba(138, 90, 20, .35); }
+#ui.wol .af-shut .ic { width: 28px; height: 28px; }
+#ui.wol .af-shut:focus-visible, #ui.wol .af-back:focus-visible, #ui.wol .af-albtn:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+/* the shutter in the field camera's view: bottom left (the radar is bottom right) */
+#ui.wol .fc-view .af-fcshut { position: absolute; left: 26px; right: auto; bottom: 26px; transform: none; pointer-events: auto; font: inherit; cursor: pointer; border: 0; }
+#ui.wol .fc-view .af-fcshut:active { transform: translateY(3px); }
+#ui.wol .af-flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+#ui.wol .af-flash.go { animation: af-flash .45s ease-out; }
+@keyframes af-flash { 0% { opacity: .7; } 100% { opacity: 0; } }
+/* the print that slides in after a photo */
+#ui.wol .af-print { position: absolute; left: 14px; bottom: 14px; display: flex; align-items: center; gap: 10px; max-width: min(340px, calc(50vw - 110px)); padding: 7px 12px 7px 7px; border-radius: 10px;
+  background: #fbf6e6; color: var(--ink); box-shadow: 0 10px 24px rgba(0, 0, 0, .45); rotate: -2deg; }
+#ui.wol .af-print[hidden] { display: none; }
+#ui.wol .af-print.go { animation: af-print .5s cubic-bezier(.2, .9, .3, 1.2); }
+#ui.wol .af-print img { width: 96px; height: 72px; border-radius: 4px; object-fit: cover; flex: none; box-shadow: 0 0 0 3px #fff, 0 2px 6px rgba(0, 0, 0, .3); }
+#ui.wol .af-print span { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+#ui.wol .af-print b { font-family: var(--serif); font-weight: 400; font-size: calc(1.15em * var(--ts)); }
+#ui.wol .af-print small { font-weight: 700; font-size: calc(.82em * var(--ts)); color: var(--ink2); line-height: 1.35; }
+@keyframes af-print { 0% { transform: translateY(40px) scale(.8); opacity: 0; } 100% { transform: none; opacity: 1; } }
+
+/* ---------- the album: one screen, no scrolling (40 photos at most) */
+#ui.wol .af-album { position: absolute; inset: 8px; z-index: 2; pointer-events: auto; display: flex; flex-direction: column; gap: 8px; padding: 10px 14px 12px; border-radius: 16px;
+  background: #ece6cc; color: var(--ink); box-shadow: 0 0 0 2px rgba(125, 111, 72, .5), 0 18px 40px rgba(0, 0, 0, .5); overflow: hidden; }
+#ui.wol .af-album[hidden] { display: none; }
+#ui.wol .af-ahead { display: flex; align-items: center; gap: 12px; flex: none; }
+#ui.wol .af-ahead b { display: inline-flex; align-items: center; gap: 6px; font-family: var(--serif); font-weight: 400; font-size: calc(1.3em * var(--ts)); white-space: nowrap; }
+#ui.wol .af-ahead b .ic { width: 24px; height: 24px; color: var(--bark); }
+#ui.wol .af-ahead small { flex: 1; min-width: 0; font-weight: 700; color: var(--ink2); font-size: calc(.8em * var(--ts)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#ui.wol .af-aclose, #ui.wol .af-zback { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 4px 14px 4px 10px; border-radius: 999px; background: #2c4f26; color: var(--chalk); font-weight: 800; }
+#ui.wol .af-aclose .ic, #ui.wol .af-zback .ic { width: 20px; height: 20px; }
+#ui.wol .af-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); grid-auto-rows: min-content; gap: 6px; align-content: start; overflow: hidden; }
+#ui.wol .af-ph { position: relative; padding: 0; border-radius: 6px; overflow: hidden; background: #d3cfac; box-shadow: 0 0 0 2px #fff, 0 2px 5px rgba(0, 0, 0, .25); aspect-ratio: 4 / 3; }
+#ui.wol .af-ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+#ui.wol .af-ph span { position: absolute; inset: auto 0 0; padding: 1px 4px; background: linear-gradient(transparent, rgba(17, 36, 26, .85)); color: #fff; font-weight: 700; font-size: calc(.72em * var(--ts)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
+#ui.wol .af-ph.pair { box-shadow: 0 0 0 2px var(--honey), 0 2px 5px rgba(0, 0, 0, .25); }
+#ui.wol .af-ph.vis { box-shadow: 0 0 0 3px #e07a3c, 0 2px 5px rgba(0, 0, 0, .25); }
+#ui.wol .af-ph:hover { transform: translateY(-2px); }
+#ui.wol .af-ph:focus-visible { outline: 3px solid var(--honey2); outline-offset: 2px; }
+#ui.wol .af-aempty { margin: auto; font-weight: 700; font-size: calc(1.05em * var(--ts)); color: var(--ink2); }
+#ui.wol .af-zoom { flex: 1; min-height: 0; display: flex; gap: 16px; align-items: center; justify-content: center; }
+#ui.wol .af-zoom img { height: min(100%, 330px); max-width: 62%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 8px; box-shadow: 0 0 0 5px #fff, 0 8px 18px rgba(0, 0, 0, .35); rotate: -1deg; }
+#ui.wol .af-ztx { display: flex; flex-direction: column; gap: 6px; max-width: 260px; }
+#ui.wol .af-ztx b { font-family: var(--serif); font-weight: 400; font-size: calc(1.5em * var(--ts)); }
+#ui.wol .af-ztx small { font-weight: 700; color: var(--ink2); font-size: calc(.86em * var(--ts)); }
+#ui.wol .af-ztx p { margin: 0; font-weight: 600; font-size: calc(.92em * var(--ts)); line-height: 1.4; }
+#ui.wol .af-ztx .af-zpair { padding: 4px 10px; border-radius: 10px; background: #f4e2b0; box-shadow: inset 0 0 0 1.5px var(--honey); }
+#ui.wol .af-ztx .af-zback { align-self: flex-start; margin-top: 6px; }
+
+/* ---------- "שומרי האי": the panel in the right column (it takes the place of the finished missions list) */
+#ui.wol.af-done .rightcol .missions, #ui.wol.af-done .rightcol .m-whatnow { display: none; }
+#ui.wol .af-panel { pointer-events: auto; width: 100%; flex: 0 0 auto; min-height: 0; display: flex; flex-direction: column; gap: 4px; padding: 0 2px 2px; overflow: hidden; color: var(--chalk); direction: rtl; }
+#ui.wol .af-panel[hidden] { display: none; }
+#ui.wol .af-head { display: flex; align-items: center; gap: 8px; padding: 2px 2px 4px; }
+#ui.wol .af-head .af-emb { width: 34px; height: 34px; flex: none; }
+#ui.wol .af-head span { display: flex; flex-direction: column; flex: 1; min-width: 0; line-height: 1.15; }
+#ui.wol .af-head small { font-weight: 700; font-size: calc(.74em * var(--ts)); color: var(--lichen); }
+#ui.wol .af-head b { font-family: var(--serif); font-weight: 400; font-size: calc(1.12em * var(--ts)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#ui.wol .af-rbar { width: 46px; height: 7px; flex: none; border-radius: 99px; background: rgba(233, 230, 204, .18); overflow: hidden; }
+#ui.wol .af-rbar i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--honey), #f6d27e); }
+#ui.wol .af-row { display: flex; align-items: flex-start; gap: 8px; width: 100%; padding: 6px 6px; border-radius: 8px; text-align: right; font: inherit; color: inherit; border: 0;
+  background: rgba(233, 230, 204, .07); border-top: 1px dashed rgba(180, 203, 102, .16); }
+#ui.wol button.af-row { cursor: pointer; }
+#ui.wol button.af-row:hover { background: rgba(233, 230, 204, .14); }
+#ui.wol .af-row > span:not(.af-lv):not(.af-pc) { display: flex; flex-direction: column; flex: 1; min-width: 0; gap: 1px; }
+#ui.wol .af-row small { font-weight: 700; font-size: calc(.72em * var(--ts)); color: var(--lichen); }
+#ui.wol .af-row b { font-size: calc(.92em * var(--ts)); line-height: 1.25; }
+#ui.wol .af-row em { font-style: normal; font-weight: 600; font-size: calc(.78em * var(--ts)); opacity: .85; line-height: 1.3; }
+#ui.wol .af-ric { flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: #9fe0d6; color: #10332f; }
+#ui.wol .af-ric .ic { width: 19px; height: 19px; }
+#ui.wol .af-pm.all .af-ric { background: var(--leaf2); color: #fff; }
+#ui.wol .af-row small { display: flex; align-items: center; gap: 6px; }
+#ui.wol .af-lv { flex: none; display: inline-flex; gap: 3px; }
+#ui.wol .af-lv i { width: 7px; height: 7px; border-radius: 50%; background: rgba(233, 230, 204, .22); }
+#ui.wol .af-lv i.on { background: var(--honey); }
+#ui.wol .af-pc { margin-right: auto; flex: none; min-width: 36px; height: 18px; padding: 0 6px; border-radius: 99px; display: inline-grid; place-items: center; font-style: normal; font-weight: 800; color: var(--chalk);
+  background: linear-gradient(90deg, rgba(95, 154, 62, .9) var(--p, 0%), rgba(233, 230, 204, .16) 0); }
+#ui.wol .af-pc .ic { width: 14px; height: 14px; }
+#ui.wol .af-ch:not(.open) b { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+#ui.wol .af-ch.done .af-pc { background: var(--leaf2); }
+#ui.wol .af-ch:not(.open) em { display: none; }
+/* an expert mission is running: the panel folds to its header (a click shows it for a moment) */
+#ui.wol .af-panel.min:not(.peek) .af-row { display: none; }
+#ui.wol .af-panel.min .af-head { cursor: pointer; }
+@media (max-height: 520px) {
+  /* a low screen: while a visitor is here the dock lies in a row, so it does not cover the camera pad below it */
+  #ui.wol .imv-dock:has(.af-vbtn:not([hidden])) { flex-direction: row; align-items: center; }
+  #ui.wol .imv-dock:has(.af-vbtn:not([hidden])) .tb.af-pbtn .tb-lab { display: none; }
+  #ui.wol .af-row:not(.open) em { display: none; }
+  #ui.wol .af-pm b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #ui.wol .af-row { padding: 4px 6px; }
+  #ui.wol .af-shut { height: 52px; } #ui.wol .af-shut i { width: 38px; height: 38px; }
+  #ui.wol .af-hint { font-size: calc(.8em * var(--ts)); padding: 4px 12px; }
+}
+
+/* ---------- the start screen: the island's rank, small, under the island in front of the carousel */
+.af-srank { position: absolute; left: 50%; bottom: 11%; transform: translate(-50%, 6px); display: inline-flex; align-items: center; gap: 7px; padding: 3px 12px 3px 4px; border-radius: 999px;
+  background: rgba(17, 36, 26, .78); color: #f4ecd0; box-shadow: 0 0 0 1.5px rgba(244, 236, 208, .28), 0 4px 12px rgba(0, 0, 0, .3); white-space: nowrap; pointer-events: none;
+  opacity: 0; transition: opacity .35s, transform .35s; direction: rtl; z-index: 3; }
+.st-isl[data-k="0"] .af-srank { opacity: 1; transform: translate(-50%, 0); }
+.st-isl.jv .af-srank { display: none; }
+.af-srank .af-emb { width: 26px; height: 26px; flex: none; }
+.af-srank > span { display: flex; flex-direction: column; line-height: 1.1; text-align: right; }
+.af-srank small { font-size: .66em; font-weight: 700; opacity: .8; }
+.af-srank b { font-size: .9em; font-weight: 800; }
+.af-srank .af-sbar { display: block; width: 100%; height: 4px; margin-top: 2px; border-radius: 99px; background: rgba(244, 236, 208, .2); overflow: hidden; }
+.af-srank .af-sbar i { display: block; height: 100%; background: #f2c66a; border-radius: 99px; }
+@media (prefers-reduced-motion: reduce) { #ui.wol .tb.af-vbtn, #ui.wol .af-print.go, #ui.wol .af-flash.go { animation: none; } }

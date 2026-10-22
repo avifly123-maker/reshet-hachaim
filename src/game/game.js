@@ -31,6 +31,7 @@ import { zoneHowto, HOWTO_LABELS } from '../data/howto-cards.js';
 import { zoneWord, setPlace } from '../core/place.js';
 import { playMode, introSeen } from '../core/journey.js';
 import { GUIDE } from '../data/guide-lines.js';
+import { createAfter } from './after.js';   /* H: after the missions (visitors, photos, challenges, rank) */
 
 const DAY_LEN = 270;            // seconds of game time per day
 const MAX_PLANTS = 95, MAX_ANIMALS = 75;
@@ -137,6 +138,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   const missions = createMissions(W); W.missions = missions;
   let tools = null;   // created once the helpers below exist
   let imv = null, fieldcam = null, tour = null, moments = null;   // immersive views: looking through a field camera, the animal-eye tour
+  let after = null;   /* H: after the missions */
 
   // keep the island centred in the part of the screen that the HUD and the tray leave free
   let lastFit = '';
@@ -166,7 +168,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     return n < MAX_PLANTS;
   };
   W.countAlive = (id) => { let n = 0; for (const p of W.plants) if (p.sp.id === id && alive(p)) n++; for (const a of W.animals) if (a.sp.id === id && alive(a) && !a.leaving) n++; return n; };
-  W.countPlaced = (id) => { let n = 0; for (const p of W.plants) if (p.sp.id === id && alive(p) && !p.wild) n++; for (const a of W.animals) if (a.sp.id === id && alive(a) && !a.leaving) n++; return n; };
+  W.countPlaced = (id) => { let n = 0; for (const p of W.plants) if (p.sp.id === id && alive(p) && !p.wild) n++; for (const a of W.animals) if (a.sp.id === id && alive(a) && !a.leaving && !a.visitor) n++; return n; };   /* H: a rare visitor is not placed */
   W.aliveSpecies = () => { const s = new Set(); for (const p of W.plants) if (alive(p)) s.add(p.sp.id); for (const a of W.animals) if (alive(a) && !a.leaving) s.add(a.sp.id); return [...s]; };
   W.nearWater = (x, z, r) => {
     if (env.isWater(x, z)) return true;
@@ -1521,7 +1523,8 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
       plants: plants.map(p => ({ id: p.sp.id, x: +p.x.toFixed(2), z: +p.z.toFixed(2), g: +p.growth.toFixed(3), h: +p.health.toFixed(2), w: p.wild ? 1 : 0, host: p.host ? (index.get(p.host) ?? -1) : -1, ai: p.attachIdx || 0, s: p.seed, b: Math.round(p.bornT ?? -1), ...(p.sownBy ? { a: p.sownBy } : {}), ...(p.strong ? { st: 1 } : {}) })),   // the seed keeps the same shape (and branch spots) after loading
       tools: tools ? tools.serialize() : null,
       report: report ? report.serialize() : undefined,
-      animals: W.animals.filter(a => keepOnSave(a) && !a.leaving).map(a => ({ id: a.sp.id, x: +a.pos.x.toFixed(2), y: +a.pos.y.toFixed(2), z: +a.pos.z.toFixed(2), e: +a.energy.toFixed(2), g: +a.grow.toFixed(2) })),
+      animals: W.animals.filter(a => keepOnSave(a) && !a.leaving && !a.visitor).map(   /* H: a rare visitor is not saved */
+        a => ({ id: a.sp.id, x: +a.pos.x.toFixed(2), y: +a.pos.y.toFixed(2), z: +a.pos.z.toFixed(2), e: +a.energy.toFixed(2), g: +a.grow.toFixed(2) })),
     };
   }
   function saveGame(quiet) {
@@ -1583,6 +1586,8 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   fieldcam = createFieldCam({ W, env, tools, camera, canvas, ui, audio, imv });
   moments = createSourceMoments({ W, ui, audio });   // torah edition: short source moments in the forest
   tour = createTour({ W, env, reg, camera, canvas, ui, audio, imv, missions, art: (id) => thumbs[id] || CARD_ART[id] || null });
+  /* H: after the missions (not inside a mystery) */
+  if (!research) { try { after = createAfter({ W, env, reg, scene, camera, canvas, pipe, ui, audio, bus, markers, rig, imv, tools, spawnAnimal, art: (id) => CARD_ART[id] || thumbs[id] || null }); W.after = after; } catch (e) { console.error(e); after = null; } }
 
   // ─────────────────────────────────────────── start state
   ui.setBiome({ id: biome.id, name: biome.name, layers: biome.layers.map(l => ({ id: l.id, name: l.name, desc: l.desc })), hasSeasons: biome.id === 'grove' });
@@ -1736,6 +1741,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     }
     if (fieldcam) fieldcam.update(rdt);
     if (tour) tour.update(dt, rdt);
+    if (after) after.update(dt, rdt, t);   /* H */
     rig.update(rdt);
     fitT -= rdt; if (fitT <= 0) { fitT = 0.5; fitViewToUI(false); }
     // audio ambience
@@ -1859,6 +1865,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   let disposed = false;
   function dispose() {
     disposed = true;
+    if (after) { try { after.dispose(); } catch (e) { console.error(e); } after = null; W.after = null; }   /* H: before the entities go (its snapshot reads them) */
     if (howtoBox) { const b = howtoBox; howtoBox = null; try { b.close(); } catch (e) { } }
     if (session) { session.dispose(); session = null; }
     if (report) { report.dispose(); }   // closes the report screen and keeps the child's note before the last save
