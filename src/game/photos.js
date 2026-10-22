@@ -184,7 +184,7 @@ export function createPhotos({ W, reg, camera, canvas, pipe, ui, audio, imv, bus
     let sw = rect.width, sh = rect.height; if (sw / sh > PW / PH) sw = sh * PW / PH; else sh = sw * PH / PW;
     const sx = rect.left + (rect.width - sw) / 2 - cr.left, sy = rect.top + (rect.height - sh) / 2 - cr.top;
     try { ctx.drawImage(canvas, sx * kx, sy * ky, sw * kx, sh * ky, 0, 0, PW, PH); } catch (e) { return null; }
-    let q = 0.74, url = c.toDataURL('image/jpeg', q);
+    let q = 0.64, url = c.toDataURL('image/jpeg', q);
     while (url.length * 0.75 > MAX_BYTES && q > 0.3) { q -= 0.08; url = c.toDataURL('image/jpeg', q); }
     return url.length * 0.75 > MAX_BYTES ? null : url;
   }

@@ -99,7 +99,7 @@ export function createAfter({ W, env, reg, scene, camera, canvas, pipe, ui, audi
   const rc = root.querySelector('.rightcol');
   const anchor = rc && (rc.querySelector('.m-whatnow') || rc.querySelector('.missions'));
   if (rc) { if (anchor && anchor.parentNode === rc) anchor.after(panel); else rc.prepend(panel); }
-  let afterOn = false, chOpen = false, rank = null, paintSig = '';
+  let afterOn = false, chOpen = false, chOpenT = 0, rank = null, paintSig = '';
   function paint() {
     if (!afterOn) { panel.hidden = true; root.classList.remove('af-done'); return; }
     const pm = currentPM(), ch = full() ? challenges.current : null;
@@ -122,7 +122,7 @@ export function createAfter({ W, env, reg, scene, camera, canvas, pipe, ui, audi
   panel.addEventListener('click', (e) => {
     const b = e.target.closest('button'); if (!b) { if (e.target.closest('.af-head') && panel.classList.contains('min')) panel.classList.toggle('peek'); return; }
     if (b.classList.contains('af-pm')) { photos.open(); return; }
-    if (b.classList.contains('af-ch')) { chOpen = !chOpen; paint(); audio && audio.play && audio.play('click'); }
+    if (b.classList.contains('af-ch')) { chOpen = !chOpen; paint(); audio && audio.play && audio.play('click'); clearTimeout(chOpenT); if (chOpen) chOpenT = setTimeout(() => { chOpen = false; paint(); }, 9000); }   // the how-to folds again by itself
   });
   panel.addEventListener('pointerdown', (e) => e.stopPropagation());
 
@@ -238,6 +238,6 @@ export function createAfter({ W, env, reg, scene, camera, canvas, pipe, ui, audi
     photos.dispose(); visitors.dispose(); clearDecor(); panel.remove(); root.classList.remove('af-done', 'af-shoot');
   }
   const api = { update, dispose, photos, visitors, challenges, get rank() { return rank; }, get on() { return afterOn; }, turnOn, paint, offerChallenge: () => { chOffered = false; offerChallenge(false); },
-    decor: (i) => buildDecor(i), get flock() { return flock.length; } };   // tests: the extras of rank i
+    decor: (i) => buildDecor(i), get flock() { return flock.length; }, flockAt: (k) => (flock[k] ? flock[k].obj.position.clone() : null) };   // tests: the extras of rank i
   return api;
 }

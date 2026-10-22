@@ -136,6 +136,9 @@
 #ui.wol .af-panel.min:not(.peek) .af-row { display: none; }
 #ui.wol .af-panel.min .af-head { cursor: pointer; }
 @media (max-height: 520px) {
+  /* a low screen: while a visitor is here the dock lies in a row, so it does not cover the camera pad below it */
+  #ui.wol .imv-dock:has(.af-vbtn:not([hidden])) { flex-direction: row; align-items: center; }
+  #ui.wol .imv-dock:has(.af-vbtn:not([hidden])) .tb.af-pbtn .tb-lab { display: none; }
   #ui.wol .af-row:not(.open) em { display: none; }
   #ui.wol .af-pm b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   #ui.wol .af-row { padding: 4px 6px; }
@@ -144,7 +147,7 @@
 }
 
 /* ---------- the start screen: the island's rank, small, under the island in front of the carousel */
-.af-srank { position: absolute; left: 50%; bottom: 7%; transform: translate(-50%, 6px); display: inline-flex; align-items: center; gap: 7px; padding: 3px 12px 3px 4px; border-radius: 999px;
+.af-srank { position: absolute; left: 50%; bottom: 11%; transform: translate(-50%, 6px); display: inline-flex; align-items: center; gap: 7px; padding: 3px 12px 3px 4px; border-radius: 999px;
   background: rgba(17, 36, 26, .78); color: #f4ecd0; box-shadow: 0 0 0 1.5px rgba(244, 236, 208, .28), 0 4px 12px rgba(0, 0, 0, .3); white-space: nowrap; pointer-events: none;
   opacity: 0; transition: opacity .35s, transform .35s; direction: rtl; z-index: 3; }
 .st-isl[data-k="0"] .af-srank { opacity: 1; transform: translate(-50%, 0); }
