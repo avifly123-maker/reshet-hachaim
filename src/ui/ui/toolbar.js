@@ -20,7 +20,8 @@ export function createToolbar(ctx) {
       <button class="tb kit-btn" data-a="menu" data-tip="תפריט" aria-haspopup="true" aria-expanded="false">${icon('satchel')}</button>
       <div class="kit-menu" role="menu" aria-label="תפריט">
         <div class="km-who" hidden></div>
-        <div class="km-group">
+        <div class="km-col">
+          <div class="km-group">
           <button class="km-row" data-a="home" role="menuitem">${icon('home')}<span>מסך הפתיחה</span></button>
           <button class="km-row" data-a="help" role="menuitem">${icon('help')}<span>איך משחקים</span></button>
           <button class="km-row" data-a="coach" role="menuitem">${icon('sprout')}<span>הדרכה צעד אחר צעד</span></button>
@@ -28,16 +29,19 @@ export function createToolbar(ctx) {
           <button class="km-row" data-a="report" role="menuitem">${icon('pencil')}<span>דוח יומי</span></button>
           <button class="km-row" data-a="reset" role="menuitem">${icon('target')}<span>מבט על ${zoneWord('all')}</span></button>
         </div>
-        <div class="km-set"><h4>הגדרות</h4>
-          <div class="km-journey" hidden></div>
-          <button class="km-row km-switch" data-a="sound" role="menuitemcheckbox">${icon('sound')}<span>צלילים</span><i class="sw"></i></button>
-          <button class="km-row km-switch" data-a="music" role="menuitemcheckbox" title="מוזיקה רכה במסך הפתיחה ובמעבדה">${icon('music')}<span>מוזיקה</span><i class="sw"></i></button>
-          ${TORAH ? `<button class="km-row km-switch" data-a="sources" role="menuitemcheckbox">${icon('book')}<span>מקורות ופסוקים</span><i class="sw"></i></button>` : ''}
+          <div class="km-pc">
           <div class="km-q">${icon('quality')}<span>איכות תמונה</span></div>
           <div class="km-seg" role="radiogroup" aria-label="איכות תמונה">
             <button data-q="low" role="radio" title="למחשב איטי">פשוטה</button>
             <button data-q="medium" role="radio">רגילה</button>
             <button data-q="high" role="radio" title="למחשב חזק">עשירה</button></div>
+          </div>
+        </div>
+        <div class="km-set"><h4>הגדרות</h4>
+          <div class="km-journey" hidden></div>
+          <button class="km-row km-switch" data-a="sound" role="menuitemcheckbox">${icon('sound')}<span>צלילים</span><i class="sw"></i></button>
+          <button class="km-row km-switch" data-a="music" role="menuitemcheckbox" title="מוזיקה רכה במסך הפתיחה ובמעבדה">${icon('music')}<span>מוזיקה</span><i class="sw"></i></button>
+          ${TORAH ? `<button class="km-row km-switch" data-a="sources" role="menuitemcheckbox">${icon('book')}<span>מקורות ופסוקים</span><i class="sw"></i></button>` : ''}
         </div>
       </div>
     </div>

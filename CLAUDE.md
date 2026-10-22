@@ -4,7 +4,7 @@ This file is the hand-off between development sessions. Read it first, then `doc
 
 ## Start here (state on 22.10.2026, end of the 1.3.2 session)
 
-- **1.3.2 is finished** on branch `claude/1.3.2` (pull request to `main`). Test installer on Avi's PC in `Documents\reshet-hachaim-blender\installer\1.3.2-test1`. What it is: the 1.3.2 section below, CHANGELOG "1.3.2", DEVLOG "1.3.2", docs/JOURNEY.md (Hebrew, for Avi and the instructors).
+- **1.3.2 is finished** on branch `claude/1.3.2` (pull request to `main`). Test installer on Avi's PC in `Documents\reshet-hachaim-blender\installer\1.3.2-test2`. What it is: the 1.3.2 section below, CHANGELOG "1.3.2", DEVLOG "1.3.2", docs/JOURNEY.md (Hebrew, for Avi and the instructors).
 - **New developers start with `docs/CODEMAP.md`** (a map of every folder and "how to add…"). One command runs every check: `npm run check` (`tools/check-all.sh`; `npm run check:quick` = validators + builds).
 - **One edition from 1.3.2: "רשת החיים – המסע"** (Avi, 22.10). It is the torah build (`--edition=torah`, `desktop/builder-torah.json`) with the sources switch; the word "תורני" is not shown anywhere. Same appId as the old torah edition; its saves stay in the old data folder (`dataName` in builder-torah.json, `app.setPath('userData')` in desktop/main.js), and a general-edition player's saves are carried over on the first start. Release files: `tools/pack-torah.sh` → `reshet-hachaim-hamasa-setup|mac|<v>`. The general build stays for development and the checks only.
 - Branches: `main` = the 1.3 series; `claude/1.2` = 1.2 fixes only. New work: a new `claude/*` branch from `main`, back by pull request. Same appId, so every version installs over the previous one and keeps all data.
