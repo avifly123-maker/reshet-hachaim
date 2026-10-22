@@ -4,19 +4,19 @@
 // Takes from ctx: the names destructured at the top of createSave.
 // Shared state it reads or changes: ctx.tools, ctx.report, ctx.coachStep.
 import * as THREE from 'three';
-import { key as profileKey } from '../../core/profiles.js';
+import { zoneKey, saveKey, writePlayer } from '../../core/storage.js';
 
 export function createSave(ctx) {
   const { biome, W, missions, alive, ui, audio, on, addStump, buildRoad, reg, spawnPlant, spawnAnimal, randomPlaceSpot } = ctx;
 
   // ─────────────────────────────────────────── save / load (localStorage, optional)
-  const SAVE_KEY = profileKey('web-of-life-' + biome.id);   // per player
+  const SAVE_KEY = zoneKey(biome.id);   // per player (core/storage.js)
   function saveProgress() {
-    try { localStorage.setItem(SAVE_KEY, JSON.stringify({ unlocked: [...W.unlocked], done: missions.missions.filter(m => m.done).map(m => m.id), discovered: [...W.discovered], placed: [...W.everPlaced], quiz: [...W.quizDone] })); } catch (e) { }
+    try { writePlayer(SAVE_KEY, { unlocked: [...W.unlocked], done: missions.missions.filter(m => m.done).map(m => m.id), discovered: [...W.discovered], placed: [...W.everPlaced], quiz: [...W.quizDone] }); } catch (e) { }
   }
 
   // ─────────────────────────────────────────── save / restore the whole ecosystem
-  const SAVE_SLOT = profileKey('web-of-life-save-' + biome.id + (biome.mode === 'kids' ? '-kids' : ''));   // per player
+  const SAVE_SLOT = saveKey(biome.id, biome.mode === 'kids');   // per player (core/storage.js)
   // entities hidden by a running "what if it disappears?" experiment are still part of the forest
   const hiddenByExperiment = (e) => !!W.experiment && W.experiment.ents.includes(e) && e.alive && !e.dying;
   const keepOnSave = (e) => (alive(e) || hiddenByExperiment(e)) && !(e.isPlant && (e.falling || e.fallen));
@@ -43,7 +43,7 @@ export function createSave(ctx) {
   }
   function saveGame(quiet) {
     if (W.research) return true;
-    try { localStorage.setItem(SAVE_SLOT, JSON.stringify(serialize())); if (!quiet) { ui.toast('היער נשמר ✓ בפעם הבאה תוכלו להמשיך מכאן', 'good'); audio.play('points'); } return true; }
+    try { if (!writePlayer(SAVE_SLOT, serialize())) throw new Error('not saved'); if (!quiet) { ui.toast('היער נשמר ✓ בפעם הבאה תוכלו להמשיך מכאן', 'good'); audio.play('points'); } return true; }
     catch (e) { if (!quiet) ui.toast('לא הצלחתי לשמור במחשב הזה', 'bad'); return false; }
   }
   W.saveGame = saveGame;
