@@ -99,7 +99,9 @@ function store() {
   if (mem && mem._key === pk(K)) return mem;
   // first visit of this player to 1.3.2: someone who already played keeps everything open and plays the full mode
   const m = metrics();
-  const legacy = m.missions + m.badges + m.lab + m.cases + m.cards > 0;
+  // a saved forest counts too (a child who planted but never finished a mission or opened a pack)
+  let forest = false; for (const z of ZONES) { try { if (localStorage.getItem(pk('web-of-life-save-' + z))) forest = true; } catch (e) { } }
+  const legacy = forest || m.missions + m.badges + m.lab + m.cases + m.cards > 0;
   const fresh = { v: 1, created: Date.now(), legacy, shown: {}, used: {}, intro: {}, mode: legacy ? 'full' : 'experience', text: 'large', voice: true };
   if (legacy) for (const st of STAGES) if (reached(st, m)) fresh.shown[st.id] = Date.now();   // no parade of old stages
   writeJSON(pk(K), fresh); mem = { ...fresh, _key: pk(K) };
@@ -187,5 +189,5 @@ if (typeof window !== 'undefined') {
   const later = () => setTimeout(() => { try { check(); } catch (e) { console.error(e); } }, 400);
   window.addEventListener('wol-badge', later);
   window.addEventListener('wol-progress', later);
-  window.__journey = { state, isOpen, check, metrics, markUsed, setPlayMode, unlockAll, lockAgain, reload, PARTS, STAGES };
+  window.__journey = { state, isOpen, check, metrics, markUsed, playMode, setPlayMode, unlockAll, lockAgain, reload, PARTS, STAGES };
 }
