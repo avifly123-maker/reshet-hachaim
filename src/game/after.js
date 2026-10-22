@@ -43,7 +43,7 @@ export function createAfter({ W, env, reg, scene, camera, canvas, pipe, ui, audi
 
   // ── the parts
   let visitors = null;
-  const photos = createPhotos({ W, reg, camera, canvas, pipe, ui, audio, imv, bus, rig, markers, onShot: (rec, info) => onPhoto(rec, info) });
+  const photos = createPhotos({ W, reg, camera, canvas, pipe, ui, audio, imv, bus, rig, markers, onShot: (rec, info) => onPhoto(rec, info), robo: tools && tools.tech ? tools.tech.robo : null });
   visitors = createVisitors({ W, env, reg, ui, audio, markers, rig, imv, spawnAnimal, art, Q, photoOpen: () => photos.isOpen, openPhoto: () => photos.open() });
   const chCtx = {
     grove: zone === 'grove',

@@ -874,7 +874,9 @@ function createIslandRobo({ W, scene, camera, rig }) {
     return out;
   }
   function frame(rdt, t) {
-    const want = guideOpen() && !W.research && !W.viewMode && !W.touring;
+    // never in a photo: the photo mode (#ui.af-shoot) hides him; photos.js capture() also hides him for its one frame
+    const uiEl = typeof document !== 'undefined' && document.getElementById('ui');
+    const want = guideOpen() && !W.research && !W.viewMode && !(uiEl && uiEl.classList.contains('af-shoot'));
     if (!want) { if (shown && root) { root.visible = false; } shown = false; return; }
     if (!root) { if (!loading && !failed) loading = build(); return; }
     const now = performance.now();

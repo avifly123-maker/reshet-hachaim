@@ -80,7 +80,7 @@ export const CAM_SVG = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" f
 const _v = new THREE.Vector3(), _p = new THREE.Vector3();
 const PW = 160, PH = 120, MAX_BYTES = 10000;
 
-export function createPhotos({ W, reg, camera, canvas, pipe, ui, audio, imv, bus, rig, markers, onShot }) {
+export function createPhotos({ W, reg, camera, canvas, pipe, ui, audio, imv, bus, rig, markers, onShot, robo }) {
   const root = document.getElementById('ui');
   const kids = !!W.kids;
   const t = (k, o) => { let s = T[k][kids ? 1 : 0]; if (o) for (const x in o) s = s.replace('{' + x + '}', o[x]); return s; };
@@ -176,7 +176,11 @@ export function createPhotos({ W, reg, camera, canvas, pipe, ui, audio, imv, bus
 
   // ── the picture: draw a fresh frame, then copy the rectangle into a small JPEG
   function capture(rect) {
+    // רובו־דע's island model must not be in the picture (the field camera shoots outside the photo mode too)
+    const rr = robo && robo.root, rv = rr ? rr.visible : false;
+    if (rr) rr.visible = false;
     try { pipe.render(0.016); } catch (e) { }
+    if (rr) rr.visible = rv;
     const cr = canvas.getBoundingClientRect(); const kx = canvas.width / cr.width, ky = canvas.height / cr.height;
     const c = document.createElement('canvas'); c.width = PW; c.height = PH;
     const ctx = c.getContext('2d');
