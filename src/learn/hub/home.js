@@ -14,6 +14,7 @@ import { IC, IC_CURTAIN, OPEN_PER_DAY, esc } from './base.js';
 import { cardHTML } from './card-html.js';
 import { CARD, IC_SCROLL, spOf } from './cards.js';
 
+// the hub's icons (src/ui/icons-hub.js): the tile of each badge group
 const BGROUP_IC = { amazon: 'amazon', grove: 'grove', reef: 'reef', lab: 'invent', deep: 'dive', research: 'research', sources: 'scroll' };
 
 export function createHomeScreens(ctx) {
