@@ -3,8 +3,8 @@
 //
 // Storage (per player, core/profiles.js key()):
 //   'web-of-life-photos'   [{ id, sp, sps: [speciesId], zone, t, img (JPEG data URL ≤ 10 kB, 160x120), pair?: [a, b], visitor?: 1 }]
-//                          newest last, at most 24 (the oldest drops out; on a full storage the oldest go first and
-//                          the write is tried once more). Read by src/lab/cabinet.js (img, sp, zone, t, id) and
+//                          newest last, at most MAX_PHOTOS (the oldest drops out; on a full storage up to six older
+//                          ones go first and the write is tried once more; the newest is never dropped: null = not kept). Read by src/lab/cabinet.js (img, sp, zone, t, id) and
 //                          src/core/threads.js (sp, zone).
 //   'web-of-life-visitors' [{ id: speciesId, zone, t }]  one per species (no picture: the cabinet shows its card painting)
 //   'web-of-life-after'    { v: 1, z: { <zone>: { ch: [{ id, lv }] (the last 6), cn: challenges done, cp: their rank points,
@@ -33,7 +33,9 @@ export function addPhoto(rec) {
   while (list.length > MAX_PHOTOS) list.shift();
   // a full storage: drop the oldest photos and try once more (the photos must never crowd out the saves)
   let ok = writeJSON(PHOTOS_KEY, list);
-  if (!ok) { list.splice(0, Math.max(1, Math.min(list.length - 1, 6))); ok = writeJSON(PHOTOS_KEY, list); }
+  // never the newest: only older photos may make room (an empty album has none, so nothing is written)
+  const drop = Math.min(list.length - 1, 6);
+  if (!ok && drop > 0) { list.splice(0, drop); ok = writeJSON(PHOTOS_KEY, list); }
   if (ok) { try { window.dispatchEvent(new CustomEvent('wol-progress', { detail: { kind: 'photo', id: rec.sp, zone: rec.zone } })); } catch (e) { } }
   return ok ? list : null;
 }

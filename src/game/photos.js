@@ -73,6 +73,7 @@ const T = {
   zones: { amazon: ['באמזונס', 'בָּאָמָזוֹנָס'], grove: ['בחורש', 'בַּחֹרֶשׁ'], reef: ['בשונית', 'בַּשּׁוּנִית'] },
   oldest: ['כשיש 24 תמונות, הישנה ביותר יוצאת', 'כְּשֶׁיֵּשׁ 24 תְּמוּנוֹת, הַיְּשָׁנָה בְּיוֹתֵר יוֹצֵאת'],
   visitor: ['מבקר נדיר', 'מְבַקֵּר נָדִיר'],
+  full: ['האלבום מלא, והתמונה לא נשמרה', 'הָאַלְבּוֹם מָלֵא, וְהַתְּמוּנָה לֹא נִשְׁמְרָה'],
 };
 // a camera: a rounded body, a lens and a small flash window (no tripod, nothing that crosses)
 export const CAM_SVG = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="f" d="M4.5 8h3l1.6-2.4h5.8L16.5 8h3a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5v-8A1.5 1.5 0 0 1 4.5 8z"/><path d="M4.5 8h3l1.6-2.4h5.8L16.5 8h3a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5v-8A1.5 1.5 0 0 1 4.5 8z"/><circle cx="12" cy="13.2" r="3.4"/><circle cx="17.6" cy="10.6" r=".7" fill="currentColor" stroke="none"/></svg>';
@@ -208,10 +209,18 @@ export function createPhotos({ W, reg, camera, canvas, pipe, ui, audio, imv, bus
     const rec = { id: 'ph' + Date.now().toString(36), sp: info.main || '', sps: info.ids.slice(0, 6), zone: W.biomeId, t: Date.now(), img };
     if (info.pairs.length) rec.pair = info.pairs[0];
     if (info.visitors.length) rec.visitor = 1;
-    if (!addPhoto(rec)) return;   // the storage is full even without the oldest photos: nothing is kept
+    if (!addPhoto(rec)) { showFull(rec); return; }   // the storage is full even without the older photos: nothing is kept, no points
     paintAlbumBtn();
     const res = onShot ? onShot(rec, info, from) || {} : {};
     showPrint(rec, info, res);
+  }
+  function showFull(rec) {
+    if (!isOpen) { try { ui.toast(t('full'), 'warn'); } catch (e) { } return; }
+    printEl.querySelector('img').src = rec.img;
+    printEl.querySelector('b').textContent = rec.sp ? nameOf(rec.sp) : t('landscape');
+    printEl.querySelector('small').textContent = t('full');
+    printEl.hidden = false; el.classList.add('printing'); printEl.classList.remove('go'); void printEl.offsetWidth; printEl.classList.add('go');
+    printT = 3.6;
   }
   function showPrint(rec, info, res) {
     if (!isOpen) return;   // the field camera's view: the toast of the game says it
