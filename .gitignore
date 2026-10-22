@@ -13,3 +13,4 @@ release-files/
 
 # local agent worktrees
 .claude/
+art/voice/*.wav
