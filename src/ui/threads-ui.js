@@ -116,6 +116,10 @@ export function mountMapThreads(jm, { emit } = {}) {
     const lns = f.map((t) => ({ ...(TH.lineOf(t.id) || { id: 'th.' + t.id, f: t.name.f, k: t.name.k }), at: `.jm-th[data-th="${t.id}"]` }));
     for (const t of f) path.querySelectorAll('.jm-th-ln').forEach((l) => { if (l.dataset.ids.split(' ').includes(t.id)) l.classList.add('new'); });
     setFocus(f[0].id);
+    // the new threads' chips first in the row, so רובו־דע's ring finds them on screen
+    const row = box.querySelector('.jm-th-row');
+    if (row) for (const t of f.slice().reverse()) { const c = row.querySelector(`[data-th="${t.id}"]`); if (c) row.prepend(c); }
+    if (row) row.scrollLeft = 0;
     await g.say(lns, { modal: true });
     path.querySelectorAll('.jm-th-ln.new').forEach((l) => l.classList.remove('new'));
   }
