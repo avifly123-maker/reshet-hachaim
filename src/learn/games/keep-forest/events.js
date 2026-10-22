@@ -44,7 +44,7 @@ export const challengesFor = (b) => (b === 'reef' ? CHALLENGES.map((id) => (id =
 
 /* ───────────────────────────── tools */
 export const TOOL_FX = {
-  watergen: '\u2066+4\u2069 מים לאירוע הבא', weather: 'מגלה את האירוע הבא', drone: 'שולף 2 קלפים ושומר על היער',
+  watergen: 'עוד 4 מים לאירוע הבא', weather: 'מגלה את האירוע הבא', drone: 'שולף 2 קלפים ושומר על היער',
   seeddrone: 'מחזיר צמח נובל', rescue: 'מחזיר בעל חיים נובל', listener: 'שומר מכריתה ומכביש',
   nestbox: 'חוטי ציפורים שווים פי 2', insecthotel: 'חוטי חרקים שווים פי 2', camera: 'מגלה 3 אירועים ושומרת',
   rov: 'שולף 2 קלפים ושומר על השונית', uwcam: 'מגלה 3 אירועים ושומרת', sensor: 'מגלה את האירוע הבא',

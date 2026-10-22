@@ -9,7 +9,7 @@ export const CSS_MORE = `
 ${BADGE_CSS}
 .wol-learn .wl-badges{gap:1em;padding:0 1.6em 1.6em;overflow-y:auto;overflow-x:hidden;min-height:0;scrollbar-width:thin}
 .wol-learn .wl-bhead{display:flex;align-items:center;justify-content:space-between;padding:.7em 1.2em;border-radius:1em;width:min(60em,100%);margin:0 auto}
-.wol-learn .wl-bhead b{font-family:var(--serif);font-size:1.5em}
+.wol-learn .wl-bhead b{font-family:var(--serif);font-size:calc(1.5em * var(--tsd,1))}
 .wol-learn .wl-bgroup{width:min(60em,100%);margin:0 auto;padding:.8em 1em 1em;border-radius:1em;background:linear-gradient(180deg,color-mix(in srgb,var(--bg1) 35%,transparent),rgba(0,0,0,.18));box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
 .wol-learn .wl-bgroup h3{display:flex;align-items:center;justify-content:space-between;margin:0 0 .6em;color:#f6edcf;font-family:var(--serif)}
 .wol-learn .wl-bgroup h3 small{color:var(--bg2);font-family:inherit;font-weight:800}
@@ -48,7 +48,7 @@ ${FRAME_CSS}
 .wol-learn .wl-bz:hover .bdg-med,.wol-learn .wl-bz:focus-visible .bdg-med{transform:scale(1.42) translateY(-.12em)}
 .wol-learn .wl-bz:hover .bdg-rib,.wol-learn .wl-bz:focus-visible .bdg-rib{transform:translateY(1.2em) scale(1.08)}
 .wol-learn .wl-btip{position:absolute;left:50%;top:calc(100% + .9em);transform:translate(-50%,-.3em);width:max-content;max-width:15em;padding:.45em .8em;border-radius:.8em;background:#2a2214;color:#fbf3d8;text-align:center;
-  font-size:.92em;line-height:1.35;box-shadow:0 .5em 1.2em rgba(0,0,0,.45),inset 0 0 0 1px rgba(246,207,114,.35);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:6}
+  font-size:calc(.92em * var(--tsr,1));line-height:1.35;box-shadow:0 .5em 1.2em rgba(0,0,0,.45),inset 0 0 0 1px rgba(246,207,114,.35);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:6}
 .wol-learn .wl-btip b{display:block;color:#f6cf72;font-family:var(--serif)}
 .wol-learn .wl-btip small{display:block;color:#e6dcbc}
 .wol-learn .wl-bz:hover .wl-btip,.wol-learn .wl-bz:focus-visible .wl-btip{opacity:1;transform:translate(-50%,0)}
@@ -81,23 +81,23 @@ ${FRAME_CSS}
 .wol-learn .wl-slot.win .wl-flip{filter:drop-shadow(0 0 1.2em rgba(143,208,103,.9))}
 .wol-learn .wl-slot.win>small{color:var(--leaf)}
 .wol-learn .wl-dbar{min-height:3.2em;display:flex;align-items:center;justify-content:center}
-.wol-learn .wl-dmsg{white-space:nowrap;display:flex;align-items:center;gap:.8em;padding:.35em .45em .35em 1.3em;border-radius:99px;font-weight:800;font-size:1.15em;animation:wl-rise .35s both}
-.wol-learn .wl-dhint{color:#e2dcbd;font-weight:700;font-size:1.1em;display:flex;align-items:center;gap:.4em}
+.wol-learn .wl-dmsg{white-space:nowrap;display:flex;align-items:center;gap:.8em;padding:.35em .45em .35em 1.3em;border-radius:99px;font-weight:800;font-size:calc(1.15em * var(--tsr,1));animation:wl-rise .35s both}
+.wol-learn .wl-dhint{color:#e2dcbd;font-weight:700;font-size:calc(1.1em * var(--tsr,1));display:flex;align-items:center;gap:.4em}
 .wol-learn .wl-hand{display:flex;gap:.9em;justify-content:center;flex-wrap:nowrap;padding:.3em .6em .5em;min-height:calc(min(10.5em,18vh) * 1.42 + .8em)}
 .wol-learn .wl-hand .wl-card{--cw:min(10.5em,18vh,15.5vw);cursor:pointer}
 @media (max-height:660px){.wol-learn .wl-dhelp{display:none}}
 .wol-learn .wl-hand .wl-card:hover:not(.used){transform:translateY(-.6em) scale(1.08);z-index:2}
 .wol-learn .wl-hand .wl-card.used{opacity:.3;filter:grayscale(1);cursor:default}
 .wol-learn .wl-hand.locked .wl-card{pointer-events:none}
-.wol-learn .wl-dhelp{color:#e2dcbd;font-size:.95em;text-align:center}
+.wol-learn .wl-dhelp{color:#e2dcbd;font-size:calc(.95em * var(--tsr,1));text-align:center}
 .wol-learn .wl-dhelp .wl-ic{width:1.1em;height:1.1em}
 /* modal */
 .wol-learn .wl-modal{position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;gap:2.4em;padding:2em;background:rgba(8,20,12,.72);backdrop-filter:blur(4px);animation:wl-in .25s both}
 .wol-learn .wl-modal[hidden]{display:none}
 .wol-learn .wl-modal .wl-card{--cw:min(19em,46vh);animation:wl-pop .45s cubic-bezier(.2,.9,.3,1.25) both}
 .wol-learn .wl-mtext{width:min(26em,40vw);border-radius:20px;padding:1.3em 1.5em;display:flex;flex-direction:column;gap:.7em}
-.wol-learn .wl-mtext h3{font-family:var(--serif);font-size:2em;line-height:1.05;color:#1f2c1a}
-.wol-learn .wl-mtext p{font-family:var(--serif);font-size:1.12em;line-height:1.55;color:#2c3524}
+.wol-learn .wl-mtext h3{font-family:var(--serif);font-size:calc(2em * var(--tsd,1));line-height:1.05;color:#1f2c1a}
+.wol-learn .wl-mtext p{font-family:var(--serif);font-size:calc(1.12em * var(--tsr,1));line-height:1.55;color:#2c3524}
 .wol-learn .wl-mstats{display:flex;flex-direction:column;gap:.35em;font-size:.98em;color:var(--ink2)}
 .wol-learn .wl-mstats span{display:flex;align-items:center;gap:.5em}
 .wol-learn .wl-mrar{display:flex;align-items:center;gap:.6em;padding:.45em .8em;border-radius:12px;background:rgba(80,70,40,.08);font-size:1em;line-height:1.35;color:#2c3524}

@@ -365,7 +365,8 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
       if (b.dataset.hot) b.setAttribute('aria-label', L ? `${n}, ${L.text}` : n); else b.title = L ? L.text : '';
     }
   }
-  addEventListener('wol-journey', () => { if (open_) paintLocks(); });
+  // (a new stage reached inside the lab fires 'wol-stage', then 'wol-stage-done' when its moment closes: repaint on both)
+  for (const ev of ['wol-journey', 'wol-stage', 'wol-stage-done']) addEventListener(ev, () => { if (open_) paintLocks(); });
   // something done at a station (any lab progress while the child is there) opens the next one (core/journey.js `after`)
   addEventListener('wol-progress', (e) => { if (open_ && station !== 'home' && e.detail && e.detail.kind === 'lab' && stOpen(station)) markUsed(partOf(station)); });
   // the line that says what opens a part (src/data/guide/lab.js 'lab:locks'): its stage, or the station before it
@@ -398,11 +399,14 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     const r = t.getBoundingClientRect(), o = el.getBoundingClientRect();
     ringEl.hidden = false; ringEl.style.cssText = `left:${r.left - o.left - 5}px;top:${r.top - o.top - 5}px;width:${r.width + 10}px;height:${r.height + 10}px`;
   }
+  // the big guide speaking over the lab (a stage moment, a badge): his own bubbles wait, so his voice never cuts it off
+  const guideBusy = () => { try { return !!(window.__guide && window.__guide.isOpen()); } catch (e) { return false; } };
   function sayLines(lines) {
     stopIntro(); const tok = introTok;
     const step = (i) => {
       if (tok !== introTok || !open_) return;
       if (i >= lines.length) { setRing(null); return; }
+      if (guideBusy()) { introT = setTimeout(() => step(i), 1000); return; }
       const ln = lines[i], text = kids ? ln.k : ln.f, ex = ln.expr || 'happy';
       if (panel && panel.talk) panel.talk(text, ex); else say(text, ex, true);
       setRing(ln.at);
@@ -416,10 +420,9 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
   // the first time a child enters a station he says what can be done there (once per player: journey introSeen)
   function maybeIntro(st) {
     const part = partOf(st), lines = LAB_GUIDE[part];
-    if (!lines || !lines.length || introSeen(part)) return;
+    if (!lines || !lines.length || introSeen(part) || !stOpen(st)) return;   // a veiled station is not presented yet
     // (while the big guide speaks over the lab, a stage moment for instance, he waits for it to finish)
-    const busy = () => { try { return !!(window.__guide && window.__guide.isOpen()); } catch (e) { return false; } };
-    const begin = () => { if (!open_ || station !== st || walk) return; if (busy()) { introWait = setTimeout(begin, 1000); return; } markIntro(part); sayLines(lines); };
+    const begin = () => { if (!open_ || station !== st || walk) return; if (guideBusy()) { introWait = setTimeout(begin, 1000); return; } markIntro(part); sayLines(lines); };
     clearTimeout(introWait); introWait = setTimeout(begin, 650);
   }
 
@@ -451,7 +454,8 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
   function dropPanel() { if (!panel) return; const p = panel; panel = null; quiet = true; try { p.close(); } finally { quiet = false; } }
   // every "חזרה לחדר" goes to the room's main view; a station activity's own back button goes to its station's menu
   const toRoom = () => { panel = null; if (!quiet && open_ && station !== 'home') go('home'); };
-  const toStation = () => { panel = null; if (!quiet && open_) arrive(); };
+  // (a station still veiled, reached only by a thinking-corner activity, has no menu to return to: back to the room)
+  const toStation = () => { panel = null; if (!quiet && open_) { if (stOpen(station)) arrive(); else if (station !== 'home') go('home'); } };
   function go(id, force) {
     if (!STATION_INFO[id]) return;
     if (!force && !stOpen(id)) { sayLocked(partOf(id)); return; }   // a veiled station: he says what opens it
@@ -587,7 +591,7 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     else if (info.open === 'atlas') { markUsed(partOf('atlas')); panel = framed((r, done) => openAtlas(r, { say, thumbs, onClose: () => { done(); toRoom(); }, onQuestions: () => openQuest() })); }
     else if (pendingThink) { const id = pendingThink; pendingThink = null; openThink(id); }
     else if (pendingAct) { const id = pendingAct; pendingAct = null; openAct(id); }
-    else if (info.menu) stationMenu();
+    else if (info.menu && stOpen(station)) stationMenu();
     else if (info.say) say(info.say, 'happy');
     else if (station === 'home' && kids) say(ROOM_K.home, 'happy');
     else if (station === 'home') say('לאן הולכים עכשיו? המיקרוסקופ מחכה לכם, וגם שולחן הממציאים. ובחממה ובאקווריום מחכים ניסויים.', 'happy');
@@ -867,15 +871,16 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     dropPanel();
     const f = THINK_OPEN[id]; if (!f) return; hush();
     // at a station with its own menu the activity's back button returns to that menu; in the room it is the room
-    const menu = !!STATION_INFO[station].menu;
-    panel = f(panels, { robot, audio, thumbs, back: menu ? one(MENU_T[station].back, labKids()) : null, onClose: menu ? toStation : () => { panel = null; } });
+    // (a station that is still veiled: no menu behind the activity, its back button goes to the room)
+    const menu = !!STATION_INFO[station].menu && stOpen(station), veiled = !stOpen(station);
+    panel = f(panels, { robot, audio, thumbs, back: menu ? one(MENU_T[station].back, labKids()) : null, onClose: menu || veiled ? toStation : () => { panel = null; } });
   }
   function thinkMenu() {
     if (talkEl) { talkEl.remove(); talkEl = null; }
     dropPanel();
     hush();
     // its back button: the station's own menu, or the room (a pick opens something else at once: nothing to do then)
-    const back = () => { panel = null; if (quiet) return; setTimeout(() => { if (!panel && move <= 0 && open_ && station !== 'home') { if (STATION_INFO[station].menu) arrive(); else go('home'); } }, 0); };
+    const back = () => { panel = null; if (quiet) return; setTimeout(() => { if (!panel && move <= 0 && open_ && station !== 'home') { if (STATION_INFO[station].menu && stOpen(station)) arrive(); else go('home'); } }, 0); };
     // (the thinking corner follows the lab itself: its activities open even at a station that is still veiled)
     panel = openThinkMenu(panels, { robot, audio, onClose: back, onPick: (id) => { const a = thinkById(id); pendingThink = id; if (a.st === station && move <= 0) { pendingThink = null; openThink(id); } else go(a.st, true); } });
   }

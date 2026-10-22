@@ -463,12 +463,12 @@ function injectCss() {
 #ui.wol .lt-head{display:flex;align-items:center;gap:14px;flex:none}
 #ui.wol .lt-ttl small{display:block;color:#1d6680;font-weight:700;font-size:.8em}
 #ui.wol .lt-ttl h2{font-size:1.5em;line-height:1.05;white-space:nowrap}
-#ui.wol .lt-habit{flex:1;margin:0;display:flex;align-items:center;gap:6px;color:#5a4420;font-weight:700;font-size:.95em;line-height:1.3}
+#ui.wol .lt-habit{flex:1;margin:0;display:flex;align-items:center;gap:6px;color:#5a4420;font-weight:700;font-size:calc(.95em * var(--tsr,1));line-height:1.3}
 #ui.wol .lt-habit .ic{width:20px;height:20px;flex:none;color:#c8891a}
 #ui.wol .lt-body{flex:1;min-height:0;overflow:auto}
 #ui.wol .lt-voice{flex:none;display:flex;align-items:center;gap:10px;padding:7px 12px;border-radius:14px;background:#263440;color:#eaf6fa;min-height:44px;box-shadow:inset 0 0 0 1px rgba(127,240,255,.25)}
 #ui.wol .lt-voice.pop{animation:ltPop .3s ease-out}
-#ui.wol .lt-voice p{margin:0;line-height:1.4;font-size:.98em}
+#ui.wol .lt-voice p{margin:0;line-height:1.4;font-size:calc(.98em * var(--tsr,1))}
 #ui.wol .lt-voice b{color:#7ff0ff}
 #ui.wol .lt-face{width:40px;height:40px;flex:none}
 @keyframes ltPop{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}
@@ -552,7 +552,7 @@ function injectCss() {
 #ui.wol .lt-pic p{margin:0;font-weight:700}
 #ui.wol .lt-pic svg,#ui.wol .lt-cam{width:100%;max-height:210px;border-radius:12px;box-shadow:0 3px 0 #d8c79a}
 #ui.wol .lt-obs2{display:flex;flex-direction:column;gap:6px;height:100%;min-height:0}
-#ui.wol .lt-explain{display:flex;align-items:center;gap:6px;margin:0;padding:4px 10px;border-radius:10px;background:#e2f2fa;color:#1d4a6a;font-weight:700;font-size:.9em;line-height:1.3;flex:none}
+#ui.wol .lt-explain{display:flex;align-items:center;gap:6px;margin:0;padding:4px 10px;border-radius:10px;background:#e2f2fa;color:#1d4a6a;font-weight:700;font-size:calc(.9em * var(--tsr,1));line-height:1.3;flex:none}
 #ui.wol .lt-explain .ic{width:18px;height:18px;flex:none}
 #ui.wol .lt-strip{display:flex;gap:5px;overflow-x:auto;flex:none;padding-bottom:2px}
 #ui.wol .lt-strip button{position:relative;flex:none;width:42px;height:42px;padding:0;border-radius:9px;border:2px solid #e8dcc0;background:#fff;overflow:hidden;cursor:pointer}
@@ -622,7 +622,7 @@ function injectCss() {
 #ui.wol .lt-mcard{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:12px;border-radius:16px;border:2px solid #d8c79a;background:#fff;font:inherit;text-align:right;cursor:pointer;color:#2a1a0e;box-shadow:0 3px 0 #d8c79a;transition:transform .15s}
 #ui.wol .lt-mcard:hover{transform:translateY(-3px);border-color:#e0a43a}
 #ui.wol .lt-mcard b{font-family:var(--serif);font-size:1.2em}
-#ui.wol .lt-mcard>span:not(.lt-mic){font-size:.92em;line-height:1.3;color:#5a4420}
+#ui.wol .lt-mcard>span:not(.lt-mic){font-size:calc(.92em * var(--tsr,1));line-height:1.3;color:#5a4420}
 #ui.wol .lt-mcard small{display:inline-flex;align-items:center;gap:3px;margin-top:auto}
 #ui.wol .lt-mcard small .ic{width:14px;height:14px}
 #ui.wol .lt-mcard.done{background:#f2f9ea;border-color:#8ab86a}

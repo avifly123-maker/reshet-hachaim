@@ -201,19 +201,20 @@ export function mountExpedition(root, ctx, opts = {}) {
   const ready = () => S.team.filter((m) => m.st === 'ready');
   const cur = () => S.tiles[S.depth];
   function setRadio(text, mood = 'happy') { radio = { text, mood }; }
-  function addSample(name, v, from) { S.bag.push({ name, v, from: from || 'sample' }); }
+  // id: the sample's own id (src/data/expedition.js SAMPLES, the rare find) – brought home, it is kept by id for the lab's cabinet
+  function addSample(name, v, from, id) { S.bag.push({ name, v, from: from || 'sample', id }); }
 
   function flip(i) {
     if (!S || S.done || S.phase !== 'flip') return;
     const t = cur()[i]; if (!t || t.open) return;
     t.open = true; flash = i; ctx.sfx('select');
     if (t.kind === 'sample') {
-      addSample(t.data.name, t.data.v); t.res = 'win';
+      addSample(t.data.name, t.data.v, null, t.data.id); t.res = 'win';
       setRadio(t.data.line, 'happy'); S.log.push({ ic: 'sample', text: t.data.name });
     } else if (t.kind === 'friend') {
       const f = t.data; t.res = 'win';
       if (f.effect === 'refresh') { const n = S.team.filter((m) => m.st === 'tired').length; S.team.forEach((m) => { if (m.st === 'tired') m.st = 'ready'; }); setRadio(f.line + (n ? '' : ' (אף אחד לא היה עייף, אבל ניקיון זה תמיד נעים.)'), 'happy'); }
-      else if (f.effect === 'guide') { const sm = pick(SAMPLES[DEPTHS[S.depth].id]); addSample(sm.name, sm.v); setRadio(f.line, 'wow'); }
+      else if (f.effect === 'guide') { const sm = pick(SAMPLES[DEPTHS[S.depth].id]); addSample(sm.name, sm.v, null, sm.id); setRadio(f.line, 'wow'); }
       else { S.shield = true; setRadio(f.line, 'wow'); }
       S.log.push({ ic: f.id, text: f.name });
     } else if (t.kind === 'challenge') {
@@ -236,7 +237,7 @@ export function mountExpedition(root, ctx, opts = {}) {
     const line = kids && rule.r === 'boat'
       ? say('{N} [[ניסה|ניסתה|ניסו|ניסו]] מאוד, אבל מתחת למים זה לא [[המקום שלו|המקום שלה|המקום שלהם|המקום שלהן]]. {P} [[נח|נחה|נחים|נחות]] קצת בצד, ואחר כך [[ימשיך|תמשיך|ימשיכו|ימשיכו]].', m.c)
       : say(rule.l, m.c);
-    if (t.kind === 'rare') { addSample(data.name, rule.v || data.v, 'rare'); S.rareGot = true; }
+    if (t.kind === 'rare') { addSample(data.name, rule.v || data.v, 'rare', data.id); S.rareGot = true; }
     else if (rule.v) addSample(PRIZE[data.id] || 'דגימה', rule.v, data.id);
     t.res = r; t.by = m.c.id;
     S.phase = 'flip'; S.pending = -1;
@@ -289,7 +290,11 @@ export function mountExpedition(root, ctx, opts = {}) {
     S.done = true; S.phase = 'end';
     const score = S.banked.reduce((s, x) => s + x.v, 0);
     const got = [];
-    ST.runs++; const newBest = score > ST.best; if (newBest) ST.best = score; ST.deepest = Math.max(ST.deepest, S.reached); save();
+    ST.runs++; const newBest = score > ST.best; if (newBest) ST.best = score; ST.deepest = Math.max(ST.deepest, S.reached);
+    // the samples brought home, by id ({ id: count }): the lab's cabinet shows them as jars (src/lab/cabinet.js expeditionFound)
+    const found = ST.found && typeof ST.found === 'object' && !Array.isArray(ST.found) ? ST.found : {};
+    for (const x of S.banked) if (x.id) found[x.id] = (found[x.id] || 0) + 1;
+    ST.found = found; save();
     const total = ctx.tally('deep:samples', S.banked.length);
     const g = (earn) => { const f = ctx.badge(earn) || []; got.push(...f); };
     if (safe) g('deep:first');
@@ -340,7 +345,7 @@ export function mountExpedition(root, ctx, opts = {}) {
       <div class="ex-actions">${S.phase === 'choose' ? `<span class="ex-hint">${I.team} בחרו קלף מהצוות</span>` : `
         ${sonar ? `<button class="wl-btn" data-ex="peek">${I.eye} הצצה עם ${esc(sonar.c.name)}</button>` : ''}
         ${canUp ? `<button class="wl-btn go" data-ex="up">${I.down} לרדת ${esc(DEPTHS[S.depth + 1].into)}</button>` : ''}
-        <button class="wl-btn gold" data-ex="back">${I.up} חזרה לסירה${bagV ? ` (+${bagV})` : ''}</button>`}</div>
+        <button class="wl-btn gold" data-ex="back">${I.up} חזרה לסירה${bagV ? ` (${bagV === 1 ? 'נקודה אחת' : bagV + ' נקודות'})` : ''}</button>`}</div>
       <div class="ex-team">${S.team.map(memberHTML).join('')}</div>`;
     root.innerHTML = `<section class="wl-screen ex-run${kids ? ' ex-kids' : ''}${S.phase === 'choose' ? ' choosing' : ''}">
       <div class="ex-sea" style="--top:${L.top};--bot:${L.bot};--dk:${S.depth / 3}"><i class="ex-rays"></i>${bubbles(12)}
@@ -426,7 +431,7 @@ const CSS_TEXT = `
 .wol-learn .ex-sea>*:not(.ex-rays):not(.ex-bub){position:relative;z-index:1}
 /* radio with רובו־דע */
 .wol-learn .ex-radio{display:flex;align-items:center;gap:.7em;max-width:52em;width:100%;padding:.45em .9em;border-radius:1em;background:rgba(10,30,44,.62);box-shadow:inset 0 0 0 1px rgba(111,240,255,.25)}
-.wol-learn .ex-radio p{margin:0;font-size:1.02em;line-height:1.45;color:#eaf6fa}
+.wol-learn .ex-radio p{margin:0;font-size:calc(1.02em * var(--tsr,1));line-height:1.45;color:#eaf6fa}
 .wol-learn .ex-robo{width:3.2em;height:3.2em;flex:none}
 .wol-learn .ex-robo .eyes{animation:ex-blink 5s infinite}
 @keyframes ex-blink{0%,94%,100%{transform:none}96%{transform:scaleY(.1)}}
@@ -518,7 +523,7 @@ const CSS_TEXT = `
 .wol-learn .ex-lost,.wol-learn .ex-none{margin:0;font-size:.9em;color:#6a7a82}
 .wol-learn .ex-sum h4{margin:.3em 0 0;color:#1f5a72}
 .wol-learn .ex-facts{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.35em;max-width:40em}
-.wol-learn .ex-facts li{display:flex;gap:.5em;align-items:flex-start;font-size:.95em;line-height:1.45}
+.wol-learn .ex-facts li{display:flex;gap:.5em;align-items:flex-start;font-size:calc(.95em * var(--tsr,1));line-height:1.45}
 .wol-learn .ex-facts .wl-ic{width:1.1em;height:1.1em;color:#d98e26;flex:none;margin-top:.2em}
 .wol-learn .ex-badges{margin:0;font-weight:700;color:#5a3a8a}.wol-learn .ex-badges .wl-ic{width:1.1em;height:1.1em;vertical-align:-.15em}
 /* beginners: bigger text */
@@ -526,7 +531,7 @@ const CSS_TEXT = `
 /* small screens */
 @media (max-height:620px){
   .wol-learn .ex-sea{gap:.35em;padding:.4em .8em .5em}
-  .wol-learn .ex-radio{padding:.3em .7em}.wol-learn .ex-radio p{font-size:.92em}.wol-learn .ex-robo{width:2.6em;height:2.6em}
+  .wol-learn .ex-radio{padding:.3em .7em}.wol-learn .ex-radio p{font-size:calc(.92em * var(--tsr,1))}.wol-learn .ex-robo{width:2.6em;height:2.6em}
   .wol-learn .ex-dname{font-size:1.15em}
   .wol-learn .ex-mem .wl-card{--cw:min(6em,13vh)}
   .wol-learn .ex-run .ex-mem .wl-card{--cw:min(7em,16.5vh)}

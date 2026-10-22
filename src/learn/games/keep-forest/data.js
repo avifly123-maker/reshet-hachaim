@@ -3,9 +3,12 @@
 // each place (toolOk), the vitality needed for stars (STAR_T), deck sizes; rnd, shuffle, dn (definite name), mid (מים
 // on land, מחסה at the reef), and every real relation between two species of a place (linksFor, cached per place).
 // Exports: BIOMES, BNAME, ROWS, ROW_SHORT, ROWS_REEF, ROW_SHORT_REEF, ROW_SUB, layerRow, BIRDS, INSECTS, FISH,
-//   toolOk, STAR_T, MIN_DECK, TOPUP, HAND, HAND_MAX, DECK_MAX, LAYER_NEED, rnd, shuffle, dn, mid, linksFor, late.
+//   toolOk, STAR_T, MIN_DECK, TOPUP, HAND, HAND_MAX, DECK_MAX, LAYER_NEED, rnd, shuffle, dn, mid, linksFor, late, moreLife.
 // Needs: data/common.js (verbs and names).
 import { defName, dietVerb, joinObj, relVerb } from '../../../data/common.js';
+
+// vitality gained, said in words (no plus sign anywhere: it reads as a cross): "עוד נקודת חִיּוּת" / "עוד 3 נקודות חִיּוּת"
+export const moreLife = (n) => (n === 1 ? 'עוד נקודת חִיּוּת' : `עוד ${n} נקודות חִיּוּת`);
 
 export const BIOMES = ['amazon', 'grove', 'reef'];
 export const BNAME = { amazon: 'אמזונס', grove: 'חורש', reef: 'שונית' };

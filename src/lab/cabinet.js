@@ -29,6 +29,7 @@ import { MISSIONS } from '../data/inventions.js';
 import { MISSIONS_K } from '../data/inventions-kids.js';
 import { key as profileKey } from '../core/profiles.js';
 import { BABA_DA_LOGO } from '../data/logo.js';
+import { readPhotos, readVisitors } from '../game/rank.js';
 
 // ───────────────────────────────────────── 1.3.2: soft shadows of what is not found yet (never a "?"), one shape per kind
 // of thing; a mystery's find has its own shape (FIND_SHAPE). Plain filled shapes, drawn in one soft colour; no crossing bars.
@@ -181,15 +182,14 @@ export function collection(kids, thumbs = {}) {
   // photos from the islands (wave 3: the photo mode keeps them per player in web-of-life-photos)
   const zoneName = (z) => (ZONES_T[z] ? O(ZONES_T[z]) : '');
   const nameOf = (sp, fb) => { const n = sp && speciesName(sp); return n ? O(n) : (fb || ''); };
-  const ph = readStore('web-of-life-photos');
-  const photos = (Array.isArray(ph) ? ph : []).filter((p) => p && p.img).slice().sort((a, b) => (b.t || 0) - (a.t || 0)).slice(0, 12)
+  // (the readers of src/game/rank.js drop broken entries; a picture counts only when it is a real image data URL)
+  const isPic = (s) => typeof s === 'string' && s.startsWith('data:image/');
+  const photos = readPhotos().filter((p) => isPic(p.img)).sort((a, b) => (b.t || 0) - (a.t || 0)).slice(0, 12)
     .map((p, i) => ({ key: 'photo:' + (p.id || i), name: nameOf(p.sp, p.name), fact: zoneName(p.zone) ? O(COLL_T.photoText, { zone: zoneName(p.zone) }) : '', img: p.img }));
   shelves.push({ id: 'photos', items: photos, ghosts: photos.length ? 0 : 2 });
   // rare visitors (wave 3: web-of-life-visitors, a list or a map by id)
-  const vs = readStore('web-of-life-visitors');
-  const vlist = Array.isArray(vs) ? vs : vs && typeof vs === 'object' ? Object.entries(vs).map(([id, v]) => ({ id, ...(v && typeof v === 'object' ? v : {}) })) : [];
-  const visitors = vlist.filter(Boolean).slice(0, 12).map((v, i) => { const sp = v.sp || v.id; const src = v.img || picSrc('card:' + sp, thumbs);
-    return { key: 'visit:' + (v.id || i), name: nameOf(sp, v.name), fact: zoneName(v.zone) ? O(COLL_T.visitText, { zone: zoneName(v.zone) }) : '', pic: 'card:' + sp, img: src || '', round: !!src }; });
+  const visitors = readVisitors().filter((v) => typeof (v.sp || v.id) === 'string').slice(0, 12).map((v, i) => { const sp = v.sp || v.id; const src = (isPic(v.img) && v.img) || picSrc('card:' + sp, thumbs);
+    return { key: 'visit:' + (v.id || i), name: nameOf(sp, v.name), fact: zoneName(v.zone) ? O(COLL_T.visitText, { zone: zoneName(v.zone) }) : '', pic: 'card:' + sp, img: src || '', round: !!src }; }).filter((it) => it.name || it.img);   // an unknown species: nothing to show
   shelves.push({ id: 'visitors', items: visitors, ghosts: visitors.length ? 0 : 2 });
   // clues solved in "מי השאיר את זה?" (their first painting)
   const cs = cluesSolved();

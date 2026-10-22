@@ -168,8 +168,8 @@ export function createAlbum(ctx) {
     const id = c.sp.id, it = gw(id, 'אותו', 'אותה', 'אותם', 'אותן');
     const txt = c.rarity === 'epic'
       ? `<b>מין מפתח:</b> הרבה יצורים צריכים ${it}. במשחק "מחזיקים את היער" ${gw(id, 'הוא שומר', 'היא שומרת', 'הם שומרים', 'הן שומרות')} על היער פעם אחת, כשהיער לא מוכן לאירוע.`
-      : `<b>בונוס קטן:</b> במשחק "מחזיקים את היער", אם ${gw(id, 'הוא מתחבר', 'היא מתחברת', 'הם מתחברים', 'הן מתחברות')} בחוט זהב כשמניחים ${it} – עוד <bdi dir="ltr">+1</bdi> חִיּוּת.`;
-    return `<div class="wl-mpow r-${c.rarity}"><span class="wl-powi">${c.rarity === 'epic' ? IC_KEY : '+1'}</span><span>${txt}</span></div>`;
+      : `<b>בונוס קטן:</b> במשחק "מחזיקים את היער", אם ${gw(id, 'הוא מתחבר', 'היא מתחברת', 'הם מתחברים', 'הן מתחברות')} בחוט זהב כשמניחים ${it} – עוד נקודת חִיּוּת אחת.`;
+    return `<div class="wl-mpow r-${c.rarity}"><span class="wl-powi">${c.rarity === 'epic' ? IC_KEY : IC.star}</span><span>${txt}</span></div>`;
   }
   // "מה רואים על הקלף?" – one big example card with numbered markers + a numbered legend
   function cardLegend() {
@@ -181,7 +181,7 @@ export function createAlbum(ctx) {
       ['badge', 'איפה הוא גר', '<b class="wl-badge b-amazon">אמזונס</b> <b class="wl-badge b-grove">חורש</b> <b class="wl-badge b-reef">שונית</b> – יער הגשם, החורש שלנו או שונית האלמוגים של אילת. <b class="wl-badge b-tech">טכנולוגיה</b> – כלי שעוזר לשמור על הטבע.'],
       ['kind', 'מה הוא', 'עץ, שיח, פרח, בעל חיים, פטרייה...'],
       ['gems', 'יהלומי נדירות', `כמה קשה למצוא את הקלף בחבילות: <span class="wl-lr c">${dia(1)} נפוץ</span><span class="wl-lr r">${dia(2)} נדיר</span><span class="wl-lr e">${dia(3)} נדיר מאוד</span><span class="wl-lr t"><span class="wl-gems">${gems('tech')}</span> כלי טכנולוגי</span>`],
-      ['x-power', 'נדירות במשחק', `<span class="wl-lp e"><b>נדיר מאוד = מין מפתח.</b> כוח מיוחד במשחק "מחזיקים את היער": שומר על היער פעם אחת.</span><span class="wl-lp r"><b>נדיר:</b> בונוס קטן – עוד <bdi dir="ltr">+1</bdi> חִיּוּת.</span>`],
+      ['x-power', 'נדירות במשחק', `<span class="wl-lp e"><b>נדיר מאוד = מין מפתח.</b> כוח מיוחד במשחק "מחזיקים את היער": שומר על היער פעם אחת.</span><span class="wl-lp r"><b>נדיר:</b> בונוס קטן – עוד נקודת חִיּוּת אחת.</span>`],
       ['stats', 'שלושה מספרים', `${STAT_ICON.light} <b>אור</b> – כמה אור הוא צריך. ${STAT_ICON.water} <b>מים</b> – כמה מים ולחות (בקלפי השונית במקומם ${STAT_ICON.shelter} <b>מחסה</b> – כמה בית הוא נותן לאחרים). ${STAT_ICON.links} <b>קשרים</b> – עם כמה יצורים יש לו קשר ברשת. מ-1 עד 5.`],
       ['fact', 'הידעת?', 'משפט קצר ומעניין על היצור.'],
       ['rar', 'נדירות במילים', 'גם צבע המסגרת מספר: ירוק – נפוץ, זהב – נדיר, אדום-סגול – נדיר מאוד, כחול – טכנולוגיה.'],

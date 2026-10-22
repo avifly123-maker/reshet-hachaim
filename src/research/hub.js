@@ -79,12 +79,14 @@ export function createResearchHub(root, { onPick, onClose, onLab }) {
     gate(el.querySelector('.rs-h-tut'), () => { close(); onPick(TUTORIAL_CASE, { tutorial: true }); });
   }
   // the first entry: רובו־דע presents the centre (his bubbles take the place of the four how-to cards, which stay on
-  // the "?" button); a player who already met him there gets the how-to cards once, as before
+  // the "?" button). A player who already had his presentation is not told again: the cards wait on the "?" button.
+  // (only a page without the guide shows the how-to cards by themselves, once)
   function open() {
     render(); el.classList.add('on');
     const g = window.__guide;
-    if (g && isOpen('research') && !introSeen('g:research')) setTimeout(() => { if (el.classList.contains('on')) g.intro('research', { modal: true }); }, 450);
-    else if (isOpen('research')) howto(root, HOWTO, { key: 'research' });
+    if (!isOpen('research')) return;
+    if (!g) howto(root, HOWTO, { key: 'research' });
+    else if (!introSeen('g:research')) setTimeout(() => { if (el.classList.contains('on')) g.intro('research', { modal: true }); }, 450);
   }
   function close() { if (!el.classList.contains('on')) return; el.classList.remove('on'); onClose && onClose(); }
   // a part opened or another player was chosen while the centre is open: draw it again

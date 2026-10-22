@@ -169,12 +169,21 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     if (st && st.next && st.next.stage === info.stage && st.next.need && st.next.need.length) txt += ' ' + st.next.need.join(kids ? ' אוֹ ' : ' או ') + '.';
     const g = guide();
     if (!g) { toast(`${IC_CURTAIN}<span>${esc(txt)}</span>`, 3200); tipAt = now; return; }
-    if (guideMine) g.close(guideMine);   // our last tip may still be up: the new one replaces it (nothing else of רובו־דע closes)
+    if (tipMine) g.close(tipMine);   // our last tip may still be up: the new one replaces it (nothing else of רובו־דע closes)
     tipAt = now;
-    const mine = guideMine = g.tip({ f: txt, k: txt, expr: 'curious' }); mine.then(() => { if (guideMine === mine) guideMine = null; });
+    const mine = tipMine = guideMine = g.tip({ f: txt, k: txt, expr: 'curious' });
+    mine.then(() => { if (guideMine === mine) guideMine = null; if (tipMine === mine) tipMine = null; });
   }
-  function introFor(name) {
-    const part = INTRO_OF[name], g = guide(); if (!part || !g || !g.intro) return;
+  // moving to another screen: our own lock tip goes away (closed by its own promise, so other bubbles stay queued)
+  let tipMine = null;
+  function dropTip() {
+    const g = guide(); if (!tipMine || !g) return;
+    const mine = tipMine; tipMine = null; g.close(mine);
+  }
+  // (הממציאים opened on the robot workshop, from the lab's robots door: the workshop is presented first, by its own lines)
+  function introFor(name, opts = {}) {
+    const robots = name === 'inventors' && opts.view === 'robots' && !locked('robots');
+    const part = robots ? 'robots' : INTRO_OF[name], g = guide(); if (!part || !g || !g.intro) return;
     later(() => {
       if (!open_ || screen !== name) return;
       const mine = guideMine = g.intro(part, { modal: true }); mine.then(() => { if (guideMine === mine) guideMine = null; });
@@ -213,14 +222,16 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     // a part that is not open yet (מסע החוקר): רובו־דע says what opens it, and the screen stays as it is
     // (the hub itself was just opened into it: the home). opts.force (the _go test hook) opens it anyway.
     const part = PART_OF[name];
+    let tipNow = false;   // the tip just given stays up over the home it opens on
     if (part && !opts.force && locked(part)) {
       lockTip(part);
       if (main.firstElementChild && screen !== name) return;
-      name = 'home';
+      name = 'home'; tipNow = true;
     }
     if (name === 'versematch' && !srcOn()) name = 'home';   // the torah edition's game, only while the sources are on
     clearTimers(); closeModal(); ctx.setsOpen = false;
     const entering = entered !== name; entered = name;   // a repaint of the same screen does not present it again
+    if (entering && !tipNow) dropTip();
     if (name === 'home') returnTo = null;
     if (gameInst) { try { gameInst.destroy && gameInst.destroy(); } catch (e) { console.warn(e); } gameInst = null; }
     if (name === 'frames') PARENT.frames = screen === 'badges' ? 'badges' : 'home';
@@ -228,7 +239,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
       screen = name; $('.wl-crumb').textContent = TITLES[name]; $('.wl-back span').textContent = returnTo === name ? (MODE === 'kids' ? 'חֲזָרָה לַמַּעְבָּדָה' : 'חזרה למעבדה') : 'חזרה'; updateChip(false);
       main.innerHTML = '';
       try { gameInst = GAMES[name](main, GAME_CTX, opts) || null; } catch (e) { console.error(e); main.innerHTML = '<p style="padding:2em">אירעה תקלה במשחק.</p>'; }
-      main.scrollTop = 0; if (entering) introFor(name); return;
+      main.scrollTop = 0; if (entering) introFor(name, opts); return;
     }
     screen = name;
     $('.wl-crumb').textContent = TITLES[name] || '';
@@ -242,7 +253,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   // opened from the lab (the inventors table): "חזרה" on that screen goes straight back to the lab
   let returnTo = null;
   function back() {
-    if (!modal.hidden) return closeModal();
+    if (!modal.hidden) { closeModal(); onJourney(); return; }
     if (screen === 'album' && ctx.setsOpen) { sfx('click'); return showSets(false); }
     if (returnTo && screen === returnTo) { sfx('click'); returnTo = null; return close(); }
     const p = PARENT[screen];
@@ -273,7 +284,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
 
   /* ── events */
   const ACT = {
-    back, close: closeModal, home: () => { sfx('click'); go('home'); }, setup: () => { sfx('click'); go('setup'); },
+    back, close: () => { closeModal(); onJourney(); }, home: () => { sfx('click'); go('home'); }, setup: () => { sfx('click'); go('setup'); },
     album: () => { sfx('click'); go('album'); }, packs: () => { sfx('click'); go(S.packs ? 'pack' : 'album'); },
     pick: (t) => { QS[t.dataset.g] = t.dataset.v; sfx('select'); renderSetup(); },
     start: () => { sfx('click'); go('quiz'); }, again: () => { const Q = quizNow(); sfx('click'); go('quiz', { level: Q && Q.level, biome: Q && Q.biome }); },
@@ -308,13 +319,16 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   el.addEventListener('click', (e) => {
     const t = e.target.closest('[data-wl]');
     if (t && el.contains(t) && !t.disabled) { ACT[t.dataset.wl] && ACT[t.dataset.wl](t, e); return; }
-    if (e.target === modal) { closeModal(); return; }
+    if (e.target === modal) { closeModal(); onJourney(); return; }
     const c = e.target.closest('.wl-grid .wl-card'); if (c) zoom(c.dataset.cid);
   });
   // keep the game underneath from reacting to input while the hub is open
   for (const ev of ['pointerdown', 'pointerup', 'pointermove', 'wheel', 'contextmenu', 'mousedown', 'touchstart']) el.addEventListener(ev, (e) => e.stopPropagation(), { passive: ev !== 'contextmenu' });
   const onKey = (e) => {
     if (!open_) return;
+    // רובו־דע's bubble takes the key first (its own capture listener, added before this one, closes the bubble and stops
+    // the event): the same Escape must not also leave the hub. cancelBubble reads that stop; isOpen() covers any order.
+    if (e.cancelBubble || (window.__guide && window.__guide.isOpen())) return;
     e.stopPropagation();
     if (e.key === 'Escape') { e.preventDefault(); back(); }
     else if ((e.key === 'Enter' || e.key === ' ') && e.target && e.target.matches && e.target.matches('[data-wl][role=button]')) { e.preventDefault(); e.target.click(); }
@@ -324,13 +338,15 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   // (only when a lock really changed: a part marked as used must not make the screen rise in again)
   let journeyT = 0, lockSig = '';
   const HUB_PARTS = ['album', 'quiz', 'webpuzzle', 'keepforest', 'badges', 'frames', 'inventors', 'expedition', 'duel', 'versematch'];
+  // a part opened by a new stage comes with 'wol-stage' / 'wol-stage-done' (no 'wol-journey'): listen to all three
+  const JOURNEY_EVENTS = ['wol-journey', 'wol-stage', 'wol-stage-done'];
   const sigNow = () => HUB_PARTS.map((p) => (locked(p) ? 0 : 1)).join('');
   function onJourney() {
     clearTimeout(journeyT);
     journeyT = setTimeout(() => {
       if (!open_) return;
-      const sg = sigNow(); if (sg === lockSig) return; lockSig = sg;
-      if (!modal.hidden) return;
+      // (under an open window nothing is repainted and the new locks are not taken as seen: closing it repaints)
+      const sg = sigNow(); if (sg === lockSig || !modal.hidden) return; lockSig = sg;
       if (screen === 'home') renderHome(); else if (screen === 'badges') renderBadges(); else return;
       const sc = main.querySelector('.wl-screen'); if (sc) sc.style.animation = 'none';   // a repaint, not a new screen: no rise
     }, 60);
@@ -341,7 +357,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     open_ = true; el.hidden = false; rootEl.classList.add('wl-hubopen');
     window.addEventListener('keydown', onKey, true);
     window.addEventListener('resize', onResize);
-    window.addEventListener('wol-journey', onJourney);
+    for (const ev of JOURNEY_EVENTS) window.addEventListener(ev, onJourney);
     lockSig = sigNow();
     go('home');
     try { $('.wl-back').focus({ preventScroll: true }); } catch (e) { /* */ }
@@ -352,7 +368,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     if (guideMine) { const g = guide(); try { g && g.close(guideMine); } catch (e) { /* */ } guideMine = null; }
     window.removeEventListener('keydown', onKey, true);
     window.removeEventListener('resize', onResize);
-    window.removeEventListener('wol-journey', onJourney);
+    for (const ev of JOURNEY_EVENTS) window.removeEventListener(ev, onJourney);
     sfx('click');
     try { onClose && onClose(); } catch (e) { console.warn(e); }
   }
