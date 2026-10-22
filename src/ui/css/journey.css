@@ -114,8 +114,10 @@
 #ui.wol .jm-tr-ahead { stroke: #9a8558; stroke-width: 3; stroke-dasharray: 2 9; }
 #ui.wol .jm-tr-walk { stroke: #d99a2e; stroke-width: 6; filter: drop-shadow(0 1px 0 rgba(120, 70, 10, .5)); }
 #ui.wol .jm-tr-part { stroke: #d99a2e; stroke-width: 6; }
-#ui.wol .jm-stages { position: relative; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: clamp(4px, 1vw, 12px); }
-#ui.wol .jm-st { --c: #5f9a3e; display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; min-width: 0; }
+#ui.wol .jm-stages { position: relative; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(var(--cols, 6), minmax(0, 1fr)); gap: clamp(4px, 1vw, 12px); }
+#ui.wol .jm-st { --c: #5f9a3e; display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; min-width: 0; grid-column: span var(--span, 1); }
+/* a stage with many parts (journey-map.js MANY_PARTS): its tiles in two columns, so the map does not scroll */
+#ui.wol .jm-st.many .jm-parts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 #ui.wol .jm-medw { position: relative; height: clamp(64px, 14vh, 88px); display: grid; place-items: center; }
 #ui.wol .jm-st:nth-child(even) .jm-medw { transform: translateY(clamp(6px, 1.6vh, 12px)); }
 #ui.wol .jm-med { position: relative; width: clamp(48px, 10.5vh, 68px); aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; color: #fffbea;
@@ -290,6 +292,10 @@
   #ui.wol .set-h { font-size: 1.3em; }
   #ui.wol .st-isl .jv-note { font-size: .82em; }
   #ui.wol .jm-name { font-size: 1em; margin-top: 2px; }
+  #ui.wol .jm-medw { height: 54px; } #ui.wol .jm-med { width: 42px; } #ui.wol .jm-trail { height: 54px; }
+  #ui.wol .jm-st:nth-child(even) .jm-medw { transform: translateY(5px); }
+  #ui.wol .jm-sn { display: none; }   /* the stage's number is on its medallion; "אתם כאן" stays */
+  html.ts-xlarge #ui.wol .jm-parts { gap: 2px; } html.ts-xlarge #ui.wol .jm-part { min-height: 0; padding-block: 1px; line-height: 1.08; }
   #ui.wol .jm-part { min-height: 24px; padding: 2px 6px; font-size: calc(.74em * var(--ts, 1)); border-radius: 7px; }
   #ui.wol .jm-parts { gap: 3px; }
   #ui.wol .jm-replay { width: 24px; height: 24px; } #ui.wol .jm-replay .ic { width: 12px; height: 12px; }
