@@ -123,10 +123,55 @@ part in his voice, a lighter "חוויה" mode trims text in the forests, and th
 - Then tour every animal of the three zones headless and fix any other stuck/missing case of the same kind.
 
 ## Wave 3 (after wave 2 is merged)
-Threads between parts (experience: 6; full: all, Docs section 4 and the earlier "הידע עובד" page), the six new
-technologies (Docs section 5, models from Blender later; until then simple procedural stand-ins), after the missions
-(rare visitors, photo mode + album `web-of-life-photos`, guardian challenges, island rank), stage scenes and other
-in-engine animations (`window.__stageScene`), cabinet exhibits wiring.
+
+### F. Threads engine and their screens (`src/core/threads.js`, `src/data/threads.js`, the `.jm-threads` part of `src/ui/journey-map.js`, card stamps in `src/learn/hub.js`, recommended mystery in `src/research/hub.js`, the "from your island" marks in `src/lab/`)
+- `src/data/threads.js`: `THREADS = [{ id, mode: 'exp'|'full', from: { kind, id }, to: { kind, id }, effect, f, k, fact, src }]`.
+  `from.kind`: 'invention' (lab progress inventions / solved problems), 'case' (a solved mystery), 'photo' (a species
+  photographed on the island), 'link' (a relation discovered), 'event' (an island event lived), 'zone' (all regular
+  missions of a zone), 'robot' (a robot built in the workshop), 'think' (a thinking-corner activity done).
+  `to.kind`: 'tool' (an island tool upgrade, `effect` = { tool, key, value }), 'choice' (a new event choice),
+  'reveal' (links shown on the island), 'measure' (the quadrat / notebook on the island), 'sample' (a microscope
+  sample marked), 'question' (an atlas question marked), 'case' (a recommended mystery), 'problem' (inventor problems
+  marked "מחכות לך"), 'robotout' (the child's robot works on the island), 'stamp' (a card stamp).
+  Experience mode = the six simple threads of the Docs page section 4; full = all (the 22 of the earlier page + tech).
+- `src/core/threads.js`: `active()` → open threads for the current player and play mode, `has(id)`, `toolBoost(tool, zone)`
+  → { speed, range, hover, night, … } merged, `choicesFor(eventId)`, `stamps(speciesId)` → ['seen','photo','scope',
+  'invent','case','source'], `fresh()` → threads opened since last shown (for רובו־דע's announcement), `markShown()`.
+  Computed from the saves (like journey.js), no new saves except shown ids (`web-of-life-threads`).
+- Announcement: when a thread opens, רובו־דע says its line (f/k) with a `tip` (or modal in the journey map).
+- The journey map draws the threads between the parts (a soft line per open thread, a dashed one + hint per closed).
+
+### G. Technologies and רובו־דע on the island (`src/game/tool-defs.js`, `src/game/tools.js`, new `src/world/tech.js`, `src/data/guide/zone.js` additions)
+- Six new tools (Docs section 5): canopy robot (amazon), lidar drone (amazon), thermal drone (grove, night), fire
+  watch tower (grove, softens fire events), healthy-reef speaker (reef, young fish arrive at a damaged reef),
+  coral-spawning robot (reef, spawning night). Procedural three.js models for now (clean, toy-like, teal/white like
+  רובו־דע; no cross shapes); Blender versions later. Each has a clear visual effect (scan lines, heat glows, sound rings,
+  floating coral eggs). Experience mode: they work by themselves and show the picture; full: also numbers / a graph.
+  They unlock through missions like other tools and fit the journey (no tool before its zone opens).
+- Tool upgrades from threads: read `threads.toolBoost(tool, zone)` (fallback: no boost) — drone hover, camera night
+  range, rescue speed, watergen output, nest box storm-proof, buoy range, murky water shorter, sharkskin (keep).
+- רובו־דע on the island: the lab robot model (src/data/lab-robot.js, decoded like src/lab/lab.js) hovers near the camera
+  target when he speaks in the forest, and goes to a spot he points at. Light: only while a guide bubble is open.
+
+### H. After the missions (`src/game/visitors.js`, `src/game/photos.js`, `src/game/challenges.js`, island rank in `src/game/rank.js`, start-screen badge under the island through a small hook)
+- Rare visitors: per zone 3 existing hard-to-attract species with conditions (e.g. harpy eagle: enough monkeys and tall
+  trees; reef shark visiting; a hoopoe or owl in the grove) → a short visit, a guide line, photograph it to keep it
+  (`web-of-life-visitors` per player: { id, zone, t, img? }).
+- Photo mode with the field camera / a "צילום" button: a framed shot, small JPEG (≤ 160 px, ≤ 12 kB) saved in
+  `web-of-life-photos` (max 40 per player, oldest dropped); photo missions ("טוקן אוכל פרי"); a photo of two linked
+  species counts more. The cabinet already reads this key.
+- Guardian challenges (full mode): one short challenge per visit from templates, three levels; rank points.
+- Island rank: per zone 4 ranks (e.g. חורש צעיר, חורש פורח, חורש עבות, חורש עתיק) from species alive, active links,
+  seasons survived, challenges; shown on the start screen under the island and as small visual extras on the island.
+
+### I. Animations (`src/ui/stage-scenes.js` → `window.__stageScene(n)`, plus small flourishes)
+- Six stage scenes, 5 to 7 s each, staged in-engine with existing models (רובו־דע from src/data/lab-robot.js, rigged
+  animals, island stills / panoramas, card paintings), drawn in an overlay canvas with its own small renderer that is
+  disposed after the scene; skippable; replayable from the map; low quality on weak machines. Docs section 12 lists
+  what each scene shows. The Baba Da logo on the last frame.
+- Short flourishes (1 to 2 s): a part opening (its tile lifts and shines), a new thread (a glowing line drawn), a badge.
+- Other places (Avi: "more animations from existing models"): the hub album opening, the lab entrance (רובו־דע waves),
+  the mission-done moment on the island (an animal from the mission runs a small celebration loop).
 
 ## Reporting
 Each agent commits on its own worktree branch with clear messages (end with the Co-Authored-By line from CLAUDE.md
