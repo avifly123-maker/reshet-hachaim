@@ -12,7 +12,7 @@ import { HUB_ICONS, tileIcon } from './icons-hub.js';   // the learning hub's ic
 // 1.3.2 start screen (מסע החוקר): veils, the journey bar, the map and the settings sheet
 import * as JR from '../core/journey.js';
 import { openJourneyMap, stageEmblem, mapIcon, STAGE_COLOR, lockWords, lockTip } from './journey-map.js';
-import { openSettings } from './settings.js';
+import { openSettings, settingsRowsHTML, bindSettingsRows } from './settings.js';
 
 /* ------------------------------------------------------------------ helpers */
 export const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -751,15 +751,11 @@ export function createUI(root, bus) {
   document.addEventListener('pointerdown', (e) => { if (!qWrap.contains(e.target)) setKit(false); }, true);
   /* settings rows (journey) */
   // 1.3.2: the satchel gets the same three rows as the start screen's settings (play mode חוויה / מלא, text size, the voice
-  // of רובו־דע) from src/ui/settings.js (area A): settingsRowsHTML({ place }) + bindSettingsRows(el). That file is not in this
-  // branch yet, so the rows come through window.__wolSettings = { settingsRowsHTML, bindSettingsRows } when it registers itself;
-  // after the merge this can become a plain `import { settingsRowsHTML, bindSettingsRows } from './settings.js'`.
-  // The forest repaints itself on 'wol-journey' (game.js onJourney), so a changed play mode applies at once.
+  // of רובו־דע) from src/ui/settings.js. The forest repaints itself on 'wol-journey' (game.js onJourney), so a changed
+  // play mode applies at once.
   function fillJourneyRows() {
     const box = toolbar.querySelector('.km-journey'); if (!box) return;
-    const SR = window.__wolSettings;
-    if (!SR || typeof SR.settingsRowsHTML !== 'function') { box.hidden = true; box.innerHTML = ''; return; }
-    try { box.innerHTML = SR.settingsRowsHTML({ place: 'zone' }); box.hidden = !box.innerHTML; if (SR.bindSettingsRows) SR.bindSettingsRows(box); }
+    try { box.innerHTML = settingsRowsHTML({ place: 'zone' }); box.hidden = !box.innerHTML; bindSettingsRows(box, { emit }); }
     catch (e) { console.error(e); box.hidden = true; }
   }
   function paintToggles() {
