@@ -179,11 +179,16 @@ async function mission(speciesId, opts = {}) {
     const b0 = new THREE.Box3().setFromObject(v.object), sz = b0.getSize(new THREE.Vector3()); const m = Math.max(sz.x, sz.y, sz.z) || 1;
     v.object.scale.multiplyScalar(1 / m); const c = new THREE.Box3().setFromObject(v.object).getCenter(new THREE.Vector3()); v.object.position.sub(c);
     cam.position.set(0, 0.35, 2.6); cam.lookAt(0, 0.05, 0);
+    // a fish spins, a flyer loops, the others hop. A fish is told by its species (locomotion 'swim', s.swims), not by its
+    // clips: birds have 'fly' without 'walk' too. Fish swim on their 'fly' clip (reef_kit.py: fly/hover/glide).
     const acts = v.actions || [];
-    const kind = acts.includes('fly') && !acts.includes('walk') ? 'swim' : acts.includes('fly') ? 'fly' : 'hop';
+    const def = ((Z.data && Z.data.species) || []).find((s) => s.id === speciesId) || {};
+    const kind = def.swims || def.locomotion === 'swim' ? 'swim' : acts.includes('fly') ? 'fly' : 'hop';
+    const moveClip = acts.includes('fly') ? 'fly' : acts.includes('hover') ? 'hover' : 'idle';
+    try { window.__flourish.info = { species: speciesId, zone, kind, clip: kind === 'hop' ? 'run' : moveClip, actions: acts }; } catch (e) { }   // a headless check
     // the first picture is made before the box shows (a slow computer compiles the shaders first), then the clock starts
     try { renderer.compile(scene, cam); } catch (e) { }
-    v.update(0.016, { action: kind === 'hop' ? 'idle' : kind === 'fly' ? 'fly' : 'swim' }); renderer.render(scene, cam);
+    v.update(0.016, { action: kind === 'hop' ? 'idle' : moveClip }); renderer.render(scene, cam);
     host().appendChild(box);
     try { const a = window.__app && window.__app.audio; if (a) setTimeout(() => a.play('pop'), 200); } catch (e) { }
     const t0 = performance.now(); let last = t0;
@@ -200,7 +205,7 @@ async function mission(speciesId, opts = {}) {
           v.update(dt, { action: 'fly' });
         } else {   // a fish: a happy spin
           holder.position.set(Math.sin(t * 2.2) * 0.25, Math.sin(t * 4.4) * 0.06, 0); holder.rotation.set(0, t * 3.2, Math.sin(t * 4) * 0.2);
-          v.update(dt, { action: 'swim' });
+          v.update(dt, { action: moveClip });
         }
         renderer.render(scene, cam);
         if (t < 2.6) raf = requestAnimationFrame(frame); else res();
