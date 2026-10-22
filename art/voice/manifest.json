@@ -1,45 +1,38 @@
 {
  "st1.1": {
-  "h": "e09382294189",
+  "h": "3e7cd63dfdaf",
   "text": "שָׁלוֹם! אֲנִי רוֹבּוֹ־דַּע, הָרוֹבּוֹט הַחוֹקֵר.",
-  "ipa": "ʃalˈom! anˈi ʁˈobo dˈa, haʁobˈot haχokˈeʁ.",
-  "heard": "שלום, ניר עבודה, הרובוט החוקר."
+  "ipa": "ʃalˈom! anˈi ʁˈobo dˈa, haʁobˈot haχokˈeʁ."
  },
  "st1.2": {
-  "h": "887a998a9158",
+  "h": "3c598e4fdba5",
   "text": "יֵשׁ לָנוּ שְׁנֵי אִיִּים: הָאַמְזוֹנָס וְהַחוֹרֶשׁ. בָּחֲרוּ אִי, וְנִבְנָה בּוֹ יַעַר חַי.",
-  "ipa": "jˈeʃ lˈanu ʃenˈej ijˈim, haamazˈonas vehaχˈoʁeʃ. baχaʁˈu ˈi, venivnˈe bˈo jˈaaʁ χˈaj.",
-  "heard": "יש לנו שנעים המזונס והחורש, בחרו וי ונבנה בו"
+  "ipa": "jˈeʃ lˈanu ʃenˈej ijˈim, haamazˈonas vehaχˈoʁeʃ. baχaʁˈu ˈi, venivnˈe bˈo jˈaaʁ χˈaj."
  },
  "st1.2.k": {
-  "h": "97bff6c162bc",
+  "h": "199950205dad",
   "text": "יֵשׁ לָנוּ שְׁנֵי אִיִּים: הָאָמָזוֹנָס וְהַחֹרֶשׁ. בַּחֲרוּ אִי, וְנִבְנֶה בּוֹ יַעַר חַי.",
-  "ipa": "jˈeʃ lˈanu ʃenˈej ijˈim, haamazˈonas vehaχˈoʁeʃ. baχaʁˈu ˈi, venivnˈe bˈo jˈaaʁ χˈaj.",
-  "heard": "יש לנו שנגיעים, המזונס והחורש בחרו בי ונבנה"
+  "ipa": "jˈeʃ lˈanu ʃenˈej ijˈim, haamazˈonas vehaχˈoʁeʃ. baχaʁˈu ˈi, venivnˈe bˈo jˈaaʁ χˈaj."
  },
  "st1.3": {
-  "h": "b8a89b4e8f8f",
+  "h": "9cd35fb4b0ab",
   "text": "כָּל מְשִׂימָה שֶׁתַּשְׁלִימוּ תִּפְתַּח עוֹד חֵלֶק בַּמַּסָּע. בְּהַצְלָחָה!",
-  "ipa": "kˈol mesimˈa ʃetaʃlimˈu tiftˈaχ ʔˈod χˈelek bamasˈa. behatslaχˈa!",
-  "heard": "כל משימה שתאשימו תפתח עוד חלק במסע, בהצלחה."
+  "ipa": "kˈol mesimˈa ʃetaʃlimˈu tiftˈaχ ʔˈod χˈelek bamasˈa. behatslaχˈa!"
  },
  "st2.1": {
-  "h": "6b76eb7ca7bd",
+  "h": "772a618e8ab5",
   "text": "כָּל הַכָּבוֹד! עַכְשָׁיו אַתֶּם אַסְפָנִים.",
-  "ipa": "kˈol hakavˈod! aχʃˈav atˈem asfanˈim.",
-  "heard": "כל הכבוד, עכשיו אתם ספנים"
+  "ipa": "kˈol hakavˈod! aχʃˈav atˈem asfanˈim."
  },
  "st2.1.k": {
-  "h": "af59f91d7512",
+  "h": "df673a4463f3",
   "text": "כָּל הַכָּבוֹד! עַכְשָׁו אַתֶּם אַסְפָנִים.",
-  "ipa": "kˈol hakavˈod! aχʃˈav atˈem asfanˈim.",
-  "heard": "כל הכבוד, עכשיו אתם אספנים"
+  "ipa": "kˈol hakavˈod! aχʃˈav atˈem asfanˈim."
  },
  "st2.2": {
-  "h": "452489ed226c",
+  "h": "314353e9ab9b",
   "text": "נִפְתַּח לָכֶם אַלְבּוֹם הַקְּלָפִים, עִם חֲבִילוֹת וְחִידוֹן.",
-  "ipa": "niftˈaχ laχˈem albˈom hakelafˈim, ˈim χavilˈot veχidˈon.",
-  "heard": "נפתח לכם אלבום הקלפים עם חבילות וחידון"
+  "ipa": "niftˈaχ laχˈem albˈom hakelafˈim, ˈim χavilˈot veχidˈon."
  },
  "st3.1": {
   "h": "9f216870fd14",
@@ -84,10 +77,9 @@
   "heard": "כל מה ששיחקתם נשאר פתוח. במפת המסע רואים את הדרה"
  },
  "st2.3": {
-  "h": "a06467bdb3b9",
+  "h": "80a30c9a9427",
   "text": "בְּכָל קְלָף יֵשׁ יְצוּר מֵהַטֶּבַע. בּוֹאוּ לֶאֱסוֹף!",
-  "ipa": "beχˈol kelˈaf jˈeʃ jetsˈuʁ mehatˈeva. boʔˈu leesˈof!",
-  "heard": "בכל כלף יש יצוא מהטבע, בואו לסוף"
+  "ipa": "beχˈol kelˈaf jˈeʃ jetsˈuʁ mehatˈeva. boʔˈu leesˈof!"
  },
  "st2.3.k": {
   "h": "db6681ff2822",
