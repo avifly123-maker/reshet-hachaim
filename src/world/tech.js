@@ -465,7 +465,7 @@ export function createTech(ctx) {
       if (!trees.length) { showBoard(p, { title: toolName('lidar'), line: 'עוד אין כאן עצים גבוהים. שתלו עצים, והרחפן ימדוד אותם.' }, 7); return; }
       const tall = trees.reduce((m, x) => (x.h > m.h ? x : m));
       if (!xpOnce('lidar')) return;
-      const bars = L.map((l) => ({ label: l.name.replace(/^(קומת |קרקעית |חופת )/, ''), n: trees.filter((x) => x.h >= l.yRange[0] && x.h < l.yRange[1]).length, c: heightColor((l.yRange[0] + l.yRange[1]) / 2, _c).getStyle() })).reverse();
+      const bars = L.map((l) => ({ label: l.name.replace(/^(קומת |קרקעית |חופת )/, ''), n: trees.filter((x) => x.h >= l.yRange[0] && x.h < l.yRange[1]).length, c: heightColor((l.yRange[0] + l.yRange[1]) / 2, _c).getStyle() }));
       showBoard(p, { title: toolName('lidar'), line: 'הנקודות הצהובות הן הצמרות הגבוהות. שם יש הכי הרבה אור.',
         num: `${trees.length} עצים נמדדו · הגבוה ביותר: ${tall.q.sp.name}, ${Math.round(tall.h)} מטר`, bars }, 10);
     }
