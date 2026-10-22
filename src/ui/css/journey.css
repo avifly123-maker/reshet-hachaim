@@ -1,0 +1,270 @@
+/* 1.3.2 – מסע החוקר on the start screen (area A): the veils on parts that are not open yet, the journey bar, the
+   journey map (src/ui/journey-map.js), the settings sheet and rows (src/ui/settings.js), and the research hub's logo
+   and veils (src/research/hub.js). A veil is a soft curtain: dimmed, never hidden, no padlock, no crossing lines. */
+
+/* ===================================================== the corner: "מי משחק?", the settings gear, the journey bar */
+#ui.wol .st-corner { position: absolute; top: 14px; right: 16px; z-index: 3; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; max-width: min(300px, 38vw); }
+#ui.wol .st-corner-row { display: flex; align-items: center; gap: 8px; max-width: 100%; }
+#ui.wol .st-corner .st-who { position: relative; top: auto; right: auto; min-width: 0; }
+#ui.wol .st-gear { flex: none; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; color: var(--lichen);
+  background: var(--canopy2); box-shadow: inset 0 0 0 1.5px rgba(180, 203, 102, .32), 0 4px 12px rgba(0, 0, 0, .35); transition: background .2s, transform .2s, color .2s; animation: wol-rise .9s .25s both; }
+#ui.wol .st-gear .ic { width: 24px; height: 24px; }
+#ui.wol .st-gear:hover, #ui.wol .st-gear[aria-expanded="true"] { background: #23432f; color: var(--chalk); transform: rotate(-12deg); }
+#ui.wol .st-gear:focus-visible, #ui.wol .st-jbar:focus-visible { outline: 3px solid var(--honey); outline-offset: 2px; }
+
+/* the journey bar: the rank medallion, the rank name, a progress line to the next stage, what is still missing */
+#ui.wol .st-jbar { --c: #5f9a3e; display: grid; grid-template-columns: auto 1fr auto; grid-template-areas: "med txt map" "med prog prog" "med need need";
+  align-items: center; column-gap: 10px; row-gap: 3px; width: 252px; max-width: 100%; padding: 7px 12px 8px 10px; border-radius: 16px; text-align: right; color: var(--chalk);
+  background: linear-gradient(180deg, rgba(27, 54, 38, .94), rgba(17, 36, 26, .94)); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--c) 55%, rgba(180, 203, 102, .3)), 0 6px 14px rgba(0, 0, 0, .38);
+  transition: transform .2s, box-shadow .2s; animation: wol-rise .9s .3s both; cursor: pointer; }
+#ui.wol .st-jbar:hover { transform: translateY(-2px); box-shadow: inset 0 0 0 2px var(--c), 0 10px 20px rgba(0, 0, 0, .42), 0 0 18px color-mix(in srgb, var(--c) 40%, transparent); }
+#ui.wol .jb-med { grid-area: med; position: relative; width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center; color: #fffbea;
+  background: radial-gradient(circle at 38% 32%, color-mix(in srgb, var(--c) 55%, #fff 30%), var(--c) 62%, color-mix(in srgb, var(--c) 70%, #000));
+  box-shadow: 0 0 0 3px #f3ead0, 0 0 0 4.5px color-mix(in srgb, var(--c) 60%, #000), 0 4px 8px rgba(0, 0, 0, .4); }
+#ui.wol .jb-med .jm-emb { width: 28px; height: 28px; }
+#ui.wol .jb-med i { position: absolute; bottom: -5px; left: -5px; min-width: 21px; height: 21px; padding: 0 5px; border-radius: 999px; display: grid; place-items: center; font-style: normal;
+  font-weight: 800; font-size: .78em; color: #2a1d0c; background: linear-gradient(180deg, #f8d98a, #e8a43a); box-shadow: 0 2px 0 #9c6519; }
+#ui.wol .jb-txt { grid-area: txt; display: flex; flex-direction: column; min-width: 0; line-height: 1.1; }
+#ui.wol .jb-txt small { font-size: .74em; font-weight: 700; color: var(--lichen); }
+#ui.wol .jb-txt b { font-family: var(--serif); font-weight: 400; font-size: 1.28em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#ui.wol .jb-map { grid-area: map; width: 22px; height: 22px; color: var(--honey); align-self: start; }
+#ui.wol .jb-prog { grid-area: prog; position: relative; display: block; height: 8px; border-radius: 999px; background: rgba(233, 230, 204, .14); box-shadow: inset 0 1px 2px rgba(0, 0, 0, .5); overflow: hidden; }
+#ui.wol .jb-prog i { position: absolute; top: 0; bottom: 0; right: 0; border-radius: 999px; background: linear-gradient(270deg, var(--honey), #f6d27a); box-shadow: 0 0 8px rgba(246, 207, 114, .6); transition: width .6s ease; }
+#ui.wol .jb-need { grid-area: need; font-size: .78em; color: #d6d2b2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ===================================================== veils (a part that is not open yet) */
+#ui.wol .jv-note:empty { display: none; }
+#ui.wol .jv { cursor: help; }
+/* the curtain: soft vertical folds of mist over a picture (vertical only: no crossing lines) */
+#ui.wol .jv-curtain { display: none; position: absolute; inset: 0; pointer-events: none; z-index: 2; border-radius: inherit;
+  background: repeating-linear-gradient(90deg, rgba(233, 230, 204, .0) 0 14px, rgba(233, 230, 204, .10) 14px 22px, rgba(233, 230, 204, 0) 22px 34px),
+    linear-gradient(180deg, rgba(10, 24, 16, .25), rgba(10, 24, 16, .55)); }
+#ui.wol .jv .jv-curtain { display: block; animation: jv-in .5s both; }
+@keyframes jv-in { from { opacity: 0; } to { opacity: 1; } }
+
+/* islands on the carousel */
+#ui.wol .st-isl .jv-curtain { inset: 8% 6% 4%; border-radius: 46% 46% 40% 40% / 38% 38% 52% 52%; filter: blur(2px);
+  background: radial-gradient(ellipse at 50% 55%, rgba(205, 214, 190, .30), rgba(205, 214, 190, .12) 55%, transparent 72%),
+    repeating-linear-gradient(90deg, rgba(233, 230, 204, 0) 0 16px, rgba(233, 230, 204, .10) 16px 26px, rgba(233, 230, 204, 0) 26px 38px); }
+#ui.wol .st-isl.jv img { filter: drop-shadow(0 26px 30px rgba(0, 0, 0, .55)) grayscale(.75) brightness(.62) contrast(.9); }
+#ui.wol .st-isl .jv-note { position: absolute; z-index: 3; left: 50%; top: 50%; transform: translate(-50%, -50%); white-space: nowrap; pointer-events: none;
+  padding: .3em 1em; border-radius: 999px; font-weight: 800; font-size: .95em; color: #f3ead0; background: rgba(17, 36, 26, .86); box-shadow: inset 0 0 0 1.5px rgba(180, 203, 102, .4), 0 4px 10px rgba(0, 0, 0, .4); }
+#ui.wol .st-isl:not([data-k="0"]) .jv-note { display: none; }
+#ui.wol .st-go.jv { color: #efe9cf; background: linear-gradient(180deg, #4d5a48, #3a4636); box-shadow: 0 4px 0 rgba(0, 0, 0, .35), inset 0 0 0 1.5px rgba(233, 230, 204, .25); }
+#ui.wol .st-go.jv:hover { padding-left: 2.2em; }
+#ui.wol .st-go.jv .ic { color: var(--lichen); }
+
+/* the tabs */
+#ui.wol .st-tabs button.jv:not(.on) { opacity: .62; }
+#ui.wol .st-tabs button.jv:not(.on) .ic { color: #9aa48a; }
+#ui.wol .st-tabs button.jv small:not(.jv-note) { display: none; }
+#ui.wol .st-tabs button small.jv-note { color: #e6c98a; font-weight: 700; }
+#ui.wol .st-tabs button.on small.jv-note { color: #8a5a12; }
+
+/* the science panels */
+#ui.wol .st-panel.jv { cursor: help; }
+#ui.wol .st-panel.jv:hover { transform: translateY(-2px); }
+#ui.wol .st-panel.jv .st-pimg img { filter: grayscale(.8) brightness(.7); }
+#ui.wol .st-panel.jv .st-lens { filter: grayscale(.8); opacity: .7; }
+#ui.wol .st-panel.jv .st-ptext b { color: #5d6656; }
+#ui.wol .st-panel.jv .st-ptext em:not(.jv-note) { display: none; }
+#ui.wol .st-panel .st-ptext em.jv-note { background: #6c7564; color: #f6f1dc; }
+#ui.wol .st-panel .st-ptext em.jv-note::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--honey); box-shadow: 0 0 0 3px rgba(230, 169, 60, .3); }
+
+/* the learning buttons */
+#ui.wol .st-lgrid button { position: relative; }
+#ui.wol .st-lgrid button.jv { background: linear-gradient(180deg, rgba(58, 52, 40, .82), rgba(40, 36, 28, .82)); box-shadow: 0 4px 10px rgba(0, 0, 0, .3), inset 0 0 0 1px rgba(233, 230, 204, .12); }
+#ui.wol .st-lgrid button.jv::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: repeating-linear-gradient(90deg, rgba(233, 230, 204, 0) 0 12px, rgba(233, 230, 204, .05) 12px 19px, rgba(233, 230, 204, 0) 19px 30px); }
+#ui.wol .st-lgrid button.jv .st-lic { filter: grayscale(.85) brightness(.85); }
+#ui.wol .st-lgrid button.jv b { color: #c9c4a8; }
+#ui.wol .st-lgrid button.jv small:not(.jv-note) { display: none; }
+#ui.wol .st-lgrid button small.jv-note { color: #e6c98a; font-weight: 700; }
+#ui.wol .st-lgrid button.jv:hover { transform: none; background: linear-gradient(180deg, rgba(66, 58, 44, .9), rgba(46, 40, 30, .9)); }
+
+/* ===================================================== מפת המסע */
+#ui.wol .jm { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: clamp(6px, 2vh, 22px) clamp(8px, 2vw, 26px); direction: rtl; pointer-events: auto; animation: jm-in .3s ease-out both; }
+#ui.wol .jm.out { animation: jm-out .22s ease-in both; }
+@keyframes jm-in { from { opacity: 0; transform: scale(.985); } to { opacity: 1; transform: none; } }
+@keyframes jm-out { to { opacity: 0; transform: scale(.985); } }
+#ui.wol .jm-bg { position: absolute; inset: 0; background: radial-gradient(ellipse 80% 70% at 50% 40%, rgba(27, 54, 38, .88), rgba(6, 16, 10, .96)); backdrop-filter: blur(3px); }
+#ui.wol .jm-sheet { position: relative; width: min(1180px, 100%); height: min(720px, 100%); display: flex; flex-direction: column; gap: clamp(4px, 1.4vh, 14px);
+  padding: clamp(8px, 2vh, 22px) clamp(10px, 2.2vw, 28px) clamp(8px, 1.8vh, 18px); color: var(--ink); border-radius: 22px;
+  /* old paper with faint contour lines (a field map): curves only */
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='220' viewBox='0 0 320 220'%3E%3Cg fill='none' stroke='%237d6f48' stroke-opacity='.13' stroke-width='1.2'%3E%3Cpath d='M-10 60c40-30 90-28 130-6s90 26 130-4 60-24 80-10'/%3E%3Cpath d='M-10 80c40-26 92-24 132-2s88 22 128-6 60-20 80-6'/%3E%3Cpath d='M-10 150c50 18 100 20 140-4s90-30 130-6 50 18 70 10'/%3E%3Cpath d='M-10 170c50 14 104 16 142-6s88-26 128-4 50 14 70 8'/%3E%3Cellipse cx='240' cy='110' rx='34' ry='18'/%3E%3Cellipse cx='240' cy='110' rx='18' ry='9'/%3E%3C/g%3E%3C/svg%3E"),
+    radial-gradient(ellipse at 30% 20%, #f7f0d6, #ebe0bb 60%, #ddcd9f);
+  box-shadow: 0 0 0 1.5px rgba(125, 111, 72, .55), inset 0 0 0 6px rgba(255, 252, 240, .35), inset 0 0 40px rgba(125, 100, 50, .25), 0 22px 50px rgba(0, 0, 0, .6); overflow: hidden; }
+#ui.wol .jm-head { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; }
+#ui.wol .jm-back { justify-self: start; display: inline-flex; align-items: center; gap: 6px; min-height: 42px; padding: 6px 16px 6px 18px; border-radius: 999px; font-weight: 800;
+  color: #fff7e2; background: linear-gradient(180deg, #e8a43a, #c9801f); box-shadow: 0 3px 0 #8a5a12; transition: transform .15s; }
+#ui.wol .jm-back:hover { transform: translateY(-1px); }
+#ui.wol .jm-back .ic { width: 20px; height: 20px; }
+#ui.wol .jm-title { text-align: center; line-height: 1.05; }
+#ui.wol .jm-title small { display: block; font-weight: 800; letter-spacing: .03em; color: #8a6a2a; font-size: .85em; }
+#ui.wol .jm-title h1 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: clamp(1.7em, 5vh, 2.6em); color: var(--moss); }
+#ui.wol .jm-logo { justify-self: end; background: #fbfaf2; padding: 4px 10px; border-radius: 10px; box-shadow: 0 2px 6px rgba(60, 40, 20, .25); }
+#ui.wol .jm-logo img { display: block; height: clamp(26px, 5vh, 40px); width: auto; }
+
+/* the trail: six medallions from the right; the walked part in honey, what lies ahead dashed */
+#ui.wol .jm-path { position: relative; flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; padding: 2px 2px 4px; }
+#ui.wol .jm-trail { position: absolute; top: 2px; left: 2px; right: 2px; width: calc(100% - 4px); height: clamp(64px, 14vh, 88px); pointer-events: none; overflow: visible; }
+#ui.wol .jm-trail path { fill: none; vector-effect: non-scaling-stroke; stroke-linecap: round; }
+#ui.wol .jm-tr-bed { stroke: rgba(125, 100, 50, .18); stroke-width: 14; }
+#ui.wol .jm-tr-ahead { stroke: #9a8558; stroke-width: 3; stroke-dasharray: 2 9; }
+#ui.wol .jm-tr-walk { stroke: #d99a2e; stroke-width: 6; filter: drop-shadow(0 1px 0 rgba(120, 70, 10, .5)); }
+#ui.wol .jm-tr-part { stroke: #d99a2e; stroke-width: 6; }
+#ui.wol .jm-stages { position: relative; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: clamp(4px, 1vw, 12px); }
+#ui.wol .jm-st { --c: #5f9a3e; display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; min-width: 0; }
+#ui.wol .jm-medw { position: relative; height: clamp(64px, 14vh, 88px); display: grid; place-items: center; }
+#ui.wol .jm-st:nth-child(even) .jm-medw { transform: translateY(clamp(6px, 1.6vh, 12px)); }
+#ui.wol .jm-med { position: relative; width: clamp(48px, 10.5vh, 68px); aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; color: #fffbea;
+  background: radial-gradient(circle at 38% 32%, color-mix(in srgb, var(--c) 55%, #fff 30%), var(--c) 62%, color-mix(in srgb, var(--c) 70%, #000));
+  box-shadow: 0 0 0 3.5px #f6efd6, 0 0 0 5px color-mix(in srgb, var(--c) 60%, #000), 0 6px 12px rgba(60, 40, 20, .35); transition: transform .3s; }
+#ui.wol .jm-med .jm-emb { width: 56%; height: 56%; }
+#ui.wol .jm-st.ahead .jm-med { color: color-mix(in srgb, var(--c) 55%, #6b6248); background: #efe6c8; box-shadow: 0 0 0 3px #f6efd6, 0 0 0 4.5px rgba(125, 100, 50, .35), inset 0 2px 6px rgba(125, 100, 50, .22); }
+#ui.wol .jm-st.cur .jm-med { transform: scale(1.12); box-shadow: 0 0 0 3.5px #fff6d8, 0 0 0 6px var(--honey), 0 0 22px 8px color-mix(in srgb, var(--honey) 55%, transparent), 0 6px 12px rgba(60, 40, 20, .35); animation: jm-glow 2.4s ease-in-out infinite; }
+@keyframes jm-glow { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.12) drop-shadow(0 0 6px rgba(246, 207, 114, .8)); } }
+#ui.wol .jm-num { position: absolute; bottom: 4%; left: 8%; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 999px; display: grid; place-items: center; font-style: normal; font-weight: 800; font-size: .8em;
+  color: #2a1d0c; background: linear-gradient(180deg, #f8d98a, #e8a43a); box-shadow: 0 2px 0 #9c6519; }
+#ui.wol .jm-st.ahead .jm-num { background: #e2d7b4; color: #6b6248; box-shadow: 0 2px 0 #b3a57c; }
+#ui.wol .jm-replay { position: absolute; top: 2%; right: 4%; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; color: #fff;
+  background: var(--teal, #2c9a92); box-shadow: 0 2px 0 #1d6b65, 0 0 0 2px #f6efd6; transition: transform .15s; }
+#ui.wol .jm-replay .ic { width: 15px; height: 15px; margin-inline-start: -2px; }
+#ui.wol .jm-replay:hover { transform: scale(1.12); }
+#ui.wol .jm.replaying .jm-replay { opacity: .5; }
+#ui.wol .jm-name { font-family: var(--serif); font-weight: 400; font-size: clamp(1.05em, 3vh, 1.35em); line-height: 1.1; color: var(--ink); margin-top: 4px; }
+#ui.wol .jm-st.ahead .jm-name { color: #7a7058; }
+#ui.wol .jm-sn, #ui.wol .jm-here { font-size: .76em; font-weight: 800; color: #8a7a52; }
+#ui.wol .jm-here { padding: 1px 10px; border-radius: 999px; color: #2a1d0c; background: linear-gradient(180deg, #f8d98a, #e8a43a); box-shadow: 0 2px 0 #9c6519; }
+#ui.wol .jm-parts { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; width: 100%; }
+#ui.wol .jm-part { display: flex; align-items: center; gap: 6px; width: 100%; min-height: 28px; padding: 3px 8px; border-radius: 9px; text-align: right; font-weight: 700; font-size: calc(.8em * var(--ts, 1));
+  line-height: 1.15; color: var(--ink); background: rgba(255, 252, 240, .72); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--c) 45%, transparent), 0 2px 0 rgba(125, 100, 50, .18); transition: transform .15s, background .15s; }
+#ui.wol .jm-part:hover { transform: translateY(-1px); background: #fffdf4; }
+#ui.wol .jm-part span { min-width: 0; overflow-wrap: anywhere; }
+#ui.wol .jm-dot { flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 2px color-mix(in srgb, var(--c) 30%, transparent); }
+#ui.wol .jm-part.jv { color: #7d7460; background: rgba(226, 216, 184, .45); box-shadow: inset 0 0 0 1.5px rgba(125, 100, 50, .25); }
+#ui.wol .jm-part.jv .jm-dot { background: transparent; box-shadow: inset 0 0 0 2px rgba(125, 100, 50, .45); }
+#ui.wol .jm-part.jv:hover { transform: none; background: rgba(226, 216, 184, .7); }
+#ui.wol .jm-part:focus-visible, #ui.wol .jm-replay:focus-visible, #ui.wol .jm-back:focus-visible { outline: 3px solid var(--honey); outline-offset: 2px; }
+
+/* the foot: the way to the next stage, a note, the threads (wave 3) */
+#ui.wol .jm-foot { display: flex; align-items: center; gap: 10px 18px; flex-wrap: wrap; padding-top: clamp(4px, 1vh, 10px); border-top: 1.5px dashed rgba(125, 100, 50, .35); }
+#ui.wol .jm-next { display: flex; align-items: center; gap: 12px; flex: 1 1 340px; min-width: 0; }
+#ui.wol .jm-nmed { --c: #5f9a3e; flex: none; width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; color: #fffbea; background: var(--c); box-shadow: 0 0 0 3px #f6efd6, 0 0 0 4.5px rgba(125, 100, 50, .4); }
+#ui.wol .jm-nmed .jm-emb { width: 24px; height: 24px; }
+#ui.wol .jm-ntxt { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
+#ui.wol .jm-ntxt b { font-family: var(--serif); font-weight: 400; font-size: calc(1.15em * var(--ts, 1)); color: var(--moss); line-height: 1.15; }
+#ui.wol .jm-ntxt small { font-weight: 700; color: #6a5a32; font-size: calc(.88em * var(--ts, 1)); }
+#ui.wol .jm-bar { position: relative; display: block; height: 10px; max-width: 420px; border-radius: 999px; background: rgba(125, 100, 50, .18); box-shadow: inset 0 1px 2px rgba(60, 40, 20, .3); overflow: hidden; }
+#ui.wol .jm-bar i { position: absolute; top: 0; bottom: 0; right: 0; border-radius: 999px; background: linear-gradient(270deg, #d99a2e, #f6d27a); }
+#ui.wol .jm-note { margin: 0; font-size: .85em; color: #6a5a32; font-weight: 700; flex: 0 1 auto; }
+#ui.wol .jm-threads:empty { display: none; }
+#ui.wol .jm-threads { flex: 1 1 100%; }
+
+/* ===================================================== settings: the sheet (start screen) and the rows (also the satchel) */
+#ui.wol .set-layer { position: fixed; inset: 0; z-index: 5; }
+#ui.wol .set-scrim { position: absolute; inset: 0; background: rgba(6, 16, 10, .45); animation: wol-pop .2s both; }
+#ui.wol .set-sheet { position: absolute; top: 74px; right: 14px; width: min(400px, calc(100vw - 28px)); max-height: calc(100vh - 88px); overflow: auto;
+  padding: 10px 10px 8px; display: flex; flex-direction: column; gap: 8px; text-align: right; animation: wol-pop .2s both; transform-origin: top right; }
+#ui.wol .set-sheet.paper { border-image-source: var(--sheet); }
+#ui.wol .set-h { display: flex; align-items: center; gap: 8px; margin: 0; padding-inline-end: 36px; font-family: var(--serif); font-weight: 400; font-size: 1.6em; line-height: 1.1; color: var(--moss); }
+#ui.wol .set-h .ic { width: 24px; height: 24px; color: #6a55a8; }
+#ui.wol .set-rows { display: flex; flex-direction: column; gap: 6px; }
+#ui.wol .set-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px 10px; width: 100%; min-height: 48px; padding: 6px 10px; border-radius: 12px;
+  text-align: right; color: var(--ink); background: rgba(255, 255, 255, .3); box-shadow: inset 0 0 0 1px rgba(92, 59, 34, .16); }
+#ui.wol .set-lab { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1 1 140px; }
+#ui.wol .set-lab > .ic { width: 24px; height: 24px; flex: none; color: var(--teal-ink, #1f7f78); }
+#ui.wol .set-lab > span { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; }
+#ui.wol .set-lab b { font-weight: 800; font-size: calc(1em * var(--ts, 1)); }
+#ui.wol .set-lab small { font-size: .82em; color: var(--ink2); }
+#ui.wol .set-seg { display: flex; gap: 3px; padding: 3px; border-radius: 999px; background: rgba(92, 59, 34, .12); flex: 0 1 auto; }
+#ui.wol .set-seg button { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 58px; min-height: 40px; padding: 2px 10px; border-radius: 999px; line-height: 1.1; color: var(--ink2); font-weight: 700; transition: background .15s, color .15s; }
+#ui.wol .set-seg button b { font-size: 1em; }
+#ui.wol .set-seg button small { font-size: .74em; opacity: .85; }
+#ui.wol .set-seg button:hover { background: rgba(255, 255, 255, .5); }
+#ui.wol .set-seg button[aria-checked="true"] { background: var(--lav-ink, #6a55a8); color: #f6f2ff; box-shadow: 0 2px 0 rgba(40, 30, 80, .35); }
+#ui.wol .set-ts button { min-width: 52px; }
+#ui.wol .set-aa { font-style: normal; font-family: var(--serif); line-height: 1; height: 1.25em; display: grid; place-items: end center; }
+#ui.wol .set-tog, #ui.wol .set-again { cursor: pointer; }
+#ui.wol .set-tog:hover, #ui.wol .set-again:hover { background: rgba(255, 255, 255, .5); }
+#ui.wol .set-sw { position: relative; flex: none; width: 44px; height: 26px; border-radius: 13px; background: #b6b294; box-shadow: inset 0 1px 3px rgba(0, 0, 0, .3); transition: background .2s; }
+#ui.wol .set-sw::after { content: ""; position: absolute; top: 3px; right: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fbfaf0; box-shadow: 0 1px 2px rgba(0, 0, 0, .35); transition: right .2s; }
+#ui.wol .set-sw.on { background: var(--teal, #2c9a92); }
+#ui.wol .set-sw.on::after { right: 21px; }
+#ui.wol .set-again .set-lab > .ic { color: #b07a12; }
+#ui.wol .set-staff { display: block; padding: 0; background: rgba(92, 59, 34, .07); box-shadow: inset 0 0 0 1px rgba(92, 59, 34, .14); }
+#ui.wol .set-staff summary { display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 4px 10px; cursor: pointer; list-style: none; font-weight: 700; font-size: .9em; color: var(--ink2); }
+#ui.wol .set-staff summary::-webkit-details-marker { display: none; }
+#ui.wol .set-staff summary .ic { width: 18px; height: 18px; color: var(--ink2); }
+#ui.wol .set-staff summary span { flex: 1; }
+#ui.wol .set-staff .set-chev { transition: transform .2s; }
+#ui.wol .set-staff[open] .set-chev { transform: rotate(180deg); }
+#ui.wol .set-staff-in { display: flex; flex-direction: column; gap: 6px; padding: 2px 10px 10px; }
+#ui.wol .set-staff-in label { font-size: .85em; color: var(--ink2); font-weight: 700; }
+#ui.wol .set-staff-in p { margin: 0; display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: .9em; color: var(--moss); }
+#ui.wol .set-staff-in p .ic { width: 18px; height: 18px; color: var(--leaf2); }
+#ui.wol .set-code { display: flex; gap: 6px; }
+#ui.wol .set-code input { flex: 1; min-width: 0; min-height: 40px; padding: 4px 12px; border: 0; border-radius: 10px; font: inherit; font-size: 1.1em; letter-spacing: .2em; color: var(--ink);
+  background: #fbf8e8; box-shadow: inset 0 0 0 1.5px rgba(92, 59, 34, .35), inset 0 2px 4px rgba(60, 40, 20, .12); user-select: text; -webkit-user-select: text; text-align: center; }
+#ui.wol .set-code.shake { animation: set-shake .35s; }
+@keyframes set-shake { 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
+#ui.wol .set-err { margin: 0; color: var(--berry); font-weight: 700; font-size: .88em; }
+#ui.wol .set-err[hidden] { display: none; }
+/* narrow hosts (the satchel menu is about 236px wide): each row's choices go under its name */
+#ui.wol .kit-menu .set-row { padding: 4px 6px; min-height: 40px; }
+#ui.wol .kit-menu .set-seg { flex: 1 1 100%; }
+#ui.wol .kit-menu .set-seg button { flex: 1; min-width: 0; padding: 2px 4px; }
+#ui.wol .kit-menu .set-lab small { display: none; }
+
+/* ===================================================== the research hub: the logo, veils */
+#ui.wol .rs-h-logo { display: grid; place-items: center; background: #fbfaf2; padding: 5px 10px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, .35); }
+#ui.wol .rs-h-logo img { display: block; height: clamp(30px, 6vh, 48px); width: auto; }
+#ui.wol .rs-h-veil { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0 auto 8px; width: fit-content; padding: .45em 1.3em; border-radius: 999px; font-weight: 800;
+  color: #f3ead0; background: rgba(17, 36, 26, .8); box-shadow: inset 0 0 0 1.5px rgba(180, 203, 102, .4); }
+#ui.wol .rs-h-veil .ic { width: 20px; height: 20px; color: var(--lichen); }
+#ui.wol .rs-h-case.jv { position: relative; cursor: help; filter: grayscale(.7) brightness(.82); }
+#ui.wol .rs-h-case.jv::after { content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background: repeating-linear-gradient(90deg, rgba(233, 230, 204, 0) 0 14px, rgba(233, 230, 204, .14) 14px 22px, rgba(233, 230, 204, 0) 22px 34px), rgba(20, 30, 20, .18); }
+#ui.wol .rs-h-case.jv:hover { transform: none; }
+#ui.wol .rs-h-tut.jv { filter: grayscale(.8); opacity: .65; cursor: help; }
+
+/* ===================================================== small screens */
+@media (max-height: 720px) {
+  #ui.wol .st-jbar { width: 236px; padding: 5px 10px 6px 8px; }
+  #ui.wol .jb-med { width: 42px; height: 42px; } #ui.wol .jb-med .jm-emb { width: 24px; height: 24px; }
+}
+@media (max-height: 520px) {
+  /* 800x460: the corner gets one line (who, gear, the bar beside them) so the title keeps its place */
+  #ui.wol .st-corner { top: 8px; right: 10px; gap: 6px; max-width: min(250px, 34vw); }
+  #ui.wol .st-corner .who-av { width: 38px; height: 38px; }
+  #ui.wol .st-gear { width: 40px; height: 40px; }
+  #ui.wol .st-jbar { width: 100%; grid-template-areas: "med txt map" "med prog prog"; padding: 4px 9px 5px 7px; row-gap: 2px; }
+  #ui.wol .jb-need { display: none; }
+  #ui.wol .jb-med { width: 34px; height: 34px; box-shadow: 0 0 0 2px #f3ead0, 0 0 0 3px rgba(0, 0, 0, .4); } #ui.wol .jb-med .jm-emb { width: 20px; height: 20px; }
+  #ui.wol .jb-med i { min-width: 17px; height: 17px; font-size: .68em; bottom: -4px; left: -4px; }
+  #ui.wol .jb-txt small { display: none; } #ui.wol .jb-txt b { font-size: 1.1em; }
+  #ui.wol .jb-map { width: 18px; height: 18px; }
+  #ui.wol .jb-prog { height: 6px; }
+  #ui.wol .set-sheet { top: 8px; max-height: calc(100vh - 16px); }
+  #ui.wol .set-row { min-height: 42px; padding: 4px 8px; }
+  #ui.wol .set-seg button { min-height: 34px; }
+  #ui.wol .set-lab small { display: none; }
+  #ui.wol .set-h { font-size: 1.3em; }
+  #ui.wol .st-isl .jv-note { font-size: .82em; }
+  #ui.wol .jm-name { font-size: 1em; margin-top: 2px; }
+  #ui.wol .jm-part { min-height: 24px; padding: 2px 6px; font-size: calc(.74em * var(--ts, 1)); border-radius: 7px; }
+  #ui.wol .jm-parts { gap: 3px; }
+  #ui.wol .jm-replay { width: 24px; height: 24px; } #ui.wol .jm-replay .ic { width: 12px; height: 12px; }
+  #ui.wol .jm-nmed { width: 32px; height: 32px; } #ui.wol .jm-nmed .jm-emb { width: 18px; height: 18px; }
+  #ui.wol .jm-back { min-height: 36px; padding: 3px 12px 3px 14px; }
+  #ui.wol .rs-h-logo img { height: 28px; }
+}
+@media (max-width: 760px) {
+  #ui.wol .jm-stages { gap: 4px; }
+  #ui.wol .jm-part { font-size: calc(.72em * var(--ts, 1)); padding: 2px 5px; gap: 4px; }
+  #ui.wol .jm-dot { width: 8px; height: 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #ui.wol .jm, #ui.wol .jm.out, #ui.wol .jm-st.cur .jm-med, #ui.wol .jv .jv-curtain { animation: none; }
+}

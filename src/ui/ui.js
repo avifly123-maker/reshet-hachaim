@@ -11,7 +11,7 @@ import { zoneWord } from '../core/place.js';
 import { HUB_ICONS, tileIcon } from './icons-hub.js';   // the learning hub's icons: icon() draws them too
 // 1.3.2 start screen (מסע החוקר): veils, the journey bar, the map and the settings sheet
 import * as JR from '../core/journey.js';
-import { openJourneyMap, stageEmblem, STAGE_COLOR, lockWords, lockTip } from './journey-map.js';
+import { openJourneyMap, stageEmblem, mapIcon, STAGE_COLOR, lockWords, lockTip } from './journey-map.js';
 import { openSettings } from './settings.js';
 
 /* ------------------------------------------------------------------ helpers */
@@ -452,7 +452,7 @@ export function createUI(root, bus) {
       return `<span class="jb-med">${stageEmblem(st.stage)}<i>${st.stage}</i></span>
         <span class="jb-txt"><small>${kids ? `שָׁלָב ${st.stage} מִתּוֹךְ 6` : `שלב ${st.stage} מתוך 6`}</small><b>${esc(st.name)}</b></span>
         <span class="jb-prog"><i style="width:${Math.round((nx ? nx.progress : 1) * 100)}%"></i></span>
-        <small class="jb-need">${esc(need)}</small>${icon('map', 'jb-map')}`;
+        <small class="jb-need">${esc(need)}</small>${mapIcon('jb-map')}`;
     };
     const paintJourney = () => {
       if (!startEl.contains(jbar)) return;

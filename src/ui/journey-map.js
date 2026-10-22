@@ -29,6 +29,8 @@ const EMB = {
   5: '<path d="M12 2.8a6.4 6.4 0 0 0-3.8 11.5c.7.6 1.1 1.4 1.1 2.3h5.4c0-.9.4-1.7 1.1-2.3A6.4 6.4 0 0 0 12 2.8z"/><path d="M9.6 19.2h4.8M10.6 21.6h2.8"/><path d="M10.2 11.6l1.8 1.6 1.8-1.6"/>',
   6: '<path d="M12 2.8l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.1 6.4 20l1.1-6.2L3 9.4l6.2-.9z"/>',
 };
+// a folded paper map (the journey bar's corner): three panels, the folds meet the edges only
+export const mapIcon = (cls = '') => `<svg class="ic${cls ? ' ' + cls : ''}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="f" d="M3 6.6l5.6-2.4 6.8 2.4L21 4.2v13.2l-5.6 2.4-6.8-2.4L3 19.8z" fill="currentColor" fill-opacity=".18" stroke="none"/><path d="M3 6.6l5.6-2.4 6.8 2.4L21 4.2v13.2l-5.6 2.4-6.8-2.4L3 19.8z"/><path d="M8.6 4.2v13.2M15.4 6.6v13.2"/></svg>`;
 export const stageEmblem = (n) => `<svg class="jm-emb" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${EMB[n] || EMB[1]}</svg>`;
 
 const stageName = (n) => { const S = J.STAGES[n - 1]; return S ? t(S.name, S.kname) : ''; };
