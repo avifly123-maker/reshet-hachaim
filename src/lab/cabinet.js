@@ -24,6 +24,64 @@ import { grant as grantBadge, tally, hasBadge } from '../core/badges-store.js';
 import { picHTML, picSrc, frameArt, PICS_CSS } from './lab-pics.js';
 import { POOL, RULES, SETS, attrOf, rulesOfSet, SORT2_T, speciesName } from './sort-data.js';
 import { CLUE_CASES, SUS, ZONES_T, CAB_T } from './clue-cases.js';
+import { FINDS_T, JARS_T } from './station-text.js';
+import { MISSIONS } from '../data/inventions.js';
+import { MISSIONS_K } from '../data/inventions-kids.js';
+import { key as profileKey } from '../core/profiles.js';
+import { BABA_DA_LOGO } from '../data/logo.js';
+
+// ───────────────────────────────────────── 1.3.2: soft shadows of what is not found yet (never a "?"), one shape per kind
+// of thing; a mystery's find has its own shape (FIND_SHAPE). Plain filled shapes, drawn in one soft colour; no crossing bars.
+const SHAPES = {
+  box: '<path fill-rule="evenodd" d="M24 46L50 20l26 26v38H24zM42 56a8 8 0 1 0 16 0a8 8 0 1 0-16 0z"/>',
+  reeds: [26, 37, 48, 59, 70].map((x, i) => `<rect x="${x}" y="${28 + (i % 2) * 6}" width="9" height="${54 - (i % 2) * 6}" rx="4.5"/>`).join(''),
+  pod: '<circle cx="50" cy="56" r="28"/><path d="M43 31q7-12 14 0z"/>',
+  ball: '<path fill-rule="evenodd" d="M16 80Q16 28 50 26Q84 28 84 80zM34 58a6 6 0 1 0 12 0a6 6 0 1 0-12 0zM56 50a6 6 0 1 0 12 0a6 6 0 1 0-12 0z"/>',
+  buoy: '<circle cx="50" cy="38" r="20"/><rect x="47.5" y="56" width="5" height="22" rx="2"/><ellipse cx="50" cy="82" rx="16" ry="5"/>',
+  coral: '<path d="M46 88V64Q30 56 28 34Q28 24 34 24Q38 26 37 36Q38 50 46 54V32Q46 22 50 20Q54 22 54 32V54Q62 50 63 36Q62 26 66 24Q72 24 72 34Q70 56 54 64V88z"/>',
+  tuft: '<path d="M12 82Q50 60 88 30" stroke="currentColor" stroke-width="5" fill="none" stroke-linecap="round"/><ellipse cx="34" cy="62" rx="12" ry="8"/><ellipse cx="56" cy="50" rx="10" ry="7"/><ellipse cx="74" cy="38" rx="9" ry="6"/>',
+  rosette: [-56, -28, 0, 28, 56].map((a) => `<ellipse cx="50" cy="52" rx="8" ry="30" transform="rotate(${a} 50 84)"/>`).join(''),
+  sprout: '<rect x="47.5" y="46" width="5" height="40" rx="2"/><path d="M50 54Q30 52 22 32Q44 32 50 54z"/><path d="M50 48Q66 42 76 24Q56 26 50 48z"/><ellipse cx="50" cy="86" rx="14" ry="4"/>',
+  leaf: [-72, -48, -24, 0, 24, 48, 72].map((a) => `<ellipse cx="50" cy="40" rx="7" ry="26" transform="rotate(${a} 50 66)"/>`).join('') + '<rect x="47.5" y="62" width="5" height="26" rx="2"/>',
+  feather: '<path d="M50 12Q74 30 68 64Q58 82 50 88Q42 82 32 64Q26 30 50 12z"/><rect x="48" y="80" width="4" height="12" rx="2"/>',
+  branch: '<path d="M14 84Q48 62 86 22" stroke="currentColor" stroke-width="5" fill="none" stroke-linecap="round"/><ellipse cx="38" cy="58" rx="10" ry="5" transform="rotate(-50 38 58)"/><ellipse cx="62" cy="46" rx="10" ry="5" transform="rotate(30 62 46)"/><circle cx="72" cy="56" r="5"/><circle cx="80" cy="50" r="5"/><circle cx="46" cy="72" r="5"/>',
+  track: '<path d="M30 28Q46 24 47 50Q46 76 36 80Q24 72 27 50z"/><path d="M70 28Q54 24 53 50Q54 76 64 80Q76 72 73 50z"/>',
+  jar: '<path d="M30 28h40v8q8 6 8 16v30q0 8-8 8h-40q-8 0-8-8v-30q0-10 8-16z"/><rect x="28" y="18" width="44" height="10" rx="2"/>',
+  robot: '<rect x="30" y="24" width="40" height="28" rx="11"/><rect x="26" y="56" width="48" height="30" rx="11"/><rect x="47.5" y="10" width="5" height="16" rx="2"/><circle cx="50" cy="10" r="5"/>',
+  photo: '<path fill-rule="evenodd" d="M16 24h68v54H16zM24 70l18-24 12 14 8-8 16 18z"/>',
+  bird: '<path d="M14 60Q36 38 60 46Q70 32 84 38Q76 42 74 50Q68 72 44 74Q28 74 14 60z"/>',
+  round: '<circle cx="50" cy="52" r="32"/>',
+  patent: '<rect x="20" y="10" width="60" height="80" rx="4"/>',
+};
+const FIND_SHAPE = { 'mice-owl': 'box', 'flowers-bees': 'reeds', 'brazil-nut': 'pod', 'green-reef': 'ball', 'cleaning-station': 'buoy', 'white-coral': 'coral',
+  'the-trap': 'tuft', frogs: 'rosette', 'young-oaks': 'sprout', leafcutters: 'leaf', 'no-predators': 'feather', 'summer-fire': 'branch', gazelles: 'track' };
+const SHELF_SHAPE = { scope: 'round', jars: 'jar', patents: 'patent', robots: 'robot', photos: 'photo', visitors: 'bird', clues: 'pod', cases: 'pod' };
+export const shadowHTML = (shape, cls = '') => `<i class="cb-ghost ${cls}" aria-hidden="true"><svg viewBox="0 0 100 100"><g fill="currentColor">${SHAPES[shape] || SHAPES.round}</g></svg></i>`;
+// what other parts of the game keep (read only; a missing store is an empty shelf)
+function readStore(base) { try { const t = localStorage.getItem(profileKey(base)); return t ? JSON.parse(t) : null; } catch (e) { return null; } }
+const hubGames = () => { const S = readStore('web-of-life-cards'); return (S && S.games) || {}; };
+// the expedition's samples by id, once it keeps them (hub store games.expedition.found: { id: count } or [id]); else null
+export function expeditionFound() {
+  const f = (hubGames().expedition || {}).found;
+  if (!f) return null;
+  const ids = Array.isArray(f) ? f : Object.keys(f).filter((k) => f[k]);
+  return ids.filter((id) => JARS_T[id]);
+}
+// the robot workshop's builds: the hub keeps the last ones (games.inventors.robots); the lab's own record joins them
+export function robotsBuilt() {
+  const a = [].concat((hubGames().inventors || {}).robots || [], (labProgress().robots || []));
+  const seen = new Set(); return a.filter((r) => r && r.name && !seen.has(r.name + '|' + r.at) && seen.add(r.name + '|' + r.at));
+}
+// a robot drawn from its name: the colours and the antenna change, the face is רובו־דע's visor
+function robotSvg(seed) {
+  let h = 0; for (const c of String(seed)) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  const COL = ['#e0a43a', '#2c9a92', '#d8606a', '#5a8ad8', '#8a5ab8', '#4f8a3f'][h % 6], C2 = ['#263440', '#3a2a14', '#1d5e66'][(h >> 3) % 3];
+  const ant = (h >> 5) % 2 ? '<rect x="48" y="8" width="4" height="14" rx="2" fill="#5a6a74"/><circle cx="50" cy="8" r="5" fill="#ffd978"/>' : '<path d="M42 22Q44 10 50 8Q56 10 58 22z" fill="#ffd978"/>';
+  const legs = (h >> 7) % 2 ? '<circle cx="36" cy="88" r="7" fill="#3a4650"/><circle cx="64" cy="88" r="7" fill="#3a4650"/>' : '<rect x="33" y="80" width="8" height="12" rx="3" fill="#3a4650"/><rect x="59" y="80" width="8" height="12" rx="3" fill="#3a4650"/>';
+  return `${ant}${legs}<rect x="26" y="52" width="48" height="32" rx="12" fill="${COL}"/><rect x="30" y="20" width="40" height="30" rx="12" fill="#f3f1ea" stroke="${C2}" stroke-width="2"/>
+    <rect x="35" y="27" width="30" height="16" rx="7" fill="#0a1016"/><circle cx="44" cy="35" r="3" fill="#8ff2ff"/><circle cx="56" cy="35" r="3" fill="#8ff2ff"/>
+    <circle cx="50" cy="68" r="6" fill="#fff" opacity=".7"/><rect x="16" y="56" width="10" height="20" rx="5" fill="${COL}"/><rect x="74" y="56" width="10" height="20" rx="5" fill="${COL}"/>`;
+}
 
 // ───────────────────────────────────────── the old drawings: only a stand-in for the six shelf things until their paintings exist
 const D = {
@@ -62,7 +120,7 @@ export function patentHTML(pt, kids, { big = false } = {}) {
   const O = (v, x) => { let s = v && typeof v === 'object' && 'f' in v ? (kids ? v.k : v.f) : v; s = Array.isArray(s) ? s.join(' ') : String(s); return x ? s.replace(/\{(\w+)\}/g, (m, k) => (x[k] != null ? x[k] : m)) : s; };
   const fr = frameArt();
   return `<div class="pt-cert ${big ? 'big' : ''} ${fr ? 'framed' : ''}" ${fr ? `style="background-image:url('${fr}')"` : ''}>
-    <div class="pt-in"><small class="pt-no">${esc(O(CAB_T.patentNo, { n: pt.no }))}</small>
+    <div class="pt-in"><img class="pt-logo" src="${BABA_DA_LOGO}" alt="בבא דע"><small class="pt-no">${esc(O(CAB_T.patentNo, { n: pt.no }))}</small>
       <div class="pt-pic">${picHTML('card:' + pt.real, pt.who)}</div>
       <b class="pt-name">${esc(pt.title)}</b>
       ${big ? `<span class="pt-line"><em>${esc(O(CAB_T.idea))}:</em> ${esc(pt.idea)}</span><span class="pt-line"><em>${esc(O(CAB_T.learnt))}</em> ${esc(pt.who)}</span>` : `<span class="pt-line">${esc(pt.who)}</span>`}
@@ -76,14 +134,31 @@ export function collection(kids, thumbs = {}) {
   shelves.push({ id: 'start', items: START.map((id) => ({ key: 'start:' + id, name: O(COLL_T.items[id].name), from: O(COLL_T.items[id].from), fact: O(COLL_T.items[id].fact), img: picSrc(START_PIC[id]) || svgUrl(D[id]), svg: !picSrc(START_PIC[id]) })), ghosts: 0 });
   const seen = SAMPLES.filter((s) => P.seen[s.id]);
   shelves.push({ id: 'scope', items: seen.map((s) => { const K = kids ? (SAMPLES_K[s.id] || s) : s; return { key: 'scope:' + s.id, name: K.name, fact: K.found, img: thumbs[s.species] || picSrc('card:' + s.species) || svgUrl(D.acorn), round: true }; }), ghosts: SAMPLES.length - seen.length });
+  // the mysteries: a painted find for each one solved (a soft tile with its name until the painting exists); the others
+  // wait as soft shadows of their own shapes
   const R = researchProgress().cases || {};
   const solved = CASES.filter((c) => R[c.id]);
-  shelves.push({ id: 'cases', items: solved.map((c) => { const st = (R[c.id].stars || []).filter(Boolean).length; return { key: 'case:' + c.id, name: kids ? c.title : (c.plainTitle || c.title), fact: O(COLL_T.caseText, { stars: st }), img: svgUrl(folder(ZONE_COL[c.zone] || '#5a4a8a')) }; }), ghosts: CASES.length - solved.length });
-  let n = 0; try { n = tally('deep:samples'); } catch (e) { /* */ }
-  const jars = [...Array(Math.min(n, 10))].map((_, k) => ({ key: 'jar:' + k, name: O(COLL_T.jar, { n }), fact: O(COLL_T.jarText, { n }), img: svgUrl(jar(k)) }));
-  let rare = false; try { rare = hasBadge('b_deeprare'); } catch (e) { /* */ }
-  if (rare) jars.push({ key: 'jar:rare', name: O(COLL_T.rare), fact: O(COLL_T.rareText), img: svgUrl(jar(2) + '<circle cx="50" cy="66" r="9" fill="#ffd978" stroke="#fff" stroke-width="2"/>') });
-  shelves.push({ id: 'jars', items: jars, ghosts: jars.length ? 0 : 3 });
+  const T2 = (v) => { const s = v && typeof v === 'object' && 'f' in v ? (kids ? v.k : v.f) : v; return Array.isArray(s) ? s.join(' ') : String(s ?? ''); };
+  shelves.push({ id: 'cases', items: solved.map((c) => {
+    const st = (R[c.id].stars || []).filter(Boolean).length, F = FINDS_T[c.id];
+    const title = kids ? c.title : (c.plainTitle || c.title);
+    if (!F) return { key: 'case:' + c.id, name: title, fact: O(COLL_T.caseText, { stars: st }), img: svgUrl(folder(ZONE_COL[c.zone] || '#5a4a8a')), svg: true };
+    const src = picSrc('find-' + c.id);
+    return { key: 'case:' + c.id, name: O(F.name), sub: title, from: O(F.from), fact: O(COLL_T.caseText, { stars: st }), learn: T2(F.learn), pic: 'find-' + c.id, img: src || '', zone: c.zone };
+  }), ghosts: CASES.length - solved.length, gshapes: CASES.filter((c) => !R[c.id]).map((c) => FIND_SHAPE[c.id] || 'pod') });
+  // the expedition's jars: by sample when the expedition keeps them (rendered jars art/lab-items/jar-<id>), else by count
+  const byId = expeditionFound();
+  let jars;
+  if (byId) {
+    jars = byId.map((id, k) => { const J = JARS_T[id], src = picSrc('jar-' + id); return { key: 'jar:' + id, name: O(J.name), fact: O(J.fact), pic: 'jar-' + id, img: src || svgUrl(jar(k)), svg: !src }; });
+    shelves.push({ id: 'jars', items: jars, ghosts: Object.keys(JARS_T).length - jars.length });
+  } else {
+    let n = 0; try { n = tally('deep:samples'); } catch (e) { /* */ }
+    jars = [...Array(Math.min(n, 10))].map((_, k) => ({ key: 'jar:' + k, name: O(COLL_T.jar, { n }), fact: O(COLL_T.jarText, { n }), img: svgUrl(jar(k)), svg: true }));
+    let rare = false; try { rare = hasBadge('b_deeprare'); } catch (e) { /* */ }
+    if (rare) jars.push({ key: 'jar:rare', name: O(COLL_T.rare), fact: O(COLL_T.rareText), img: svgUrl(jar(2) + '<circle cx="50" cy="66" r="9" fill="#ffd978" stroke="#fff" stroke-width="2"/>'), svg: true });
+    shelves.push({ id: 'jars', items: jars, ghosts: jars.length ? 0 : 3 });
+  }
   // patents: certificates (the creature's painting, the invention, its number)
   const pats = Object.keys(P.solved || {}).map((id) => PROBLEMS.find((p) => p.id === id)).filter(Boolean).sort((a, b) => PROBLEMS.indexOf(a) - PROBLEMS.indexOf(b));
   const patItems = pats.map((p) => { const pt = patentOf(p, kids); return { key: 'pat:' + p.id, name: pt.title, fact: '', patent: pt }; });
@@ -92,6 +167,25 @@ export function collection(kids, thumbs = {}) {
     patItems.unshift({ key: 'pat:sharkskin', name: pt.title, fact: '', patent: pt });
   }
   shelves.push({ id: 'patents', items: patItems, ghosts: Math.max(0, PROBLEMS.length - patItems.length) });
+  // robots built in the workshop (the hub keeps the last eight)
+  const robots = robotsBuilt().slice(0, 12).map((r, i) => {
+    const M = MISSIONS.find((m) => m.id === r.mission); const title = M ? (kids ? (MISSIONS_K[M.id] || M).title : M.title) : '';
+    return { key: 'robot:' + i, name: r.name, from: O(COLL_T.robotFrom), fact: title ? O(COLL_T.robotText, { mission: title, wins: r.wins || 0, of: r.of || 0 }) : '', img: svgUrl(robotSvg(r.name + r.mission)), svg: true };
+  });
+  shelves.push({ id: 'robots', items: robots, ghosts: robots.length ? 0 : 2 });
+  // photos from the islands (wave 3: the photo mode keeps them per player in web-of-life-photos)
+  const zoneName = (z) => (ZONES_T[z] ? O(ZONES_T[z]) : '');
+  const nameOf = (sp, fb) => { const n = sp && speciesName(sp); return n ? O(n) : (fb || ''); };
+  const ph = readStore('web-of-life-photos');
+  const photos = (Array.isArray(ph) ? ph : []).filter((p) => p && p.img).slice().sort((a, b) => (b.t || 0) - (a.t || 0)).slice(0, 12)
+    .map((p, i) => ({ key: 'photo:' + (p.id || i), name: nameOf(p.sp, p.name), fact: zoneName(p.zone) ? O(COLL_T.photoText, { zone: zoneName(p.zone) }) : '', img: p.img }));
+  shelves.push({ id: 'photos', items: photos, ghosts: photos.length ? 0 : 2 });
+  // rare visitors (wave 3: web-of-life-visitors, a list or a map by id)
+  const vs = readStore('web-of-life-visitors');
+  const vlist = Array.isArray(vs) ? vs : vs && typeof vs === 'object' ? Object.entries(vs).map(([id, v]) => ({ id, ...(v && typeof v === 'object' ? v : {}) })) : [];
+  const visitors = vlist.filter(Boolean).slice(0, 12).map((v, i) => { const sp = v.sp || v.id; const src = v.img || picSrc('card:' + sp, thumbs);
+    return { key: 'visit:' + (v.id || i), name: nameOf(sp, v.name), fact: zoneName(v.zone) ? O(COLL_T.visitText, { zone: zoneName(v.zone) }) : '', pic: 'card:' + sp, img: src || '', round: !!src }; });
+  shelves.push({ id: 'visitors', items: visitors, ghosts: visitors.length ? 0 : 2 });
   // clues solved in "מי השאיר את זה?" (their first painting)
   const cs = cluesSolved();
   const pool = CLUE_CASES.filter((c) => !kids || c.kids || cs[c.id]);
