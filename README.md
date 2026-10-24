@@ -78,16 +78,10 @@ npm install
 node build.mjs                      # → dist/index.html (single offline file, general edition)
 node build.mjs --edition=torah      # → dist/index-torah.html
 node build.mjs --desktop            # → desktop/app/ (core + per-zone packs, served as app://game/)
-cd desktop && npm install && npx electron-builder --win nsis --x64                              # general installer
-npx electron-builder --mac                  # Mac: release/mac-arm64/*.app and release/mac/*.app (Intel)
-rcodesign sign release/mac-arm64/reshet-hachaim.app     # ad-hoc signature (apple-codesign; required on Apple Silicon)
-python3 ../tools/zip-mac-app.py release/mac-arm64/reshet-hachaim.app out.zip "רשת החיים.app"   # zip that keeps symlinks
-node ../build.mjs --desktop --edition=torah && npx electron-builder --config builder-torah.json --win nsis --x64
+bash tools/pack-torah.sh            # the release: one edition, "רשת החיים – המסע"
 ```
 
-`tools/pack-release.sh` does all of this and writes the seven release files (the names in the table above) with their SHA-256 sums. The release steps for the owner are in `docs/RELEASE.md`.
-
-Build the torah desktop app first and the general one last: both write to `desktop/app`.
+Since 1.3.2 there is one edition, "רשת החיים – המסע" (the torah build with the sources switch). `tools/pack-torah.sh` builds it for the desktop, makes the Windows installer (`electron-builder --win nsis --x64 --config builder-torah.json`), the Mac zip (Intel, signed ad hoc with `rcodesign`, zipped by `tools/zip-mac-app.py` so the symlinks survive) and the one-file html, and writes the three release files (the names in the table above) with their SHA-256 sums into `release-files/<version>/`. The release steps for the owner are in `docs/RELEASE.md`.
 
 ### Checks
 
