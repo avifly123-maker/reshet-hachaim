@@ -22,6 +22,7 @@ import * as journey from './core/journey.js';
 import * as threads from './core/threads.js';   // חוטים (1.3.2): the parts feed each other; רובו־דע announces a new thread
 import { createVoice } from './audio/voice.js';
 import { createGuide } from './ui/robo-guide.js';
+import { startPlaytime } from './ui/playtime-ui.js';   // the parents' daily play time (1.3.3)
 import { STAGE_LINES, LEGACY_LINES } from './data/guide-lines.js';
 import './ui/stage-scenes.js';   // window.__stageScene(n): the short film of a new stage (area I)
 import './ui/flourish.js';   // window.__flourish: short flourishes (a part opening, a badge, a thread, the lab's doors, a mission's animal)
@@ -307,6 +308,12 @@ async function boot() {
   bus.on('ui:research', () => { audio.start(); researchHub.open(); });
   bus.on('audio:mute', ({ muted }) => { audio.setMuted(muted); writeDeviceRaw(K.sound, muted ? 'off' : 'on'); });   // remembered for the computer (1.3.2)
   if (readDeviceRaw(K.sound) === 'off') { audio.setMuted(true); ui.setToggles({ sound: false }); }
+  // the parents' play time (1.3.3): when the day's time is over the lock screen covers everything; the forest stops
+  // (ui.isModalOpen), it is saved, and the sounds go quiet until the parents add time (or tomorrow)
+  const playtime = startPlaytime({ root, kids: () => playerMode() === 'kids',
+    onLock: () => { audio.setMuted(true); if (game) { try { bus.emit('ui:save'); } catch (e) { } } },
+    onUnlock: () => { audio.setMuted(readDeviceRaw(K.sound) === 'off'); } });
+  window.__ptCheck = () => playtime.check();
   bus.on('music:toggle', ({ on }) => { music.setEnabled(on); ui.setToggles({ music: music.enabled }); });
   // which piece the screen on top would like: none in a forest, the learning hub, its games or the mysteries' centre
   const musicWanted = () => {

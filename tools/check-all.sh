@@ -3,7 +3,8 @@
 #   1. content and data validators (Hebrew text rules, nikud for beginners, guide lines, threads, lab, quiz, verses, mysteries, storage keys)
 #   2. both editions build (general and torah)
 #   3. the integration run at 800x460 (amazon, grove, reef, the hub) in both editions, with no script or page errors
-#   4. saves of every released version load (tests/fixtures/saves-*.json)
+#   4. the parents' play time (tools/check-playtime.py)
+#   5. saves of every released version load (tests/fixtures/saves-*.json)
 # --quick stops after step 2. A failing step stops the script with its name.
 set -u
 cd "$(dirname "$0")/.."
@@ -40,6 +41,11 @@ step "integration, torah edition"
 out=$(timeout 1200 python3 tools/play.py dist/index-torah.html tests/play/integ.json 800 460 2>&1)
 echo "$out" | grep "hub ok 10" || fail "torah integration (no 'hub ok 10')"
 echo "$out" | grep "\[pageerror\]\|JS ERROR\|UNTIL TIMEOUT\|^\[error\]" && fail "torah integration: errors"
+
+step "parents' play time"
+out=$(timeout 1200 python3 tools/check-playtime.py dist/index-torah.html shots/playtime 2>&1)
+echo "$out" | grep "^FAIL" ; echo "$out" | tail -1
+echo "$out" | tail -1 | grep -q "^OK" || fail "parents' play time"
 
 step "old saves"
 out=$(timeout 2400 python3 tools/check-old-saves.py dist/index.html 2>&1 | grep -v "^  ")

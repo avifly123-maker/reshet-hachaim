@@ -55,4 +55,6 @@
   --z-flourish: 903;           /* the thread flourish (.fl-thread) */
   --z-flourish-pulse: 904;     /* a pulse flourish (.fl-pulse) */
   --z-flourish-sparks: 905;    /* sparks (.fl-sparks) */
+  --z-pt-note: 940;            /* "נשארו 5 דקות" (.pt-note, ui/playtime-ui.js) */
+  --z-lock: 950;               /* the day's play time is over (.pt-lock): over everything, the parents' screen */
 }

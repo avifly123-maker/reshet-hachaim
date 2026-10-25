@@ -2,7 +2,7 @@
 // (play mode, text size, voice) inside the forest's satchel menu.
 //
 //   settingsRowsHTML({ rows })        HTML of the rows; rows: a list of 'mode' | 'text' | 'voice' | 'music' | 'again' | 'staff'
-//                                     | 'sound' | 'quality' | 'sources' (the computer's rows: o.getSound/setSound, o.getQuality/setQuality;
+//                                     | 'sound' | 'quality' | 'sources' | 'time' (the parents' play time, 1.3.3) (the computer's rows: o.getSound/setSound, o.getQuality/setQuality;
 //                                     'sources' only in the torah edition) | 'h:me' / 'h:pc' (a small heading)
 //                                     (default: the three rows the forest shows: mode, text, voice)
 //   bindSettingsRows(el, { emit, getMusic, onChange })   one delegated click handler on `el` (safe to call again)
@@ -16,6 +16,7 @@ import { esc } from './ui/helpers.js';   // not the ui.js barrel: it would close
 import * as J from '../core/journey.js';
 import { TORAH, sourcesOn, setSourcesOn } from '../core/edition.js';
 import { resetHowto } from './howto.js';
+import * as PT from '../core/playtime.js';
 
 const kids = () => J.playMode() === 'kids';
 const t = (f, k) => (kids() ? k : f);
@@ -36,6 +37,9 @@ const SIZES = [
 // the instructors' code: after a few wrong tries the field waits a little (no guessing in a row); for this visit only
 const CODE_TRIES = 5, CODE_WAIT_MS = 30e3;
 let codeWrong = 0, codeWaitUntil = 0;
+// the parents' play time (1.3.3): a choice waits here until the parents' code comes (same tries and wait as above)
+let ptPending = null, ptWrong = 0, ptWaitUntil = 0;
+const PT_OPTS = [[30, 'חצי שעה', 'חֲצִי שָׁעָה'], [60, 'שעה', 'שָׁעָה'], [120, 'שעתיים', 'שְׁעָתַיִם'], [0, 'ללא הגבלה', 'בְּלִי הַגְבָּלָה']];
 
 function sw(on) { return `<i class="set-sw${on ? ' on' : ''}" aria-hidden="true"></i>`; }
 
@@ -81,6 +85,15 @@ function rowHTML(id, o) {
   }
   if (id === 'again') {
     return `<button class="set-row set-again" data-row="again" data-set="again"><span class="set-lab">${icon('undo')}<span><b>${t('לשמוע שוב את ההסברים', 'לִשְׁמֹעַ שׁוּב אֶת הַהֶסְבֵּרִים')}</b><small>${t('רובו־דע יסביר שוב כל חלק', 'רוֹבּוֹ־דַּע יַסְבִּיר שׁוּב כָּל חֵלֶק')}</small></span></span></button>`;
+  }
+  if (id === 'time') {
+    const lim = PT.limitMin(), left = PT.fmtLeft(kids());
+    const sel = ptPending == null ? lim : ptPending;
+    return `<div class="set-row set-time" data-row="time"><div class="set-lab">${icon('hourglass')}<span><b>${t('זמן משחק ביום', 'זְמַן מִשְׂחָק בְּיוֹם')}</b><small>${t('להורים: לכל השחקנים יחד, משנים בקוד הורים', 'הַהוֹרִים קוֹבְעִים')}${left ? ` · ${t('היום', 'הַיּוֹם')} ${left}` : ''}</small></span></div>
+      <div class="set-seg set-tseg" role="radiogroup" aria-label="${t('זמן משחק ביום', 'זְמַן מִשְׂחָק בְּיוֹם')}">${PT_OPTS.map(([v, f, k]) => `<button role="radio" data-set="time" data-v="${v}" aria-checked="${sel === v}"><b>${t(f, k)}</b></button>`).join('')}</div>
+      ${ptPending != null ? `<div class="set-pcode"><label for="set-pcode">קוד הורים לאישור השינוי</label>
+        <div class="set-code"><input id="set-pcode" type="password" inputmode="numeric" autocomplete="off" maxlength="8" dir="ltr" aria-label="קוד הורים"><button class="btn primary" data-set="tcode">אישור</button><button class="btn soft" data-set="tcancel">ביטול</button></div>
+        <p class="set-perr" hidden>הקוד לא נכון</p></div>` : ''}</div>`;
   }
   if (id === 'staff') {
     const open = J.allOpen();
@@ -128,6 +141,17 @@ export function bindSettingsRows(el, opts = {}) {
     codeWrong = 0;
     after('unlock');
   };
+  const tryTime = () => {
+    const inp = el.querySelector('#set-pcode'); if (!inp || ptPending == null) return;
+    const err = el.querySelector('.set-perr'); const v = inp.value; inp.value = '';
+    if (Date.now() < ptWaitUntil) { if (err) { err.textContent = 'נסו שוב בעוד חצי דקה'; err.hidden = false; } return; }
+    if (!PT.setLimit(ptPending, v)) {
+      ptWrong++; if (ptWrong >= CODE_TRIES) { ptWrong = 0; ptWaitUntil = Date.now() + CODE_WAIT_MS; }
+      if (err) { err.textContent = Date.now() < ptWaitUntil ? 'הקוד לא נכון. נסו שוב בעוד חצי דקה' : 'הקוד לא נכון'; err.hidden = false; }
+      const c = el.querySelector('.set-pcode .set-code'); if (c) { c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake'); } return;
+    }
+    ptWrong = 0; ptPending = null; after('time');
+  };
   const after = (what) => {
     const o = el._setOpts || {};
     paintSettingsRows(el, o);
@@ -148,27 +172,42 @@ export function bindSettingsRows(el, opts = {}) {
       J.resetIntros(); resetHowto(); after('again');
       const g = window.__guide; const ln = g && (g.lines('start:tips') || []).find((l) => l.id === 'start.again.1'); if (ln) g.tip(ln, { ms: 5000 });
     }
+    else if (k === 'time') {
+      const v = +b.dataset.v;
+      ptPending = v === PT.limitMin() ? null : v; after('time');
+      if (ptPending != null) { const inp = el.querySelector('#set-pcode'); try { inp && inp.focus({ preventScroll: true }); } catch (er) { } }
+    }
+    else if (k === 'tcode') tryTime();
+    else if (k === 'tcancel') { ptPending = null; after('time'); }
     else if (k === 'unlock') tryUnlock();
     else if (k === 'lock') { J.lockAgain(); after('lock'); }
   });
-  el.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.matches('#set-code')) { e.preventDefault(); tryUnlock(); } });
-  el.addEventListener('input', (e) => { if (e.target.matches('#set-code')) { const er = el.querySelector('.set-err'); if (er) er.hidden = true; } });
+  el.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && e.target.matches('#set-code')) { e.preventDefault(); tryUnlock(); }
+    if (e.key === 'Enter' && e.target.matches('#set-pcode')) { e.preventDefault(); tryTime(); }
+  });
+  el.addEventListener('input', (e) => {
+    if (e.target.matches('#set-code')) { const er = el.querySelector('.set-err'); if (er) er.hidden = true; }
+    if (e.target.matches('#set-pcode')) { const er = el.querySelector('.set-perr'); if (er) er.hidden = true; }
+  });
 }
 
 // the full sheet: a paper card under the gear, with a scrim behind it
 export function openSettings(host, { emit, getMusic, getSound, setSound, getQuality, setQuality, onClose } = {}) {
   const old = host.querySelector('.set-layer'); if (old) old.remove();
+  ptPending = null;   // a play time choice that waited for the parents' code is dropped with the sheet
   const layer = document.createElement('div'); layer.className = 'set-layer';
   layer.innerHTML = `<div class="set-scrim"></div><div class="set-sheet paper" role="dialog" aria-modal="true" aria-label="${esc(t('הגדרות', 'הַגְדָּרוֹת'))}">
     <button class="pp-x set-x" data-x="1" aria-label="סגירה" title="סגירה">${icon('close')}</button>
     <h3 class="set-h">${icon('gear')}${t('הגדרות', 'הַגְדָּרוֹת')}</h3>
     <div class="set-cols">${settingsRowsHTML({ rows: ['h:me', 'mode', 'text', 'voice', 'again'], getMusic, getSound, getQuality })}
-    ${settingsRowsHTML({ rows: ['h:pc', 'sources', 'sound', 'music', 'quality', 'staff'], getMusic, getSound, getQuality })}</div></div>`;
+    ${settingsRowsHTML({ rows: ['h:pc', 'time', 'sources', 'sound', 'music', 'quality', 'staff'], getMusic, getSound, getQuality })}</div></div>`;
   host.appendChild(layer);
   const sheet = layer.querySelector('.set-sheet');
   bindSettingsRows(sheet, { emit, getMusic, getSound, setSound, getQuality, setQuality });
   const close = () => {
     if (!layer.isConnected) return;
+    ptPending = null;
     layer.remove(); removeEventListener('keydown', onKey);
     try { onClose && onClose(); } catch (e) { console.error(e); }
   };

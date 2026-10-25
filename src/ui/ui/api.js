@@ -372,7 +372,7 @@ export function createApi(ctx) {
 
     isModalOpen() {
       return !!(open.event || open.outcome || open.dialog || open.journal) || !!root.querySelector('.rep-layer.on') || startEl.classList.contains('on') || loadEl.classList.contains('on')
-        || !!root.querySelector('.ss, #rguide.modal:not([hidden])');   // a stage film, or רובו־דע presenting something (the forest waits for the child)
+        || !!root.querySelector('.ss, #rguide.modal:not([hidden]), .pt-lock');   // a stage film, רובו־דע presenting something (the forest waits for the child), the day's play time is over (1.3.3)
     },
   };
   return ui;
