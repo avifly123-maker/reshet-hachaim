@@ -147,7 +147,7 @@ export function createStart(ctx) {
       let need = '';
       if (nx) {   // the closest way to the next stage (the map lists all of them)
         const ways = (kids ? JR.STAGES[nx.stage - 1].kneed : JR.STAGES[nx.stage - 1].need) || [];
-        let bi = 0, bp = -1; ways.forEach((w, i) => { const p = Math.min(...Object.keys(w).map((k) => Math.min(1, (st.metrics[k] || 0) / w[k]))); if (p > bp) { bp = p; bi = i; } });
+        let bi = 0, bp = -1; ways.forEach((w, i) => { const ks = Object.keys(w); const p = ks.reduce((a, k) => a + Math.min(1, (st.metrics[k] || 0) / w[k]), 0) / ks.length; if (p > bp) { bp = p; bi = i; } });
         need = nx.need[bi] || nx.need[0] || '';
       } else need = kids ? 'הִגַּעְתֶּם לַשָּׁלָב הָאַחֲרוֹן!' : 'הגעתם לשלב האחרון!';
       jbar.style.setProperty('--c', c);
