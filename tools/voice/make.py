@@ -47,12 +47,62 @@ def _basic_holam(g):
     if g.base != H.VAV and g.has(H.HOLAM) and not g.any({H.QAMATS_QATAN, H.QUBUTZ, H.HIRIQ, H.TSERE, H.SEGOL, H.PATAH, H.QAMATS}): return 'o', True
     return _basic(g)
 H._map_basic_vowel = _basic_holam
+# an alef or ayin that carries its own vowel is a glottal stop (מַרְאָה maʁʔa, נִשְׁאַר niʃʔaʁ, לְאַט leʔat); Piper dropped
+# it whenever the letter had a vowel, so "מראה" was read "mara" (25.10)
+_cons = H._map_consonant
+_VOWEL = re.compile('[\u05B1-\u05BB\u05C7]')
+def _cons_glottal(base, marks, is_final, next_is_vowel):
+    b = H.FINAL_FORM_BASE.get(base, base)
+    if b in (H.ALEF, H.AYIN) and any(_VOWEL.match(m) for m in marks): return 'ʔ'
+    return _cons(base, marks, is_final, next_is_vowel)
+H._map_consonant = _cons_glottal
+# modern initial shva (25.10): Piper says every word-initial shva as "e" (קְלָף kelaf, שְׁנֵי ʃenej = "second", תְּמוּנָה
+# temuna). In Israeli speech it is silent unless the letter is a prefix letter or a sonorant (בוכלמ ינר: בְּ- be-, מְבִיאִים
+# mevi'im, לְמַעְלָה lemala), the next consonant is a guttural (שְׁאֵלָה ʃeʔela) or the same letter, or ת opens a plural verb
+# (תְּנַסּוּ tenasu). The same after the article and the like (הַתְּמוּנָה hatmuna).
+_resolve = H._resolve_sheva_and_qamats
+_GUTT = set('ʔhχ')
+def _resolve_modern(segs):
+    cand = []
+    for i in (0, 1):
+        if i >= len(segs) - 1 or segs[i].nucleus != 'ə' or len(segs[i].onset) != 1: continue
+        if i == 1 and not (segs[0].nucleus in ('a', 'e') and not segs[0].coda and segs[1].dagesh and ''.join(segs[0].onset) in ('h', 'ʃ', 'v', 'b', 'l', 'k', 'm')): continue
+        c, nxt = segs[i].onset[0], (segs[i + 1].onset[:1] or [''])[0]
+        letters = NIK.sub('', _resolve_modern.word or '')
+        if i < len(letters) and letters[i] in 'בוכלמינר': continue
+        if nxt in _GUTT or nxt == '' or nxt == c: continue
+        if c == 't' and (_resolve_modern.word or '').endswith('וּ'): continue   # תְּנַסּוּ, תְּגַלּוּ
+        cand.append(id(segs[i]))
+    out = _resolve(segs)
+    res = []
+    i = 0
+    while i < len(out):
+        sg = out[i]
+        if id(sg) in cand and sg.nucleus == 'e' and i + 1 < len(out) and not sg.coda:
+            out[i + 1].onset[:0] = sg.onset; i += 1; continue   # the consonant joins the next syllable: klaf, ʃnej
+        res.append(sg); i += 1
+    return res
+_resolve_modern.word = None
+H._resolve_sheva_and_qamats = _resolve_modern
 _word_to_ipa = H.hebrew_word_to_ipa
+# a name with a prefix: the lexicon's reading of the name after the prefix's own sound (בְּאַמְזוֹנְס → be + amazonas)
+PREFIX_IPA = {'ב': 'be', 'בא': 'ba', 'ל': 'le', 'לא': 'la', 'מ': 'me', 'מה': 'meha', 'ה': 'ha', 'ו': 've', 'וב': 'uv', 'ש': 'ʃe', 'כ': 'ke'}
+NAMES = {'אמזונס': 'amazˈonas'}
 def word_ipa(w, lex):
     key = NIK.sub('', w)
     if w in lex: return lex[w]
     if key in lex: return lex[key]
-    _stress.word = w
+    for name, nipa in NAMES.items():
+        if key.endswith(name):
+            pre = key[:-len(name)]
+            if pre == '': return nipa
+            p = PREFIX_IPA.get(pre) or (pre.endswith('א') and PREFIX_IPA.get(pre[:-1]))
+            if p:
+                if len(pre) == 1 and re.match('.\u05BC?[\u05B7\u05B8]', w): p = p[:-1] + 'a'   # לָאָמָזוֹנָס: la-
+                return p + nipa
+    # -ָיו at the end is "av" (עָלָיו alav, אֵלָיו elav): the yod is silent
+    w = re.sub('\u05B8\u05D9\u05D5$', '\u05B8\u05D5', w)
+    _stress.word = w; _resolve_modern.word = w
     ipa = _word_to_ipa(w)
     # a furtive patah (פתח גנוב): a final ח / ע with patah after a long vowel is read "aχ" / "a", stressed before it
     if re.search('[\u05D7\u05E2]\u05B7$', w) and len(re.findall('[aeiou]', ipa)) >= 2:
@@ -71,7 +121,9 @@ def text_to_ipa(text, lex):
         if ipa: out.append(ipa)
     s = ''
     for t in out: s += (t if t in ',.!?' else ((' ' if s else '') + t))
-    return s
+    # 25.10: Piper's G2P writes ג as the Latin "g" (id 154), a symbol the shaul voice never learned: it mumbled every ג
+    # (the recognizer heard 24% of the words with ג). The voice was trained on the IPA "ɡ" (U+0261, id 66).
+    return s.replace('g', '\u0261')
 
 def robot(a):
     # 22.10 (Avi): the tremolo and comb sounded like a shaky voice, not a mechanical one: plain Shaul, no effect
@@ -107,6 +159,17 @@ def main():
     hear = None
     if o.check:
         sys.path.insert(0, str(ROOT / 'tools/voice')); from asr import hear
+    # 25.10: a line written without nikud is read with Nakdimon's nikud, which is sometimes wrong (לְמַדְתָּם for לְמַדְתֶּם,
+    # מַרְוֶוה). Every word that the beginners' lines spell the same way takes its nikud from them instead, when they
+    # give it one nikud only (those were written and checked by hand).
+    forms = {}
+    for l in lines:
+        for t in (l.get('k') or '', l.get('f') or ''):
+            if not NIK.search(t): continue
+            for w in re.findall(r'[א-ת\u0591-\u05C7]+', t): forms.setdefault(NIK.sub('', w), set()).add(w)
+    known = {b: next(iter(v)) for b, v in forms.items() if len(v) == 1}
+    def dia_k(text):
+        return re.sub(r'[א-ת\u0591-\u05C7]+', lambda m: known.get(NIK.sub('', m.group(0)), m.group(0)), dia(text))
     for l in lines:
         if only and l['id'] not in only: continue
         f, k = (l.get('f') or '').strip(), (l.get('k') or '').strip()
@@ -114,7 +177,7 @@ def main():
         same = NIK.sub('', k) == NIK.sub('', f)
         if same and k: jobs.append((l['id'], k))
         else:
-            jobs.append((l['id'], f if NIK.search(f) else dia(f)))
+            jobs.append((l['id'], f if NIK.search(f) else dia_k(f)))
             if k: jobs.append((l['id'] + '.k', k))
         for vid, text in jobs:
             ipa = text_to_ipa(text, lex)
