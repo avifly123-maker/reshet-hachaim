@@ -45,11 +45,11 @@ export function createUpdate(ctx) {
     W.dayFrac = (W.dayFrac + dt / DAY_LEN * (1 + 3 * W.nightGlow)) % 1;   // nights pass quickly
     if (W.dayFrac < prevFrac) {
       const ended = ctx.report ? ctx.report.dayEnded() : null; W.day++;
-      if (biome.id === 'grove') { const i = (SEASONS.indexOf(W.season) + 1) % 4; W.season = SEASONS[i]; if (!W.xp) ui.toast(`הגיעה עונת ה${SEASON_NAMES[W.season]}`, 'info'); seasonBegins(W.season); }
+      if (biome.id === 'grove') { const i = (SEASONS.indexOf(W.season) + 1) % 4; W.season = SEASONS[i]; if (!W.xp && !W.viewMode) ui.toast(`הגיעה עונת ה${SEASON_NAMES[W.season]}`, 'info'); seasonBegins(W.season); }
       ctx.report?.dayBegan(ended);   // the full mode offers to write "דוח החוקר"; חוויה has no daily report:
-      if (W.xp && !W.research && !(guide() && guide().isOpen())) {   // רובו־דע says one line at the end of the day instead
+      if (W.xp && !W.research && !W.viewMode && !(guide() && guide().isOpen())) {   // רובו־דע says one line at the end of the day instead
         if (biome.id === 'grove') robo('zone:season:' + W.season, { key: null, force: true });
-        else if (W.day % 3 === 0 && W.simT - (W._roboT ?? -999) > 150) roboOne('zone:dayend', W.day / 3);   // every third day, and only after a quiet while
+        else if (W.day % 6 === 0 && W.simT - (W._roboT ?? -999) > 150) roboOne('zone:dayend', W.day / 6);   // every sixth day (25.10: was third), and only after a quiet while
       }
     }
     W.seasonFrac = W.dayFrac;

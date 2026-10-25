@@ -178,14 +178,19 @@ export function createMissions(W) {
     // day & random triggers
     if (W.day !== lastDay) {
       lastDay = W.day;
+      // 25.10 (Avi): about 40% fewer random events (the chance was ×1.6, now ×1), and one random event a day at most
+      let randomToday = false;
       for (const e of events) {
         if (e.fired) continue;
         if (e.trigger.type === 'day' && W.day >= e.trigger.day) fire(e, 20);
-        else if (e.trigger.type === 'random' && (!e.trigger.season || e.trigger.season === W.season) && W.day >= 3 && Math.random() < e.trigger.chancePerDay * 1.6) fire(e, 30 + Math.random() * 60);
+        else if (!randomToday && e.trigger.type === 'random' && (!e.trigger.season || e.trigger.season === W.season) && W.day >= 3 && Math.random() < e.trigger.chancePerDay) { fire(e, 30 + Math.random() * 60); randomToday = true; }
       }
     }
     // dispatch queued events (one at a time, never during a modal/drag)
-    if (queue.length && !W.isBusy() && W.simT >= queue[0].at) {
+    // a random event waits for a calm moment (W.calmBusy: not right after a mission or another event); the events a mission
+    // or a day brings wait only for the island view
+    const calm = (e) => (e.trigger.type === 'random' && W.calmBusy ? !W.calmBusy() : !W.isBusy());
+    if (queue.length && calm(queue[0].e) && W.simT >= queue[0].at) {
       const { e } = queue.shift();
       if (eventApplicable(e)) W.runEvent(e);
       else {

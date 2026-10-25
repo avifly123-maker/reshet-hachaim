@@ -85,7 +85,13 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   const calcXP = () => { try { return !W.research && !W.kids && playMode() === 'experience'; } catch (e) { return false; } };
   W.xp = calcXP();
   // a toast that only tells what is happening by itself (a birth, a seed, a photo...): shown in the full mode only
-  const amb = (text, kind, ms) => { if (!W.xp) ui.toast(text, kind, ms); };
+  // 25.10 (Avi): at most one such note every 20 seconds, and none in a tour, a close look or the photo mode
+  let ambAt = -1e9;
+  const amb = (text, kind, ms) => {
+    if (W.xp || W.viewMode) return;
+    const now = performance.now(); if (now - ambAt < 20000) return;
+    ambAt = now; ui.toast(text, kind, ms);
+  };
   W.amb = amb;
   // רובו־דע in the forest (src/ui/robo-guide.js, lines in src/data/guide/zone.js). Nothing from him inside a mystery.
   const guide = () => (W.research ? null : window.__guide || null);

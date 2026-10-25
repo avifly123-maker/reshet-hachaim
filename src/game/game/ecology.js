@@ -37,6 +37,12 @@ export function createEcology(ctx) {
   W.fireAt = (x, z) => { let v = 0; for (const f of W.fires) if (Math.hypot(f.x - x, f.z - z) < f.r) v = Math.max(v, f.intensity); return v > 0.35 ? v : 0; };
   W.fireNear = (x, z, r) => W.fires.some(f => f.intensity > 0.2 && Math.hypot(f.x - x, f.z - z) < f.r + r);
   W.isBusy = () => ui.isModalOpen() || !!ctx.dragState || !!W.experiment || !!W.viewMode;   // events wait until the child is back on the island view
+  // 25.10 (Avi: "too much happens at once"): what comes by itself (a random event, an injury, a visitor, a verse, a small
+  // note) also waits for a calm moment: not right after a mission was done, not soon after another event, not while
+  // רובו־דע speaks. Times in game seconds (W.simT).
+  W._missionDoneT = -1e9; W._eventT = -1e9;
+  W.calmBusy = () => W.isBusy() || W.simT - W._missionDoneT < 30 || W.simT - W._eventT < 240
+    || !!(window.__guide && window.__guide.isOpen && window.__guide.isOpen());
 
   W.findFood = (animal, radius) => {
     const sp = animal.sp; let best = null, bestS = 0;

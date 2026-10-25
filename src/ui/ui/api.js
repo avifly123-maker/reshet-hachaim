@@ -252,6 +252,7 @@ export function createApi(ctx) {
     },
 
     setToggles(t) { Object.assign(S.toggles, t || {}); paintToggles(); },
+    markReport(on) { ctx.markReport && ctx.markReport(on); },   // the star on the satchel: a day's report is waiting (toolbar.js)
     // where music could play now ('start' | 'lab' | null): shows the music switch there (main.js calls it every frame)
     setMusicPlace(p) { p = p || ''; if (musicBtn.dataset.place === p) return; musicBtn.dataset.place = p; musicBtn.hidden = !p; },
     isStartShown() { return startEl.classList.contains('on') && !loadEl.classList.contains('on'); },

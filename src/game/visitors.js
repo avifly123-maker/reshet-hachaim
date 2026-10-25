@@ -133,7 +133,7 @@ export function createVisitors({ W, env, reg, ui, audio, markers, rig, imv, spaw
     }
     if (!enabled || dt <= 0) return;
     checkT -= dt; if (checkT > 0) return; checkT = CHECK;
-    if (nowS() < nextAt || guests >= PER_VISIT || W.isBusy()) return;
+    if (nowS() < nextAt || guests >= PER_VISIT || (W.calmBusy ? W.calmBusy() : W.isBusy())) return;
     const have = photographed();
     const ok = list.filter((v) => W.countAlive(v.id) === 0 && !(lastSeen[v.id] && nowS() - lastSeen[v.id] < SAME) && (() => { try { return v.when(Q); } catch (e) { return false; } })());
     if (!ok.length || Math.random() > 0.3) return;
