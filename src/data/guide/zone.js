@@ -10,6 +10,7 @@
 //   zone:dayend           one line at the end of a day instead of the daily report (חוויה; one of the list each day)
 //   zone:season:<s>       the grove's new season (חוויה)
 //   zone:alldone          "מה עושים עכשיו?" when every mission is done
+//   zone:mode             once, two minutes into a forest in the full mode: the חוויה mode has much less to read
 
 // the first steps in a zone: the same three bubbles after the zone's own greeting
 const steps = (z, to, kto) => [
@@ -33,6 +34,12 @@ export const ZONE_GUIDE = {
   'zone:reef': [
     { id: 'zone.reef.1', f: 'ברוכים הבאים לשונית של אילת! כאן האלמוגים בונים בית לכולם.', k: 'בְּרוּכִים הַבָּאִים לַשּׁוּנִית שֶׁל אֵילַת! כָּאן הָאַלְמוֹגִים בּוֹנִים בַּיִת לְכֻלָּם.', expr: 'wow' },
     ...steps('reef', 'אל השונית', 'אֶל הַשּׁוּנִית'),
+  ],
+
+  // ───────────── the play mode (25.10, Avi): once per player in the full mode, after a while in a forest
+  'zone:mode': [
+    { id: 'zone.mode.1', f: 'יש כאן הרבה מידע? בתיק אפשר לעבור למצב חוויה.', k: 'יֵשׁ כָּאן הַרְבֵּה מֵידָע? בַּתִּיק אֶפְשָׁר לַעֲבֹר לְמַצַּב חֲוָיָה.', at: '#ui .kit-btn' },
+    { id: 'zone.mode.2', f: 'במצב חוויה יש הרבה פחות מילים והודעות, ואפשר פשוט לבנות ולהסתכל.', k: 'בְּמַצַּב חֲוָיָה יֵשׁ הַרְבֵּה פָּחוֹת מִלִּים וְהוֹדָעוֹת, וְאֶפְשָׁר פָּשׁוּט לִבְנוֹת וּלְהִסְתַּכֵּל.' },
   ],
 
   // ───────────── what now / all done

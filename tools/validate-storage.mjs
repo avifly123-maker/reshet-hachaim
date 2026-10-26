@@ -29,7 +29,9 @@ for (const z of zoneIds) if (!ZONE_IDS.includes(z)) err(`zone ${z} (data/zones.j
 
 if (STORE !== K.profiles) err(`profiles.STORE (${STORE}) differs from K.profiles (${K.profiles})`);
 const HISTORIC = ['web-of-life-profiles', 'web-of-life-quality', 'web-of-life-campad', 'web-of-life-autoq'];
-const dev = [...deviceKeys()].sort();
+// keys born after players existed (no save from before them can hold them), so skipping them changes nothing old
+const NEWER = ['web-of-life-playtime'];   // 1.3.3: the parents' play time, for the whole computer
+const dev = [...deviceKeys()].filter((k) => !NEWER.includes(k)).sort();
 if (JSON.stringify(dev) !== JSON.stringify([...HISTORIC].sort())) err(`profiles' migration skips ${dev.join(', ')}; it always skipped ${HISTORIC.join(', ')}`);
 
 // key strings typed outside core/storage.js

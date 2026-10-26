@@ -33,6 +33,7 @@ export function createStart(ctx) {
     startEl.innerHTML = `<div class="st-bg">${canopySVG('top')}${canopySVG('bottom')}<i class="st-shaft s1"></i><i class="st-shaft s2"></i><i class="st-tint"></i></div>
       ${S.logo ? `<div class="st-logo"><img src="${S.logo}" alt="בבא דע"></div>` : ''}
       <div class="st-corner"><div class="st-corner-row"><button class="st-who" aria-haspopup="dialog" aria-expanded="false" hidden></button>
+        <button class="st-time" aria-haspopup="dialog" hidden>${icon('hourglass')}<b></b></button>
         <button class="st-gear" aria-haspopup="dialog" aria-label="הגדרות" title="הגדרות">${icon('gear')}</button></div>
         <button class="st-jbar" data-part="journey" aria-haspopup="dialog"></button></div>
       <div class="st-pp-layer" hidden><div class="st-pp-scrim"></div><div class="st-pp paper" role="dialog" aria-modal="true" aria-label="מי משחק?"></div></div>
@@ -146,7 +147,7 @@ export function createStart(ctx) {
       let need = '';
       if (nx) {   // the closest way to the next stage (the map lists all of them)
         const ways = (kids ? JR.STAGES[nx.stage - 1].kneed : JR.STAGES[nx.stage - 1].need) || [];
-        let bi = 0, bp = -1; ways.forEach((w, i) => { const p = Math.min(...Object.keys(w).map((k) => Math.min(1, (st.metrics[k] || 0) / w[k]))); if (p > bp) { bp = p; bi = i; } });
+        let bi = 0, bp = -1; ways.forEach((w, i) => { const ks = Object.keys(w); const p = ks.reduce((a, k) => a + Math.min(1, (st.metrics[k] || 0) / w[k]), 0) / ks.length; if (p > bp) { bp = p; bi = i; } });
         need = nx.need[bi] || nx.need[0] || '';
       } else need = kids ? 'הִגַּעְתֶּם לַשָּׁלָב הָאַחֲרוֹן!' : 'הגעתם לשלב האחרון!';
       jbar.style.setProperty('--c', c);
@@ -187,6 +188,10 @@ export function createStart(ctx) {
     jbar.addEventListener('click', openMap);
     S.openJourneyMap = openMap;
     const gear = startEl.querySelector('.st-gear');
+    // the parents' play time (1.3.3): the chip shows what is left today (ui/playtime-ui.js paints it) and opens the settings
+    const ptChip = startEl.querySelector('.st-time');
+    if (ptChip) ptChip.addEventListener('click', () => gear.click());
+    try { window.__ptCheck && window.__ptCheck(); } catch (e) { }
     gear.addEventListener('click', () => {
       emit('ui:click'); gear.setAttribute('aria-expanded', 'true');
       openSettings(startEl, { emit, getMusic: () => S.toggles.music !== false,

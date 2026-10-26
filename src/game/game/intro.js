@@ -66,6 +66,13 @@ export function createIntro(ctx) {
     if (W.kids) { const after = W.restored ? null : () => startCoach(false); if (!showHowto(false, after) && after) after(); return; }
     const after = () => { if (ctx.disposed) return; if (!W.restored && !coachSeen()) startCoach(false); else if (fresh) robo('zone:' + biome.id, { tip: false }); };
     if (!showHowto(false, after)) after();
+    // 25.10 (Avi): once per player, after a while in the full mode: the חוויה mode has much less to read (the satchel)
+    const modeTip = () => {
+      if (ctx.disposed || W.xp || W.kids || W.research) return;
+      if (W.calmBusy && W.calmBusy()) { setTimeout(modeTip, 20000); return; }
+      robo('zone:mode');
+    };
+    setTimeout(modeTip, 120000);
   }
   return { showHowto, startCoach, coachNext, explainPoints, ptsEl, startIntro };
 }

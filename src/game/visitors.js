@@ -40,14 +40,22 @@ export const VISITORS = {
 export const visitorsFor = (zone, kids) => (VISITORS[zone] || []).filter((v) => !!v.kids === !!kids);
 
 const STAY = 85;          // seconds of game time a visit lasts (longer while the child is photographing)
-const FIRST = 50;         // the earliest visit after entering
-const GAP = 170;          // between two visits
-const CHECK = 8;          // how often the island is looked at
+// 25.10 (testers: "the harpy eagle comes again and again"): the gaps were game seconds (fast-forward made them a third),
+// the harpy is the most likely visitor of the Amazon, and one not yet photographed was picked first every time, so it
+// came back about every three minutes, with רובו־דע's line each time. Now the gaps are real seconds, a species does not
+// come back for a long while, one island visit has at most three guests, and רובו־דע announces a species only once.
+const FIRST = 150;        // real seconds in the forest before the first visit
+const GAP = 360;          // real seconds between two visits
+const SAME = 1200;        // real seconds before the same species may come again
+const PER_VISIT = 3;      // guests in one visit to an island
+const CHECK = 8;          // how often the island is looked at (game seconds)
+const nowS = () => performance.now() / 1000;
 
 export function createVisitors({ W, env, reg, ui, audio, markers, rig, imv, spawnAnimal, art, Q, photoOpen, openPhoto }) {
   const kids = !!W.kids;
   const list = visitorsFor(W.biomeId, kids).filter((v) => reg.byId.has(v.id) && W.animalBuilders && W.animalBuilders[v.id]);
-  let cur = null, checkT = CHECK, nextAt = W.simT + FIRST, enabled = false, disposed = false;
+  let cur = null, checkT = CHECK, nextAt = nowS() + FIRST, enabled = false, disposed = false, guests = 0;
+  const lastSeen = {};   // species id → real time of its last visit
   const nameOf = (id) => { const n = reg.byId.get(id)?.name || ''; return kids ? nameK(n) : n; };
 
   // the round button in the dock: the visitor's painting, its name; a click flies the camera to it and opens the photo mode
@@ -89,14 +97,15 @@ export function createVisitors({ W, env, reg, ui, audio, markers, rig, imv, spaw
     try { markers.locate([a], '#ffd84a', (e, out) => { if (!e.alive || e.leaving) return null; const f = e.focusPoint(_f); out.set(f.x, env.heightAt(f.x, f.z), f.z); return Math.max(1, f.y - out.y + 0.8); }, 10); } catch (e) { }
     audio && audio.play && audio.play('discover');
     const g = window.__guide, L = g && g.lines('after:visit:' + v.id);
-    if (g && L && L.length) g.say(L, { tip: true, ms: 10000 });
+    if (g && L && L.length) g.say(L, { tip: true, ms: 10000, key: 'g:visit:' + v.id });   // once per player: the button and the beacon tell the rest
+    guests++; lastSeen[v.id] = nowS();
     return true;
   }
   function end() {
     if (!cur) return;
     const { a } = cur; cur = null;
     if (a && a.alive && !a.leaving) a.leave();
-    btn.hidden = true; nextAt = W.simT + GAP;
+    btn.hidden = true; nextAt = nowS() + GAP;
   }
   // the visitor was in a photo (the photo mode, or a field camera)
   function photographedNow(a) {
@@ -112,10 +121,10 @@ export function createVisitors({ W, env, reg, ui, audio, markers, rig, imv, spaw
     if (W.research) return;
     if (cur) {
       const a = cur.a;
-      if (!a.alive || a.removed) { cur = null; btn.hidden = true; nextAt = W.simT + GAP; return; }
+      if (!a.alive || a.removed) { cur = null; btn.hidden = true; nextAt = nowS() + GAP; return; }
       // a guest: never hungry, never hunting (findFood looks only when hungry and the wait is over)
       a.energy = 1; a.eatCD = Math.max(a.eatCD, 5);
-      if (a.leaving) { cur = null; btn.hidden = true; nextAt = W.simT + GAP; return; }
+      if (a.leaving) { cur = null; btn.hidden = true; nextAt = nowS() + GAP; return; }
       if (photoOpen && photoOpen()) cur.until = Math.max(cur.until, W.simT + 6);   // never leaves while the child is aiming
       const left = Math.max(0, cur.until - W.simT);
       btn.style.setProperty('--left', (left / STAY).toFixed(3));
@@ -124,13 +133,13 @@ export function createVisitors({ W, env, reg, ui, audio, markers, rig, imv, spaw
     }
     if (!enabled || dt <= 0) return;
     checkT -= dt; if (checkT > 0) return; checkT = CHECK;
-    if (W.simT < nextAt || W.isBusy()) return;
+    if (nowS() < nextAt || guests >= PER_VISIT || (W.calmBusy ? W.calmBusy() : W.isBusy())) return;
     const have = photographed();
-    const ok = list.filter((v) => W.countAlive(v.id) === 0 && (() => { try { return v.when(Q); } catch (e) { return false; } })());
-    if (!ok.length || Math.random() > 0.45) return;
+    const ok = list.filter((v) => W.countAlive(v.id) === 0 && !(lastSeen[v.id] && nowS() - lastSeen[v.id] < SAME) && (() => { try { return v.when(Q); } catch (e) { return false; } })());
+    if (!ok.length || Math.random() > 0.3) return;
     const fresh = ok.filter((v) => !have.has(v.id));
     const pick = (fresh.length ? fresh : ok)[(Math.random() * (fresh.length || ok.length)) | 0];
-    if (!start(pick)) nextAt = W.simT + 30;
+    if (!start(pick)) nextAt = nowS() + 30;
   }
   function dispose() { disposed = true; if (cur && cur.a && cur.a.alive) cur.a.leave(); cur = null; btn.remove(); }
 

@@ -1,6 +1,6 @@
 // The toolbar: home, the satchel menu (home, help, coach, save, daily report, view all, and the settings: the journey
 // rows, sounds, music, sources, picture quality), the journal, light map and web toggles; and the round music switch.
-// Exports: createToolbar(ctx) → { qWrap, kitBtn, setKit, paintToggles, musicBtn }.
+// Exports: createToolbar(ctx) → { qWrap, kitBtn, setKit, paintToggles, musicBtn, markReport }.
 // Needs from ctx (index.js and the parts made before it): root, emit, S, toolbar.
 import { setSourcesOn, sourcesOn, TORAH } from '../../core/edition.js';
 import { zoneWord } from '../../core/place.js';
@@ -101,5 +101,8 @@ export function createToolbar(ctx) {
   musicBtn.setAttribute('role', 'switch'); musicBtn.hidden = true;
   musicBtn.addEventListener('click', () => { S.toggles.music = !(S.toggles.music !== false); paintToggles(); emit('music:toggle', { on: S.toggles.music }); });
   paintToggles();
-  return { qWrap, kitBtn, setKit, paintToggles, musicBtn };
+  // 25.10 (Avi): a day's report no longer pops up; a small star on the satchel and on "דוח יומי" says one is waiting
+  function markReport(on) { kitBtn.classList.toggle('has-new', !!on); const r = tbBtn('report'); if (r) r.classList.toggle('has-new', !!on); }
+  toolbar.addEventListener('click', (e) => { if (e.target.closest('[data-a="report"]')) markReport(false); });
+  return { qWrap, kitBtn, setKit, paintToggles, musicBtn, markReport };
 }

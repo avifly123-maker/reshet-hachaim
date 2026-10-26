@@ -23,6 +23,7 @@
 //   voiceOn() / setVoice(on)            רובו־דע speaks his lines (src/audio/voice.js)
 //   allOpen() / unlockAll(code) / lockAgain()   the instructors' switch; INSTRUCTOR_CODE (Avi gives it to the instructors; docs/JOURNEY.md)
 // Events listened to: 'wol-badge' (a badge), 'wol-progress' (a mission, a lab activity, a solved mystery…) → check().
+import { rankOf } from '../game/rank.js';   // the island's rank (stage 6; game/rank.js has no three.js)
 import { K as KEY, zoneKey, saveKey, readPlayer, writePlayer, readPlayerRaw, readDeviceRaw, writeDeviceRaw, removeDevice, playerKey, playerMode as levelNow } from './storage.js';
 
 const K = KEY.journey;
@@ -62,13 +63,19 @@ export const PARTS = {
 
 // need: a list of ways (any one is enough). Keys: missions (done in all zones), badges (owned), lab (lab activities).
 // Beginners ('kids') have their own, easier numbers. The numbers are a first proposal, tuned by a full playthrough.
+// 25.10 (Avi): the stages went by too fast (10 missions in half an hour, and most missions give a badge too, so
+// "missions or badges" was one road). Each stage now asks for several things together, among them the part that the
+// stage before opened: the album's cards, a card game, the lab, the reef, a mystery, an invention, an island's rank.
+// Keys: missions (all zones), amazon / grove / reef (missions in that zone), cards (in the album), cardgame (חוט הקשר or
+// מחזיקים את היער played), lab (lab activities), solved (mysteries healed), invent (inventions and inventors' problems
+// solved), rank (the best island rank reached: 0 = the first, 3 = the last; RANKS in game/rank.js).
 export const STAGES = [
   { n: 1, id: 'observer', name: 'מתבונן', kname: 'מִתְבּוֹנֵן', need: null, kneed: null },
-  { n: 2, id: 'collector', name: 'אספן', kname: 'אַסְפָן', need: [{ missions: 1 }], kneed: [{ missions: 1 }] },
-  { n: 3, id: 'keeper', name: 'שומר', kname: 'שׁוֹמֵר', need: [{ missions: 4 }, { badges: 2 }], kneed: [{ missions: 3 }, { badges: 2 }] },
-  { n: 4, id: 'researcher', name: 'חוקר', kname: 'חוֹקֵר', need: [{ missions: 7 }, { badges: 4 }], kneed: [{ missions: 5 }, { badges: 3 }] },
-  { n: 5, id: 'inventor', name: 'ממציא', kname: 'מַמְצִיא', need: [{ lab: 2 }, { badges: 7 }], kneed: [{ lab: 1 }, { badges: 5 }] },
-  { n: 6, id: 'expert', name: 'מומחה', kname: 'מֻמְחֶה', need: [{ missions: 12 }, { badges: 10 }], kneed: [{ missions: 8 }, { badges: 7 }] },
+  { n: 2, id: 'collector', name: 'אספן', kname: 'אַסְפָן', need: [{ missions: 3 }], kneed: [{ missions: 2 }] },
+  { n: 3, id: 'keeper', name: 'שומר', kname: 'שׁוֹמֵר', need: [{ missions: 8, cards: 12 }], kneed: [{ missions: 5, cards: 8 }] },
+  { n: 4, id: 'researcher', name: 'חוקר', kname: 'חוֹקֵר', need: [{ missions: 15, amazon: 5, grove: 5, cards: 20, cardgame: 1 }], kneed: [{ missions: 9, amazon: 3, grove: 3, cards: 12, cardgame: 1 }] },
+  { n: 5, id: 'inventor', name: 'ממציא', kname: 'מַמְצִיא', need: [{ lab: 3, reef: 4 }], kneed: [{ lab: 2, reef: 2 }] },
+  { n: 6, id: 'expert', name: 'מומחה', kname: 'מֻמְחֶה', need: [{ missions: 30, solved: 1, invent: 1, rank: 2 }], kneed: [{ missions: 15, solved: 1, rank: 1 }] },
 ];
 
 // storage: core/storage.js (reading never throws; a write that fails keeps the visit going)
@@ -85,17 +92,26 @@ function doneIn(z, kept) {
   return ids;
 }
 export function metrics() {
-  let missions = 0;
+  let missions = 0; const per = {};
   const kept = (readPlayer(K, null) || {}).done;
-  for (const z of ZONES) missions += doneIn(z, kept).size;
+  for (const z of ZONES) { per[z] = doneIn(z, kept).size; missions += per[z]; }
   const b = readPlayer(KEY.badges, {}); const badges = b && b.own ? Object.keys(b.own).length : 0;
   const L = readPlayer(KEY.lab, {}) || {};
   const n = (o) => (o && typeof o === 'object' ? Object.keys(o).length : 0);
   let found = 0; for (const k in (L.found || {})) found += Array.isArray(L.found[k]) ? L.found[k].length : 0;
   const lab = found + n(L.inventions) + n(L.qs) + n(L.think) + n(L.st) + n(L.solved);
   const R = readPlayer(KEY.research, {}) || {}; const cases = n(R.cases);
+  let solved = 0; for (const id in (R.cases || {})) { const c = R.cases[id]; if (c && Array.isArray(c.stars) && c.stars[0]) solved++; }
   const C = readPlayer(KEY.cards, {}) || {}; const cards = n(C.owned);
-  return { missions, badges, lab, cases, cards };
+  const used = ((readPlayer(K, null) || {}).used) || {};
+  const cardgame = (used.webpuzzle ? 1 : 0) + (used.keepforest ? 1 : 0);
+  const m = { missions, amazon: per.amazon, grove: per.grove, reef: per.reef, badges, lab, cases, solved, cards, cardgame, invent: n(L.inventions) + n(L.solved) };
+  // the island rank reads the forests' saves: only when a stage asks for it (check() runs often)
+  let rank = null;
+  Object.defineProperty(m, 'rank', { enumerable: true, get() {
+    if (rank == null) { rank = 0; const kids = levelNow() === 'kids'; for (const z of ZONES) { try { rank = Math.max(rank, rankOf(z, kids).i); } catch (e) { } } }
+    return rank; } });
+  return m;
 }
 
 // ─────────────────────────────── the store
@@ -137,20 +153,42 @@ export function state() {
   let next = null;
   if (nx) {
     const need = (kids ? nx.kneed : nx.need) || [];
-    const words = need.map((w) => Object.keys(w).map((k) => needWord(k, w[k], m[k] || 0, kids)).join(' ו'));
-    const progress = Math.max(0, ...need.map((w) => Math.min(...Object.keys(w).map((k) => Math.min(1, (m[k] || 0) / w[k])))));
+    const words = need.map((w) => wayWords(w, m, kids));
+    const progress = Math.max(0, ...need.map((w) => wayProgress(w, m)));
     next = { stage: nx.n, name: kids ? nx.kname : nx.name, need: words, progress };
   }
   const st = STAGES[stage - 1];
   return { stage, stageId: st.id, name: kids ? st.kname : st.name, metrics: m, next, legacy: !!s.legacy, allOpen: allOpen(), kids };
 }
+// the words of one thing still missing ('' when it is done)
+const ZONE_IN = { amazon: ['באמזונס', 'בָּאָמָזוֹנָס'], grove: ['בחורש', 'בַּחֹרֶשׁ'], reef: ['בשונית', 'בַּשּׁוּנִית'] };
+const RANK_WORDS = [null, ['אי אחד בדרגה השנייה (כמו חורש פורח)', 'אִי אֶחָד בַּדַּרְגָּה הַשְּׁנִיָּה (כְּמוֹ חֹרֶשׁ פּוֹרֵחַ)'],
+  ['אי אחד בדרגה השלישית (כמו חורש עבות)', 'אִי אֶחָד בַּדַּרְגָּה הַשְּׁלִישִׁית (כְּמוֹ חֹרֶשׁ עָבוֹת)'], ['אי אחד בדרגה הרביעית', 'אִי אֶחָד בַּדַּרְגָּה הָרְבִיעִית']];
 function needWord(k, n, have, kids) {
-  const left = Math.max(0, n - have);
-  if (k === 'missions') return left === 1 ? (kids ? 'עוֹד מְשִׂימָה אַחַת' : 'עוד משימה אחת') : (kids ? `עוֹד ${left} מְשִׂימוֹת` : `עוד ${left} משימות`);
-  if (k === 'badges') return left === 1 ? (kids ? 'עוֹד תָּג אֶחָד' : 'עוד תג אחד') : (kids ? `עוֹד ${left} תָּגִים` : `עוד ${left} תגים`);
-  if (k === 'lab') return left === 1 ? (kids ? 'עוֹד גִּלּוּי אֶחָד בַּמַּעְבָּדָה' : 'עוד גילוי אחד במעבדה') : (kids ? `עוֹד ${left} גִּלּוּיִים בַּמַּעְבָּדָה` : `עוד ${left} גילויים במעבדה`);
+  const left = Math.max(0, n - have); if (!left) return '';
+  const w = (f, kk) => (kids ? kk : f);
+  if (k === 'missions') return left === 1 ? w('עוד משימה אחת', 'עוֹד מְשִׂימָה אַחַת') : w(`עוד ${left} משימות`, `עוֹד ${left} מְשִׂימוֹת`);
+  if (ZONE_IN[k]) return (left === 1 ? w('עוד משימה אחת', 'עוֹד מְשִׂימָה אַחַת') : w(`עוד ${left} משימות`, `עוֹד ${left} מְשִׂימוֹת`)) + ' ' + w(...ZONE_IN[k]);
+  if (k === 'badges') return left === 1 ? w('עוד תג אחד', 'עוֹד תָּג אֶחָד') : w(`עוד ${left} תגים`, `עוֹד ${left} תָּגִים`);
+  if (k === 'lab') return left === 1 ? w('עוד גילוי אחד במעבדה', 'עוֹד גִּלּוּי אֶחָד בַּמַּעְבָּדָה') : w(`עוד ${left} גילויים במעבדה`, `עוֹד ${left} גִּלּוּיִים בַּמַּעְבָּדָה`);
+  if (k === 'cards') return left === 1 ? w('עוד קלף אחד באלבום', 'עוֹד קְלָף אֶחָד בָּאַלְבּוֹם') : w(`עוד ${left} קלפים באלבום`, `עוֹד ${left} קְלָפִים בָּאַלְבּוֹם`);
+  if (k === 'cardgame') return w('משחק קלפים אחד (חוט הקשר או מחזיקים את היער)', 'מִשְׂחַק קְלָפִים אֶחָד (חוּט הַקֶּשֶׁר אוֹ מַחֲזִיקִים אֶת הַיַּעַר)');
+  if (k === 'solved') return left === 1 ? w('תעלומה פתורה אחת', 'תַּעֲלוּמָה פְּתוּרָה אַחַת') : w(`עוד ${left} תעלומות פתורות`, `עוֹד ${left} תַּעֲלוּמוֹת פְּתוּרוֹת`);
+  if (k === 'invent') return left === 1 ? w('המצאה אחת', 'הַמְצָאָה אַחַת') : w(`עוד ${left} המצאות`, `עוֹד ${left} הַמְצָאוֹת`);
+  if (k === 'rank') return w(...(RANK_WORDS[Math.min(3, n)] || RANK_WORDS[1]));
   return '';
 }
+// all that is missing for one way, joined: "עוד 3 משימות, עוד 5 קלפים באלבום ומשחק קלפים אחד"
+function wayWords(w, m, kids) {
+  // missions asked in a zone count for the total too: "עוד 5 משימות בחורש", not "עוד 5 משימות, עוד 5 משימות בחורש"
+  const zoneLeft = Object.keys(ZONE_IN).reduce((a, z) => a + (w[z] ? Math.max(0, w[z] - (m[z] || 0)) : 0), 0);
+  const has = (k) => (k === 'missions' && zoneLeft ? (m.missions || 0) + zoneLeft : m[k] || 0);
+  const parts = Object.keys(w).map((k) => needWord(k, w[k], has(k), kids)).filter(Boolean);
+  if (parts.length < 2) return parts[0] || '';
+  return parts.slice(0, -1).join(', ') + (kids ? ' וְ' : ' ו') + parts[parts.length - 1];
+}
+// how far along one way is: the average of its parts (each part counts up to its number)
+function wayProgress(w, m) { const ks = Object.keys(w); return ks.reduce((a, k) => a + Math.min(1, (m[k] || 0) / w[k]), 0) / ks.length; }
 
 export function isOpen(part) {
   const P = PARTS[part]; if (!P) return true;   // anything not in the registry is never locked
@@ -193,7 +231,7 @@ export function check() {
   for (const n of out) { try { window.dispatchEvent(new CustomEvent('wol-stage', { detail: { stage: n, parts: partsOf(n), legacy: !!s.legacy } })); } catch (e) { } }
   return out;
 }
-export function markUsed(part) { const s = store(); if (s.used[part]) return; s.used[part] = Date.now(); save(s); notify(); }
+export function markUsed(part) { const s = store(); if (s.used[part]) return; s.used[part] = Date.now(); save(s); notify(); setTimeout(() => { try { check(); } catch (e) { console.error(e); } }, 1500); }   // a card game played counts (stage 4)
 export const wasUsed = (part) => !!store().used[part];
 export function markIntro(part) { const s = store(); s.intro[part] = Date.now(); save(s); }
 export const introSeen = (part) => !!store().intro[part];

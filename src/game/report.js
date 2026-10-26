@@ -319,14 +319,16 @@ export function createFieldReport({ W, reg, biome, light, missions, thumbs, ui, 
     onExport: exportPDF,
   });
   function openReport(dayN) {
-    ui.cancelDrag?.();
+    ui.cancelDrag?.(); ui.markReport && ui.markReport(false);
     try { audio.play('select'); } catch (e) { }
     view.open(dayN);
   }
   function promptEnded(dayN) {
     const n = days.find(x => x.d === dayN);
     if (!n) return;
-    view.prompt(kids ? `יום ${dayN} נגמר! רוצים לכתוב מה ראיתם?` : `יום ${dayN} הסתיים – רוצים לכתוב את דוח החוקר?`, () => openReport(dayN));
+    // 25.10 (Avi): no window in the middle of the game; a star on the satchel and on "דוח יומי" (toolbar.js) waits instead
+    if (ui.markReport) ui.markReport(true);
+    else view.prompt(kids ? `יום ${dayN} נגמר! רוצים לכתוב מה ראיתם?` : `יום ${dayN} הסתיים – רוצים לכתוב את דוח החוקר?`, () => openReport(dayN));
   }
 
   // ───────────────────────────── export: desktop → PDF file in Documents, browser → print dialog

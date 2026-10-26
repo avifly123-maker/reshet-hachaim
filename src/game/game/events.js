@@ -34,7 +34,7 @@ export function createEvents(ctx) {
       ui.showOutcome({ title: 'מאזין היער עצר כריתה!', text: W.xp ? 'מאזין היער שמע מסור חשמלי והזעיק את שומרי היער. העצים לא נכרתו. (+10)' : 'מאזין היער שמע רעש של מסור חשמלי ושלח התרעה לשומרי היער. הם הגיעו בזמן, והעצים לא נכרתו. (+10)\n\nיש היום חיישנים כאלה באמת: טלפונים ישנים עם לוח סולארי, שנתלים גבוה על עצים ומקשיבים ליער כל היום וכל הלילה.' });
       return;
     }
-    ctx.pendingEvent = e;
+    ctx.pendingEvent = e; W._eventT = W.simT;
     for (const fx of e.start || []) applyEffect(fx);
     ctx.tools.afterEventStart(e);   // area G: a fire tower, the young-corals robot, murky water that clears sooner (tools.js)
     audio.play('event');
@@ -59,7 +59,7 @@ export function createEvents(ctx) {
     missions.resolve(e);
     ctx.report?.event(e.id, c.id);
     if (/^(a_noagouti|g_nojay)$/.test(e.id)) W.stats.experiments++;
-    ctx.pendingEvent = null;
+    ctx.pendingEvent = null; W._eventT = W.simT;   // the calm after an event counts from its end
     ui.showOutcome({ title: e.title, text: shortOutcome(c.outcome) });
   }
   function applyEffect(fx) {
@@ -176,6 +176,7 @@ export function createEvents(ctx) {
     refreshTray();
   }
   W.missionCompleted = (m) => {
+    W._missionDoneT = W.simT;   // a calm moment after a mission (ecology.js W.calmBusy)
     ctx.report?.mission(m.id);
     W.points += m.reward?.points || 0;
     const names = [];

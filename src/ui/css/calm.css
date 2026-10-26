@@ -1,0 +1,8 @@
+/* 25.10 – a quieter forest (Avi): a day's report waits behind a small star instead of a window (toolbar.js markReport) */
+#ui.wol .kit-btn.has-new, #ui.wol .km-row.has-new { position: relative; }
+#ui.wol .kit-btn.has-new::before, #ui.wol .km-row.has-new::before { content: "★"; position: absolute; top: -3px; left: -3px; width: 18px; height: 18px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 11px; line-height: 1; color: #3b2a05; background: var(--honey, #f0b44c); box-shadow: 0 1px 3px rgba(0, 0, 0, .35); pointer-events: none;
+  animation: calm-star 2.4s ease-in-out 2; }
+#ui.wol .km-row.has-new::before { top: 50%; left: 6px; transform: translateY(-50%); }
+@keyframes calm-star { 50% { transform: scale(1.25); } }
+@media (prefers-reduced-motion: reduce) { #ui.wol .kit-btn.has-new::before { animation: none; } }

@@ -1,0 +1,56 @@
+/* 1.3.3 – the parents' play time (src/ui/playtime-ui.js, src/core/playtime.js): the start screen's chip, the settings
+   row, the five-minute note and the lock screen when the day's time is over. */
+
+/* the chip next to the gear: what is left today (only when the parents set a limit) */
+#ui.wol .st-time { flex: none; display: flex; align-items: center; gap: 6px; height: 40px; padding: 0 12px; border-radius: 20px; color: var(--chalk);
+  background: var(--canopy2); box-shadow: inset 0 0 0 1.5px rgba(180, 203, 102, .32), 0 4px 12px rgba(0, 0, 0, .35); font-size: .9em; white-space: nowrap; animation: wol-rise .9s .3s both; }
+#ui.wol .st-time[hidden] { display: none; }
+#ui.wol .st-time .ic { width: 20px; height: 20px; color: var(--lichen); }
+#ui.wol .st-time b { font-weight: 800; }
+#ui.wol .st-time.low { background: #6b3a1c; }
+#ui.wol .st-time.low .ic { color: var(--honey); }
+#ui.wol .st-time:hover { background: #23432f; }
+#ui.wol .st-time:focus-visible { outline: 3px solid var(--honey); outline-offset: 2px; }
+
+/* the settings row: four choices, then the parents' code */
+#ui.wol .set-time .set-lab > .ic { color: #b07a12; }
+#ui.wol .set-tseg { flex: 1 1 100%; }
+#ui.wol .set-tseg button { flex: 1; min-width: 0; padding: 2px 6px; }
+#ui.wol .set-pcode { flex: 1 1 100%; display: flex; flex-direction: column; gap: 4px; }
+#ui.wol .set-pcode label { font-size: .85em; color: var(--ink2); font-weight: 700; }
+#ui.wol .set-perr { margin: 0; color: var(--berry); font-weight: 700; font-size: .88em; }
+#ui.wol .set-perr[hidden] { display: none; }
+
+/* "נשארו 5 דקות": a quiet strip at the top, under nothing the child is doing */
+#ui.wol .pt-note { position: fixed; top: 10px; left: 50%; z-index: var(--z-pt-note); display: flex; align-items: center; gap: 8px; max-width: min(520px, calc(100vw - 24px));
+  padding: 8px 16px; border-radius: 14px; color: #3b2a12; background: #fbefc9; box-shadow: 0 6px 18px rgba(0, 0, 0, .3), inset 0 0 0 1.5px #d9b45a; font-weight: 700;
+  pointer-events: none; opacity: 0; transform: translate(-50%, -16px); transition: opacity .35s, transform .35s; }
+#ui.wol .pt-note.on { opacity: 1; transform: translate(-50%, 0); }
+#ui.wol .pt-note .ic { flex: none; width: 22px; height: 22px; color: #b07a12; }
+#ui.wol .pt-note span { font-size: calc(1em * var(--ts, 1)); }
+
+/* the day is over: everything under it waits */
+#ui.wol .pt-lock { position: fixed; inset: 0; z-index: var(--z-lock); display: grid; place-items: center; padding: 16px; pointer-events: auto;
+  background: radial-gradient(ellipse at 50% 40%, rgba(20, 44, 60, .82), rgba(6, 14, 22, .95)); animation: wol-pop .3s both; }
+#ui.wol .pt-card { width: min(440px, 100%); max-height: calc(100vh - 32px); overflow: auto; padding: 18px 20px 14px; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; color: var(--ink); }
+#ui.wol .pt-card.paper { border-image-source: var(--sheet); }
+#ui.wol .pt-robo { width: 120px; height: auto; margin-top: -6px; filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .25)); }
+#ui.wol .pt-big .ic { width: 64px; height: 64px; color: #6a55a8; }
+#ui.wol .pt-card h2 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: calc(1.7em * var(--ts, 1)); line-height: 1.15; color: var(--moss); }
+#ui.wol .pt-card p { margin: 0; font-size: calc(1.05em * var(--ts, 1)); line-height: 1.4; }
+#ui.wol .pt-bye { font-weight: 800; color: #6a55a8; }
+#ui.wol .pt-quit { margin-top: 4px; min-width: 180px; }
+#ui.wol .pt-par { align-self: stretch; margin-top: 6px; border-radius: 12px; background: rgba(92, 59, 34, .07); box-shadow: inset 0 0 0 1px rgba(92, 59, 34, .14); text-align: right; }
+#ui.wol .pt-par summary { display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 4px 10px; cursor: pointer; list-style: none; font-weight: 700; font-size: .9em; color: var(--ink2); }
+#ui.wol .pt-par summary::-webkit-details-marker { display: none; }
+#ui.wol .pt-par summary .ic { width: 18px; height: 18px; }
+#ui.wol .pt-par-in { display: flex; flex-direction: column; gap: 6px; padding: 2px 10px 10px; }
+#ui.wol .pt-par-in label, #ui.wol .pt-more p { font-size: .88em; font-weight: 700; color: var(--ink2); }
+#ui.wol .pt-ask, #ui.wol .pt-more { display: flex; flex-direction: column; gap: 6px; }
+#ui.wol .pt-ask[hidden], #ui.wol .pt-more[hidden], #ui.wol .pt-err[hidden] { display: none; }
+#ui.wol .pt-btns { display: flex; gap: 8px; }
+#ui.wol .pt-btns .btn { flex: 1; }
+#ui.wol .pt-more small { font-size: .8em; color: var(--ink2); }
+#ui.wol .pt-err { margin: 0; color: var(--berry); font-weight: 700; font-size: .88em; }
+@media (max-height: 520px) { #ui.wol .pt-robo { width: 78px; } #ui.wol .pt-card { gap: 5px; padding: 12px 16px 10px; } }
+@media (prefers-reduced-motion: reduce) { #ui.wol .pt-lock, #ui.wol .st-time { animation: none; } #ui.wol .pt-note { transition: none; } }

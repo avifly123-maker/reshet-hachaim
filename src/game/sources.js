@@ -1,11 +1,12 @@
 // "רגעי פסוק" – short source moments in the forest (torah edition only, when "מקורות ופסוקים" is on).
 // A verse appears at a natural moment (sunrise, the first tree planted, a nest box, an ant colony, the jaguar…) on a
 // parchment note at the top of the screen for ~9 s; a tap closes it. They are rare on purpose: each one at most once
-// per visit to the forest, at least 100 s apart, five at the most – a moment of attention, never a lesson.
+// per visit to the forest, at least 220 s apart, three at the most (25.10, Avi: half of what was) – a moment of
+// attention, never a lesson. Never while something else is on the screen (an event, a tour, רובו־דע speaking).
 import { TORAH, sourcesOn } from '../core/edition.js';
 import { MOMENTS } from '../data/torah.js';
 
-const GAP = 100, SHOW = 9, MAX = 5;
+const GAP = 220, SHOW = 9, MAX = 3;
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 export function createSourceMoments({ W, ui, audio }) {
@@ -47,7 +48,7 @@ export function createSourceMoments({ W, ui, audio }) {
     if (W.biomeId === 'grove' && W.season === 'spring' && W.plants.some((p) => p.isTree && p.alive && !p.removed && p.bloom > 0.5)) want(by('bloomSpring'));
     // show when the screen is free
     if (pending && t - pending.at > 45) pending = null;   // the moment passed
-    const busy = ui.isModalOpen() || W.viewMode || root.classList.contains('imv-on');
+    const busy = ui.isModalOpen() || W.viewMode || root.classList.contains('imv-on') || (W.calmBusy && W.calmBusy());
     if (pending && !busy && hideT <= 0 && t - lastAt >= GAP && entryT > 8) { const m = pending.m; pending = null; if (!shown.has(m.id)) show(m); }
   }
   function onPlace(sp) {
