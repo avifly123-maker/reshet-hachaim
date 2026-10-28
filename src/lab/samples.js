@@ -518,6 +518,74 @@ const LEAFBAC = {
   },
 };
 
-export const SAMPLES = [SHARK, OWL, BEE, CORAL, MORPHO, FIREFLY, TOUCAN, CHAMELEON, OCTOPUS, HEDGEHOG, SLOTH, KAPOK, PARROT, URCHIN, MYCEL, CLAM, LEAFBAC];
+// 1.4, the desert. The yellow fattail scorpion's back is covered with small bumps and grooves, so blowing sand hardly
+// wears it (Han et al. 2012, Langmuir); the white shell of the Negev desert snail is built of thin layers of chalky
+// crystals that send most of the sunlight back (Schmidt-Nielsen, Taylor & Shkolnik 1971). No cross shapes: the plates
+// are rounded bands, the bumps are round domes, the shell's lines are spirals.
+const SCORP = {
+  id: 'scorpionback', species: 'scorpion', name: 'שריון של עקרב', zone: 'desert', zoom: 2, focus: 55,
+  task: 'מצאו שלוש בליטות גדולות על השריון.',
+  hints: ['בהגדלה הכי גדולה רואים שהשריון לא חלק.', 'בין הבליטות יש חריצים. איפה הבליטות הכי גדולות?'],
+  found: 'על השריון יש בליטות וחריצים זעירים. החול שהרוח מעיפה מחליק עליהם, ולכן הוא כמעט לא שוחק את השריון.',
+  idea: 'משטח עם בליטות כאלה יכול להגן על מכונות במדבר.',
+  targets: [],
+  view(level) {
+    const r = rnd(41 + level);
+    if (level === 0) {
+      let plates = '';
+      for (let k = 0; k < 7; k++) { const y = 70 + k * 40, w = 230 - Math.abs(k - 3) * 18; plates += `<rect x="${f(200 - w / 2)}" y="${y}" width="${f(w)}" height="34" rx="16" fill="url(#sc)" stroke="#8a6420" stroke-width="3"/>`; }
+      return `<defs><linearGradient id="sc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f2d27a"/><stop offset="1" stop-color="#c89a3a"/></linearGradient>${grain('g0', 0.05, 0.18)}</defs>
+        <rect width="400" height="400" fill="#e6cfa0"/>${plates}<rect width="400" height="400" fill="#000" filter="url(#g0)"/>`;
+    }
+    if (level === 1) {
+      let d = ''; for (let k = 0; k < 260; k++) { const x = r() * 400, y = r() * 400, rr = 3 + r() * 5; d += `<circle cx="${f(x)}" cy="${f(y)}" r="${f(rr)}" fill="#e8c26a" stroke="#9a7228" stroke-width="1.2"/>`; }
+      return `<rect width="400" height="400" fill="#c89a40"/>${d}`;
+    }
+    // the bumps: rows of round domes with grooves between; three big ones to find
+    let d = '', tips = [];
+    for (let row = 0; row < 7; row++) for (let col = 0; col < 7; col++) {
+      const x = 30 + col * 56 + (row % 2) * 28, y = 30 + row * 56, big = (row * 7 + col) % 17 === 5;
+      const rr = big ? 25 : 14 + r() * 6;
+      d += `<ellipse cx="${f(x)}" cy="${f(y + 4)}" rx="${f(rr)}" ry="${f(rr * 0.9)}" fill="#7a5418" opacity=".55"/>`;
+      d += `<circle cx="${f(x)}" cy="${f(y)}" r="${f(rr)}" fill="url(#bm)"/><ellipse cx="${f(x - rr * 0.3)}" cy="${f(y - rr * 0.35)}" rx="${f(rr * 0.35)}" ry="${f(rr * 0.22)}" fill="#fff6d0" opacity=".7"/>`;
+      if (big) tips.push({ x, y, r: 34 });
+    }
+    SCORP.targets = tips.slice(0, 3);
+    return `<defs><radialGradient id="bm" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#f8dc8a"/><stop offset="1" stop-color="#b08430"/></radialGradient>${grain('g2', 0.08, 0.14)}</defs>
+      <rect width="400" height="400" fill="#8a6422"/>${d}<rect width="400" height="400" fill="#000" filter="url(#g2)"/>`;
+  },
+};
+
+const SNAIL = {
+  id: 'snailshell', species: 'desertsnail', name: 'קונכייה של חילזון מדבר', zone: 'desert', zoom: 2, focus: 47,
+  task: 'מצאו שלושה גבישים לבנים שהאור חוזר מהם.',
+  hints: ['הקונכייה בנויה משכבות דקות. הסתכלו בהגדלה הכי גדולה.', 'חפשו גבישים שהאור מבריק עליהם במיוחד.'],
+  found: 'הקונכייה בנויה משכבות דקות של גבישים לבנים. האור פוגע בהם וחוזר החוצה, ולכן החילזון לא מתחמם מדי בשמש.',
+  idea: 'גג לבן ומבריק יכול לשמור על בית קריר.',
+  targets: [],
+  view(level) {
+    const r = rnd(61 + level);
+    if (level === 0) {
+      let sp = ''; for (let k = 0; k < 5; k++) { const rr = 140 - k * 26; sp += `<path d="M${200 + rr} 205 A${rr} ${f(rr * 0.92)} 0 1 0 ${f(200 - rr * 0.2)} ${f(205 - rr * 0.98)}" stroke="#c8c0b0" stroke-width="5" fill="none"/>`; }
+      return `<defs><radialGradient id="sh" cx=".42" cy=".38" r=".7"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#d8d2c4"/></radialGradient>${grain('g0', 0.05, 0.12)}</defs>
+        <rect width="400" height="400" fill="#c8a870"/><ellipse cx="200" cy="205" rx="150" ry="140" fill="url(#sh)"/>${sp}<rect width="400" height="400" fill="#000" filter="url(#g0)"/>`;
+    }
+    if (level === 1) {
+      let l = ''; for (let k = 0; k < 40; k++) { const y = k * 10 + r() * 4; l += `<path d="M0 ${f(y)} Q200 ${f(y + 8 - r() * 16)} 400 ${f(y + 4)}" stroke="#d6cfc0" stroke-width="${f(2 + r() * 3)}" fill="none"/>`; }
+      return `<rect width="400" height="400" fill="#f4f1ea"/>${l}`;
+    }
+    // thin stacked plates of chalky crystal; three of them catch the light
+    let c = '', tips = [];
+    for (let row = 0; row < 10; row++) for (let col = 0; col < 6; col++) {
+      const x = col * 72 + (row % 2) * 36 - 20, y = row * 40 + 10, bright = (row * 6 + col) % 19 === 7;
+      c += `<rect x="${f(x)}" y="${f(y)}" width="68" height="34" rx="12" fill="${bright ? '#ffffff' : (r() < 0.5 ? '#ece6da' : '#e0d8c8')}" stroke="#c4bba8" stroke-width="2"/>`;
+      if (bright) { c += `<ellipse cx="${f(x + 34)}" cy="${f(y + 12)}" rx="22" ry="7" fill="#fffbe8"/><circle cx="${f(x + 50)}" cy="${f(y + 10)}" r="4" fill="#fff"/>`; tips.push({ x: x + 34, y: y + 17, r: 34 }); }
+    }
+    SNAIL.targets = tips.slice(0, 3);
+    return `<defs>${grain('g2', 0.07, 0.1)}</defs><rect width="400" height="400" fill="#bdb4a2"/>${c}<rect width="400" height="400" fill="#000" filter="url(#g2)"/>`;
+  },
+};
+
+export const SAMPLES = [SHARK, OWL, BEE, CORAL, MORPHO, FIREFLY, TOUCAN, CHAMELEON, OCTOPUS, HEDGEHOG, SLOTH, KAPOK, PARROT, URCHIN, MYCEL, CLAM, LEAFBAC, SCORP, SNAIL];
 export const sampleById = (id) => SAMPLES.find((s) => s.id === id) || null;
 export const ZOOMS = ['פי 10', 'פי 100', 'פי 1000'];

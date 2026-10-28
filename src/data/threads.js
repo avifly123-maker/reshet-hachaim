@@ -25,7 +25,7 @@ export const SAMPLE_OF = {
   reefshark: 'sharkskin', owl: 'owlfeather', honeybee: 'beeleg', branching: 'coralpolyp', morpho: 'morphowing',
   firefly: 'fireflylamp', toucan: 'toucanbeak', chameleon: 'chameleonskin', octopus: 'octosucker', hedgehog: 'hedgehogspine',
   sloth: 'slothhair', kapok: 'kapokfibre', parrotfish: 'parrottooth', urchin: 'urchinteeth', mushroom: 'mycelium',
-  clam: 'clammantle', leafcutter: 'leafbac',
+  clam: 'clammantle', leafcutter: 'leafbac', scorpion: 'scorpionback', desertsnail: 'snailshell',
 };
 // a photo of these marks a sample of a near creature (a glowing fungus grows threads like every fungus)
 export const PHOTO_SAMPLE = { glowfungus: 'mycelium' };

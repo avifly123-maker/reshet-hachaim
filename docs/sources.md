@@ -170,6 +170,7 @@ The desert is a conceptual dry land with no name (Avi, 28.10). Every species car
 - **Devices**: drip irrigation https://en.wikipedia.org/wiki/Drip_irrigation ; fog collection https://en.wikipedia.org/wiki/Fog_collection ; sand fences https://en.wikipedia.org/wiki/Sand_fence
 - **Desert nights are cold** (dry air and clear skies let the day's heat escape): https://en.wikipedia.org/wiki/Desert#Climate
 - **Limans** (low banked basins that hold flood water in the Negev): https://kkl-jnf.org/our_work/climate_action/water-for-israel/water-in-the-desert/limans/what-is-a-liman/
+- **Microscope samples (src/lab/samples.js)**: the yellow fattail scorpion's back bumps and grooves resist sand erosion (Han et al. 2012, Langmuir); the white shell of the Negev desert snail (Sphincterochila zonata, also called S. boissieri) reflects most of the sunlight and the snail lies dormant through the dry season (Schmidt-Nielsen, Taylor & Shkolnik 1971, "Desert snails: problems of heat, water and food", J. Exp. Biol. 55: 385–398; https://en.wikipedia.org/wiki/Sphincterochila_zonata).
 - **Overgrazing bares the soil and lets the wind move sand**: https://en.wikipedia.org/wiki/Overgrazing
 - **Desert ants navigate by the sun and count steps; robots were built on the same idea**: https://en.wikipedia.org/wiki/Cataglyphis ; AntBot (CNRS 2019): https://www.cnrs.fr/en/press/first-walking-robot-moves-without-gps
 
