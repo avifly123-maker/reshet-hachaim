@@ -545,7 +545,7 @@ const SCORP = {
     let d = '', tips = [];
     for (let row = 0; row < 7; row++) for (let col = 0; col < 7; col++) {
       const x = 30 + col * 56 + (row % 2) * 28, y = 30 + row * 56, big = (row * 7 + col) % 17 === 5;
-      const rr = big ? 25 : 14 + r() * 6;
+      const rr = big ? 27 : 13 + r() * 5;
       d += `<ellipse cx="${f(x)}" cy="${f(y + 4)}" rx="${f(rr)}" ry="${f(rr * 0.9)}" fill="#7a5418" opacity=".55"/>`;
       d += `<circle cx="${f(x)}" cy="${f(y)}" r="${f(rr)}" fill="url(#bm)"/><ellipse cx="${f(x - rr * 0.3)}" cy="${f(y - rr * 0.35)}" rx="${f(rr * 0.35)}" ry="${f(rr * 0.22)}" fill="#fff6d0" opacity=".7"/>`;
       if (big) tips.push({ x, y, r: 34 });
@@ -566,7 +566,9 @@ const SNAIL = {
   view(level) {
     const r = rnd(61 + level);
     if (level === 0) {
-      let sp = ''; for (let k = 0; k < 5; k++) { const rr = 140 - k * 26; sp += `<path d="M${200 + rr} 205 A${rr} ${f(rr * 0.92)} 0 1 0 ${f(200 - rr * 0.2)} ${f(205 - rr * 0.98)}" stroke="#c8c0b0" stroke-width="5" fill="none"/>`; }
+      // the whorls: one spiral line that winds in from the rim to the centre
+      let pts = ''; for (let k = 0; k <= 160; k++) { const t = k / 160, a = t * Math.PI * 7, rr = 138 * (1 - t * 0.93); pts += `${k ? 'L' : 'M'}${f(200 + Math.cos(a) * rr)} ${f(205 + Math.sin(a) * rr * 0.93)}`; }
+      const sp = `<path d="${pts}" stroke="#bdb5a4" stroke-width="4" fill="none" stroke-linecap="round"/>`;
       return `<defs><radialGradient id="sh" cx=".42" cy=".38" r=".7"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#d8d2c4"/></radialGradient>${grain('g0', 0.05, 0.12)}</defs>
         <rect width="400" height="400" fill="#c8a870"/><ellipse cx="200" cy="205" rx="150" ry="140" fill="url(#sh)"/>${sp}<rect width="400" height="400" fill="#000" filter="url(#g0)"/>`;
     }
@@ -579,7 +581,7 @@ const SNAIL = {
     for (let row = 0; row < 10; row++) for (let col = 0; col < 6; col++) {
       const x = col * 72 + (row % 2) * 36 - 20, y = row * 40 + 10, bright = (row * 6 + col) % 19 === 7;
       c += `<rect x="${f(x)}" y="${f(y)}" width="68" height="34" rx="12" fill="${bright ? '#ffffff' : (r() < 0.5 ? '#ece6da' : '#e0d8c8')}" stroke="#c4bba8" stroke-width="2"/>`;
-      if (bright) { c += `<ellipse cx="${f(x + 34)}" cy="${f(y + 12)}" rx="22" ry="7" fill="#fffbe8"/><circle cx="${f(x + 50)}" cy="${f(y + 10)}" r="4" fill="#fff"/>`; tips.push({ x: x + 34, y: y + 17, r: 34 }); }
+      if (bright) { c += `<rect x="${f(x - 3)}" y="${f(y - 3)}" width="74" height="40" rx="14" fill="#fff8d8" opacity=".55"/><ellipse cx="${f(x + 34)}" cy="${f(y + 13)}" rx="26" ry="8" fill="#fffef4"/><circle cx="${f(x + 52)}" cy="${f(y + 10)}" r="5" fill="#fff"/><path d="M${f(x + 10)} ${f(y + 26)} q24 -8 48 0" stroke="#f6e7a8" stroke-width="3" fill="none"/>`; tips.push({ x: x + 34, y: y + 17, r: 34 }); }
     }
     SNAIL.targets = tips.slice(0, 3);
     return `<defs>${grain('g2', 0.07, 0.1)}</defs><rect width="400" height="400" fill="#bdb4a2"/>${c}<rect width="400" height="400" fill="#000" filter="url(#g2)"/>`;
