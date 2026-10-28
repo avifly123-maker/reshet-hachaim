@@ -10,6 +10,7 @@ export const BADGE_GROUPS = [
   { id: 'amazon', name: 'יער הגשם של האמזונס', short: 'אמזונס', col: '#2f7a4a', col2: '#e8c050' },
   { id: 'grove', name: 'החורש הארץ־ישראלי', short: 'חורש', col: '#8a6a2a', col2: '#e8202a' },
   { id: 'reef', name: 'שונית האלמוגים של אילת', short: 'שונית', col: '#1f7a9a', col2: '#f08a24' },
+  { id: 'desert', name: 'המדבר', short: 'מדבר', col: '#a8702a', col2: '#3a8a8a' },
   { id: 'lab', name: 'הממציאים והמעבדה', short: 'מעבדה', col: '#5a4a8a', col2: '#f6cf72' },
   { id: 'deep', name: 'משלחת לעומק', short: 'משלחת', col: '#163a5a', col2: '#6fd0ff' },
   { id: 'research', name: 'חוקרי הטבע', short: 'חוקרים', col: '#3a5a2a', col2: '#f6cf72' },
@@ -31,6 +32,10 @@ export const BADGES = [
   { id: 'b_rx2', group: 'reef', art: 'parrotfish', name: 'רועה האצות', how: 'משימת מומחים "אצות במידה" בשונית', earn: 'mission:rx2' },
   { id: 'b_rx3', group: 'reef', art: 'cleaner', name: 'מנהל התחנה', how: 'משימת מומחים "תחנת ניקוי עמוסה" בשונית', earn: 'mission:rx3' },
   { id: 'b_rx4', group: 'reef', art: 'turtle', name: 'מים צלולים', how: 'משימת מומחים "השונית שורדת חום" בשונית', earn: 'mission:rx4' },
+  { id: 'b_dx1', group: 'desert', art: 'dorcas', name: 'מחדש השיטים', how: 'משימת מומחים "שיטות חדשות" במדבר', earn: 'mission:dx1' },
+  { id: 'b_dx2', group: 'desert', art: 'retama', name: 'עוצר החול', how: 'משימת מומחים "סופה בדרך" במדבר', earn: 'mission:dx2' },
+  { id: 'b_dx3', group: 'desert', art: 'ibex', name: 'מביא המים', how: 'משימת מומחים "יעלים רחוק מהמעיין" במדבר', earn: 'mission:dx3' },
+  { id: 'b_dx4', group: 'desert', art: 'eagleowl', name: 'שומר הלילה של המדבר', how: 'משימת מומחים "רשת של לילה" במדבר', earn: 'mission:dx4' },
   // ── הממציאים (src/learn/games/inventors.js) and the lab
   { id: 'b_inv1', group: 'lab', art: 'reefshark', name: 'הפטנט הראשון', how: 'ממציאים המצאה ראשונה במשחק "הממציאים"', earn: 'inv:first' },
   { id: 'b_inv5', group: 'lab', art: 'owl', name: 'ממציא חרוץ', how: 'חמש המצאות שונות ב"הממציאים"', earn: 'inv:five' },

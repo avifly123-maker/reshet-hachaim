@@ -23,7 +23,7 @@ const T = {
   lv: 'רמה', done: ['משימת צילום', 'מְשִׂימַת צִלּוּם'], next: ['עד הדרגה הבאה', 'עַד הַדַּרְגָּה הַבָּאָה'],
 };
 const DECOR = Object.fromEntries(ZONE_IDS.map((z) => [z, ZONE_LOOK[z].decor]));
-const DECOR_N = { amazon: [0, 2, 4, 6], grove: [0, 2, 4, 6], reef: [0, 4, 7, 10] };
+const DECOR_N = { amazon: [0, 2, 4, 6], grove: [0, 2, 4, 6], reef: [0, 4, 7, 10], desert: [0, 2, 4, 6] };
 
 export function createAfter({ W, env, reg, scene, camera, canvas, pipe, ui, audio, bus, markers, rig, imv, tools, spawnAnimal, art }) {
   const zone = W.biomeId, kids = !!W.kids, root = document.getElementById('ui');

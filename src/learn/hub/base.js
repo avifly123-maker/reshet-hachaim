@@ -9,6 +9,7 @@ import { BIOME as AMAZON } from '../../data/amazon.js';
 import { ALIASES } from '../../data/common.js';
 import { BIOME as GROVE } from '../../data/grove.js';
 import { BIOME as REEF } from '../../data/reef.js';
+import { BIOME as DESERT } from '../../data/desert.js';
 import { ZONE_IDS, ZONE_LOOK } from '../../data/zones.js';
 
 export const STORE_KEY = K.cards;   // per player (core/storage.js)
@@ -21,7 +22,7 @@ export const START_PACKS = 3;   // a new player starts with 3 packs as a welcome
 // packs can be earned without limit, but only OPEN_PER_DAY are opened a day: the album should last more than a day
 export const OPEN_PER_DAY = 6;
 export const todayKey = () => { const d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); };
-export const BIOMES = { amazon: AMAZON, grove: GROVE, reef: REEF };
+export const BIOMES = { amazon: AMAZON, grove: GROVE, reef: REEF, desert: DESERT };
 export const BIOME_SHORT = Object.fromEntries(ZONE_IDS.map((z) => [z, ZONE_LOOK[z].short]));
 export const BIOME_IN = Object.fromEntries(ZONE_IDS.map((z) => [z, ZONE_LOOK[z].inside]));
 // reef cards show מחסה instead of מים: in the sea there is always water (Avi, 18.10), but a reef is a city of homes

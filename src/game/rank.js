@@ -82,6 +82,7 @@ export const RANKS = {
   amazon: [['יער נובט', 'יַעַר נוֹבֵט'], ['יער ירוק', 'יַעַר יָרֹק'], ['יער סבוך', 'יַעַר סָבוּךְ'], ['יער ענקים', 'יַעַר עֲנָקִים']],
   grove: [['חורש צעיר', 'חֹרֶשׁ צָעִיר'], ['חורש פורח', 'חֹרֶשׁ פּוֹרֵחַ'], ['חורש עבות', 'חֹרֶשׁ עָבוֹת'], ['חורש עתיק', 'חֹרֶשׁ עַתִּיק']],
   reef: [['שונית צעירה', 'שׁוּנִית צְעִירָה'], ['שונית צומחת', 'שׁוּנִית צוֹמַחַת'], ['שונית צבעונית', 'שׁוּנִית צִבְעוֹנִית'], ['שונית עתיקה', 'שׁוּנִית עַתִּיקָה']],
+  desert: [['מדבר חשוף', 'מִדְבָּר חָשׂוּף'], ['נווה קטן', 'נְוֵה קָטָן'], ['נווה פורח', 'נְוֵה פּוֹרֵחַ'], ['נווה עתיק', 'נְוֵה עַתִּיק']],
 };
 const STEPS = { full: [0, 35, 80, 140], kids: [0, 20, 45, 80] };
 export const CH_POINTS = [0, 5, 10, 15];   // a challenge of level 1 / 2 / 3
@@ -138,7 +139,7 @@ export function rankOf(zone, kids, live = null) {
 // the small emblem of a rank: one to four leaves (amazon, grove) or coral branches (reef) on a round plate. No crossing lines.
 export function rankEmblem(zone, i) {
   const n = i + 1, reef = zone === 'reef';
-  const c = reef ? '#ff9a7a' : zone === 'grove' ? '#b8d26a' : '#6fd08a';
+  const c = reef ? '#ff9a7a' : zone === 'grove' ? '#b8d26a' : zone === 'desert' ? '#e8c06a' : '#6fd08a';
   const spread = [[0], [-22, 22], [-34, 0, 34], [-48, -16, 16, 48]][i] || [0];
   const shape = reef
     ? (a) => `<path transform="rotate(${a} 24 40)" d="M22.4 40V22q0-3 1.6-4.4q1.6 1.4 1.6 4.4V40z" fill="${c}"/><circle transform="rotate(${a} 24 40)" cx="24" cy="17" r="3.2" fill="${c}"/>`

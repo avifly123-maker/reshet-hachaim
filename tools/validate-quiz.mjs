@@ -38,7 +38,7 @@ function textRules(where, s) {
   for (const b of QBANK) {
     const w = `qbank ${b.id}`;
     if (!b.id || ids.has(b.id)) err(`${w}: missing or duplicate id`); ids.add(b.id);
-    if (!['amazon', 'grove', 'reef', 'all'].includes(b.z)) err(`${w}: bad z "${b.z}"`);
+    if (!['amazon', 'grove', 'reef', 'desert', 'all'].includes(b.z)) err(`${w}: bad z "${b.z}"`);
     if (!['easy', 'hard'].includes(b.lvl)) err(`${w}: bad lvl "${b.lvl}"`);
     textRules(w + '.q', b.q); textRules(w + '.e', b.e);
     if (qs.has(b.q)) err(`${w}: the same question twice`); qs.add(b.q);

@@ -73,6 +73,9 @@ export const HUB_ICONS = {
     + '<circle cx="9.2" cy="8" r=".7" fill="currentColor" stroke="none"/><circle cx="12.4" cy="7.3" r=".7" fill="currentColor" stroke="none"/><circle cx="15.3" cy="8.4" r=".7" fill="currentColor" stroke="none"/>',
   reef: '<path d="M7.5 21h9"/><path d="M12 21v-6.2c0-2.6-3.3-3.4-3.3-6.6V5.4M12 14.8c0-2.4 3.4-3 3.4-6.2V6.4M8.7 9.4c-2.2 0-3.6-1.3-3.6-3.9M15.4 10.2c2 0 3.5-1.1 3.5-3.5"/>'
     + '<circle cx="8.7" cy="4.4" r="1.1" fill="currentColor" stroke="none"/><circle cx="15.4" cy="5.3" r="1.1" fill="currentColor" stroke="none"/><circle cx="5.1" cy="4.5" r="1" fill="currentColor" stroke="none"/><circle cx="18.9" cy="5.6" r="1" fill="currentColor" stroke="none"/>',
+  // the desert (1.4): a dune under the sun
+  desert: '<circle class="f" cx="16.5" cy="7" r="3.2"/><circle cx="16.5" cy="7" r="3.2"/>'
+    + '<path class="f" d="M2.5 19.5c3.2-5 7.6-6.6 11.4-4.4 2.4 1.4 4.6 1.6 7.6.8v3.6z"/><path d="M2.5 19.5c3.2-5 7.6-6.6 11.4-4.4 2.4 1.4 4.6 1.6 7.6.8"/><path d="M2.5 19.5h19"/>',
   zones: '<circle class="f" cx="12" cy="8.2" r="4.6"/><circle cx="12" cy="8.2" r="4.6"/><circle cx="8" cy="15" r="4.6"/><circle cx="16" cy="15" r="4.6"/>',
   // technology cards: a small robot head with one antenna
   robot: '<rect class="f" x="4.5" y="7.5" width="15" height="11.5" rx="3.6"/><rect x="4.5" y="7.5" width="15" height="11.5" rx="3.6"/>'
@@ -95,7 +98,7 @@ export const HUB_ICONS = {
 export const TILE_TONE = {
   learn: '#3d7a3a', quiz: '#2f7a52', album: '#a8641a', strong: '#b2492e', keep: '#2b7268', thread: '#a3466e',
   invent: '#3a4d5c', dive: '#22648c', medal: '#8e6a12', scroll: '#8a6420', lab: '#3a4d5c', research: '#3f6a2e',
-  amazon: '#2f7a52', grove: '#9a6a1a', reef: '#22648c', zones: '#4f6a3a', robot: '#3a4d5c',
+  amazon: '#2f7a52', grove: '#9a6a1a', reef: '#22648c', desert: '#a8702a', zones: '#4f6a3a', robot: '#3a4d5c',
 };
 // the svg the same way ui.js icon() draws it (class "ic": the game's CSS sizes it and softens the "f" fill)
 export const hubIcon = (n, cls) => `<svg class="ic${cls ? ' ' + cls : ''}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${HUB_ICONS[n] || ''}</svg>`;

@@ -208,4 +208,27 @@ export const KIDS = {
       'עשב ים הוא צמח עם שורשים.',
     ],
   },
+  // 1.4: the desert. Plants: date palm (by the spring), acacia, saltbush, desert flowers; animals: fat sand rat
+  // (eats saltbush), dorcas gazelle (eats acacia), spiny-tailed lizard (eats flowers), camel. No hunters.
+  desert: {
+    intro: 'במדבר חם ויבש, אבל יש בו מעיין קטן. בואו נבנה יחד נווה מדבר!',
+    species: ['datepalm', 'acacia', 'saltbush', 'blooms', 'psammomys', 'dorcas', 'uromastyx', 'camel'],
+    start: ['datepalm', 'saltbush', 'blooms', 'psammomys'],
+    missions: [
+      { id: 'k1', title: 'דקלים ליד המים', text: 'דקל התמר אוהב מים. שתלו 2 דקלים ליד המעיין.', hint: 'גררו דקל תמר מהמגש אל המדבר, קרוב למים.', k: 'גִּרְרוּ דֶּקֶל תָּמָר מֵהַמַּגָּשׁ אֶל הַמִּדְבָּר, קָרוֹב לַמַּיִם.', after: null, goal: { type: 'place', species: 'datepalm', count: 2 }, reward: { points: 20, unlock: ['acacia'] } },
+      { id: 'k2', title: 'עלים מלוחים', text: 'הפסמון אוכל עלים של מלוח. הביאו פסמון ליד המלוח.', hint: 'גררו פסמון אל המדבר, ליד שיח המלוח.', k: 'גִּרְרוּ פַּסְמוֹן אֶל הַמִּדְבָּר, לְיַד שִׂיחַ הַמָּלוּחַ.', after: 'k1', goal: { type: 'link', from: 'psammomys', to: 'saltbush' }, reward: { points: 25, unlock: ['dorcas'] } },
+      { id: 'k3', title: 'הצבי והשיטה', text: 'הצבי אוכל עלים של שיטה. שתלו שיטה והביאו צבי.', hint: 'גררו צבי אל המדבר, ליד השיטה.', k: 'שִׁתְלוּ שִׁטָּה, וְאָז גִּרְרוּ צְבִי אֶל הַשִּׁטָּה.', after: 'k2', goal: { type: 'link', from: 'dorcas', to: 'acacia' }, reward: { points: 25, unlock: ['uromastyx'] } },
+      { id: 'k4', title: 'לטאה ופרחים', text: 'חרדון הצב אוכל פרחים ועלים. הביאו חרדון צב אל הפרחים.', hint: 'גררו חרדון צב אל המדבר, ליד הפרחים.', k: 'גִּרְרוּ חַרְדּוֹן צָב אֶל הַמִּדְבָּר, לְיַד הַפְּרָחִים.', after: 'k3', goal: { type: 'link', from: 'uromastyx', to: 'blooms' }, reward: { points: 30, unlock: ['camel'] } },
+      { id: 'k5', title: 'הגמל מגיע', text: 'הגמל יכול ללכת הרבה ימים בלי לשתות. הביאו גמל אל המדבר.', hint: 'גררו גמל מהמגש אל המדבר.', k: 'גִּרְרוּ גָּמָל מֵהַמַּגָּשׁ אֶל הַמִּדְבָּר.', after: 'k4', goal: { type: 'place', species: 'camel', count: 1 }, reward: { points: 30, unlock: [] } },
+      { id: 'k6', title: 'מדבר מלא חיים', text: 'הגיעו ל־6 סוגים של צמחים ובעלי חיים במדבר.', hint: 'שתלו עוד פרחים ושיחים, והביאו עוד בעלי חיים.', k: 'שִׁתְלוּ עוֹד פְּרָחִים וְשִׂיחִים, וְהָבִיאוּ עוֹד בַּעֲלֵי חַיִּים.', after: 'k5', goal: { type: 'speciesAlive', count: 6 }, reward: { points: 40, unlock: [] } },
+    ],
+    tips: [
+      'במדבר כמעט לא יורד גשם.',
+      'דקל התמר צריך מים קרובים.',
+      'הפסמון מקבל מים מהעלים שהוא אוכל.',
+      'בדבשת של הגמל יש שומן, לא מים.',
+      'רוב בעלי החיים במדבר ישנים ביום.',
+      'השורשים של השיטה ארוכים מאוד.',
+    ],
+  },
 };

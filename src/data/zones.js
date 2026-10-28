@@ -39,6 +39,17 @@ export const ZONES = {
       'בנו שונית בריאה, שמרו על האיזון בין האצות לאלמוגים – וגלו את השותפויות של הים.',
     palette: ['#0b4a6e', '#2fa3b8', '#f08a24'],
   },
+  // 1.4: a conceptual desert with no single place (src/data/desert.js, docs/PLAN-1.4.md section 4)
+  desert: {
+    id: 'desert',
+    name: 'המדבר',
+    subtitle: 'המאבק על המים',
+    intro:
+      'במדבר כמעט לא יורד גשם, והשמש חמה מאוד. כל צמח וכל בעל חיים צריך למצוא מים ולשמור עליהם: ' +
+      'בשורשים עמוקים, בגוף שאוגר מים, או בחיים בלילה כשקריר. הרוח מזיזה את החול, וליד המעיין צומח נווה מדבר. ' +
+      'בנו מדבר חי, שמרו על כל טיפה – וגלו את רשת החיים במקום הכי יבש.',
+    palette: ['#7a4a22', '#d8a85a', '#3a8a8a'],
+  },
 };
 
 // The order of the zones everywhere (start screen, album tabs, quiz, card games).
@@ -51,6 +62,7 @@ export const ZONE_LOOK = {
   amazon: { short: 'אמזונס', shortK: 'אֲמָזוֹנָס', inside: 'ביער הגשם של האמזונס', color: '#2f7a5a', mascot: 'toucan', decor: 'morpho', sea: false },
   grove: { short: 'חורש', shortK: 'חֹרֶשׁ', inside: 'בחורש הארץ-ישראלי', color: '#9a7a2e', mascot: 'hoopoe', decor: 'butterfly', sea: false },
   reef: { short: 'שונית', shortK: 'שׁוּנִית', inside: 'בשונית האלמוגים של אילת', color: '#1f8ab0', mascot: 'clownfish', decor: 'butterflyfish', sea: true },
+  desert: { short: 'מדבר', shortK: 'מִדְבָּר', inside: 'במדבר', color: '#b07a32', mascot: 'fennec', decor: 'hawkmoth', sea: false },
 };
 export const zoneShort = (id) => (ZONE_LOOK[id] || {}).short || '';
 

@@ -67,7 +67,7 @@ export function buildTorahRound() {
 }
 
 /* ───────────────────────────────────────────── the hand-written bank (src/data/quiz-bank.js) */
-const BANK_TAG = { amazon: 'יער הגשם', grove: 'החורש', reef: 'השונית', all: 'הידעת?' };
+const BANK_TAG = { amazon: 'יער הגשם', grove: 'החורש', reef: 'השונית', desert: 'המדבר', all: 'הידעת?' };
 function bankQ(b) {
   let art = null;
   if (b.art && b.art.startsWith('tool:')) { const c = CARD.get(b.art); if (c) art = { id: c.id.slice(5), img: c.img, color: c.color, name: c.name, tool: true }; }

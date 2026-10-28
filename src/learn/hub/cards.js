@@ -155,7 +155,7 @@ if (TORAH) for (const d of SOURCE_SETS) SETS.push({ ...d, where: 'src', torah: t
 export const activeSets = () => SETS.filter((st) => !st.torah || sourcesOn());
 export const SET_BY = new Map(SETS.map((st) => [st.id, st]));
 export const setsOf = (id) => activeSets().filter((st) => st.cards.some((c) => c.id === id));
-export const SET_WHERE = { amazon: 'אמזונס', grove: 'חורש', reef: 'שונית', both: 'שני היערות', tech: 'טכנולוגיה', src: 'מן המקורות' };
+export const SET_WHERE = { amazon: 'אמזונס', grove: 'חורש', reef: 'שונית', desert: 'מדבר', both: 'שני היערות', tech: 'טכנולוגיה', src: 'מן המקורות' };
 // sanity check (dev console): 4–8 cards, and a rare or very rare card in every species set
 for (const st of SETS) {
   if (st.torah) continue;
