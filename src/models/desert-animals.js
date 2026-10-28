@@ -1,4 +1,4 @@
-// Desert animals (1.4) – stand-ins until the Blender models are made. The rule is that animals come from Blender
+// Desert animals (1.4) – the stand-ins behind the Blender models (all but the desert ant now come from Blender). The rule is that animals come from Blender
 // (tools/blender/animals/<id>.py → art/rigged/desert/<id>.json → src/data/rigged-desert.js); withRigged() in the desert
 // pack replaces each stand-in as soon as its Blender model exists. Until then a close relative from another zone keeps
 // the desert playable (a fox for the fennec, a gazelle for the ibex). Nothing here is meant to ship as the final look.

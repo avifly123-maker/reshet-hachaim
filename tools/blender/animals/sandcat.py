@@ -8,7 +8,7 @@ for bl in blobs:
     if bl.get('bone') == 'head':
         r = bl['r']; bl['r'] = (r[0] * 1.18, r[1], r[2]) if isinstance(r, (list, tuple)) and len(r) == 3 else r
 parts = [p for p in parts if p.tag != 'ear']
-E = blob_ears(blobs, bones, base=(0.08, 0.78, 0.55), d=(0.85, 0.75, -0.18), H=0.11, w=0.05, t=0.012, tip=0.7)
+E = blob_ears(blobs, bones, base=(0.08, 0.78, 0.55), d=(0.85, 0.75, -0.18), H=0.135, w=0.062, t=0.013, tip=0.7)
 SAND, SAND2, WHITE, BAR, RUST, BLACK = srgb('#e0c896'), srgb('#cdb07c'), srgb('#f4ece0'), srgb('#9a8058'), srgb('#c08050'), srgb('#1a1410')
 def paint(P, N, tag):
     x, y, z = P

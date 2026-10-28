@@ -23,12 +23,12 @@ def paint(P, N, tag):
     if y < -0.04: c = mix(c, WHITE, smooth(-0.04, -0.07, y) * 0.95)                             # white belly
     if 0.08 < y < 0.25:
         if z > 0.13 + (y - 0.08) * 0.2 and abs(x) < 0.025: c = mix(c, BLUE, 0.7)                 # grey-blue front of the neck
-        if abs(x) > 0.02 and 0.09 < y < 0.2:                                                     # the black and white ruff
-            s = math.sin(y * 120)
-            c = mix(c, BLACK if s > 0 else WHITE, 0.85 * smooth(0.02, 0.032, abs(x)))
+        if abs(x) > 0.018 and 0.09 < y < 0.21:                                                   # the ruff: long black plumes down the neck sides, white below them
+            k = smooth(0.018, 0.026, abs(x)) * smooth(0.09, 0.11, y) * smooth(0.21, 0.19, y)
+            c = mix(c, mix(WHITE, BLACK, smooth(0.026, 0.032, abs(x))), 0.85 * k)
     if y > 0.29: c = mix(c, mix(WHITE, BLACK, 0.3), 0.5)                                         # the crest
     return c
-def wcol(s, c, top): return mix(SAND, WAVE, 0.15 + 0.25 * s) if top else WHITE
+def wcol(s, c, top): return mix(SAND, WAVE, 0.15 + 0.25 * s) if top else mix(SAND, WHITE, 0.4)
 def tcol(t, u, top): return mix(SAND2, WAVE, 0.4 if math.sin(t * 24) > 0.4 else 0.1) if top else WHITE
 parts = []
 for sx, L in ((1, 'l'), (-1, 'r')):

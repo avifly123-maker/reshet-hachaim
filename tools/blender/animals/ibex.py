@@ -14,7 +14,7 @@ for bl in blobs:
 # the horns: thick at the base, a long scimitar curve up and back, knobbed along the front
 parts = [p for p in parts if p.tag != 'horn']
 for sx in (1, -1):
-    hp = bez([(sx * 0.032, 1.43, 0.5), (sx * 0.05, 1.6, 0.46), (sx * 0.07, 1.78, 0.3), (sx * 0.08, 1.84, 0.08), (sx * 0.078, 1.76, -0.08)], 30)
+    hp = bez([(sx * 0.032, 1.43, 0.5), (sx * 0.05, 1.56, 0.4), (sx * 0.07, 1.63, 0.22), (sx * 0.085, 1.61, 0.02), (sx * 0.09, 1.5, -0.1)], 30)
     hr = [(0.034 * (1 - i / 29) ** 0.8 + 0.004) * (1 + 0.14 * max(0.0, math.sin(i * 1.9))) for i in range(30)]
     hv, hf = tube(hp, hr, 9)
     hc = [mix(srgb('#4a3a2a'), srgb('#7a6650'), 0.5 + 0.5 * math.sin((i // 9) * 1.9)) for i in range(len(hv))]
