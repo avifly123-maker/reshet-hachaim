@@ -220,6 +220,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   const GAMES = { webpuzzle: mountWebPuzzle, keepforest: mountKeepForest, inventors: mountInventors, expedition: mountExpedition, versematch: mountVerseMatch };
   let gameInst = null;
   function go(name, opts = {}) {
+    if (!name) return;   // nothing to open (a stray call with no screen)
     // a part that is not open yet (מסע החוקר): רובו־דע says what opens it, and the screen stays as it is
     // (the hub itself was just opened into it: the home). opts.force (the _go test hook) opens it anyway.
     const part = PART_OF[name];
@@ -246,7 +247,8 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     $('.wl-crumb').textContent = TITLES[name] || '';
     $('.wl-back span').textContent = name === 'home' ? 'חזרה למשחק' : 'חזרה';
     updateChip(false);
-    ({ home: renderHome, setup: renderSetup, quiz: () => startQuiz(opts), end: renderEnd, album: renderAlbum, pack: renderPack, duel: () => startDuel(), badges: renderBadges, frames: renderFrames })[name]();
+    const R = { home: renderHome, setup: renderSetup, quiz: () => startQuiz(opts), end: renderEnd, album: renderAlbum, pack: renderPack, duel: () => startDuel(), badges: renderBadges, frames: renderFrames };
+    if (R[name]) R[name](); else renderHome();   // an unknown screen opens the home (it used to throw)
     main.scrollTop = 0;
     if (screen === name && ['album', 'pack', 'badges', 'frames'].includes(name)) played();   // looking through them is using them
     if (screen === name && entering) introFor(name);

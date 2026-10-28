@@ -29,7 +29,7 @@ async def main():
           return 'placed '+n+' plants '+W.plants.length+' animals '+W.animals.length})()""")
         print(r)
         for k in range(12):
-            r = await pg.evaluate("(()=>{const d=window.__game.debug; d.auto(); return d.ff(25)})()"); 
+            r = await pg.evaluate("(()=>{[...document.querySelectorAll('button')].find(b=>/דלג/.test(b.textContent)&&b.offsetParent)?.click(); const d=window.__game.debug; d.auto(); return d.ff(25)})()")
         await pg.evaluate("window.__game.debug.auto()")
         print(await pg.evaluate("'plants '+window.__game.plants.length+' animals '+window.__game.animals.length+' t '+window.__game.simT.toFixed(0)"))
         res = await pg.evaluate("""(()=>{
@@ -37,7 +37,7 @@ async def main():
           const P=window.__app.pipe, sc=P.scene, cam=P.camera, rd=P.renderer, W=window.__game;
           document.querySelector('#ui').style.visibility='hidden';
           const env=sc.children.find(o=>/^environment/.test(o.name));
-          const hidden=[], HIDE=/^(sky|far-land|mist-sea2?|light-shafts|motes|pollen|mist|rain|birds|web-links|markers|tools|clouds?)$/;
+          const hidden=[], HIDE=/^(sky|far-land|mist-sea2?|light-shafts|motes|pollen|mist|rain|birds|web-links|markers|tools|clouds?|robo-da.*)$/;
           sc.traverse(o=>{ if(o.userData&&o.userData.entity) return; if(HIDE.test(o.name)||o.type==='Points'){ o.visible=false; hidden.push(o.name||o.type); return; }
             if(o.geometry){ if(!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); if(o.geometry.boundingSphere.radius>150){ o.visible=false; hidden.push(o.name||o.geometry.type); } } });
           sc.background=null; sc.fog=null;
@@ -49,7 +49,7 @@ async def main():
         await pg.evaluate("(()=>{const W=window.__game, d=W.debug; for(let i=0;i<10;i++){ W.rain=0; W.rainTarget=0; W.rainT=0; W.storm=0; W.dayFrac=0.42; d.auto(); d.ff(1); } })()")  # noon light settles
         res = await pg.evaluate("""(()=>{const P=window.__app.pipe, rd=P.renderer, cam=P.camera, sc=P.scene, W=window.__game, shots={}, EXPOSURE=""" + str(EXPOSURE) + """;
           W.rain=0; W.dayFrac=0.42; sc.fog=null; sc.background=null;
-          const HIDE=/^(sky|far-land|mist-sea2?|light-shafts|motes|pollen|mist|rain|birds|web-links|markers|tools|clouds?)$/;
+          const HIDE=/^(sky|far-land|mist-sea2?|light-shafts|motes|pollen|mist|rain|birds|web-links|markers|tools|clouds?|robo-da.*)$/;
           sc.traverse(o=>{ if(o.userData&&o.userData.entity) return; if(HIDE.test(o.name)||o.type==='Points') o.visible=false; if(o.geometry&&o.geometry.boundingSphere&&o.geometry.boundingSphere.radius>150) o.visible=false; });
           // fit the island and everything on it in the frame (world boxes of the meshes)
           const V=cam.position.constructor, mn=new V(1e9,1e9,1e9), mx=new V(-1e9,-1e9,-1e9), q=new V();

@@ -70,6 +70,35 @@ for (const z of ids) {
     if (n < 110) bad(z, `${n} quiz questions (110 needed)`);
   } catch (e) { bad(z, 'quiz bank: ' + e.message); }
 
+  // 1.4 (Avi, 28.10): a new place reaches every part of the game, not only the island. Each line below is one part.
+  const atLeast = (n, have, what) => { if (have < n) bad(z, `${what}: ${have} (at least ${n})`); };
+  if (B) {
+    // the album: a painting for every species card and for every device of this place
+    const { TOOL_DEFS } = await imp('src/game/tool-defs.js');
+    const devs = TOOL_DEFS.filter((t) => t.zones && t.zones.length === 1 && t.zones[0] === z).map((t) => t.id);
+    const noArt = [...(B.species || []).map((x) => x.id), ...devs].filter((id) => !fs.existsSync(path.join(ROOT, 'art', id + '.webp')));
+    if (noArt.length) bad(z, `card paintings missing (art/<id>.webp, tools/build-card-art.py): ${noArt.join(', ')}`);
+    // album sets of this place
+    atLeast(2, (rd('src/learn/hub/cards.js').match(new RegExp(`where: '${z}'`, 'g')) || []).length, 'album sets (cards.js SET_DEFS)');
+  }
+  // חוקרי הטבע: mysteries of this place, one at each level
+  { const files = fs.readdirSync(path.join(ROOT, 'src/research/cases')).filter((f) => f.endsWith('.js') && f !== 'index.js');
+    const lv = new Set(); let n = 0;
+    for (const f of files) { const t = rd('src/research/cases/' + f); if (new RegExp(`zone:\\s*'${z}'`).test(t)) { n++; const m = t.match(/level:\s*'(\w+)'/); if (m) lv.add(m[1]); } }
+    atLeast(3, n, 'mysteries in חוקרי הטבע (src/research/cases)');
+    for (const l of ['kids', 'middle', 'advanced']) if (n && !lv.has(l)) bad(z, `no ${l} mystery in חוקרי הטבע`); }
+  // the lab of רובו־דע: microscope samples, atlas questions, clue cases, observe finds, the sorting pool
+  const cnt = (f, re) => (rd(f).match(re) || []).length;
+  atLeast(2, cnt('src/lab/samples.js', new RegExp(`zone: '${z}'`, 'g')), 'microscope samples (src/lab/samples.js)');
+  atLeast(4, cnt('src/data/lab-questions.js', new RegExp(`zone: '${z}'`, 'g')), 'atlas research questions (src/data/lab-questions.js)');
+  atLeast(6, cnt('src/lab/clue-cases.js', new RegExp(`zone: '${z}'`, 'g')), 'clue cases "מי השאיר את זה?" (src/lab/clue-cases.js)');
+  const spIds = new Set(((B && B.species) || []).map((x) => x.id));
+  atLeast(2, [...rd('src/lab/observe-cases.js').matchAll(/after: 'card:(\w+)'/g)].filter((m) => spIds.has(m[1])).length, 'observe finds about its creatures (src/lab/observe-cases.js, after: card:<id>)');
+  atLeast(6, cnt('src/lab/sort-data.js', new RegExp(`\\['\\w+', '${z}'`, 'g')), 'creatures in the sorting game (src/lab/sort-data.js)');
+  // הממציאים: problems that come from this place's creatures, and threads that tie the place to other parts
+  atLeast(3, [...rd('src/data/inventions.js').matchAll(/real: '(\w+)'/g)].filter((m) => spIds.has(m[1])).length, 'inventors problems learned from its creatures (src/data/inventions.js, real)');
+  atLeast(1, cnt('src/data/threads.js', new RegExp(`'zone:${z}'`, 'g')), 'threads (src/data/threads.js parts)');
+
   // the tables elsewhere
   for (const [f, how, what] of TABLES) {
     const s = rd(f);
