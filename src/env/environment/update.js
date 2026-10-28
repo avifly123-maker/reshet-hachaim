@@ -9,10 +9,11 @@ import * as THREE from 'three';
 import { clamp, lerp, smoothstep, damp } from '../../core/util.js';
 import { TAU, MAX_SHAFTS, MAX_FIRES, MAX_SCORCH, MAX_GAPS, C, tmpC, tmpC2, V3, bump } from './common.js';
 import { SKY_C, samplePalette, sampleYear } from './palettes.js';
+import { DESERT } from './desert-look.js';
 
 export function createUpdate(envCtx) {
   const {
-    isAmazon, biome, quality, pipeline, U, skyU, sky, G, sun, sunLight, hemi, fog, farMat, farCrowns,
+    isAmazon, isDesert, biome, quality, pipeline, U, skyU, sky, G, sun, sunLight, hemi, fog, farMat, farCrowns,
     mistSeaU, mistSea, mistSea2, waterU, waterMeshes, WL, pools, scatterRefs, shaftU, shaftMesh,
     shaftGeo, shaftData, moteU, moteMesh, heightAt, pollenU, mistU, rainU, rainMesh, boltMesh, boltMat,
     makeBolt, fireU, scorch, flames, smoke, embers, birds
@@ -31,7 +32,7 @@ export function createUpdate(envCtx) {
 
   function computeSun(dayFrac) {
     const th = TAU * (dayFrac - 0.25);
-    const maxEl = isAmazon ? 1.15 : 1.0;  // noon elevation (rad) ≈ 66° / 57°
+    const maxEl = isAmazon ? 1.15 : isDesert ? 1.25 : 1.0;   // the desert: a high, hard sun  // noon elevation (rad) ≈ 66° / 57°
     const el = Math.asin(Math.sin(th)) * maxEl / (Math.PI / 2);
     const az = th; // east (+x) → west (−x)
     sunDir.set(Math.cos(az) * Math.cos(el), Math.sin(el), -0.42 * Math.cos(el)).normalize();
@@ -45,6 +46,25 @@ export function createUpdate(envCtx) {
   // constant colours used every frame: parsed once (no per-frame allocations / garbage collection pauses)
   const _ccache = new Map(), _cWhite = new THREE.Color();
   const CC = (h) => { let c = _ccache.get(h); if (!c) { c = new THREE.Color(h); _ccache.set(h, c); } return c; };
+  // 1.4, the desert: after rain the dry tufts turn green and the flowers open for a while, then everything dries again;
+  // the spring shrinks in drought. state.green rises fast with rain and fades slowly (a few game minutes).
+  function updateDesert(dt) {
+    state.green = state.wet > 0.3 ? damp(state.green || 0, 1, 0.8, dt) : damp(state.green || 0, 0, 0.012, dt);
+    const gr = state.green, dr = state.drought;
+    G.uGrass.value.set(DESERT.grass).lerp(CC(DESERT.green), gr * 0.85).lerp(CC('#c8a868'), dr * 0.5);
+    G.uGrass2.value.set(DESERT.grass2).lerp(CC(DESERT.green), gr * 0.6);
+    G.uCoverAmt.value = 0.55 + gr * 0.35 - dr * 0.15;
+    G.uSoilWet.value = state.wet * 0.8;
+    if (scatterRefs.grass) {
+      const gm = scatterRefs.grass.material;
+      gm.color.copy(G.uGrass.value).multiplyScalar(1.05);
+      gm.userData.uniforms.uScale.value = 0.8 + gr * 0.35;
+    }
+    if (scatterRefs.flower) { const b = scatterRefs.flower.material.userData.uniforms.uBloom.value; const k = smoothstep(0.25, 0.8, gr) * (1 - dr * 0.8); b.set(k, k, k, k); }
+    const low = dr * 0.25;
+    if (waterMeshes[0]) { waterMeshes[0].position.y = WL - low; const s = 1 - low * 0.6; waterMeshes[0].scale.set(s, 1, s); waterMeshes[0].position.x = pools[0].x * (1 - s); waterMeshes[0].position.z = pools[0].z * (1 - s); }
+  }
+
   function update(dt, ctx = {}) {
     dt = Math.min(dt || 0.016, 0.1);
     const t = ctx.t !== undefined ? ctx.t : (U.uTime.value + dt);
@@ -103,7 +123,7 @@ export function createUpdate(envCtx) {
     // hemisphere
     const hemiSky = tmpC.copy(cZen).lerp(cHor, 0.45);
     hemi.color.copy(hemiSky).lerp(CC('#ffffff'), 0.15 * dayAmt);
-    hemi.groundColor.set(isAmazon ? '#56622a' : '#a0623e').multiplyScalar(0.25 + 0.75 * dayAmt).lerp(CC('#34436a'), night.v * 0.75);
+    hemi.groundColor.set(isAmazon ? '#56622a' : isDesert ? DESERT.hemiGround : '#a0623e').multiplyScalar(0.25 + 0.75 * dayAmt).lerp(CC('#34436a'), night.v * 0.75);
     if (isAmazon) hemi.color.lerp(CC('#cfe0b0'), 0.18 * dayAmt);   // humid golden-green skylight
     // an overcast sky gives soft light from everywhere: the sky light grows a little as the sun hides (winter rain stays grey, not gloomy)
     hemi.intensity = lerp((1.35 + 0.4 * bump(e, -0.05, 0.02, 0.1, 0.25)) * (isAmazon ? 1.0 : 1.05), isAmazon ? 3.0 : 2.5, night.v) * (1 + 0.22 * rn * dayAmt - 0.1 * rn * night.v);
@@ -154,7 +174,9 @@ export function createUpdate(envCtx) {
     state.drought = damp(state.drought, drought, 1.0, dt);
 
     // seasons (grove)
-    if (!isAmazon) {
+    if (isDesert) {
+      updateDesert(dt);
+    } else if (!isAmazon) {
       const si = ['winter', 'spring', 'summer', 'autumn'].indexOf(ctx.season || 'spring');
       const p = (si < 0 ? 1 : si) + clamp(ctx.seasonFrac || 0);
       const y = sampleYear(p);

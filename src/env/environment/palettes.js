@@ -25,6 +25,16 @@ export const SKY = {
     { e: 0.35, zen: '#2463d0', hor: '#d2e2ee', gnd: '#c4bca8', fog: '#cddbe6' },
     { e: 1.0, zen: '#1f5ccc', hor: '#d6e6f2', gnd: '#c8c0ae', fog: '#d0dfea' },
   ],
+  // 1.4: the desert – a deep clear blue by day with a pale dusty horizon, long orange evenings, a bright starry night
+  desert: [
+    { e: -1.0, zen: '#081334', hor: '#26355a', gnd: '#1c2640', fog: '#2a3a5c' },
+    { e: -0.22, zen: '#0b183c', hor: '#2c4066', gnd: '#202c48', fog: '#30466a' },
+    { e: -0.08, zen: '#1c2a58', hor: '#8a5a6a', gnd: '#3a2e3e', fog: '#5a4458' },
+    { e: 0.0, zen: '#3a5494', hor: '#f4874a', gnd: '#7a5440', fog: '#d48e62' },
+    { e: 0.12, zen: '#4a7ac8', hor: '#f8c890', gnd: '#b0906a', fog: '#e6c69a' },
+    { e: 0.35, zen: '#2a68cc', hor: '#e2dccc', gnd: '#d2b48a', fog: '#e4dac6' },
+    { e: 1.0, zen: '#2462c8', hor: '#e8e0d0', gnd: '#d8bc92', fog: '#e8e0ce' },
+  ],
 };
 export const SKY_C = {};
 for (const k in SKY) SKY_C[k] = SKY[k].map(s => ({ e: s.e, zen: C(s.zen), hor: C(s.hor), gnd: C(s.gnd), fog: C(s.fog) }));

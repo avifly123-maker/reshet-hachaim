@@ -5,13 +5,14 @@
 import * as THREE from 'three';
 import { GROUND_TEX } from '../../data/ground-textures.js';
 import { R, MAX_SHAFTS, MAX_FIRES, MAX_GAPS, C, patchMaterial } from './common.js';
+import { DESERT } from './desert-look.js';
 
 export function createGround(ctx) {
-  const { U, isAmazon, noiseTex, biome, quality, track, root, buildGround } = ctx;
+  const { U, isAmazon, isDesert, noiseTex, biome, quality, track, root, buildGround } = ctx;
   const G = {
     ...U,
-    uGrass: { value: C(isAmazon ? '#3f6a24' : '#7da544') },
-    uGrass2: { value: C(isAmazon ? '#6e4a2a' : '#8f9a48') },
+    uGrass: { value: C(isAmazon ? '#3f6a24' : isDesert ? DESERT.grass : '#7da544') },
+    uGrass2: { value: C(isAmazon ? '#6e4a2a' : isDesert ? DESERT.grass2 : '#8f9a48') },
     uCoverAmt: { value: isAmazon ? 0.85 : 0.85 },
     uSoilWet: { value: 0 },
     uDetail: { value: noiseTex },
@@ -21,6 +22,7 @@ export function createGround(ctx) {
     uGaps: { value: Array.from({ length: MAX_GAPS }, () => new THREE.Vector4(0, 0, 0, 0)) },
     uOverlay: { value: null }, uOverlayOn: { value: 0 }, uR: { value: R },
     uAmazon: { value: isAmazon ? 1 : 0 },
+    uDesert: { value: isDesert ? 1 : 0 }, uBedCol: { value: isDesert ? new THREE.Vector3(...DESERT.bedrock) : new THREE.Vector3(0.62, 0.56, 0.45) },
     // real surface textures baked in Blender: A = litter / grass, B = moss / limestone (albedo + normal map each)
     uGTexA: { value: null }, uGNrmA: { value: null }, uGTexB: { value: null }, uGNrmB: { value: null }, uGTexOn: { value: 0 },
     uGAvgA: { value: C('#808080') }, uGAvgB: { value: C('#808080') }, uGTile: { value: new THREE.Vector2(3, 4) }, uGNrmK: { value: 1 },
@@ -42,7 +44,7 @@ export function createGround(ctx) {
     vertexPre: 'attribute vec3 aCover; varying vec3 vCover;',
     vertexBegin: 'vCover = aCover;',
     fragPre: /* glsl */`
-      varying vec3 vCover; uniform sampler2D uDetail; uniform vec3 uGrass, uGrass2, uSpotCol; uniform float uCoverAmt, uSoilWet, uOverlayOn, uR, uAmazon;
+      varying vec3 vCover; uniform sampler2D uDetail; uniform vec3 uGrass, uGrass2, uSpotCol; uniform float uCoverAmt, uSoilWet, uOverlayOn, uR, uAmazon, uDesert; uniform vec3 uBedCol;
       uniform vec4 uSpots[${MAX_SHAFTS}]; uniform vec4 uFires[${MAX_FIRES}]; uniform vec4 uGaps[${MAX_GAPS}]; uniform sampler2D uOverlay;
       uniform sampler2D uGTexA, uGNrmA, uGTexB, uGNrmB; uniform float uGTexOn, uGNrmK; uniform vec3 uGAvgA, uGAvgB; uniform vec2 uGTile;
       uniform sampler2D uTreeSh; uniform float uTreeShK;
@@ -102,11 +104,16 @@ export function createGround(ctx) {
       if (uAmazon < 0.5) {
         // pale limestone bedrock breaking through the terra rossa, with dark cracks
         float bed = smoothstep(0.7, 0.78, dm.a + dn.b * 0.15 - cov * 0.3 + (1.0 - vCover.x) * 0.2);
-        vec3 lime = vec3(0.62, 0.56, 0.45) * (0.8 + 0.3 * df.r);
-        if (uGTexOn > 0.5) lime = vec3(0.62, 0.56, 0.45) * dB * (0.9 + 0.2 * df.r);
+        vec3 lime = uBedCol * (0.8 + 0.3 * df.r);
+        if (uGTexOn > 0.5) lime = uBedCol * dB * (0.9 + 0.2 * df.r);
         lime *= 1.0 - 0.45 * smoothstep(0.03, 0.0, abs(df.b - 0.5)) ;
         col = mix(col, lime, bed * (1.0 - wetBank));
         gNm = normalize(mix(gNm, nB, bed * (1.0 - wetBank)));
+      }
+      if (uDesert > 0.5) {
+        // wind ripples in the sand (fade where plants cover it), and darker gravel in the wadi bed
+        float rip = sin(dot(vWPos.xz, vec2(0.83, 0.55)) * 3.4 + dm.r * 7.0 + dn.g * 1.5);
+        col *= 1.0 + rip * 0.045 * (1.0 - cov);
       }
       col *= 1.0 + gap * 0.12;
       if (uTreeShK > 0.0) {

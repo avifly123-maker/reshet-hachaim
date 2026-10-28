@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Blender animal exports (art/rigged/<zone>/<id>.json, from tools/blender/animal_kit.py) → src/data/rigged-<zone>.js"""
 import json, glob, os
-for zone in ('grove', 'amazon', 'reef'):
+for zone in ('grove', 'amazon', 'reef', 'desert'):
     m = {}
     for f in sorted(glob.glob(f'art/rigged/{zone}/*.json')):
         d = json.load(open(f)); m[d['id']] = d

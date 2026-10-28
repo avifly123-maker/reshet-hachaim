@@ -4,12 +4,13 @@
 // Needs from ctx: noiseB, seed, rocks, isAmazon, heightAt, skirtPoint, edgeR, WL, waterDist, track, root, rootMat, ground,
 // skirt, U.
 import * as THREE from 'three';
+import { DESERT } from './desert-look.js';
 import { makeRng, lerp, smoothstep, mergeGeometries } from '../../core/util.js';
 import { TAU, C, tmpC, V3, patchMaterial } from './common.js';
 
 export function createRocks(ctx) {
   const {
-    noiseB, seed, rocks, isAmazon, heightAt, skirtPoint, edgeR, WL, waterDist, track, root, rootMat,
+    noiseB, seed, rocks, isAmazon, isDesert, heightAt, skirtPoint, edgeR, WL, waterDist, track, root, rootMat,
     ground, skirt, U
   } = ctx;
   // ───────────────────────────── rocks (merged)
@@ -29,7 +30,13 @@ export function createRocks(ctx) {
     const nr = g.attributes.normal;
     for (let i = 0; i < n; i++) {
       const ny = nr.getY(i);
-      if (limestone) {
+      if (limestone && isDesert) {   // sandstone: warm reds and creams, darker desert varnish on the tops
+        tmpC.set(DESERT.rockA).lerp(C(DESERT.rockB), rr() * 0.6);
+        if (ny < -0.2) tmpC.multiplyScalar(0.72);
+        const v = noiseB(p.getX(i) * 1.3 + k1, p.getZ(i) * 1.3);
+        if (v > 0.45) tmpC.lerp(C(DESERT.rockLight), 0.45);
+        else if (v < -0.45 && ny > 0.2) tmpC.lerp(C(DESERT.rockDark), 0.5);
+      } else if (limestone) {
         tmpC.set('#d9d0bb').lerp(C('#b3a68c'), rr() * 0.6);
         if (ny < -0.2) tmpC.multiplyScalar(0.7);
         const lich = noiseB(p.getX(i) * 1.3 + k1, p.getZ(i) * 1.3);
@@ -134,7 +141,7 @@ export function createRocks(ctx) {
   let vinesMesh = null;
   {
     const rr = makeRng(seed * 307 + 1);
-    const nV = isAmazon ? 150 : 34;
+    const nV = isAmazon ? 150 : isDesert ? 0 : 34;   // the desert's edge has no hanging plants
     const pos = [], col = [], hang = [], idx = [];
     for (let i = 0; i < nV; i++) {
       const th = rr() * TAU;

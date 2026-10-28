@@ -88,13 +88,18 @@ const PART_MAT = {
 const _tmpC = new Col();
 
 export function makePlant(id, opts = {}) {
-  const S = SPECIES[id];
+  return makePlantFrom(id, SPECIES[id], (v) => getVariant(id, v), opts, 'grove-');
+}
+
+// 1.4: the same PlantVisual for another zone's plants (the desert: src/models/desert-plants/), given that zone's
+// behaviour entry S (as in SPECIES above) and a getG(variant) → { geoms, info } built with the kit.js helpers.
+export function makePlantFrom(id, S, getG, opts = {}, prefix = 'plant-') {
   const seed = (opts.seed ?? 1) | 0;
   const variant = ((seed % 3) + 3) % 3;
-  const G = getVariant(id, variant);
+  const G = getG(variant);
   const info = G.info;
   const irng = makeRng(((seed * 2654435761) ^ 0x5bd1e995) >>> 0);
-  const object = new THREE.Group(); object.name = 'grove-' + id;
+  const object = new THREE.Group(); object.name = prefix + id;
   const root = new THREE.Group(); object.add(root);
   const rotY = irng() * TAU; root.rotation.y = rotY;
   const sizeJ = irng.range(0.93, 1.07);

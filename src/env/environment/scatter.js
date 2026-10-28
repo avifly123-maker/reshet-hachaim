@@ -11,7 +11,7 @@ import { leafLitterGeom, fernGeom, upNormals, pebbleGeom, bigLeafGeom, blobGeom,
 
 export function createScatter(ctx) {
   const {
-    U, qual, root, track, seed, isAmazon, heightAt, edgeR, rocks, WL, waterDist, nearBridge, coverAt,
+    U, qual, root, track, seed, isAmazon, isDesert, heightAt, edgeR, rocks, WL, waterDist, nearBridge, coverAt,
     rockInfluence
   } = ctx;
   // ───────────────────────────── ground scatter (instanced)
@@ -139,6 +139,44 @@ export function createScatter(ctx) {
       const pts = samplePoints(N(260), 0, 46, (x, z) => { const d = waterDist(x, z); return d > -0.8 && d < 1.2; }, rrS);
       const items = pts.map(p => ({ p: V3(p.x, heightAt(p.x, p.z), p.z), q: slopeQuat(p.x, p.z, rrS() * TAU), s: V3(1, 1, 1).multiplyScalar(0.1 + rrS() * 0.25), c: C(rrS() < 0.5 ? '#7a7062' : '#5a5448').multiplyScalar(0.8 + rrS() * 0.4) }));
       scatterRefs.pebble = addScatter('pebble', pebbleGeom(makeRng(3)), scatterMaterial('pebble', { sway: 0, flat: true }), items);
+    }
+  } else if (isDesert) {
+    // the desert: sparse dry tufts (green after rain, by update.js), flowers that open only after rain, flint and
+    // sandstone pebbles, sandstone chunks by the outcrops, a few low grey shrubs at the rim
+    {
+      const pts = samplePoints(N(1800), 0, 46, (x, z) => dryLand(0.25)(x, z) && rrS() < 0.08 + coverAt(x, z) * 0.9, rrS);
+      const geo = grassTuftGeom(5, makeRng(31));
+      const items = pts.map(p => ({ p: V3(p.x, heightAt(p.x, p.z) - 0.03, p.z), q: slopeQuat(p.x, p.z, rrS() * TAU, 0.4), s: V3(1, 0.6 + rrS() * 0.6, 1).multiplyScalar(0.3 + rrS() * 0.3), c: tmpC.setHSL(0, 0, 0.82 + rrS() * 0.3).clone() }));
+      upNormals(geo, 1);
+      scatterRefs.grass = addScatter('grass', geo, scatterMaterial('grass', { sway: 1, cards: true, rough: 0.9 }), items);
+    }
+    {
+      const pts = samplePoints(N(1600), 0, 45, (x, z) => dryLand(0.3)(x, z) && rocks.every(rk => Math.hypot(x - rk.x, z - rk.z) > rk.r * 0.9), rrS);
+      const kinds = []; const cols = { 0: C('#b46ad8'), 1: C('#f2c41e'), 2: C('#f4f0ea'), 3: C('#ec6aa0') };
+      const fn = makeNoise2D(seed + 99);
+      const items = pts.map(p => {
+        const v = fn(p.x * 0.08, p.z * 0.08);
+        const k = v > 0.15 ? 1 : v > -0.1 ? (rrS() < 0.5 ? 0 : 2) : 3;
+        kinds.push(k);
+        return { p: V3(p.x, heightAt(p.x, p.z) - 0.02, p.z), q: slopeQuat(p.x, p.z, rrS() * TAU, 0.3), s: V3(1, 1, 1).multiplyScalar(0.8 + rrS() * 0.5), c: cols[k].clone() };
+      });
+      scatterRefs.flower = addScatter('flower', upNormals(flowerGeom(), 0.8), scatterMaterial('flower', { sway: 1, cards: true, kinds: true, rough: 0.6, extra: { uBloom: { value: new THREE.Vector4(0, 0, 0, 0) } } }), items, { kinds });
+    }
+    {
+      const pts = samplePoints(N(1300), 0, 46, (x, z) => (WL === null || waterDist(x, z) > -0.6) && !onRock(x, z) && rrS() < 0.3 + rockInfluence(x, z), rrS);
+      const items = pts.map(p => ({ p: V3(p.x, heightAt(p.x, p.z) - 0.02, p.z), q: slopeQuat(p.x, p.z, rrS() * TAU), s: V3(1, 1, 1).multiplyScalar(0.05 + rrS() * 0.14), c: C(rrS() < 0.55 ? '#d8a878' : rrS() < 0.5 ? '#5a4a3e' : '#b07048').multiplyScalar(0.8 + rrS() * 0.35) }));
+      scatterRefs.pebble = addScatter('pebble', pebbleGeom(makeRng(3)), scatterMaterial('pebble', { sway: 0, flat: true }), items);
+    }
+    {
+      const pts = samplePoints(N(320), 0, 46, (x, z) => dryLand(0.6)(x, z) && rrS() < 0.2 + rockInfluence(x, z) * 1.6, rrS);
+      const items = pts.map(p => ({ p: V3(p.x, heightAt(p.x, p.z) - 0.08, p.z), q: slopeQuat(p.x, p.z, rrS() * TAU), s: V3(1, 0.6 + rrS() * 0.5, 1).multiplyScalar(0.25 + rrS() * 0.5), c: C('#cc8c5c').multiplyScalar(0.8 + rrS() * 0.3) }));
+      scatterRefs.chunk = addScatter('chunk', pebbleGeom(makeRng(8), 0.6, 0), scatterMaterial('chunk', { sway: 0, flat: true }), items, { castShadow: true });
+    }
+    {
+      const pts = samplePoints(N(110), R + 1.2, 46, dryLand(0.8), rrS);
+      const pal = ['#8a9070', '#9a9a78', '#7a8062', '#a8a080'].map(C);
+      const items = pts.map(p => ({ p: V3(p.x, heightAt(p.x, p.z) - 0.15, p.z), q: new THREE.Quaternion().setFromAxisAngle(V3(0, 1, 0), rrS() * TAU), s: V3(1, 0.6 + rrS() * 0.3, 1).multiplyScalar(0.6 + rrS() * 0.8), c: pal[Math.floor(rrS() * pal.length)].clone().multiplyScalar(0.85 + rrS() * 0.3) }));
+      scatterRefs.bush = addScatter('bush', blobGeom(makeRng(21), 5, 0.65), scatterMaterial('bush', { sway: 0.06, flat: true, rough: 0.9 }), items, { castShadow: true });
     }
   } else {
     // grass tufts
