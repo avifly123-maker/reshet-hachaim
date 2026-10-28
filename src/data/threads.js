@@ -40,6 +40,8 @@ export const CASE_SPECIES = {
   'flowers-bees': ['grove', 'honeybee', 'rockrose'],
   'brazil-nut': ['amazon', 'orchidbee', 'agouti', 'brazilnut', 'orchid'],
   'green-reef': ['reef', 'parrotfish', 'branching', 'algae'],
+  'moving-sand': ['desert', 'acacia', 'retama'],
+  'lonely-acacias': ['desert', 'dorcas', 'acacia'],
   'cleaning-station': ['reef', 'butterflyfish', 'cleaner', 'brain'],
   'white-coral': ['reef', 'branching', 'surgeonfish', 'algae'],
   'the-trap': ['grove', 'spinymouse', 'owl', 'fox'],

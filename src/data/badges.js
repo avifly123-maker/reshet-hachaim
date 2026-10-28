@@ -106,6 +106,8 @@ export const BADGES = [
   { id: 'b_rc_mice', group: 'research', art: 'owl', name: 'בית לתנשמת', how: 'פותרים את התעלומה "יותר מדי קוצנים"', earn: 'research:case:mice-owl' },
   { id: 'b_rc_bees', group: 'research', art: 'rockrose', name: 'פרחים וזרעים', how: 'פותרים את התעלומה "הפרחים שלא נותנים זרעים"', earn: 'research:case:flowers-bees' },
   { id: 'b_rc_greenreef', group: 'research', art: 'parrotfish', name: 'שונית נקייה', how: 'פותרים את התעלומה "השונית הירוקה"', earn: 'research:case:green-reef' },
+  { id: 'b_rc_sand', group: 'research', art: 'retama', name: 'עוצרים את החול', how: 'פותרים את התעלומה "החול שקובר את השתילים"', earn: 'research:case:moving-sand' },
+  { id: 'b_rc_acacias', group: 'research', art: 'dorcas', name: 'הדרך של הצבי', how: 'פותרים את התעלומה "השיטות שלא מתחדשות"', earn: 'research:case:lonely-acacias' },
   { id: 'b_rc_frogs', group: 'research', art: 'dartfrog', name: 'בריכה על ענף', how: 'פותרים את התעלומה "איפה הצפרדעים?"', earn: 'research:case:frogs' },
   { id: 'b_rc_brazil', group: 'research', art: 'orchidbee', name: 'שותפי האגוז', how: 'פותרים את התעלומה "אגוזי הברזיל שלא נותנים פרי"', earn: 'research:case:brazil-nut' },
   { id: 'b_rc_cleaning', group: 'research', art: 'cleaner', name: 'התחנה נפתחה', how: 'פותרים את התעלומה "תחנת הניקוי נסגרה"', earn: 'research:case:cleaning-station' },

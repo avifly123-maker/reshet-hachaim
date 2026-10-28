@@ -129,7 +129,7 @@ export function buildTamarisk(variant) {
   return { geoms: { wood: wood.build(), leaves: leaves.build(), flowers: flowers.build(), seed: seed.build() }, info };
 }
 
-// the column cactus: a tall ribbed column with one to three arms; white flowers on the tips
+// the column cactus: a tall ribbed column with one or two arms; white flowers on the tips
 export function buildColumnCactus(variant) {
   const rng = makeRng(hashString('columncactus') + variant * 7919);
   const wood = new Geo(), leaves = new Geo(), flowers = new Geo(), seed = new Geo();
@@ -138,9 +138,11 @@ export function buildColumnCactus(variant) {
   // the body is the "leaves" part: it swells and thins with health like a leafy crown would
   ribbed(leaves, new V3(0, 0, 0), UP, H, (t) => r * (t < 0.06 ? lerp(0.85, 1, t / 0.06) : t > 0.9 ? Math.sqrt(Math.max(0, 1 - ((t - 0.9) / 0.1) ** 2)) * 0.98 + 0.02 : 1), 14, 0.12, green, 0.5);
   const perch = [new V3(0, H + 0.05, 0)], tips = [new V3(0, H, 0)];
-  const nA = rng.int(1, 3);
+  // no cross shapes: at most two arms, at clearly different heights and never opposite each other (seen from any side
+  // the trunk and two level arms would read as a cross)
+  const nA = rng.int(1, 2), az0 = rng.range(0, TAU);
   for (let i = 0; i < nA; i++) {
-    const az = i / nA * TAU + rng.range(-0.4, 0.4), y0 = H * rng.range(0.35, 0.55), out = rng.range(0.55, 0.8), up = rng.range(1.1, 1.8);
+    const az = az0 + i * rng.range(1.2, 1.9), y0 = H * (i ? rng.range(0.56, 0.66) : rng.range(0.3, 0.4)), out = rng.range(0.5, 0.7), up = i ? rng.range(0.7, 1.1) : rng.range(1.2, 1.7);
     const d = new V3(Math.cos(az), 0, Math.sin(az));
     const a = new V3(0, y0, 0).addScaledVector(d, r * 0.6), b = a.clone().addScaledVector(d, out).add(new V3(0, 0.15, 0)), c = b.clone().add(new V3(0, up, 0));
     const pts = []; for (let k = 0; k <= 8; k++) { const t = k / 8; pts.push(t < 0.5 ? a.clone().lerp(b, t * 2).add(new V3(0, Math.sin(t * Math.PI) * 0.12, 0)) : b.clone().lerp(c, (t - 0.5) * 2)); }

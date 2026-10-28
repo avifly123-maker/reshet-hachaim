@@ -91,6 +91,14 @@ export const SOURCE_CARDS = [
   { id: 'tikva', title: 'יֵשׁ לָעֵץ תִּקְוָה', ref: 'איוב יד, ז', icon: 'tree', col: '#5a7a3a', earn: 'research:young-oaks',
     quote: 'כִּי יֵשׁ לָעֵץ תִּקְוָה, אִם יִכָּרֵת וְעוֹד יַחֲלִיף, וְיֹנַקְתּוֹ לֹא תֶחְדָּל.',
     lesson: 'גם עץ שנכרת יכול לצמוח שוב, וממנו יוצאים ענפים צעירים. החורש מתחדש כשנותנים לנבטים הצעירים לגדול.' },
+  // חוקרי הטבע, the desert, beginners: "החול שקובר את השתילים" (src/research/cases/moving-sand.js)
+  { id: 'shita', title: 'אֶתֵּן בַּמִּדְבָּר שִׁטָּה', ref: 'ישעיהו מא, יט', icon: 'tree', col: '#b07a32', earn: 'research:moving-sand',
+    quote: 'אֶתֵּן בַּמִּדְבָּר אֶרֶז שִׁטָּה וַהֲדַס וְעֵץ שָׁמֶן.',
+    lesson: 'הנביא מבטיח שגם במדבר יצמחו עצים. השיטה גדלה במדבר באמת, כשהשיחים סביבה שומרים על השתילים הצעירים שלה מפני החול.' },
+  // חוקרי הטבע, the desert, middle: "השיטות שלא מתחדשות" (src/research/cases/lonely-acacias.js)
+  { id: 'shittim', title: 'עֲצֵי שִׁטִּים עֹמְדִים', ref: 'שמות כו, טו', icon: 'tree', col: '#9a6a2a', earn: 'research:lonely-acacias',
+    quote: 'וְעָשִׂיתָ אֶת הַקְּרָשִׁים לַמִּשְׁכָּן עֲצֵי שִׁטִּים עֹמְדִים.',
+    lesson: 'המשכן במדבר נבנה מעצי שיטה, עץ שגדל במדבר. כדי שיהיו שיטות גם בעתיד, שומרים על הצבי שמפזר את הזרעים שלהן.' },
   // חוקרי הטבע, the Amazon, middle: "הנמלים שאכלו את היער" (src/research/cases/leafcutters.js)
   { id: 'shnayim', title: 'טוֹבִים הַשְּׁנַיִם מִן הָאֶחָד', ref: 'קהלת ד, ט', icon: 'bug', col: '#7a6a2a', earn: 'research:leafcutters',
     quote: 'טוֹבִים הַשְּׁנַיִם מִן הָאֶחָד, אֲשֶׁר יֵשׁ לָהֶם שָׂכָר טוֹב בַּעֲמָלָם.',
@@ -124,11 +132,11 @@ export const SOURCE_SETS = [
   { id: 'src-shomrim', name: 'שומרים על העולם', col: '#3f7a4a', sub: 'לעבוד ולשמור, לנטוע ולא לקלקל',
     cards: ['leovdah', 'tikun', 'choni', 'efes', 'tikva'] },
   { id: 'src-chesed', name: 'עולם חסד יבנה', col: '#8a5a7a', sub: 'נותנים זה לזה, ודואגים לכל בריה',
-    cards: ['chesed', 'shnayim', 'nefesh', 'rashbi'] },
+    cards: ['chesed', 'shnayim', 'nefesh', 'rashbi', 'shittim'] },
   { id: 'src-lomdim', name: 'לומדים מהבריות', col: '#8f5b2e', sub: 'הנמלה, השפן, הנמר והכריש מלמדים אותנו',
     cards: ['ant', 'small4', 'lion', 'sheal'] },
-  { id: 'src-harim', name: 'מן ההרים עד הים', col: '#2f7a9a', sub: 'צבאים על ההרים, כפירים ביער וחיות בים הגדול',
-    cards: ['tzvi', 'tzvaim', 'kfirim', 'yam'] },
+  { id: 'src-harim', name: 'מן ההרים עד הים', col: '#2f7a9a', sub: 'צבאים על ההרים, שיטה במדבר, כפירים ביער וחיות בים הגדול',
+    cards: ['tzvi', 'tzvaim', 'shita', 'kfirim', 'yam'] },
 ];
 export const EARN_TEXT = { quiz: 'מקבלים בחידון "מן המקורות" (7 תשובות נכונות ומעלה)', 'mission:gt1': 'מקבלים במשימה "לך אל נמלה" בחורש',
   'mission:gt2': 'מקבלים במשימה "החרוב של חוני" בחורש', 'set:avot': 'מקבלים כשמשלימים את הסדרה "רץ כצבי"',

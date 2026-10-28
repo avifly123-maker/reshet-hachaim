@@ -9,10 +9,11 @@ import { KIDS_TEXTS } from '../src/research/texts.js';
 import { BIOME as AMAZON } from '../src/data/amazon.js';
 import { BIOME as GROVE } from '../src/data/grove.js';
 import { BIOME as REEF } from '../src/data/reef.js';
+import { BIOME as DESERT } from '../src/data/desert.js';
 
 const errors = [];
 const err = (w, m) => errors.push(`${w}: ${m}`);
-const zones = { amazon: AMAZON, grove: GROVE, reef: REEF };
+const zones = { amazon: AMAZON, grove: GROVE, reef: REEF, desert: DESERT };
 const HEB = /[א-ת]/g, NIK = /[ְ-ׇּׁׂ]/g;
 function vocalised(s) {
   const letters = (String(s).match(HEB) || []).length; if (!letters) return true;

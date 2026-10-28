@@ -63,4 +63,11 @@ export const CASE_ICONS = {
   leafpile: svgURL('<path d="M8 50h48" stroke="#8a5a32" stroke-width="3"/><path d="M34 50c2-7 7-11 13-11s9 4 10 11z" fill="#c8955a"/><circle cx="46" cy="44" r="2" fill="#5a3a22"/>'
     + '<g fill="#5f9a3a"><ellipse cx="18" cy="44" rx="8" ry="3.5" transform="rotate(-10 18 44)"/><ellipse cx="22" cy="38" rx="7" ry="3" transform="rotate(20 22 38)"/></g>'
     + '<g fill="#8fcf5a"><ellipse cx="14" cy="38" rx="6" ry="2.6" transform="rotate(-30 14 38)"/><ellipse cx="27" cy="44" rx="6" ry="2.6" transform="rotate(15 27 44)"/></g>', '#efe6d2'),
+  // 1.4, the desert: wind blowing sand over a low dune (curved streaks and grains, nothing crossing)
+  sandwind: svgURL('<path d="M6 50c10-8 22-10 34-6 6 2 12 2 18-1v13H6z" fill="#e0b46a"/>'
+    + '<g stroke="#a8743a" stroke-width="3" fill="none" stroke-linecap="round"><path d="M10 22c10-4 22-4 30 0"/><path d="M16 31c10-3 20-3 30 1"/><path d="M8 40c8-2 14-2 20 0"/></g>'
+    + '<g fill="#c8904a"><circle cx="46" cy="22" r="2"/><circle cx="52" cy="27" r="1.6"/><circle cx="50" cy="35" r="1.8"/><circle cx="34" cy="40" r="1.5"/></g>', '#fbeccf'),
+  // acacia pods: two curly brown pods on the sand (no crossing shapes)
+  pods: svgURL('<path d="M8 52h48" stroke="#c8a070" stroke-width="3"/><path d="M14 44c4-10 10-4 14-12s10-6 12-14" stroke="#9a6a3a" stroke-width="6" fill="none" stroke-linecap="round"/>'
+    + '<path d="M30 48c6-2 8-8 14-8s8-4 10-8" stroke="#b07a42" stroke-width="5" fill="none" stroke-linecap="round"/><g fill="#5a3a22"><circle cx="18" cy="40" r="1.4"/><circle cx="25" cy="34" r="1.4"/><circle cx="33" cy="26" r="1.4"/></g>', '#f6ead6'),
 };

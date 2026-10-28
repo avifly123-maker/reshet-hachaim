@@ -79,9 +79,10 @@ export function buildCaper(variant) {
       const p = w.pts[k], d = new V3(Math.cos(az + sg * 1.3), 0.4, Math.sin(az + sg * 1.3)).normalize();
       card(leaves, p.clone().addScaledVector(d, 0.06), UP.clone().lerp(d, 0.3).normalize(), 0.11, 0.1, rng, jit('#6e9a7a', rng, 0.08), w.pts[2], rank, { t: d, fold: 0.1 });
     }
-    // a flower: four white petals around a burst of purple stamens
+    // a flower: four white petals around a burst of purple stamens. No cross shapes: the petals are uneven, as in a real
+    // caper (two upper petals close together), never four at right angles
     const f = w.pts[4].clone().add(new V3(0, 0.08, 0)), frank = rng.range(0.04, 0.96);
-    for (let k = 0; k < 4; k++) { const a = k / 4 * TAU + az, d = new V3(Math.cos(a), 0.5, Math.sin(a)).normalize(); card(flowers, f.clone().addScaledVector(d, 0.06), UP, 0.1, 0.09, rng, new Col('#fbf7f0'), f, frank, { t: d, fold: 0.05, tipLight: 1 }); }
+    for (const pa of [0, 0.95, 2.75, 4.5]) { const a = pa + az, d = new V3(Math.cos(a), 0.5, Math.sin(a)).normalize(); card(flowers, f.clone().addScaledVector(d, 0.06), UP, 0.1, 0.09, rng, new Col('#fbf7f0'), f, frank, { t: d, fold: 0.05, tipLight: 1 }); }
     for (let k = 0; k < 10; k++) { const a = k / 10 * TAU, d = new V3(Math.cos(a) * 0.6, 1, Math.sin(a) * 0.6).normalize(); tube(flowers, [f.clone(), f.clone().addScaledVector(d, 0.14)], [0.005, 0.004], 3, () => new Col('#a04aa8'), { ce: f, rank: frank }); }
     if (s % 3 === 0) perch.push(w.pts[3].clone());
   }
