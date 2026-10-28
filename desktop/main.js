@@ -20,18 +20,26 @@ app.setName(PRODUCT);
 // folder of the saves are two different things from now on.
 const DATA_NAME = (() => { try { return require('./package.json').dataName || PRODUCT; } catch (e) { return PRODUCT; } })();
 app.setPath('userData', path.join(app.getPath('appData'), DATA_NAME));
-// a child who played the general edition ("רשת החיים", its own data folder) and now installs this one: on the first start,
-// when this edition has no saves yet, its saves file is copied over (preload.js restores the game from it, because the
-// browser storage of this edition is still empty). Nothing is copied once this edition has saves of its own.
+// a child who played another build and now installs this one: on the first start, when this build has no saves yet,
+// the saves file of the first earlier build that has one is copied over (preload.js restores the game from it, because
+// the browser storage of this build is still empty). Nothing is copied once this build has saves of its own, and the
+// earlier build's file is only read, never written. The folders to look in come from `carryFrom` (builder config →
+// package.json); without it, the general edition ("רשת החיים"), as in 1.3.2. The 1.4 test build (builder-1.4.json)
+// lists the 1.3 folders, so a tester starts 1.4 with everything from 1.3 and 1.3 stays untouched.
+const CARRY_FROM = (() => { try { const c = require('./package.json').carryFrom; return Array.isArray(c) ? c : ['רשת החיים']; } catch (e) { return ['רשת החיים']; } })();
 function carryOverGeneralSaves() {
   try {
     const mine = path.join(app.getPath('userData'), 'saves', 'saves.json');
     if (fs.existsSync(mine)) return 'has own';
-    const other = path.join(app.getPath('appData'), 'רשת החיים', 'saves', 'saves.json');
-    if (DATA_NAME === 'רשת החיים' || !fs.existsSync(other)) return 'nothing';
-    fs.mkdirSync(path.dirname(mine), { recursive: true });
-    fs.copyFileSync(other, mine);
-    return 'copied';
+    for (const name of CARRY_FROM) {
+      if (name === DATA_NAME) continue;
+      const other = path.join(app.getPath('appData'), name, 'saves', 'saves.json');
+      if (!fs.existsSync(other)) continue;
+      fs.mkdirSync(path.dirname(mine), { recursive: true });
+      fs.copyFileSync(other, mine);
+      return 'copied from ' + name;
+    }
+    return 'nothing';
   } catch (e) { return 'error ' + e.message; }
 }
 // a second copy only hands the focus to the first one and closes – it must not open windows or touch the saves
