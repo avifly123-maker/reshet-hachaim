@@ -11,6 +11,10 @@ blobs = [
     dict(t='ell', c=(0, 0.27, 0.18), r=(0.03, 0.03, 0.04), bone='head'),
     dict(t='ell', c=(0, 0.3, 0.165), r=(0.012, 0.018, 0.02), bone='head'),                        # the short crest
 ]
+for sx in (1, -1):        # the ruff: long plumes that hang down the sides of the neck and stand out from it
+    for yy, w in ((0.125, 0.014), (0.155, 0.015), (0.185, 0.014), (0.212, 0.011)):
+        z = 0.128 + (yy - 0.08) * 0.24
+        blobs.append(dict(t='ell', c=(sx * 0.03, yy, z - 0.004), r=(w, 0.036, 0.015), rot=(-18, 0, -sx * 14), bone='neck'))
 bones = [('hips', None, (0, 0.0, -0.13), (0, 0.0, 0.03)), ('chest', 'hips', (0, 0.0, 0.03), (0, 0.06, 0.11)),
          ('neck', 'chest', (0, 0.08, 0.12), (0, 0.25, 0.16)), ('head', 'neck', (0, 0.26, 0.16), (0, 0.265, 0.23)),
          ('tail', 'hips', (0, 0.02, -0.18), (0, 0.0, -0.28))]
@@ -23,16 +27,15 @@ def paint(P, N, tag):
     if y < -0.04: c = mix(c, WHITE, smooth(-0.04, -0.07, y) * 0.95)                             # white belly
     if 0.08 < y < 0.25:
         if z > 0.13 + (y - 0.08) * 0.2 and abs(x) < 0.025: c = mix(c, BLUE, 0.7)                 # grey-blue front of the neck
-        if abs(x) > 0.018 and 0.09 < y < 0.21:                                                   # the ruff: long black plumes down the neck sides, white below them
-            k = smooth(0.018, 0.026, abs(x)) * smooth(0.09, 0.11, y) * smooth(0.21, 0.19, y)
-            c = mix(c, mix(WHITE, BLACK, smooth(0.026, 0.032, abs(x))), 0.85 * k)
+        k = smooth(0.02, 0.03, abs(x)) * smooth(0.056, 0.046, abs(x)) * smooth(0.09, 0.11, z) * smooth(0.08, 0.1, y)                                  # the ruff: black plumes above, white below
+        c = mix(c, mix(WHITE, BLACK, smooth(0.125, 0.15, y) * (0.85 + 0.15 * math.sin(z * 400))), 0.92 * k)
     if y > 0.29: c = mix(c, mix(WHITE, BLACK, 0.3), 0.5)                                         # the crest
     return c
-def wcol(s, c, top): return mix(SAND, WAVE, 0.15 + 0.25 * s) if top else mix(SAND, WHITE, 0.4)
+def wcol(s, c, top): return mix(SAND, WAVE, 0.15 + 0.25 * s) if top else mix(SAND, SAND2, 0.5)
 def tcol(t, u, top): return mix(SAND2, WAVE, 0.4 if math.sin(t * 24) > 0.4 else 0.1) if top else WHITE
 parts = []
 for sx, L in ((1, 'l'), (-1, 'r')):
-    wp, wb = wing_part(L, sx, (sx * 0.065, 0.05, 0.07), 0.32, 0.15, wcol, sweep=0.03, thick=0.018, tip=0.7); parts.append(wp); bones += wb
+    wp, wb = wing_part(L, sx, (sx * 0.088, 0.072, 0.06), 0.32, 0.15, wcol, sweep=0.03, thick=0.018, tip=0.7); parts.append(wp); bones += wb
     parts += eye_parts((sx * 0.022, 0.278, 0.2), 0.0085, 'head', '#d8b040', (sx, 0.2, 0.6))
 lp, lb = bird_legs((0.035, -0.07, 0.0), (0.04, -LEGH, 0.01), 0.04, srgb('#c8b890'), 0.011); parts += lp; bones += lb
 parts.append(beak_part((0, 0.27, 0.215), 0.026, 0.008, 0.008, srgb('#5a5450'), srgb('#3a3632'), curve=0.1))

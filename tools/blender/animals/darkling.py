@@ -12,18 +12,24 @@ def limb(nm, parent, pts, radii, tag='leg'):
     for i in range(len(pts) - 1):
         bs.append((nm + str(i + 1), parent if i == 0 else nm + str(i), tuple(pts[i]), tuple(pts[i + 1])))
     p = Part(tag, bones=[b[0] for b in bs]); p.add(*tube([tuple(x) for x in pts], radii, 5)); return bs, p
-for k, (z, ang) in enumerate([(0.025, 0.6), (0.005, 0.05), (-0.02, -0.55)]):
+for k, (z, ang) in enumerate([(0.024, 0.75), (0.006, 0.1), (-0.016, -0.6)]):
     for sx, L in ((1, 'l'), (-1, 'r')):
-        a = Vector((sx * 0.016, 0.022, z)); d = Vector((sx * math.cos(ang), 0, math.sin(ang)))
-        b = a + d * 0.015 + Vector((0, 0.003, 0)); c = b + d * 0.016 + Vector((0, -0.026, 0))   # low: the body stays just above the sand
-        bs, p = limb('l%d%s' % (k, L), 'body', [a, b, c], [0.0032, 0.0026, 0.0014]); bones += bs; parts.append(p)
+        # femur up and out, tibia down to the sand, a short foot along the sand: a knee you can see
+        a = Vector((sx * 0.015, 0.02, z)); d = Vector((sx * math.cos(ang), 0, math.sin(ang)))
+        b = a + d * 0.02 + Vector((0, 0.009, 0)); c = b + d * 0.01 + Vector((0, -0.028, 0)); e = c + d * 0.008 + Vector((0, -0.001, 0))
+        bs, p = limb('l%d%s' % (k, L), 'body', [a, b, c, e], [0.0034, 0.0028, 0.0017, 0.0011]); bones += bs; parts.append(p)
 ant = Part('ant', bone='body')
-for sx in (1, -1):
-    b = Vector((sx * 0.006, 0.032, 0.054))
-    ant.add(*tube([tuple(b), tuple(b + Vector((sx * 0.01, 0.006, 0.012))), tuple(b + Vector((sx * 0.018, 0.004, 0.022)))], [0.0016, 0.0016, 0.002], 5))
+for sx in (1, -1):                                   # beaded antennae: a row of small beads, bending outwards
+    for i in range(11):
+        t = i / 10; q = Vector((sx * (0.007 + 0.013 * t), 0.031 + 0.006 * math.sin(t * 2.6), 0.052 + 0.016 * t))
+        ant.add(*ellipsoid(tuple(q), (0.0011 + 0.0004 * t,) * 3, 6, 4))
 parts.append(ant)
+jaw = Part('jaw', bone='body')
+for sx in (1, -1): jaw.add(*tube([(sx * 0.003, 0.024, 0.053), (sx * 0.0045, 0.023, 0.057), (sx * 0.0015, 0.0225, 0.0595)], [0.0014, 0.0011, 0.0006], 5))
+parts.append(jaw)
 for sx in (1, -1):
-    parts += eye_parts((sx * 0.008, 0.031, 0.05), 0.0024, 'body', '#050404', (sx, 0.3, 0.6))
+    parts += eye_parts((sx * 0.0095, 0.030, 0.048), 0.0018, 'body', '#050404', (sx, 0.3, 0.4))
+parts = [p for p in parts if p.tag != 'hl']          # no white glint: the eyes of a beetle are dull and dark
 def paint(P, N, tag):
     c = mix(BLK, BLK2, 0.4 + 0.3 * noise.noise(P * 300))
     if tag in ('', 'body'):
@@ -48,4 +54,4 @@ def eat(ph):
 def sleep(ph): return legs(ph, 0)
 SPEC = dict(id='darkling', bones=bones, blobs=blobs, parts=parts, paint=paint, paintParts=True, res=0.0018, tris=1300, skin='shell',
             noLids=True, actions={'walk': (16, walk), 'run': (10, run), 'idle': (90, idle), 'eat': (40, eat), 'sleep': (90, sleep)},
-            meta=dict(rough=0.25, height=0.07, length=0.11, speeds={'walk': 0.2, 'run': 0.5}, map={'sit': 'idle', 'swim': 'walk', 'climb': 'walk', 'fly': 'walk'}))
+            meta=dict(rough=0.25, height=0.07, length=0.11, scale=0.75, speeds={'walk': 0.2, 'run': 0.5}, map={'sit': 'idle', 'swim': 'walk', 'climb': 'walk', 'fly': 'walk'}))
