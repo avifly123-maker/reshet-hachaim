@@ -12,7 +12,7 @@ fail() { echo; echo "FAILED: $1"; exit 1; }
 step() { echo; echo "== $1"; }
 
 step "validators"
-for v in validate-content validate-kids validate-guide validate-threads validate-lab validate-quiz validate-verse validate-storage; do
+for v in validate-content validate-kids validate-guide validate-threads validate-lab validate-quiz validate-verse validate-storage validate-zones; do
   raw=$(node tools/$v.mjs 2>&1); code=$?
   out=$(echo "$raw" | grep -v -i "warning\|Reparsing\|trace-warnings"); echo "$v: $(echo "$out" | tail -1)"
   [ $code -ne 0 ] && { echo "$out" | tail -20; fail "$v (exit code $code)"; }

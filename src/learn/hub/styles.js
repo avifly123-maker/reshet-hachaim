@@ -2,6 +2,7 @@
 // Exports: injectCss(). Needs: css-main.js, css-more.js.
 import { CSS_MAIN } from './css-main.js';
 import { CSS_MORE } from './css-more.js';
+import { ZONE_IDS, ZONE_LOOK } from '../../data/zones.js';
 
 /* the text size (html.ts-*, --ts) on the other screens and in the games: reading words grow with --ts (--tsr), big display
    words (a question, a heading) half as much (--tsd); on a low screen (800x460) the reading words grow half as much and
@@ -11,7 +12,9 @@ const TS_CSS = `
 @media (max-height:540px){.wol-learn{--tsr:calc(1 + (var(--ts,1) - 1) / 2);--tsd:1}
   html.ts-xlarge .wol-learn .wl-setup{gap:.8em;padding-top:1.1em;padding-bottom:1.2em}}
 `;
-const CSS = TS_CSS + CSS_MAIN + CSS_MORE;
+// a zone's colour on its badge chip, for every zone in data/zones.js (a new zone needs no CSS)
+const ZONE_CSS = ZONE_IDS.map((z) => `.wol-learn .b-${z}{background:${ZONE_LOOK[z].color}}`).join('\n');
+const CSS = TS_CSS + CSS_MAIN + CSS_MORE + ZONE_CSS;
 /* the hub's icons (src/ui/icons-hub.js): a coloured tile before each title, a line icon before each button's words */
 const ICON_CSS = `
 .wol-learn .wl-bgroup h3>span{display:inline-flex;align-items:center;gap:.45em}

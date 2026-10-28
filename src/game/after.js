@@ -15,13 +15,14 @@ import { createChallenges } from './challenges.js';
 import { rankOf, rankEmblem, zoneAfter, updateZone, snapshot, readPhotos, addVisitor, addChallenge, CH_POINTS } from './rank.js';
 import { makeRng } from '../core/util.js';
 import { visScale } from '../world/animals.js';
+import { ZONE_IDS, ZONE_LOOK } from '../data/zones.js';
 
 const T = {
   title: ['שומרי האי', 'שׁוֹמְרֵי הָאִי'], pm: ['משימת צילום', 'מְשִׂימַת צִלּוּם'], pmAll: ['כל משימות הצילום הושלמו', 'כָּל מְשִׂימוֹת הַצִּלּוּם הֻשְׁלְמוּ'],
   pmMore: ['צלמו עוד, והאי יעלה בדרגה', 'צַלְּמוּ עוֹד, וְהָאִי יַעֲלֶה בְּדַרְגָּה'], ch: 'אתגר שומרים', chNext: 'אתגר חדש מחכה בביקור הבא',
   lv: 'רמה', done: ['משימת צילום', 'מְשִׂימַת צִלּוּם'], next: ['עד הדרגה הבאה', 'עַד הַדַּרְגָּה הַבָּאָה'],
 };
-const DECOR = { amazon: 'morpho', grove: 'butterfly', reef: 'butterflyfish' };
+const DECOR = Object.fromEntries(ZONE_IDS.map((z) => [z, ZONE_LOOK[z].decor]));
 const DECOR_N = { amazon: [0, 2, 4, 6], grove: [0, 2, 4, 6], reef: [0, 4, 7, 10] };
 
 export function createAfter({ W, env, reg, scene, camera, canvas, pipe, ui, audio, bus, markers, rig, imv, tools, spawnAnimal, art }) {

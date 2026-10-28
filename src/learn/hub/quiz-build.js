@@ -10,6 +10,7 @@ import { TQUIZ_ALL } from '../../data/torah-quiz.js';
 import { TOOL_DEFS, TOOL_ICONS } from '../../game/tool-defs.js';
 import { BIOMES, BIOME_IN, EASY_PARTS, EASY_PART_LABEL, IC, PART_ICON, ROUND, firstSentence, leaksName, maskName, pick, sample, shuffle, stemOf, uniq } from './base.js';
 import { CARD, SP, SPK, TOOL_SHORT, animalsIn, spOf } from './cards.js';
+import { ZONE_IDS } from '../../data/zones.js';
 
 /* ───────────────────────────────────────────── variety across visits
    Each player keeps a list of the questions asked lately (S.seen in the hub's own store, oldest first; old saves have
@@ -33,7 +34,7 @@ function freshest(list, n, idOf) {
 function freshestSpread(list, n, idOf) {
   const by = {};
   for (const x of list) (by[x.z] || (by[x.z] = [])).push(x);
-  const zones = shuffle(['amazon', 'grove', 'reef'].filter((z) => by[z] && by[z].length));
+  const zones = shuffle(ZONE_IDS.filter((z) => by[z] && by[z].length));
   const quota = {};
   if (by.all && Math.random() < 0.25 && n > 0) quota.all = 1;
   for (let k = 0, left = n - (quota.all || 0); left > 0 && zones.length; k++, left--) { const z = zones[k % zones.length]; quota[z] = (quota[z] || 0) + 1; }
@@ -233,7 +234,7 @@ const GEN = {
       const says = Math.random() < 0.5 ? 'day' : 'night';
       stmt = `את ${defName(s.id, s.name)} פוגשים בעיקר ${says === 'day' ? 'ביום' : 'בלילה'}.`; truth = says === s.active; fact = `${s.name} – ${activeNameFor(s.id, s.active)}.`;
     } else {
-      const says = ['amazon', 'grove', 'reef'][(Math.random() * 3) | 0];
+      const says = ZONE_IDS[(Math.random() * ZONE_IDS.length) | 0];
       stmt = `את ${defName(s.id, s.name)} פוגשים ${BIOME_IN[says]}.`; truth = says === s.biome; fact = `את ${defName(s.id, s.name)} פוגשים ${BIOME_IN[s.biome]}. ${firstSentence(s.fact)}`;
     }
     return { tag: 'נכון או לא נכון?', q: stmt, art: s, options: [opt('נכון', truth, { icon: IC.check, tone: 'yes' }), opt('לא נכון', !truth, { icon: IC.cross, tone: 'no' })], fact, keepOrder: true };

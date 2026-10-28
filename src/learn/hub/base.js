@@ -9,6 +9,7 @@ import { BIOME as AMAZON } from '../../data/amazon.js';
 import { ALIASES } from '../../data/common.js';
 import { BIOME as GROVE } from '../../data/grove.js';
 import { BIOME as REEF } from '../../data/reef.js';
+import { ZONE_IDS, ZONE_LOOK } from '../../data/zones.js';
 
 export const STORE_KEY = K.cards;   // per player (core/storage.js)
 export const ROUND = 10;
@@ -21,8 +22,8 @@ export const START_PACKS = 3;   // a new player starts with 3 packs as a welcome
 export const OPEN_PER_DAY = 6;
 export const todayKey = () => { const d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); };
 export const BIOMES = { amazon: AMAZON, grove: GROVE, reef: REEF };
-export const BIOME_SHORT = { amazon: 'אמזונס', grove: 'חורש', reef: 'שונית' };
-export const BIOME_IN = { amazon: 'ביער הגשם של האמזונס', grove: 'בחורש הארץ-ישראלי', reef: 'בשונית האלמוגים של אילת' };
+export const BIOME_SHORT = Object.fromEntries(ZONE_IDS.map((z) => [z, ZONE_LOOK[z].short]));
+export const BIOME_IN = Object.fromEntries(ZONE_IDS.map((z) => [z, ZONE_LOOK[z].inside]));
 // reef cards show מחסה instead of מים: in the sea there is always water (Avi, 18.10), but a reef is a city of homes
 export const STAT_NAMES = { light: 'אור', water: 'מים', shelter: 'מחסה', links: 'קשרים' };
 export const STAT_HELP = { light: 'כמה אור צריך', water: 'כמה מים ולחות', shelter: 'כמה בית ומחסה נותן לאחרים', links: 'עם כמה יצורים יש קשר' };

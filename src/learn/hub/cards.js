@@ -10,14 +10,15 @@ import { THUMBS } from '../../data/thumbs.js';
 import { SHIRA_SET, SOURCE_CARDS, SOURCE_SETS, TZVI_SET } from '../../data/torah.js';
 import { REEF_TOOL_CARDS, TOOL_DEFS, TOOL_ICONS } from '../../game/tool-defs.js';
 import { BIOMES, IC, KEYS_LAND, KEYS_REEF, clamp, firstSentence, sv } from './base.js';
+import { ZONE_IDS } from '../../data/zones.js';
 
 /* ───────────────────────────────────────────── data → species + cards */
 const isAnimalKind = (k) => k === 'animal' || k === 'colony' || k === 'swarm';
 export const SP = [];
-for (const bid of ['amazon', 'grove', 'reef']) {
+for (const bid of ZONE_IDS) {
   for (const s of BIOMES[bid].species) {
     // the reef has no rendered thumbnails yet: its card painting stands in for them
-    SP.push({ ...s, biome: bid, key: bid + ':' + s.id, animal: isAnimalKind(s.kind) || s.showAs === 'animal', img: (THUMBS[bid] || {})[s.id] || (bid === 'reef' ? CARD_ART[s.id] || '' : '') });
+    SP.push({ ...s, biome: bid, key: bid + ':' + s.id, animal: isAnimalKind(s.kind) || s.showAs === 'animal', img: (THUMBS[bid] || {})[s.id] || (!THUMBS[bid] ? CARD_ART[s.id] || '' : '') });
   }
 }
 export const SPK = new Map(SP.map((s) => [s.key, s]));

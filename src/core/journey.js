@@ -82,7 +82,8 @@ export const STAGES = [
 const isKids = () => levelNow() === 'kids';
 
 // ─────────────────────────────── what the child has done (read from the game's own saves)
-export const ZONES = ['amazon', 'grove', 'reef'];   // the zones whose saves count (core/threads.js reads the same)
+import { ZONE_IDS as ZONES } from '../data/zones.js';
+export { ZONES };   // the zones whose saves count (core/threads.js reads the same)
 // the missions done in a zone: what its save says now, joined with what this store remembers (a new forest, or the other
 // level, overwrites web-of-life-<zone>.done; a mission done once still counts)
 function doneIn(z, kept) {

@@ -1,6 +1,7 @@
 import { relVerb, dietVerb, notTogether, defName, joinObj } from '../../data/common.js';
 import { icon } from '../../ui/ui.js';
 import { tileIcon } from '../../ui/icons-hub.js';
+import { ZONE_IDS, zoneShort } from '../../data/zones.js';
 // "חוט הקשר" – web puzzle mini-game for the learning hub (single player).
 // Each level shows a small web of species cards: some fixed (face up) and some empty slots, joined by
 // relation threads. The player drags (or taps) a card from the hand into a slot so that every thread is true.
@@ -11,8 +12,8 @@ import { tileIcon } from '../../ui/icons-hub.js';
 
 const CSS_ID = 'wl-webpuzzle-css';
 const LEVELS = 12;
-const BIOMES = ['amazon', 'grove', 'reef'];
-const BNAME = { amazon: 'אמזונס', grove: 'חורש', reef: 'שונית' };
+const BIOMES = ZONE_IDS;
+const BNAME = Object.fromEntries(ZONE_IDS.map((z) => [z, zoneShort(z)]));
 const HOWTO = 'גררו קלף למקום הריק כך שכל החוטים יהיו נכונים';
 const PACK_EVERY = 4; // one card pack for every 4 levels (per biome) that reach 3 stars
 

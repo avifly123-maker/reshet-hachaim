@@ -49,5 +49,6 @@ npm run check                     # every check (≈15 min); npm run check:quick
   `node tools/validate-guide.mjs`, then record it: `python3 tools/voice/make.py --model <shaul.onnx> --check`.
 - **Add a part that opens along the journey:** `PARTS` in `src/core/journey.js`, a veil where it is shown, an intro in `src/data/guide/`.
 - **Add a mystery:** a case file in `src/research/cases/`, list it in `cases/index.js`, run `node tools/validate-research.mjs --all`.
+- **Add a zone (1.4):** an entry in `ZONES` and `ZONE_LOOK` (`src/data/zones.js`, the one list of zones: code that needs "every zone", a zone's short name, colour or mascot reads it from there), `src/data/<id>.js`, `src/packs/<id>.js`, then run `node tools/validate-zones.mjs <id>`: it lists every other table that still needs the zone (place words, quiz, lab words, ranks, card games, kids' set…).
 - **Add a card, species or mission:** the zone file in `src/data/` (`amazon.js`, `grove.js`, `reef.js`, `kids.js`), with a source in `docs/sources.md`.
 - **Change a big screen safely:** take regression shots before and after (`python3 tools/regress.py dist/index.html shots/regress/<name>`, then `--compare`), and run `npm run check`.

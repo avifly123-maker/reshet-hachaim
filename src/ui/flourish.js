@@ -19,6 +19,7 @@ import { PARTS } from '../core/journey.js';
 import { current as currentPlayer } from '../core/profiles.js';
 import { loadPack, loadedPack } from '../core/packs.js';
 import { makeRng } from '../core/util.js';
+import { ZONE_IDS, ZONE_LOOK } from '../data/zones.js';
 
 const reduced = () => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } };
 const host = () => document.getElementById('ui') || document.body;
@@ -149,8 +150,8 @@ if (!watchHub()) { const mo = new MutationObserver(() => { if (watchHub()) mo.di
 
 // ───────────────────────────────────────── the animal of a finished mission celebrates
 // its own small canvas next to the banner: a hop (walkers), a loop (fliers) or a spin (fish), with round sparks
-const ZONES = ['amazon', 'grove', 'reef'];
-const MASCOT = { amazon: 'toucan', grove: 'hoopoe', reef: 'clownfish' };
+const ZONES = ZONE_IDS;
+const MASCOT = Object.fromEntries(ZONE_IDS.map((z) => [z, ZONE_LOOK[z].mascot]));
 let heroBusy = false;
 async function mission(speciesId, opts = {}) {
   if (heroBusy || reduced()) return; heroBusy = true;

@@ -23,7 +23,8 @@
 import { key as profileKey } from './profiles.js';
 
 // the zones whose forests are saved (data/zones.js)
-export const ZONE_IDS = ['amazon', 'grove', 'reef'];
+import { ZONE_IDS } from '../data/zones.js';
+export { ZONE_IDS };
 
 // The names the code uses. A per-zone key is made by zoneKey / saveKey.
 export const K = {
