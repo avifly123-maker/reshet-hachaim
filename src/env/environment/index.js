@@ -38,6 +38,7 @@ import { createScatter } from './scatter.js';
 import { createProps } from './props.js';
 import { createLights } from './lights.js';
 import { createShafts } from './shafts.js';
+import { nearWadi } from './desert-look.js';
 import { createPollen, createBirds } from './ambient.js';
 import { createRain } from './weather.js';
 import { createFire } from './fire.js';
@@ -113,13 +114,14 @@ export function createEnvironment(pipeline, biomeId = 'amazon', { quality = 'med
   Object.assign(ctx, createTreeShadows(ctx));  // ─ soft tree shadows
 
   const {
-    WL, heightAt, isWater, isPlaceable, bridges, bridgeAt, walkRoute, rocks, groundMesh, waterMeshes,
+    WL, heightAt, isWater, isPlaceable, waterDist, bridges, bridgeAt, walkRoute, rocks, groundMesh, waterMeshes,
     rockMesh, sun, update, setLightOverlay, setGap, setQuality, dispose, setTreeShadows, setFallenFruit,
     night
   } = ctx;
   const env = {
     biome, radius: R, root,
     heightAt, isWater, isPlaceable, waterLevel: WL, water,
+    waterDist, nearWadi: isDesert ? nearWadi : null,   // 1.4: the desert's water (src/game/game/water.js)
     bridges: bridges.map(b => ({ ax: b.ax, az: b.az, bx: b.bx, bz: b.bz })), bridgeAt, walkRoute,
     rocks: rocks.map(r => ({ x: r.x, z: r.z, r: r.r, top: r.top })),
     groundMeshes: [groundMesh],

@@ -111,6 +111,7 @@ export function createMissions(W) {
       case 'pollinate': return Math.min(1, ((S.pollinations[q.species] || 0) - ((base.pollinations || {})[q.species] || 0)) / q.count);
       case 'swimKinds': return Math.min(1, new Set(W.animals.filter(a => a.alive && !a.leaving && a.sp.swims).map(a => a.sp.id)).size / q.count);
       case 'kinds': return Math.min(1, W.aliveSpecies().length / q.count);
+      case 'nightKinds': return Math.min(1, W.aliveSpecies().filter((id) => W.reg.byId.get(id)?.active === 'night').length / q.count);   // 1.4, the desert
       case 'link': return W.linkDiscovered(q.from, q.to) ? 1 : 0;
       case 'calm': return Math.min(1, (W.simT - Math.max(S.lossT ?? -1e9, since)) / q.seconds);   // nobody withered or left hungry
       case 'eventDone': { const e = events.find(x => x.id === q.event); if (!e || !e.resolved) return 0; return q.after ? Math.min(1, (W.simT - e.resolvedAt) / q.after) : 1; }   // after: and that long since

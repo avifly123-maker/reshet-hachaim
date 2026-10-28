@@ -6,6 +6,7 @@
 // are merged back into ctx.
 //   common.js      constants (day length, caps), scratch vectors, the far forest's tree sources, late()
 //   ecology.js     queries used by entities (food, perches, room) and the ecological events they report (W.observe ...)
+//   water.js       1.4: water at the roots, thirst, shelter from sand, sandstorms and locusts (only the desert uses it)
 //   placement.js   spawning, placement checks, nursery corals, random spots, crowns and light (updateLight)
 //   selection.js   selection, the species card, the links overlay, picking with the pointer
 //   tray-drag.js   drag and drop from the tray (species, tools, nursery corals)
@@ -47,6 +48,7 @@ import { GUIDE } from '../../data/guide-lines.js';
 import { createAfter } from '../after.js';   /* H: after the missions (visitors, photos, challenges, rank) */
 import { MAX_ANIMALS, MAX_ALL_PLANTS, farTreeSources, addPart } from './common.js';
 import { createEcology } from './ecology.js';
+import { createWater } from './water.js';
 import { createPlacement } from './placement.js';
 import { createSelection } from './selection.js';
 import { createTrayDrag } from './tray-drag.js';
@@ -172,6 +174,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   rig.setLayer('all');
 
   addPart(ctx, createEcology(ctx), 'Ecology');         // ─ queries used by entities, discovery & ecological events
+  addPart(ctx, createWater(ctx), 'Water');             // ─ 1.4: water and wind where the zone has a water story (the desert)
   addPart(ctx, createPlacement(ctx), 'Placement');       // ─ spawning & placement, crowns & light
   addPart(ctx, createSelection(ctx), 'Selection');       // ─ selection, the species card, links, picking
   addPart(ctx, createTrayDrag(ctx), 'TrayDrag');        // ─ drag & drop from the tray

@@ -66,10 +66,11 @@ export function createUpdate(ctx) {
     for (const f of W.fires) { f.t += dt; f.intensity = f.t < 4 ? f.t / 4 : f.t > f.dur - 8 ? Math.max(0, (f.dur - f.t) / 8) : 1; }
     if (W.fires.length && W.fires.every(f => f.t >= f.dur)) { W.fires = []; afterFire(); }
     const summerDry = biome.id === 'grove' ? (W.season === 'summer' ? 0.45 + W.seasonFrac * 0.2 : W.season === 'autumn' ? 0.35 * (1 - W.seasonFrac) : 0) : 0;
+    if (ctx.water) ctx.water.tick(dt);   // 1.4: the desert's water, sand and locusts
     env.update(rdt, {
       t, dayFrac: W.dayFrac, season: W.season, seasonFrac: W.seasonFrac, rain: W.rain, wind: W.wind, nightGlow: night, camera,
       vitality: W.vitality, drought: Math.max(W.drought, summerDry), flood: W.flood || 0, heat: W.heat || 0, fire: W.fires.filter(f => f.intensity > 0).map(f => ({ x: f.x, z: f.z, r: f.r, intensity: f.intensity })),
-      lightning: W._flash ? (W._flash = false, true) : false, shafts: W.experiment ? ctx.shafts : ctx.shafts,
+      dust: W.dust || 0, lightning: W._flash ? (W._flash = false, true) : false, shafts: W.experiment ? ctx.shafts : ctx.shafts,
     });
     // light (expensive) ~ every 0.6 s or when dirty
     lightT -= rdt;

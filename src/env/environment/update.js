@@ -146,11 +146,14 @@ export function createUpdate(envCtx) {
     const haze = isAmazon ? 1 : 0;
     const morning = bump(dayFrac, 0.19, 0.25, 0.32, 0.42);
     const camDist = Math.max(cam.position.length(), 55);
-    const fogNear = lerp(isAmazon ? camDist + 15 : camDist + 60, camDist * 0.45, rn) - morning * haze * camDist * 0.3;
-    const fogFar = lerp(isAmazon ? camDist + 420 : camDist + 600, camDist + 160, rn) - morning * haze * 80;
+    let fogNear = lerp(isAmazon ? camDist + 15 : camDist + 60, camDist * 0.45, rn) - morning * haze * camDist * 0.3;
+    let fogFar = lerp(isAmazon ? camDist + 420 : camDist + 600, camDist + 160, rn) - morning * haze * 80;
     farMat.userData.haze.value = (isAmazon ? 0.16 : 0.12) + rn * 0.3 + morning * haze * 0.2 + night.v * 0.3;
     if (!isAmazon) farMat.userData.haze.value *= 0.6;   // dry clear Mediterranean air
     if (farCrowns) farCrowns.material.userData.haze.value = farMat.userData.haze.value * 0.85;
+    // 1.4: a sandstorm (ctx.dust 0..1): the air fills with fine sand, warm and close
+    const dust = ctx.dust || 0;
+    if (dust > 0) { fog.color.lerp(CC('#d2a874'), dust * 0.85); fogNear = lerp(fogNear, camDist * 0.2, dust); fogFar = lerp(fogFar, camDist + 40, dust); }
     fog.near = fogNear; fog.far = fogFar;
     mistSeaU.uLit.value.copy(cHor).lerp(sc, 0.3 * dayAmt).lerp(CC('#ffffff'), 0.45 * dayAmt).multiplyScalar(lerp(1.08, 0.6, rn));
     mistSeaU.uShade.value.copy(cZen).lerp(cHor, 0.45).multiplyScalar(0.72);
