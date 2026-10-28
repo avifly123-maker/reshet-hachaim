@@ -131,6 +131,48 @@ Every species in src/data/reef.js carries its own Wikipedia link (`sources`). Th
 - **Artificial reefs (reef balls)**: concrete domes with holes that fish use and corals settle on — https://en.wikipedia.org/wiki/Reef_ball
 - **Underwater robots (ROVs) and underwater cameras for reef monitoring** — https://en.wikipedia.org/wiki/Remotely_operated_underwater_vehicle
 
+## המדבר (1.4: src/data/desert.js, the quiz in src/data/quiz-bank-desert.js)
+
+The desert is a conceptual dry land with no name (Avi, 28.10). Every species carries its own sources; the desert quiz (112 questions) and the guide lines use only these facts. Fact corrections made while checking: some capers are pollinated by hawkmoths at night and others by bees by day; the spiny-tailed lizard sleeps with its tail toward the burrow entrance; the desert snail is dormant most of the year.
+
+- **שיטה סלילנית** (acacia): https://en.wikipedia.org/wiki/Vachellia_tortilis , https://www.britannica.com/plant/acacia
+- **דקל תמר** (datepalm): https://en.wikipedia.org/wiki/Date_palm , https://www.britannica.com/plant/date-palm
+- **אשל** (tamarisk): https://en.wikipedia.org/wiki/Tamarix , https://www.britannica.com/plant/tamarisk
+- **רותם המדבר** (retama): https://en.wikipedia.org/wiki/Retama_raetam , https://www.britannica.com/plant/broom-plant
+- **מלוח קיפח** (saltbush): https://en.wikipedia.org/wiki/Atriplex_halimus , https://en.wikipedia.org/wiki/Fat_sand_rat
+- **זוגן השיח** (zygophyllum): https://en.wikipedia.org/wiki/Zygophyllum , https://en.wikipedia.org/wiki/Tetraena_dumosa
+- **צלף** (caper): https://en.wikipedia.org/wiki/Capparis_spinosa , https://cris.haifa.ac.il/en/publications/nectar-flow-and-pollinators-efficiency-in-two-co-occurring-specie/
+- **פתילת המדבר** (calotropis): https://en.wikipedia.org/wiki/Calotropis_procera , https://www.britannica.com/plant/Calotropis
+- **אבטיח הפקועה** (colocynth): https://en.wikipedia.org/wiki/Citrullus_colocynthis , https://www.britannica.com/plant/colocynth
+- **שושנת יריחו** (anastatica): https://en.wikipedia.org/wiki/Anastatica , https://en.wikipedia.org/wiki/Resurrection_plant
+- **פריחה אחרי גשם** (blooms): https://en.wikipedia.org/wiki/Ephemeral_plant , https://en.wikipedia.org/wiki/Superbloom
+- **קרום אדמה חי** (crust): https://en.wikipedia.org/wiki/Biological_soil_crust , https://www.nps.gov/subjects/soils/biological-soil-crusts.htm
+- **קקטוס עמוד** (columncactus): https://en.wikipedia.org/wiki/Saguaro , https://www.nps.gov/sagu/learn/nature/saguaro-cactus.htm
+- **קקטוס חבית** (barrelcactus): https://en.wikipedia.org/wiki/Ferocactus , https://www.britannica.com/plant/barrel-cactus
+- **שועל הפנק** (fennec): https://en.wikipedia.org/wiki/Fennec_fox , https://nationalzoo.si.edu/animals/fennec-fox
+- **חתול החולות** (sandcat): https://en.wikipedia.org/wiki/Sand_cat , https://www.britannica.com/animal/sand-cat
+- **קרקל** (caracal): https://en.wikipedia.org/wiki/Caracal , https://www.britannica.com/animal/caracal
+- **יעל נובי** (ibex): https://en.wikipedia.org/wiki/Nubian_ibex , https://www.britannica.com/animal/ibex
+- **צבי נגבי** (dorcas): https://en.wikipedia.org/wiki/Dorcas_gazelle , https://en.wikipedia.org/wiki/Vachellia_tortilis
+- **גמל חד־דבשתי** (camel): https://en.wikipedia.org/wiki/Dromedary , https://www.britannica.com/animal/dromedary
+- **ירבוע** (jerboa): https://en.wikipedia.org/wiki/Lesser_Egyptian_jerboa , https://animaldiversity.org/accounts/Jaculus_jaculus/
+- **פסמון** (psammomys): https://en.wikipedia.org/wiki/Fat_sand_rat , https://animaldiversity.org/accounts/Psammomys_obesus/
+- **קיפוד מדבר** (deserthedgehog): https://en.wikipedia.org/wiki/Desert_hedgehog , https://animaldiversity.org/accounts/Paraechinus_aethiopicus/
+- **חרדון צב** (uromastyx): https://en.wikipedia.org/wiki/Uromastyx_aegyptia , https://en.wikipedia.org/wiki/Uromastyx
+- **עקרב צהוב** (scorpion): https://en.wikipedia.org/wiki/Deathstalker , https://en.wikipedia.org/wiki/Scorpion#Ultraviolet_light
+- **חיפושית שחורה** (darkling): https://en.wikipedia.org/wiki/Darkling_beetle , https://www.britannica.com/animal/darkling-beetle
+- **נמלת המדבר** (desertant): https://en.wikipedia.org/wiki/Cataglyphis , https://en.wikipedia.org/wiki/Ant_navigation
+- **קטה** (sandgrouse): https://en.wikipedia.org/wiki/Sandgrouse , https://www.britannica.com/animal/sandgrouse
+- **אוח מדבר** (eagleowl): https://en.wikipedia.org/wiki/Pharaoh_eagle-owl , https://en.wikipedia.org/wiki/Bubo
+- **חוברה** (houbara): https://en.wikipedia.org/wiki/Houbara_bustard , https://www.britannica.com/animal/bustard
+- **רפרף** (hawkmoth): https://en.wikipedia.org/wiki/Sphingidae , https://cris.haifa.ac.il/en/publications/nectar-flow-and-pollinators-efficiency-in-two-co-occurring-specie/
+- **חילזון מדבר** (desertsnail): https://en.wikipedia.org/wiki/Sphincterochila_zonata , https://doi.org/10.1242/jeb.55.2.385
+- **Devices**: drip irrigation https://en.wikipedia.org/wiki/Drip_irrigation ; fog collection https://en.wikipedia.org/wiki/Fog_collection ; sand fences https://en.wikipedia.org/wiki/Sand_fence
+- **Desert nights are cold** (dry air and clear skies let the day's heat escape): https://en.wikipedia.org/wiki/Desert#Climate
+- **Limans** (low banked basins that hold flood water in the Negev): https://kkl-jnf.org/our_work/climate_action/water-for-israel/water-in-the-desert/limans/what-is-a-liman/
+- **Overgrazing bares the soil and lets the wind move sand**: https://en.wikipedia.org/wiki/Overgrazing
+- **Desert ants navigate by the sun and count steps; robots were built on the same idea**: https://en.wikipedia.org/wiki/Cataglyphis ; AntBot (CNRS 2019): https://www.cnrs.fr/en/press/first-walking-robot-moves-without-gps
+
 ## Checked and left out (could not verify well enough)
 - Capybara eating giant waterlily (no source) — capybara has no diet link in the game.
 - Morpho feeding on figs/açaí specifically (only *Guazuma* fruit and sap documented) — morpho has no diet link.

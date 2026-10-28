@@ -23,7 +23,7 @@
 // state that more than one part reads or changes (K.S, K.biome, K.sel, K.drag, K.ro, K.seenThreads, K.uidN, K.quiet)
 // and the helpers of this file. Each part adds its functions to K; a part calls a later part's function through late().
 import { createBoard } from './board.js';
-import { BIOMES, ROW_SHORT, ROW_SHORT_REEF, ROWS, ROWS_REEF } from './data.js';
+import { BIOMES, oasisWords, ROW_SHORT, ROW_SHORT_DESERT, ROW_SHORT_REEF, ROWS, ROWS_DESERT, ROWS_REEF } from './data.js';
 import { createDeck } from './deck.js';
 import { EV } from './events.js';
 import { createFinish } from './finish.js';
@@ -51,13 +51,15 @@ export function mountKeepForest(root, ctx, opts = {}) {
   const later = (fn, ms) => ctx.later(() => { if (alive) fn(); }, ms);
   const C = (ref) => ctx.CARD.get(ref.id);
   // words that follow the place: the forest (יער, masculine) or the reef (שונית, feminine)
+  // the desert's oasis (נווה המדבר, masculine) takes the forest's words through oasisWords
   const reef = () => (K.S ? K.S.biome : K.biome) === 'reef';
-  const Y = (f, r) => (reef() ? r : f);
-  const ROWN = () => (reef() ? ROWS_REEF : ROWS);
-  const ROWSH = () => (reef() ? ROW_SHORT_REEF : ROW_SHORT);
+  const desert = () => (K.S ? K.S.biome : K.biome) === 'desert';
+  const Y = (f, r) => (reef() ? r : desert() ? oasisWords(f) : f);
+  const ROWN = () => (reef() ? ROWS_REEF : desert() ? ROWS_DESERT : ROWS);
+  const ROWSH = () => (reef() ? ROW_SHORT_REEF : desert() ? ROW_SHORT_DESERT : ROW_SHORT);
   const icOf = (D) => I[(reef() && D.ric) || D.ic];
-  const tipOf = (id) => (reef() && EV[id].rtip) || EV[id].tip;
-  const needOf = (ev) => EV[ev.id].need(ev.need, K.S ? K.S.biome : K.biome);
+  const tipOf = (id) => (reef() && EV[id].rtip) || (desert() ? oasisWords(EV[id].tip) : EV[id].tip);
+  const needOf = (ev) => { const t = EV[ev.id].need(ev.need, K.S ? K.S.biome : K.biome); return desert() ? oasisWords(t) : t; };
   // the 'canopy' of the reef is its corals in the shallow water
   const canopyCard = (c) => !c.sp.animal && (!reef() || c.sp.kind === 'coral');
   Object.assign(K, { esc, kids, ST, save, $, later, C, reef, Y, ROWN, ROWSH, icOf, tipOf, needOf, canopyCard });

@@ -333,6 +333,37 @@ export function createAudio(options = {}) {
     for (let i = 0; i < n; i++) { const f = rand(380, 700); tone(v, tt, f, f * 1.9, 0.004, 0.07, 0.03); tt += rand(0.05, 0.16); }
     done(v);
   }
+  // the desert (1.4): wind over the sand in slow gusts with a thin whistle, a quiet trickle at the spring, a few birds by
+  // day (larks and sandgrouse heard like the grove's sparrows and partridges), sparse crickets and an owl at night
+  function buildDesert() {
+    const f = P();
+    const out = f.gain(0, ambBus);
+    const wind = f.gain(0, out);
+    const gust = f.gain(0.55, wind); f.lfo(0.05, 0.4, gust.gain); f.lfo(0.13, 0.15, gust.gain);
+    const wlp = f.filter('lowpass', 520, 0.6, gust); f.lfo(0.07, 220, wlp.frequency); f.tap(srcB, wlp);
+    const whistle = f.gain(0, f.pan(0.35, out));
+    const wbp = f.filter('bandpass', 1700, 9, whistle); f.lfo(0.09, 380, wbp.frequency); f.tap(srcW, wbp);
+    const trickle = f.gain(0, f.pan(-0.4, out));
+    const tbp = f.filter('bandpass', 1500, 2.5, trickle); f.lfo(0.23, 250, tbp.frequency); f.tap(srcP, tbp);
+    const night = f.gain(0, out);
+    cricket(f, night, 4700, 26, 2.9, 0.3, 0.8);
+    cricket(f, night, 5200, 33, 1.6, -0.5, 0.5);
+    const emitters = [
+      emitter(() => S.day * (0.05 + 0.2 * S.dawn) * S.rich * (1 - 0.5 * S.high), sparrow, 2.5),
+      emitter(() => (S.dawn * 0.06 + S.day * 0.01) * S.rich, chukar, 18),
+      emitter(() => S.day * 0.02 * S.rich, dove, 10),
+      emitter(() => S.night * 0.03 * (0.3 + 0.7 * S.rich), scops, 14),
+      emitter(() => S.night * 0.012 * (0.3 + 0.7 * S.rich), owlScreech, 30),
+    ];
+    return { id: 'desert', f, out, wind, whistle, trickle, night, emitters, levels: desertLevels };
+  }
+  function desertLevels(b, set) {
+    const ground = 1 - 0.6 * S.high;
+    set(b.wind.gain, 0.12 * (0.7 + 0.3 * S.day) * (1 + 0.6 * S.heat));
+    set(b.whistle.gain, 0.012 * (0.5 + 0.5 * S.day));
+    set(b.trickle.gain, 0.03 * (1 - 0.6 * S.high));
+    set(b.night.gain, 0.014 * S.night * ground * (0.3 + 0.7 * S.rich));
+  }
   function groveBirdSeason() {
     return { winter: 0.45, spring: 1.2, summer: 0.7, autumn: 0.75 }[S.season] || 1;
   }
@@ -352,7 +383,7 @@ export function createAudio(options = {}) {
     const now = ac.currentTime;
     for (const k in beds) if (k !== id) closeBed(k);
     if (!beds[id]) {
-      beds[id] = id === 'amazon' ? buildAmazon() : id === 'grove' ? buildGrove() : id === 'reef' ? buildReef() : null;
+      beds[id] = id === 'amazon' ? buildAmazon() : id === 'grove' ? buildGrove() : id === 'reef' ? buildReef() : id === 'desert' ? buildDesert() : null;
       if (!beds[id]) { delete beds[id]; return; }
     }
     const b = beds[id];
@@ -848,7 +879,7 @@ export function createAudio(options = {}) {
 
   // ------------------------------------------------------------- controls
   function setBiome(id) {
-    id = id === 'amazon' || id === 'grove' || id === 'reef' ? id : null;
+    id = id === 'amazon' || id === 'grove' || id === 'reef' || id === 'desert' ? id : null;
     if (id === biome) return;
     biome = id;
     if (!ready) return;

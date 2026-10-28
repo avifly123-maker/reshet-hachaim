@@ -59,6 +59,8 @@ export const PARTS = {
   duel: { stage: 6, name: 'מי חזק ברשת?', kname: 'מִי חָזָק בָּרֶשֶׁת?', where: 'hub' },
   versematch: { stage: 6, name: 'מה הפסוק מלמד?', kname: 'מָה הַפָּסוּק מְלַמֵּד?', where: 'hub' },
   experts: { stage: 6, name: 'משימות המומחים', kname: 'מְשִׂימוֹת הַמֻּמְחִים', where: 'zone' },
+  // 1.4: the desert, a hard zone, opens at the expert stage (docs/PLAN-1.4.md section 3)
+  'zone:desert': { stage: 6, name: 'המדבר', kname: 'הַמִּדְבָּר', where: 'start' },
 };
 
 // need: a list of ways (any one is enough). Keys: missions (done in all zones), badges (owned), lab (lab activities).
@@ -106,7 +108,7 @@ export function metrics() {
   const C = readPlayer(KEY.cards, {}) || {}; const cards = n(C.owned);
   const used = ((readPlayer(K, null) || {}).used) || {};
   const cardgame = (used.webpuzzle ? 1 : 0) + (used.keepforest ? 1 : 0);
-  const m = { missions, amazon: per.amazon, grove: per.grove, reef: per.reef, badges, lab, cases, solved, cards, cardgame, invent: n(L.inventions) + n(L.solved) };
+  const m = { missions, amazon: per.amazon, grove: per.grove, reef: per.reef, desert: per.desert, badges, lab, cases, solved, cards, cardgame, invent: n(L.inventions) + n(L.solved) };
   // the island rank reads the forests' saves: only when a stage asks for it (check() runs often)
   let rank = null;
   Object.defineProperty(m, 'rank', { enumerable: true, get() {
@@ -162,7 +164,7 @@ export function state() {
   return { stage, stageId: st.id, name: kids ? st.kname : st.name, metrics: m, next, legacy: !!s.legacy, allOpen: allOpen(), kids };
 }
 // the words of one thing still missing ('' when it is done)
-const ZONE_IN = { amazon: ['באמזונס', 'בָּאָמָזוֹנָס'], grove: ['בחורש', 'בַּחֹרֶשׁ'], reef: ['בשונית', 'בַּשּׁוּנִית'] };
+const ZONE_IN = { amazon: ['באמזונס', 'בָּאָמָזוֹנָס'], grove: ['בחורש', 'בַּחֹרֶשׁ'], reef: ['בשונית', 'בַּשּׁוּנִית'], desert: ['במדבר', 'בַּמִּדְבָּר'] };
 const RANK_WORDS = [null, ['אי אחד בדרגה השנייה (כמו חורש פורח)', 'אִי אֶחָד בַּדַּרְגָּה הַשְּׁנִיָּה (כְּמוֹ חֹרֶשׁ פּוֹרֵחַ)'],
   ['אי אחד בדרגה השלישית (כמו חורש עבות)', 'אִי אֶחָד בַּדַּרְגָּה הַשְּׁלִישִׁית (כְּמוֹ חֹרֶשׁ עָבוֹת)'], ['אי אחד בדרגה הרביעית', 'אִי אֶחָד בַּדַּרְגָּה הָרְבִיעִית']];
 function needWord(k, n, have, kids) {

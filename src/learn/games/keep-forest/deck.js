@@ -4,7 +4,7 @@
 // Gives K: biomeInfo, newRun, draw.
 // Takes from K: ctx, kids, C.
 // Shared state it reads or changes: K.S, K.seenThreads, K.uidN.
-import { DECK_MAX, HAND, HAND_MAX, LAYER_NEED, layerRow, linksFor, mid, MIN_DECK, shuffle, toolOk, TOPUP } from './data.js';
+import { DECK_MAX, HAND, HAND_MAX, LAYER_NEED, layerRow, linksFor, mid, MIN_DECK, shuffle, toolOk, TOPUP, starterTools } from './data.js';
 import { challengesFor } from './events.js';
 
 export function createDeck(K) {
@@ -31,7 +31,7 @@ export function createDeck(K) {
     const have = new Set(mine.map((c) => c.id));
     const out = [];
     const tools = mine.filter((c) => c.type === 'tool').length;
-    if (!layersOnly) for (const id of (b === 'reef' ? ['tool:buoy', 'tool:nursery', 'tool:rov'] : ['tool:watergen', 'tool:listener', 'tool:seeddrone'])) {
+    if (!layersOnly) for (const id of starterTools(b)) {
       if (out.length >= Math.max(0, Math.min(n, 2 - tools))) break;
       if (!have.has(id) && ctx.CARD.get(id)) { out.push(ctx.CARD.get(id)); have.add(id); }
     }

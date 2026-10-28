@@ -48,6 +48,7 @@ const TOOL_STATS = {
   drone: [4, 2, 5], camera: [2, 2, 4], rescue: [3, 3, 3], watergen: [3, 5, 2], seeddrone: [4, 3, 4],
   listener: [5, 2, 3], nestbox: [3, 1, 4], insecthotel: [4, 1, 5], weather: [4, 4, 3],
   nursery: [4, 4, 4], reefball: [3, 5, 5], buoy: [3, 2, 3], rov: [3, 1, 5], uwcam: [2, 1, 4], sensor: [4, 1, 3],
+  drip: [3, 5, 3], fognet: [3, 4, 3], sandfence: [3, 2, 4],
 };
 export const TOOL_SHORT = {
   drone: 'טס מעל היער וסופר צמחים ובעלי חיים', camera: 'מצלמת בעלי חיים שעוברים לידה, גם בלילה',
@@ -56,6 +57,7 @@ export const TOOL_SHORT = {
   nestbox: 'בית מעץ שבו ציפורים מקננות', insecthotel: 'מחסה לדבורי בר ולפרפרים', weather: 'מודדת רוח, חום ולחות ומזהירה מראש',
   nursery: 'מגדלת שברי אלמוג ושותלת אותם בשונית', reefball: 'כיפת בטון עם חורים, בית לדגים ולאלמוגים', buoy: 'הסירות נקשרות אליו ולא מטילות עוגן',
   rov: 'צולל לאורך השונית וסופר דגים ואלמוגים', uwcam: 'מצלמת דגים מתוך קופסה אטומה למים', sensor: 'מודד את חום המים ומזהיר מראש',
+  drip: 'צינור דק שנותן מים ישר לשורשים', fognet: 'רשת שאוספת מים מהערפל', sandfence: 'גדר שעוצרת את החול שהרוח מעיפה',
 };
 
 function speciesStats(s) {
@@ -124,7 +126,7 @@ const SET_DEFS = [
   { id: 'seeds', name: 'מפיצי זרעים', where: 'amazon', col: '#5f9a3e', ic: IC.seed, sub: 'מפזרים זרעים – וכך גדלים עצים חדשים',
     sp: (s) => s.biome === 'amazon' && hasRel(s, 'disperses') },
   { id: 'giants', name: 'ענקי היער', where: 'both', col: '#2f7a5a', ic: IC.tree, sub: 'העצים הגדולים של שני היערות',
-    sp: (s) => s.kind === 'tree' },
+    sp: (s) => s.kind === 'tree' && (s.biome === 'amazon' || s.biome === 'grove') },
   { id: 'wings', name: 'בעלי כנף', where: 'amazon', col: '#3b8fb8', ic: SET_IC.wing, sub: 'עפים בין העצים של יער הגשם',
     sp: (s) => s.biome === 'amazon' && s.animal && s.locomotion === 'flying' },
   { id: 'night', name: 'פעילים בלילה', where: 'grove', col: '#5b4a8f', ic: IC.moon, sub: 'יוצאים לדרך כשהחורש נרדם',
@@ -139,6 +141,14 @@ const SET_DEFS = [
     sp: (s) => s.biome === 'reef' && ['clownfish', 'seaanemone', 'goby', 'shrimp', 'cleaner', 'grouper', 'moray'].includes(s.id) },
   { id: 'reefguards', name: 'שומרי השונית', where: 'tech', col: '#1f6f9a', ic: SET_IC.eye, sub: 'טכנולוגיה מתחת למים',
     tools: ['rov', 'uwcam', 'sensor', 'nursery', 'reefball', 'buoy'] },
+  { id: 'waterstore', name: 'מחסני מים', where: 'desert', col: '#4a9a6a', ic: IC.leaf, sub: 'שומרים מים בגוף לימים היבשים',
+    sp: (s) => s.biome === 'desert' && !s.animal && (s.stores || 0) >= 0.4 },
+  { id: 'desertnight', name: 'לילה במדבר', where: 'desert', col: '#4a3f7a', ic: IC.moon, sub: 'ביום מסתתרים מהחום, בלילה יוצאים',
+    sp: (s) => s.biome === 'desert' && ['fennec', 'sandcat', 'jerboa', 'deserthedgehog', 'scorpion', 'eagleowl'].includes(s.id) },
+  { id: 'acacia', name: 'סביב השיטה', where: 'desert', col: '#a8702a', ic: IC.tree, sub: 'השיטה היא מין מפתח במדבר, כל אלה קשורים אליה',
+    sp: (s) => s.biome === 'desert' && linkedTo(s, 'acacia') },
+  { id: 'desertwater', name: 'מים למדבר', where: 'tech', col: '#2a7ab0', ic: SET_IC.eye, sub: 'מביאים מים לשורשים, עוצרים את החול וזורעים מחדש',
+    tools: ['drip', 'fognet', 'sandfence', 'seeddrone'] },
   { id: 'watchers', name: 'שומרי היער', where: 'tech', col: '#2c5f8f', ic: SET_IC.eye, sub: 'רואים, שומעים ומזהירים בזמן',
     tools: ['drone', 'camera', 'listener', 'weather'] },
   { id: 'helpers', name: 'עוזרים לטבע', where: 'tech', col: '#c8473a', ic: SET_IC.heart, sub: 'מחזירים לטבע חיים, מים ובית',

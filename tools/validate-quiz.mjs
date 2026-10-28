@@ -3,16 +3,17 @@
 import { BIOME as AMAZON } from '../src/data/amazon.js';
 import { BIOME as GROVE } from '../src/data/grove.js';
 import { BIOME as REEF } from '../src/data/reef.js';
+import { BIOME as DESERT } from '../src/data/desert.js';
 import { QBANK } from '../src/data/quiz-bank.js';
 import { TQUIZ_ALL } from '../src/data/torah-quiz.js';
 
 const errors = [], warns = [];
 const err = (m) => errors.push(m), warn = (m) => warns.push(m);
 const SPECIES = new Set();
-for (const B of [AMAZON, GROVE, REEF]) for (const s of B.species) SPECIES.add(B.id + ':' + s.id);
+for (const B of [AMAZON, GROVE, REEF, DESERT]) for (const s of B.species) SPECIES.add(B.id + ':' + s.id);
 // the album's tool cards (src/game/tools.js TOOL_DEFS + the reef's own REEF_TOOL_CARDS)
 const TOOLS = new Set(['drone', 'camera', 'rescue', 'watergen', 'seeddrone', 'listener', 'nestbox', 'insecthotel', 'weather',
-  'nursery', 'reefball', 'buoy', 'rov', 'uwcam', 'sensor']);
+  'nursery', 'reefball', 'buoy', 'rov', 'uwcam', 'sensor', 'drip', 'fognet', 'sandfence']);
 const artOk = (a) => (a.startsWith('tool:') ? TOOLS.has(a.slice(5)) : SPECIES.has(a));
 
 const NIKUD = /[ְ-ׇ]/, TAAMIM = /[֑-ֽ֯׀׃]/;
@@ -51,7 +52,7 @@ function textRules(where, s) {
     if (b.art && b.art.startsWith(b.z + ':') === false && !b.art.startsWith('tool:') && b.z !== 'all') err(`${w}: art "${b.art}" from another place`);
     // never the picture of the answer when the answers are names (the picture would give it away)
     if (b.art && Array.isArray(b.o) && !b.art.startsWith('tool:')) {
-      const sp = [AMAZON, GROVE, REEF].flatMap((B) => B.species.map((s) => [B.id + ':' + s.id, s.name])).find(([k]) => k === b.art);
+      const sp = [AMAZON, GROVE, REEF, DESERT].flatMap((B) => B.species.map((s) => [B.id + ':' + s.id, s.name])).find(([k]) => k === b.art);
       const ans = plain(b.o[0]).replace(/^[הלבמ](?=[א-ת])/, '');
       if (sp && (ans === sp[1] || ans === sp[1].replace(/^ה/, ''))) err(`${w}: the picture shows the answer (${sp[1]})`);
     }
@@ -66,7 +67,7 @@ function textRules(where, s) {
   // enough for coming back again and again: every place about 120, with a fair share at each level
   // (a round takes 4 bank questions for beginners and 5 for advanced; S.seen keeps up to 700 ids)
   const MIN_ZONE = 110, MIN_LEVEL = 45;
-  for (const z of ['amazon', 'grove', 'reef']) {
+  for (const z of ['amazon', 'grove', 'reef', 'desert']) {
     const e = per[z + '/easy'] || 0, h = per[z + '/hard'] || 0;
     if (e + h < MIN_ZONE) err(`quiz bank: ${z} has ${e + h} questions (want ${MIN_ZONE} or more)`);
     if (e < MIN_LEVEL) err(`quiz bank: ${z} has ${e} beginner questions (want ${MIN_LEVEL} or more)`);

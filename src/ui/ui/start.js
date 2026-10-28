@@ -41,7 +41,7 @@ export function createStart(ctx) {
       <header class="st-head"><div class="st-seal">${waxSeal(124)}</div>
         <div class="st-titles"><h1 class="st-title">רשת החיים</h1>${EDITION_NAME ? `<span class="st-edition">${EDITION_NAME}</span>` : ''}${VINE}<p class="st-sub">בונים יער חי, מגלים מי צריך את מי</p></div></header>
       <nav class="st-tabs" role="tablist">
-        <button role="tab" data-tab="env">${icon('leaf')}<span><b>סביבות משחק</b><small>אמזונס, חורש ושונית</small></span></button>
+        <button role="tab" data-tab="env">${icon('leaf')}<span><b>סביבות משחק</b><small>אמזונס, חורש, שונית ומדבר</small></span></button>
         <button role="tab" data-tab="sci" data-research-tab="1" data-part="science">${icon('flask')}<span><b>המרכז המדעי</b><small>חוקרי הטבע ומעבדת רובו־דע</small><small class="jv-note"></small></span></button>
         <button role="tab" data-tab="learn" data-part="learn">${icon('book')}<span><b>מרכז הלמידה</b><small>חידון, אלבום ומשחקי קלפים</small><small class="jv-note"></small></span></button>
       </nav>

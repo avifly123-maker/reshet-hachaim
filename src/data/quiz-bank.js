@@ -1,7 +1,7 @@
 // רשת החיים – the quiz's hand-written question bank (מרכז הלמידה, src/learn/hub/ buildRound).
 // Each round mixes these with the generated questions; every player gets the ones not asked lately first (S.seen).
 //   id   unique, never reused (the player's "asked lately" list keeps it)
-//   z    'amazon' | 'grove' | 'reef' | 'all' (shown in every place)
+//   z    'amazon' | 'grove' | 'reef' | 'desert' (its own file, quiz-bank-desert.js) | 'all' (shown in every place)
 //   lvl  'easy' (מתחילים: short and simple) | 'hard' (מתקדמים)
 //   q    the question;  o: the answers, the right one first (the hub shuffles them);  or tf: true / false for a "נכון או לא נכון?" statement
 //   e    what we learn (beginners see only its first sentence)
@@ -10,6 +10,8 @@
 // Facts: the species and tool facts of the game (docs/sources.md, per species), plus the lines under
 // "Quiz bank" and "Quiz bank, 1.3.1" in docs/sources.md. Hebrew for grades 3–5, no em dashes. Easy questions are
 // plain Hebrew (the quiz shows no nikud at either level); tools/validate-quiz.mjs checks counts per place and duplicates.
+import { QBANK_DESERT } from './quiz-bank-desert.js';
+
 export const QBANK = [
   // ───────────────────────────── יער הגשם – מתחילים
   { id: 'ae01', z: 'amazon', lvl: 'easy', q: 'למי יש מקור ענק וקל?', o: ['לטוקן', 'ליגואר', 'לעצלן'], e: 'המקור של הטוקן ענק, אבל קל מאוד. בפנים הוא בנוי כמו ספוג.' },
@@ -488,4 +490,5 @@ export const QBANK = [
   { id: 'rh62', z: 'reef', lvl: 'hard', q: 'למה כמעט אף אחד לא טורף את הזהרון?', o: ['יש לו קוצים עם ארס', 'הוא שקוף', 'הוא מהיר מכולם'], art: 'reef:lionfish', e: 'לזהרון יש מעט טורפים, כנראה בגלל הקוצים הארסיים שלו.' },
   { id: 'rh63', z: 'reef', lvl: 'hard', q: 'כמה רחב מפרץ אילת?', o: ['בערך 24 קילומטרים במקום הרחב', 'מטר אחד', 'אלף קילומטרים'], e: 'מפרץ אילת צר וארוך: בערך 24 קילומטרים רוחב במקום הרחב ביותר, ובערך 160 קילומטרים אורך.' },
   { id: 'rh64', z: 'reef', lvl: 'hard', q: 'מאיפה באות מדוזות צעירות?', o: ['מפוליפ קטן שיושב על קרקעית הים', 'מתוך צדפה', 'מתוך עשב הים'], art: 'reef:jellyfish', e: 'בחלק מהחיים שלה, המדוזה היא פוליפ קטן שיושב על הקרקעית. ממנו ניתקות מדוזות קטנטנות שמתחילות לשחות.' },
+  ...QBANK_DESERT,
 ];

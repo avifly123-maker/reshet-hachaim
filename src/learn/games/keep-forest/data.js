@@ -10,24 +10,36 @@ import { defName, dietVerb, joinObj, relVerb } from '../../../data/common.js';
 // vitality gained, said in words (no plus sign anywhere: it reads as a cross): "עוד נקודת חִיּוּת" / "עוד 3 נקודות חִיּוּת"
 export const moreLife = (n) => (n === 1 ? 'עוד נקודת חִיּוּת' : `עוד ${n} נקודות חִיּוּת`);
 
-export const BIOMES = ['amazon', 'grove', 'reef'];
-export const BNAME = { amazon: 'אמזונס', grove: 'חורש', reef: 'שונית' };
+export const BIOMES = ['amazon', 'grove', 'reef', 'desert'];
+export const BNAME = { amazon: 'אמזונס', grove: 'חורש', reef: 'שונית', desert: 'מדבר' };
 export const ROWS = ['חופה', 'קומת ביניים', 'קרקע'];
 export const ROW_SHORT = ['חופה', 'ביניים', 'קרקע'];
 // the reef has its own three rows: shallow water (corals that love light), the slope, the sea floor
 export const ROWS_REEF = ['מים רדודים', 'מדרון השונית', 'קרקעית'];
 export const ROW_SHORT_REEF = ['רדודים', 'מדרון', 'קרקעית'];
-export const ROW_SUB = { amazon: ['עצים גבוהים ומטפסים', 'דקלים ושיחים', 'שרכים, פטריות ומים'], grove: ['עצי החורש', 'שיחים', 'פרחים ופטריות'], reef: ['אלמוגים שאוהבים הרבה אור', 'אלמוגים רכים ומניפות ים', 'עשב ים, אצות וספוגים'] };
+export const ROW_SUB = { amazon: ['עצים גבוהים ומטפסים', 'דקלים ושיחים', 'שרכים, פטריות ומים'], grove: ['עצי החורש', 'שיחים', 'פרחים ופטריות'], reef: ['אלמוגים שאוהבים הרבה אור', 'אלמוגים רכים ומניפות ים', 'עשב ים, אצות וספוגים'], desert: ['עצים וקקטוסים גבוהים', 'שיחים', 'צמחים קטנים וקרום האדמה'] };
+// the desert keeps an oasis alive: its rows are the tall trees, the shrubs and the ground
+export const ROWS_DESERT = ['עצים גבוהים', 'קומת השיחים', 'קרקע'];
+export const ROW_SHORT_DESERT = ['עצים', 'שיחים', 'קרקע'];
+// the forest's words said for the desert's oasis (both masculine): היער → נווה המדבר, ביער → בנווה המדבר, יער → נווה מדבר
+const OASIS = [[/עצי החופה/g, 'העצים הגבוהים'], [/בקומת הביניים/g, 'בקומת השיחים'], [/קומת הביניים/g, 'קומת השיחים'], [/בביניים/g, 'בשיחים'],
+  [/(?<![א-ת])ביניים(?![א-ת])/g, 'שיחים'], [/בחופה/g, 'בקומת העצים'], [/(?<![א-ת])חופה(?![א-ת])/g, 'עצים'], [/שומר היער/g, 'שומר הנווה'],
+  [/(?<![א-ת])(ו?(?:כש|ש|מ)?)היער(?![א-ת])/g, '$1נווה המדבר'], [/(?<![א-ת])(ו?[בל])יער(?![א-ת])/g, '$1נווה המדבר'], [/(?<![א-ת])יער(?![א-ת])/g, 'נווה מדבר']];
+export const oasisWords = (t) => OASIS.reduce((s, [a, b]) => s.replace(a, b), t);
 const LAYER_ROW = { emergent: 0, canopy: 0, understory: 1, floor: 2, water: 2, shallow: 0, open: 0, slope: 1, sand: 2 };
 // a few reef species get a row of their own in this game, so every row has a few fixed cards (all of these do live there)
 const KF_ROW = { 'reef:brain': 1, 'reef:seaanemone': 1, 'reef:sponge': 2, 'reef:algae': 2 };
 export const layerRow = (sp) => KF_ROW[sp.key] ?? LAYER_ROW[sp.layer];
 export const BIRDS = new Set(['toucan', 'macaw', 'hummingbird', 'harpy', 'jay', 'blackbird', 'owl', 'hoopoe', 'chukar']);
 export const INSECTS = new Set(['leafcutter', 'orchidbee', 'morpho', 'honeybee', 'butterfly', 'harvesterant', 'firefly']);
+export const DESERT_DEV = new Set(['drip', 'fognet', 'sandfence']);
 export const FISH = new Set(['clownfish', 'parrotfish', 'surgeonfish', 'cleaner', 'butterflyfish', 'lionfish', 'moray', 'grouper', 'goby', 'stingray', 'reefshark']);
 // the shared devices have a reef look of their own (רובוט צולל, מצלמה תת־ימית, מצוף חיישנים), so the dry-land ones stay out of the reef
 const LAND_TWIN = new Set(['drone', 'camera', 'weather']);
 export const toolOk = (c, b) => (c.tool.zones ? c.tool.zones.includes(b) : !(b === 'reef' && LAND_TWIN.has(c.tool.id)));
+// the desert's own devices in the hand (drip, fog net, sand fence) and its starter devices
+export const STARTER_TOOLS = { reef: ['tool:buoy', 'tool:nursery', 'tool:rov'], desert: ['tool:drip', 'tool:sandfence', 'tool:seeddrone'] };
+export const starterTools = (b) => STARTER_TOOLS[b] || ['tool:watergen', 'tool:listener', 'tool:seeddrone'];
 // vitality needed at the end: [1 star (= the forest held on), 2 stars, 3 stars]. Below the first one the run is lost.
 export const STAR_T = { full: [10, 15, 21], kids: [6, 10, 15] }; // raised with the rarity powers (keystones + rare bonus), see sim()
 export const MIN_DECK = 12, TOPUP = 14, HAND = 4, HAND_MAX = 6;

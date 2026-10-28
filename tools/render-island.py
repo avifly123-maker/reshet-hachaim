@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# usage: node build.mjs && python3 tools/render-island.py <amazon|grove|reef> art/islands/carousel/<zone>.png
+# usage: node build.mjs && python3 tools/render-island.py <amazon|grove|reef|desert> art/islands/carousel/<zone>.png
 # Transparent island stills for the start-screen carousel: render the island over black and over white, matte from the difference.
 import sys, asyncio, base64, io, json
 import pathlib; sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
@@ -8,7 +8,7 @@ from playwright.async_api import async_playwright
 from PIL import Image
 import numpy as np
 zone = sys.argv[1]; out = sys.argv[2]
-EXPOSURE = {'amazon': 1.3, 'grove': 1.12, 'reef': 1.1}.get(zone, 1.1)   # the dense Amazon canopy needs the most light
+EXPOSURE = {'amazon': 1.3, 'grove': 1.12, 'reef': 1.1, 'desert': 1.0}.get(zone, 1.1)   # the dense Amazon canopy needs the most light
 W_, H_ = 1600, 1100
 async def main():
     async with async_playwright() as p:
