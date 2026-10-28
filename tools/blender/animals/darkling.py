@@ -1,8 +1,9 @@
 # חיפושית שחורה (a desert darkling beetle) – a domed, glossy black body with fused wing cases, a small head with short
 # beaded antennae, and six long legs that lift the body above the hot sand.
+own('darkling')   # modelled on its own: no family tweaks from the kit
 BLK, BLK2, SHEEN = srgb('#141210'), srgb('#2a2622'), srgb('#4a4640')
 bones = [('body', None, (0, 0.03, -0.03), (0, 0.03, 0.04))]
-blobs = [dict(t='ell', c=(0, 0.032, -0.01), r=(0.026, 0.022, 0.036), bone='body'),     # the domed wing cases
+blobs = [dict(t='ell', c=(0, 0.03, -0.01), r=(0.025, 0.017, 0.034), bone='body'),     # the domed wing cases
          dict(t='ell', c=(0, 0.03, 0.03), r=(0.018, 0.014, 0.012), bone='body'),      # the shield behind the head
          dict(t='ell', c=(0, 0.028, 0.046), r=(0.011, 0.009, 0.009), bone='body')]    # the head
 parts = []
@@ -14,8 +15,8 @@ def limb(nm, parent, pts, radii, tag='leg'):
 for k, (z, ang) in enumerate([(0.025, 0.6), (0.005, 0.05), (-0.02, -0.55)]):
     for sx, L in ((1, 'l'), (-1, 'r')):
         a = Vector((sx * 0.016, 0.022, z)); d = Vector((sx * math.cos(ang), 0, math.sin(ang)))
-        b = a + d * 0.024 + Vector((0, 0.016, 0)); c = b + d * 0.03 + Vector((0, -0.04, 0))
-        bs, p = limb('l%d%s' % (k, L), 'body', [a, b, c], [0.0028, 0.0024, 0.0012]); bones += bs; parts.append(p)
+        b = a + d * 0.015 + Vector((0, 0.003, 0)); c = b + d * 0.016 + Vector((0, -0.026, 0))   # low: the body stays just above the sand
+        bs, p = limb('l%d%s' % (k, L), 'body', [a, b, c], [0.0032, 0.0026, 0.0014]); bones += bs; parts.append(p)
 ant = Part('ant', bone='body')
 for sx in (1, -1):
     b = Vector((sx * 0.006, 0.032, 0.054))
@@ -27,7 +28,9 @@ def paint(P, N, tag):
     c = mix(BLK, BLK2, 0.4 + 0.3 * noise.noise(P * 300))
     if tag in ('', 'body'):
         ridge = 0.5 + 0.5 * math.cos(P.x * 2 * math.pi / 0.008)          # fine ridges along the wing cases
-        c = mix(c, SHEEN, smooth(0.85, 0.98, ridge) * 0.4 * smooth(0.0, 0.5, N.y))
+        c = mix(c, SHEEN, smooth(0.85, 0.98, ridge) * 0.4 * smooth(0.0, 0.5, N.y) * smooth(0.024, 0.016, P.z))
+        if P.z < 0.022: c = mix(c, BLK, smooth(0.0016, 0.0005, abs(P.x)) * 0.9)          # the seam between the wing cases
+        if 0.018 < P.z < 0.026: c = mix(c, BLK, 0.6)                                     # the gap behind the shield
     return c
 def S(x): return math.sin(TAU * x)
 def legs(ph, amp):
