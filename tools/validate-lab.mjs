@@ -187,7 +187,7 @@ for (const c of CLUE_CASES) {
   for (const s of c.sus.slice(1)) if (!c.no[s]) err(w, `no reason why it is not ${s}`);
   if (c.kids) clueKids[c.zone] = (clueKids[c.zone] || 0) + 1;
 }
-for (const z of ['amazon', 'grove', 'reef']) { const n = CLUE_CASES.filter((c) => c.zone === z).length; if (n < 8) err('CLUE_CASES', `${n} cases in ${z}, at least 8`); if ((clueKids[z] || 0) < 4) err('CLUE_CASES', `${clueKids[z] || 0} beginners' cases in ${z}, at least 4`); }
+for (const z of ['amazon', 'grove', 'reef', 'desert']) { const n = CLUE_CASES.filter((c) => c.zone === z).length; if (n < 8) err('CLUE_CASES', `${n} cases in ${z}, at least 8`); if ((clueKids[z] || 0) < 4) err('CLUE_CASES', `${clueKids[z] || 0} beginners' cases in ${z}, at least 4`); }
 let obsKids = 0;
 for (const c of OBS_CASES) {
   const w = 'OBS_CASES.' + c.id;

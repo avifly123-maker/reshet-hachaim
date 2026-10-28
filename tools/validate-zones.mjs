@@ -41,7 +41,7 @@ const TABLES = [
   ['src/data/badges.js', 'str', 'the zone badge group'],
   ['src/data/guide/zone.js', 'str', "רובו־דע's first visit lines ('zone:<id>')"],
   ['src/learn/games/keep-forest/data.js', 'str', 'the "מחזיקים" board'],
-  ['src/data/island-art.js', 'str', 'the island picture on the start screen (tools/render-island.py)'],
+  ['src/data/island-art.js', 'island', 'the island picture on the start screen (tools/render-island.py)'],
 ];
 
 for (const z of ids) {
@@ -102,7 +102,7 @@ for (const z of ids) {
   // the tables elsewhere
   for (const [f, how, what] of TABLES) {
     const s = rd(f);
-    const re = how === 'key' ? new RegExp(`(^|[\\s{,'"])${z}['"]?\\s*:`, 'm') : new RegExp(`['"\`]${z}['":]`);
+    const re = how === 'island' ? new RegExp(`"c_${z}"`) : how === 'key' ? new RegExp(`(^|[\\s{,'"])${z}['"]?\\s*:`, 'm') : new RegExp(`['"\`]${z}['":]`);
     if (!re.test(s)) bad(z, `${what}: no entry in ${f}`);
   }
 }
