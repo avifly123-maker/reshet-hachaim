@@ -11,6 +11,8 @@ import { TOOL_DEFS, TOOL_ICONS } from '../../game/tool-defs.js';
 import { BIOMES, BIOME_IN, EASY_PARTS, EASY_PART_LABEL, IC, PART_ICON, ROUND, firstSentence, leaksName, maskName, pick, sample, shuffle, stemOf, uniq } from './base.js';
 import { CARD, SP, SPK, TOOL_SHORT, animalsIn, spOf } from './cards.js';
 import { ZONE_IDS } from '../../data/zones.js';
+// the answer words and icons of "where does it live?" for each zone (a zone without an entry here fails validate-zones' quiz check)
+const WHERE_OPT = { amazon: ['באמזונס', () => IC.rain], grove: ['בחורש', () => IC.tree], reef: ['בשונית', () => IC.drop], desert: ['במדבר', () => IC.sun] };
 
 /* ───────────────────────────────────────────── variety across visits
    Each player keeps a list of the questions asked lately (S.seen in the hub's own store, oldest first; old saves have
@@ -162,8 +164,8 @@ const GEN = {
     const s = freshFrom(pool.filter((x) => x.img), used); if (!s) return null;
     used.add(s.key);
     return { tag: s.name, q: s.animal ? gw(s.id, 'איפה הוא גר?', 'איפה היא גרה?', 'איפה הם גרים?', 'איפה הן גרות?') : gw(s.id, 'איפה הוא גדל?', 'איפה היא גדלה?', 'איפה הם גדלים?', 'איפה הן גדלות?'), art: s,
-      options: [opt('באמזונס', s.biome === 'amazon', { icon: IC.rain, tone: 'amazon' }), opt('בחורש', s.biome === 'grove', { icon: IC.tree, tone: 'grove' }),
-        ...(s.biome === 'reef' || Math.random() < 0.5 ? [opt('בשונית', s.biome === 'reef', { icon: IC.drop, tone: 'reef' })] : [])],
+      // 1.4: every zone of the list can be an answer: the right one and two others (three options, as before)
+      options: [s.biome, ...shuffle(ZONE_IDS.filter((z) => z !== s.biome)).slice(0, 2)].map((z) => opt(WHERE_OPT[z][0], z === s.biome, { icon: WHERE_OPT[z][1](), tone: z })),
       fact: `את ${defName(s.id, s.name)} פוגשים ${BIOME_IN[s.biome]}.` };
   },
   // ── advanced

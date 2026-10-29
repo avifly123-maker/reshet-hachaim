@@ -36,7 +36,8 @@ for (const s of SP) {
 }
 
 const KEYSTONE = new Set(['amazon:kapok', 'amazon:fig', 'amazon:brazilnut', 'amazon:glowfungus', 'grove:oak', 'grove:honeybee', 'grove:firefly',
-  'reef:branching', 'reef:parrotfish', 'reef:seaanemone', 'reef:cleaner']);
+  'reef:branching', 'reef:parrotfish', 'reef:seaanemone', 'reef:cleaner',
+  'desert:acacia', 'desert:columncactus']);   // 1.4: the acacia of the Negev and the saguaro are keystone trees of their deserts (docs/sources.md)
 const LAYER_LIGHT = { emergent: 5, canopy: 4, water: 4, understory: 3, floor: 2, shallow: 5, slope: 3, sand: 4, open: 4 };
 const WATER_OVR = { 'amazon:dartfrog': 5, 'amazon:capybara': 5, 'amazon:waterlily': 5, 'amazon:bromeliad': 5, 'amazon:tapir': 5,
   'grove:hyrax': 1, 'grove:agama': 1, 'grove:sage': 1, 'grove:rockrose': 1, 'grove:gazelle': 1, 'grove:carob': 1, 'grove:pine': 1, 'grove:cyclamen': 3, 'grove:firefly': 3, 'grove:mushroom': 4 };
