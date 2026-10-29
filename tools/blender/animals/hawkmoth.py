@@ -19,3 +19,10 @@ def under(x, z, r): return mix(srgb('#a89070'), srgb('#8a7458'), 0.5 + 0.3 * mat
 SPEC = butterfly_spec('hawkmoth', FORE, HIND, ftop, under, htop, under, srgb('#6a5a3c'), scale=1.0,
                       meta=dict(height=0.05, length=0.4, speeds={'fly': 3.0}, gripY={'perch': -0.012},
                                 map={'hover': 'fly', 'eat': 'fly', 'idle': 'perch', 'walk': 'perch'}))
+# a moth at rest does not fold its wings up like a butterfly: hawkmoths sweep them back flat over the body, a narrow
+# arrowhead, the pink hind wings hidden under the forewings (only a little pink shows at the sides)
+def _rest(ph, sleep=False):
+    b = 0 if sleep else 3 * math.sin(TAU * ph)
+    return {'body': ((0, 0, 0), None), 'wl1': (0, 58, -10), 'wr1': (0, -58, 10), 'wl2': (0, 42, -6), 'wr2': (0, -42, 6),
+            'antL': (b, 0, 0), 'antR': (b, 0, 0)}
+SPEC['actions'] = dict(SPEC['actions'], perch=(150, _rest), sleep=(60, lambda ph: _rest(ph, True)))

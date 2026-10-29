@@ -25,12 +25,13 @@ def paint(P, N, tag):
     # the breast band: chestnut, edged above and below with thin black lines
     if z > 0.03 and -0.03 < y < 0.03 and tag in ('', 'body'):
         b = y - (-0.005 + (z - 0.05) * 0.2)
-        k = smooth(0.03, 0.06, z)                                                     # only on the front of the breast
+        k = smooth(0.03, 0.06, z) * smooth(0.15, 0.55, N.z)                           # only on the front of the breast
         c = mix(c, CHEST, smooth(0.01, 0.006, abs(b)) * 0.75 * k)
         c = mix(c, BLACK, smooth(0.0022, 0.0008, abs(abs(b) - 0.0105)) * 0.8 * k)
     if z > 0.08:   # orange-yellow face and throat, a black throat patch, a dark line behind the eye
         c = mix(c, ORANGE, smooth(0.04, 0.06, y) * smooth(0.11, 0.095, y) * 0.85)
-        if abs(x) < 0.02 and 0.04 < y < 0.062: c = mix(c, BLACK, 0.85)
+        q = math.hypot(x / 0.014, (y - 0.054) / 0.008)                            # a small soft black chin patch
+        c = mix(c, BLACK, smooth(1.0, 0.6, q) * smooth(0.0, 0.5, N.z) * 0.8)
         if y > 0.108 and abs(x) < 0.022: c = mix(c, mix(SAND2, OLIVE, 0.5), 0.5)                  # an olive crown
     return c
 def wcol(s, c, top): return mix(mix(SAND, OLIVE, 0.3), SPOT, 0.15 + 0.3 * s) if top else mix(SAND, WHITE, 0.4)
