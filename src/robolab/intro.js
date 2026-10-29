@@ -15,7 +15,8 @@ const ease = (k) => (k <= 0 ? 0 : k >= 1 ? 1 : k * k * (3 - 2 * k));
 const bounce = (k) => { if (k >= 1) return 1; const s = 1 - k; return 1 - s * s * Math.abs(Math.cos(k * Math.PI * 2.5)); };
 const MIN = [3.4, 3.6, 3.6, 3.6, 4.2];   // seconds per beat without a recording
 
-export function playIntro(host, { kids = false, voice = null, sfx = () => { }, onDone = () => { } } = {}) {
+export function playIntro(host, { kids = false, voice = null, sfx = () => { }, onDone = () => { }, film = null } = {}) {
+  // film: { lens: [seconds per beat] } records it frame by frame (tools/record-intro.py): no timers, F.seek(t, dt) draws one frame
   const T = (o) => (kids ? o.k : o.f);
   const el = document.createElement('div'); el.className = 'rl-intro';
   el.innerHTML = `<canvas></canvas><div class="rl-ititle"><h1>${kids ? 'מַעְבֶּדֶת הָרוֹבּוֹטִים' : 'מעבדת הרובוטים'}</h1><p>${kids ? 'מְתַכְנְנִים, בּוֹנִים וּמַפְעִילִים' : 'מתכננים, בונים ומפעילים'}</p></div>
@@ -76,10 +77,13 @@ export function playIntro(host, { kids = false, voice = null, sfx = () => { }, o
   const at = { light: 0, kubi: 1.2, robot: 1e9, drone: 1e9, sub: 1e9, end: 1e9 };
   const t0 = performance.now(); let t = 0, last = t0;
   function frame(now) {
-    if (closed) return;
+    if (closed || film) return;
     raf = requestAnimationFrame(frame);
     if (!el.isConnected) { close(); return; }
     const dt = Math.min(0.05, (now - last) / 1000); last = now; t = (now - t0) / 1000;
+    step(dt);
+  }
+  function step(dt) {
     // light comes up
     const L = ease((t - at.light) / 1.4);
     hemi.intensity = 1.2 * L; key.intensity = 60 * L; rim.intensity = 1.1 * L; ringM.emissiveIntensity = 0.55 * L;
@@ -103,7 +107,7 @@ export function playIntro(host, { kids = false, voice = null, sfx = () => { }, o
     cam.position.set(0.3 + Math.sin(t * 0.15) * 0.4, 1.25 + wide * 1.3, 3.1 + wide * 3.2); cam.lookAt(0, 0.75 + wide * 0.1, 0);
     renderer.render(scene, cam);
   }
-  requestAnimationFrame(() => { size(); raf = requestAnimationFrame(frame); });
+  if (!film) requestAnimationFrame(() => { size(); raf = requestAnimationFrame(frame); });
   // ── the beats
   const wait = (s) => new Promise((r) => setTimeout(r, s * 1000));
   async function beat(i, start) {
@@ -116,6 +120,20 @@ export function playIntro(host, { kids = false, voice = null, sfx = () => { }, o
     if (K && !closed) K.talk(false);
     const left = MIN[i] - (performance.now() - t0) / 1000;
     if (left > 0) await wait(left); else await wait(0.4);
+  }
+  if (film) {   // the same beats on a fixed timeline, run by seek()
+    const lens = film.lens || MIN, starts = []; let at0 = 1.9; for (let i = 0; i < 5; i++) { starts.push(at0); at0 += lens[i]; }
+    const acts = [() => { K.set('wave'); }, () => { at.robot = t; K.set('point'); }, () => { at.drone = t; K.set('explain'); }, () => { at.sub = t; K.set('point'); }, () => { at.end = t; K.set('cheer'); confetti(); el.classList.add('end'); }];
+    let done = -1;
+    const F = { close, length: at0 + 0.6,
+      seek(tt, dt = 1 / 24) {
+        t = tt;
+        while (done + 1 < 5 && tt >= starts[done + 1]) { done++; acts[done](); cap.textContent = T(INTRO[done]); cap.classList.add('on'); }
+        if (done >= 0) K.talk(tt < starts[done] + lens[done] - 0.5);
+        if (tt >= at0) { const go = el.querySelector('[data-igo]'); go.hidden = false; el.querySelector('[data-iskip]').hidden = true; }
+        step(dt);
+      } };
+    size(); return F;
   }
   (async () => {
     await wait(1.9); if (closed) return;

@@ -326,7 +326,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   };
   // headless tests
   window.__rlDebug = {
-    intro: () => !!intro, tut: () => (tut && tut.step) || null, tutSeen: (k) => introSeen(k), tutState: () => tutState(), showIntro: () => { showIntro(); return true; },
+    intro: () => !!intro, film: (lens) => { if (intro) intro.close(); window.__rlFilm = playIntro(el, { kids, film: { lens } }); return true; }, tut: () => (tut && tut.step) || null, tutSeen: (k) => introSeen(k), tutState: () => tutState(), showIntro: () => { showIntro(); return true; },
     open: (id, flat) => (id ? openLevel(id, { flat: !!flat }) : home()),
     in3d: () => !!(in3d && in3d.api),
     island: (z) => openIsland(z), prog: () => ed && ed.program(), cur: () => cur && cur.id, playing: () => !!(map && map.isPlaying()), level: () => cur && { id: cur.id, rows: cur.map.rows, items: cur.items, kind: cur.kind },
