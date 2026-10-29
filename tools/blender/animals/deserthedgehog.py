@@ -39,7 +39,7 @@ def crown(P):    # the front edge of the spine coat: just behind the ears, lower
     return 0.075 + (P.y - 0.11) * 0.8
 def spines():
     p = Part('spine', bones=['hips', 'chest'])
-    rnd = random.Random(7); n = 1700; ga = math.pi * (3 - math.sqrt(5)); placed = 0
+    rnd = random.Random(7); n = 1000; ga = math.pi * (3 - math.sqrt(5)); placed = 0
     for i in range(n):   # every point of the sphere is tried (a cap on the count stopped the coat at the top of the back)
         yy = 1 - (i / (n - 1)) * 2; rr = math.sqrt(max(0, 1 - yy * yy)); th = ga * i
         d = Vector((math.cos(th) * rr, yy, math.sin(th) * rr))
@@ -47,9 +47,9 @@ def spines():
         if P.y < 0.055 or P.z > crown(P): continue          # the whole dome, down to just above the legs
         nrm = Vector(((P.x - BC[0]) / BR[0] ** 2, (P.y - BC[1]) / BR[1] ** 2, (P.z - BC[2]) / BR[2] ** 2)).normalized()
         dirn = (nrm * 0.42 + Vector((0, 0.05, -1)) * 0.72 + Vector((rnd.uniform(-1, 1), rnd.uniform(-1, 1), rnd.uniform(-1, 1))) * 0.13).normalized()
-        L = 0.036 + rnd.uniform(-0.006, 0.008)
+        L = 0.04 + rnd.uniform(-0.006, 0.008)
         base = P - nrm * 0.006; tip = base + dirn * L
-        u, w = _frame(dirn); r0 = 0.0052
+        u, w = _frame(dirn); r0 = 0.0062
         V = []; C = []
         for (c, r, col) in ((base, r0, BAND), (base + dirn * L * 0.55, r0 * 0.6, MIDB)):
             for j in range(3):
