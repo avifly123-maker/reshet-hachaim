@@ -19,7 +19,7 @@ import { createVoice } from '../audio/voice.js';
 import { createEditor } from './ui/editor.js';
 import { icon } from './ui/icons.js';
 import { isOpen as journeyOpen, lockWords } from '../core/journey.js';
-import { roboProgress, markSolved, addFun, markSeen, addIsland } from './progress.js';
+import { roboProgress, markSolved, addFun, markSeen, addIsland, draftOf, saveDraft } from './progress.js';
 import { FAIL_LINES, GOAL_LINES, WIN_LINES, OOPS_LINES, FUN_LINES } from '../data/robolab/lines.js';
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -55,7 +55,14 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     return `<section class="rl-sec">${head}<p class="rl-isl-note">${kids ? 'בְּכָל פַּעַם מְשִׂימָה חֲדָשָׁה בֵּין הָעֵצִים שֶׁגִּדַּלְתֶּם.' : 'בכל פעם משימה חדשה בין העצים שגידלתם. מה שהכלים עושים כאן לא משנה את האי השמור.'}</p><div class="rl-pz">${zones.map((z) => `<button type="button" class="rl-pzb rl-islb" data-island="${z}"><span class="rl-z z-${z}"></span><b>${esc(kids ? ZONE_LOOK[z].shortK : ZONE_LOOK[z].short)}</b><small>${kids ? 'הָאִי שֶׁלִּי' : 'האי שלי'}</small></button>`).join('')}</div></section>`;
   }
   const stars = (n) => [0, 1, 2].map((k) => `<i class="${k < n ? 'on' : ''}">${icon('star')}</i>`).join('');
+  // drafts: written a moment after each change, and at once when the lesson is left or the window closes
+  let draftT = 0, draftDirty = false;
+  function queueDraft() { if (!cur || cur.ownIsland) return; draftDirty = true; clearTimeout(draftT); draftT = setTimeout(flushDraft, 400); }
+  function flushDraft() { clearTimeout(draftT); if (!draftDirty || !cur || !ed || cur.ownIsland) return; draftDirty = false; try { saveDraft(cur.id, ed.program()); } catch (e) { console.error(e); } }
+  window.addEventListener('beforeunload', flushDraft);
+  window.addEventListener('pagehide', flushDraft);
   function home() {
+    flushDraft();
     requestAnimationFrame(helloKubi);   // קוּבִּי greets once the home is drawn
     stopRun(); if (map) { map.dispose(); map = null; } ed = null; cur = null;
     // the island stays loaded behind the home (Avi, 29.10: no waiting between lessons): the next lesson in the same zone
@@ -140,9 +147,10 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
       onExit: () => { in3d = null; root.classList.remove('rl3d'); el.hidden = false; home(); } };
     enter3d(desc);
   }
-  function end3d() { const was = in3d; in3d = null; root.classList.remove('rl3d'); el.classList.remove('in3d'); if (was && leave3d) leave3d(); el.hidden = !open; }
+  function end3d() { stopRun(); if (map) { map.dispose(); map = null; } const was = in3d; in3d = null; root.classList.remove('rl3d'); el.classList.remove('in3d'); if (was && leave3d) leave3d(); el.hidden = !open; }
   // the course as the screen sees it: the same calls as the flat map
-  const stage3d = (api) => ({ reset: () => api.course.reset(), play: (tr, o) => api.course.play(tr, o), stop: () => api.course.stop(), isPlaying: () => api.course.isPlaying(), redraw: () => { }, dispose: () => { } });
+  // (the island may be gone already, when the lab leaves it: every call checks)
+  const stage3d = (api) => ({ reset: () => api.course && api.course.reset(), play: (tr, o) => api.course && api.course.play(tr, o), stop: () => api.course && api.course.stop(), isPlaying: () => !!(api.course && api.course.isPlaying()), redraw: () => { }, dispose: () => { } });
   function helloKubi() {
     if (kcam) { kcam.dispose(); kcam = null; }
     const c = el.querySelector('.rl-hkubi'); if (!c) return;
@@ -156,6 +164,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     return out;
   }
   function mountLevel(L, api) {
+    flushDraft();
     const news = newsFor(L);
     stopRun(); if (map) map.dispose();
     cur = L; lastRun = null;
@@ -179,8 +188,12 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
             ${api ? `<button type="button" data-view aria-label="${kids ? 'לְהַחֲזִיר אֶת הַמַּבָּט' : 'להחזיר את המבט'}">${icon('eye')}</button>` : ''}
           </div></div>
       </div></div>`;
-    ed = createEditor(el.querySelector('.rl-ed'), { lesson: L, kids, onChange: () => { lastRun = null; el.querySelector('[data-why]').disabled = true; if (map && !map.isPlaying()) map.reset(); hideMsg(); } });
-    if (L.start0) ed.set({ ...L.start0, defs: { ...(L.defs0 || {}), ...(L.start0.defs || {}) } });   // a puzzle that starts with a program to fix
+    ed = createEditor(el.querySelector('.rl-ed'), { lesson: L, kids, onChange: () => { lastRun = null; el.querySelector('[data-why]').disabled = true; if (map && !map.isPlaying()) map.reset(); hideMsg(); queueDraft(); } });
+    // the child's own unfinished program comes back (a draft), else a puzzle's program to fix
+    const draft = L.ownIsland ? null : draftOf(L.id);
+    if (draft) { try { ed.set({ ...draft, defs: { ...(L.defs0 || {}), ...(draft.defs || {}) } }); } catch (e) { console.error(e); } }
+    else if (L.start0) ed.set({ ...L.start0, defs: { ...(L.defs0 || {}), ...(L.start0.defs || {}) } });
+    draftDirty = false;
     if (api) { map = stage3d(api); el.querySelector('.rl-map').remove(); }
     else { map = createMap(el.querySelector('.rl-map'), L, L.zone); requestAnimationFrame(() => map && map.redraw()); }
     // קוּבִּי explains the lesson from his corner of the strip (kubi-cam.js); later his voice says the words
@@ -271,17 +284,17 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   window.addEventListener('keydown', onKey);
 
   function openLab() { open = true; el.hidden = false; markSeen('home'); home(); }
-  function close() { open = false; speakGen++; kvoice.stop(); stopRun(); if (kcam) { kcam.dispose(); kcam = null; } if (garage) { garage.close(); garage = null; } if (in3d) end3d(); if (map) { map.dispose(); map = null; } el.hidden = true; el.innerHTML = ''; }
+  function close() { flushDraft(); open = false; speakGen++; kvoice.stop(); stopRun(); if (kcam) { kcam.dispose(); kcam = null; } if (garage) { garage.close(); garage = null; } if (in3d) end3d(); if (map) { map.dispose(); map = null; } el.hidden = true; el.innerHTML = ''; }
   const R = {
     open: openLab, close, isOpen: () => open,
     coversGame: () => open && !!in3d && !el.classList.contains('in3d'),   // the home over a kept island (main.js skips it)
-    dispose: () => { close(); window.removeEventListener('keydown', onKey); el.remove(); },
+    dispose: () => { close(); window.removeEventListener('keydown', onKey); window.removeEventListener('beforeunload', flushDraft); window.removeEventListener('pagehide', flushDraft); el.remove(); },
   };
   // headless tests
   window.__rlDebug = {
     open: (id, flat) => (id ? openLevel(id, { flat: !!flat }) : home()),
     in3d: () => !!(in3d && in3d.api),
-    island: (z) => openIsland(z), level: () => cur && { id: cur.id, rows: cur.map.rows, items: cur.items, kind: cur.kind },
+    island: (z) => openIsland(z), prog: () => ed && ed.program(), cur: () => cur && cur.id, playing: () => !!(map && map.isPlaying()), level: () => cur && { id: cur.id, rows: cur.map.rows, items: cur.items, kind: cur.kind },
     garage: () => { if (garage) garage.close(); garage = openGarage(el, { kids, sfx, onClose: () => { garage = null; } }); return true; },
     solve: (id, i = 0) => { const L = ALL_LEVELS.find((q) => q.id === id); if (!L) return null; if (!(in3d && in3d.api && cur && cur.id === id)) openLevel(id, { flat: true }); ed.set({ ...L.solutions[i], defs: { ...(L.defs0 || {}), ...(L.solutions[i].defs || {}) } }); run('fast'); return lastRun && { ok: lastRun.ok, stars: lastRun.stars }; },
     run: (speed = 'fast') => run(speed), last: () => lastRun && { ok: lastRun.ok, stars: lastRun.stars, why: lastRun.why, error: lastRun.error },

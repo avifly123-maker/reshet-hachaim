@@ -96,6 +96,7 @@
   background: #0f2118; opacity: 0; visibility: hidden; transition: opacity .7s, visibility .7s;
 }
 #ui.wol .loading.on { opacity: 1; visibility: visible; }
+#ui.wol .loading:not(.on) { pointer-events: none; }   /* while it fades out it no longer swallows the first clicks */
 #ui.wol .ld-inner { position: relative; text-align: center; width: min(520px, 86vw); }
 #ui.wol .ld-title { font-family: var(--serif); font-size: 3.6em; margin: .2em 0 .6em; color: var(--chalk); text-shadow: 0 3px 0 #07130c; }
 #ui.wol .ld-bar { height: 10px; border-radius: 2px; background: #0a1710; box-shadow: 0 0 0 1px rgba(180, 203, 102, .35); position: relative; }

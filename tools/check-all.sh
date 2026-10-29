@@ -37,6 +37,17 @@ echo "$out" | grep -q "eval: placed [1-9][0-9]*/[1-9]" || fail "integration: not
 echo "$out" | grep -q "eval: grove ok [1-9]" || fail "integration: the grove did not run"
 echo "$out" | grep -q "eval: reef ok [1-9]" || fail "integration: the reef did not run"
 
+step "robot lab: editing, drafts, menus, islands, leaving mid-run"
+# real clicks: blocks in order, a block into a slot, remove, a condition and a count edited, back to the menu and after a
+# reload the draft is there, a lesson in 3D, the next lesson of the same zone at once, another zone in the middle of a
+# run, the menu and the exit in the middle of a run (tests/play/robolab.json, 17 checks)
+out=$(timeout 1200 python3 tools/play.py dist/index.html tests/play/robolab.json 800 460 2>&1)
+n=$(echo "$out" | grep -c "CHECK .* ok")
+echo "robot lab: $n/17 checks"
+echo "$out" | grep "CHECK .* FAIL" && fail "robot lab: a check failed"
+echo "$out" | grep "\[pageerror\]\|JS ERROR\|UNTIL TIMEOUT\|NO ELEMENT" && fail "robot lab: errors in the page or the script"
+[ "$n" = 17 ] || fail "robot lab: $n of 17 checks"
+
 step "integration, torah edition"
 out=$(timeout 1200 python3 tools/play.py dist/index-torah.html tests/play/integ.json 800 460 2>&1)
 echo "$out" | grep "hub ok 10" || fail "torah integration (no 'hub ok 10')"

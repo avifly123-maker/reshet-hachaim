@@ -52,6 +52,7 @@ export const K = {
   photos: 'web-of-life-photos',       // [{ id, sp, sps, zone, t, img, pair?, visitor? }]                     game/rank.js
   visitors: 'web-of-life-visitors',   // [{ id, zone, t }]                                                    game/rank.js
   after: 'web-of-life-after',         // { v, z: { <zone>: {...} } } – challenges, photo missions, snapshots  game/rank.js
+  robolabDraft: 'web-of-life-robolab-draft',   // { <levelId>: { p: program, t } } – the unfinished program of each robot-lab lesson (1.4.1)
   robolab: 'web-of-life-robolab',   // { done: { <levelId>: { stars, blocks, t } }, seen, fun } – מעבדת הרובוטים (1.4.1) robolab/progress.js
 };
 export const zoneKey = (zone) => 'web-of-life-' + zone;                                    // { unlocked, done, discovered, placed, quiz }
@@ -85,6 +86,7 @@ export const KEYS = [
   { key: K.visitors, scope: P, kind: 'json' },
   { key: K.after, scope: P, kind: 'json' },
   { key: K.robolab, scope: P, kind: 'json' },   // 1.4.1
+  { key: K.robolabDraft, scope: P, kind: 'json' },   // 1.4.1
   ...ZONE_IDS.flatMap((z) => [
     { key: zoneKey(z), scope: P, kind: 'json' },
     { key: saveKey(z, false), scope: P, kind: 'json' },

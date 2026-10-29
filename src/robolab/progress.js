@@ -30,3 +30,21 @@ export const toolLook = (tool) => { const L = roboProgress().look[tool]; return 
 export function setToolLook(tool, look) { const o = roboProgress(); o.look[tool] = { parts: { ...(look.parts || {}) }, paint: { ...(look.paint || {}) } }; save(o, { look: tool }); }
 // a mission done on the player's own island (they are made anew each time, so only the count is kept)
 export function addIsland() { const o = roboProgress(); o.isl += 1; save(o, { island: true }); return o.isl; }
+
+// the program a child is building in a lesson, kept as it changes (Avi, 29.10: coming back to the menu or closing the
+// game must not lose it). Its own key, so writing it does not wake the journey and the badges. Kept for the last 60
+// lessons touched; a solved lesson keeps its draft too (the child may want to improve it).
+const DRAFT_MAX = 60;
+export function draftOf(id) {
+  const o = readPlayer(K.robolabDraft, null);
+  const d = o && typeof o === 'object' ? o[id] : null;
+  return d && d.p && typeof d.p === 'object' ? d.p : null;
+}
+export function saveDraft(id, program) {
+  let o = readPlayer(K.robolabDraft, null); if (!o || typeof o !== 'object') o = {};
+  const empty = !program || !['robot', 'drone', 'sub'].some((k) => (program[k] || []).length) && !(program.on || []).length && !Object.values(program.defs || {}).some((l) => (l || []).length);
+  if (empty) delete o[id]; else o[id] = { p: program, t: Date.now() };
+  const ids = Object.keys(o).sort((a, b) => o[b].t - o[a].t);
+  for (const k of ids.slice(DRAFT_MAX)) delete o[k];
+  writePlayer(K.robolabDraft, o);
+}
