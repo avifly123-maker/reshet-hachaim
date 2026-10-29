@@ -270,6 +270,7 @@ async function boot() {
   }
   // start fetching the zone's pack right at the click – it loads while the "continue the saved forest?" question is open
   bus.on('start:training', () => { audio.start(); loadPack('game').catch(() => { }); loadPack('grove').catch(() => { }); pendingBiome = null; loadBiome('grove', null, null, true); });
+  bus.on('start:skiptraining', () => { try { journey.markTrained(); } catch (e) { console.error(e); } setTimeout(howStages, HOW_STAGES_MS); });
   bus.on('start:biome', ({ id }) => { audio.start(); loadPack('game').catch(() => { }); loadPack(id).catch(() => { /* reported by loadBiome */ }); askSaved(id); });
   bus.on('dialog:button', ({ id }) => {
     if (!pendingBiome) return;

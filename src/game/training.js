@@ -56,19 +56,20 @@ export function startTraining(ctx) {
   ];
   let run = null, stopped = false, ending = null;
   const api = { stop() { stopped = true; offWeb(); if (run) run.stop(); if (ending) G.close(ending); }, get step() { return run ? run.step : ending ? 'end' : null; } };
-  function finish() {
+  function finish(skipped) {
     markTrained();   // the islands open now (also if the child stays a little longer)
     // a breath for the mission banner, then the last words and the way out
     setTimeout(() => {
       if (stopped || ctx.disposed) return;
-      ending = G.say(L('train:end'), { modal: true, place: 'center', actions: [{ id: 'go', label: kidsW() ? 'יוֹצְאִים לָאִיִּים' : 'יוצאים לאיים', kind: 'primary' }, { id: 'stay', label: kidsW() ? 'עוֹד קְצָת כָּאן' : 'עוד קצת כאן' }] });
+      ending = G.say(L(skipped ? 'train:skipped' : 'train:end'), { modal: true, place: 'center', actions: [{ id: 'go', label: kidsW() ? 'יוֹצְאִים לָאִיִּים' : 'יוצאים לאיים', kind: 'primary' }, { id: 'stay', label: kidsW() ? 'עוֹד קְצָת כָּאן' : 'עוד קצת כאן' }] });
       ending.then((r) => { ending = null; if (r === 'go' && !stopped && !ctx.disposed) { try { window.dispatchEvent(new CustomEvent('wol-trained')); } catch (e) { } onExit && onExit(); } });
-    }, 2600);
+    }, skipped ? 300 : 2600);
   }
   // a moment for the island to come into view before רובו־דע speaks
   setTimeout(() => {
     if (stopped || ctx.disposed) return;
-    run = runGuided({ guide: G, steps, noSkip: true, onEnd: (r) => { run = null; offWeb(); if (r === 'done') finish(); } });
+    // 29.10 evening (Avi): the tutorial can be skipped; skipping opens the islands too, and the way out is offered at once
+    run = runGuided({ guide: G, steps, onEnd: (r) => { run = null; offWeb(); if (r === 'done') finish(); else if (r === 'skip') finish(true); } });
   }, 1200);
   return api;
 }

@@ -15,3 +15,6 @@
 @keyframes st-tr-glow { 0%, 100% { box-shadow: 0 4px 0 #24491d, 0 0 0 0 rgba(255, 209, 102, .0), 0 10px 24px rgba(0, 0, 0, .3); } 50% { box-shadow: 0 4px 0 #24491d, 0 0 0 7px rgba(255, 209, 102, .45), 0 10px 24px rgba(0, 0, 0, .3); } }
 @media (max-height: 520px) { #ui.wol .st-train.first { font-size: .95em; margin: 2px auto 0; } #ui.wol .st-train.done { margin: 0 auto; } }
 @media (prefers-reduced-motion: reduce) { #ui.wol .st-train.first { animation: none; } }
+#ui.wol .st-trskip { display: block; margin: 0 auto 4px; padding: .15em .8em; border: 0; background: none; color: #efe9cf; opacity: .78; font: inherit; font-size: calc(.8em * var(--ts, 1)); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; pointer-events: auto; }
+#ui.wol .st-trskip:hover, #ui.wol .st-trskip[data-sure] { opacity: 1; color: #ffd166; }
+#ui.wol .st-trskip[hidden] { display: none; }

@@ -52,6 +52,8 @@ echo "$out" | grep "\[pageerror\]\|JS ERROR\|^\[error\]" && fail "training field
 out=$(timeout 1200 python3 tools/play.py dist/index.html tests/play/tutorials.json 800 460 2>&1)
 echo "$out" | grep -q "guide open false" || fail "lab tutorial: did not end at the first station"
 echo "$out" | grep "\[pageerror\]\|JS ERROR\|^\[error\]" && fail "tutorials: errors"
+out=$(timeout 900 python3 tools/play.py dist/index.html tests/play/training-skip.json 800 460 2>&1)
+echo "$out" | grep -q '"trained":true,"amazon":true' || fail "training field: skipping did not open the islands"
 echo "training field and tutorials OK"
 
 step "parents' play time"
