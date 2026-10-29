@@ -191,3 +191,6 @@
 /* control blocks: the sensor list or the number may take a second line in a narrow program panel */
 #ui.wol .rl-node.ctl > .rl-head { flex-wrap: wrap; row-gap: 3px; }
 #ui.wol .rl-node.ctl > .rl-head select { max-width: 100%; flex: 1 1 120px; }
+/* the level and puzzle buttons keep their dark text (".rl button" inherits the screen's white) */
+#ui.wol .rl .rl-lvb, #ui.wol .rl .rl-pzb { color: #1d2c38; }
+#ui.wol .rl-pzb small { font-size: .74em; color: #6a5a40; }

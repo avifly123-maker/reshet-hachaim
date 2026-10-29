@@ -4,6 +4,7 @@ import { LESSONS_2 } from './lessons-2.js';
 import { LESSONS_3 } from './lessons-3.js';
 import { LESSONS_4 } from './lessons-4.js';
 import { LESSONS_5 } from './lessons-5.js';
+import { PUZZLES as PZ } from './puzzles.js';
 // the eight chapters (docs/PLAN-1.4.md 7.2): title, the idea in a few words, colour of the chapter card
 export const CHAPTERS = [
   { n: 1, color: '#3b82c4', title: { f: 'סדר פעולות', k: 'סֵדֶר פְּעֻלּוֹת' }, idea: { f: 'הרובוט עושה בדיוק מה שכתוב, לפי הסדר', k: 'הָרוֹבּוֹט עוֹשֶׂה בְּדִיּוּק מָה שֶׁכָּתוּב, לְפִי הַסֵּדֶר' } },
@@ -16,5 +17,5 @@ export const CHAPTERS = [
   { n: 8, color: '#d66aa8', title: { f: 'אתגרים', k: 'אֶתְגָּרִים' }, idea: { f: 'פחות בלוקים, יותר כוכבים', k: 'פָּחוֹת בְּלוֹקִים, יוֹתֵר כּוֹכָבִים' } },
 ];
 export const LESSONS = [...LESSONS_1, ...LESSONS_2, ...LESSONS_5, ...LESSONS_3, ...LESSONS_4];
-export const PUZZLES = [];
+export const PUZZLES = [...PZ];
 export const ALL_LEVELS = [...LESSONS, ...PUZZLES];

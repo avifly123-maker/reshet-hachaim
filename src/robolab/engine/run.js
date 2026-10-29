@@ -118,8 +118,9 @@ export function runProgram(level, program, opts = {}) {
     if (!moved && !Object.keys(gens).length && !heard) break;
   }
   if (!W.done && W.ticks >= max) W.fail('long', null);
-  const goal = W.error ? { ok: false, why: W.error.code } : checkGoal(level.goal, W);
   const blocks = countBlocks(prog);
+  let goal = W.error ? { ok: false, why: W.error.code } : checkGoal(level.goal, W);
+  if (goal.ok && level.maxBlocks && blocks > level.maxBlocks) goal = { ok: false, why: 'blocks' };   // a puzzle of few blocks
   let stars = 0;
   if (goal.ok) { stars = 1; if (!level.par || blocks <= level.par) stars = 3; else if (blocks <= level.par + 2) stars = 2; }
   return { ok: goal.ok, why: goal.why || null, stars, steps: W.ticks, blocks, trace: W.trace, error: W.error, state: W.summary() };

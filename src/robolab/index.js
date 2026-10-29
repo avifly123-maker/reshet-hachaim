@@ -63,7 +63,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
               return `<button type="button" class="rl-lvb${d ? ' done' : ''}" data-level="${L.id}" ${ok ? '' : 'disabled'} title="${esc(T(L.title))}"><span class="rl-z z-${L.zone}"></span><b>${i + 1}</b><span class="rl-st">${stars(d ? d.stars : 0)}</span></button>`; }).join('')}</div></div>`; }).join('')}
         </section>
         ${PUZZLES.length ? `<section class="rl-sec"><h2>${icon('puzzle')}${kids ? 'חִידוֹת' : 'חידות'}</h2><div class="rl-pz">${PUZZLES.map((L) => { const ok = levelOpen(L, P), d = P.done[L.id];
-          return `<button type="button" class="rl-pzb${d ? ' done' : ''}" data-level="${L.id}" ${ok ? '' : 'disabled'}><span class="rl-z z-${L.zone}"></span><b>${esc(T(L.title))}</b><span class="rl-st">${stars(d ? d.stars : 0)}</span></button>`; }).join('')}</div></section>` : ''}
+          return `<button type="button" class="rl-pzb${d ? ' done' : ''}" data-level="${L.id}" ${ok ? '' : 'disabled'}><span class="rl-z z-${L.zone}"></span><b>${esc(T(L.title))}</b>${ok ? '' : `<small>${kids ? 'נִפְתָּח אַחֲרֵי שִׁעוּר ' : 'נפתח אחרי שיעור '}${L.after.replace('l', '').replace('-', '.')}</small>`}<span class="rl-st">${stars(d ? d.stars : 0)}</span></button>`; }).join('')}</div></section>` : ''}
       </div></div>`;
   }
 
@@ -124,6 +124,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
           </div></div>
       </div></div>`;
     ed = createEditor(el.querySelector('.rl-ed'), { lesson: L, kids, onChange: () => { lastRun = null; el.querySelector('[data-why]').disabled = true; if (map && !map.isPlaying()) map.reset(); hideMsg(); } });
+    if (L.start0) ed.set({ ...L.start0, defs: { ...(L.defs0 || {}), ...(L.start0.defs || {}) } });   // a puzzle that starts with a program to fix
     if (api) { map = stage3d(api); el.querySelector('.rl-map').remove(); }
     else { map = createMap(el.querySelector('.rl-map'), L, L.zone); requestAnimationFrame(() => map && map.redraw()); }
     // קוּבִּי explains the lesson from his corner of the strip (kubi-cam.js); later his voice says the words

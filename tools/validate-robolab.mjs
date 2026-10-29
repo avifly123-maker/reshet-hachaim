@@ -39,6 +39,8 @@ for (const L of ALL_LEVELS) {
     if (r.ok) best = Math.min(best, r.blocks);
     if (verbose) console.log(w, 'sol', i + 1, r.ok ? 'ok' : 'FAIL ' + r.why, 'blocks', r.blocks, 'steps', r.steps);
   });
+  if (L.start0 && runLevel(lev, { ...L.start0, defs: { ...(L.defs0 || {}), ...(L.start0.defs || {}) } }).ok) errs.push(w + ': the program to fix (start0) already works');
+  if (L.puzzle && !L.after) errs.push(w + ': a puzzle needs `after` (the lesson that opens it)');
   // programs that must NOT pass (a fixed path where the lesson wants an "if", one tool where it wants teamwork)
   (L.wrong || []).forEach((p, i) => { const r = runLevel(lev, { ...p, defs: { ...(L.defs0 || {}), ...(p.defs || {}) } }); if (r.ok) errs.push(`${w}: wrong program ${i + 1} passes, the lesson does not teach what it should`); });
   if (L.par && best < 99 && best > L.par + 4) errs.push(`${w}: par ${L.par} is far below the best listed solution (${best})`);
