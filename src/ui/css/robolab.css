@@ -107,7 +107,7 @@
 @media (max-height: 520px) {
   #ui.wol .rl-title h1 { font-size: 1.2em; }
   #ui.wol .rl-say { margin-top: 5px; padding: 5px 10px; padding-inline-start: 74px; min-height: 44px; font-size: .86em; }
-  #ui.wol .rl-kubi { width: 64px; height: 60px; }
+  #ui.wol .rl-kubi { width: 62px; }
   #ui.wol .rl-teach { width: 26px; height: 26px; }
   #ui.wol .rl-body { padding-top: 5px; gap: 8px; }
   #ui.wol .rl-ed { grid-template-columns: 104px 1fr; }
@@ -180,8 +180,11 @@
 #ui.wol .rl-sigb i.sh-star { clip-path: polygon(50% 2%, 62% 38%, 98% 38%, 69% 60%, 80% 96%, 50% 74%, 20% 96%, 31% 60%, 2% 38%, 38% 38%); }
 
 /* קוּבִּי's window in the lesson's strip: he leans out of it a little (kubi-cam.js) */
-#ui.wol .rl-kubi { position: absolute; inset-inline-start: 6px; bottom: -4px; width: 72px; height: 70px; pointer-events: none; }
+#ui.wol .rl-kubi { position: absolute; inset-inline-start: 6px; top: -8px; bottom: -4px; width: 72px; height: auto; pointer-events: none; }
 #ui.wol .rl-hello { display: flex; align-items: center; gap: 12px; margin: 0 0 10px; padding: 6px 14px 6px 10px; border-radius: 16px; background: #f5f1e8; color: #1d2c38; }
 #ui.wol .rl-hello p { margin: 0; font-size: .98em; line-height: 1.4; }
 #ui.wol .rl-hkubi { flex: none; width: 96px; height: 104px; margin-block: -14px -6px; }
 @media (max-height: 520px) { #ui.wol .rl-hkubi { width: 80px; height: 86px; } }
+/* a colour picture on the block (blocks.js emo): big and clear, readable before reading */
+#ui.wol .rl-ic.emo { background: rgba(255, 255, 255, .88); }
+#ui.wol .rl-ic.emo i { font-style: normal; font-size: 17px; line-height: 1; font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif; }

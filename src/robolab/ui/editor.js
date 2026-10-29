@@ -42,7 +42,7 @@ export function createEditor(el, { lesson, kids, onChange }) {
 
   function blockFace(b) {
     const B = BLOCKS[b], F = FAMILIES[B.fam];
-    return `<span class="rl-ic">${icon(B.icon)}</span><span class="rl-bt">${esc(T(B))}</span>`;
+    return `<span class="rl-ic${B.emo ? ' emo' : ''}">${B.emo ? `<i>${B.emo}</i>` : icon(B.icon)}</span><span class="rl-bt">${esc(T(B))}</span>`;
   }
   function renderPalette() {
     const fams = {};
