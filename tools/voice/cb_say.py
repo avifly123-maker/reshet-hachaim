@@ -13,6 +13,12 @@ try:
     t0 = time.time()
     import torch, torchaudio
     torch.set_num_threads(max(1, (os.cpu_count() or 4) - 2))   # gentle: leave two cores to the owner
+    import perth
+    if getattr(perth, 'PerthImplicitWatermarker', None) is None:   # its native part did not load on this PC: pass the audio through
+        class _Pass:
+            def apply_watermark(self, wav, sample_rate=None, **k): return wav
+        perth.PerthImplicitWatermarker = _Pass
+        L('watermarker missing: audio passed through')
     from chatterbox.mtl_tts import ChatterboxMultilingualTTS
     m = ChatterboxMultilingualTTS.from_pretrained(device='cpu')
     L('loaded', round(time.time() - t0, 1), 's ref', ref)
