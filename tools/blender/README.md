@@ -120,6 +120,15 @@ kit, so every animal gets them. The checklist a studio uses, and what the kit do
 6. **Rest poses of the animal itself.** A moth rests with its wings swept back flat, not folded up like a butterfly;
    an owl turns its head and hardly tilts it.
 
+7. **Cats follow the cat rules.** A cat is built on `animals/cheetah.py` (its own felid model: `BODY_OF = 'felid'`
+   for one smooth trunk with the waist tucked up, `ANAT 'cat'` legs, a round head with a short muzzle), never on the
+   jaguar: the jaguar's tweak (`_jaguar_head`) adds body parts at the jaguar's own coordinates, so a cat moved or
+   reshaped from it got a thin middle and stray lumps (Avi, 29.10: "built from geometric shapes"). The caracal and the
+   sand cat are built this way (`base('cheetah', g); own(sid); derive('cheetah', sid)`); the sand cat is pressed
+   shorter and lower by one transform, and its paint reads the cheetah's coordinates back.
+8. **Call `own(sid)` before `derive`.** The kit's tables are shared by every spec of a Blender session, so an earlier
+   build can leave another relative's entries (a tweak, a body plan) for the same id; `own` clears them first.
+
 Still to come in v6 (docs/PLAN-1.4.md 11.1): proportions from measured tables per species, toes and claws, an
 opening mouth, short hair shells for the cats, high resolution colour maps, and the far model for every animal.
 

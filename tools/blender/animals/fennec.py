@@ -2,7 +2,7 @@
 # its body), dark eyes with a dark streak running down from each eye, black-tipped bushy tail, furry pale feet.
 # Built on the red fox (fox.py), then scaled to a fennec (about 20 cm at the shoulder).
 base('fox', globals()); derive('fox', 'fennec')
-EYE['fennec'] = ('#2a1a0c', 'round', 0.86, 0.6)   # big dark eyes, not the red fox's amber slit
+EYE['fennec'] = ('#6a4422', 'round', 0.84, 0.48)   # big dark eyes, not the red fox's amber slit
 
 # huge ears, built the way a modeller would: each ear is part of the body's surface (a row of flattened ellipsoids on
 # the ear bone, merged into the skull by the metaballs, so there is no seam and no paper-thin plate), broad at the base
@@ -65,7 +65,7 @@ def paint(P, N, tag):
 
 parts = []
 for sx in (1, -1):
-    parts += eye_parts((sx * 0.036, 0.587, 0.405), 0.0135, 'head', '#2a1a0a', (sx, 0.25, 0.6))
+    parts += eye_parts((sx * 0.036, 0.587, 0.405), 0.0122, 'head', '#6a4422', (sx, 0.25, 0.6))
     parts.append(whiskers((sx * 0.02, 0.535, 0.46), sx, 'head', 4, 0.075, srgb('#2a2018')))
 nose = Part('nose', bone='head', mat=1, color=srgb('#1a1410')); nose.add(*ellipsoid((0, 0.538, 0.476), (0.015, 0.011, 0.01), 8, 5)); parts.append(nose)
 
