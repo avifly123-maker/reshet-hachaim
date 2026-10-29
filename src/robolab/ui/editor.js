@@ -28,7 +28,7 @@ export function createEditor(el, { lesson, kids, onChange }) {
   const T = (o) => (kids && o.k ? o.k : o.f);
   const tools = lesson.tools || ['robot'];
   const hasDefs = (lesson.blocks || []).includes('call');
-  const prog = { robot: [], drone: [], sub: [], defs: {} };
+  const prog = { robot: [], drone: [], sub: [], defs: {}, on: [] };   // on: the tools' event handlers (hat blocks)
   for (const [k, body] of Object.entries(lesson.defs0 || {})) prog.defs[k] = withIds(body);
   if (hasDefs && !Object.keys(prog.defs).length) prog.defs.mine = [];
   let tab = tools[0];                           // 'robot' | 'drone' | 'sub' | 'def:<name>'
@@ -73,11 +73,18 @@ export function createEditor(el, { lesson, kids, onChange }) {
     });
     return h + '</div>';
   }
+  // an event handler: a hat block ("כש…") with its own list, under the tool's program
+  function renderHat(h) {
+    const B = BLOCKS[h.b], col = FAMILIES.event.color;
+    const sig = B.param === 'm' ? `<span class="rl-sig">${Object.entries(SIGNALS).map(([k, S]) => `<button type="button" class="rl-sigb${h.m === k ? ' on' : ''}" data-sig="${k}" data-n="${h.id}" style="--sc:${S.color}" aria-label="${esc(T(S))}"><i class="sh-${S.shape}"></i></button>`).join('')}</span>` : '';
+    return `<div class="rl-node ctl rl-hat" data-node="${h.id}" style="--fc:${col}"><div class="rl-head">${blockFace(h.b)}${sig}<span class="rl-tools"><button type="button" data-del="${h.id}" aria-label="להוריד">${icon('del')}</button></span></div><div class="rl-in">${renderList(h.body)}</div></div>`;
+  }
   function render() {
     lists.clear(); LID = 0;
     renderTabs();
     const L = listOf();
-    codeEl.innerHTML = renderList(L) + (L.length ? '' : `<p class="rl-hint">${kids ? 'לַחֲצוּ עַל בְּלוֹק כְּדֵי לְהוֹסִיף אוֹתוֹ' : 'לחצו על בלוק כדי להוסיף אותו לתוכנית'}</p>`);
+    const hats = tab.startsWith('def:') ? [] : prog.on.filter((h) => h.tool === tab);
+    codeEl.innerHTML = renderList(L) + (L.length || hats.length ? '' : `<p class="rl-hint">${kids ? 'לַחֲצוּ עַל בְּלוֹק כְּדֵי לְהוֹסִיף אוֹתוֹ' : 'לחצו על בלוק כדי להוסיף אותו לתוכנית'}</p>`) + hats.map(renderHat).join('');
     const on = codeEl.querySelector('.rl-slot.on'); if (on) on.scrollIntoView({ block: 'nearest' });
   }
   function find(list, id, parent = null) {
@@ -87,11 +94,24 @@ export function createEditor(el, { lesson, kids, onChange }) {
     }
     return null;
   }
-  const findAny = (id) => { for (const k of [...tools]) { const r = find(prog[k], id); if (r) return r; } for (const d in prog.defs) { const r = find(prog.defs[d], id); if (r) return r; } return null; };
+  const findAny = (id) => {
+    for (const k of [...tools]) { const r = find(prog[k], id); if (r) return r; }
+    for (const d in prog.defs) { const r = find(prog.defs[d], id); if (r) return r; }
+    for (let i = 0; i < prog.on.length; i++) { const h = prog.on[i]; if (h.id === id) return { list: prog.on, i, nd: h }; const r = find(h.body, id); if (r) return r; }
+    return null;
+  };
   const changed = () => { render(); if (onChange) onChange(); };
 
   el.addEventListener('click', (e) => {
     const t = e.target.closest('button'); if (!t || !el.contains(t)) return;
+    if (t.dataset.add && BLOCKS[t.dataset.add].kind === 'hat') {   // a new handler for the tool on screen
+      if (tab.startsWith('def:')) return;
+      const B = BLOCKS[t.dataset.add], h = { b: t.dataset.add, ev: B.ev, tool: tab, id: nid(), body: [] };
+      if (B.param === 'm') h.m = 'a';
+      prog.on.push(h); cursor = { list: h.body, i: 0 };
+      t.classList.remove('pop'); void t.offsetWidth; t.classList.add('pop');
+      return changed();
+    }
     if (t.dataset.add) {
       const nd = newNode(t.dataset.add);
       if (nd.b === 'call') nd.f = Object.keys(prog.defs)[0];
@@ -117,10 +137,10 @@ export function createEditor(el, { lesson, kids, onChange }) {
   renderPalette(); render();
   const clean = (list) => (list || []).map((nd) => { const o = { ...nd }; for (const k of ['body', 'then', 'else']) if (o[k]) o[k] = clean(o[k]); return o; });
   return {
-    program: () => ({ robot: clean(prog.robot), drone: clean(prog.drone), sub: clean(prog.sub), defs: Object.fromEntries(Object.entries(prog.defs).map(([k, v]) => [k, clean(v)])) }),
+    program: () => ({ robot: clean(prog.robot), drone: clean(prog.drone), sub: clean(prog.sub), defs: Object.fromEntries(Object.entries(prog.defs).map(([k, v]) => [k, clean(v)])), on: prog.on.map((h) => ({ ev: h.ev, m: h.m, tool: h.tool, b: h.b, id: h.id, body: clean(h.body) })) }),
     light: (id) => { codeEl.querySelectorAll('.rl-node.run').forEach((n) => n.classList.remove('run')); if (id) { const n = codeEl.querySelector(`[data-node="${id}"]`); if (n) { n.classList.add('run'); n.scrollIntoView({ block: 'nearest' }); } } },
-    clear: () => { prog.robot = []; prog.drone = []; prog.sub = []; for (const k in prog.defs) if (!(lesson.defs0 || {})[k]) prog.defs[k] = []; setCursorEnd(); changed(); },
-    set: (p) => { for (const k of ['robot', 'drone', 'sub']) prog[k] = withIds(p[k] || []); for (const [k, v] of Object.entries(p.defs || {})) prog.defs[k] = withIds(v); setCursorEnd(); changed(); },
-    count: () => { let n = 0; const w = (l) => { for (const nd of l || []) { n++; w(nd.body); w(nd.then); w(nd.else); } }; for (const k of tools) w(prog[k]); for (const d in prog.defs) { n++; w(prog.defs[d]); } return n; },
+    clear: () => { prog.robot = []; prog.drone = []; prog.sub = []; prog.on = []; for (const k in prog.defs) if (!(lesson.defs0 || {})[k]) prog.defs[k] = []; setCursorEnd(); changed(); },
+    set: (p) => { for (const k of ['robot', 'drone', 'sub']) prog[k] = withIds(p[k] || []); prog.on = (p.on || []).map((h) => ({ ...h, b: h.b || Object.keys(BLOCKS).find((b) => BLOCKS[b].kind === 'hat' && BLOCKS[b].ev === h.ev), id: nid(), body: withIds(h.body) })); for (const [k, v] of Object.entries(p.defs || {})) prog.defs[k] = withIds(v); setCursorEnd(); changed(); },
+    count: () => { let n = 0; const w = (l) => { for (const nd of l || []) { n++; w(nd.body); w(nd.then); w(nd.else); } }; for (const k of tools) w(prog[k]); for (const d in prog.defs) { n++; w(prog.defs[d]); } for (const h of prog.on) { n++; w(h.body); } return n; },
   };
 }

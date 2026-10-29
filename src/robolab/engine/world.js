@@ -39,6 +39,7 @@ export function makeWorld(level) {
   const W = {
     rows, items, tools, home: level.home || null, ticks: 0, done: false, error: null, trace: [], counter: 0, reports: [],
     events: level.events || {}, seen: new Set(), oops: 0, fun: 0,
+    stopped: {},     // tools whose program ended with "עצור"
     msgs: [],        // every signal sent: { m, from, t } (the tools talk to each other, engine/blocks.js 'send')
     listeners: [],   // other bodies on the field that hear signals: { id, on(m, from, W) } (stations, gates, sensors: later)
   };

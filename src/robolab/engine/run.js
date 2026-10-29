@@ -51,6 +51,8 @@ function* agent(prog, list, tool, W, depth = 0) {
         if (++guard > 200) { W.fail('nomsg', tool, { m }); return; }
         W.cur = nd.id || null; W.act(tool, { b: 'wait', id: nd.id }); yield 1;
       }
+    } else if (B.kind === 'stop') {   // "עצור": this tool's program ends here (a handler can end the whole program)
+      W.stopped[tool] = true; W.trace.push({ t: W.ticks, tool, a: 'stop', nid: nd.id || null }); return;
     } else if (B.kind === 'call') {
       const body = prog.defs && prog.defs[nd.f];
       if (!body) { W.fail('nodef', tool, { f: nd.f }); return; }
@@ -86,18 +88,27 @@ export function runProgram(level, program, opts = {}) {
         h.seen = W.msgs.length;
         if (news.length && W.tools[h.tool]) {
           const rest = gens[h.tool];
-          gens[h.tool] = (function* () { yield* agent(prog, h.body, h.tool, W); if (rest) yield* rest; })();
+          gens[h.tool] = (function* () { yield* agent(prog, h.body, h.tool, W); if (rest && !W.stopped[h.tool]) yield* rest; })();
           W.trace.push({ t: W.ticks, tool: h.tool, a: 'event', ev: 'msg', m });
         }
         continue;
       }
-      if (!h.fired && W.eventNow(h.ev, h.tool)) { h.fired = true; gens[h.tool] = agent(prog, h.body, h.tool, W); W.trace.push({ t: W.ticks, tool: h.tool, a: 'event', ev: h.ev }); }
+      // the other events interrupt the tool: the handler runs, then the program goes on where it was (unless the
+      // handler said "עצור"). The sunset and a weak battery come once; every new animal in sight is a new event.
+      const repeatable = h.ev === 'see_animal';
+      if ((repeatable || !h.fired) && W.tools[h.tool] && !W.stopped[h.tool] && W.eventNow(h.ev, h.tool)) {
+        h.fired = true;
+        const rest = gens[h.tool];
+        gens[h.tool] = (function* () { yield* agent(prog, h.body, h.tool, W); if (rest && !W.stopped[h.tool]) yield* rest; })();
+        W.trace.push({ t: W.ticks, tool: h.tool, a: 'event', ev: h.ev });
+      }
     }
     const live = Object.keys(gens);
     if (!live.length) { if (handlers.some((h) => h.ev === 'msg' && W.msgs.slice(h.seen || 0).some((q) => q.m === (h.m || 'a') && q.from !== h.tool))) { W.tick(); continue; } break; }
     let moved = false;
     for (const k of live) {
       const g = gens[k]; if (!g) continue;
+      if (W.stopped[k]) { delete gens[k]; continue; }
       const r = g.next();
       if (r.done) delete gens[k]; else moved = true;
       if (W.done) break;

@@ -43,6 +43,12 @@ export const BLOCKS = {
   // and other bodies (engine/world.js W.listen). The signal is one of SIGNALS, chosen on the block (param m).
   send:      { kind: 'act', fam: 'team', icon: 'send', emo: '📡', f: 'שלח אות', k: 'שְׁלַח אוֹת', tools: ALL, param: 'm' },
   waitmsg:   { kind: 'waitmsg', fam: 'team', icon: 'waitmsg', emo: '📻', f: 'חכה לאות', k: 'חַכֵּה לְאוֹת', tools: ALL, param: 'm' },
+  // events (chapter 5): a hat block starts a handler of its own under the tool's program (editor.js); 'stop' ends a program
+  when_sunset: { kind: 'hat', fam: 'event', icon: 'sunset', emo: '🌅', ev: 'sunset', f: 'כשהשמש שוקעת', k: 'כְּשֶׁהַשֶּׁמֶשׁ שׁוֹקַעַת', tools: ALL },
+  when_animal: { kind: 'hat', fam: 'event', icon: 'photo', emo: '👀', ev: 'see_animal', f: 'כשאני רואה בעל חיים', k: 'כְּשֶׁאֲנִי רוֹאֶה בַּעַל חַיִּים', tools: ALL },
+  when_low:    { kind: 'hat', fam: 'event', icon: 'low', emo: '🔋', ev: 'battery_low', f: 'כשהסוללה חלשה', k: 'כְּשֶׁהַסּוֹלְלָה חַלָּשָׁה', tools: ['drone'] },
+  when_msg:    { kind: 'hat', fam: 'event', icon: 'waitmsg', emo: '📻', ev: 'msg', param: 'm', f: 'כשמגיע אות', k: 'כְּשֶׁמַּגִּיעַ אוֹת', tools: ALL },
+  stop:        { kind: 'stop', fam: 'event', icon: 'stop', emo: '🛑', f: 'עצור', k: 'עֲצֹר', tools: ALL },
   fireworks: { kind: 'act', fam: 'fun', icon: 'fireworks', emo: '🎆', f: 'זיקוקים!', k: 'זִקּוּקִים!', tools: ALL },
   dance:     { kind: 'act', fam: 'fun', icon: 'dance', emo: '🎶', f: 'ריקוד ניצחון', k: 'רִקּוּד נִצָּחוֹן', tools: ALL },
   beep:      { kind: 'act', fam: 'fun', icon: 'beep', emo: '🔔', f: 'צפצף', k: 'צַפְצֵף', tools: ALL },

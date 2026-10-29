@@ -38,7 +38,8 @@ export function createRoboSession(ctx, R) {
     },
     update(dt, rdt) {
       if (disposed || !course) return;
-      W.dayFrac = 0.42;   // a training field is always in good daylight (the "sunset" event will move it later)
+      // a training field is in good daylight; the "sunset" event of a run turns it to evening, slowly
+      { const want = W._rlSunset ? 0.735 : 0.42; W.dayFrac += (want - W.dayFrac) * Math.min(1, (rdt || 0) * (W._rlSunset ? 0.8 : 4)); }
       course.update(rdt || dt || 0);
       fitPanel();
       viewT += rdt || 0; if (viewT > 5) { viewT = 0; if (rig.poke) rig.poke(); }   // no idle orbit: north stays up
