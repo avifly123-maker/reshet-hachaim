@@ -37,9 +37,10 @@ def own(sid):
 # by the metaballs into the head, broad at the base and rounding off at the tip, and painted from its own shape (fur on
 # the back and the rim, a pale inside with hairs from the inner edges, an optional dark tip or tuft).
 #   E = blob_ears(blobs, bones, base=(x, y, z) of the right ear (mirrored), d=(dx, dy, dz) direction of the right ear,
-#                 H=length, w=half-width at the base, t=half-thickness, parent='head', tip=0.55 roundness exponent)
+#                 H=length, w=half-width at the base, t=half-thickness, parent='head', tip=0.55 roundness exponent,
+#                 turn=degrees the opening turns outwards round the ear's axis)
 #   ear_paint(P, N, E) → None when P is not on an ear, else (along 0..1, across -1..1, inside 0..1)
-def blob_ears(blobs, bones, base, d, H, w, t, parent='head', tip=0.55, n=6):
+def blob_ears(blobs, bones, base, d, H, w, t, parent='head', tip=0.55, n=6, turn=0.0):
     E = {'H': H, 'w': w, 'tip': tip, 'sides': {}}
     bones[:] = [b for b in bones if b[0] not in ('earL', 'earR')]
     for sx, L in ((1, 'L'), (-1, 'R')):
@@ -49,13 +50,15 @@ def blob_ears(blobs, bones, base, d, H, w, t, parent='head', tip=0.55, n=6):
         if side.x * sx < 0: side = -side
         fwd = side.cross(dd).normalized()
         if fwd.z < 0: fwd = -fwd
+        if turn:   # the opening turned outwards round the ear's own axis (a cat's ear seen from the side is a triangle, not a blade)
+            q = Quaternion(dd, math.radians(turn * sx)); side = q @ side; fwd = q @ fwd
         E['sides'][L] = (bp, dd, side, fwd)
         bones.append(('ear' + L, parent, tuple(bp), tuple(bp + dd * H)))
         tilt = math.degrees(math.atan2(dd.x, dd.y)); lean = math.degrees(math.atan2(-dd.z, dd.y))
         for i in range(n):
             u = 0.08 + 0.76 * i / (n - 1)
             ww = w * (1 - u) ** tip + w * 0.2
-            blobs.append(dict(t='ell', c=tuple(bp + dd * (H * u)), r=(ww, H * 0.13, t * (0.6 + 0.6 * (1 - u))), rot=(lean, 0, -tilt), bone='ear' + L))
+            blobs.append(dict(t='ell', c=tuple(bp + dd * (H * u)), r=(ww, H * 0.13, t * (0.6 + 0.6 * (1 - u))), rot=(lean, turn * sx, -tilt), bone='ear' + L))
     return E
 
 def ear_paint(P, N, E):
@@ -85,3 +88,37 @@ def worley2(p, scale, seed=1):
                 if d < d1: d2 = d1; d1 = d; rid = _h3(i, j, k, seed + 3)
                 elif d < d2: d2 = d
     return d1, d2, rid
+
+def trunk_from_profile(prof, width, n=26, chest_z=-0.05):
+    """kit v6: a body traced from a side photo. prof = [(z, top, bottom), …] from front to back (metres, any spacing);
+    width(z) = half width at z. The profile is resampled at n even stations with a smooth (Catmull-Rom) curve and each
+    station becomes one ellipsoid; neighbours overlap deeply (rz = 1.7 × the spacing), so the back and the belly are
+    one smooth line, never a row of rings."""
+    P = sorted(prof, key=lambda p: -p[0]); z0, z1 = P[0][0], P[-1][0]
+    def cr(a, b, c, d, t):
+        return 0.5 * (2 * b + (-a + c) * t + (2 * a - 5 * b + 4 * c - d) * t * t + (-a + 3 * b - 3 * c + d) * t * t * t)
+    def at(z, k):
+        for i in range(len(P) - 1):
+            if P[i][0] >= z >= P[i + 1][0]:
+                t = (P[i][0] - z) / max(1e-9, P[i][0] - P[i + 1][0])
+                a = P[max(0, i - 1)][k]; b = P[i][k]; c = P[i + 1][k]; d = P[min(len(P) - 1, i + 2)][k]
+                return cr(a, b, c, d, t)
+        return P[-1][k]
+    step = (z0 - z1) / (n - 1); out = []
+    for i in range(n):
+        z = z0 - step * i; top, bot = at(z, 1), at(z, 2)
+        end = i in (0, n - 1)
+        out.append(dict(t='ell', c=(0, (top + bot) / 2, z), r=(width(z), (top - bot) / 2, step * (1.2 if end else 1.7)),
+                        bone='chest' if z > chest_z else 'hips'))
+    return out
+
+def cat_muscles(blobs, bones, sh, th, sh_t=0.5, th_t=0.55, th_back=0.04):
+    """kit v6, cats: the upper arm and the thigh as one muscle each, placed on the upper leg bone (fl / hl, …) at sh_t /
+    th_t of its length, so it shows below the body line where the photo shows it. The kit's own haunch (ANAT th) is
+    kept small: a big haunch on the hip joint swells above the back like a balloon."""
+    bb = {b[0]: (Vector(b[2]), Vector(b[3])) for b in bones}
+    for L in ('l', 'r'):
+        S, E = bb['f' + L]; c = S + (E - S) * sh_t
+        blobs.append(dict(t='ell', c=tuple(c), r=sh, bone='f' + L, foot=True))   # foot=True: anat_legs keeps it
+        S, E = bb['h' + L]; c = S + (E - S) * th_t + Vector((0, 0, -th_back))
+        blobs.append(dict(t='ell', c=tuple(c), r=th, bone='h' + L, foot=True))

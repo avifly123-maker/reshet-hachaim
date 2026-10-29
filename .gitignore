@@ -16,3 +16,4 @@ release-files/
 .claude/
 art/voice/*.wav
 desktop/release-1.4/
+tools/blender/refs/*.png
