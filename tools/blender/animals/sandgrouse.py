@@ -30,8 +30,8 @@ def paint(P, N, tag):
         c = mix(c, BLACK, smooth(0.0022, 0.0008, abs(abs(b) - 0.0105)) * 0.8 * k)
     if z > 0.08:   # orange-yellow face and throat, a black throat patch, a dark line behind the eye
         c = mix(c, ORANGE, smooth(0.04, 0.06, y) * smooth(0.11, 0.095, y) * 0.85)
-        q = math.hypot(x / 0.014, (y - 0.054) / 0.008)                            # a small soft black chin patch
-        c = mix(c, BLACK, smooth(1.0, 0.6, q) * smooth(0.0, 0.5, N.z) * 0.8)
+        q = math.hypot(x / 0.01, (y - 0.05) / 0.006)                            # a small soft black chin patch
+        c = mix(c, BLACK, smooth(1.0, 0.5, q) * smooth(0.3, 0.7, N.z) * 0.6)
         if y > 0.108 and abs(x) < 0.022: c = mix(c, mix(SAND2, OLIVE, 0.5), 0.5)                  # an olive crown
     return c
 def wcol(s, c, top): return mix(mix(SAND, OLIVE, 0.3), SPOT, 0.15 + 0.3 * s) if top else mix(SAND, WHITE, 0.4)

@@ -114,7 +114,7 @@ def _detail(P, N, f, skin, s):
         cl = noise.noise(P * (1 / (0.035 * s)) + Vector((3.1, 7.7, 1.3)))
         return s * (0.0012 * st + 0.0022 * cl), max(0.0, min(1.0, 0.5 - 0.5 * st))
     if skin == 'feather':
-        return _feather(P, N, f, s, 0.024, 0.62, 0.0012)
+        return _feather(P, N, f, s, 0.019, 0.62, 0.001)       # kit v6: smaller feathers, a softer edge line
     if skin == 'scale':
         d, _ = worley(P, 1 / (0.014 * s), 9)
         e = min(1.0, d / 0.7)
@@ -138,7 +138,7 @@ def _feather(P, N, f, s, L, w, amp):
     h = e % 1.0
     barb = noise.noise(Vector((b * 9.0, a * 1.2, 0.5)))
     d = amp * s * (h - 0.5 + 0.12 * barb)
-    g = max(0.0, min(1.0, smooth(0.78, 1.0, h) * 0.85 + 0.12 * (0.5 - 0.5 * barb)))
+    g = max(0.0, min(1.0, smooth(0.8, 1.0, h) * 0.5 + 0.1 * (0.5 - 0.5 * barb)))   # kit v6: the edge is a soft shade, not a drawn net
     return d, g
 
 def _part_ranges(spec, nb):
@@ -1018,6 +1018,9 @@ def _set_eyes(spec, depth=0.38):
             hl.v = [tuple(Hn + (Vector(v) - H) * 0.7) for v in hl.v]; hl._set = True
         if skin_of(spec) in ('fur', 'scale') and not spec.get('noLids'):
             lids.append(_lid(Cn, r, g, lidcol, part.bone, **spec.get('lidShape', {})))
+        elif skin_of(spec) == 'feather' and not spec.get('noLids'):
+            # kit v6: a bird's eye sits in a thin bare ring of skin, so it never reads as a bead stuck on the feathers
+            lids.append(_lid(Cn, r, g, srgb(spec.get('lidCol', '#3a2e24')), part.bone, **dict(dict(wide=1.04, tall=0.94, tube=0.11), **spec.get('lidShape', {}))))
     parts += lids; spec['parts'] = parts
     # paired nostrils: flat dark openings, not beads
     for p in parts:
