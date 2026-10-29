@@ -169,3 +169,11 @@
 #ui.wol .rl-gview { position: relative; min-height: 0; border-radius: 16px; background: radial-gradient(80% 70% at 50% 40%, #5b88aa 0%, #2c5373 70%, #1f3f5a 100%); overflow: hidden; }
 #ui.wol .rl-gview canvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: grab; }
 #ui.wol .rl-gview small { position: absolute; bottom: 8px; inset-inline: 0; text-align: center; color: #d6e6f2; font-size: .8em; pointer-events: none; }
+/* the signals (send / wait for a signal): three shapes in colour, readable without words */
+#ui.wol .rl-sig { display: inline-flex; gap: 3px; }
+#ui.wol .rl-sigb { display: grid; place-items: center; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 7px; background: rgba(255, 255, 255, .25); }
+#ui.wol .rl-sigb.on { background: #fff; box-shadow: 0 0 0 2px var(--sc); }
+#ui.wol .rl-sigb i { display: block; width: 13px; height: 13px; background: var(--sc); }
+#ui.wol .rl-sigb i.sh-circle { border-radius: 50%; }
+#ui.wol .rl-sigb i.sh-triangle { clip-path: polygon(50% 5%, 95% 92%, 5% 92%); }
+#ui.wol .rl-sigb i.sh-star { clip-path: polygon(50% 2%, 62% 38%, 98% 38%, 69% 60%, 80% 96%, 50% 74%, 20% 96%, 31% 60%, 2% 38%, 38% 38%); }

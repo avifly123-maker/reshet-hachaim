@@ -45,6 +45,12 @@ function* agent(prog, list, tool, W, depth = 0) {
       }
     } else if (B.kind === 'if') {
       yield* agent(prog, sense(W, tool, nd.c) ? nd.then : nd.else, tool, W, depth + 1);
+    } else if (B.kind === 'waitmsg') {   // wait (one step at a time) until the signal comes from another tool
+      const m = nd.m || 'a', since = W.ticks; let guard = 0;
+      while (!W.done && !W.msgs.some((q) => q.m === m && q.from !== tool && q.t >= since - 1)) {
+        if (++guard > 200) { W.fail('nomsg', tool, { m }); return; }
+        W.cur = nd.id || null; W.act(tool, { b: 'wait', id: nd.id }); yield 1;
+      }
     } else if (B.kind === 'call') {
       const body = prog.defs && prog.defs[nd.f];
       if (!body) { W.fail('nodef', tool, { f: nd.f }); return; }
@@ -74,10 +80,21 @@ export function runProgram(level, program, opts = {}) {
   while (!W.done && W.ticks < max) {
     // events: a handler runs when its moment comes, and its tool's main program stops (e.g. "when the sun sets, go home")
     for (const h of handlers) {
+      if (h.ev === 'msg') {   // a signal: the handler runs once per signal, then the tool goes on with its program
+        const m = h.m || 'a';
+        const news = W.msgs.filter((q, i) => q.m === m && q.from !== h.tool && i >= (h.seen || 0));
+        h.seen = W.msgs.length;
+        if (news.length && W.tools[h.tool]) {
+          const rest = gens[h.tool];
+          gens[h.tool] = (function* () { yield* agent(prog, h.body, h.tool, W); if (rest) yield* rest; })();
+          W.trace.push({ t: W.ticks, tool: h.tool, a: 'event', ev: 'msg', m });
+        }
+        continue;
+      }
       if (!h.fired && W.eventNow(h.ev, h.tool)) { h.fired = true; gens[h.tool] = agent(prog, h.body, h.tool, W); W.trace.push({ t: W.ticks, tool: h.tool, a: 'event', ev: h.ev }); }
     }
     const live = Object.keys(gens);
-    if (!live.length) break;
+    if (!live.length) { if (handlers.some((h) => h.ev === 'msg' && W.msgs.slice(h.seen || 0).some((q) => q.m === (h.m || 'a') && q.from !== h.tool))) { W.tick(); continue; } break; }
     let moved = false;
     for (const k of live) {
       const g = gens[k]; if (!g) continue;
@@ -86,7 +103,8 @@ export function runProgram(level, program, opts = {}) {
       if (W.done) break;
     }
     W.tick();
-    if (!moved && !Object.keys(gens).length) break;
+    const heard = handlers.some((h) => h.ev === 'msg' && W.msgs.slice(h.seen || 0).some((q) => q.m === (h.m || 'a') && q.from !== h.tool));
+    if (!moved && !Object.keys(gens).length && !heard) break;
   }
   if (!W.done && W.ticks >= max) W.fail('long', null);
   const goal = W.error ? { ok: false, why: W.error.code } : checkGoal(level.goal, W);

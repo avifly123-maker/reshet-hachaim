@@ -46,6 +46,8 @@ export const BLOCK_ICONS = {
   lesson: S('<path d="M4 5h7a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H4z"/><path d="M20 5h-4a2 2 0 0 0-2 2"/><path d="M20 5v13h-6"/>'),
   lock: S('<rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><circle cx="12" cy="16" r="1.3" fill="currentColor"/>'),
   paint: S('<path d="M12 3a9 9 0 1 0 0 18c1.2 0 1.8-.8 1.8-1.7 0-1.2-1-1.6-1-2.6 0-1 .8-1.7 1.9-1.7H17a4 4 0 0 0 4-4c0-4.4-4-8-9-8z"/><circle cx="7.5" cy="11" r="1.3" fill="currentColor"/><circle cx="10" cy="7" r="1.3" fill="currentColor"/><circle cx="15" cy="7.5" r="1.3" fill="currentColor"/>'),
+  send: S('<path d="M4 12h9"/><path d="M10 8l4 4-4 4"/><path d="M17 7a7 7 0 0 1 0 10"/><path d="M19.5 4.5a10.5 10.5 0 0 1 0 15"/>'),
+  waitmsg: S('<path d="M7 7a7 7 0 0 0 0 10"/><path d="M4.5 4.5a10.5 10.5 0 0 0 0 15"/><circle cx="15" cy="12" r="5"/><path d="M15 9.5V12l1.6 1.2"/>'),
   eye: S('<path d="M2 12c3-5 6.5-7 10-7s7 2 10 7c-3 5-6.5 7-10 7s-7-2-10-7z"/><circle cx="12" cy="12" r="3"/>'),
   puzzle: S('<path d="M4 8h4a2 2 0 1 1 4 0h4v4a2 2 0 1 1 0 4v4H4z"/>'),
 };

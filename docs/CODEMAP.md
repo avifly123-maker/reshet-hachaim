@@ -32,6 +32,7 @@ npm run check                     # every check (≈15 min); npm run check:quick
 | `src/learn/games/` | The card games: keep-forest (folder), web-puzzle, inventors (and the robot workshop), expedition, verse-match. |
 | `src/lab/` | The lab of רובו־דע: the room, stations, microscope, atlas, thinking corner, cabinet. |
 | `src/research/` | חוקרי הטבע: the mysteries (`cases/` = one data file each), the population model, the session, the notebook. |
+| `src/robolab/` | מעבדת הרובוטים (1.4.1): `engine/` (pure, deterministic: world, blocks, sensors, signals between tools, goals, `run.js`), `ui/` (block editor, icons, the flat map kept for tests), `three/` (a lesson as a training field on the zone's real island: `course.js`, `session.js`; the Blender tools from parts: `parts3d.js`, simple fallbacks `models.js`), `garage.js` (סדנת העיצוב: parts and colours), `earn.js`, `progress.js`. Data in `src/data/robolab/` (lessons, chapters, lines, parts and paints). |
 | `src/audio/` | Sound effects, music, `voice.js` (plays the recorded lines). |
 | `src/data/` | Content (zones, cards, missions, quiz, guide lines in `guide/`, threads) and generated asset tables (pictures, voice, models – made by `tools/build-*.py`, never edited by hand). |
 | `src/packs/` | Entry points of the lazy packs (game, hub, lab, research, one per zone). |
@@ -51,4 +52,7 @@ npm run check                     # every check (≈15 min); npm run check:quick
 - **Add a mystery:** a case file in `src/research/cases/`, list it in `cases/index.js`, run `node tools/validate-research.mjs --all`.
 - **Add a zone (1.4):** an entry in `ZONES` and `ZONE_LOOK` (`src/data/zones.js`, the one list of zones: code that needs "every zone", a zone's short name, colour or mascot reads it from there), `src/data/<id>.js`, `src/packs/<id>.js`, then run `node tools/validate-zones.mjs <id>`: it lists every other table that still needs the zone (place words, quiz, lab words, ranks, card games, kids' set…).
 - **Add a card, species or mission:** the zone file in `src/data/` (`amazon.js`, `grove.js`, `reef.js`, `kids.js`), with a source in `docs/sources.md`.
+- **Add a robot-lab lesson or puzzle:** an entry in `src/data/robolab/lessons-*.js` (map rows, items, tools, the blocks it offers, goal, par, two different solutions), then `node tools/validate-robolab.mjs` (every solution must pass, an empty program must fail).
+- **Add a part or colour for the tools:** model it in `tools/blender/robolab_kit.py` (an object whose origin sits on a socket, materials by slot name), run `rl_build()` and `rl_export()` on the PC, copy the JSON to `art/robolab/parts_export.json`, `python3 tools/build-robolab-parts.py`; then list it in `src/data/robolab/parts.js` (tool, socket, what blocks it gives, how it is earned).
+- **Let something new hear the tools' signals:** push `{ id, on(m, from, W) }` into `W.listeners` (`src/robolab/engine/world.js`); a block `send` reaches it.
 - **Change a big screen safely:** take regression shots before and after (`python3 tools/regress.py dist/index.html shots/regress/<name>`, then `--compare`), and run `npm run check`.

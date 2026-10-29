@@ -39,6 +39,8 @@ export function makeWorld(level) {
   const W = {
     rows, items, tools, home: level.home || null, ticks: 0, done: false, error: null, trace: [], counter: 0, reports: [],
     events: level.events || {}, seen: new Set(), oops: 0, fun: 0,
+    msgs: [],        // every signal sent: { m, from, t } (the tools talk to each other, engine/blocks.js 'send')
+    listeners: [],   // other bodies on the field that hear signals: { id, on(m, from, W) } (stations, gates, sensors: later)
   };
   const log = (tool, a, extra) => { const T = tools[tool] || {}; W.trace.push({ t: W.ticks, tool, a, x: T.x, y: T.y, dir: T.dir, nid: W.cur || null, ...extra }); };
   W.fail = (code, tool, extra) => { if (W.done) return; W.error = { code, tool, ...(tool && tools[tool] ? { x: tools[tool].x, y: tools[tool].y } : {}), ...extra }; W.done = true; log(tool, 'fail', { code }); };
@@ -105,13 +107,17 @@ export function makeWorld(level) {
       const R = tools.robot, H = W.home;
       const ok = (R && R.x === T.x && R.y === T.y) || (!R && H && H.x === T.x && H.y === T.y);
       if (ok) { T.flying = false; T.landed = true; log(tool, 'land'); } else { W.fail('noland', tool); }
+    } else if (b === 'send') {
+      const m = nd.m || 'a';
+      W.msgs.push({ m, from: tool, t: W.ticks }); log(tool, 'send', { m });
+      for (const L of W.listeners) { try { L.on(m, tool, W); } catch (e) { } }
     } else if (b === 'fireworks' || b === 'dance' || b === 'beep' || b === 'lights' || b === 'sneeze') { W.fun++; log(tool, b); }
     else W.fail('unknown', tool, { b });
   };
   W.summary = () => ({
     tools: Object.fromEntries(Object.entries(tools).map(([k, T]) => [k, { x: T.x, y: T.y, dir: T.dir, flying: T.flying, landed: T.landed, battery: T.battery }])),
     items: items.map((it) => ({ t: it.t, x: it.x, y: it.y, done: it.done, kind: it.kind })),
-    counter: W.counter, reports: W.reports.slice(), oops: W.oops, fun: W.fun,
+    counter: W.counter, reports: W.reports.slice(), oops: W.oops, fun: W.fun, msgs: W.msgs.map((q) => ({ ...q })),
   });
   return W;
 }

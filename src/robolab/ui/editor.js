@@ -5,7 +5,7 @@
 //   const E = createEditor(el, { lesson, kids, onChange })
 //   E.program()   → { robot, drone, sub, defs }   (node ids are kept for lighting the running block)
 //   E.light(nid)  E.clear()  E.set(program)
-import { BLOCKS, FAMILIES, SENSORS } from '../engine/blocks.js';
+import { BLOCKS, FAMILIES, SENSORS, SIGNALS } from '../engine/blocks.js';
 import { icon } from './icons.js';
 
 let UID = 1;
@@ -20,6 +20,7 @@ const newNode = (b) => {
   if (B.kind === 'repeat') { nd.n = 3; nd.body = []; }
   if (B.kind === 'until') { nd.c = 'home'; nd.body = []; }
   if (B.kind === 'if') { nd.c = 'tree'; nd.then = []; nd.else = []; }
+  if (B.param === 'm') nd.m = 'a';
   return nd;
 };
 
@@ -63,6 +64,7 @@ export function createEditor(el, { lesson, kids, onChange }) {
       let param = '';
       if (B.kind === 'repeat') param = `<span class="rl-num"><button type="button" data-dn="${nd.id}" aria-label="פחות">${icon('down')}</button><b>${nd.n}</b><button type="button" data-up="${nd.id}" aria-label="עוד">${icon('up')}</button><small>${kids ? 'פְּעָמִים' : 'פעמים'}</small></span>`;
       if (B.kind === 'if' || B.kind === 'until') param = `<select data-sens="${nd.id}">${Object.entries(SENSORS).map(([k, S]) => `<option value="${k}"${nd.c === k ? ' selected' : ''}>${esc(T(S))}</option>`).join('')}</select>`;
+      if (B.param === 'm') param = `<span class="rl-sig">${Object.entries(SIGNALS).map(([k, S]) => `<button type="button" class="rl-sigb${nd.m === k ? ' on' : ''}" data-sig="${k}" data-n="${nd.id}" style="--sc:${S.color}" aria-label="${esc(T(S))}" title="${esc(T(S))}"><i class="sh-${S.shape}"></i></button>`).join('')}</span>`;
       if (B.kind === 'call') param = `<select data-fn="${nd.id}">${Object.keys(prog.defs).map((d) => `<option value="${d}"${nd.f === d ? ' selected' : ''}>${esc(T(DEF_NAMES[d] || { f: d, k: d }))}</option>`).join('')}</select>`;
       h += `<div class="rl-node${B.kind === 'act' ? '' : ' ctl'}" data-node="${nd.id}" style="--fc:${col}"><div class="rl-head">${blockFace(nd.b)}${param}<span class="rl-tools"><button type="button" data-mv="-1" data-n="${nd.id}" aria-label="למעלה">${icon('up')}</button><button type="button" data-mv="1" data-n="${nd.id}" aria-label="למטה">${icon('down')}</button><button type="button" data-del="${nd.id}" aria-label="להוריד">${icon('del')}</button></span></div>`;
       if (nd.body) h += `<div class="rl-in">${renderList(nd.body)}</div>`;
@@ -103,6 +105,7 @@ export function createEditor(el, { lesson, kids, onChange }) {
     if (t.dataset.slot != null) { const L = lists.get(t.closest('.rl-list').dataset.list); cursor = { list: L, i: +t.dataset.slot }; return render(); }
     if (t.dataset.del) { const r = findAny(t.dataset.del); if (r) { r.list.splice(r.i, 1); if (cursor && cursor.list === r.list && cursor.i > r.i) cursor.i--; if (!lists.size || !cursor) setCursorEnd(); } return changed(); }
     if (t.dataset.mv) { const r = findAny(t.dataset.n); if (r) { const j = r.i + (+t.dataset.mv); if (j >= 0 && j < r.list.length) { r.list.splice(r.i, 1); r.list.splice(j, 0, r.nd); } } return changed(); }
+    if (t.dataset.sig) { const r = findAny(t.dataset.n); if (r) r.nd.m = t.dataset.sig; return changed(); }
     if (t.dataset.up || t.dataset.dn) { const r = findAny(t.dataset.up || t.dataset.dn); if (r) r.nd.n = Math.max(1, Math.min(9, r.nd.n + (t.dataset.up ? 1 : -1))); return changed(); }
   });
   el.addEventListener('change', (e) => {

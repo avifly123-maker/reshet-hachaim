@@ -38,11 +38,22 @@ export const BLOCKS = {
   reset:     { kind: 'act', fam: 'count', icon: 'reset', f: 'אפס מונה', k: 'אַפֵּס מוֹנֶה', tools: ALL },
   launch:    { kind: 'act', fam: 'team', icon: 'launch', f: 'שגר רחפן', k: 'שַׁגֵּר רַחְפָן', tools: ['robot'] },
   land:      { kind: 'act', fam: 'team', icon: 'land', f: 'נחת על הרובוט', k: 'נְחַת עַל הָרוֹבּוֹט', tools: ['drone'] },
+  // the tools talk (Avi, 29.10): a signal goes to everyone on the field, today the three tools, later stations, sensors
+  // and other bodies (engine/world.js W.listen). The signal is one of SIGNALS, chosen on the block (param m).
+  send:      { kind: 'act', fam: 'team', icon: 'send', f: 'שלח אות', k: 'שְׁלַח אוֹת', tools: ALL, param: 'm' },
+  waitmsg:   { kind: 'waitmsg', fam: 'team', icon: 'waitmsg', f: 'חכה לאות', k: 'חַכֵּה לְאוֹת', tools: ALL, param: 'm' },
   fireworks: { kind: 'act', fam: 'fun', icon: 'fireworks', f: 'זיקוקים!', k: 'זִקּוּקִים!', tools: ALL },
   dance:     { kind: 'act', fam: 'fun', icon: 'dance', f: 'ריקוד ניצחון', k: 'רִקּוּד נִצָּחוֹן', tools: ALL },
   beep:      { kind: 'act', fam: 'fun', icon: 'beep', f: 'צפצף', k: 'צַפְצֵף', tools: ALL },
   lights:    { kind: 'act', fam: 'fun', icon: 'lights', f: 'אורות צבעוניים', k: 'אוֹרוֹת צִבְעוֹנִיִּים', tools: ALL },
   sneeze:    { kind: 'act', fam: 'fun', icon: 'sneeze', f: 'התעטש', k: 'הִתְעַטֵּשׁ', tools: ALL },
+};
+
+// the signals the tools send each other: a colour and a shape each (easy to tell apart without reading)
+export const SIGNALS = {
+  a: { f: 'אות כתום', k: 'אוֹת כָּתֹם', color: '#e8873a', shape: 'circle' },
+  b: { f: 'אות כחול', k: 'אוֹת כָּחֹל', color: '#3b82c4', shape: 'triangle' },
+  c: { f: 'אות ירוק', k: 'אוֹת יָרֹק', color: '#3f9a4a', shape: 'star' },
 };
 
 // sensors for 'if' and 'until': what the tool sees right now
@@ -68,4 +79,5 @@ export const EVENTS = {
   sunset:      { f: 'כשהשמש שוקעת', k: 'כְּשֶׁהַשֶּׁמֶשׁ שׁוֹקַעַת' },
   see_animal:  { f: 'כשאני רואה בעל חיים', k: 'כְּשֶׁאֲנִי רוֹאֶה בַּעַל חַיִּים' },
   battery_low: { f: 'כשהסוללה חלשה', k: 'כְּשֶׁהַסּוֹלְלָה חַלָּשָׁה' },
+  msg:         { f: 'כשמגיע אות', k: 'כְּשֶׁמַּגִּיעַ אוֹת', param: 'm' },   // runs its body, then the tool goes back to its program
 };
