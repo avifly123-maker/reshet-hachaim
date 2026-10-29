@@ -194,3 +194,9 @@
 /* the level and puzzle buttons keep their dark text (".rl button" inherits the screen's white) */
 #ui.wol .rl .rl-lvb, #ui.wol .rl .rl-pzb { color: #1d2c38; }
 #ui.wol .rl-pzb small { font-size: .74em; color: #6a5a40; }
+/* קוּבִּי's first words: the chapter's idea, then a new block with its picture */
+#ui.wol .rl-chi { font-weight: 700; color: #8a4a12; }
+#ui.wol .rl-newb { display: flex; align-items: center; gap: 6px; margin-top: 4px; padding: 3px 8px; border-radius: 9px; background: #fff3d6; font-size: .92em; }
+#ui.wol .rl-newb i { font-style: normal; font-size: 1.15em; font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif; }
+#ui.wol .rl-newb b { color: #c4504a; }
+#ui.wol .rl-say p { max-height: 7.5em; overflow: auto; }

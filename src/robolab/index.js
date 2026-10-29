@@ -12,6 +12,8 @@ import { createRoboSession } from './three/session.js';
 import { openGarage } from './garage.js';
 import { kubiCam } from './ui/kubi-cam.js';
 import { checkRoboBadges } from './badges.js';
+import { BLOCK_INTRO, CHAPTER_INTRO } from '../data/robolab/kubi-lines.js';
+import { BLOCKS } from './engine/blocks.js';
 import { createEditor } from './ui/editor.js';
 import { icon } from './ui/icons.js';
 import { isOpen as journeyOpen, lockWords } from '../core/journey.js';
@@ -101,7 +103,15 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     const c = el.querySelector('.rl-hkubi'); if (!c) return;
     kcam = kubiCam(c, { full: true }); setTimeout(() => kcam && kcam.talk(true, 3), 600);
   }
+  // what קוּבִּי says first: the chapter's idea on its first lesson, and the blocks this player has not met yet (two at most)
+  function newsFor(L) {
+    const P = roboProgress(), out = { chapter: null, blocks: [] };
+    if (!L.puzzle && !P.seen['ch:' + L.ch] && CHAPTER_INTRO[L.ch]) { out.chapter = CHAPTER_INTRO[L.ch]; markSeen('ch:' + L.ch); }
+    for (const b of L.blocks || []) if (BLOCK_INTRO[b] && !P.seen['b:' + b] && out.blocks.length < 2) { out.blocks.push(b); markSeen('b:' + b); }
+    return out;
+  }
   function mountLevel(L, api) {
+    const news = newsFor(L);
     stopRun(); if (map) map.dispose();
     cur = L; lastRun = null;
     el.classList.toggle('in3d', !!api); root.classList.toggle('rl3d', !!api);
@@ -111,7 +121,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
       <header class="rl-top"><button type="button" class="rl-back" data-home>${icon('home')}<span>${kids ? 'לַמַּעְבָּדָה' : 'למעבדה'}</span></button>
         <div class="rl-title"><h1>${esc(T(L.title))}</h1><p>${esc(T(zw))}${L.concept ? ' · ' + esc(T(conceptWord(L.concept))) : ''}</p></div>
         <div class="rl-goalbar"><span class="rl-par">${icon('star')}${icon('star')}${icon('star')} ${kids ? 'עַד' : 'עד'} <b>${L.par || '?'}</b> ${kids ? 'בְּלוֹקִים' : 'בלוקים'}</span></div></header>
-      <div class="rl-say"><canvas class="rl-kubi" aria-hidden="true"></canvas><p>${(L.say || []).map((s) => esc(T(s))).join(' ')}</p></div>
+      <div class="rl-say"><canvas class="rl-kubi" aria-hidden="true"></canvas><p>${news.chapter ? `<span class="rl-chi">${esc(T(news.chapter))}</span> ` : ''}${(L.say || []).map((s) => esc(T(s))).join(' ')}${news.blocks.map((b) => `<span class="rl-newb"><i>${BLOCKS[b].emo || icon(BLOCKS[b].icon)}</i><b>${kids ? 'חָדָשׁ' : 'חדש'}</b> ${esc(T(BLOCK_INTRO[b]))}</span>`).join('')}</p></div>
       <div class="rl-body">
         <div class="rl-ed"></div>
         <div class="rl-stage"><canvas class="rl-map"></canvas><div class="rl-msg" hidden></div>
@@ -131,7 +141,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     if (kcam) kcam.dispose();
     kcam = kubiCam(el.querySelector('.rl-kubi'));
     kubiDo = (what, sec = 0) => { if (!kcam) return; if (what) kcam.set(what); if (sec > 0) kcam.talk(true, sec); };
-    setTimeout(() => kubiDo('explain', Math.min(6, 1.2 + ((L.say || []).map((x) => T(x)).join(' ').length) / 16)), 700);
+    setTimeout(() => kubiDo('explain', Math.min(9, 1.2 + el.querySelector('.rl-say p').textContent.length / 16)), 700);
   }
   const CONCEPT = {
     step: { f: 'סדר פעולות', k: 'סֵדֶר פְּעֻלּוֹת' }, turn: { f: 'פניות', k: 'פְּנִיּוֹת' }, path: { f: 'מסלול', k: 'מַסְלוּל' }, order: { f: 'קודם ואחר כך', k: 'קֹדֶם וְאַחַר כָּךְ' },
