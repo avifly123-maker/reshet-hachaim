@@ -4,7 +4,7 @@
 # hops. Sandy back, white belly, a pale stripe across the hip. It moves by hopping.
 own('jerboa')   # modelled on its own: no family tweaks from the kit
 blobs = [
-    dict(t='ell', c=(0, 0.075, -0.02), r=(0.034, 0.038, 0.048), rot=(-30, 0, 0), bone='hips'),     # the haunches
+    dict(t='ell', c=(0, 0.075, -0.02), r=(0.04, 0.044, 0.054), rot=(-30, 0, 0), bone='hips'),     # the haunches
     dict(t='ell', c=(0, 0.1, 0.02), r=(0.028, 0.032, 0.034), rot=(-35, 0, 0), bone='chest'),
     dict(t='ell', c=(0, 0.128, 0.05), r=(0.027, 0.026, 0.03), bone='head'),                       # a big round head
     dict(t='cap', a=(0, 0.125, 0.062), b2=(0, 0.117, 0.083), r=(0.017, 0.008), bone='head'),       # the short snout
@@ -22,7 +22,7 @@ for sx, L in ((1, 'l'), (-1, 'r')):
     bones.append(('f' + L, 'chest', tuple(sh), tuple(paw)))
 TAILP = [(0, 0.07, -0.065), (0, 0.06, -0.13), (0, 0.045, -0.2), (0, 0.032, -0.27), (0, 0.03, -0.32)]
 bones += chain('tail', TAILP, 'hips')
-E = blob_ears(blobs, bones, base=(0.013, 0.148, 0.04), d=(0.35, 1, -0.35), H=0.05, w=0.012, t=0.003, tip=0.5, n=5)
+E = blob_ears(blobs, bones, base=(0.013, 0.148, 0.04), d=(0.35, 1, -0.35), H=0.052, w=0.016, t=0.003, tip=0.5, n=5, turn=25)
 EYE['jerboa'] = ('#0a0806', 'round', 0.92, 0.75)
 
 SAND, SAND2, WHITE, PINK, STRIPE = srgb('#d4a870'), srgb('#bb8e58'), srgb('#f6f0e6'), srgb('#e4b2a4'), srgb('#efe2c8')
@@ -44,8 +44,8 @@ for sx in (1, -1):
     parts += eye_parts((sx * 0.018, 0.135, 0.068), 0.0075, 'head', '#0a0806', (sx, 0.15, 0.6))
     parts.append(whiskers((sx * 0.008, 0.115, 0.082), sx, 'head', 5, 0.04, srgb('#3a3028')))
 nose = Part('nose', bone='head', mat=1, color=srgb('#c98d86')); nose.add(*ellipsoid((0, 0.117, 0.085), (0.004, 0.0035, 0.003), 8, 5)); parts.append(nose)
-parts.append(tail_part('tail', 4, TAILP, 0.004, 0.0028, 6, 24, colfn=lambda t: mix(SAND2, srgb('#1a1612'), smooth(0.78, 0.86, t)) if t < 0.92 else WHITE))
-tuft = Part('tuft', bone='tail4', color=WHITE); tuft.add(*ellipsoid((0, 0.03, -0.325), (0.008, 0.007, 0.022), 8, 6)); parts.append(tuft)
+parts.append(tail_part('tail', 4, TAILP, 0.004, 0.0028, 6, 24, colfn=lambda t: mix(SAND2, srgb('#1a1612'), smooth(0.7, 0.78, t)) if t < 0.9 else WHITE))
+tuft = Part('tuft', bone='tail4', color=WHITE); tuft.add(*ellipsoid((0, 0.03, -0.33), (0.012, 0.01, 0.032), 8, 6)); parts.append(tuft)
 
 def S(x): return math.sin(TAU * x)
 def hop(ph, h=0.02, amp=1.0):

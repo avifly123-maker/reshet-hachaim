@@ -41,9 +41,12 @@ for bl in blobs:
         bl['r'] = tuple(x * HS for x in bl['r'])
 E = blob_ears(blobs, bones, base=_h((0.1, 0.92, 0.53)), d=(0.85, 0.7, -0.15), H=0.2, w=0.1, t=0.016, tip=0.65, turn=30)
 
+STRIPE = srgb('#55432f')
 SAND, SAND2, BACK, WHITE, BAR, RUST, BLACK = srgb('#d4b47c'), srgb('#bf9d64'), srgb('#8c7656'), srgb('#f4ece0'), srgb('#8a6e48'), srgb('#c08050'), srgb('#1a1410')
 def _seg(P, a, b):
     a = Vector(a); b = Vector(b); ab = b - a; t = max(0.0, min(1.0, (P - a).dot(ab) / ab.length_squared)); return (P - (a + ab * t)).length
+def belly0(P, N):
+    return smooth(0.46, 0.38, P[1]) * smooth(-0.15, -0.6, N.y)
 def paint(P, N, tag):
     P0 = P
     if P.z > 0.45: P = HC + (Vector(P) - HC) / HS     # the face is painted on the first, smaller head
@@ -51,9 +54,11 @@ def paint(P, N, tag):
     n = noise.noise(Vector((x * 22, y * 22, z * 22)))
     c = mix(SAND, SAND2, 0.3 + 0.3 * n)
     if -0.72 < z < 0.35:   # a greyer back with faint dark stripes across the sides (the photo's tabby marks)
-        c = mix(c, BACK, smooth(0.62, 0.86, y) * smooth(0.2, 0.0, abs(x)) * 0.5)
-        w = math.sin(z * 26 + 3 * noise.noise(Vector((x * 6, y * 6, z * 6))))
-        c = mix(c, BAR, smooth(0.75, 0.95, w) * smooth(0.55, 0.72, y) * 0.28)
+        c = mix(c, BACK, smooth(0.6, 0.86, y) * smooth(0.22, 0.0, abs(x)) * 0.65)
+        # wavy, broken dark stripes running down from the back across the sides, as in the photo (about 8 cm apart)
+        w = math.sin(z * 46 + 4 * noise.noise(Vector((x * 5, y * 5, z * 5))) + 1.5 * y)
+        brk = smooth(-0.25, 0.15, noise.noise(Vector((x * 9 + 3, y * 9, z * 9))))
+        c = mix(c, STRIPE, smooth(0.5, 0.88, w) * smooth(0.5, 0.66, y) * (0.45 + 0.4 * brk) * (1 - belly0(P, N)))
     e = ear_paint(P0, N, E)
     if e:
         along, across, inside = e
@@ -69,10 +74,10 @@ def paint(P, N, tag):
             c = mix(c, RUST, smooth(0.012, 0.006, dl) * 0.75)
     elif z < -0.74:   # the tail: dark rings, a black tip
         ring = math.sin((z + 0.74) * 38)
-        c = mix(c, BAR, smooth(0.55, 0.85, ring) * 0.8)
+        c = mix(c, STRIPE, smooth(0.5, 0.85, ring) * 0.85)
         if z < -1.18: c = mix(c, BLACK, 0.85)
     elif y < 0.4 and abs(x) > 0.06:   # dark bands across the upper legs
-        c = mix(c, BAR, smooth(0.7, 0.92, math.sin(y * 40 + 1.0)) * 0.7 * smooth(0.12, 0.2, y))
+        c = mix(c, STRIPE, smooth(0.65, 0.92, math.sin(y * 40 + 1.0)) * 0.8 * smooth(0.12, 0.2, y))
     return c
 
 parts = []
