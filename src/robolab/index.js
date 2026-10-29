@@ -34,7 +34,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   const el = document.createElement('div');
   el.className = 'rl'; el.hidden = true; el.setAttribute('dir', 'rtl');
   root.appendChild(el);
-  let open = false, map = null, ed = null, cur = null, lastRun = null, seedN = 1;
+  let open = false, map = null, ed = null, cur = null, lastRun = null, seedN = 1, noRoom = false;
   const sfx = (n) => { try { audio && audio.play && audio.play(n); } catch (e) { } };
 
   // ── the home of the lab: chapters of lessons and the puzzles
@@ -55,7 +55,9 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     const head = `<h2>${icon('home')}${kids ? 'מְשִׂימוֹת בָּאִי שֶׁלִּי' : 'משימות באי שלי'}</h2>`;
     if (!open) return `<section class="rl-sec">${head}<p class="rl-isl-note">${kids ? 'נִפְתָּח אַחֲרֵי שְׁלוֹשָׁה שִׁעוּרִים בְּפֶרֶק 4. אָז הָרוֹבּוֹט יֵצֵא לַעֲבֹד בָּאִיִּים שֶׁבְּנִיתֶם!' : 'נפתח אחרי שלושה שיעורים בפרק 4. אז הכלים יצאו לעבוד באיים שבניתם בעצמכם!'}</p></section>`;
     if (!zones.length) return `<section class="rl-sec">${head}<p class="rl-isl-note">${kids ? 'עוֹד אֵין לָכֶם אִי שָׁמוּר. בְּנוּ אִי בְּאַחַת הַסְּבִיבוֹת, וְהַכֵּלִים יָבוֹאוּ לַעֲבֹד בּוֹ.' : 'עוד אין לכם אי שמור. בנו אי באחת הסביבות, והכלים יבואו לעבוד בו.'}</p></section>`;
-    return `<section class="rl-sec">${head}<p class="rl-isl-note">${kids ? 'בְּכָל פַּעַם מְשִׂימָה חֲדָשָׁה בֵּין הָעֵצִים שֶׁגִּדַּלְתֶּם.' : 'בכל פעם משימה חדשה בין העצים שגידלתם. מה שהכלים עושים כאן לא משנה את האי השמור.'}</p><div class="rl-pz">${zones.map((z) => `<button type="button" class="rl-pzb rl-islb" data-island="${z}"><span class="rl-z z-${z}"></span><b>${esc(kids ? ZONE_LOOK[z].shortK : ZONE_LOOK[z].short)}</b><small>${kids ? 'הָאִי שֶׁלִּי' : 'האי שלי'}</small></button>`).join('')}</div></section>`;
+    const full = noRoom ? `<p class="rl-isl-note rl-noroom">${kids ? 'לֹא מָצָאנוּ מָקוֹם פָּנוּי לַמִּגְרָשׁ בָּאִי הַזֶּה. נַסּוּ אִי אַחֵר, אוֹ פַּנּוּ קְצָת מָקוֹם בֵּין הָעֵצִים.' : 'לא מצאנו מקום פנוי למגרש באי הזה. נסו אי אחר, או פנו קצת מקום בין העצים.'}</p>` : '';
+    noRoom = false;
+    return `<section class="rl-sec">${head}${full}<p class="rl-isl-note">${kids ? 'בְּכָל פַּעַם מְשִׂימָה חֲדָשָׁה בֵּין הָעֵצִים שֶׁגִּדַּלְתֶּם.' : 'בכל פעם משימה חדשה בין העצים שגידלתם. מה שהכלים עושים כאן לא משנה את האי השמור.'}</p><div class="rl-pz">${zones.map((z) => `<button type="button" class="rl-pzb rl-islb" data-island="${z}"><span class="rl-z z-${z}"></span><b>${esc(kids ? ZONE_LOOK[z].shortK : ZONE_LOOK[z].short)}</b><small>${kids ? 'הָאִי שֶׁלִּי' : 'האי שלי'}</small></button>`).join('')}</div></section>`;
   }
   const stars = (n) => [0, 1, 2].map((k) => `<i class="${k < n ? 'on' : ''}">${icon('star')}</i>`).join('');
   // drafts: written a moment after each change, and at once when the lesson is left or the window closes
@@ -65,7 +67,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   window.addEventListener('beforeunload', flushDraft);
   window.addEventListener('pagehide', flushDraft);
   function home() {
-    flushDraft(); stopTut();
+    flushDraft(); stopTut(); clearTimeout(talkT); speakGen++; kvoice.stop();
     requestAnimationFrame(helloKubi);   // קוּבִּי greets once the home is drawn
     stopRun(); if (map) { map.dispose(); map = null; } ed = null; cur = null;
     // the island stays loaded behind the home (Avi, 29.10: no waiting between lessons): the next lesson in the same zone
@@ -126,6 +128,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   }
   function openLevel(id, { flat = false } = {}) {
     const L = ALL_LEVELS.find((q) => q.id === id); if (!L) return;
+    flushDraft(); stopTut();
     if (enter3d && !flat) {
       if (in3d && in3d.zone === L.zone && !in3d.own && in3d.api) { stopRun(); in3d.api.rebuild(L, { quick: true }); mountLevel(L, in3d.api); return; }
       if (in3d) end3d();
@@ -134,7 +137,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
       in3d = { zone: L.zone, api: null };
       const desc = { robolab: true, zone: L.zone, level: L, id: 'robolab:' + L.id,
         makeSession: (ctx) => createRoboSession(ctx, desc),
-        attach: (api) => { if (!in3d) return; in3d.api = api; el.hidden = false; root.classList.add('rl3d'); mountLevel(api.level || cur || L, api); },
+        attach: (api) => { if (!in3d || !open) { if (leave3d) leave3d(); return; } in3d.api = api; el.hidden = false; root.classList.add('rl3d'); mountLevel(api.level || cur || L, api); },   // the lab closed while it loaded
         detach: () => { root.classList.remove('rl3d'); },
         onExit: () => { in3d = null; root.classList.remove('rl3d'); el.hidden = false; home(); } };
       enter3d(desc);
@@ -146,6 +149,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   // among his trees, a mission made for it (three/island-level.js). Nothing is saved back to his island.
   function openIsland(zone) {
     if (!enter3d) return;
+    flushDraft(); stopTut();
     if (in3d && in3d.own && in3d.zone === zone && in3d.api) { const nL = in3d.api.newIsland(); if (nL) { in3d.api.rebuild(nL, { quick: true }); mountLevel(nL, in3d.api); } return; }
     if (in3d) end3d();
     stopRun(); if (map) { map.dispose(); map = null; }
@@ -153,20 +157,21 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     in3d = { zone, api: null, own: true };
     const desc = { robolab: true, ownIsland: true, zone, level: null, id: 'robolab:island:' + zone,
       makeSession: (ctx) => createRoboSession(ctx, desc),
-      attach: (api) => { if (!in3d) return; in3d.api = api; el.hidden = false; root.classList.add('rl3d'); mountLevel(api.level, api); },
+      attach: (api) => { if (!in3d || !open) { if (leave3d) leave3d(); return; } in3d.api = api; el.hidden = false; root.classList.add('rl3d'); mountLevel(api.level, api); },
       detach: () => { root.classList.remove('rl3d'); },
-      onExit: () => { in3d = null; root.classList.remove('rl3d'); el.hidden = false; home(); } };
+      onExit: () => { in3d = null; root.classList.remove('rl3d'); el.hidden = false; noRoom = !!desc.noRoom; home(); } };
     enter3d(desc);
   }
   function end3d() { stopRun(); if (map) { map.dispose(); map = null; } const was = in3d; in3d = null; root.classList.remove('rl3d'); el.classList.remove('in3d'); if (was && leave3d) leave3d(); el.hidden = !open; }
   // the course as the screen sees it: the same calls as the flat map
   // (the island may be gone already, when the lab leaves it: every call checks)
   const stage3d = (api) => ({ reset: () => api.course && api.course.reset(), play: (tr, o) => api.course && api.course.play(tr, o), stop: () => api.course && api.course.stop(), isPlaying: () => !!(api.course && api.course.isPlaying()), redraw: () => { }, dispose: () => { } });
+  let talkT = 0;   // קוּבִּי's first words on a screen: cleared when the screen changes, so he never talks over another one
   function helloKubi() {
-    if (intro) return;
+    if (intro || !open) return;
+    const c = el.querySelector('.rl-hkubi'); if (!c) return;   // another screen was mounted in the meantime: leave its קוּבִּי alone
     if (kcam) { kcam.dispose(); kcam = null; }
-    const c = el.querySelector('.rl-hkubi'); if (!c) return;
-    kcam = kubiCam(c, { full: true }); setTimeout(() => speak([Object.keys(roboProgress().done).length ? 'kh_again' : 'kh_first'], 3), 600);
+    kcam = kubiCam(c, { full: true }); clearTimeout(talkT); talkT = setTimeout(() => speak([Object.keys(roboProgress().done).length ? 'kh_again' : 'kh_first'], 3), 600);
   }
   // what קוּבִּי says first: the chapter's idea on its first lesson, and the blocks this player has not met yet (two at most)
   function newsFor(L) {
@@ -231,7 +236,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     kcam = kubiCam(el.querySelector('.rl-kubi'));
     kubiDo = (what, sec = 0) => { if (!kcam) return; if (what) kcam.set(what); if (sec > 0) kcam.talk(true, sec); };
     queueTut(L);
-    setTimeout(() => { kubiDo('explain'); speak([...(news.chapter ? ['kc_' + L.ch] : []), 'kl_' + L.id, ...news.blocks.map((b) => 'kb_' + b)], Math.min(9, 1.2 + (el.querySelector('.rl-say p') || { textContent: '' }).textContent.length / 16)); }, 700);
+    clearTimeout(talkT); talkT = setTimeout(() => { if (!open || cur !== L) return; kubiDo('explain'); speak([...(news.chapter ? ['kc_' + L.ch] : []), 'kl_' + L.id, ...news.blocks.map((b) => 'kb_' + b)], Math.min(9, 1.2 + (el.querySelector('.rl-say p') || { textContent: '' }).textContent.length / 16)); }, 700);
   }
   const CONCEPT = {
     step: { f: 'סדר פעולות', k: 'סֵדֶר פְּעֻלּוֹת' }, turn: { f: 'פניות', k: 'פְּנִיּוֹת' }, path: { f: 'מסלול', k: 'מַסְלוּל' }, order: { f: 'קודם ואחר כך', k: 'קֹדֶם וְאַחַר כָּךְ' },
@@ -314,14 +319,21 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
       const nx = list[i + 1]; if (nx) openLevel(nx.id); else home(); return;
     }
   });
-  const onKey = (e) => { if (!open) return; if (e.key === 'Escape') { e.preventDefault(); if (cur) home(); else { close(); if (onExit) onExit(); } } };
+  const onKey = (e) => {
+    if (!open || e.key !== 'Escape') return;
+    e.preventDefault();
+    if (in3d && !in3d.api) return;                              // a lesson's island is still loading
+    if (garage) { garage.close(); garage = null; return; }      // סדנת העיצוב closes first
+    if (intro) { intro.close(); return; }                       // the film
+    if (cur) home(); else { close(); if (onExit) onExit(); }
+  };
   window.addEventListener('keydown', onKey);
 
   function openLab() { open = true; el.hidden = false; markSeen('home'); home(); }
-  function close() { flushDraft(); stopTut(); open = false; speakGen++; kvoice.stop(); stopRun(); if (kcam) { kcam.dispose(); kcam = null; } if (garage) { garage.close(); garage = null; } if (in3d) end3d(); if (map) { map.dispose(); map = null; } el.hidden = true; el.innerHTML = ''; }
+  function close() { flushDraft(); stopTut(); clearTimeout(talkT); open = false; speakGen++; kvoice.stop(); stopRun(); if (kcam) { kcam.dispose(); kcam = null; } if (garage) { garage.close(); garage = null; } if (in3d) end3d(); if (map) { map.dispose(); map = null; } el.hidden = true; el.innerHTML = ''; }
   const R = {
     open: openLab, close, isOpen: () => open,
-    coversGame: () => open && !!in3d && !el.classList.contains('in3d'),   // the home over a kept island (main.js skips it)
+    coversGame: () => open && !!in3d && !!in3d.api && !el.classList.contains('in3d'),   // (while it loads, or closes for lack of room, the game runs its own update)   // the home over a kept island (main.js skips it)
     dispose: () => { close(); window.removeEventListener('keydown', onKey); window.removeEventListener('beforeunload', flushDraft); window.removeEventListener('pagehide', flushDraft); el.remove(); },
   };
   // headless tests

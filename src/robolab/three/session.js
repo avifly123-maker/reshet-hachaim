@@ -8,7 +8,7 @@ import { makeIslandLevel } from './island-level.js';
 
 export function createRoboSession(ctx, R) {
   const { W, env, scene, reg, markers, rig, spawnPlant, spawnAnimal, ui } = ctx;
-  let course = null, panelW = -1, viewT = 0, disposed = false;
+  let course = null, panelW = -1, viewT = 0, disposed = false, leaveSoon = false;
   const camera = ctx.camera || (rig && rig.camera) || null;
   // the field; the first one is framed at once (the loading screen hides the jump), a next lesson with a short flight
   function build(L, { quick = false } = {}) {
@@ -35,7 +35,7 @@ export function createRoboSession(ctx, R) {
       // a mission on the player's own island: the level is made from the island now that it is loaded
       const newIsland = (kind) => makeIslandLevel({ W, env }, R.zone, { kind, seed: Date.now() });
       if (!R.level && R.ownIsland) R.level = newIsland();
-      if (!R.level) { if (R.onExit) R.onExit(); return; }
+      if (!R.level) { R.noRoom = true; leaveSoon = true; return; }   // no room for a field on his island: closed from the first update, once the game is in place
       build(R.level);
       const api = {
         get level() { return R.level; },
@@ -44,6 +44,7 @@ export function createRoboSession(ctx, R) {
       if (R.attach) R.attach(api);
     },
     update(dt, rdt) {
+      if (leaveSoon) { leaveSoon = false; if (ctx.exit) ctx.exit(); else if (R.onExit) R.onExit(); return; }
       if (disposed || !course) return;
       // a training field is in good daylight; the "sunset" event of a run turns it to evening, slowly
       { const want = W._rlSunset ? 0.735 : 0.42; W.dayFrac += (want - W.dayFrac) * Math.min(1, (rdt || 0) * (W._rlSunset ? 0.8 : 4)); }

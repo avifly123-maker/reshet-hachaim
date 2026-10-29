@@ -10,8 +10,9 @@ export function roboProgress() {
   if (!o || typeof o !== 'object') return EMPTY();
   return { done: o.done && typeof o.done === 'object' ? o.done : {}, seen: o.seen && typeof o.seen === 'object' ? o.seen : {}, fun: o.fun | 0, look: o.look && typeof o.look === 'object' ? o.look : {}, isl: o.isl | 0 };
 }
-function save(o, detail) {
+function save(o, detail, quiet = false) {
   writePlayer(K.robolab, o);
+  if (quiet) return;   // what was seen, the funny-block count: nothing for the journey or the badges to count
   try { window.dispatchEvent(new CustomEvent('wol-progress', { detail: { kind: 'robolab', ...(detail || {}) } })); } catch (e) { }
 }
 // a solved level: keeps the best stars and the fewest blocks; returns { first, better }
@@ -21,8 +22,8 @@ export function markSolved(id, stars, blocks) {
   if (first || better) o.done[id] = { stars: Math.max(stars, was ? was.stars : 0), blocks: was ? Math.min(blocks, was.blocks) : blocks, t: Date.now() };
   save(o, { id, first }); return { first, better };
 }
-export function markSeen(key) { const o = roboProgress(); if (!o.seen[key]) { o.seen[key] = 1; save(o); } }
-export function addFun(n = 1) { const o = roboProgress(); o.fun += n; save(o); return o.fun; }
+export function markSeen(key) { const o = roboProgress(); if (!o.seen[key]) { o.seen[key] = 1; save(o, null, true); } }
+export function addFun(n = 1) { const o = roboProgress(); o.fun += n; save(o, null, true); return o.fun; }
 export const solvedCount = (pred) => { const d = roboProgress().done; return Object.keys(d).filter((id) => !pred || pred(id)).length; };
 
 // the player's design of one tool (the garage, src/robolab/garage.js)

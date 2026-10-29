@@ -32,6 +32,8 @@ const _v = new THREE.Vector3();
 export function createCourse(ctx, L) {
   const { W, env, scene, reg, markers, spawnPlant, spawnAnimal } = ctx;
   const zone = ctx.zone || L.zone || 'grove';
+  W._rlSunset = false;   // a new field starts in daylight, even after a run that ended at sunset
+  let gone = false;      // the field was disposed (its fireworks timers must not burst any more)
   const life = LIFE[zone] || LIFE.grove;
   const rows = L.map.rows, H = rows.length, Wd = Math.max(...rows.map((r) => r.length));
   const root = new THREE.Group(); root.name = 'robolab-course'; scene.add(root);
@@ -199,7 +201,7 @@ export function createCourse(ctx, L) {
   const COL = ['#ff5a5a', '#ffd25a', '#5ad1ff', '#8fe36a', '#d66aa8', '#ff9a3a'];
   function fun(k, T, a) {
     const o = T.obj; o.getWorldPosition(_v); _v.y += 1.2;
-    if (a === 'fireworks') { for (let i = 0; i < 4; i++) setTimeout(() => { const p = _v.clone(); p.y += 2 + i * 0.6; markers.burst(p, COL[(i * 2) % COL.length], 34, { speed: 4.5, size: 0.5, life: 1.3, up: 2.5 }); }, i * 160); }
+    if (a === 'fireworks') { const at = _v.clone(); for (let i = 0; i < 4; i++) setTimeout(() => { if (gone) return; const p = at.clone(); p.y += 2 + i * 0.6; markers.burst(p, COL[(i * 2) % COL.length], 34, { speed: 4.5, size: 0.5, life: 1.3, up: 2.5 }); }, i * 160); }
     else if (a === 'lights') { for (let i = 0; i < 6; i++) markers.burst(_v, COL[i], 8, { speed: 2, size: 0.4, life: 0.9, up: 0.8 }); }
     else if (a === 'beep') markers.burst(_v, '#ffe066', 10, { speed: 1, size: 0.35, life: 0.8, up: 1.6 });
     else if (a === 'sneeze') { const d = _v.clone().add(new THREE.Vector3(Math.sin(Math.PI - T.a), 0, Math.cos(Math.PI - T.a)).multiplyScalar(1.2)); markers.burst(d, '#ffffff', 28, { speed: 2.5, size: 0.6, life: 0.9, up: 0.3 }); }
@@ -276,6 +278,6 @@ export function createCourse(ctx, L) {
     kubiSpot,
     reset: () => { stop(); variant = 0; W._rlSunset = false; buildItems(); }, play: start, stop, isPlaying: () => !!play, update, view, redraw: () => { },
     cellPos: (x, y) => new THREE.Vector3(wx(x), ground(wx(x), wz(y)), wz(y)), CS,
-    dispose: () => { stop(); clearItems(); for (const e of keep) { try { W.removeEntity(e); } catch (err) { } } scene.remove(root); root.traverse((o) => { if (o.geometry) o.geometry.dispose(); }); },
+    dispose: () => { gone = true; stop(); clearItems(); for (const e of keep) { try { W.removeEntity(e); } catch (err) { } } scene.remove(root); root.traverse((o) => { if (o.geometry) o.geometry.dispose(); }); },
   };
 }

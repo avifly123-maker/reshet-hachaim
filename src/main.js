@@ -190,7 +190,7 @@ async function boot() {
   const STAGE_TIP_MS = 6500;   // after the mission banner and its animal
   window.addEventListener('wol-progress', (e) => {
     const d = e.detail || {};
-    const lesson = d.kind === 'robolab' && !d.look && !d.island;   // 1.4.1: a solved robot-lab lesson counts for stage 7 too
+    const lesson = d.kind === 'robolab' && d.id != null && !!d.first;   // 1.4.1: a lesson solved for the first time counts for stage 7 too
     if (d.kind !== 'mission' && !lesson) return;
     let before = 0; try { before = journey.state().stage; } catch (er) { return; }
     setTimeout(() => {
@@ -219,6 +219,10 @@ async function boot() {
   }
   // research = a mystery of חוקרי הטבע (src/research/): the zone's full content, the case's own island, no save
   // training = שטח האימונים (1.3.3): the grove's pack, an empty field with a stream, רובו־דע's steps, no save
+  // a load that failed: back to where it came from (a robot-lab lesson goes back to the lab, which is still open)
+  const backAction = (research) => (research && research.robolab && research.onExit
+    ? { label: 'חזרה למעבדה', onClick: () => { ui.hideLoading(); research.onExit(); } }
+    : { label: 'חזרה למסך הפתיחה', onClick: () => showStart() });
   async function loadBiome(id, save = null, research = null, training = false) {
     if (loading) return; loading = true;
     ui.hideStart();
@@ -229,7 +233,7 @@ async function boot() {
     } catch (e) {
       console.error(e);
       ui.setLoading(0, 'משהו השתבש בטעינה. אפשר לחזור למסך הפתיחה ולנסות שוב.');
-      ui.setLoadingActions([{ label: 'חזרה למסך הפתיחה', onClick: () => showStart() }]);
+      ui.setLoadingActions([backAction(research)]);
       loading = false; return;
     }
     const biome = research && !research.ownIsland ? zoneOf(id).data : training ? trainingBiome(zoneOf(id).data) : biomeFor(id), Z = zoneOf(id);   // a mission on the player's island keeps his level's species
@@ -253,7 +257,7 @@ async function boot() {
       const hasSave = !research && !training && (!!save || !!readSave(id));
       ui.setLoading(0, hasSave ? 'משהו השתבש בטעינה של היער השמור. אפשר לחזור, או להתחיל יער חדש.' : 'משהו השתבש בטעינה. אפשר לחזור למסך הפתיחה ולנסות שוב.');
       ui.setLoadingActions([
-        { label: 'חזרה למסך הפתיחה', onClick: () => showStart() },
+        backAction(research),
         ...(hasSave ? [{ label: 'להתחיל יער חדש (היער השמור יימחק)', onClick: () => { removePlayer(slotOf(id)); loadBiome(id); } }] : []),
       ]);
     }
