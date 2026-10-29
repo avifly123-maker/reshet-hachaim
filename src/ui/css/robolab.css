@@ -200,3 +200,7 @@
 #ui.wol .rl-newb i { font-style: normal; font-size: 1.15em; font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif; }
 #ui.wol .rl-newb b { color: #c4504a; }
 #ui.wol .rl-say p { max-height: 7.5em; overflow: auto; }
+/* the counter during a run (chapter 6): a small chip by the run buttons */
+#ui.wol .rl-ctr { display: inline-flex; align-items: center; gap: 4px; padding: 5px 10px; border-radius: 12px; background: #c4504a; color: #fff; font-weight: 700; }
+#ui.wol .rl-ctr b { min-width: 1.2em; text-align: center; font-size: 1.1em; }
+#ui.wol .rl-ctr.pop { animation: rlpop .25s ease-out; }

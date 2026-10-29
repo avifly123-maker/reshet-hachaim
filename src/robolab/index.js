@@ -147,6 +147,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
             <button type="button" data-run="slow">${icon('slow')}<span>${kids ? 'לְאַט' : 'לאט'}</span></button>
             <button type="button" data-again>${icon('again')}<span>${kids ? 'מֵהַהַתְחָלָה' : 'מההתחלה'}</span></button>
             <button type="button" data-why disabled>${icon('why')}<span>${kids ? 'מָה קָרָה?' : 'מה קרה?'}</span></button>
+            ${(L.blocks || []).includes('add') ? `<span class="rl-ctr" title="${kids ? 'הַמּוֹנֶה' : 'המונה'}">🔢 <b>0</b></span>` : ''}
             ${api ? `<button type="button" data-view aria-label="${kids ? 'לְהַחֲזִיר אֶת הַמַּבָּט' : 'להחזיר את המבט'}">${icon('eye')}</button>` : ''}
           </div></div>
       </div></div>`;
@@ -176,11 +177,13 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     hideMsg();
     const prog = ed.program();
     const r = runLevel(levelsOf(cur), prog);
+    { const c = el.querySelector('.rl-ctr b'); if (c) c.textContent = 0; }
     lastRun = r; seedN++;
     el.querySelector('[data-why]').disabled = true;
     let oopsShown = false;
     map.play(r.trace, { speed, variant: r.variant, onStep: (e) => {
       ed.light(e.nid);
+      if (e.counter != null || e.a === 'reset') { const c = el.querySelector('.rl-ctr b'); if (c) { c.textContent = e.a === 'reset' ? 0 : e.counter; c.parentNode.classList.remove('pop'); void c.offsetWidth; c.parentNode.classList.add('pop'); } }
       if (e.a === 'oops' && !oopsShown) { kubiDo('oops'); speak(['ko_' + (OOPS_LINES[e.want] ? e.want : 'any') + '_' + (Math.abs(seedN) % (OOPS_LINES[e.want] || OOPS_LINES.any).length)]); oopsShown = true; msg(esc(T(pick(OOPS_LINES[e.want] || OOPS_LINES.any, seedN))), 'oops'); sfx('pop'); }
       if (FUN_LINES[e.a]) { sfx('pop'); const n = addFun(); if (n === 20) checkRoboBadges(); if (n === 1 || n % 10 === 0) msg(esc(T(pick(FUN_LINES[e.a], seedN))), 'fun'); }
       if (e.a === 'fail') { sfx('invalid'); kubiDo('surprised'); }
