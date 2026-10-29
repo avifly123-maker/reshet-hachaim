@@ -14,6 +14,7 @@ import { kubiCam } from './ui/kubi-cam.js';
 import { checkRoboBadges } from './badges.js';
 import { BLOCK_INTRO, CHAPTER_INTRO } from '../data/robolab/kubi-lines.js';
 import { BLOCKS } from './engine/blocks.js';
+import { createVoice } from '../audio/voice.js';
 import { createEditor } from './ui/editor.js';
 import { icon } from './ui/icons.js';
 import { isOpen as journeyOpen, lockWords } from '../core/journey.js';
@@ -77,6 +78,22 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   let garage = null;        // סדנת העיצוב while open (garage.js)
   let kubiDo = () => { };   // what קוּבִּי does (his window in the lesson's strip)
   let kcam = null;
+  // קוּבִּי's voice (recorded lines, src/data/kubi-voice.js; tools/voice/kubi-lines.mjs lists them). Without a file
+  // for a line he still "talks" for a while, so his mouth goes with the words on the screen.
+  const kvoice = createVoice(audio, { load: () => import('../data/kubi-voice.js').then((m) => m.KUBI_VOICE) });
+  let speakGen = 0;
+  async function speak(ids, fallbackSec = 0) {
+    const my = ++speakGen; kvoice.stop();
+    let any = false;
+    for (const id of ids) {
+      if (my !== speakGen) return;
+      if (!(await kvoice.has(id))) continue;
+      any = true; if (kcam) kcam.talk(true, 60);
+      await kvoice.say(id);
+    }
+    if (my !== speakGen) return;
+    if (kcam) { if (any) kcam.talk(false); else if (fallbackSec > 0) kcam.talk(true, fallbackSec); }
+  }
   function openLevel(id, { flat = false } = {}) {
     const L = ALL_LEVELS.find((q) => q.id === id); if (!L) return;
     if (enter3d && !flat) {
@@ -101,7 +118,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   function helloKubi() {
     if (kcam) { kcam.dispose(); kcam = null; }
     const c = el.querySelector('.rl-hkubi'); if (!c) return;
-    kcam = kubiCam(c, { full: true }); setTimeout(() => kcam && kcam.talk(true, 3), 600);
+    kcam = kubiCam(c, { full: true }); setTimeout(() => speak([Object.keys(roboProgress().done).length ? 'kh_again' : 'kh_first'], 3), 600);
   }
   // what קוּבִּי says first: the chapter's idea on its first lesson, and the blocks this player has not met yet (two at most)
   function newsFor(L) {
@@ -141,7 +158,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     if (kcam) kcam.dispose();
     kcam = kubiCam(el.querySelector('.rl-kubi'));
     kubiDo = (what, sec = 0) => { if (!kcam) return; if (what) kcam.set(what); if (sec > 0) kcam.talk(true, sec); };
-    setTimeout(() => kubiDo('explain', Math.min(9, 1.2 + el.querySelector('.rl-say p').textContent.length / 16)), 700);
+    setTimeout(() => { kubiDo('explain'); speak([...(news.chapter ? ['kc_' + L.ch] : []), 'kl_' + L.id, ...news.blocks.map((b) => 'kb_' + b)], Math.min(9, 1.2 + (el.querySelector('.rl-say p') || { textContent: '' }).textContent.length / 16)); }, 700);
   }
   const CONCEPT = {
     step: { f: 'סדר פעולות', k: 'סֵדֶר פְּעֻלּוֹת' }, turn: { f: 'פניות', k: 'פְּנִיּוֹת' }, path: { f: 'מסלול', k: 'מַסְלוּל' }, order: { f: 'קודם ואחר כך', k: 'קֹדֶם וְאַחַר כָּךְ' },
@@ -164,7 +181,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     let oopsShown = false;
     map.play(r.trace, { speed, variant: r.variant, onStep: (e) => {
       ed.light(e.nid);
-      if (e.a === 'oops' && !oopsShown) { kubiDo('oops'); oopsShown = true; msg(esc(T(pick(OOPS_LINES[e.want] || OOPS_LINES.any, seedN))), 'oops'); sfx('pop'); }
+      if (e.a === 'oops' && !oopsShown) { kubiDo('oops'); speak(['ko_' + (OOPS_LINES[e.want] ? e.want : 'any') + '_' + (Math.abs(seedN) % (OOPS_LINES[e.want] || OOPS_LINES.any).length)]); oopsShown = true; msg(esc(T(pick(OOPS_LINES[e.want] || OOPS_LINES.any, seedN))), 'oops'); sfx('pop'); }
       if (FUN_LINES[e.a]) { sfx('pop'); const n = addFun(); if (n === 20) checkRoboBadges(); if (n === 1 || n % 10 === 0) msg(esc(T(pick(FUN_LINES[e.a], seedN))), 'fun'); }
       if (e.a === 'fail') { sfx('invalid'); kubiDo('surprised'); }
     }, onEnd: () => {
@@ -173,7 +190,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
       if (r.ok) {
         const { first } = markSolved(cur.id, r.stars, r.blocks);
         setTimeout(checkRoboBadges, 1200);   // after the win message (the badge toast comes on its own)
-        kubiDo('cheer', 2);
+        kubiDo('cheer'); speak(['kw_' + (Math.abs(seedN) % WIN_LINES.length)], 2);
         msg(`<div class="rl-win"><span class="rl-st big">${stars(r.stars)}</span><b>${esc(T(pick(WIN_LINES, seedN)))}</b><small>${r.variants > 1 ? (kids ? `עָבַד בְּכָל ${r.variants} הַגִּרְסָאוֹת · ` : `עבד בכל ${r.variants} הגרסאות · `) : ''}${r.blocks} ${kids ? 'בְּלוֹקִים' : 'בלוקים'}${r.stars < 3 && cur.par ? ' · ' + esc(T({ f: 'אפשר גם ב־' + cur.par, k: 'אֶפְשָׁר גַּם בְּ־' + cur.par })) : ''}</small>
           <span class="rl-winb"><button type="button" data-next>${kids ? 'לַשִּׁעוּר הַבָּא' : 'לשיעור הבא'}</button><button type="button" data-stay>${kids ? 'לְנַסּוֹת שׁוּב' : 'לנסות שוב'}</button></span></div>`, 'win');
         sfx(first ? 'mission' : 'pop');
@@ -181,7 +198,8 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
         const why = r.error ? (FAIL_LINES[r.error.code] || FAIL_LINES.any) : (GOAL_LINES[r.why] || GOAL_LINES.any);
         // a level with variants: say which version of the place the program missed (the field shows that one)
         const vtxt = r.variants > 1 ? `<p class="rl-var">${kids ? `בָּדַקְנוּ אֶת הַתָּכְנִית בְּ־${r.variants} גִּרְסָאוֹת שֶׁל הַמָּקוֹם. בַּגִּרְסָה ${r.variant + 1} הִיא לֹא הִצְלִיחָה.` : `בדקנו את התוכנית ב־${r.variants} גרסאות של המקום. בגרסה ${r.variant + 1} היא לא הצליחה.`}</p>` : '';
-        if (!r.error) kubiDo('think', 2.5);
+        if (!r.error) kubiDo('think');
+        { const key = r.error ? (FAIL_LINES[r.error.code] ? r.error.code : 'any') : (GOAL_LINES[r.why] ? r.why : 'any'); speak([(r.error ? 'kf_' : 'kg_') + key.replace(':', '_') + '_' + (Math.abs(seedN) % why.length)], 2.5); }
         msg(esc(T(pick(why, seedN))) + vtxt, 'fail');
       }
     } });
@@ -220,7 +238,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   window.addEventListener('keydown', onKey);
 
   function openLab() { open = true; el.hidden = false; markSeen('home'); home(); }
-  function close() { open = false; stopRun(); if (kcam) { kcam.dispose(); kcam = null; } if (garage) { garage.close(); garage = null; } if (in3d) end3d(); if (map) { map.dispose(); map = null; } el.hidden = true; el.innerHTML = ''; }
+  function close() { open = false; speakGen++; kvoice.stop(); stopRun(); if (kcam) { kcam.dispose(); kcam = null; } if (garage) { garage.close(); garage = null; } if (in3d) end3d(); if (map) { map.dispose(); map = null; } el.hidden = true; el.innerHTML = ''; }
   const R = {
     open: openLab, close, isOpen: () => open,
     coversGame: () => open && !!in3d && !el.classList.contains('in3d'),   // the home over a kept island (main.js skips it)
