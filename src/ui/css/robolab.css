@@ -127,3 +127,20 @@
 #ui.wol .rlb-blocks { position: absolute; right: 12%; bottom: 14%; width: 30%; height: 26%; border-radius: 8px;
   background: linear-gradient(#3b82c4 0 30%, transparent 30% 35%, #3f9a4a 35% 65%, transparent 65% 70%, #e08a2b 70%); }
 @keyframes rlbfly { 50% { transform: translateY(-8px) rotate(6deg); } }
+
+/* a lesson in 3D (Avi, 29.10): the island shows through; only the panels take clicks, the rest turns the camera */
+#ui.wol .rl.in3d { background: transparent; pointer-events: none; }
+#ui.wol .rl.in3d::before { display: none; }
+#ui.wol .rl.in3d .rl-top, #ui.wol .rl.in3d .rl-say, #ui.wol .rl.in3d .rl-ed, #ui.wol .rl.in3d .rl-run, #ui.wol .rl.in3d .rl-msg { pointer-events: auto; }
+#ui.wol .rl.in3d .rl-top { background: rgba(8, 20, 32, .72); }
+#ui.wol .rl.in3d .rl-say { box-shadow: 0 4px 14px rgba(0, 0, 0, .3); }
+#ui.wol .rl.in3d .rl-ed { padding: 6px; border-radius: 14px; background: rgba(14, 34, 52, .84); box-shadow: 0 6px 18px rgba(0, 0, 0, .3); }
+#ui.wol .rl.in3d .rl-stage { justify-content: flex-end; }
+#ui.wol .rl.in3d .rl-run { padding: 6px 52px 6px 6px; border-radius: 14px; background: rgba(8, 20, 32, .55); align-self: center; }
+#ui.wol .rl.in3d .rl-run button { background: rgba(255, 255, 255, .18); }
+#ui.wol .rl.in3d .rl-run .rl-go { background: #3f9a4a; }
+#ui.wol .rl.in3d .rl-msg { bottom: 60px; }
+/* the forest's own HUD steps aside while a lesson runs on the island */
+#ui.wol.rl3d > .hud, #ui.wol.rl3d > .toolbar, #ui.wol.rl3d > .species, #ui.wol.rl3d > .hud-logo, #ui.wol.rl3d > .cam-pad,
+#ui.wol.rl3d > .imv-dock, #ui.wol.rl3d > .coach, #ui.wol.rl3d > .coach-ring, #ui.wol.rl3d > .toasts, #ui.wol.rl3d > .tour-pick,
+#ui.wol.rl3d > .mus-btn, #ui.wol.rl3d > .rightcol, #ui.wol.rl3d > .tray, #ui.wol.rl3d > .hurt-arrows { display: none !important; }

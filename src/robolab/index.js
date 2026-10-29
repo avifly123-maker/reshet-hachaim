@@ -8,6 +8,7 @@ import { CHAPTERS, LESSONS, PUZZLES, ALL_LEVELS } from '../data/robolab/index.js
 import { runProgram } from './engine/run.js';
 import { levelOf } from './engine/level.js';
 import { createMap } from './ui/map.js';
+import { createRoboSession } from './three/session.js';
 import { createEditor } from './ui/editor.js';
 import { icon } from './ui/icons.js';
 import { isOpen as journeyOpen, lockWords } from '../core/journey.js';
@@ -18,7 +19,7 @@ const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&l
 const pick = (arr, seed) => arr[Math.abs(seed | 0) % arr.length];
 const ZONE_WORD = { grove: { f: 'חורש', k: 'חֹרֶשׁ' }, amazon: { f: 'אמזונס', k: 'אָמָזוֹנַס' }, reef: { f: 'שונית', k: 'שׁוּנִית' }, desert: { f: 'מדבר', k: 'מִדְבָּר' } };
 
-export function createRoboLab({ root, audio, kids = false, onExit }) {
+export function createRoboLab({ root, audio, kids = false, onExit, enter3d = null, leave3d = null }) {
   const T = (o) => (o ? (kids && o.k ? o.k : o.f) : '');
   const el = document.createElement('div');
   el.className = 'rl'; el.hidden = true; el.setAttribute('dir', 'rtl');
@@ -38,6 +39,7 @@ export function createRoboLab({ root, audio, kids = false, onExit }) {
   const stars = (n) => [0, 1, 2].map((k) => `<i class="${k < n ? 'on' : ''}">${icon('star')}</i>`).join('');
   function home() {
     stopRun(); if (map) { map.dispose(); map = null; } ed = null; cur = null;
+    if (in3d) end3d();
     const P = roboProgress();
     const nDone = Object.keys(P.done).length;
     el.innerHTML = `<div class="rl-home">
@@ -57,10 +59,35 @@ export function createRoboLab({ root, audio, kids = false, onExit }) {
   }
 
   // ── one level: the teacher's words, the map, the palette and the program, the run buttons
-  function openLevel(id) {
+  // A lesson opens in its zone's island (Avi, 29.10: "everything in 3D, in controlled environments"): main.js loads the
+  // forest as a controlled place and our session lays the field (three/session.js), then calls mountLevel with it.
+  // Without a 3D host (tests of the screen alone, a failed load) the flat map is the fallback.
+  let in3d = null;          // { api } while a lesson's island is open
+  function openLevel(id, { flat = false } = {}) {
     const L = ALL_LEVELS.find((q) => q.id === id); if (!L) return;
+    if (enter3d && !flat) {
+      if (in3d && in3d.zone === L.zone && in3d.api) { stopRun(); in3d.api.rebuild(L); mountLevel(L, in3d.api); return; }
+      if (in3d) end3d();
+      stopRun(); if (map) { map.dispose(); map = null; }
+      cur = L; el.hidden = true;
+      in3d = { zone: L.zone, api: null };
+      const desc = { robolab: true, zone: L.zone, level: L, id: 'robolab:' + L.id,
+        makeSession: (ctx) => createRoboSession(ctx, desc),
+        attach: (api) => { if (!in3d) return; in3d.api = api; el.hidden = false; root.classList.add('rl3d'); mountLevel(cur || L, api); },
+        detach: () => { root.classList.remove('rl3d'); },
+        onExit: () => { in3d = null; root.classList.remove('rl3d'); el.hidden = false; home(); } };
+      enter3d(desc);
+      return;
+    }
+    mountLevel(L, null);
+  }
+  function end3d() { const was = in3d; in3d = null; root.classList.remove('rl3d'); el.classList.remove('in3d'); if (was && leave3d) leave3d(); el.hidden = !open; }
+  // the course as the screen sees it: the same calls as the flat map
+  const stage3d = (api) => ({ reset: () => api.course.reset(), play: (tr, o) => api.course.play(tr, o), stop: () => api.course.stop(), isPlaying: () => api.course.isPlaying(), redraw: () => { }, dispose: () => { } });
+  function mountLevel(L, api) {
     stopRun(); if (map) map.dispose();
     cur = L; lastRun = null;
+    el.classList.toggle('in3d', !!api);
     const zw = ZONE_WORD[L.zone] || ZONE_WORD.grove;
     el.innerHTML = `<div class="rl-level z-${L.zone}">
       <header class="rl-top"><button type="button" class="rl-back" data-home>${icon('home')}<span>${kids ? 'לַמַּעְבָּדָה' : 'למעבדה'}</span></button>
@@ -75,11 +102,12 @@ export function createRoboLab({ root, audio, kids = false, onExit }) {
             <button type="button" data-run="slow">${icon('slow')}<span>${kids ? 'לְאַט' : 'לאט'}</span></button>
             <button type="button" data-again>${icon('again')}<span>${kids ? 'מֵהַהַתְחָלָה' : 'מההתחלה'}</span></button>
             <button type="button" data-why disabled>${icon('why')}<span>${kids ? 'מָה קָרָה?' : 'מה קרה?'}</span></button>
+            ${api ? `<button type="button" data-view aria-label="${kids ? 'לְהַחֲזִיר אֶת הַמַּבָּט' : 'להחזיר את המבט'}">${icon('eye')}</button>` : ''}
           </div></div>
       </div></div>`;
     ed = createEditor(el.querySelector('.rl-ed'), { lesson: L, kids, onChange: () => { lastRun = null; el.querySelector('[data-why]').disabled = true; if (map && !map.isPlaying()) map.reset(); hideMsg(); } });
-    map = createMap(el.querySelector('.rl-map'), L, L.zone);
-    requestAnimationFrame(() => map && map.redraw());
+    if (api) { map = stage3d(api); el.querySelector('.rl-map').remove(); }
+    else { map = createMap(el.querySelector('.rl-map'), L, L.zone); requestAnimationFrame(() => map && map.redraw()); }
   }
   const CONCEPT = {
     step: { f: 'סדר פעולות', k: 'סֵדֶר פְּעֻלּוֹת' }, turn: { f: 'פניות', k: 'פְּנִיּוֹת' }, path: { f: 'מסלול', k: 'מַסְלוּל' }, order: { f: 'קודם ואחר כך', k: 'קֹדֶם וְאַחַר כָּךְ' },
@@ -141,6 +169,7 @@ export function createRoboLab({ root, audio, kids = false, onExit }) {
     if (b.dataset.run) { run(b.dataset.run); return; }
     if (b.dataset.again != null) { stopRun(); hideMsg(); map.reset(); return; }
     if (b.dataset.why != null) { why(); return; }
+    if (b.dataset.view != null) { if (in3d && in3d.api) in3d.api.frame(); return; }
     if (b.dataset.stay != null) { hideMsg(); map.reset(); return; }
     if (b.dataset.next != null) {
       const list = cur.puzzle ? PUZZLES : LESSONS; const i = list.indexOf(cur);
@@ -151,15 +180,16 @@ export function createRoboLab({ root, audio, kids = false, onExit }) {
   window.addEventListener('keydown', onKey);
 
   function openLab() { open = true; el.hidden = false; markSeen('home'); home(); }
-  function close() { open = false; stopRun(); if (map) { map.dispose(); map = null; } el.hidden = true; el.innerHTML = ''; }
+  function close() { open = false; stopRun(); if (in3d) end3d(); if (map) { map.dispose(); map = null; } el.hidden = true; el.innerHTML = ''; }
   const R = {
     open: openLab, close, isOpen: () => open,
     dispose: () => { close(); window.removeEventListener('keydown', onKey); el.remove(); },
   };
   // headless tests
   window.__rlDebug = {
-    open: (id) => (id ? openLevel(id) : home()),
-    solve: (id, i = 0) => { const L = ALL_LEVELS.find((q) => q.id === id); if (!L) return null; openLevel(id); ed.set({ ...L.solutions[i], defs: { ...(L.defs0 || {}), ...(L.solutions[i].defs || {}) } }); run('fast'); return lastRun && { ok: lastRun.ok, stars: lastRun.stars }; },
+    open: (id, flat) => (id ? openLevel(id, { flat: !!flat }) : home()),
+    in3d: () => !!(in3d && in3d.api),
+    solve: (id, i = 0) => { const L = ALL_LEVELS.find((q) => q.id === id); if (!L) return null; if (!(in3d && in3d.api && cur && cur.id === id)) openLevel(id, { flat: true }); ed.set({ ...L.solutions[i], defs: { ...(L.defs0 || {}), ...(L.solutions[i].defs || {}) } }); run('fast'); return lastRun && { ok: lastRun.ok, stars: lastRun.stars }; },
     run: (speed = 'fast') => run(speed), last: () => lastRun && { ok: lastRun.ok, stars: lastRun.stars, why: lastRun.why, error: lastRun.error },
     levels: () => ALL_LEVELS.map((q) => q.id),
   };

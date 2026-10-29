@@ -243,7 +243,7 @@ export function createCameraRig(camera, dom, env) {
   };
 
   const api = {
-    controls, update, setLayer, reset, followEntity, focusOn, distScale: 1,
+    controls, update, setLayer, reset, followEntity, focusOn, goTo, distScale: 1,
     get layer() { return layer; }, get following() { return follow; }, stopFollow() { follow = null; },
     nudge, hold, releaseAll, poke, setDriver,
     get driven() { return !!driver; },

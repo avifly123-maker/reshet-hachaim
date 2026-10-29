@@ -44,6 +44,7 @@ export const BLOCK_ICONS = {
   star: S('<path d="M12 3l2.8 5.8 6.2.9-4.5 4.4 1 6.3L12 17.5 6.5 20.4l1-6.3L3 9.7l6.2-.9z" fill="currentColor" stroke="none"/>'),
   home: S('<path d="M4 11l8-7 8 7"/><path d="M6 10v10h12V10"/>'),
   lesson: S('<path d="M4 5h7a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H4z"/><path d="M20 5h-4a2 2 0 0 0-2 2"/><path d="M20 5v13h-6"/>'),
+  eye: S('<path d="M2 12c3-5 6.5-7 10-7s7 2 10 7c-3 5-6.5 7-10 7s-7-2-10-7z"/><circle cx="12" cy="12" r="3"/>'),
   puzzle: S('<path d="M4 8h4a2 2 0 1 1 4 0h4v4a2 2 0 1 1 0 4v4H4z"/>'),
 };
 export const icon = (name) => BLOCK_ICONS[name] || BLOCK_ICONS.mine;

@@ -211,7 +211,7 @@ async function boot() {
     try {
       gameZone = id; guide.setScene('game');
       const { createGame } = loadedPack('game');
-      game = await createGame({ save, research, pipe, ui, audio, bus, biome, plantBuilders: Z.plants, animalBuilders: Z.animals, zoneEnv: Z.env || null, quality, onExit: () => { closeGame(); resetAutoQ(2); audio.setBiome(null); showStart(); if (research) researchHub.open(); } });
+      game = await createGame({ save, research, pipe, ui, audio, bus, biome, plantBuilders: Z.plants, animalBuilders: Z.animals, zoneEnv: Z.env || null, quality, onExit: () => { closeGame(); resetAutoQ(2); audio.setBiome(null); if (research && research.onExit) { research.onExit(); return; } showStart(); if (research) researchHub.open(); } });
       const g = game;
       if (SOFTWARE_GL) setTimeout(() => game && game === g && ui.toast('שימו לב: המחשב הזה מצייר בלי מנהל התקן גרפי, ולכן המשחק איטי. עדכון מנהל ההתקן של כרטיס המסך יפתור את זה.', 'warn'), 2500);
       // warm up shaders before revealing
@@ -312,7 +312,10 @@ async function boot() {
   function openRoboLab() {
     audio.start(); ui.hideStart();
     ui.setLoading && ui.setLoading(0.3, 'פותחים את מעבדת הרובוטים...');
-    robolabP = robolabP || loadPack('robolab').then((m) => (robolab = m.createRoboLab({ root, audio, kids: playerMode() === 'kids', onExit: () => { startDrawn = false; showStart(); } })));
+    robolabP = robolabP || loadPack('robolab').then((m) => (robolab = m.createRoboLab({ root, audio, kids: playerMode() === 'kids', onExit: () => { startDrawn = false; showStart(); },
+      // a lesson in 3D: the zone's island as a controlled field (src/robolab/three/), back to the lab's home on leaving
+      enter3d: (desc) => { loadPack(desc.zone).catch(() => { /* reported by loadBiome */ }); loadBiome(desc.zone, null, desc); },
+      leave3d: () => { if (game) { closeGame(); resetAutoQ(2); audio.setBiome(null); } } })));
     robolabP.then((R) => { ui.hideLoading(); R.open(); }, (e) => { robolabP = null; ui.hideLoading(); console.error(e); showStart(); });
   }
   bus.on('ui:robolab', openRoboLab);
