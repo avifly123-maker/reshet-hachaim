@@ -6,8 +6,8 @@
 # face, the lower legs nearly white.
 own('giraffe')
 blobs = [
-    dict(t='ell', c=(0, 2.2, -0.5), r=(0.36, 0.4, 0.55), rot=(-10, 0, 0), bone='hips'),
-    dict(t='ell', c=(0, 2.42, 0.18), r=(0.4, 0.5, 0.56), rot=(-8, 0, 0), bone='chest'),
+    dict(t='ell', c=(0, 2.2, -0.5), r=(0.42, 0.47, 0.6), rot=(-10, 0, 0), bone='hips'),
+    dict(t='ell', c=(0, 2.42, 0.18), r=(0.46, 0.57, 0.6), rot=(-8, 0, 0), bone='chest'),
     dict(t='ell', c=(0, 2.78, 0.3), r=(0.24, 0.3, 0.42), bone='chest'),                 # the high withers
     dict(t='ell', c=(0, 2.0, 0.36), r=(0.22, 0.22, 0.24), bone='chest'),                # the deep chest between the forelegs
     # the long neck, thick at the shoulders, thin under the head
@@ -47,7 +47,7 @@ for sx, L in ((1, 'l'), (-1, 'r')):
 E = blob_ears(blobs, bones, base=(0.1, 4.24, 1.2), d=(1, 0.3, -0.35), H=0.17, w=0.05, t=0.016, tip=0.75)
 EYE['giraffe'] = ('#2a160a', 'round', 0.82, 0.5)
 
-PATCH, PATCH2, LINE, CREAM, DARK, MANE = srgb('#a8642e'), srgb('#8a4c22'), srgb('#efe2c4'), srgb('#f2e8d4'), srgb('#2a1e16'), srgb('#5a3a22')
+PATCH, PATCH2, LINE, CREAM, DARK, MANE = srgb('#a8642e'), srgb('#8a4c22'), srgb('#e6d2a8'), srgb('#f2e8d4'), srgb('#2a1e16'), srgb('#5a3a22')
 def paint(P, N, tag):
     x, y, z = P
     e = ear_paint(P, N, E)
@@ -58,7 +58,7 @@ def paint(P, N, tag):
     sc = 3.6 + 3.0 * leg + 4.0 * face
     d1, d2, rid = worley2(Vector((x * 1.0, y * 0.85, z * 1.0)), sc, 21)
     w = noise.noise(Vector((x * 9, y * 9, z * 9)))
-    edge = smooth(0.1 + 0.03 * w, 0.2 + 0.03 * w, d2 - d1)          # 0 on the pale line between two patches, 1 inside a patch
+    edge = smooth(0.05 + 0.02 * w, 0.12 + 0.02 * w, d2 - d1)          # 0 on the pale line between two patches, 1 inside a patch
     pc = mix(PATCH, PATCH2, 0.25 + 0.5 * rid + 0.15 * w)
     c = mix(LINE, pc, edge)
     plain = smooth(0.85, 0.45, y) * smooth(0.12, 0.17, abs(x))       # the lower legs: pale, a few faint spots
@@ -91,4 +91,4 @@ names = [b[0] for b in bones]
 acts = quad_actions(names, dict(amp=20, knee=44, run_amp=34, bob=0.03, drop=1.1, head_eat=30, neck_eat=40, look=22, tailsw=26, earflick=18,
                                 frames=dict(walk=44, run=22, idle=170, eat=80, sleep=150)))
 SPEC = dict(id='giraffe', bones=bones, blobs=blobs, parts=parts, paint=paint, res=0.014, tris=6000, smooth=12, actions=acts, lidCol='#3a2618',
-            meta=dict(height=4.6, length=2.8, speeds={'walk': 1.2, 'run': 8.0}, map={'swim': 'walk', 'sit': 'sleep'}))
+            meta=dict(height=4.6, length=3.4, speeds={'walk': 1.2, 'run': 8.0}, map={'swim': 'walk', 'sit': 'sleep'}))
