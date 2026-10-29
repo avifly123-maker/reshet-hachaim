@@ -14,6 +14,7 @@ export const BADGE_GROUPS = [
   { id: 'lab', name: 'הממציאים והמעבדה', short: 'מעבדה', col: '#5a4a8a', col2: '#f6cf72' },
   { id: 'deep', name: 'משלחת לעומק', short: 'משלחת', col: '#163a5a', col2: '#6fd0ff' },
   { id: 'research', name: 'חוקרי הטבע', short: 'חוקרים', col: '#3a5a2a', col2: '#f6cf72' },
+  { id: 'robolab', name: 'מעבדת הרובוטים', short: 'רובוטים', col: '#1f4a6e', col2: '#e8873a' },
   // torah edition only (hidden in the general edition and while "מקורות ופסוקים" is off)
   { id: 'sources', name: 'מה הפסוק מלמד?', short: 'מקורות', col: '#7a5420', col2: '#f6dfa0', torah: true },
 ];
@@ -127,6 +128,20 @@ export const BADGES = [
   { id: 'b_rh_thrift', group: 'research', art: 'agouti', name: 'חוקר חסכן', how: 'פותרים תעלומה בתקציב קטן, בלי לבזבז', earn: 'research:thrift' },
   { id: 'b_rh_book', group: 'research', art: 'blackbird', name: 'מחברת של חוקר', how: 'במחברת: פוסלים השערה אחת לפחות ובוחרים השערה, והתעלומה נפתרת', earn: 'research:notebook' },
   { id: 'b_rh_order', group: 'research', art: 'tortoise', name: 'צעד אחר צעד', how: 'מודדים וכותבים השערה לפני הרעיון הראשון, ופותרים', earn: 'research:order' },
+  // ── מעבדת הרובוטים (1.4.1, src/robolab/badges.js): a badge for every chapter, for good programs, for puzzles and fun
+  { id: 'b_ro_ch1', group: 'robolab', art: 'leafcutter', name: 'לפי הסדר', how: 'כל השיעורים של פרק "סדר פעולות"', earn: 'robo:ch:1' },
+  { id: 'b_ro_ch2', group: 'robolab', art: 'hummingbird', name: 'אלוף הלולאות', how: 'כל השיעורים של פרק "חזרות"', earn: 'robo:ch:2' },
+  { id: 'b_ro_ch3', group: 'robolab', art: 'harvesterant', name: 'בונה בלוקים', how: 'כל השיעורים של פרק "הבלוק שלי"', earn: 'robo:ch:3' },
+  { id: 'b_ro_ch4', group: 'robolab', art: 'owl', name: 'רובוט שחושב', how: 'כל השיעורים של פרק "תנאים וחיישנים"', earn: 'robo:ch:4' },
+  { id: 'b_ro_ch5', group: 'robolab', art: 'gazelle', name: 'מגיב בזמן', how: 'כל השיעורים של פרק "אירועים"', earn: 'robo:ch:5' },
+  { id: 'b_ro_ch6', group: 'robolab', art: 'parrotfish', name: 'סופר מדויק', how: 'כל השיעורים של פרק "מונים"', earn: 'robo:ch:6' },
+  { id: 'b_ro_ch7', group: 'robolab', art: 'harpy', name: 'צוות מנצח', how: 'כל השיעורים של פרק "עבודת צוות"', earn: 'robo:ch:7' },
+  { id: 'b_ro_star10', group: 'robolab', art: 'toucan', name: 'מתכנת חסכן', how: 'שלושה כוכבים בעשרה שיעורים', earn: 'robo:stars:10' },
+  { id: 'b_ro_star30', group: 'robolab', art: 'macaw', name: 'קוד קצר וחכם', how: 'שלושה כוכבים בשלושים שיעורים', earn: 'robo:stars:30' },
+  { id: 'b_ro_puz1', group: 'robolab', art: 'octopus', name: 'פותר חידות', how: 'פותרים חידה ראשונה במעבדת הרובוטים', earn: 'robo:puzzles:1' },
+  { id: 'b_ro_puz5', group: 'robolab', art: 'chameleon', name: 'ראש חידות', how: 'פותרים חמש חידות', earn: 'robo:puzzles:5' },
+  { id: 'b_ro_fun', group: 'robolab', art: 'firefly', name: 'זיקוקים לכל הכיוונים', how: 'לוחצים עשרים פעם על בלוקים מפתיעים', earn: 'robo:fun' },
+  { id: 'b_ro_design', group: 'robolab', art: 'butterfly', name: 'מעצב רובוטים', how: 'צובעים כלי בסדנת העיצוב', earn: 'robo:design' },
 ];
 
 // card frames for the album: a group's frame opens with `need` of its badges ('all': badges of any group)

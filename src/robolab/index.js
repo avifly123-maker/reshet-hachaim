@@ -11,6 +11,7 @@ import { createMap } from './ui/map.js';
 import { createRoboSession } from './three/session.js';
 import { openGarage } from './garage.js';
 import { kubiCam } from './ui/kubi-cam.js';
+import { checkRoboBadges } from './badges.js';
 import { createEditor } from './ui/editor.js';
 import { icon } from './ui/icons.js';
 import { isOpen as journeyOpen, lockWords } from '../core/journey.js';
@@ -153,13 +154,14 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     map.play(r.trace, { speed, variant: r.variant, onStep: (e) => {
       ed.light(e.nid);
       if (e.a === 'oops' && !oopsShown) { kubiDo('oops'); oopsShown = true; msg(esc(T(pick(OOPS_LINES[e.want] || OOPS_LINES.any, seedN))), 'oops'); sfx('pop'); }
-      if (FUN_LINES[e.a]) { sfx('pop'); const n = addFun(); if (n === 1 || n % 10 === 0) msg(esc(T(pick(FUN_LINES[e.a], seedN))), 'fun'); }
+      if (FUN_LINES[e.a]) { sfx('pop'); const n = addFun(); if (n === 20) checkRoboBadges(); if (n === 1 || n % 10 === 0) msg(esc(T(pick(FUN_LINES[e.a], seedN))), 'fun'); }
       if (e.a === 'fail') { sfx('invalid'); kubiDo('surprised'); }
     }, onEnd: () => {
       ed.light(null);
       el.querySelector('[data-why]').disabled = false;
       if (r.ok) {
         const { first } = markSolved(cur.id, r.stars, r.blocks);
+        setTimeout(checkRoboBadges, 1200);   // after the win message (the badge toast comes on its own)
         kubiDo('cheer', 2);
         msg(`<div class="rl-win"><span class="rl-st big">${stars(r.stars)}</span><b>${esc(T(pick(WIN_LINES, seedN)))}</b><small>${r.variants > 1 ? (kids ? `עָבַד בְּכָל ${r.variants} הַגִּרְסָאוֹת · ` : `עבד בכל ${r.variants} הגרסאות · `) : ''}${r.blocks} ${kids ? 'בְּלוֹקִים' : 'בלוקים'}${r.stars < 3 && cur.par ? ' · ' + esc(T({ f: 'אפשר גם ב־' + cur.par, k: 'אֶפְשָׁר גַּם בְּ־' + cur.par })) : ''}</small>
           <span class="rl-winb"><button type="button" data-next>${kids ? 'לַשִּׁעוּר הַבָּא' : 'לשיעור הבא'}</button><button type="button" data-stay>${kids ? 'לְנַסּוֹת שׁוּב' : 'לנסות שוב'}</button></span></div>`, 'win');
@@ -191,7 +193,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     const b = e.target.closest('button'); if (!b || !el.contains(b) || b.disabled) return;
     if (b.dataset.exit != null) { close(); if (onExit) onExit(); return; }
     if (b.dataset.home != null) { sfx('click'); home(); return; }
-    if (b.dataset.garage != null) { sfx('click'); if (garage) garage.close(); garage = openGarage(el, { kids, sfx, onClose: () => { garage = null; } }); return; }
+    if (b.dataset.garage != null) { sfx('click'); if (garage) garage.close(); garage = openGarage(el, { kids, sfx, onClose: () => { garage = null; checkRoboBadges(); } }); return; }
     if (b.dataset.level) { sfx('click'); openLevel(b.dataset.level); return; }
     if (b.dataset.run) { run(b.dataset.run); return; }
     if (b.dataset.again != null) { stopRun(); hideMsg(); map.reset(); return; }
