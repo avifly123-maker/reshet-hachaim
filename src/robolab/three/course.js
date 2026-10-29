@@ -9,7 +9,7 @@
 import * as THREE from 'three';
 import { makeWorld } from '../engine/world.js';
 import { SIGNALS } from '../engine/blocks.js';
-import { levelOf } from '../engine/level.js';
+import { levelsOf } from '../engine/level.js';
 import { lookFor } from '../../data/robolab/parts.js';
 import { toolLook } from '../progress.js';
 import { makeTool, makeHome, makeSpot, makeFruit, makeNet, makeTrash, makeRock, makeEdge, makeFireBase } from './models.js';
@@ -134,9 +134,10 @@ export function createCourse(ctx, L) {
     for (const p of spawned) { try { W.removeEntity(p); } catch (e) { } }
     spawned = []; fires = [];
   }
+  let variant = 0;   // which version of the level is on the field (L.variants: the same map, other items)
   function buildItems() {
     clearItems();
-    const w0 = makeWorld(levelOf(L));
+    const lvs = levelsOf(L), w0 = makeWorld(lvs[Math.min(variant, lvs.length - 1)]);
     items = w0.items.map((it) => {
       const S = { ...it, obj: null, plant: null };
       const sc = CS / 3;
@@ -205,8 +206,8 @@ export function createCourse(ctx, L) {
 
   // ── playing a trace
   let play = null;
-  function start(trace, { speed = 'normal', onStep, onEnd } = {}) {
-    stop(); buildItems();
+  function start(trace, { speed = 'normal', onStep, onEnd, variant: vi = 0 } = {}) {
+    stop(); variant = vi || 0; buildItems();
     play = { evs: trace.slice(), i: 0, t: 0, dur: DUR[speed] || DUR.normal, from: null, onStep, onEnd };
   }
   function begin(e) {
@@ -270,7 +271,7 @@ export function createCourse(ctx, L) {
   buildItems();
   return {
     kubiSpot,
-    reset: () => { stop(); buildItems(); }, play: start, stop, isPlaying: () => !!play, update, view, redraw: () => { },
+    reset: () => { stop(); variant = 0; buildItems(); }, play: start, stop, isPlaying: () => !!play, update, view, redraw: () => { },
     cellPos: (x, y) => new THREE.Vector3(wx(x), ground(wx(x), wz(y)), wz(y)), CS,
     dispose: () => { stop(); clearItems(); for (const e of keep) { try { W.removeEntity(e); } catch (err) { } } scene.remove(root); root.traverse((o) => { if (o.geometry) o.geometry.dispose(); }); },
   };

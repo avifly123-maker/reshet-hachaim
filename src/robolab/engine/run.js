@@ -114,4 +114,12 @@ export function runProgram(level, program, opts = {}) {
   return { ok: goal.ok, why: goal.why || null, stars, steps: W.ticks, blocks, trace: W.trace, error: W.error, state: W.summary() };
 }
 
+// a lesson with all its variants: ok only when every variant passes; the run shown is the first that fails (or the last)
+export function runLevel(levels, program, opts = {}) {
+  const rs = levels.map((lv) => runProgram(lv, program, opts));
+  let shown = rs.findIndex((r) => !r.ok); if (shown < 0) shown = rs.length - 1;
+  const ok = rs.every((r) => r.ok);
+  return { ...rs[shown], ok, stars: ok ? Math.min(...rs.map((r) => r.stars)) : 0, variant: shown, variants: rs.length, passed: rs.filter((r) => r.ok).length };
+}
+
 export { makeWorld, cellAt, canEnter, ahead, DIRS };

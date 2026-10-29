@@ -2,6 +2,12 @@
 export function levelOf(L) {
   return { map: L.map, items: L.items || [], home: L.home || null, tools: L.tools0 || {}, events: L.events || null, goal: L.goal, par: L.par || 0, maxTicks: L.maxTicks || 0 };
 }
+// A level may come in a few variants (L.variants = [{ items?, map?, tools0?, home? }]): the same program must work in
+// all of them, so a fixed list of steps is not enough and the child needs a sensor and an "if" (chapter 4 on).
+export function levelsOf(L) {
+  if (!L.variants || !L.variants.length) return [levelOf(L)];
+  return L.variants.map((v) => levelOf({ ...L, ...v }));
+}
 // the blocks a program uses (for the test that a solution sticks to the lesson's palette)
 export function usedBlocks(program) {
   const s = new Set();

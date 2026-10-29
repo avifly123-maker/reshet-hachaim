@@ -6,7 +6,7 @@
 // The look follows the zone (grove, amazon, desert, reef). No cross shapes anywhere: the drone has three rotors in a
 // ring, nets are drawn as loops, a planted seed is two leaves.
 import { makeWorld } from '../engine/world.js';
-import { levelOf } from '../engine/level.js';
+import { levelsOf } from '../engine/level.js';
 
 const LOOK = {
   grove:  { ground: '#b8c48a', ground2: '#a7b679', sand: '#d9c896', tree: '#4f7a3a', tree2: '#6e9a4c', water: '#6fb4c8', rock: '#9a9488', edge: '#5b4a35' },
@@ -31,8 +31,8 @@ export function createMap(canvas, L, zone) {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     cs = Math.floor(Math.min(w / Wd, h / H)); ox = (w - cs * Wd) / 2; oy = (h - cs * H) / 2;
   }
-  function reset() {
-    const W = makeWorld(levelOf(L));
+  function reset(vi = 0) {
+    const lvs = levelsOf(L), W = makeWorld(lvs[Math.min(vi, lvs.length - 1)]);
     state = { tools: {}, items: W.items.map((it) => ({ ...it })), fx: [], bubble: null, shake: 0 };
     for (const [k, T] of Object.entries(W.tools)) state.tools[k] = { x: T.x, y: T.y, dir: T.dir, a: T.dir * Math.PI / 2, flying: T.flying, show: k !== 'drone' || !T.parked, lift: 0 };
     draw();
@@ -191,8 +191,8 @@ export function createMap(canvas, L, zone) {
   // ── playing a trace: one event at a time, smoothly
   let playing = null;
   const DUR = { slow: 700, normal: 360, fast: 140 };
-  function play(trace, { speed = 'normal', onStep, onEnd } = {}) {
-    stop(); reset();
+  function play(trace, { speed = 'normal', onStep, onEnd, variant = 0 } = {}) {
+    stop(); reset(variant);
     const evs = trace.slice(); let i = 0, t0 = performance.now(), from = null;
     const dur = DUR[speed] || DUR.normal;
     playing = { stop: false };

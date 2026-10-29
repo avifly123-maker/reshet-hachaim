@@ -5,8 +5,8 @@
 // Data: src/data/robolab/ (lessons, puzzles). Engine: ./engine/ (pure). Screen: ./ui/ (map, editor, icons).
 // Progress per player: ./progress.js. Debug (headless tests): window.__rlDebug = { open(id), solve(id), run(), state() }.
 import { CHAPTERS, LESSONS, PUZZLES, ALL_LEVELS } from '../data/robolab/index.js';
-import { runProgram } from './engine/run.js';
-import { levelOf } from './engine/level.js';
+import { runLevel } from './engine/run.js';
+import { levelsOf } from './engine/level.js';
 import { createMap } from './ui/map.js';
 import { createRoboSession } from './three/session.js';
 import { openGarage } from './garage.js';
@@ -145,11 +145,11 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     if (!cur || !ed) return;
     hideMsg();
     const prog = ed.program();
-    const r = runProgram(levelOf(cur), prog);
+    const r = runLevel(levelsOf(cur), prog);
     lastRun = r; seedN++;
     el.querySelector('[data-why]').disabled = true;
     let oopsShown = false;
-    map.play(r.trace, { speed, onStep: (e) => {
+    map.play(r.trace, { speed, variant: r.variant, onStep: (e) => {
       ed.light(e.nid);
       if (e.a === 'oops' && !oopsShown) { kubiDo('oops'); oopsShown = true; msg(esc(T(pick(OOPS_LINES[e.want] || OOPS_LINES.any, seedN))), 'oops'); sfx('pop'); }
       if (FUN_LINES[e.a]) { sfx('pop'); const n = addFun(); if (n === 1 || n % 10 === 0) msg(esc(T(pick(FUN_LINES[e.a], seedN))), 'fun'); }
@@ -160,13 +160,15 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
       if (r.ok) {
         const { first } = markSolved(cur.id, r.stars, r.blocks);
         kubiDo('cheer', 2);
-        msg(`<div class="rl-win"><span class="rl-st big">${stars(r.stars)}</span><b>${esc(T(pick(WIN_LINES, seedN)))}</b><small>${r.blocks} ${kids ? 'בְּלוֹקִים' : 'בלוקים'}${r.stars < 3 && cur.par ? ' · ' + esc(T({ f: 'אפשר גם ב־' + cur.par, k: 'אֶפְשָׁר גַּם בְּ־' + cur.par })) : ''}</small>
+        msg(`<div class="rl-win"><span class="rl-st big">${stars(r.stars)}</span><b>${esc(T(pick(WIN_LINES, seedN)))}</b><small>${r.variants > 1 ? (kids ? `עָבַד בְּכָל ${r.variants} הַגִּרְסָאוֹת · ` : `עבד בכל ${r.variants} הגרסאות · `) : ''}${r.blocks} ${kids ? 'בְּלוֹקִים' : 'בלוקים'}${r.stars < 3 && cur.par ? ' · ' + esc(T({ f: 'אפשר גם ב־' + cur.par, k: 'אֶפְשָׁר גַּם בְּ־' + cur.par })) : ''}</small>
           <span class="rl-winb"><button type="button" data-next>${kids ? 'לַשִּׁעוּר הַבָּא' : 'לשיעור הבא'}</button><button type="button" data-stay>${kids ? 'לְנַסּוֹת שׁוּב' : 'לנסות שוב'}</button></span></div>`, 'win');
         sfx(first ? 'mission' : 'pop');
       } else {
         const why = r.error ? (FAIL_LINES[r.error.code] || FAIL_LINES.any) : (GOAL_LINES[r.why] || GOAL_LINES.any);
+        // a level with variants: say which version of the place the program missed (the field shows that one)
+        const vtxt = r.variants > 1 ? `<p class="rl-var">${kids ? `בָּדַקְנוּ אֶת הַתָּכְנִית בְּ־${r.variants} גִּרְסָאוֹת שֶׁל הַמָּקוֹם. בַּגִּרְסָה ${r.variant + 1} הִיא לֹא הִצְלִיחָה.` : `בדקנו את התוכנית ב־${r.variants} גרסאות של המקום. בגרסה ${r.variant + 1} היא לא הצליחה.`}</p>` : '';
         if (!r.error) kubiDo('think', 2.5);
-        msg(esc(T(pick(why, seedN))), 'fail');
+        msg(esc(T(pick(why, seedN))) + vtxt, 'fail');
       }
     } });
   }

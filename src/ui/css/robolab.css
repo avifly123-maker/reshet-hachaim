@@ -188,3 +188,6 @@
 /* a colour picture on the block (blocks.js emo): big and clear, readable before reading */
 #ui.wol .rl-ic.emo { background: rgba(255, 255, 255, .88); }
 #ui.wol .rl-ic.emo i { font-style: normal; font-size: 17px; line-height: 1; font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif; }
+/* control blocks: the sensor list or the number may take a second line in a narrow program panel */
+#ui.wol .rl-node.ctl > .rl-head { flex-wrap: wrap; row-gap: 3px; }
+#ui.wol .rl-node.ctl > .rl-head select { max-width: 100%; flex: 1 1 120px; }
