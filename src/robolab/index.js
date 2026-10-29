@@ -14,6 +14,7 @@ import { kubiCam } from './ui/kubi-cam.js';
 import { checkRoboBadges } from './badges.js';
 import { ZONE_IDS, ZONE_LOOK } from '../data/zones.js';
 import { BLOCK_INTRO, CHAPTER_INTRO } from '../data/robolab/kubi-lines.js';
+import { playIntro } from './intro.js';
 import { BLOCKS } from './engine/blocks.js';
 import { createVoice } from '../audio/voice.js';
 import { createEditor } from './ui/editor.js';
@@ -76,7 +77,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
         <button type="button" class="rl-gbtn" data-garage>${icon('paint')}<span>${kids ? 'סַדְנַת הָעִצּוּב' : 'סדנת העיצוב'}</span></button>
         <div class="rl-count">${icon('star')}<b>${nDone}</b><small>${kids ? 'פְּתוּרִים' : 'פתורים'}</small></div></header>
       <div class="rl-scroll">
-        <div class="rl-hello"><canvas class="rl-hkubi" aria-hidden="true"></canvas><p>${nDone ? (kids ? 'שׁוּב שָׁלוֹם! מַמְשִׁיכִים מֵאֵיפֹה שֶׁעָצַרְנוּ? בְּסַדְנַת הָעִצּוּב אֶפְשָׁר לְעַצֵּב אֶת הַכֵּלִים.' : 'שוב שלום! ממשיכים מאיפה שעצרנו? בסדנת העיצוב אפשר לעצב את הכלים שלכם.') : (kids ? 'שָׁלוֹם! אֲנִי קוּבִּי. כָּאן לוֹמְדִים לְתַכְנֵת רוֹבּוֹטִים, רַחְפָנִים וְצוֹלְלָנִים, שֶׁעוֹזְרִים לַטֶּבַע.' : 'שלום! אני קוּבִּי. כאן לומדים לתכנת רובוטים, רחפנים וצוללנים שעוזרים לטבע. מתחילים בשיעור הראשון.')}</p></div>
+        <div class="rl-hello"><canvas class="rl-hkubi" aria-hidden="true"></canvas><button type="button" class="rl-introb" data-intro>${icon('play')}<span>${kids ? 'סִרְטוֹן הַפְּתִיחָה' : 'סרטון הפתיחה'}</span></button><p>${nDone ? (kids ? 'שׁוּב שָׁלוֹם! מַמְשִׁיכִים מֵאֵיפֹה שֶׁעָצַרְנוּ? בְּסַדְנַת הָעִצּוּב אֶפְשָׁר לְעַצֵּב אֶת הַכֵּלִים.' : 'שוב שלום! ממשיכים מאיפה שעצרנו? בסדנת העיצוב אפשר לעצב את הכלים שלכם.') : (kids ? 'שָׁלוֹם! אֲנִי קוּבִּי. כָּאן לוֹמְדִים לְתַכְנֵת רוֹבּוֹטִים, רַחְפָנִים וְצוֹלְלָנִים, שֶׁעוֹזְרִים לַטֶּבַע.' : 'שלום! אני קוּבִּי. כאן לומדים לתכנת רובוטים, רחפנים וצוללנים שעוזרים לטבע. מתחילים בשיעור הראשון.')}</p></div>
         <section class="rl-sec"><h2>${icon('lesson')}${kids ? 'שִׁעוּרִים' : 'שיעורים'}</h2>
           ${CHAPTERS.map((C) => { const ls = LESSONS.filter((q) => q.ch === C.n); if (!ls.length) return '';
             return `<div class="rl-ch" style="--cc:${C.color}"><div class="rl-chh"><b>${C.n}</b><span><strong>${esc(T(C.title))}</strong><small>${esc(T(C.idea))}</small>${C.n > 1 && !journeyOpen('robolab:more') ? `<em class="rl-lock">${esc(lockWords('robolab:more'))}</em>` : ''}</span></div>
@@ -87,6 +88,14 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
         ${PUZZLES.length ? `<section class="rl-sec"><h2>${icon('puzzle')}${kids ? 'חִידוֹת' : 'חידות'}</h2><div class="rl-pz">${PUZZLES.map((L) => { const ok = levelOpen(L, P), d = P.done[L.id];
           return `<button type="button" class="rl-pzb${d ? ' done' : ''}" data-level="${L.id}" ${ok ? '' : 'disabled'}><span class="rl-z z-${L.zone}"></span><b>${esc(T(L.title))}</b>${ok ? '' : `<small>${kids ? 'נִפְתָּח אַחֲרֵי שִׁעוּר ' : 'נפתח אחרי שיעור '}${L.after.replace('l', '').replace('-', '.')}</small>`}<span class="rl-st">${stars(d ? d.stars : 0)}</span></button>`; }).join('')}</div></section>` : ''}
       </div></div>`;
+    if (!P.seen.intro) showIntro();   // the opening film, once, on the first visit
+  }
+  // the opening film (intro.js) over the home; קוּבִּי of the home greets when it ends
+  let intro = null;
+  function showIntro() {
+    if (intro) return;
+    speakGen++; kvoice.stop(); if (kcam) { kcam.dispose(); kcam = null; }
+    intro = playIntro(el, { kids, voice: kvoice, sfx, onDone: () => { intro = null; markSeen('intro'); if (el.querySelector('.rl-hkubi')) helloKubi(); } });
   }
 
   // ── one level: the teacher's words, the map, the palette and the program, the run buttons
@@ -152,6 +161,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   // (the island may be gone already, when the lab leaves it: every call checks)
   const stage3d = (api) => ({ reset: () => api.course && api.course.reset(), play: (tr, o) => api.course && api.course.play(tr, o), stop: () => api.course && api.course.stop(), isPlaying: () => !!(api.course && api.course.isPlaying()), redraw: () => { }, dispose: () => { } });
   function helloKubi() {
+    if (intro) return;
     if (kcam) { kcam.dispose(); kcam = null; }
     const c = el.querySelector('.rl-hkubi'); if (!c) return;
     kcam = kubiCam(c, { full: true }); setTimeout(() => speak([Object.keys(roboProgress().done).length ? 'kh_again' : 'kh_first'], 3), 600);
@@ -266,6 +276,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     const b = e.target.closest('button'); if (!b || !el.contains(b) || b.disabled) return;
     if (b.dataset.exit != null) { close(); if (onExit) onExit(); return; }
     if (b.dataset.home != null) { sfx('click'); home(); return; }
+    if (b.dataset.intro != null) { sfx('click'); showIntro(); return; }
     if (b.dataset.garage != null) { sfx('click'); if (garage) garage.close(); garage = openGarage(el, { kids, sfx, onClose: () => { garage = null; checkRoboBadges(); } }); return; }
     if (b.dataset.level) { sfx('click'); openLevel(b.dataset.level); return; }
     if (b.dataset.run) { run(b.dataset.run); return; }
@@ -292,6 +303,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   };
   // headless tests
   window.__rlDebug = {
+    intro: () => !!intro, showIntro: () => { showIntro(); return true; },
     open: (id, flat) => (id ? openLevel(id, { flat: !!flat }) : home()),
     in3d: () => !!(in3d && in3d.api),
     island: (z) => openIsland(z), prog: () => ed && ed.program(), cur: () => cur && cur.id, playing: () => !!(map && map.isPlaying()), level: () => cur && { id: cur.id, rows: cur.map.rows, items: cur.items, kind: cur.kind },

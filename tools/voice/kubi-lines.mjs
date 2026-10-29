@@ -2,7 +2,7 @@
 // [{ id, text }] of every line he says (src/data/robolab/kubi-lines.js, the lessons' and puzzles' words, the run
 // messages). The text is the vocalised form (k). usage: node tools/voice/kubi-lines.mjs out.json [--test]
 import { writeFileSync } from 'node:fs';
-import { HELLO, CHAPTER_INTRO, BLOCK_INTRO } from '../../src/data/robolab/kubi-lines.js';
+import { HELLO, INTRO, CHAPTER_INTRO, BLOCK_INTRO } from '../../src/data/robolab/kubi-lines.js';
 import { ALL_LEVELS } from '../../src/data/robolab/index.js';
 import { WIN_LINES, FAIL_LINES, GOAL_LINES, OOPS_LINES } from '../../src/data/robolab/lines.js';
 const out = [];
@@ -11,6 +11,7 @@ if (process.argv.includes('--test')) {
   out.push({ id: 'test_nikud', text: HELLO.first.k }, { id: 'test_plain', text: HELLO.first.f });
 }
 for (const [k, o] of Object.entries(HELLO)) add('kh_' + k, o);
+INTRO.forEach((o, i) => add('ki_' + i, o));
 for (const [n, o] of Object.entries(CHAPTER_INTRO)) add('kc_' + n, o);
 for (const [b, o] of Object.entries(BLOCK_INTRO)) add('kb_' + b, o);
 for (const L of ALL_LEVELS) add('kl_' + L.id, { k: (L.say || []).map((s) => s.k).join(' ') });
