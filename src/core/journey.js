@@ -60,7 +60,7 @@ export const PARTS = {
   versematch: { stage: 6, name: 'מה הפסוק מלמד?', kname: 'מָה הַפָּסוּק מְלַמֵּד?', where: 'hub' },
   experts: { stage: 6, name: 'משימות המומחים', kname: 'מְשִׂימוֹת הַמֻּמְחִים', where: 'zone' },
   // 1.4: the desert, a hard zone, opens at the expert stage (docs/PLAN-1.4.md section 3)
-  'zone:desert': { stage: 6, name: 'המדבר', kname: 'הַמִּדְבָּר', where: 'start' },
+  'zone:desert': { stage: 6, v14: true, name: 'המדבר', kname: 'הַמִּדְבָּר', where: 'start' },
 };
 
 // need: a list of ways (any one is enough). Keys: missions (done in all zones), badges (owned), lab (lab activities).
@@ -78,7 +78,16 @@ export const STAGES = [
   { n: 4, id: 'researcher', name: 'חוקר', kname: 'חוֹקֵר', need: [{ missions: 15, amazon: 5, grove: 5, cards: 20, cardgame: 1 }], kneed: [{ missions: 9, amazon: 3, grove: 3, cards: 12, cardgame: 1 }] },
   { n: 5, id: 'inventor', name: 'ממציא', kname: 'מַמְצִיא', need: [{ lab: 3, reef: 4 }], kneed: [{ lab: 2, reef: 2 }] },
   { n: 6, id: 'expert', name: 'מומחה', kname: 'מֻמְחֶה', need: [{ missions: 30, solved: 1, invent: 1, rank: 2 }], kneed: [{ missions: 15, solved: 1, rank: 1 }] },
+  // 1.4 (docs/PLAN-1.4.md section 3): two more stages. They are on the map from 1.4.0, marked `soon`: a soon stage is
+  // never reached and opens nothing, until the parts it opens are built (the programming world comes in a later round
+  // of 1.4). Then `soon` goes, the new keys get their counters in metrics(), and the stage opens its parts:
+  //   7 מתכנת: 6 desert missions, 12 programming lessons (code), a mystery solved in the desert or the savanna (solvedNew)
+  //   8 יזם: 10 robot missions (robot), a desert island at the second rank (drank), two inventions (invent)
+  { n: 7, id: 'programmer', name: 'מתכנת', kname: 'מְתַכְנֵת', soon: true, need: [{ desert: 6, code: 12, solvedNew: 1 }], kneed: [{ desert: 3, code: 6, solvedNew: 1 }] },
+  { n: 8, id: 'entrepreneur', name: 'יזם', kname: 'יַזָּם', soon: true, need: [{ robot: 10, drank: 1, invent: 2 }], kneed: [{ robot: 5, drank: 1, invent: 1 }] },
 ];
+// the last stage a child can reach in this version (the soon ones are only shown on the map)
+export const LAST = STAGES.filter((st) => !st.soon).length;
 
 // storage: core/storage.js (reading never throws; a write that fails keeps the visit going)
 const isKids = () => levelNow() === 'kids';
@@ -142,7 +151,7 @@ function bestStage(s) {
   for (const st of STAGES) if (s && s.shown && s.shown[st.id]) b = Math.max(b, st.n);
   return Math.min(b, STAGES.length);
 }
-function reached(st, m) { const need = isKids() ? st.kneed : st.need; if (!need) return true; return need.some((w) => Object.keys(w).every((k) => (m[k] || 0) >= w[k])); }
+function reached(st, m) { if (st.soon) return false; const need = isKids() ? st.kneed : st.need; if (!need) return true; return need.some((w) => Object.keys(w).every((k) => (m[k] || 0) >= w[k])); }
 
 export const allOpen = () => readDeviceRaw(KEY.allopen) === '1';
 export function unlockAll(code) { if (String(code).trim() !== INSTRUCTOR_CODE) return false; writeDeviceRaw(KEY.allopen, '1'); notify(); return true; }
@@ -154,7 +163,8 @@ export function state() {
   const m = metrics(), s = store(), stage = stageNow(m), kids = isKids();
   const nx = STAGES.find((st) => st.n === stage + 1) || null;
   let next = null;
-  if (nx) {
+  if (nx && nx.soon) next = { stage: nx.n, name: kids ? nx.kname : nx.name, need: [kids ? 'נִפְתָּח בַּגִּרְסָה הַבָּאָה' : 'נפתח בגרסה הבאה'], progress: 0, soon: true };
+  else if (nx) {
     const need = (kids ? nx.kneed : nx.need) || [];
     const words = need.map((w) => wayWords(w, m, kids));
     const progress = Math.max(0, ...need.map((w) => wayProgress(w, m)));
@@ -196,9 +206,9 @@ function wayProgress(w, m) { const ks = Object.keys(w); return ks.reduce((a, k) 
 export function isOpen(part) {
   const P = PARTS[part]; if (!P) return true;   // anything not in the registry is never locked
   if (allOpen()) return true;
-  const s = store(); if (s.legacy) return true;
+  const s = store(); if (s.legacy && !P.v14) return true;   // a player from before 1.3.2: all of 1.3 open, the new parts by the stages
   const stage = stageNow();
-  if (stage >= 6) return true;
+  if (stage >= 6 && P.stage <= 6) return true;
   if (stage < P.stage) return false;
   if (P.after && !s.used[P.after] && !s.used[part]) return false;
   return true;
@@ -257,5 +267,5 @@ if (typeof window !== 'undefined') {
   const later = () => setTimeout(() => { try { check(); } catch (e) { console.error(e); } }, CHECK_DELAY_MS);
   window.addEventListener('wol-badge', later);
   window.addEventListener('wol-progress', later);
-  window.__journey = { state, isOpen, check, metrics, markUsed, playMode, setPlayMode, unlockAll, lockAgain, reload, PARTS, STAGES };
+  window.__journey = { state, isOpen, check, metrics, markUsed, playMode, setPlayMode, unlockAll, lockAgain, reload, PARTS, STAGES, LAST };
 }

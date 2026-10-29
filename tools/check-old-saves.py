@@ -3,7 +3,7 @@
 --make : play a little (both biomes, cards, a 2nd player) on the CURRENT build and store all localStorage keys in
          tests/fixtures/saves-<version>.json (do this once per released version).
 default: load every fixture into a fresh page of the given build and check the forests, players and albums restore,
-         and that every player with progress is a legacy player of מסע החוקר (every part open, nothing closed)."""
+         and that every player with progress is a legacy player of מסע החוקר (every part of 1.3 open, nothing closed; 1.4's new parts open by the stages, docs/PLAN-1.4.md section 3)."""
 import sys, json, glob, asyncio, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from apphost import mount
@@ -59,7 +59,7 @@ async def do_check(p):
               P.setCurrent(p.id); J.reload(); const m = J.metrics();
               const forest = Object.keys(localStorage).some((k) => k.startsWith('web-of-life-save-') && k.endsWith('::' + p.id));
               if (!(forest || m.missions + m.badges + m.lab + m.cases + m.cards > 0)) continue;   // a player who never played
-              const st = J.state(); out.push({ id: p.id, legacy: st.legacy, closed: Object.keys(J.PARTS).filter((x) => !J.isOpen(x)) });
+              const st = J.state(); out.push({ id: p.id, legacy: st.legacy, closed: Object.keys(J.PARTS).filter((x) => !J.isOpen(x) && !J.PARTS[x].v14) });   // 1.4's new parts (v14) open by the stages, for everyone
             }
             P.setCurrent(cur); J.reload(); return out; }""", had)
         res['journey'] = journey

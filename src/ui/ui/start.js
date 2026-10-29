@@ -153,7 +153,7 @@ export function createStart(ctx) {
       jbar.style.setProperty('--c', c);
       jbar.setAttribute('aria-label', `${kids ? 'מַפַּת הַמַּסָּע' : 'מפת המסע'}: ${st.name}. ${need}`);
       return `<span class="jb-med">${stageEmblem(st.stage)}<i>${st.stage}</i></span>
-        <span class="jb-txt"><small>${kids ? `שָׁלָב ${st.stage} מִתּוֹךְ 6` : `שלב ${st.stage} מתוך 6`}</small><b>${esc(st.name)}</b></span>
+        <span class="jb-txt"><small>${kids ? `שָׁלָב ${st.stage} מִתּוֹךְ ${JR.STAGES.length}` : `שלב ${st.stage} מתוך ${JR.STAGES.length}`}</small><b>${esc(st.name)}</b></span>
         <span class="jb-prog"><i style="width:${Math.round((nx ? nx.progress : 1) * 100)}%"></i></span>
         <small class="jb-need">${esc(need)}</small>${mapIcon('jb-map')}`;
     };

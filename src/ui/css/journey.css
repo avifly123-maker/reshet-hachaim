@@ -106,7 +106,7 @@
 #ui.wol .jm-logo { justify-self: end; background: #fbfaf2; padding: 4px 10px; border-radius: 10px; box-shadow: 0 2px 6px rgba(60, 40, 20, .25); }
 #ui.wol .jm-logo img { display: block; height: clamp(26px, 5vh, 40px); width: auto; }
 
-/* the trail: six medallions from the right; the walked part in honey, what lies ahead dashed */
+/* the trail: the medallions from the right; the walked part in honey, what lies ahead dashed */
 #ui.wol .jm-path { position: relative; flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; padding: 2px 2px 4px; }
 #ui.wol .jm-trail { position: absolute; top: 2px; left: 2px; right: 2px; width: calc(100% - 4px); height: clamp(64px, 14vh, 88px); pointer-events: none; overflow: visible; }
 #ui.wol .jm-trail path { fill: none; vector-effect: non-scaling-stroke; stroke-linecap: round; }
@@ -138,6 +138,11 @@
 #ui.wol .jm-name { font-family: var(--serif); font-weight: 400; font-size: clamp(1.05em, 3vh, 1.35em); line-height: 1.1; color: var(--ink); margin-top: 4px; }
 #ui.wol .jm-st.ahead .jm-name { color: #7a7058; }
 #ui.wol .jm-sn, #ui.wol .jm-here { font-size: .76em; font-weight: 800; color: #8a7a52; }
+/* 1.4: a stage still to come (journey.js `soon`): a faded medallion and "בקרוב" on a soft chip */
+#ui.wol .jm-st.soon .jm-med { opacity: .62; width: clamp(34px, 7.5vh, 50px); }
+#ui.wol .jm-st.soon .jm-num { min-width: 18px; height: 18px; font-size: .7em; }
+#ui.wol .jm-st.soon .jm-name { opacity: .8; }
+#ui.wol .jm-soon { display: inline-block !important; padding: 0 7px; border-radius: 999px; background: color-mix(in srgb, var(--c) 18%, #f6efd6); color: color-mix(in srgb, var(--c) 70%, #3a3020); }
 #ui.wol .jm-here { padding: 1px 10px; border-radius: 999px; color: #2a1d0c; background: linear-gradient(180deg, #f8d98a, #e8a43a); box-shadow: 0 2px 0 #9c6519; }
 #ui.wol .jm-parts { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; width: 100%; }
 #ui.wol .jm-part { display: flex; align-items: center; gap: 6px; width: 100%; min-height: 28px; padding: 3px 8px; border-radius: 9px; text-align: right; font-weight: 700; font-size: calc(.8em * var(--ts, 1));
