@@ -112,13 +112,14 @@ async function boot() {
   // the film). Each moment belongs to the player who reached it.
   const STAGE_GAP_MS = 600;     // a breath between two stage moments
   const STAGE_RETRY_MS = 1000;  // how often a waiting moment looks again for a calm place
+  let robolab = null, robolabP = null;   // מעבדת הרובוטים (1.4.1), see openRoboLab
   const stageQ = []; let stageRun = null, stageT = 0;
   const playerId = () => { try { return profiles.current().id; } catch (e) { return ''; } };
   const calmForStage = () => {
     if (game || loading || labOpening) return false;
     if (document.querySelector('.ss, .bdg-pop, #howto, #rguide.modal:not([hidden])')) return false;
     if (hub && hub.isOpen()) return !!root.querySelector('#wol-learn .wl-home');   // the hub's home (over the lab too)
-    if ((lab && lab.isOpen()) || researchHub.isOpen()) return false;
+    if ((lab && lab.isOpen()) || researchHub.isOpen() || (robolab && robolab.isOpen())) return false;
     return ui.isStartShown();
   };
   function nextStage() {
@@ -307,6 +308,14 @@ async function boot() {
     labP.then((L) => { labOpening = false; ui.hideLoading(); L.open(); setTimeout(() => { if (L.isOpen()) showLabHowto(false); }, 700); }, (e) => { labOpening = false; labP = null; ui.hideLoading(); console.error(e); showStart(); });
   }
   bus.on('ui:research', () => { audio.start(); researchHub.open(); });
+  // מעבדת הרובוטים (1.4.1): its own pack, opened from the science centre; leaving goes back to the start screen
+  function openRoboLab() {
+    audio.start(); ui.hideStart();
+    ui.setLoading && ui.setLoading(0.3, 'פותחים את מעבדת הרובוטים...');
+    robolabP = robolabP || loadPack('robolab').then((m) => (robolab = m.createRoboLab({ root, audio, kids: playerMode() === 'kids', onExit: () => { startDrawn = false; showStart(); } })));
+    robolabP.then((R) => { ui.hideLoading(); R.open(); }, (e) => { robolabP = null; ui.hideLoading(); console.error(e); showStart(); });
+  }
+  bus.on('ui:robolab', openRoboLab);
   bus.on('audio:mute', ({ muted }) => { audio.setMuted(muted); writeDeviceRaw(K.sound, muted ? 'off' : 'on'); });   // remembered for the computer (1.3.2)
   if (readDeviceRaw(K.sound) === 'off') { audio.setMuted(true); ui.setToggles({ sound: false }); }
   // the parents' play time (1.3.3): when the day's time is over the lock screen covers everything; the forest stops
@@ -321,6 +330,7 @@ async function boot() {
     if (game || loading) return null;
     if (hub && hub.isOpen()) return null;
     if ((lab && lab.isOpen()) || labOpening) return 'lab';
+    if (robolab && robolab.isOpen()) return 'lab';   // the robot lab shares the lab's music
     if (researchHub.isOpen()) return null;
     return ui.isStartShown() ? 'start' : null;
   };

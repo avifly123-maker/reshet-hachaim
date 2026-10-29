@@ -61,6 +61,9 @@ export const PARTS = {
   experts: { stage: 6, name: 'משימות המומחים', kname: 'מְשִׂימוֹת הַמֻּמְחִים', where: 'zone' },
   // 1.4: the desert, a hard zone, opens at the expert stage (docs/PLAN-1.4.md section 3)
   'zone:desert': { stage: 6, v14: true, name: 'המדבר', kname: 'הַמִּדְבָּר', where: 'start' },
+  // 1.4.1: מעבדת הרובוטים opens at stage 6 with its first chapter; the other chapters and the puzzles at stage 7
+  robolab: { stage: 6, v14: true, name: 'מעבדת הרובוטים', kname: 'מַעְבֶּדֶת הָרוֹבּוֹטִים', where: 'start' },
+  'robolab:more': { stage: 7, v14: true, name: 'שאר שיעורי התכנות והחידות', kname: 'שְׁאָר שִׁעוּרֵי הַתִּכְנוּת וְהַחִידוֹת', where: 'robolab' },
 };
 
 // need: a list of ways (any one is enough). Keys: missions (done in all zones), badges (owned), lab (lab activities).
@@ -83,7 +86,8 @@ export const STAGES = [
   // of 1.4). Then `soon` goes, the new keys get their counters in metrics(), and the stage opens its parts:
   //   7 מתכנת: 6 desert missions, 12 programming lessons (code), a mystery solved in the desert or the savanna (solvedNew)
   //   8 יזם: 10 robot missions (robot), a desert island at the second rank (drank), two inventions (invent)
-  { n: 7, id: 'programmer', name: 'מתכנת', kname: 'מְתַכְנֵת', soon: true, need: [{ desert: 6, code: 12, solvedNew: 1 }], kneed: [{ desert: 3, code: 6, solvedNew: 1 }] },
+  // 1.4.1 (Avi, 29.10): stage 7 opens now with the robot lab's first chapter; more parts join it in later rounds
+  { n: 7, id: 'programmer', name: 'מתכנת', kname: 'מְתַכְנֵת', need: [{ desert: 6, code: 6 }], kneed: [{ desert: 3, code: 4 }] },
   { n: 8, id: 'entrepreneur', name: 'יזם', kname: 'יַזָּם', soon: true, need: [{ robot: 10, drank: 1, invent: 2 }], kneed: [{ robot: 5, drank: 1, invent: 1 }] },
 ];
 // the last stage a child can reach in this version (the soon ones are only shown on the map)
@@ -117,7 +121,8 @@ export function metrics() {
   const C = readPlayer(KEY.cards, {}) || {}; const cards = n(C.owned);
   const used = ((readPlayer(K, null) || {}).used) || {};
   const cardgame = (used.webpuzzle ? 1 : 0) + (used.keepforest ? 1 : 0);
-  const m = { missions, amazon: per.amazon, grove: per.grove, reef: per.reef, desert: per.desert, badges, lab, cases, solved, cards, cardgame, invent: n(L.inventions) + n(L.solved) };
+  const RB = readPlayer(KEY.robolab, {}) || {}; const code = n(RB.done);   // robot-lab levels solved (1.4.1)
+  const m = { missions, amazon: per.amazon, grove: per.grove, reef: per.reef, desert: per.desert, badges, lab, cases, solved, cards, cardgame, invent: n(L.inventions) + n(L.solved), code };
   // the island rank reads the forests' saves: only when a stage asks for it (check() runs often)
   let rank = null;
   Object.defineProperty(m, 'rank', { enumerable: true, get() {
@@ -188,6 +193,7 @@ function needWord(k, n, have, kids) {
   if (k === 'cardgame') return w('משחק קלפים אחד (חוט הקשר או מחזיקים את היער)', 'מִשְׂחַק קְלָפִים אֶחָד (חוּט הַקֶּשֶׁר אוֹ מַחֲזִיקִים אֶת הַיַּעַר)');
   if (k === 'solved') return left === 1 ? w('תעלומה פתורה אחת', 'תַּעֲלוּמָה פְּתוּרָה אַחַת') : w(`עוד ${left} תעלומות פתורות`, `עוֹד ${left} תַּעֲלוּמוֹת פְּתוּרוֹת`);
   if (k === 'invent') return left === 1 ? w('המצאה אחת', 'הַמְצָאָה אַחַת') : w(`עוד ${left} המצאות`, `עוֹד ${left} הַמְצָאוֹת`);
+  if (k === 'code') return left === 1 ? w('עוד שיעור אחד במעבדת הרובוטים', 'עוֹד שִׁעוּר אֶחָד בְּמַעְבֶּדֶת הָרוֹבּוֹטִים') : w(`עוד ${left} שיעורים במעבדת הרובוטים`, `עוֹד ${left} שִׁעוּרִים בְּמַעְבֶּדֶת הָרוֹבּוֹטִים`);
   if (k === 'rank') return w(...(RANK_WORDS[Math.min(3, n)] || RANK_WORDS[1]));
   return '';
 }

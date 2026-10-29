@@ -149,7 +149,7 @@ export const LESSONS_1 = [
     defs0: { row: [{ b: 'repeat', n: 3, body: [{ b: 'fwd' }, { b: 'plant' }] }] },
     map: { rows: ['######', '#....#', '#....#', '######'] },
     items: [2, 3, 4].map((x) => ({ t: 'seed', x, y: 1 })).concat([4, 3, 2].map((x) => ({ t: 'seed', x, y: 2 }))), home: { x: 1, y: 1 }, tools0: { robot: { x: 1, y: 1, dir: 1 } },
-    goal: { all: [{ t: 'done', item: 'seeds' }, { t: 'nooops' }] }, par: 9,
+    goal: { all: [{ t: 'done', item: 'seeds' }, { t: 'nooops' }] }, par: 13,
     solutions: [{ defs: { row: [{ b: 'repeat', n: 3, body: [{ b: 'fwd' }, { b: 'plant' }] }] }, robot: [{ b: 'call', f: 'row' }, R, { b: 'fwd' }, { b: 'plant' }, R, { b: 'fwd' }, { b: 'plant' }, { b: 'fwd' }, { b: 'plant' }] },
       { robot: [...[1, 2, 3].flatMap(() => [{ b: 'fwd' }, { b: 'plant' }]), R, { b: 'fwd' }, { b: 'plant' }, R, { b: 'fwd' }, { b: 'plant' }, { b: 'fwd' }, { b: 'plant' }] }],
   },

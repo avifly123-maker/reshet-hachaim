@@ -50,6 +50,7 @@ function* agent(prog, list, tool, W, depth = 0) {
       if (!body) { W.fail('nodef', tool, { f: nd.f }); return; }
       yield* agent(prog, body, tool, W, depth + 1);
     } else {
+      W.cur = nd.id || null;   // the screen lights the block that runs (trace entries carry nid)
       W.act(tool, nd);
       yield 1;
     }

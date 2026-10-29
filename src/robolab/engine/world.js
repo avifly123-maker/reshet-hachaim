@@ -40,7 +40,7 @@ export function makeWorld(level) {
     rows, items, tools, home: level.home || null, ticks: 0, done: false, error: null, trace: [], counter: 0, reports: [],
     events: level.events || {}, seen: new Set(), oops: 0, fun: 0,
   };
-  const log = (tool, a, extra) => { const T = tools[tool] || {}; W.trace.push({ t: W.ticks, tool, a, x: T.x, y: T.y, dir: T.dir, ...extra }); };
+  const log = (tool, a, extra) => { const T = tools[tool] || {}; W.trace.push({ t: W.ticks, tool, a, x: T.x, y: T.y, dir: T.dir, nid: W.cur || null, ...extra }); };
   W.fail = (code, tool, extra) => { if (W.done) return; W.error = { code, tool, ...(tool && tools[tool] ? { x: tools[tool].x, y: tools[tool].y } : {}), ...extra }; W.done = true; log(tool, 'fail', { code }); };
   W.itemAt = (x, y, t) => items.find((it) => !it.done && it.x === x && it.y === y && (!t || it.t === t));
   W.tick = () => { W.ticks++; };
