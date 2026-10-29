@@ -435,11 +435,28 @@ async function boot() {
 
   // F key: small frame-rate readout (handy when reporting speed problems)
   let fpsEl = null, fpsN = 0, fpsT = performance.now();
+  // 29.10 (a tester: the Amazon island vanished a few seconds after it opened, the sky stayed): the strip also tells what
+  // is needed to understand such a report from one photo: the last error, a lost graphics context, the island's own draw
+  // calls and visible meshes, the camera's distance and the fog. Errors are remembered from the start (not only after F).
+  const lastErr = { t: 0, m: '' };
+  const noteErr = (m) => { lastErr.t = performance.now(); lastErr.m = String(m || '').replace(/\s+/g, ' ').slice(0, 90); };
+  addEventListener('error', (e) => noteErr(e && (e.message || (e.error && e.error.message))));
+  addEventListener('unhandledrejection', (e) => noteErr(e && e.reason && (e.reason.message || e.reason)));
+  { const ce = console.error.bind(console); console.error = (...a) => { try { noteErr(a.map((x) => (x && x.message) || x).join(' ')); } catch (er) { } ce(...a); }; }
+  let ctxLost = 0;
+  try { canvas.addEventListener('webglcontextlost', () => { ctxLost++; noteErr('webgl context lost'); }); } catch (e) { }
+  function islandInfo() {
+    if (!game || !game.W || !game.W.env || !game.W.env.root) return '';
+    let vis = 0, all = 0; const root = game.W.env.root;
+    root.traverse((o) => { if (o.isMesh) { all++; if (o.visible) vis++; } });
+    const c = pipe.camera, f = pipe.scene.fog, n = (x) => (Number.isFinite(x) ? Math.round(x) : 'NaN');
+    return ` · env ${vis}/${all} · cam ${n(c.position.length())} t ${n(game.rig && game.rig.controls ? c.position.distanceTo(game.rig.controls.target) : NaN)} · fog ${f ? n(f.near) + '-' + n(f.far) : '-'} · near ${c.near} far ${c.far}`;
+  }
   addEventListener('keydown', (e) => {
     if ((e.key === 'f' || e.key === 'F' || e.key === 'כ') && !e.ctrlKey && !e.metaKey && !(e.target && /input|textarea/i.test(e.target.tagName))) {
       if (fpsEl) { fpsEl.remove(); fpsEl = null; return; }
       fpsEl = document.createElement('div');
-      fpsEl.style.cssText = 'position:fixed;left:8px;bottom:8px;z-index:var(--z-dev);padding:4px 8px;border-radius:8px;background:rgba(0,0,0,.7);color:#cfe;font:12px monospace;direction:ltr;pointer-events:none';
+      fpsEl.style.cssText = 'position:fixed;left:8px;bottom:8px;z-index:var(--z-dev);max-width:calc(100vw - 16px);padding:4px 8px;border-radius:8px;background:rgba(0,0,0,.78);color:#cfe;font:12px monospace;direction:ltr;text-align:left;white-space:normal;pointer-events:none';
       document.body.appendChild(fpsEl);
     }
   });
@@ -461,7 +478,7 @@ async function boot() {
       pipe.renderer.setClearColor('#0d1a14');
     }
     if (!window.__noRender && !(lab && lab.isOpen()) && (game || !startDrawn)) { pipe.render(dt); if (!game) startDrawn = true; else startDrawn = false; }
-    if (fpsEl) { fpsN++; const now = performance.now(); if (now - fpsT > 1000) { const i = pipe.renderer.info.render; fpsEl.textContent = `${Math.round(fpsN * 1000 / (now - fpsT))} fps · ${quality} · x${pipe.resScale.toFixed(2)} · ${i.calls} calls · ${Math.round(i.triangles / 1000)}k tris`; fpsN = 0; fpsT = now; } }
+    if (fpsEl) { fpsN++; const now = performance.now(); if (now - fpsT > 1000) { const i = pipe.renderer.info.render; let lost = false; try { lost = pipe.renderer.getContext().isContextLost(); } catch (e) { } fpsEl.textContent = `${Math.round(fpsN * 1000 / (now - fpsT))} fps · ${quality} · x${pipe.resScale.toFixed(2)} · ${i.calls} calls · ${Math.round(i.triangles / 1000)}k tris${islandInfo()}${lost || ctxLost ? ' · GL LOST ' + ctxLost : ''}${lastErr.m ? ' · ERR ' + Math.round((now - lastErr.t) / 1000) + 's: ' + lastErr.m : ''}`; fpsN = 0; fpsT = now; } }
   }
   frame();
   window.__app = { bus, ui, audio, music, pipe, voice, guide, journey, loadBiome, researchHub, openLab: () => openLab(), openCase: (id, opts) => { let C = caseById(id); if (C && opts && opts.tutorial) C = { ...C, tutorial: true }; if (C) loadBiome(C.zone, null, C); }, get game() { return game; } };
