@@ -69,3 +69,19 @@ def ear_paint(P, N, E):
         inside = smooth(0.1, 0.55, Vector(N).dot(fwd)) * smooth(0.95, 0.7, abs(across)) * smooth(0.06, 0.16, along) * smooth(0.98, 0.86, along)
         return along, across, inside
     return None
+
+def worley2(p, scale, seed=1):
+    """cell pattern with borders (kit v6): the distances to the nearest and the second nearest jittered point (in cell
+    units) and the nearest point's id. d2 - d1 is small along the border between two cells: a giraffe's net of pale
+    lines, a tortoise's plates, cracked mud."""
+    x, y, z = p[0] * scale, p[1] * scale, p[2] * scale
+    ix, iy, iz = math.floor(x), math.floor(y), math.floor(z); d1, d2, rid = 9.0, 9.0, 0.0
+    for a in (-1, 0, 1):
+        for b in (-1, 0, 1):
+            for c in (-1, 0, 1):
+                i, j, k = ix + a, iy + b, iz + c
+                fx = i + _h3(i, j, k, seed); fy = j + _h3(i, j, k, seed + 1); fz = k + _h3(i, j, k, seed + 2)
+                d = math.sqrt((x - fx) ** 2 + (y - fy) ** 2 + (z - fz) ** 2)
+                if d < d1: d2 = d1; d1 = d; rid = _h3(i, j, k, seed + 3)
+                elif d < d2: d2 = d
+    return d1, d2, rid
