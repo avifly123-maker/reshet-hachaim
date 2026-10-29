@@ -205,7 +205,7 @@ async function boot() {
     }
     const biome = research ? zoneOf(id).data : biomeFor(id), Z = zoneOf(id);
     ui.setTips(biome.tips);
-    ui.setLoading(0.02, 'מכינים את היער...');
+    ui.setLoading(0.02, research && research.robolab ? 'מכינים את מגרש האימון...' : 'מכינים את היער...');
     closeGame();
     resetAutoQ(2);   // a fresh island: forget the previous one's frame timing (the loading gap would count as one huge frame)
     try {
@@ -439,12 +439,13 @@ async function boot() {
     const mw = musicWanted(); music.want(mw); ui.setMusicPlace(mw);
     t += dt;
     if (lab && lab.isOpen()) { if (!(hub && hub.isOpen())) { lab.update(dt); pipe.render(dt); } startDrawn = false; }   // the learning hub covers the lab: no need to draw the room under it
+    else if (game && robolab && robolab.coversGame()) { /* the robot lab's home covers a kept lesson island: nothing to update or draw */ }
     else if (game) { game.update(dt, t); autoQuality(); }
     else {
       // start screen: draw a dark backdrop only
       pipe.renderer.setClearColor('#0d1a14');
     }
-    if (!window.__noRender && !(lab && lab.isOpen()) && (game || !startDrawn)) { pipe.render(dt); if (!game) startDrawn = true; else startDrawn = false; }
+    if (!window.__noRender && !(lab && lab.isOpen()) && !(game && robolab && robolab.coversGame()) && (game || !startDrawn)) { pipe.render(dt); if (!game) startDrawn = true; else startDrawn = false; }
     if (fpsEl) { fpsN++; const now = performance.now(); if (now - fpsT > 1000) { const i = pipe.renderer.info.render; fpsEl.textContent = `${Math.round(fpsN * 1000 / (now - fpsT))} fps · ${quality} · x${pipe.resScale.toFixed(2)} · ${i.calls} calls · ${Math.round(i.triangles / 1000)}k tris`; fpsN = 0; fpsT = now; } }
   }
   frame();

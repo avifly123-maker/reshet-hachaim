@@ -7,12 +7,13 @@ import { createCourse } from './course.js';
 
 export function createRoboSession(ctx, R) {
   const { W, env, scene, reg, markers, rig, spawnPlant, spawnAnimal, ui } = ctx;
-  let course = null, panelW = -1, viewT = 0, disposed = false, reframed = false;
+  let course = null, panelW = -1, viewT = 0, disposed = false;
   const camera = ctx.camera || (rig && rig.camera) || null;
-  function build(L) {
+  // the field; the first one is framed at once (the loading screen hides the jump), a next lesson with a short flight
+  function build(L, { quick = false } = {}) {
     if (course) course.dispose();
     course = createCourse({ W, env, scene, reg, markers, spawnPlant, spawnAnimal, zone: L.zone }, L);
-    frame(2.2);
+    frame(quick ? 1 : 0.05);
     return course;
   }
   function frame(dur = 1.4) { const v = course.view(); rig.goTo(v.target, v.pos, dur); }
@@ -31,14 +32,14 @@ export function createRoboSession(ctx, R) {
       ui.setTray([]);
       W.speed = 1;
       build(R.level);
-      if (R.attach) R.attach({ course, rebuild: (L) => build(L), frame: () => frame(1) });
+      const api = { get course() { return course; }, rebuild: (L, o) => { const c = build(L, o); return c; }, frame: () => frame(1) };
+      if (R.attach) R.attach(api);
     },
     update(dt, rdt) {
       if (disposed || !course) return;
+      W.dayFrac = 0.42;   // a training field is always in good daylight (the "sunset" event will move it later)
       course.update(rdt || dt || 0);
       fitPanel();
-      // the forest frames its overview during its first seconds (index.js fitViewToUI): frame the field once more after
-      if (!reframed && W.simT > 6.5) { reframed = true; frame(1.2); }
       viewT += rdt || 0; if (viewT > 5) { viewT = 0; if (rig.poke) rig.poke(); }   // no idle orbit: north stays up
     },
     paused: () => false,

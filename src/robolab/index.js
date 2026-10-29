@@ -39,7 +39,9 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   const stars = (n) => [0, 1, 2].map((k) => `<i class="${k < n ? 'on' : ''}">${icon('star')}</i>`).join('');
   function home() {
     stopRun(); if (map) { map.dispose(); map = null; } ed = null; cur = null;
-    if (in3d) end3d();
+    // the island stays loaded behind the home (Avi, 29.10: no waiting between lessons): the next lesson in the same zone
+    // opens at once; main.js neither updates nor draws it while the home covers it (coversGame)
+    if (in3d) { el.classList.remove('in3d'); root.classList.remove('rl3d'); if (in3d.api) in3d.api.course.stop(); try { audio && audio.setBiome && audio.setBiome(null); } catch (e) { } }
     const P = roboProgress();
     const nDone = Object.keys(P.done).length;
     el.innerHTML = `<div class="rl-home">
@@ -66,7 +68,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   function openLevel(id, { flat = false } = {}) {
     const L = ALL_LEVELS.find((q) => q.id === id); if (!L) return;
     if (enter3d && !flat) {
-      if (in3d && in3d.zone === L.zone && in3d.api) { stopRun(); in3d.api.rebuild(L); mountLevel(L, in3d.api); return; }
+      if (in3d && in3d.zone === L.zone && in3d.api) { stopRun(); in3d.api.rebuild(L, { quick: true }); mountLevel(L, in3d.api); return; }
       if (in3d) end3d();
       stopRun(); if (map) { map.dispose(); map = null; }
       cur = L; el.hidden = true;
@@ -87,7 +89,8 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   function mountLevel(L, api) {
     stopRun(); if (map) map.dispose();
     cur = L; lastRun = null;
-    el.classList.toggle('in3d', !!api);
+    el.classList.toggle('in3d', !!api); root.classList.toggle('rl3d', !!api);
+    if (api) { try { audio && audio.setBiome && audio.setBiome(L.zone); } catch (e) { } }
     const zw = ZONE_WORD[L.zone] || ZONE_WORD.grove;
     el.innerHTML = `<div class="rl-level z-${L.zone}">
       <header class="rl-top"><button type="button" class="rl-back" data-home>${icon('home')}<span>${kids ? 'לַמַּעְבָּדָה' : 'למעבדה'}</span></button>
@@ -183,6 +186,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   function close() { open = false; stopRun(); if (in3d) end3d(); if (map) { map.dispose(); map = null; } el.hidden = true; el.innerHTML = ''; }
   const R = {
     open: openLab, close, isOpen: () => open,
+    coversGame: () => open && !!in3d && !el.classList.contains('in3d'),   // the home over a kept island (main.js skips it)
     dispose: () => { close(); window.removeEventListener('keydown', onKey); el.remove(); },
   };
   // headless tests

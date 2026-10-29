@@ -169,7 +169,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     lastFit = key;
     camera.setViewOffset(w, h, 0, offY, w, h); camera.updateProjectionMatrix();
     rig.distScale = clamp(520 / freeH, 0.9, 1.5) * clamp(1.5 / Math.max(0.8, w / h), 1, 1.5);
-    if (!force && W.simT < 6 && rig.layer === 'all') rig.setLayer('all');
+    if (!force && W.simT < 6 && rig.layer === 'all' && !(W.research && W.research.robolab)) rig.setLayer('all');   // a robot-lab field keeps its own view
   }
   fitViewToUI(true);
   rig.setLayer('all');
