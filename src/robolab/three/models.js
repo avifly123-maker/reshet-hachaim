@@ -3,6 +3,7 @@
 // and decorate them). Every model takes a paint { body, trim } so a chosen colour can be applied later (paint()).
 // No cross or plus shapes: the drone has three rotors in a ring and three-blade propellers, nets are loops.
 import * as THREE from 'three';
+import { buildTool, hasBlenderTools } from './parts3d.js';
 
 const M = (c, o = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: 0.55, metalness: 0.05, ...o });
 const glow = (c, i = 1.2) => new THREE.MeshStandardMaterial({ color: c, emissive: c, emissiveIntensity: i, roughness: 0.4 });
@@ -87,7 +88,14 @@ export function makeSub(paint = {}) {
   g.scale.setScalar(1.2);
   return g;
 }
-export const makeTool = (k, paint) => (k === 'drone' ? makeDrone(paint) : k === 'sub' ? makeSub(paint) : makeRobot(paint));
+// the Blender tools (parts3d.js) when their data is in the build, these simple ones otherwise
+export function makeTool(k, paint, look) {
+  if (hasBlenderTools()) {
+    const g = buildTool({ base: k, parts: look, paint });
+    if (g) { g.scale.setScalar(k === 'drone' ? 1.1 : 1.25); return g; }
+  }
+  return k === 'drone' ? makeDrone(paint) : k === 'sub' ? makeSub(paint) : makeRobot(paint);
+}
 export function paint(g, colours) {
   const P = g.userData.paintParts || {};
   for (const [slot, list] of Object.entries(P)) if (colours[slot]) for (const m of list) m.material.color.set(colours[slot]);

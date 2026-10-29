@@ -9,6 +9,7 @@
 import * as THREE from 'three';
 import { makeWorld } from '../engine/world.js';
 import { levelOf } from '../engine/level.js';
+import { lookFor } from '../../data/robolab/parts.js';
 import { makeTool, makeHome, makeSpot, makeFruit, makeNet, makeTrash, makeRock, makeEdge, makeFireBase } from './models.js';
 
 // the zone's living things used on a field: trees on 'T' cells, what grows from a planted seed, the thirsty plant
@@ -153,7 +154,7 @@ export function createCourse(ctx, L) {
     });
     tools = {};
     for (const [k, T] of Object.entries(w0.tools)) {
-      let o = toolObjs[k]; if (!o) { o = toolObjs[k] = makeTool(k); o.scale.multiplyScalar(CS / 3.4); root.add(o); }
+      let o = toolObjs[k]; if (!o) { o = toolObjs[k] = makeTool(k, ctx.paint && ctx.paint[k], lookFor(k, L.blocks || [])); o.scale.multiplyScalar(CS / 3.4); root.add(o); }
       tools[k] = { x: T.x, y: T.y, a: T.dir * Math.PI / 2, lift: k === 'drone' ? (T.parked ? 0 : 1) : 0, show: k !== 'drone' || !T.parked, obj: o, wob: 0, spin: 0, dance: 0 };
       o.visible = tools[k].show;
     }
@@ -245,7 +246,7 @@ export function createCourse(ctx, L) {
     placeTools();
     // spinning rotors and propeller, a bob for the flying drone
     const D = tools.drone; if (D && D.show) { for (const r of D.obj.userData.rotors) r.rotation.y += rdt * (D.lift > 0.05 ? 40 : 2); D.obj.position.y += Math.sin(performance.now() / 300) * 0.08 * D.lift; }
-    const S = tools.sub; if (S) S.obj.userData.prop.rotation.y += rdt * (play ? 18 : 3);
+    const S = tools.sub; if (S && S.obj.userData.prop) S.obj.userData.prop.rotation.y += rdt * (play ? 18 : 3);
     // flames on the fires that still burn
     fireT -= rdt;
     if (fireT <= 0) { fireT = 0.22; for (const F of fires) if (!F.done) { const X = wx(F.x), Z = wz(F.y); _v.set(X, ground(X, Z) + 0.3, Z); markers.burst(_v, Math.random() < 0.5 ? '#ff8a3a' : '#ffd25a', 6, { speed: 0.5, size: 0.55, life: 0.9, up: 2.2 }); } }
