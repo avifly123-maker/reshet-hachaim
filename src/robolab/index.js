@@ -10,6 +10,7 @@ import { levelOf } from './engine/level.js';
 import { createMap } from './ui/map.js';
 import { createRoboSession } from './three/session.js';
 import { openGarage } from './garage.js';
+import { kubiCam } from './ui/kubi-cam.js';
 import { createEditor } from './ui/editor.js';
 import { icon } from './ui/icons.js';
 import { isOpen as journeyOpen, lockWords } from '../core/journey.js';
@@ -39,6 +40,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   };
   const stars = (n) => [0, 1, 2].map((k) => `<i class="${k < n ? 'on' : ''}">${icon('star')}</i>`).join('');
   function home() {
+    requestAnimationFrame(helloKubi);   // קוּבִּי greets once the home is drawn
     stopRun(); if (map) { map.dispose(); map = null; } ed = null; cur = null;
     // the island stays loaded behind the home (Avi, 29.10: no waiting between lessons): the next lesson in the same zone
     // opens at once; main.js neither updates nor draws it while the home covers it (coversGame)
@@ -51,6 +53,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
         <button type="button" class="rl-gbtn" data-garage>${icon('paint')}<span>${kids ? 'סַדְנַת הָעִצּוּב' : 'סדנת העיצוב'}</span></button>
         <div class="rl-count">${icon('star')}<b>${nDone}</b><small>${kids ? 'פְּתוּרִים' : 'פתורים'}</small></div></header>
       <div class="rl-scroll">
+        <div class="rl-hello"><canvas class="rl-hkubi" aria-hidden="true"></canvas><p>${nDone ? (kids ? 'שׁוּב שָׁלוֹם! מַמְשִׁיכִים מֵאֵיפֹה שֶׁעָצַרְנוּ? בְּסַדְנַת הָעִצּוּב אֶפְשָׁר לְעַצֵּב אֶת הַכֵּלִים.' : 'שוב שלום! ממשיכים מאיפה שעצרנו? בסדנת העיצוב אפשר לעצב את הכלים שלכם.') : (kids ? 'שָׁלוֹם! אֲנִי קוּבִּי. כָּאן לוֹמְדִים לְתַכְנֵת רוֹבּוֹטִים, רַחְפָנִים וְצוֹלְלָנִים, שֶׁעוֹזְרִים לַטֶּבַע.' : 'שלום! אני קוּבִּי. כאן לומדים לתכנת רובוטים, רחפנים וצוללנים שעוזרים לטבע. מתחילים בשיעור הראשון.')}</p></div>
         <section class="rl-sec"><h2>${icon('lesson')}${kids ? 'שִׁעוּרִים' : 'שיעורים'}</h2>
           ${CHAPTERS.map((C) => { const ls = LESSONS.filter((q) => q.ch === C.n); if (!ls.length) return '';
             return `<div class="rl-ch" style="--cc:${C.color}"><div class="rl-chh"><b>${C.n}</b><span><strong>${esc(T(C.title))}</strong><small>${esc(T(C.idea))}</small>${C.n > 1 && !journeyOpen('robolab:more') ? `<em class="rl-lock">${esc(lockWords('robolab:more'))}</em>` : ''}</span></div>
@@ -68,6 +71,8 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   // Without a 3D host (tests of the screen alone, a failed load) the flat map is the fallback.
   let in3d = null;          // { api } while a lesson's island is open
   let garage = null;        // סדנת העיצוב while open (garage.js)
+  let kubiDo = () => { };   // what קוּבִּי does (his window in the lesson's strip)
+  let kcam = null;
   function openLevel(id, { flat = false } = {}) {
     const L = ALL_LEVELS.find((q) => q.id === id); if (!L) return;
     if (enter3d && !flat) {
@@ -89,6 +94,11 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   function end3d() { const was = in3d; in3d = null; root.classList.remove('rl3d'); el.classList.remove('in3d'); if (was && leave3d) leave3d(); el.hidden = !open; }
   // the course as the screen sees it: the same calls as the flat map
   const stage3d = (api) => ({ reset: () => api.course.reset(), play: (tr, o) => api.course.play(tr, o), stop: () => api.course.stop(), isPlaying: () => api.course.isPlaying(), redraw: () => { }, dispose: () => { } });
+  function helloKubi() {
+    if (kcam) { kcam.dispose(); kcam = null; }
+    const c = el.querySelector('.rl-hkubi'); if (!c) return;
+    kcam = kubiCam(c, { full: true }); setTimeout(() => kcam && kcam.talk(true, 3), 600);
+  }
   function mountLevel(L, api) {
     stopRun(); if (map) map.dispose();
     cur = L; lastRun = null;
@@ -99,7 +109,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
       <header class="rl-top"><button type="button" class="rl-back" data-home>${icon('home')}<span>${kids ? 'לַמַּעְבָּדָה' : 'למעבדה'}</span></button>
         <div class="rl-title"><h1>${esc(T(L.title))}</h1><p>${esc(T(zw))}${L.concept ? ' · ' + esc(T(conceptWord(L.concept))) : ''}</p></div>
         <div class="rl-goalbar"><span class="rl-par">${icon('star')}${icon('star')}${icon('star')} ${kids ? 'עַד' : 'עד'} <b>${L.par || '?'}</b> ${kids ? 'בְּלוֹקִים' : 'בלוקים'}</span></div></header>
-      <div class="rl-say"><span class="rl-teach" aria-hidden="true"></span><p>${(L.say || []).map((s) => esc(T(s))).join(' ')}</p></div>
+      <div class="rl-say"><canvas class="rl-kubi" aria-hidden="true"></canvas><p>${(L.say || []).map((s) => esc(T(s))).join(' ')}</p></div>
       <div class="rl-body">
         <div class="rl-ed"></div>
         <div class="rl-stage"><canvas class="rl-map"></canvas><div class="rl-msg" hidden></div>
@@ -114,6 +124,11 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     ed = createEditor(el.querySelector('.rl-ed'), { lesson: L, kids, onChange: () => { lastRun = null; el.querySelector('[data-why]').disabled = true; if (map && !map.isPlaying()) map.reset(); hideMsg(); } });
     if (api) { map = stage3d(api); el.querySelector('.rl-map').remove(); }
     else { map = createMap(el.querySelector('.rl-map'), L, L.zone); requestAnimationFrame(() => map && map.redraw()); }
+    // קוּבִּי explains the lesson from his corner of the strip (kubi-cam.js); later his voice says the words
+    if (kcam) kcam.dispose();
+    kcam = kubiCam(el.querySelector('.rl-kubi'));
+    kubiDo = (what, sec = 0) => { if (!kcam) return; if (what) kcam.set(what); if (sec > 0) kcam.talk(true, sec); };
+    setTimeout(() => kubiDo('explain', Math.min(6, 1.2 + ((L.say || []).map((x) => T(x)).join(' ').length) / 16)), 700);
   }
   const CONCEPT = {
     step: { f: 'סדר פעולות', k: 'סֵדֶר פְּעֻלּוֹת' }, turn: { f: 'פניות', k: 'פְּנִיּוֹת' }, path: { f: 'מסלול', k: 'מַסְלוּל' }, order: { f: 'קודם ואחר כך', k: 'קֹדֶם וְאַחַר כָּךְ' },
@@ -136,19 +151,21 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     let oopsShown = false;
     map.play(r.trace, { speed, onStep: (e) => {
       ed.light(e.nid);
-      if (e.a === 'oops' && !oopsShown) { oopsShown = true; msg(esc(T(pick(OOPS_LINES[e.want] || OOPS_LINES.any, seedN))), 'oops'); sfx('pop'); }
+      if (e.a === 'oops' && !oopsShown) { kubiDo('oops'); oopsShown = true; msg(esc(T(pick(OOPS_LINES[e.want] || OOPS_LINES.any, seedN))), 'oops'); sfx('pop'); }
       if (FUN_LINES[e.a]) { sfx('pop'); const n = addFun(); if (n === 1 || n % 10 === 0) msg(esc(T(pick(FUN_LINES[e.a], seedN))), 'fun'); }
-      if (e.a === 'fail') sfx('invalid');
+      if (e.a === 'fail') { sfx('invalid'); kubiDo('surprised'); }
     }, onEnd: () => {
       ed.light(null);
       el.querySelector('[data-why]').disabled = false;
       if (r.ok) {
         const { first } = markSolved(cur.id, r.stars, r.blocks);
+        kubiDo('cheer', 2);
         msg(`<div class="rl-win"><span class="rl-st big">${stars(r.stars)}</span><b>${esc(T(pick(WIN_LINES, seedN)))}</b><small>${r.blocks} ${kids ? 'בְּלוֹקִים' : 'בלוקים'}${r.stars < 3 && cur.par ? ' · ' + esc(T({ f: 'אפשר גם ב־' + cur.par, k: 'אֶפְשָׁר גַּם בְּ־' + cur.par })) : ''}</small>
           <span class="rl-winb"><button type="button" data-next>${kids ? 'לַשִּׁעוּר הַבָּא' : 'לשיעור הבא'}</button><button type="button" data-stay>${kids ? 'לְנַסּוֹת שׁוּב' : 'לנסות שוב'}</button></span></div>`, 'win');
         sfx(first ? 'mission' : 'pop');
       } else {
         const why = r.error ? (FAIL_LINES[r.error.code] || FAIL_LINES.any) : (GOAL_LINES[r.why] || GOAL_LINES.any);
+        if (!r.error) kubiDo('think', 2.5);
         msg(esc(T(pick(why, seedN))), 'fail');
       }
     } });
@@ -187,7 +204,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   window.addEventListener('keydown', onKey);
 
   function openLab() { open = true; el.hidden = false; markSeen('home'); home(); }
-  function close() { open = false; stopRun(); if (garage) { garage.close(); garage = null; } if (in3d) end3d(); if (map) { map.dispose(); map = null; } el.hidden = true; el.innerHTML = ''; }
+  function close() { open = false; stopRun(); if (kcam) { kcam.dispose(); kcam = null; } if (garage) { garage.close(); garage = null; } if (in3d) end3d(); if (map) { map.dispose(); map = null; } el.hidden = true; el.innerHTML = ''; }
   const R = {
     open: openLab, close, isOpen: () => open,
     coversGame: () => open && !!in3d && !el.classList.contains('in3d'),   // the home over a kept island (main.js skips it)

@@ -32,7 +32,8 @@ export function createRoboSession(ctx, R) {
       ui.setTray([]);
       W.speed = 1;
       build(R.level);
-      const api = { get course() { return course; }, rebuild: (L, o) => { const c = build(L, o); return c; }, frame: () => frame(1) };
+      const api = {
+        get course() { return course; }, rebuild: (L, o) => { const c = build(L, o); return c; }, frame: () => frame(1) };
       if (R.attach) R.attach(api);
     },
     update(dt, rdt) {

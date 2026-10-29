@@ -257,13 +257,19 @@ export function createCourse(ctx, L) {
   }
   // the camera's view of the field: target and distance
   function view() {
-    const span = Math.max(Wd, H * 1.3) * CS;
-    const t = new THREE.Vector3(OX, ground(OX, OZ) + (sea ? 1 : 0.5), OZ + CS * 0.4);
-    const d = span * 0.8 + 6;
+    const span = Math.max(Wd + 1.2, H * 1.3) * CS;   // the field and קוּבִּי beside it on the left
+    const t = new THREE.Vector3(OX - CS * 0.3, ground(OX, OZ) + (sea ? 1 : 0.5), OZ + CS * 0.1);
+    const d = span * 0.72 + 5;
     return { target: t, pos: new THREE.Vector3(0, t.y + d * 0.78, t.z + d * 0.72) };
+  }
+  // where קוּבִּי stands: beyond the field's far left corner (the panel covers the right side), facing the camera
+  function kubiSpot() {
+    const x = wx(0) - CS * 0.2, z = wz(0) - CS * 0.95;   // behind the far left corner, like a teacher at the board
+    return { pos: new THREE.Vector3(x, ground(x, z), z), yaw: 0.3 };
   }
   buildItems();
   return {
+    kubiSpot,
     reset: () => { stop(); buildItems(); }, play: start, stop, isPlaying: () => !!play, update, view, redraw: () => { },
     cellPos: (x, y) => new THREE.Vector3(wx(x), ground(wx(x), wz(y)), wz(y)), CS,
     dispose: () => { stop(); clearItems(); for (const e of keep) { try { W.removeEntity(e); } catch (err) { } } scene.remove(root); root.traverse((o) => { if (o.geometry) o.geometry.dispose(); }); },

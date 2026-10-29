@@ -10,7 +10,7 @@ import { DEFAULT_LOOK } from '../../data/robolab/parts.js';
 
 const b64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0)).buffer;
 const geoCache = new Map();
-function geo(key, m) {
+export function geo(key, m) {
   if (geoCache.has(key)) return geoCache.get(key);
   const q = new Int16Array(b64(m.p)), n = new Int8Array(b64(m.n)), idx = new Uint16Array(b64(m.i));
   const P = new Float32Array(q.length), N = new Float32Array(n.length);
@@ -28,8 +28,9 @@ export const SLOT_LOOK = {
   body: { c: '#f2731f', r: 0.45 }, trim: { c: '#1a9e99', r: 0.45 }, accent: { c: '#ffc72e', r: 0.4 },
   dark: { c: '#24292f', r: 0.6 }, cream: { c: '#f5f0e6', r: 0.5 }, glass: { c: '#1a2b35', r: 0.08, m: 0.3 },
   glow: { c: '#7fe3ff', r: 0.3, e: 1.4 }, metal: { c: '#b8c2cc', r: 0.3, m: 0.75 }, rubber: { c: '#17181a', r: 0.92 },
+  leather: { c: '#8c5a36', r: 0.75 }, wood: { c: '#d9a862', r: 0.7 },
 };
-function mats(paint) {
+export function mats(paint) {
   const M = {};
   for (const [k, L] of Object.entries(SLOT_LOOK)) {
     const c = (paint && paint[k]) || L.c;
