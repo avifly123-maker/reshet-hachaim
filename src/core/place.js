@@ -4,6 +4,7 @@ let cur = 'grove';
 const WORDS = {
   grove:  { the: 'החורש', in: 'בחורש', to: 'אל החורש', lamed: 'לחורש', from: 'מהחורש', all: 'כל החורש' },
   amazon: { the: 'יער הגשם', in: 'ביער הגשם', to: 'אל יער הגשם', lamed: 'ליער הגשם', from: 'מיער הגשם', all: 'כל יער הגשם' },
+  field: { the: 'השטח', in: 'בשטח', to: 'אל השטח', lamed: 'לשטח', from: 'מהשטח', all: 'כל השטח' },   // שטח האימונים (1.3.3)
   reef: { the: 'השונית', in: 'בשונית', to: 'אל השונית', lamed: 'לשונית', from: 'מהשונית', all: 'כל השונית' },
 };
 export function setPlace(id) { if (WORDS[id]) cur = id; }

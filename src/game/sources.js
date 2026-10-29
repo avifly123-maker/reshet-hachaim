@@ -11,7 +11,7 @@ const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<
 
 export function createSourceMoments({ W, ui, audio }) {
   const off = { onPlace() { }, onTool() { }, tick() { }, dispose() { }, _show() { return false; } };
-  if (!TORAH) return off;
+  if (!TORAH || W.training) return off;   // not in the training field (1.3.3)
   const root = document.getElementById('ui'); if (!root) return off;
   const el = document.createElement('div'); el.className = 'srcm'; el.setAttribute('role', 'status'); root.appendChild(el);
   const shown = new Set();

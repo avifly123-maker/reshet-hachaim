@@ -7,7 +7,7 @@
 // Storage (per player, see core/profiles.js):  'web-of-life-journey' = {
 //   v: 1, created: time, legacy: bool (the player had progress before 1.3.2: every part is open for them),
 //   shown: { <stageId>: time }   (the stage-up moment was shown),  used: { <partId>: time },
-//   intro: { <partId>: time }   (רובו־דע presented the part),  mode: 'experience'|'full', text: 'normal'|'large'|'xlarge', voice: bool,
+//   intro: { <partId>: time }   (רובו־דע presented the part),  trained: time (1.3.3: the training field was done),  mode: 'experience'|'full', text: 'normal'|'large'|'xlarge', voice: bool,
 //   best: n   (the best stage ever reached: a stage never closes again),  done: { <zone>: [missionId] }   (every mission
 //   done so far: a new forest or the other level overwrites web-of-life-<zone>.done, a mission done once still counts) }
 // Device-wide: 'web-of-life-allopen' = '1' – the instructors' switch (everything open on this computer, behind a code).
@@ -18,6 +18,7 @@
 //   isOpen(part) → bool                 lockInfo(part) → { stage, name, text } (the words for a veiled part); lockWords(part) → text
 //   check() → [newly reached stages]    fires window 'wol-stage' ({ detail: { stage, parts } }) once per stage
 //   markUsed(part), wasUsed(part), markIntro(part), introSeen(part)
+//   trained() / markTrained()           1.3.3: the training field (שטח האימונים) was done: the first islands open
 //   playMode() / setPlayMode(m)         'experience' | 'full'   (beginners always play their own simple mode)
 //   textSize() / setTextSize(s)         'normal' | 'large' | 'xlarge'   (applies a class on <html>, see applyTextSize)
 //   voiceOn() / setVoice(on)            רובו־דע speaks his lines (src/audio/voice.js)
@@ -32,8 +33,11 @@ export const INSTRUCTOR_CODE = '2580';
 // ─────────────────────────────── the parts of the game that open along the way
 // where: 'start' (start screen), 'hub' (learning hub), 'lab' (a station of the lab), 'zone', 'research', 'game' (inside a game)
 export const PARTS = {
-  'zone:amazon': { stage: 1, name: 'האמזונס', kname: 'הָאָמָזוֹנָס', where: 'start' },
-  'zone:grove': { stage: 1, name: 'החורש', kname: 'הַחֹרֶשׁ', where: 'start' },
+  // 1.3.3 (Avi, 29.10): the game begins in שטח האימונים, an empty field with soil and a stream, where רובו־דע teaches
+  // the idea and the screens step by step (src/game/training.js). The two first islands open when it is done (`train`).
+  training: { stage: 1, name: 'שטח האימונים', kname: 'שֶׁטַח הָאִמּוּנִים', where: 'start' },
+  'zone:amazon': { stage: 1, train: true, name: 'האמזונס', kname: 'הָאָמָזוֹנָס', where: 'start' },
+  'zone:grove': { stage: 1, train: true, name: 'החורש', kname: 'הַחֹרֶשׁ', where: 'start' },
   journey: { stage: 1, name: 'מפת המסע', kname: 'מַפַּת הַמַּסָּע', where: 'start' },
   album: { stage: 2, name: 'אלבום הקלפים', kname: 'אַלְבּוֹם הַקְּלָפִים', where: 'hub' },
   quiz: { stage: 2, name: 'החידון', kname: 'הַחִידוֹן', where: 'hub' },
@@ -190,10 +194,22 @@ function wayWords(w, m, kids) {
 // how far along one way is: the average of its parts (each part counts up to its number)
 function wayProgress(w, m) { const ks = Object.keys(w); return ks.reduce((a, k) => a + Math.min(1, (m[k] || 0) / w[k]), 0) / ks.length; }
 
+// 1.3.3: the training field was done (or skipped by the instructors' switch). A player who already played a forest,
+// finished a mission or has any other progress from 1.3.2 / 1.3.3 counts as trained: an update never closes an island.
+export function trained() {
+  const s = store(); if (s.legacy || s.used.training || s.trained) return true;
+  let had = false;
+  const m = metrics(); if (m.missions + m.badges + m.lab + m.cases + m.cards > 0) had = true;
+  if (!had) for (const z of ZONES) for (const kids of [false, true]) if (readPlayerRaw(saveKey(z, kids))) had = true;
+  if (had) { s.trained = Date.now(); save(s); }   // remembered: the next look is one read (isOpen asks often)
+  return had;
+}
+export function markTrained() { const s = store(); if (s.trained) return; s.trained = Date.now(); s.used.training = s.used.training || Date.now(); save(s); notify(); }
 export function isOpen(part) {
   const P = PARTS[part]; if (!P) return true;   // anything not in the registry is never locked
   if (allOpen()) return true;
   const s = store(); if (s.legacy) return true;
+  if (P.train && !trained()) return false;
   const stage = stageNow();
   if (stage >= 6) return true;
   if (stage < P.stage) return false;
@@ -206,6 +222,7 @@ export function isOpen(part) {
 export function lockInfo(part) {
   const P = PARTS[part]; if (!P) return null;
   const kids = isKids(), st = STAGES[P.stage - 1], name = kids ? P.kname : P.name;
+  if (P.train && !trained()) return { stage: P.stage, name, train: true, text: kids ? 'פּוֹתְחִים אַחֲרֵי שֶׁטַח הָאִמּוּנִים' : 'פותחים אחרי שטח האימונים' };
   if (stageNow() >= P.stage && P.after) { const A = PARTS[P.after]; return { stage: P.stage, name, text: kids ? `פּוֹתְחִים אַחֲרֵי ${A.kname}` : `פותחים אחרי ${A.name}` }; }
   return { stage: P.stage, name, text: kids ? `פּוֹתְחִים בְּשָׁלָב ${P.stage}: ${st.kname}` : `פותחים בשלב ${P.stage}: ${st.name}` };
 }
@@ -254,5 +271,5 @@ if (typeof window !== 'undefined') {
   const later = () => setTimeout(() => { try { check(); } catch (e) { console.error(e); } }, CHECK_DELAY_MS);
   window.addEventListener('wol-badge', later);
   window.addEventListener('wol-progress', later);
-  window.__journey = { state, isOpen, check, metrics, markUsed, playMode, setPlayMode, unlockAll, lockAgain, reload, PARTS, STAGES };
+  window.__journey = { state, isOpen, trained, markTrained, check, metrics, markUsed, playMode, setPlayMode, unlockAll, lockAgain, reload, PARTS, STAGES };
 }

@@ -12,7 +12,7 @@ export function createGround(ctx) {
     ...U,
     uGrass: { value: C(isAmazon ? '#3f6a24' : '#7da544') },
     uGrass2: { value: C(isAmazon ? '#6e4a2a' : '#8f9a48') },
-    uCoverAmt: { value: isAmazon ? 0.85 : 0.85 },
+    uCoverAmt: { value: ctx.bare ? 0.22 : 0.85 },   // the training field (1.3.3): mostly bare soil
     uSoilWet: { value: 0 },
     uDetail: { value: noiseTex },
     uSpots: { value: Array.from({ length: MAX_SHAFTS }, () => new THREE.Vector4(0, 0, 1, 0)) },

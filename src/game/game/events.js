@@ -183,8 +183,8 @@ export function createEvents(ctx) {
     for (const id of m.reward?.unlock || []) { unlock(id, false); names.push(reg.byId.get(id)?.name); }
     audio.play('mission');
     // a card pack for two missions out of every three (not every one – packs should stay special)
-    if (!m.expert && missions.doneCount % 3 !== 0) { try { window.__wolLearn?.grantPack(1); } catch (e) { } }
-    const badges = W.research ? [] : grantBadge('mission:' + m.id);   // an expert mission gives a badge (תג), not a pack
+    if (!m.expert && !W.training && missions.doneCount % 3 !== 0) { try { window.__wolLearn?.grantPack(1); } catch (e) { } }
+    const badges = W.research || W.training ? [] : grantBadge('mission:' + m.id);   // an expert mission gives a badge (תג), not a pack
     // torah edition: a mission from the sources gives its source card for the album ("מן המקורות")
     let srcText = '';
     if (m.reward?.source) { const card = SOURCE_CARDS.find(c => c.id === m.reward.source); if (card && grantSource(card.id)) srcText = ' · קלף מקור חדש באלבום: ' + card.title; }
@@ -194,7 +194,7 @@ export function createEvents(ctx) {
     if (W.experiment) W._saveAfterExperiment = true; else saveGame(true);
     if (!W.research) saveProgress();
     // מסע החוקר (core/journey.js) counts missions from the saved progress: tell it, after the mission banner
-    if (!W.research) setTimeout(() => { try { window.dispatchEvent(new CustomEvent('wol-progress', { detail: { kind: 'mission', id: m.id } })); } catch (e) { } }, 2500);
+    if (!W.research && !W.training) setTimeout(() => { try { window.dispatchEvent(new CustomEvent('wol-progress', { detail: { kind: 'mission', id: m.id } })); } catch (e) { } }, 2500);
   };
   return { chooseEvent, applyEffect };
 }
