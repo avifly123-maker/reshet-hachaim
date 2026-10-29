@@ -16,6 +16,7 @@ import { rankOf, rankEmblem, zoneAfter, updateZone, snapshot, readPhotos, addVis
 import { makeRng } from '../core/util.js';
 import { visScale } from '../world/animals.js';
 import { ZONE_IDS, ZONE_LOOK } from '../data/zones.js';
+import { svcGuide } from '../core/services.js';
 
 const T = {
   title: ['שומרי האי', 'שׁוֹמְרֵי הָאִי'], pm: ['משימת צילום', 'מְשִׂימַת צִלּוּם'], pmAll: ['כל משימות הצילום הושלמו', 'כָּל מְשִׂימוֹת הַצִּלּוּם הֻשְׁלְמוּ'],
@@ -84,7 +85,7 @@ export function createAfter({ W, env, reg, scene, camera, canvas, pipe, ui, audi
       audio && audio.play && audio.play('mission');
     }
     W.points += pts;
-    const g = window.__guide;
+    const g = svcGuide();
     if (g) {
       if (pmDone) setTimeout(() => { if (!disposed) g.say(g.lines('after:pmdone'), { tip: true }); }, 4400);
       else if (newPair) g.say(g.lines('after:pair'), { key: 'g:after:pair', tip: true });
@@ -130,7 +131,7 @@ export function createAfter({ W, env, reg, scene, camera, canvas, pipe, ui, audi
   const regularDone = () => !!(W.missions && W.missions.missions.length && W.missions.missions.every((m) => m.expert || m.done));
   function turnOn() {
     afterOn = true; paint();
-    const g = window.__guide;
+    const g = svcGuide();
     if (g) setTimeout(() => { if (!disposed && afterOn) g.say(g.lines(full() ? 'after:open' : 'after:openxp'), { key: 'g:after:open:' + zone }); }, W.simT < 20 ? 6000 : 5200);
     if (full()) offerChallenge(true);
   }
@@ -139,7 +140,7 @@ export function createAfter({ W, env, reg, scene, camera, canvas, pipe, ui, audi
     if (chOffered || !full()) return;
     chOffered = true;
     const c = challenges.offer(zoneAfter(zone).cn);
-    if (c && announce) { const g = window.__guide; if (g) setTimeout(() => { if (!disposed) g.say(g.lines('after:challenge'), { key: 'g:after:challenge', tip: true }); }, 16000); }
+    if (c && announce) { const g = svcGuide(); if (g) setTimeout(() => { if (!disposed) g.say(g.lines('after:challenge'), { key: 'g:after:challenge', tip: true }); }, 16000); }
     paint();
   }
   function challengeDone(c) {
@@ -147,7 +148,7 @@ export function createAfter({ W, env, reg, scene, camera, canvas, pipe, ui, audi
     const reward = [20, 35, 50][c.lv - 1] || 20; W.points += reward;
     ui.missionDone({ title: T.ch + ': ' + c.title, rewardText: `${reward} נקודות חיים · ${CH_POINTS[c.lv]} נקודות לדרגת האי` });
     audio && audio.play && audio.play('mission');
-    const g = window.__guide; if (g) setTimeout(() => { if (!disposed) g.say(g.lines('after:chdone'), { tip: true }); }, 4400);
+    const g = svcGuide(); if (g) setTimeout(() => { if (!disposed) g.say(g.lines('after:chdone'), { tip: true }); }, 4400);
     paint(); rankCheck(true);
   }
 
@@ -163,7 +164,7 @@ export function createAfter({ W, env, reg, scene, camera, canvas, pipe, ui, audi
     const best = hiRank;
     if (r.i > hiRank) { hiRank = r.i; updateZone(zone, (zz) => { zz.hi[hiKey] = r.i; }); }
     if (prev && r.i > prev.i && r.i > best) {
-      const g = window.__guide, L = g && g.lines('after:rank:' + zone + ':' + r.i);
+      const g = svcGuide(), L = g && g.lines('after:rank:' + zone + ':' + r.i);
       if (L && L.length) setTimeout(() => { if (!disposed) g.say(L, { tip: true, ms: 9000 }); }, now ? 5200 : 0);
     }
     if (prev && r.i !== prev.i) paint();

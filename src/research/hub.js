@@ -13,6 +13,7 @@ import { isOpen, introSeen } from '../core/journey.js';
 import { lockWords, lockTip } from '../ui/journey-map.js';
 import { recommended } from '../core/threads.js';   // חוטים: an event lived on the island → רובו־דע recommends its mystery
 import { markHTML, W } from '../ui/threads-ui.js';
+import { svcGuide } from '../core/services.js';
 
 // "איך משחקים": four short cards the first time the research centre opens (replay with the "?" button). Vocalised,
 // so beginners read them too. Pictures: the card paintings.
@@ -83,7 +84,7 @@ export function createResearchHub(root, { onPick, onClose, onLab }) {
   // (only a page without the guide shows the how-to cards by themselves, once)
   function open() {
     render(); el.classList.add('on');
-    const g = window.__guide;
+    const g = svcGuide();
     if (!isOpen('research')) return;
     if (!g) howto(root, HOWTO, { key: 'research' });
     else if (!introSeen('g:research')) setTimeout(() => { if (el.classList.contains('on')) g.intro('research', { modal: true }); }, 450);

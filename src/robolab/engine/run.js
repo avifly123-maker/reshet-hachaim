@@ -1,0 +1,98 @@
+// מעבדת הרובוטים – the block engine (1.4.1). Pure logic, no DOM and no three.js: the lessons, the puzzles, the test
+// tool (tools/validate-robolab.mjs) and later the robot workshop all run programs through it. Deterministic: the same
+// program on the same map always gives the same trace.
+//
+//   const r = runProgram(level, program, { maxTicks })
+//     level   = { map, tools: { robot?: {x, y, dir}, drone?: {...}, sub?: {...} }, events?, goal, par? }  (data/robolab/)
+//     program = { robot?: [nodes], drone?: [nodes], sub?: [nodes], defs?: { name: [nodes] }, on?: [{ ev, tool, body }] }
+//   → { ok, stars, steps, blocks, trace: [{ t, tool, a, x, y, dir, ... }], error: { code, tool, x, y } | null, state }
+//
+// A node is { b: '<block id>', ...params }; control blocks hold bodies: { b: 'repeat', n: 4, body: [...] },
+// { b: 'if', c: '<sensor>', then: [...], else: [...] }, { b: 'until', c: '<sensor>', body: [...] }, { b: 'call', f: 'name' }.
+// Tools take turns one action each (robot, drone, sub), so two tools can work together; a launched drone starts its
+// own program at the robot's cell and must land back on it.
+import { BLOCKS, SENSORS } from './blocks.js';
+import { makeWorld, cellAt, canEnter, ahead, DIRS } from './world.js';
+import { checkGoal } from './goals.js';
+
+const MAX_TICKS = 600, MAX_DEPTH = 40;
+
+export function countBlocks(program) {
+  let n = 0;
+  const walk = (list) => { for (const nd of list || []) { n++; walk(nd.body); walk(nd.then); walk(nd.else); } };
+  for (const k of ['robot', 'drone', 'sub']) walk(program[k]);
+  for (const k in (program.defs || {})) { n++; walk(program.defs[k]); }
+  for (const h of program.on || []) { n++; walk(h.body); }
+  return n;
+}
+
+// the program of one tool as a generator of single actions: control blocks cost nothing, every action yields once
+function* agent(prog, list, tool, W, depth = 0) {
+  if (depth > MAX_DEPTH) { W.fail('deep', tool); return; }
+  for (const nd of list || []) {
+    if (W.done) return;
+    const B = BLOCKS[nd.b];
+    if (!B) { W.fail('unknown', tool, { b: nd.b }); return; }
+    if (B.kind === 'repeat') {
+      const n = Math.max(0, Math.min(50, nd.n | 0));
+      for (let i = 0; i < n && !W.done; i++) yield* agent(prog, nd.body, tool, W, depth + 1);
+    } else if (B.kind === 'until') {
+      let guard = 0;
+      while (!W.done && !sense(W, tool, nd.c)) {
+        if (++guard > 80) { W.fail('forever', tool); return; }
+        const before = W.ticks; yield* agent(prog, nd.body, tool, W, depth + 1);
+        if (W.ticks === before) { W.fail('forever', tool); return; }   // a body that does nothing would spin forever
+      }
+    } else if (B.kind === 'if') {
+      yield* agent(prog, sense(W, tool, nd.c) ? nd.then : nd.else, tool, W, depth + 1);
+    } else if (B.kind === 'call') {
+      const body = prog.defs && prog.defs[nd.f];
+      if (!body) { W.fail('nodef', tool, { f: nd.f }); return; }
+      yield* agent(prog, body, tool, W, depth + 1);
+    } else {
+      W.act(tool, nd);
+      yield 1;
+    }
+  }
+}
+
+export function sense(W, tool, c) {
+  const S = SENSORS[c];
+  if (!S) { W.fail('sensor', tool, { c }); return false; }
+  return !!S.test(W, W.tools[tool]);
+}
+
+export function runProgram(level, program, opts = {}) {
+  const W = makeWorld(level);
+  const max = opts.maxTicks || level.maxTicks || MAX_TICKS;
+  const prog = program || {};
+  const gens = {};
+  for (const k of ['robot', 'drone', 'sub']) if (W.tools[k] && prog[k] && prog[k].length && !W.tools[k].parked) gens[k] = agent(prog, prog[k], k, W);
+  W.startAgent = (k) => { if (prog[k] && !gens[k]) gens[k] = agent(prog, prog[k], k, W); };   // a drone that the robot launches
+  const handlers = (prog.on || []).map((h) => ({ ...h, fired: false }));
+  while (!W.done && W.ticks < max) {
+    // events: a handler runs when its moment comes, and its tool's main program stops (e.g. "when the sun sets, go home")
+    for (const h of handlers) {
+      if (!h.fired && W.eventNow(h.ev, h.tool)) { h.fired = true; gens[h.tool] = agent(prog, h.body, h.tool, W); W.trace.push({ t: W.ticks, tool: h.tool, a: 'event', ev: h.ev }); }
+    }
+    const live = Object.keys(gens);
+    if (!live.length) break;
+    let moved = false;
+    for (const k of live) {
+      const g = gens[k]; if (!g) continue;
+      const r = g.next();
+      if (r.done) delete gens[k]; else moved = true;
+      if (W.done) break;
+    }
+    W.tick();
+    if (!moved && !Object.keys(gens).length) break;
+  }
+  if (!W.done && W.ticks >= max) W.fail('long', null);
+  const goal = W.error ? { ok: false, why: W.error.code } : checkGoal(level.goal, W);
+  const blocks = countBlocks(prog);
+  let stars = 0;
+  if (goal.ok) { stars = 1; if (!level.par || blocks <= level.par) stars = 3; else if (blocks <= level.par + 2) stars = 2; }
+  return { ok: goal.ok, why: goal.why || null, stars, steps: W.ticks, blocks, trace: W.trace, error: W.error, state: W.summary() };
+}
+
+export { makeWorld, cellAt, canEnter, ahead, DIRS };

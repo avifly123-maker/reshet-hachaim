@@ -9,6 +9,7 @@ import * as THREE from 'three';
 import { esc, icon } from '../ui/ui.js';
 import { nameK } from '../data/inventions-kids.js';
 import { readPhotos, addPhoto, MAX_PHOTOS } from './rank.js';
+import { svcGuide } from '../core/services.js';
 
 // photo missions after the regular chain (one at a time, in order). a + one of b in the frame; night: only at night;
 // visitor: any rare visitor. The pairs are relations of the zone's own data (diet or relations).
@@ -119,7 +120,7 @@ export function createPhotos({ W, reg, camera, canvas, pipe, ui, audio, imv, bus
     try { ui.hideSpecies(); bus.emit('species:close'); } catch (e) { }
     try { markers && markers.locate(null); } catch (e) { }   // the beacons would be in the picture: the view follows the animal instead
     audio && audio.play && audio.play('click');
-    const g = window.__guide; if (g) g.intro('after:photo');
+    const g = svcGuide(); if (g) g.intro('after:photo');
   }
   function close() {
     if (!isOpen) return;

@@ -40,6 +40,7 @@ import { K as KEY, zoneKey, saveKey, readPlayer, writePlayer, playerKey } from '
 import { playMode, ZONES } from './journey.js';
 import { THREADS, SAMPLE_OF, PHOTO_SAMPLE, QUESTION_SPECIES, CASE_SPECIES, REGULAR, STAMPS } from '../data/threads.js';
 import { GUIDE } from '../data/guide-lines.js';
+import { svcGuide } from './services.js';
 
 const K = KEY.threads;
 const pk = (b) => playerKey(b);
@@ -214,7 +215,7 @@ export const lineOf = (id) => ((GUIDE['threads:' + id] || [])[0] || null);
 // one fresh thread, as a short tip (or a modal bubble); the lab has its own robot, so the guide waits until it closes
 let stageBusy = 0;   // until when a stage moment (its scene, then רובו־דע's words) is on: the thread waits for it
 export function announce({ modal = false } = {}) {
-  const g = typeof window !== 'undefined' && window.__guide; if (!g) return null;
+  const g = svcGuide(); if (!g) return null;
   if (Date.now() < stageBusy || document.querySelector('#ui .lb.on, #ui .jm')) return null;   // the lab has its own robot; the map announces by itself
   const f = fresh(); if (!f.length) return null;
   const t = f.find((x) => x.mode === 'exp') || f[0];

@@ -17,6 +17,7 @@ import { openSettings } from '../settings.js';
 import { canopySVG, VINE, waxSeal } from './art.js';
 import { esc } from './helpers.js';
 import { icon } from './icons.js';
+import { svcGuide } from '../../core/services.js';
 
 export function createStart(ctx) {
   const { root, emit, S, toolbar, startEl } = ctx;
@@ -199,20 +200,20 @@ export function createStart(ctx) {
         getQuality: () => S.toggles.quality || 'medium', setQuality: (q) => { S.toggles.quality = q; paintToggles(); emit('quality', { q }); },
         onClose: () => { gear.setAttribute('aria-expanded', 'false'); try { gear.focus({ preventScroll: true }); } catch (e) { } } });
       // the first time: רובו־דע presents the rows that are on screen (beginners have no play mode row)
-      setTimeout(() => { const g = window.__guide; if (g && startEl.querySelector('.set-layer')) g.say(g.lines('start:settings').filter((l) => !l.at || startEl.querySelector(l.at)), { key: 'g:start:settings' }); }, 300);
+      setTimeout(() => { const g = svcGuide(); if (g && startEl.querySelector('.set-layer')) g.say(g.lines('start:settings').filter((l) => !l.at || startEl.querySelector(l.at)), { key: 'g:start:settings' }); }, 300);
     });
     // listen once (the start screen is drawn again after every visit)
     if (!S.jListen) {
       S.jListen = true;
       const onStart = () => startEl.classList.contains('on') && !root.classList.contains('ingame') && !root.querySelector('.rs-hub.on') && !(window.__wolLearn && window.__wolLearn.isOpen && window.__wolLearn.isOpen());
       // the first visit of a player: רובו־דע presents the journey bar (after his hello, which main.js queues first)
-      S.journeyIntro = () => { clearTimeout(S.jIntroT); S.jIntroT = setTimeout(() => { if (onStart() && window.__guide) window.__guide.intro('journey', { modal: true }); }, 1500); };
+      S.journeyIntro = () => { clearTimeout(S.jIntroT); S.jIntroT = setTimeout(() => { if (onStart() && svcGuide()) svcGuide().intro('journey', { modal: true }); }, 1500); };
       addEventListener('wol-journey', () => { if (S.paintJourney) S.paintJourney(); S.journeyIntro(); });
       // a stage moment closed: offer to go to what opened ("בואו נלך!" / "אחר כך"), switch the tab and ring the new button
       const GO = { 2: { tab: 'learn' }, 3: { tab: 'learn' }, 4: { tab: 'sci' }, 5: { tab: 'sci' }, 6: { tab: 'learn' } };
       addEventListener('wol-stage-done', (e) => {
         if (S.paintJourney) S.paintJourney();
-        const n = e.detail && e.detail.stage, g = window.__guide; const go = GO[n];
+        const n = e.detail && e.detail.stage, g = svcGuide(); const go = GO[n];
         if (!go || !g || !onStart() || !e.detail || !['done', 'skip'].includes(e.detail.result)) return;
         if (JR.state().stage > n) return;   // several stages at once: only the last one offers the way (its moment comes next)
         const kids = JR.playMode() === 'kids', ask = (g.lines('start:go') || []).find((l) => l.id === 'start.go.ask');

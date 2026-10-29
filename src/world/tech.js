@@ -24,6 +24,7 @@ import { toolDef } from '../game/tool-defs.js';
 import { DESERT_TECH_IDS, desertModel, createDesertTech } from './desert-tech.js';   // 1.4: drip line, fog net, sand fence
 
 export const TECH_IDS = new Set(['canopybot', 'lidar', 'thermal', 'firetower', 'reefspeaker', 'spawnbot', ...DESERT_TECH_IDS]);
+import { svcGuide } from '../core/services.js';
 export const TECH_HOST = new Set(['canopybot']);   // hangs on a tree (like the forest listener)
 // warm-blooded: birds and mammals glow in the thermal camera; reptiles, insects and others stay near the night's air
 const COOL = new Set(['chameleon', 'agama', 'tortoise', 'gecko', 'frog', 'dartfrog', 'caiman', 'anaconda', 'boa', 'iguana', 'turtle']);
@@ -865,7 +866,7 @@ function createIslandRobo({ W, scene, camera, rig }) {
     } catch (e) { failed = true; console.warn('island robot', e); }
   }
   let disposed = false;
-  const guideOpen = () => { const G = typeof window !== 'undefined' && window.__guide; return !!(G && G.isOpen && G.isOpen()); };
+  const guideOpen = () => { const G = svcGuide(); return !!(G && G.isOpen && G.isOpen()); };
   function pointAt(v) { if (!v) return; point = v.clone ? v.clone() : new THREE.Vector3(v.x, v.y || 0, v.z); pointT = performance.now(); if (shown) goal = point.clone(); }
   // where he waits: in front of the camera target, toward the camera and to the left side of the view (the bubble is on
   // the right), a little above the middle; his size keeps about the same on the screen

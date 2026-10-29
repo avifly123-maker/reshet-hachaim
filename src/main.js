@@ -30,6 +30,7 @@ import './ui/flourish.js';   // window.__flourish: short flourishes (a part open
 // Zones (biomes): the start screen draws them from the registry (data/zones.js); a zone's content and species models
 // arrive in its pack – { zone: { data, plants, animals }, release() } – loaded when the zone is chosen (core/packs.js).
 const zoneOf = (id) => { const m = loadedPack(id); return m ? m.zone : null; };
+import { setService } from './core/services.js';
 
 // Beginners (ages 6–8): a small set of species, short missions, no events, two tools.
 function kidsBiome(base) {
@@ -435,6 +436,7 @@ async function boot() {
   }
   frame();
   window.__app = { bus, ui, audio, music, pipe, voice, guide, journey, loadBiome, researchHub, openLab: () => openLab(), openCase: (id, opts) => { let C = caseById(id); if (C && opts && opts.tutorial) C = { ...C, tutorial: true }; if (C) loadBiome(C.zone, null, C); }, get game() { return game; } };
+  setService('app', window.__app);   // the parts read it through src/core/services.js; window.__app stays for the test tools
 }
 
 boot();

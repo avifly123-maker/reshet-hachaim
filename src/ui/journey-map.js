@@ -17,6 +17,7 @@ import { TORAH } from '../core/edition.js';
 import { BABA_DA_LOGO } from '../data/logo.js';
 import { STAGE_LINES } from '../data/guide-lines.js';
 import { mountMapThreads } from './threads-ui.js';
+import { svcGuide } from '../core/services.js';
 
 const kids = () => J.playMode() === 'kids';
 const t = (f, k) => (kids() ? k : f);
@@ -45,7 +46,7 @@ const quoted = (s) => (/[?!]$/.test(s) ? `"${s}"` : s);
 export const lockWords = (part) => J.lockWords(part);
 // one bubble of רובו־דע: what opens it, and how far it is
 export function lockTip(part, opts = {}) {
-  const g = window.__guide; const P = J.PARTS[part]; if (!g || !P) return;
+  const g = svcGuide(); const P = J.PARTS[part]; if (!g || !P) return;
   const name = quoted(partLabel(part));
   let f, k;
   if (P.after && J.stageNow() >= P.stage) {
@@ -136,7 +137,7 @@ export function openJourneyMap(host, { onPart, emit, onClose } = {}) {
     el.classList.add('replaying');
     try { if (typeof window.__stageScene === 'function') await Promise.resolve(window.__stageScene(n)).catch(() => { }); } catch (e) { }
     el.classList.remove('replaying');
-    const g = window.__guide;
+    const g = svcGuide();
     try { if (g) await g.say(STAGE_LINES[n] || [], { modal: true, place: 'center' }); } catch (e) { }
     busy = false;
   }
@@ -151,7 +152,7 @@ export function openJourneyMap(host, { onPart, emit, onClose } = {}) {
     if (onPart && onPart(part) === true) close();
   });
   // bubble phase: an open bubble of רובו־דע takes Escape first (robo-guide.js stops it in the capture phase)
-  const onKey = (e) => { if (e.key === 'Escape' && !(window.__guide && window.__guide.isOpen())) { e.preventDefault(); close(); } };
+  const onKey = (e) => { if (e.key === 'Escape' && !(svcGuide() && svcGuide().isOpen())) { e.preventDefault(); close(); } };
   addEventListener('keydown', onKey);
   const repaint = () => { if (el.isConnected) { render(); drawThreads(); } };
   addEventListener('wol-journey', repaint);
@@ -166,8 +167,8 @@ export function openJourneyMap(host, { onPart, emit, onClose } = {}) {
   // the first visit: רובו־דע shows how to read the map
   // then the threads that opened since רובו־דע last spoke: their lines glow while he says them
   setTimeout(() => {
-    if (!el.isConnected || !window.__guide) return;
-    Promise.resolve(window.__guide.intro('start:map', { modal: true })).then(() => { if (el.isConnected && threads) return threads.announceFresh(); }).catch((e) => console.error(e));
+    if (!el.isConnected || !svcGuide()) return;
+    Promise.resolve(svcGuide().intro('start:map', { modal: true })).then(() => { if (el.isConnected && threads) return threads.announceFresh(); }).catch((e) => console.error(e));
   }, 450);
   return { close, el, repaint };
 }

@@ -10,6 +10,7 @@ import { RELATION_TYPES, gw } from '../../data/common.js';
 import { clamp } from '../../core/util.js';
 import { zoneWord } from '../../core/place.js';
 import { MAX_PLANTS, SMALL_PLANT, MAX_ALL_PLANTS, _v, late } from './common.js';
+import { svcGuide } from '../../core/services.js';
 
 export function createEcology(ctx) {
   const { W, env, ui, reg, markers, audio, amb, robo } = ctx;
@@ -42,7 +43,7 @@ export function createEcology(ctx) {
   // רובו־דע speaks. Times in game seconds (W.simT).
   W._missionDoneT = -1e9; W._eventT = -1e9;
   W.calmBusy = () => W.isBusy() || W.simT - W._missionDoneT < 30 || W.simT - W._eventT < 240
-    || !!(window.__guide && window.__guide.isOpen && window.__guide.isOpen());
+    || !!(svcGuide() && svcGuide().isOpen && svcGuide().isOpen());
 
   W.findFood = (animal, radius) => {
     const sp = animal.sp; let best = null, bestS = 0;

@@ -17,6 +17,7 @@ import * as J from '../core/journey.js';
 import { TORAH, sourcesOn, setSourcesOn } from '../core/edition.js';
 import { resetHowto } from './howto.js';
 import * as PT from '../core/playtime.js';
+import { svcGuide, svcApp } from '../core/services.js';
 
 const kids = () => J.playMode() === 'kids';
 const t = (f, k) => (kids() ? k : f);
@@ -163,14 +164,14 @@ export function bindSettingsRows(el, opts = {}) {
     const o = el._setOpts || {}; const k = b.dataset.set;
     if (k === 'mode') { J.setPlayMode(b.dataset.v); after('mode'); }
     else if (k === 'text') { J.setTextSize(b.dataset.v); after('text'); }
-    else if (k === 'voice') { const on = !J.voiceOn(); J.setVoice(on); if (!on) { try { window.__app && window.__app.voice && window.__app.voice.stop(); } catch (er) { } } after('voice'); }
+    else if (k === 'voice') { const on = !J.voiceOn(); J.setVoice(on); if (!on) { try { svcApp() && svcApp().voice && svcApp().voice.stop(); } catch (er) { } } after('voice'); }
     else if (k === 'sound') { const on = !(o.getSound ? o.getSound() : true); if (o.setSound) o.setSound(on); setTimeout(() => after('sound'), 0); }
     else if (k === 'quality') { if (o.setQuality) o.setQuality(b.dataset.v); setTimeout(() => after('quality'), 0); }
     else if (k === 'sources') { setSourcesOn(!sourcesOn()); if (o.emit) o.emit('sources:toggle', { on: sourcesOn() }); after('sources'); }
     else if (k === 'music') { const on = !(o.getMusic ? o.getMusic() : true); if (o.emit) o.emit('music:toggle', { on }); setTimeout(() => after('music'), 0); }
     else if (k === 'again') {
       J.resetIntros(); resetHowto(); after('again');
-      const g = window.__guide; const ln = g && (g.lines('start:tips') || []).find((l) => l.id === 'start.again.1'); if (ln) g.tip(ln, { ms: 5000 });
+      const g = svcGuide(); const ln = g && (g.lines('start:tips') || []).find((l) => l.id === 'start.again.1'); if (ln) g.tip(ln, { ms: 5000 });
     }
     else if (k === 'time') {
       const v = +b.dataset.v;
@@ -211,7 +212,7 @@ export function openSettings(host, { emit, getMusic, getSound, setSound, getQual
     layer.remove(); removeEventListener('keydown', onKey);
     try { onClose && onClose(); } catch (e) { console.error(e); }
   };
-  const onKey = (e) => { if (e.key === 'Escape' && !(window.__guide && window.__guide.isOpen())) { e.preventDefault(); close(); } };
+  const onKey = (e) => { if (e.key === 'Escape' && !(svcGuide() && svcGuide().isOpen())) { e.preventDefault(); close(); } };
   addEventListener('keydown', onKey);
   layer.querySelector('.set-scrim').addEventListener('click', close);
   layer.querySelector('[data-x]').addEventListener('click', close);

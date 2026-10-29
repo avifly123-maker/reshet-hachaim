@@ -29,6 +29,7 @@ import { makeRng } from '../core/util.js';
 import { toolProp } from '../world/props.js';
 import { drawRoboFace } from './robo-face.js';
 import { stageEmblem, STAGE_COLOR } from './journey-map.js';
+import { svcApp } from '../core/services.js';
 
 // ───────────────────────────────────────── small helpers
 const clamp01 = (x) => (x < 0 ? 0 : x > 1 ? 1 : x);
@@ -45,12 +46,12 @@ const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const isKids = () => playerMode() === 'kids';
 function tier() {
-  try { const q = window.__app && window.__app.pipe && window.__app.pipe.quality; if (q) return q; } catch (e) { }
+  try { const q = svcApp() && svcApp().pipe && svcApp().pipe.quality; if (q) return q; } catch (e) { }
   const q = readDeviceRaw(K.quality); if (q) return q;
   const a = readDevice(K.autoq, null); if (a && a.q) return a.q;
   return 'medium';
 }
-const sfx = (name) => { try { const a = window.__app && window.__app.audio; if (a) a.play(name); } catch (e) { } };
+const sfx = (name) => { try { const a = svcApp() && svcApp().audio; if (a) a.play(name); } catch (e) { } };
 
 // a path through timed points (Catmull-Rom between them): keys = [[t, x, y, z], …]
 function pathAt(keys, t, out = new THREE.Vector3()) {

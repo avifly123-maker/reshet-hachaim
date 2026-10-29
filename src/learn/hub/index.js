@@ -49,6 +49,7 @@ import { buildRound } from './quiz-build.js';
 import { createQuiz } from './quiz.js';
 import { loadState } from './storage.js';
 import { injectCss } from './styles.js';
+import { svcGuide } from '../../core/services.js';
 
 /* ───────────────────────────────────────────── the hub */
 export function createLearningHub(rootEl, { onClose, audio } = {}) {
@@ -157,7 +158,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   // רובו־דע presents a screen the first time it opens (src/data/guide/hub.js); 'learn' is the hub itself
   const INTRO_OF = { home: 'learn', setup: 'quiz', album: 'album', duel: 'duel', webpuzzle: 'webpuzzle', keepforest: 'keepforest', inventors: 'inventors', expedition: 'expedition', badges: 'badges', frames: 'frames', versematch: 'versematch' };
   const locked = (part) => { try { return !isOpen(part); } catch (e) { return false; } };
-  const guide = () => (typeof window !== 'undefined' && window.__guide) || null;
+  const guide = () => (svcGuide()) || null;
   let tipAt = 0, guideMine = null, entered = null;   // guideMine: the hub's own bubble (the promise say() gave), closed alone
   // a click on a veiled part: רובו־דע says what opens it (one short bubble; a second click soon after does not stack another)
   function lockTip(part) {
@@ -331,7 +332,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     if (!open_) return;
     // רובו־דע's bubble takes the key first (its own capture listener, added before this one, closes the bubble and stops
     // the event): the same Escape must not also leave the hub. cancelBubble reads that stop; isOpen() covers any order.
-    if (e.cancelBubble || (window.__guide && window.__guide.isOpen())) return;
+    if (e.cancelBubble || (svcGuide() && svcGuide().isOpen())) return;
     e.stopPropagation();
     if (e.key === 'Escape') { e.preventDefault(); back(); }
     else if ((e.key === 'Enter' || e.key === ' ') && e.target && e.target.matches && e.target.matches('[data-wl][role=button]')) { e.preventDefault(); e.target.click(); }

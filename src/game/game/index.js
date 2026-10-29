@@ -62,6 +62,7 @@ import { createRoad } from './road.js';
 import { createSave } from './save.js';
 import { createUpdate } from './update.js';
 import { createDispose } from './dispose.js';
+import { svcGuide } from '../../core/services.js';
 
 export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, animalBuilders, zoneEnv = null, quality, onExit, save = null, research = null }) {
   const scene = pipe.scene, camera = pipe.camera, canvas = pipe.renderer.domElement;
@@ -96,7 +97,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   };
   W.amb = amb;
   // רובו־דע in the forest (src/ui/robo-guide.js, lines in src/data/guide/zone.js). Nothing from him inside a mystery.
-  const guide = () => (W.research ? null : window.__guide || null);
+  const guide = () => (W.research ? null : svcGuide() || null);
   function robo(key, opts = {}) {
     const G = guide(), lines = GUIDE[key]; if (!G || !lines || !lines.length) return Promise.resolve('none');
     if (!(opts.key !== null && !opts.force && introSeen('g:' + key))) W._roboT = W.simT;   // when he last spoke (the day-end line waits for quiet)

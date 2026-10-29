@@ -18,6 +18,7 @@
 import { drawRoboFace, ROBO_SVG, VISOR } from './robo-face.js';
 import { introSeen, markIntro, playMode } from '../core/journey.js';
 import { GUIDE } from '../data/guide-lines.js';
+import { setService } from '../core/services.js';
 
 const CSS_ID = 'robo-guide-css';
 const RING_CHECK_MS = 500;   // how often the ring looks whether its element is still there
@@ -202,6 +203,6 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
     setPortrait: (src) => { pic = src || null; if (cur) render(); },
     lines: (part) => GUIDE[part] || [],
   };
-  window.__guide = G;
+  window.__guide = G; setService('guide', G);
   return G;
 }
