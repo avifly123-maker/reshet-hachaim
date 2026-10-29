@@ -4,11 +4,11 @@
 // Writes fire 'wol-progress' { kind: 'robolab' } so מסע החוקר and the badges can count.
 import { K, readPlayer, writePlayer } from '../core/storage.js';
 
-const EMPTY = () => ({ done: {}, seen: {}, fun: 0, look: {} });
+const EMPTY = () => ({ done: {}, seen: {}, fun: 0, look: {}, isl: 0 });
 export function roboProgress() {
   const o = readPlayer(K.robolab, null);
   if (!o || typeof o !== 'object') return EMPTY();
-  return { done: o.done && typeof o.done === 'object' ? o.done : {}, seen: o.seen && typeof o.seen === 'object' ? o.seen : {}, fun: o.fun | 0, look: o.look && typeof o.look === 'object' ? o.look : {} };
+  return { done: o.done && typeof o.done === 'object' ? o.done : {}, seen: o.seen && typeof o.seen === 'object' ? o.seen : {}, fun: o.fun | 0, look: o.look && typeof o.look === 'object' ? o.look : {}, isl: o.isl | 0 };
 }
 function save(o, detail) {
   writePlayer(K.robolab, o);
@@ -28,3 +28,5 @@ export const solvedCount = (pred) => { const d = roboProgress().done; return Obj
 // the player's design of one tool (the garage, src/robolab/garage.js)
 export const toolLook = (tool) => { const L = roboProgress().look[tool]; return L && typeof L === 'object' ? { parts: { ...(L.parts || {}) }, paint: { ...(L.paint || {}) } } : { parts: {}, paint: {} }; };
 export function setToolLook(tool, look) { const o = roboProgress(); o.look[tool] = { parts: { ...(look.parts || {}) }, paint: { ...(look.paint || {}) } }; save(o, { look: tool }); }
+// a mission done on the player's own island (they are made anew each time, so only the count is kept)
+export function addIsland() { const o = roboProgress(); o.isl += 1; save(o, { island: true }); return o.isl; }

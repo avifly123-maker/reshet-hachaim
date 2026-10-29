@@ -4,6 +4,7 @@
 // This file lays the training field (course.js), frames the camera on it, keeps the view clear of the lesson's panel,
 // and hands the field to the robot lab's screen (R.attach), which drives it like the flat map.
 import { createCourse } from './course.js';
+import { makeIslandLevel } from './island-level.js';
 
 export function createRoboSession(ctx, R) {
   const { W, env, scene, reg, markers, rig, spawnPlant, spawnAnimal, ui } = ctx;
@@ -31,8 +32,14 @@ export function createRoboSession(ctx, R) {
     start() {
       ui.setTray([]);
       W.speed = 1;
+      // a mission on the player's own island: the level is made from the island now that it is loaded
+      const newIsland = (kind) => makeIslandLevel({ W, env }, R.zone, { kind, seed: Date.now() });
+      if (!R.level && R.ownIsland) R.level = newIsland();
+      if (!R.level) { if (R.onExit) R.onExit(); return; }
       build(R.level);
       const api = {
+        get level() { return R.level; },
+        newIsland: () => { const L = newIsland(); if (L) R.level = L; return L; },
         get course() { return course; }, rebuild: (L, o) => { const c = build(L, o); return c; }, frame: () => frame(1) };
       if (R.attach) R.attach(api);
     },

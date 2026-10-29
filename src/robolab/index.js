@@ -12,20 +12,21 @@ import { createRoboSession } from './three/session.js';
 import { openGarage } from './garage.js';
 import { kubiCam } from './ui/kubi-cam.js';
 import { checkRoboBadges } from './badges.js';
+import { ZONE_IDS, ZONE_LOOK } from '../data/zones.js';
 import { BLOCK_INTRO, CHAPTER_INTRO } from '../data/robolab/kubi-lines.js';
 import { BLOCKS } from './engine/blocks.js';
 import { createVoice } from '../audio/voice.js';
 import { createEditor } from './ui/editor.js';
 import { icon } from './ui/icons.js';
 import { isOpen as journeyOpen, lockWords } from '../core/journey.js';
-import { roboProgress, markSolved, addFun, markSeen } from './progress.js';
+import { roboProgress, markSolved, addFun, markSeen, addIsland } from './progress.js';
 import { FAIL_LINES, GOAL_LINES, WIN_LINES, OOPS_LINES, FUN_LINES } from '../data/robolab/lines.js';
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const pick = (arr, seed) => arr[Math.abs(seed | 0) % arr.length];
 const ZONE_WORD = { grove: { f: 'חורש', k: 'חֹרֶשׁ' }, amazon: { f: 'אמזונס', k: 'אָמָזוֹנַס' }, reef: { f: 'שונית', k: 'שׁוּנִית' }, desert: { f: 'מדבר', k: 'מִדְבָּר' } };
 
-export function createRoboLab({ root, audio, kids = false, onExit, enter3d = null, leave3d = null }) {
+export function createRoboLab({ root, audio, kids = false, onExit, enter3d = null, leave3d = null, hasIsland = null }) {
   const T = (o) => (o ? (kids && o.k ? o.k : o.f) : '');
   const el = document.createElement('div');
   el.className = 'rl'; el.hidden = true; el.setAttribute('dir', 'rtl');
@@ -43,6 +44,16 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     const chOpen = !prevCh || LESSONS.filter((q) => q.ch === prevCh).filter((q) => P.done[q.id]).length >= 3;
     return chOpen && (i === 0 || !!P.done[list[i - 1].id]);
   };
+  // משימות באי שלי: the zones where this player has an island; open once chapter 4 (sensors) is well on its way
+  function islandsHTML(P) {
+    if (!enter3d || !hasIsland) return '';
+    const open = LESSONS.filter((q) => q.ch === 4 && P.done[q.id]).length >= 3;
+    const zones = ZONE_IDS.filter((z) => { try { return hasIsland(z); } catch (e) { return false; } });
+    const head = `<h2>${icon('home')}${kids ? 'מְשִׂימוֹת בָּאִי שֶׁלִּי' : 'משימות באי שלי'}</h2>`;
+    if (!open) return `<section class="rl-sec">${head}<p class="rl-isl-note">${kids ? 'נִפְתָּח אַחֲרֵי שְׁלוֹשָׁה שִׁעוּרִים בְּפֶרֶק 4. אָז הָרוֹבּוֹט יֵצֵא לַעֲבֹד בָּאִיִּים שֶׁבְּנִיתֶם!' : 'נפתח אחרי שלושה שיעורים בפרק 4. אז הכלים יצאו לעבוד באיים שבניתם בעצמכם!'}</p></section>`;
+    if (!zones.length) return `<section class="rl-sec">${head}<p class="rl-isl-note">${kids ? 'עוֹד אֵין לָכֶם אִי שָׁמוּר. בְּנוּ אִי בְּאַחַת הַסְּבִיבוֹת, וְהַכֵּלִים יָבוֹאוּ לַעֲבֹד בּוֹ.' : 'עוד אין לכם אי שמור. בנו אי באחת הסביבות, והכלים יבואו לעבוד בו.'}</p></section>`;
+    return `<section class="rl-sec">${head}<p class="rl-isl-note">${kids ? 'בְּכָל פַּעַם מְשִׂימָה חֲדָשָׁה בֵּין הָעֵצִים שֶׁגִּדַּלְתֶּם.' : 'בכל פעם משימה חדשה בין העצים שגידלתם. מה שהכלים עושים כאן לא משנה את האי השמור.'}</p><div class="rl-pz">${zones.map((z) => `<button type="button" class="rl-pzb rl-islb" data-island="${z}"><span class="rl-z z-${z}"></span><b>${esc(kids ? ZONE_LOOK[z].shortK : ZONE_LOOK[z].short)}</b><small>${kids ? 'הָאִי שֶׁלִּי' : 'האי שלי'}</small></button>`).join('')}</div></section>`;
+  }
   const stars = (n) => [0, 1, 2].map((k) => `<i class="${k < n ? 'on' : ''}">${icon('star')}</i>`).join('');
   function home() {
     requestAnimationFrame(helloKubi);   // קוּבִּי greets once the home is drawn
@@ -65,6 +76,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
             <div class="rl-lv">${ls.map((L, i) => { const ok = levelOpen(L, P), d = P.done[L.id];
               return `<button type="button" class="rl-lvb${d ? ' done' : ''}" data-level="${L.id}" ${ok ? '' : 'disabled'} title="${esc(T(L.title))}"><span class="rl-z z-${L.zone}"></span><b>${i + 1}</b><span class="rl-st">${stars(d ? d.stars : 0)}</span></button>`; }).join('')}</div></div>`; }).join('')}
         </section>
+        ${islandsHTML(P)}
         ${PUZZLES.length ? `<section class="rl-sec"><h2>${icon('puzzle')}${kids ? 'חִידוֹת' : 'חידות'}</h2><div class="rl-pz">${PUZZLES.map((L) => { const ok = levelOpen(L, P), d = P.done[L.id];
           return `<button type="button" class="rl-pzb${d ? ' done' : ''}" data-level="${L.id}" ${ok ? '' : 'disabled'}><span class="rl-z z-${L.zone}"></span><b>${esc(T(L.title))}</b>${ok ? '' : `<small>${kids ? 'נִפְתָּח אַחֲרֵי שִׁעוּר ' : 'נפתח אחרי שיעור '}${L.after.replace('l', '').replace('-', '.')}</small>`}<span class="rl-st">${stars(d ? d.stars : 0)}</span></button>`; }).join('')}</div></section>` : ''}
       </div></div>`;
@@ -97,20 +109,36 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   function openLevel(id, { flat = false } = {}) {
     const L = ALL_LEVELS.find((q) => q.id === id); if (!L) return;
     if (enter3d && !flat) {
-      if (in3d && in3d.zone === L.zone && in3d.api) { stopRun(); in3d.api.rebuild(L, { quick: true }); mountLevel(L, in3d.api); return; }
+      if (in3d && in3d.zone === L.zone && !in3d.own && in3d.api) { stopRun(); in3d.api.rebuild(L, { quick: true }); mountLevel(L, in3d.api); return; }
       if (in3d) end3d();
       stopRun(); if (map) { map.dispose(); map = null; }
       cur = L; el.hidden = true;
       in3d = { zone: L.zone, api: null };
       const desc = { robolab: true, zone: L.zone, level: L, id: 'robolab:' + L.id,
         makeSession: (ctx) => createRoboSession(ctx, desc),
-        attach: (api) => { if (!in3d) return; in3d.api = api; el.hidden = false; root.classList.add('rl3d'); mountLevel(cur || L, api); },
+        attach: (api) => { if (!in3d) return; in3d.api = api; el.hidden = false; root.classList.add('rl3d'); mountLevel(api.level || cur || L, api); },
         detach: () => { root.classList.remove('rl3d'); },
         onExit: () => { in3d = null; root.classList.remove('rl3d'); el.hidden = false; home(); } };
       enter3d(desc);
       return;
     }
     mountLevel(L, null);
+  }
+  // a mission on the player's own island (opens after chapter 7 is reached): the island he built, a field laid
+  // among his trees, a mission made for it (three/island-level.js). Nothing is saved back to his island.
+  function openIsland(zone) {
+    if (!enter3d) return;
+    if (in3d && in3d.own && in3d.zone === zone && in3d.api) { const nL = in3d.api.newIsland(); if (nL) { in3d.api.rebuild(nL, { quick: true }); mountLevel(nL, in3d.api); } return; }
+    if (in3d) end3d();
+    stopRun(); if (map) { map.dispose(); map = null; }
+    cur = null; el.hidden = true;
+    in3d = { zone, api: null, own: true };
+    const desc = { robolab: true, ownIsland: true, zone, level: null, id: 'robolab:island:' + zone,
+      makeSession: (ctx) => createRoboSession(ctx, desc),
+      attach: (api) => { if (!in3d) return; in3d.api = api; el.hidden = false; root.classList.add('rl3d'); mountLevel(api.level, api); },
+      detach: () => { root.classList.remove('rl3d'); },
+      onExit: () => { in3d = null; root.classList.remove('rl3d'); el.hidden = false; home(); } };
+    enter3d(desc);
   }
   function end3d() { const was = in3d; in3d = null; root.classList.remove('rl3d'); el.classList.remove('in3d'); if (was && leave3d) leave3d(); el.hidden = !open; }
   // the course as the screen sees it: the same calls as the flat map
@@ -136,8 +164,8 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     const zw = ZONE_WORD[L.zone] || ZONE_WORD.grove;
     el.innerHTML = `<div class="rl-level z-${L.zone}">
       <header class="rl-top"><button type="button" class="rl-back" data-home>${icon('home')}<span>${kids ? 'לַמַּעְבָּדָה' : 'למעבדה'}</span></button>
-        <div class="rl-title"><h1>${esc(T(L.title))}</h1><p>${esc(T(zw))}${L.concept ? ' · ' + esc(T(conceptWord(L.concept))) : ''}</p></div>
-        <div class="rl-goalbar"><span class="rl-par">${icon('star')}${icon('star')}${icon('star')} ${kids ? 'עַד' : 'עד'} <b>${L.par || '?'}</b> ${kids ? 'בְּלוֹקִים' : 'בלוקים'}</span></div></header>
+        <div class="rl-title"><h1>${esc(T(L.title))}</h1><p>${esc(T(zw))}${L.concept && conceptWord(L.concept).f ? ' · ' + esc(T(conceptWord(L.concept))) : ''}</p></div>
+        <div class="rl-goalbar">${L.par ? `<span class="rl-par">${icon('star')}${icon('star')}${icon('star')} ${kids ? 'עַד' : 'עד'} <b>${L.par}</b> ${kids ? 'בְּלוֹקִים' : 'בלוקים'}</span>` : ''}</div></header>
       <div class="rl-say"><canvas class="rl-kubi" aria-hidden="true"></canvas><p>${news.chapter ? `<span class="rl-chi">${esc(T(news.chapter))}</span> ` : ''}${(L.say || []).map((s) => esc(T(s))).join(' ')}${news.blocks.map((b) => `<span class="rl-newb"><i>${BLOCKS[b].emo || icon(BLOCKS[b].icon)}</i><b>${kids ? 'חָדָשׁ' : 'חדש'}</b> ${esc(T(BLOCK_INTRO[b]))}</span>`).join('')}</p></div>
       <div class="rl-body">
         <div class="rl-ed"></div>
@@ -191,7 +219,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
       ed.light(null);
       el.querySelector('[data-why]').disabled = false;
       if (r.ok) {
-        const { first } = markSolved(cur.id, r.stars, r.blocks);
+        const { first } = cur.ownIsland ? { first: !!addIsland() } : markSolved(cur.id, r.stars, r.blocks);
         setTimeout(checkRoboBadges, 1200);   // after the win message (the badge toast comes on its own)
         kubiDo('cheer'); speak(['kw_' + (Math.abs(seedN) % WIN_LINES.length)], 2);
         msg(`<div class="rl-win"><span class="rl-st big">${stars(r.stars)}</span><b>${esc(T(pick(WIN_LINES, seedN)))}</b><small>${r.variants > 1 ? (kids ? `עָבַד בְּכָל ${r.variants} הַגִּרְסָאוֹת · ` : `עבד בכל ${r.variants} הגרסאות · `) : ''}${r.blocks} ${kids ? 'בְּלוֹקִים' : 'בלוקים'}${r.stars < 3 && cur.par ? ' · ' + esc(T({ f: 'אפשר גם ב־' + cur.par, k: 'אֶפְשָׁר גַּם בְּ־' + cur.par })) : ''}</small>
@@ -232,6 +260,8 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     if (b.dataset.why != null) { why(); return; }
     if (b.dataset.view != null) { if (in3d && in3d.api) in3d.api.frame(); return; }
     if (b.dataset.stay != null) { hideMsg(); map.reset(); return; }
+    if (b.dataset.island) { sfx('click'); openIsland(b.dataset.island); return; }
+    if (b.dataset.next != null && cur && cur.ownIsland) { openIsland(cur.zone); return; }
     if (b.dataset.next != null) {
       const list = cur.puzzle ? PUZZLES : LESSONS; const i = list.indexOf(cur);
       const nx = list[i + 1]; if (nx) openLevel(nx.id); else home(); return;
@@ -251,6 +281,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   window.__rlDebug = {
     open: (id, flat) => (id ? openLevel(id, { flat: !!flat }) : home()),
     in3d: () => !!(in3d && in3d.api),
+    island: (z) => openIsland(z), level: () => cur && { id: cur.id, rows: cur.map.rows, items: cur.items, kind: cur.kind },
     garage: () => { if (garage) garage.close(); garage = openGarage(el, { kids, sfx, onClose: () => { garage = null; } }); return true; },
     solve: (id, i = 0) => { const L = ALL_LEVELS.find((q) => q.id === id); if (!L) return null; if (!(in3d && in3d.api && cur && cur.id === id)) openLevel(id, { flat: true }); ed.set({ ...L.solutions[i], defs: { ...(L.defs0 || {}), ...(L.solutions[i].defs || {}) } }); run('fast'); return lastRun && { ok: lastRun.ok, stars: lastRun.stars }; },
     run: (speed = 'fast') => run(speed), last: () => lastRun && { ok: lastRun.ok, stars: lastRun.stars, why: lastRun.why, error: lastRun.error },

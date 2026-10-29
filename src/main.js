@@ -203,7 +203,7 @@ async function boot() {
       ui.setLoadingActions([{ label: 'חזרה למסך הפתיחה', onClick: () => showStart() }]);
       loading = false; return;
     }
-    const biome = research ? zoneOf(id).data : biomeFor(id), Z = zoneOf(id);
+    const biome = research && !research.ownIsland ? zoneOf(id).data : biomeFor(id), Z = zoneOf(id);   // a mission on the player's island keeps his level's species
     ui.setTips(biome.tips);
     ui.setLoading(0.02, research && research.robolab ? 'מכינים את מגרש האימון...' : 'מכינים את היער...');
     closeGame();
@@ -314,7 +314,8 @@ async function boot() {
     ui.setLoading && ui.setLoading(0.3, 'פותחים את מעבדת הרובוטים...');
     robolabP = robolabP || loadPack('robolab').then((m) => (robolab = m.createRoboLab({ root, audio, kids: playerMode() === 'kids', onExit: () => { startDrawn = false; showStart(); },
       // a lesson in 3D: the zone's island as a controlled field (src/robolab/three/), back to the lab's home on leaving
-      enter3d: (desc) => { loadPack(desc.zone).catch(() => { /* reported by loadBiome */ }); loadBiome(desc.zone, null, desc); },
+      enter3d: (desc) => { loadPack(desc.zone).catch(() => { /* reported by loadBiome */ }); loadBiome(desc.zone, desc.ownIsland ? readSave(desc.zone) : null, desc); },
+      hasIsland: (zone) => { const sv = readSave(zone); return !!(sv && Array.isArray(sv.plants) && sv.plants.length); },
       leave3d: () => { if (game) { closeGame(); resetAutoQ(2); audio.setBiome(null); } } })));
     robolabP.then((R) => { ui.hideLoading(); R.open(); }, (e) => { robolabP = null; ui.hideLoading(); console.error(e); showStart(); });
   }

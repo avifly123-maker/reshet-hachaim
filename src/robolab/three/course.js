@@ -40,7 +40,7 @@ export function createCourse(ctx, L) {
   const ground = (x, z) => env.heightAt(x, z);
   // where the field lies: a dry, flat, open part of the island (the Amazon's river, the grove's rocks and pools stay out);
   // cells shrink a little when no such place is big enough
-  const { CS, OX, OZ } = (() => {
+  const { CS, OX, OZ } = L.place ? L.place : (() => {
     const R = (env.radius || 38) - 1.5, base = Math.min(4, 30 / Math.max(Wd, H));
     let best = null;
     for (const cs of [base, base * 0.85, base * 0.72]) {
@@ -108,6 +108,7 @@ export function createCourse(ctx, L) {
       const open = inner.length;
       if (open >= 3) { const r = makeRock(rng); r.scale.setScalar(CS / 2.8); r.position.set(X, ground(X, Z), Z); root.add(r); }
     }
+    else if (L.ownIsland && (ch === 'T' || ch === 'R')) { /* the player's own trees and rocks are already there */ }
     else if (ch === 'R') { const r = makeRock(rng); r.scale.setScalar(CS / 2.6); r.position.set(X, ground(X, Z), Z); root.add(r); }
     else if (ch === 'T') {
       const id = life.tree[(x * 7 + y * 3) % life.tree.length], sp = spOf(id);
@@ -262,7 +263,7 @@ export function createCourse(ctx, L) {
   function view() {
     const span = Math.max(Wd + 1.2, H * 1.3) * CS;   // the field and קוּבִּי beside it on the left
     const t = new THREE.Vector3(OX - CS * 0.3, ground(OX, OZ) + (sea ? 1 : 0.5), OZ + CS * 0.1);
-    const d = span * 0.72 + 5;
+    const d = span * (span > 30 ? 0.95 : 0.72) + 5;   // big fields (an island mission) need more room
     return { target: t, pos: new THREE.Vector3(0, t.y + d * 0.78, t.z + d * 0.72) };
   }
   // where קוּבִּי stands: beyond the field's far left corner (the panel covers the right side), facing the camera

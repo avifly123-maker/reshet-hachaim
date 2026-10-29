@@ -213,6 +213,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   ui.setTips(biome.tips);
   // a saved forest, or a few wild things so a new island never starts empty
   ctx.session = null;
+  if (research && research.makeSession && save) restore(save);   // a robot-lab mission on the player's own island (nothing is saved back)
   if (research && research.makeSession) ctx.session = research.makeSession({ W, env, reg, scene, light, markers, rig, ui, audio, bus, camera, canvas, tools: ctx.tools, spawnPlant, spawnAnimal, select, exit: () => onExit && onExit() });   // מעבדת הרובוטים: a lesson's field (src/robolab/three/session.js)
   else if (research) ctx.session = createResearchSession({ W, C: research, env, reg, scene, light, markers, rig, ui, audio, bus, tools: ctx.tools, fieldcam: ctx.fieldcam, thumbs, spawnPlant, spawnAnimal, randomPlaceSpot, findSpotNear, addStump, select, refit: () => fitViewToUI(true), exit: () => onExit && onExit() });
   else if (save) restore(save); else seedStartingNature();

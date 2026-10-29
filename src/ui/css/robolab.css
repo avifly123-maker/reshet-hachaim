@@ -204,3 +204,5 @@
 #ui.wol .rl-ctr { display: inline-flex; align-items: center; gap: 4px; padding: 5px 10px; border-radius: 12px; background: #c4504a; color: #fff; font-weight: 700; }
 #ui.wol .rl-ctr b { min-width: 1.2em; text-align: center; font-size: 1.1em; }
 #ui.wol .rl-ctr.pop { animation: rlpop .25s ease-out; }
+#ui.wol .rl-isl-note { margin: -4px 0 8px; color: #b9cfde; font-size: .88em; }
+#ui.wol .rl .rl-islb { min-width: 110px; background: #e9f4ea; }
