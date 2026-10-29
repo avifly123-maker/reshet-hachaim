@@ -1,0 +1,20 @@
+[
+{"wait": 2},
+{"js": "window.__journey.unlockAll('2580'); window.__guide.close(); window.__app.bus.emit('start:biome',{id:'amazon'}); 1"},
+{"until": "window.__game && window.__game.biomeId==='amazon' && window.__game.debug", "timeout": 300},
+{"js": "window.__app.bus.emit('quality',{q:'medium'}); window.__guide.close(); document.querySelector('#howto button')?.click(); 1"},
+{"wait": 15},
+{"js": "window.__guide.close(); document.querySelectorAll('#howto [data-skip], #howto .hw-skip').forEach(b=>b.click()); window.__game.debug.auto(); 1"},
+{"shot": "shots/rain/a0-before.png"},
+{"js": "const W=window.__game; W.rainTarget=0.9; W.rainT=60; 'rain on'"},
+{"wait": 3},{"shot": "shots/rain/a1.png"},
+{"js": "const W=window.__game; 'rain '+W.rain.toFixed(2)+' env '+JSON.stringify({near:window.__app.pipe.scene.fog.near|0, far:window.__app.pipe.scene.fog.far|0, cam: window.__app.pipe.camera.position.length()|0})"},
+{"wait": 5},{"shot": "shots/rain/a2.png"},
+{"js": "const W=window.__game; 'rain '+W.rain.toFixed(2)+' env '+JSON.stringify({near:window.__app.pipe.scene.fog.near|0, far:window.__app.pipe.scene.fog.far|0, cam: window.__app.pipe.camera.position.length()|0})"},
+{"js": "const W=window.__game; W.dayFrac=0.27; 'morning'"},
+{"wait": 5},{"shot": "shots/rain/a3-morning.png"},
+{"js": "const W=window.__game; 'rain '+W.rain.toFixed(2)+' env '+JSON.stringify({near:window.__app.pipe.scene.fog.near|0, far:window.__app.pipe.scene.fog.far|0, cam: window.__app.pipe.camera.position.length()|0})"},
+{"js": "const r=window.__game.debug.rig; r.controls.maxDistance; const c=window.__app.pipe.camera; c.position.multiplyScalar(1.8); 'max '+r.controls.maxDistance"},
+{"wait": 4},{"shot": "shots/rain/a4-far.png"},
+{"js": "const W=window.__game; 'rain '+W.rain.toFixed(2)+' env '+JSON.stringify({near:window.__app.pipe.scene.fog.near|0, far:window.__app.pipe.scene.fog.far|0, cam: window.__app.pipe.camera.position.length()|0})"}
+]
