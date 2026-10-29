@@ -70,6 +70,7 @@ export const SENSORS = {
   thirsty:   { f: 'יש כאן צמח צמא', k: 'יֵשׁ כָּאן צֶמַח צָמֵא', test: (W, T) => !!W.itemAt(T.x, T.y, 'thirsty') },
   fire:      { f: 'יש אש לפניי', k: 'יֵשׁ אֵשׁ לְפָנַי', test: (W, T) => { const [x, y] = ahead(W, T); return !!(W.itemAt(x, y, 'fire') || W.itemAt(T.x, T.y, 'fire')); } },
   animal:    { f: 'אני רואה בעל חיים', k: 'אֲנִי רוֹאֶה בַּעַל חַיִּים', test: (W, T) => { for (let k = 0; k <= 2; k++) { const [x, y] = ahead(W, T, k); if (W.itemAt(x, y, 'animal')) return true; } return false; } },
+  here_animal: { f: 'יש כאן בעל חיים', k: 'יֵשׁ כָּאן בַּעַל חַיִּים', test: (W, T) => !!W.itemAt(T.x, T.y, 'animal') || W.items.some((it) => it.t === 'animal' && it.done && it.x === T.x && it.y === T.y) },
   net:       { f: 'יש כאן רשת', k: 'יֵשׁ כָּאן רֶשֶׁת', test: (W, T) => !!(W.itemAt(T.x, T.y, 'net') || W.itemAt(T.x, T.y, 'trash')) },
   home:      { f: 'הגעתי הביתה', k: 'הִגַּעְתִּי הַבַּיְתָה', test: (W, T) => !!W.home && T.x === W.home.x && T.y === W.home.y },
   low:       { f: 'הסוללה חלשה', k: 'הַסּוֹלְלָה חַלָּשָׁה', test: (W, T) => T.battery > 0 && T.battery <= 3 },

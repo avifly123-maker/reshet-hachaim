@@ -3,6 +3,7 @@
 //   { t: 'home', tool }               the tool ended on the base (level.home)
 //   { t: 'done', item }               every item of that type is done (seed planted, fruit picked, fire out, …)
 //   { t: 'report', n }                the last report said n (counting animals)
+//   { t: 'reports', list }            the reports, in order, said exactly these numbers
 //   { t: 'landed' }                   the drone came back and landed
 //   { t: 'nooops' }                   no wasted action (planting where there is nothing to plant)
 //   { t: 'steps', max }               the whole run took at most max steps
@@ -15,6 +16,7 @@ function one(c, W) {
     case 'home': return !!T && !!W.home && T.x === W.home.x && T.y === W.home.y;
     case 'done': { const t = ITEM[c.item] || c.item; const its = W.items.filter((it) => it.t === t); return its.length > 0 && its.every((it) => it.done); }
     case 'report': return W.reports.length > 0 && W.reports[W.reports.length - 1] === c.n;
+    case 'reports': return W.reports.length === c.list.length && c.list.every((n, i) => W.reports[i] === n);
     case 'landed': return !!W.tools.drone && W.tools.drone.landed;
     case 'nooops': return W.oops === 0;
     case 'steps': return W.ticks <= c.max;

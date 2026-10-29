@@ -35,7 +35,8 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     const i = list.indexOf(L);
     if (L.puzzle) return !L.after || !!P.done[L.after];
     if (L.ch > 1 && !journeyOpen('robolab:more')) return false;   // chapter 2 and on: stage 7 of מסע החוקר
-    const chOpen = L.ch === 1 || LESSONS.filter((q) => q.ch === L.ch - 1).filter((q) => P.done[q.id]).length >= 3;
+    const prevCh = Math.max(0, ...LESSONS.filter((q) => q.ch < L.ch).map((q) => q.ch));   // the chapter before that has lessons
+    const chOpen = !prevCh || LESSONS.filter((q) => q.ch === prevCh).filter((q) => P.done[q.id]).length >= 3;
     return chOpen && (i === 0 || !!P.done[list[i - 1].id]);
   };
   const stars = (n) => [0, 1, 2].map((k) => `<i class="${k < n ? 'on' : ''}">${icon('star')}</i>`).join('');

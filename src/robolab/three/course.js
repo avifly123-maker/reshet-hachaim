@@ -218,6 +218,7 @@ export function createCourse(ctx, L) {
     if (T && /^(fireworks|lights|beep|sneeze)$/.test(e.a)) fun(e.tool, T, e.a);
     if (T && e.a === 'send') { const S = SIGNALS[e.m] || SIGNALS.a; T.obj.getWorldPosition(_v); _v.y += 1.6; markers.burst(_v, S.color, 26, { speed: 3.2, size: 0.45, life: 0.9, up: 0.6 }); }
     if (e.a === 'event' && e.ev === 'msg' && tools[e.tool]) { const S = SIGNALS[e.m] || SIGNALS.a; tools[e.tool].obj.getWorldPosition(_v); _v.y += 1.4; markers.burst(_v, S.color, 14, { speed: 1, size: 0.5, life: 0.8, up: 1.2 }); }
+    if (T && (e.a === 'add' || e.a === 'report')) { T.obj.getWorldPosition(_v); _v.y += 2; markers.burst(_v, e.a === 'add' ? '#ffd25a' : '#7fe3ff', e.a === 'add' ? 8 : 24, { speed: e.a === 'add' ? 0.8 : 2.4, size: 0.4, life: 0.8, up: 1.4 }); }
     if (T && e.a === 'oops') markers.burst(_v.copy(T.obj.position).setY(T.obj.position.y + 1.5), '#d66aa8', 10, { speed: 1, size: 0.35, life: 0.7, up: 1 });
     if (T && e.a === 'fail') { T.wob = 1; markers.burst(_v.copy(T.obj.position).setY(T.obj.position.y + 1.2), '#e8562a', 22, { speed: 2, size: 0.45, life: 0.9, up: 1.2 }); }
     if (play.onStep) play.onStep(e, play.i);
