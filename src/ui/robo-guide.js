@@ -108,10 +108,18 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
   function placeWrap() {
     const w = el.querySelector('.rg-wrap'); if (!w || !cur) return;
     w.style.bottom = '';
-    if (cur.scene !== 'game' || cur.opts.modal || cur.opts.place === 'center') return;
-    const tray = document.querySelector('#ui .tray'); if (!shown(tray)) return;
-    const top = tray.getBoundingClientRect().top; if (top <= 0 || top >= innerHeight) return;
-    w.style.bottom = Math.round(innerHeight - top + TRAY_GAP_PX) + 'px';
+    if (cur.opts.modal || cur.opts.place === 'center') return;
+    if (cur.scene === 'game') {
+      const tray = document.querySelector('#ui .tray');
+      const top = shown(tray) ? tray.getBoundingClientRect().top : 0;
+      if (top > 0 && top < innerHeight) w.style.bottom = Math.round(innerHeight - top + TRAY_GAP_PX) + 'px';
+    }
+    // 1.4.1: the bubble never hides the thing it rings (small screens: a button at the bottom, a block low in a list);
+    // it moves up to sit just above it, when there is room
+    if (!ringAt) return;
+    const r = ringAt.getBoundingClientRect(), b = w.getBoundingClientRect();
+    const over = r.left < b.right && r.right > b.left && r.top < b.bottom && r.bottom > b.top;
+    if (over && r.top - 10 > b.height) w.style.bottom = Math.round(innerHeight - r.top + 10) + 'px';
   }
   function placeRing(at) {
     const old = el.querySelector('.rg-ring'); if (old) old.remove();

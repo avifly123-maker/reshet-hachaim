@@ -21,7 +21,7 @@ npm run check                     # every check (≈15 min); npm run check:quick
 | `src/main.js` | Start-up: creates the renderer, UI, audio, voice, guide; opens forests, the hub, the lab, mysteries; the stage moments of the journey. |
 | `src/core/` | Small shared services without UI. `storage.js` (every save key, per player or per device), `profiles.js` (up to six players), `journey.js` (מסע החוקר: stages and which parts are open), `threads.js` (links between parts), `badges-store.js`, `sources-store.js`, `edition.js`, `packs.js` (lazy loading), `util.js`. |
 | `src/game/game/` | One forest while it runs: world state, placing and dragging, ecology, events, missions glue, saving, the update loop, dispose. `index.js` builds one `ctx` and adds the parts in order (`addPart`). |
-| `src/game/` | Around the forest: `training.js` (שטח האימונים, the first field, 1.3.3), `tools.js` + `tool-defs.js` (devices), `missions.js`, `report.js`, `tour.js` (through an animal's eyes), `after.js` with `visitors.js`, `photos.js`, `challenges.js`, `rank.js` (after the missions), `fieldcam.js`. |
+| `src/game/` | Around the forest: `training.js` (שטח האימונים, the first field, 1.3.3), `desert-tutorial.js` (the desert's first visit, 1.4.1), `tools.js` + `tool-defs.js` (devices), `missions.js`, `report.js`, `tour.js` (through an animal's eyes), `after.js` with `visitors.js`, `photos.js`, `challenges.js`, `rank.js` (after the missions), `fieldcam.js`. |
 | `src/world/` | 3D things that live in a forest: plants, animals and their behaviour, the camera, effects, props, `tech.js` (the six new technologies and רובו־דע on the island). |
 | `src/sim/` | Light map and species rules. |
 | `src/env/` | The renderer pipeline and the environment: `environment/` (sky, sun and moon, weather, ground, water, island edge…, one file per part), `reef.js`. |
@@ -32,7 +32,7 @@ npm run check                     # every check (≈15 min); npm run check:quick
 | `src/learn/games/` | The card games: keep-forest (folder), web-puzzle, inventors (and the robot workshop), expedition, verse-match. |
 | `src/lab/` | The lab of רובו־דע: the room, stations, microscope, atlas, thinking corner, cabinet. |
 | `src/research/` | חוקרי הטבע: the mysteries (`cases/` = one data file each), the population model, the session, the notebook. |
-| `src/robolab/` | מעבדת הרובוטים (1.4.1): `engine/` (pure, deterministic: world, blocks, sensors, signals between tools, goals, `run.js`), `ui/` (block editor, icons, the flat map kept for tests), `three/` (a lesson as a training field on the zone's real island: `course.js`, `session.js`; the Blender tools from parts: `parts3d.js`, simple fallbacks `models.js`), `garage.js` (סדנת העיצוב: parts and colours), `earn.js`, `progress.js`. Data in `src/data/robolab/` (lessons, chapters, lines, parts and paints). |
+| `src/robolab/` | מעבדת הרובוטים (1.4.1): `engine/` (pure, deterministic: world, blocks, sensors, signals between tools, goals, `run.js`), `ui/` (block editor, icons, the flat map kept for tests), `three/` (a lesson as a training field on the zone's real island: `course.js`, `session.js`; the Blender tools from parts: `parts3d.js`, simple fallbacks `models.js`), `garage.js` (סדנת העיצוב: parts and colours), `intro.js` (the opening film), `earn.js`, `progress.js` (also the drafts). Its tutorials are in `src/ui/tutorials.js` (`robolabTutorial`, `robolabEventTutorial`). Data in `src/data/robolab/` (lessons, chapters, lines, parts and paints). |
 | `src/audio/` | Sound effects, music, `voice.js` (plays the recorded lines). |
 | `src/data/` | Content (zones, cards, missions, quiz, guide lines in `guide/`, threads) and generated asset tables (pictures, voice, models – made by `tools/build-*.py`, never edited by hand). |
 | `src/packs/` | Entry points of the lazy packs (game, hub, lab, research, one per zone). |
@@ -52,7 +52,7 @@ npm run check                     # every check (≈15 min); npm run check:quick
 - **Add a tutorial (every new or improved part has one, since 29.10):** steps for `runGuided` (`src/ui/guided.js`:
   lines, an optional `wait()` for the child's own action, `before()`), words in `src/data/guide/tutorials.js`, a key so
   it is shown once (`introSeen` / `markIntro`), and a play script in `tests/play/` added to `tools/check-all.sh`.
-  Examples: the training field (`src/game/training.js`), the lab and the hub (`src/ui/tutorials.js`).
+  Examples: the training field (`src/game/training.js`), the desert (`src/game/desert-tutorial.js`), the lab, the hub and the robot lab (`src/ui/tutorials.js`).
 - **Add a mystery:** a case file in `src/research/cases/`, list it in `cases/index.js`, run `node tools/validate-research.mjs --all`.
 - **Add a zone (1.4):** an entry in `ZONES` and `ZONE_LOOK` (`src/data/zones.js`, the one list of zones: code that needs "every zone", a zone's short name, colour or mascot reads it from there), `src/data/<id>.js`, `src/packs/<id>.js`, then run `node tools/validate-zones.mjs <id>`: it lists every other table that still needs the zone (place words, quiz, lab words, ranks, card games, kids' set…).
 - **Add a card, species or mission:** the zone file in `src/data/` (`amazon.js`, `grove.js`, `reef.js`, `kids.js`), with a source in `docs/sources.md`.

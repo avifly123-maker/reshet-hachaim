@@ -8,6 +8,8 @@ import { K, readPlayerRaw, writePlayerRaw } from '../../core/storage.js';
 import { howto } from '../../ui/howto.js';
 import { zoneHowto, HOWTO_LABELS } from '../../data/howto-cards.js';
 import { zoneWord } from '../../core/place.js';
+import { desertTutorial } from '../desert-tutorial.js';   // 1.4.1: the desert's first visit, hands-on
+import { svcGuide } from '../../core/services.js';
 
 export function createIntro(ctx) {
   const { W, biome, thumbs, ui, on, missions, robo } = ctx;
@@ -62,6 +64,7 @@ export function createIntro(ctx) {
   const coachSeen = () => readPlayerRaw(K.coach) === '1';
   function startIntro() {
     const fresh = missions.doneCount === 0;
+    if (biome.id === 'desert') { const t = desertTutorial({ W, guide: svcGuide() }); if (t) { ctx.desertTut = t; return; } }
     if (W.xp) { if (fresh) robo('zone:' + biome.id, { tip: false }); return; }   // חוויה: רובו־דע instead of the cards and the coach
     if (W.kids) { const after = W.restored ? null : () => startCoach(false); if (!showHowto(false, after) && after) after(); return; }
     const after = () => { if (ctx.disposed) return; if (!W.restored && !coachSeen()) startCoach(false); else if (fresh) robo('zone:' + biome.id, { tip: false }); };

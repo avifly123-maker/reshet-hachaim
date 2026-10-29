@@ -189,12 +189,14 @@ async function boot() {
   // …and after every mission in a forest, one short tip: what is still missing for the next stage (it closes by itself)
   const STAGE_TIP_MS = 6500;   // after the mission banner and its animal
   window.addEventListener('wol-progress', (e) => {
-    if (!e.detail || e.detail.kind !== 'mission') return;
+    const d = e.detail || {};
+    const lesson = d.kind === 'robolab' && !d.look && !d.island;   // 1.4.1: a solved robot-lab lesson counts for stage 7 too
+    if (d.kind !== 'mission' && !lesson) return;
     let before = 0; try { before = journey.state().stage; } catch (er) { return; }
     setTimeout(() => {
       try {
-        if (!game) return;
-        const st = journey.state(); if (st.legacy || st.stage !== before || !st.next || st.next.soon) return;   // a new stage has its own moment
+        if (!game && !lesson) return;
+        const st = journey.state(); if (st.stage !== before || !st.next || st.next.soon || (st.legacy && st.next.stage < 7)) return;   // a new stage has its own moment; a player from before 1.3.2 still walks the 1.4 stages (7, 8)
         const need = st.next.need && st.next.need[0]; if (!need) return;
         const f = `עוד צעד במסע! לשלב "${st.next.name}" חסר: ${need}.`, k = `עוֹד צַעַד בַּמַּסָּע! לַשָּׁלָב "${st.next.name}" חָסֵר: ${need}.`;
         guide.tip({ f, k }, { ms: 8000 });

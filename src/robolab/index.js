@@ -15,11 +15,13 @@ import { checkRoboBadges } from './badges.js';
 import { ZONE_IDS, ZONE_LOOK } from '../data/zones.js';
 import { BLOCK_INTRO, CHAPTER_INTRO } from '../data/robolab/kubi-lines.js';
 import { playIntro } from './intro.js';
+import { robolabTutorial, robolabEventTutorial } from '../ui/tutorials.js';   // hands-on: the editor and the run, then events
+import { svcGuide } from '../core/services.js';
 import { BLOCKS } from './engine/blocks.js';
 import { createVoice } from '../audio/voice.js';
 import { createEditor } from './ui/editor.js';
 import { icon } from './ui/icons.js';
-import { isOpen as journeyOpen, lockWords } from '../core/journey.js';
+import { isOpen as journeyOpen, lockWords, introSeen } from '../core/journey.js';
 import { roboProgress, markSolved, addFun, markSeen, addIsland, draftOf, saveDraft } from './progress.js';
 import { FAIL_LINES, GOAL_LINES, WIN_LINES, OOPS_LINES, FUN_LINES } from '../data/robolab/lines.js';
 
@@ -63,7 +65,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   window.addEventListener('beforeunload', flushDraft);
   window.addEventListener('pagehide', flushDraft);
   function home() {
-    flushDraft();
+    flushDraft(); stopTut();
     requestAnimationFrame(helloKubi);   // קוּבִּי greets once the home is drawn
     stopRun(); if (map) { map.dispose(); map = null; } ed = null; cur = null;
     // the island stays loaded behind the home (Avi, 29.10: no waiting between lessons): the next lesson in the same zone
@@ -173,8 +175,26 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     for (const b of L.blocks || []) if (BLOCK_INTRO[b] && !P.seen['b:' + b] && out.blocks.length < 2) { out.blocks.push(b); markSeen('b:' + b); }
     return out;
   }
+  // the hands-on tutorials (src/ui/tutorials.js): what they look at, and starting one when a lesson opens
+  let tut = null, tutT = 0;
+  const countHats = (prog) => { let n = 0; const walk = (xs) => (xs || []).forEach((nd) => { if (BLOCKS[nd.b] && BLOCKS[nd.b].kind === 'hat') n++; walk(nd.body); walk(nd.then); walk(nd.else); });
+    for (const k of ['robot', 'drone', 'sub']) walk(prog[k]); return n + (prog.on || []).length; };   // handlers live in prog.on
+  const countAll = (prog) => { let n = 0; const walk = (xs) => (xs || []).forEach((nd) => { n++; walk(nd.body); walk(nd.then); walk(nd.else); }); for (const k of ['robot', 'drone', 'sub']) walk(prog[k]); return n; };
+  const tutState = () => { const p = ed ? ed.program() : {}; return { level: cur && cur.id, blocks: ed ? countAll(p) : 0, runs, hats: ed ? countHats(p) : 0 }; };
+  function stopTut() { clearTimeout(tutT); if (tut) { const t = tut; tut = null; t.stop(); } }
+  function queueTut(L) {
+    clearTimeout(tutT);
+    if (L.ownIsland) return;
+    const hasHat = (L.blocks || []).some((b) => BLOCKS[b] && BLOCKS[b].kind === 'hat');
+    tutT = setTimeout(() => {
+      if ((tut && tut.step) || intro || cur !== L) return;
+      const g = svcGuide(); if (!g) return;
+      const rl = { state: tutState };
+      tut = robolabTutorial({ guide: g, rl }) || (hasHat ? robolabEventTutorial({ guide: g, rl }) : null);
+    }, 2600);
+  }
   function mountLevel(L, api) {
-    flushDraft();
+    flushDraft(); stopTut();
     const news = newsFor(L);
     stopRun(); if (map) map.dispose();
     cur = L; lastRun = null;
@@ -210,6 +230,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     if (kcam) kcam.dispose();
     kcam = kubiCam(el.querySelector('.rl-kubi'));
     kubiDo = (what, sec = 0) => { if (!kcam) return; if (what) kcam.set(what); if (sec > 0) kcam.talk(true, sec); };
+    queueTut(L);
     setTimeout(() => { kubiDo('explain'); speak([...(news.chapter ? ['kc_' + L.ch] : []), 'kl_' + L.id, ...news.blocks.map((b) => 'kb_' + b)], Math.min(9, 1.2 + (el.querySelector('.rl-say p') || { textContent: '' }).textContent.length / 16)); }, 700);
   }
   const CONCEPT = {
@@ -223,8 +244,10 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   function hideMsg() { const m = el.querySelector('.rl-msg'); if (m) m.hidden = true; }
   function stopRun() { if (map) map.stop(); if (ed) ed.light(null); }
 
+  let runs = 0;
   function run(speed) {
     if (!cur || !ed) return;
+    runs++;
     hideMsg();
     const prog = ed.program();
     const r = runLevel(levelsOf(cur), prog);
@@ -295,7 +318,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   window.addEventListener('keydown', onKey);
 
   function openLab() { open = true; el.hidden = false; markSeen('home'); home(); }
-  function close() { flushDraft(); open = false; speakGen++; kvoice.stop(); stopRun(); if (kcam) { kcam.dispose(); kcam = null; } if (garage) { garage.close(); garage = null; } if (in3d) end3d(); if (map) { map.dispose(); map = null; } el.hidden = true; el.innerHTML = ''; }
+  function close() { flushDraft(); stopTut(); open = false; speakGen++; kvoice.stop(); stopRun(); if (kcam) { kcam.dispose(); kcam = null; } if (garage) { garage.close(); garage = null; } if (in3d) end3d(); if (map) { map.dispose(); map = null; } el.hidden = true; el.innerHTML = ''; }
   const R = {
     open: openLab, close, isOpen: () => open,
     coversGame: () => open && !!in3d && !el.classList.contains('in3d'),   // the home over a kept island (main.js skips it)
@@ -303,7 +326,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   };
   // headless tests
   window.__rlDebug = {
-    intro: () => !!intro, showIntro: () => { showIntro(); return true; },
+    intro: () => !!intro, tut: () => (tut && tut.step) || null, tutSeen: (k) => introSeen(k), tutState: () => tutState(), showIntro: () => { showIntro(); return true; },
     open: (id, flat) => (id ? openLevel(id, { flat: !!flat }) : home()),
     in3d: () => !!(in3d && in3d.api),
     island: (z) => openIsland(z), prog: () => ed && ed.program(), cur: () => cur && cur.id, playing: () => !!(map && map.isPlaying()), level: () => cur && { id: cur.id, rows: cur.map.rows, items: cur.items, kind: cur.kind },

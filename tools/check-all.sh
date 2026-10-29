@@ -65,7 +65,19 @@ echo "$out" | grep -q "guide open false" || fail "lab tutorial: did not end at t
 echo "$out" | grep "\[pageerror\]\|JS ERROR\|^\[error\]" && fail "tutorials: errors"
 out=$(timeout 900 python3 tools/play.py dist/index.html tests/play/training-skip.json 800 460 2>&1)
 echo "$out" | grep -q '"trained":true,"amazon":true' || fail "training field: skipping did not open the islands"
-echo "training field and tutorials OK"
+# the robot lab's hands-on tutorials (1.4.1): the editor and the run in the first lesson, the event block later, once each
+out=$(timeout 1200 python3 tools/play.py dist/index.html tests/play/robolab-tutorial.json 800 460 2>&1)
+n=$(echo "$out" | grep -c "CHECK .* ok")
+echo "$out" | grep "CHECK .* FAIL" && fail "robot lab tutorial: a check failed"
+echo "$out" | grep "\[pageerror\]\|JS ERROR\|UNTIL TIMEOUT\|NO ELEMENT" && fail "robot lab tutorial: errors"
+[ "$n" = 8 ] || fail "robot lab tutorial: $n of 8 checks"
+# the desert's first visit (1.4.1): plant a saltbush, bring a sand rat, run time on (tests/play/desert-tutorial.json)
+out=$(timeout 1200 python3 tools/play.py dist/index.html tests/play/desert-tutorial.json 800 460 2>&1)
+n=$(echo "$out" | grep -c "CHECK .* ok")
+echo "$out" | grep "CHECK .* FAIL" && fail "desert tutorial: a check failed"
+echo "$out" | grep "\[pageerror\]\|JS ERROR\|UNTIL TIMEOUT\|NO ELEMENT" && fail "desert tutorial: errors"
+[ "$n" = 6 ] || fail "desert tutorial: $n of 6 checks"
+echo "training field and tutorials OK (robot lab tutorial 8/8, desert tutorial 6/6)"
 
 step "parents' play time"
 out=$(timeout 1200 python3 tools/check-playtime.py dist/index-torah.html shots/playtime 2>&1)

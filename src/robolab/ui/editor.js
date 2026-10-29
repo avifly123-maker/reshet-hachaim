@@ -47,7 +47,7 @@ export function createEditor(el, { lesson, kids, onChange }) {
   function renderPalette() {
     const fams = {};
     for (const b of lesson.blocks || []) { const B = BLOCKS[b]; if (!B) continue; if (b === 'call' && !hasDefs) continue; (fams[B.fam] = fams[B.fam] || []).push(b); }
-    palEl.innerHTML = Object.entries(fams).map(([f, bs]) => `<div class="rl-fam" style="--fc:${FAMILIES[f].color}"><small>${esc(T(FAMILIES[f]))}</small>${bs.map((b) => `<button type="button" class="rl-blk" data-add="${b}" style="--fc:${FAMILIES[f].color}">${blockFace(b)}</button>`).join('')}</div>`).join('');
+    palEl.innerHTML = Object.entries(fams).map(([f, bs]) => `<div class="rl-fam" style="--fc:${FAMILIES[f].color}"><small>${esc(T(FAMILIES[f]))}</small>${bs.map((b) => `<button type="button" class="rl-blk f-${f}" data-add="${b}" style="--fc:${FAMILIES[f].color}">${blockFace(b)}</button>`).join('')}</div>`).join('');
   }
   function renderTabs() {
     const tb = tools.map((k) => `<button type="button" role="tab" data-tab="${k}" aria-selected="${tab === k}">${icon(k)}<span>${esc(T(TOOL_NAMES[k]))}</span></button>`);
