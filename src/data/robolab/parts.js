@@ -49,12 +49,18 @@ export const PAINTS = [
   { id: 'silver', c: '#c3ccd4', f: 'כסף', k: 'כֶּסֶף', earn: 'puzzles:3' },
   { id: 'gold', c: '#e0a82e', f: 'זהב', k: 'זָהָב', earn: 'stars:40' },
 ];
-// the parts a lesson's tools wear on its field: the default look, with the parts its blocks need
-export function lookFor(tool, blocks = []) {
-  const look = { ...(DEFAULT_LOOK[tool] || {}) };
-  for (const [id, P] of Object.entries(PARTS)) {
-    if (P.tool !== tool || !P.gives) continue;
-    if (P.gives.some((b) => blocks.includes(b)) && !(PARTS[look[P.socket]] && (PARTS[look[P.socket]].gives || []).some((b) => blocks.includes(b)))) look[P.socket] = id;
+// the parts a lesson's tools wear on its field: the player's own design (the garage), then whatever its blocks need
+// that the design lacks (a needed part replaces the one on its socket only when that one does not do the job)
+export function lookFor(tool, blocks = [], saved = {}) {
+  const look = { ...(DEFAULT_LOOK[tool] || {}), ...(saved || {}) };
+  const does = (pid, b) => !!(PARTS[pid] && (PARTS[pid].gives || []).includes(b));
+  for (const b of blocks) {
+    if (Object.values(look).some((pid) => does(pid, b))) continue;
+    const want = Object.entries(PARTS).find(([, P]) => P.tool === tool && (P.gives || []).includes(b));
+    if (!want) continue;
+    const [id, P] = want, cur = look[P.socket];
+    if (cur && (PARTS[cur].gives || []).some((x) => blocks.includes(x))) continue;   // the socket already does another needed job
+    look[P.socket] = id;
   }
   if (tool === 'robot' && blocks.includes('launch')) look.back = 'drone_pad';
   return look;

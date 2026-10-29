@@ -9,6 +9,7 @@ import { runProgram } from './engine/run.js';
 import { levelOf } from './engine/level.js';
 import { createMap } from './ui/map.js';
 import { createRoboSession } from './three/session.js';
+import { openGarage } from './garage.js';
 import { createEditor } from './ui/editor.js';
 import { icon } from './ui/icons.js';
 import { isOpen as journeyOpen, lockWords } from '../core/journey.js';
@@ -47,6 +48,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     el.innerHTML = `<div class="rl-home">
       <header class="rl-top"><button type="button" class="rl-back" data-exit>${icon('home')}<span>${kids ? 'יְצִיאָה' : 'יציאה'}</span></button>
         <div class="rl-title"><h1>${kids ? 'מַעְבֶּדֶת הָרוֹבּוֹטִים' : 'מעבדת הרובוטים'}</h1><p>${kids ? 'מְתַכְנְנִים, בּוֹנִים וּמַפְעִילִים' : 'מתכננים, בונים ומפעילים'}</p></div>
+        <button type="button" class="rl-gbtn" data-garage>${icon('paint')}<span>${kids ? 'סַדְנַת הָעִצּוּב' : 'סדנת העיצוב'}</span></button>
         <div class="rl-count">${icon('star')}<b>${nDone}</b><small>${kids ? 'פְּתוּרִים' : 'פתורים'}</small></div></header>
       <div class="rl-scroll">
         <section class="rl-sec"><h2>${icon('lesson')}${kids ? 'שִׁעוּרִים' : 'שיעורים'}</h2>
@@ -65,6 +67,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   // forest as a controlled place and our session lays the field (three/session.js), then calls mountLevel with it.
   // Without a 3D host (tests of the screen alone, a failed load) the flat map is the fallback.
   let in3d = null;          // { api } while a lesson's island is open
+  let garage = null;        // סדנת העיצוב while open (garage.js)
   function openLevel(id, { flat = false } = {}) {
     const L = ALL_LEVELS.find((q) => q.id === id); if (!L) return;
     if (enter3d && !flat) {
@@ -168,6 +171,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     const b = e.target.closest('button'); if (!b || !el.contains(b) || b.disabled) return;
     if (b.dataset.exit != null) { close(); if (onExit) onExit(); return; }
     if (b.dataset.home != null) { sfx('click'); home(); return; }
+    if (b.dataset.garage != null) { sfx('click'); if (garage) garage.close(); garage = openGarage(el, { kids, sfx, onClose: () => { garage = null; } }); return; }
     if (b.dataset.level) { sfx('click'); openLevel(b.dataset.level); return; }
     if (b.dataset.run) { run(b.dataset.run); return; }
     if (b.dataset.again != null) { stopRun(); hideMsg(); map.reset(); return; }
@@ -183,7 +187,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   window.addEventListener('keydown', onKey);
 
   function openLab() { open = true; el.hidden = false; markSeen('home'); home(); }
-  function close() { open = false; stopRun(); if (in3d) end3d(); if (map) { map.dispose(); map = null; } el.hidden = true; el.innerHTML = ''; }
+  function close() { open = false; stopRun(); if (garage) { garage.close(); garage = null; } if (in3d) end3d(); if (map) { map.dispose(); map = null; } el.hidden = true; el.innerHTML = ''; }
   const R = {
     open: openLab, close, isOpen: () => open,
     coversGame: () => open && !!in3d && !el.classList.contains('in3d'),   // the home over a kept island (main.js skips it)
@@ -193,6 +197,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   window.__rlDebug = {
     open: (id, flat) => (id ? openLevel(id, { flat: !!flat }) : home()),
     in3d: () => !!(in3d && in3d.api),
+    garage: () => { if (garage) garage.close(); garage = openGarage(el, { kids, sfx, onClose: () => { garage = null; } }); return true; },
     solve: (id, i = 0) => { const L = ALL_LEVELS.find((q) => q.id === id); if (!L) return null; if (!(in3d && in3d.api && cur && cur.id === id)) openLevel(id, { flat: true }); ed.set({ ...L.solutions[i], defs: { ...(L.defs0 || {}), ...(L.solutions[i].defs || {}) } }); run('fast'); return lastRun && { ok: lastRun.ok, stars: lastRun.stars }; },
     run: (speed = 'fast') => run(speed), last: () => lastRun && { ok: lastRun.ok, stars: lastRun.stars, why: lastRun.why, error: lastRun.error },
     levels: () => ALL_LEVELS.map((q) => q.id),

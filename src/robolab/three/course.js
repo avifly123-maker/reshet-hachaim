@@ -10,6 +10,7 @@ import * as THREE from 'three';
 import { makeWorld } from '../engine/world.js';
 import { levelOf } from '../engine/level.js';
 import { lookFor } from '../../data/robolab/parts.js';
+import { toolLook } from '../progress.js';
 import { makeTool, makeHome, makeSpot, makeFruit, makeNet, makeTrash, makeRock, makeEdge, makeFireBase } from './models.js';
 
 // the zone's living things used on a field: trees on 'T' cells, what grows from a planted seed, the thirsty plant
@@ -154,7 +155,7 @@ export function createCourse(ctx, L) {
     });
     tools = {};
     for (const [k, T] of Object.entries(w0.tools)) {
-      let o = toolObjs[k]; if (!o) { o = toolObjs[k] = makeTool(k, ctx.paint && ctx.paint[k], lookFor(k, L.blocks || [])); o.scale.multiplyScalar(CS / 3.4); root.add(o); }
+      let o = toolObjs[k]; if (!o) { o = toolObjs[k] = makeTool(k, toolLook(k).paint, lookFor(k, L.blocks || [], toolLook(k).parts)); o.scale.multiplyScalar(CS / 3.4); root.add(o); }
       tools[k] = { x: T.x, y: T.y, a: T.dir * Math.PI / 2, lift: k === 'drone' ? (T.parked ? 0 : 1) : 0, show: k !== 'drone' || !T.parked, obj: o, wob: 0, spin: 0, dance: 0 };
       o.visible = tools[k].show;
     }

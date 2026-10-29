@@ -144,3 +144,28 @@
 #ui.wol.rl3d > .hud, #ui.wol.rl3d > .toolbar, #ui.wol.rl3d > .species, #ui.wol.rl3d > .hud-logo, #ui.wol.rl3d > .cam-pad,
 #ui.wol.rl3d > .imv-dock, #ui.wol.rl3d > .coach, #ui.wol.rl3d > .coach-ring, #ui.wol.rl3d > .toasts, #ui.wol.rl3d > .tour-pick,
 #ui.wol.rl3d > .mus-btn, #ui.wol.rl3d > .rightcol, #ui.wol.rl3d > .tray, #ui.wol.rl3d > .hurt-arrows { display: none !important; }
+
+/* סדנת העיצוב (garage.js): the tools' parts and colours, a turning preview */
+#ui.wol .rl-gbtn { display: flex; align-items: center; gap: 6px; padding: 7px 12px; border: 0; border-radius: 12px; background: #2fa39a; color: #fff; font-weight: 700; box-shadow: 0 3px 0 #1d6b65; }
+#ui.wol .rl-garage { position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; background: radial-gradient(120% 90% at 30% 0%, #234f74 0%, #15324d 60%, #0e2234 100%); }
+#ui.wol .rl-gbody { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(300px, 46%) 1fr; gap: 10px; padding: 8px 14px 12px; }
+#ui.wol .rl-gside { min-height: 0; display: flex; flex-direction: column; gap: 8px; }
+#ui.wol .rl-gtabs { display: flex; gap: 6px; }
+#ui.wol .rl-gtabs button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 7px 8px; border: 0; border-radius: 12px; background: rgba(255, 255, 255, .1); font-weight: 700; }
+#ui.wol .rl-gtabs button[aria-selected="true"] { background: #f5f1e8; color: #1d2c38; }
+#ui.wol .rl-gopts { flex: 1; min-height: 0; overflow: auto; padding: 8px 10px; border-radius: 14px; background: #f5f1e8; color: #1d2c38; }
+#ui.wol .rl-grow { margin-bottom: 9px; }
+#ui.wol .rl-grow > b { display: block; margin-bottom: 4px; font-size: .9em; color: #6a5a40; }
+#ui.wol .rl-gchips { display: flex; flex-wrap: wrap; gap: 5px; }
+#ui.wol .rl-gchip { display: inline-flex; align-items: center; gap: 4px; padding: 6px 11px; border: 0; border-radius: 10px; background: #e3dccb; color: #1d2c38 !important; font-weight: 700; font-size: .88em; }
+#ui.wol .rl-gchip.on { background: #e8873a; color: #fff !important; box-shadow: 0 2px 0 #9a4f22; }
+#ui.wol .rl-gchip.locked { opacity: .55; cursor: default; flex-direction: column; align-items: flex-start; gap: 0; }
+#ui.wol .rl-gchip.locked svg { width: .9em; height: .9em; }
+#ui.wol .rl-gchip small { font-weight: 400; font-size: .78em; }
+#ui.wol .rl-gsw { display: flex; flex-wrap: wrap; gap: 6px; }
+#ui.wol .rl-sw { width: 30px; height: 30px; padding: 0; border: 3px solid #fff; border-radius: 50%; background: var(--sw); box-shadow: 0 1px 3px rgba(0, 0, 0, .35); }
+#ui.wol .rl-sw.on { outline: 3px solid #e8873a; outline-offset: 1px; }
+#ui.wol .rl-sw.locked { opacity: .3; cursor: default; }
+#ui.wol .rl-gview { position: relative; min-height: 0; border-radius: 16px; background: radial-gradient(80% 70% at 50% 40%, #5b88aa 0%, #2c5373 70%, #1f3f5a 100%); overflow: hidden; }
+#ui.wol .rl-gview canvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: grab; }
+#ui.wol .rl-gview small { position: absolute; bottom: 8px; inset-inline: 0; text-align: center; color: #d6e6f2; font-size: .8em; pointer-events: none; }
