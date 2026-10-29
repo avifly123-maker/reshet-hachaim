@@ -2,7 +2,7 @@
 // crossings and walking routes over them, the rock outcrop layout, and the soil / cover values the ground mesh is built from.
 // Exports: createTerrain(ctx) → { edgeR, WL, riverPts, riverHW, springPool, pools, riverExit, rocks, heightAt, isWater,
 // poolShapeR, bridges, bridgeTops, bridgeAt, nearBridge, walkRoute, waterDist, rockInfluence, buildGround, coverAt }.
-// Needs from ctx: isAmazon, seed, noise, noiseB, qual.
+// Needs from ctx: isAmazon, seed, noise, noiseB, qual; river (1.3.3: a stream on a grove island, the training field).
 import * as THREE from 'three';
 import { makeNoise2D, clamp, lerp, smoothstep } from '../../core/util.js';
 import { R, TAU, C, tmpC, V3 } from './common.js';
@@ -10,6 +10,8 @@ import { DESERT, desertHeight } from './desert-look.js';
 
 export function createTerrain(ctx) {
   const { isAmazon, isDesert, seed, noise, noiseB, qual } = ctx;
+  // 1.3.3: the training field (שטח האימונים) is the grove's land with the Amazon's stream running through it (ctx.river)
+  const hasRiver = isAmazon || !!ctx.river;
   // ───────────────────────────── island shape & height field
   const edgeNoise = makeNoise2D(seed * 13 + 3);
   function edgeR(theta) {
@@ -22,7 +24,7 @@ export function createTerrain(ctx) {
   let riverPts = null, riverHW = 2.6, springPool = null, pools = [], riverExit = null;
   const rocks = [];
 
-  if (isAmazon) {
+  if (hasRiver) {
     const ctrl = [[-13, -31], [-8, -22], [-12, -12], [-4, -3], [8, 0], [15, 9], [21, 18], [29, 24], [37, 30], [45, 36], [52, 41]];
     const curve = new THREE.CatmullRomCurve3(ctrl.map(([x, z]) => V3(x, 0, z)), false, 'catmullrom', 0.5);
     const pts = curve.getSpacedPoints(110).map(p => ({ x: p.x, z: p.z }));
@@ -76,7 +78,7 @@ export function createTerrain(ctx) {
   }
 
   // grove pool
-  if (!isAmazon) {
+  if (!hasRiver) {
     const P = isDesert ? { ...DESERT.pool } : { x: 13, z: -6, r: 4.3 };   // the desert: the oasis spring
     P.h0 = rawHeight(P.x, P.z);
     WL = P.h0 - 0.12;
@@ -85,7 +87,7 @@ export function createTerrain(ctx) {
 
   function heightAt(x, z) {
     let h = rawHeight(x, z);
-    if (isAmazon) {
+    if (hasRiver) {
       const { d } = distToRiver(x, z);
       const hw = riverHW;
       if (d < hw + 6) {
@@ -119,7 +121,7 @@ export function createTerrain(ctx) {
 
   function isWater(x, z) {
     for (const p of pools) if (Math.hypot(x - p.x, z - p.z) < poolShapeR(p, x, z) - 0.15) return true;
-    if (isAmazon && riverPts) {
+    if (hasRiver && riverPts) {
       if (Math.hypot(x, z) > edgeR(Math.atan2(z, x))) return false;
       return distToRiver(x, z).d < riverHW - 0.15;
     }
@@ -127,7 +129,7 @@ export function createTerrain(ctx) {
   }
   // ───────────────────────────── fallen-log crossings over the river (ground animals walk across them)
   const bridges = [];
-  if (isAmazon) {
+  if (hasRiver) {
     for (const i of [27, 61]) {
       const a = riverPts[i - 3], b = riverPts[i + 3], c = riverPts[i];
       const L = Math.hypot(b.x - a.x, b.z - a.z), nx = -(b.z - a.z) / L, nz = (b.x - a.x) / L;
@@ -183,7 +185,7 @@ export function createTerrain(ctx) {
   function waterDist(x, z) {
     let d = 1e9;
     for (const p of pools) d = Math.min(d, Math.hypot(x - p.x, z - p.z) - poolShapeR(p, x, z));
-    if (isAmazon) d = Math.min(d, distToRiver(x, z).d - riverHW);
+    if (hasRiver) d = Math.min(d, distToRiver(x, z).d - riverHW);
     return d;
   }
 
@@ -201,7 +203,7 @@ export function createTerrain(ctx) {
     for (const [x, z, r] of DESERT.rocks) addOutcrop(x, z, r);
   } else {
     const cand = [[-17, -15, 3.8], [-25, 4, 2.8], [-8, 22, 2.6], [17, 22, 3.0], [26, -14, 3.2], [3, -24, 2.4], [-28, -22, 2.6], [17.5, -2.5, 1.8], [8.5, -10.5, 1.5]];
-    for (const [x, z, r] of cand) addOutcrop(x, z, r);
+    for (const [x, z, r] of cand) if (!hasRiver || x * x + z * z > 400) addOutcrop(x, z, r);   // the training field: no rocks in the middle (the stream runs there)
   }
 
   // ───────────────────────────── ground (top surface)
@@ -270,7 +272,7 @@ export function createTerrain(ctx) {
     return clamp(c);
   }
   return {
-    edgeR, WL, riverPts, riverHW, springPool, pools, riverExit, rocks, heightAt, isWater, poolShapeR,
+    hasRiver, edgeR, WL, riverPts, riverHW, springPool, pools, riverExit, rocks, heightAt, isWater, poolShapeR,
     bridges, bridgeTops, bridgeAt, nearBridge, walkRoute, waterDist, rockInfluence, buildGround, coverAt
   };
 }

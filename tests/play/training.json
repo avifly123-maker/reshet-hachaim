@@ -1,0 +1,258 @@
+[
+{
+"wait": 3
+},
+{
+"js": "document.querySelector('#rguide button.rg-skip, #rguide [data-g=skip]')?.click(); 1"
+},
+{
+"wait": 2
+},
+{
+"js": "[...document.querySelectorAll('#rguide [data-g]')].forEach(b=>0); window.__guide && window.__guide.close(); 1"
+},
+{
+"shot": "shots/tr/01-start.png"
+},
+{
+"js": "JSON.stringify({trained: window.__journey.trained(), amazon: window.__journey.isOpen('zone:amazon'), lock: document.querySelector('.st-go')?.textContent})"
+},
+{
+"js": "window.__app.bus.emit('start:training'); 1"
+},
+{
+"until": "window.__game && window.__game.training && window.__game.debug",
+"timeout": 300
+},
+{
+"js": "window.__app.bus && window.__app.bus.emit('quality',{q:'medium'}); 1"
+},
+{
+"wait": 14
+},
+{
+"shot": "shots/tr/02-field.png"
+},
+{
+"js": "'step '+window.__game.debug.training().step+' pts '+window.__game.points+' plants '+window.__game.plants.length"
+},
+{
+"clickSel": "#rguide .rg-next"
+},
+{
+"wait": 0.5
+},
+{
+"clickSel": "#rguide .rg-next"
+},
+{
+"wait": 0.5
+},
+{
+"clickSel": "#rguide .rg-next"
+},
+{
+"wait": 0.5
+},
+{
+"clickSel": "#rguide .rg-next"
+},
+{
+"wait": 1
+},
+{
+"js": "'step '+window.__game.debug.training().step"
+},
+{
+"clickSel": "#rguide .rg-next"
+},
+{
+"wait": 0.5
+},
+{
+"clickSel": "#rguide .rg-next"
+},
+{
+"wait": 1.5
+},
+{
+"shot": "shots/tr/03-sage.png"
+},
+{
+"js": "'step '+window.__game.debug.training().step"
+},
+{
+"js": "const d=window.__game.debug; String(d.place('sage',6,4))"
+},
+{
+"wait": 1.5
+},
+{
+"js": "'step '+window.__game.debug.training().step"
+},
+{
+"clickSel": "#rguide .rg-next"
+},
+{
+"wait": 0.5
+},
+{
+"clickSel": "#rguide .rg-next"
+},
+{
+"wait": 1
+},
+{
+"shot": "shots/tr/04-oak.png"
+},
+{
+"js": "const d=window.__game.debug; String(d.place('oak',-6,8))"
+},
+{
+"wait": 1.5
+},
+{
+"clickSel": "#rguide .rg-next"
+},
+{
+"wait": 1
+},
+{
+"js": "'step '+window.__game.debug.training().step"
+},
+{
+"clickSel": "#ui .speed button[data-s='3']"
+},
+{
+"wait": 1.5
+},
+{
+"js": "'step '+window.__game.debug.training().step"
+},
+{
+"clickSel": "#rguide .rg-next"
+},
+{
+"wait": 1
+},
+{
+"clickSel": "#ui .tray [data-tab='animals']"
+},
+{
+"wait": 1.5
+},
+{
+"js": "'step '+window.__game.debug.training().step"
+},
+{
+"js": "const d=window.__game.debug; let out=[]; for(const r of window.__game.env.rocks){ for(let a=0;a<6.3;a+=0.7){ const x=r.x+Math.cos(a)*(r.r+0.6), z=r.z+Math.sin(a)*(r.r+0.6); const v=d.place('hyrax',x,z); if(typeof v!=='string'){ out.push('ok '+x.toFixed(1)+','+z.toFixed(1)); break;} else if(!out.includes(v)) out.push(v);} if(out.some(o=>o.startsWith('ok'))) break;} out.join(' | ')"
+},
+{
+"wait": 1.5
+},
+{
+"js": "'step '+window.__game.debug.training().step+' animals '+window.__game.animals.length"
+},
+{
+"clickSel": "#rguide .rg-next"
+},
+{
+"wait": 1
+},
+{
+"js": "const W=window.__game; W.debug.select(W.animals[0]); 'sel '+!!W.selected"
+},
+{
+"wait": 1.5
+},
+{
+"js": "'step '+window.__game.debug.training().step"
+},
+{
+"shot": "shots/tr/05-card.png"
+},
+{
+"clickSel": "#rguide .rg-next"
+},
+{
+"wait": 1
+},
+{
+"clickSel": "#rguide .rg-next"
+},
+{
+"wait": 1
+},
+{
+"js": "'step '+window.__game.debug.training().step"
+},
+{
+"clickSel": "#ui .tb[data-a='web']"
+},
+{
+"wait": 1.5
+},
+{
+"js": "'step '+window.__game.debug.training().step"
+},
+{
+"shot": "shots/tr/06-missions.png"
+},
+{
+"clickSel": "#rguide .rg-next"
+},
+{
+"wait": 0.5
+},
+{
+"clickSel": "#rguide .rg-next"
+},
+{
+"wait": 1
+},
+{
+"js": "'step '+window.__game.debug.training().step"
+},
+{
+"clickSel": "#rguide .rg-next"
+},
+{
+"wait": 1
+},
+{
+"js": "const d=window.__game.debug; String(d.place('honeybee',6,5))"
+},
+{
+"wait": 6
+},
+{
+"js": "'step '+window.__game.debug.training().step+' trained '+window.__journey.trained()"
+},
+{
+"shot": "shots/tr/07-end.png"
+},
+{
+"clickSel": "#rguide .rg-next"
+},
+{
+"wait": 0.5
+},
+{
+"clickSel": "#rguide .rg-next"
+},
+{
+"wait": 0.5
+},
+{
+"clickSel": "#rguide [data-act='go']"
+},
+{
+"wait": 4
+},
+{
+"shot": "shots/tr/08-howstages.png"
+},
+{
+"js": "JSON.stringify({game: !!window.__game && !window.__game.disposed, amazon: window.__journey.isOpen('zone:amazon'), keys: Object.keys(localStorage).filter(k=>/save|grove/.test(k))})"
+}
+]

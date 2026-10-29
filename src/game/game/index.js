@@ -63,10 +63,11 @@ import { createSave } from './save.js';
 import { createUpdate } from './update.js';
 import { createDispose } from './dispose.js';
 import { svcGuide } from '../../core/services.js';
+import { startTraining } from '../training.js';
 
-export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, animalBuilders, zoneEnv = null, quality, onExit, save = null, research = null }) {
+export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, animalBuilders, zoneEnv = null, quality, onExit, save = null, research = null, training = false }) {
   const scene = pipe.scene, camera = pipe.camera, canvas = pipe.renderer.domElement;
-  setPlace(biome.id);
+  setPlace(training ? 'field' : biome.id);
   const reg = buildRegistry(biome);
   const W = {
     biome, biomeId: biome.id, reg, plantBuilders, animalBuilders,
@@ -81,6 +82,8 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     maxPlants: MAX_ALL_PLANTS, maxAnimals: MAX_ANIMALS,
     // חוקרי הטבע: a mystery case. Its population model owns births, hunger and numbers; the entities only show them
     research: research || null,
+    // שטח האימונים (1.3.3, 29.10): an empty field where רובו־דע teaches the game (src/game/training.js). Nothing is saved.
+    training: !!training,
   };
   // 1.3.2 – חוויה (experience) mode: the same forest with much less to read. Only the important reaches the screen
   // (missions, unlocks, an injured animal, events), the species card is short, the HUD shows points and one health
@@ -97,7 +100,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   };
   W.amb = amb;
   // רובו־דע in the forest (src/ui/robo-guide.js, lines in src/data/guide/zone.js). Nothing from him inside a mystery.
-  const guide = () => (W.research ? null : svcGuide() || null);
+  const guide = () => (W.research || W.training ? null : svcGuide() || null);   // the training field speaks only through its own steps
   function robo(key, opts = {}) {
     const G = guide(), lines = GUIDE[key]; if (!G || !lines || !lines.length) return Promise.resolve('none');
     if (!(opts.key !== null && !opts.force && introSeen('g:' + key))) W._roboT = W.simT;   // when he last spoke (the day-end line waits for quiet)
@@ -110,7 +113,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
 
   ui.setLoading(0.05, `בונים את ${zoneWord()}...`);
   await tick0();
-  const env = createEnvironment(pipe, biome.id, { quality, seed: biome.id === 'amazon' ? 3 : 7, impostorTrees: farTreeSources(biome.id, plantBuilders), zoneEnv });
+  const env = createEnvironment(pipe, biome.id, { quality, seed: biome.id === 'amazon' ? 3 : 7, impostorTrees: farTreeSources(biome.id, plantBuilders), zoneEnv, river: !!training, bare: !!training });
   W.env = env;
   const light = createLightSystem(env); W.light = light;
   const links = createLinks(scene);
@@ -199,7 +202,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   ctx.moments = createSourceMoments({ W, ui, audio });   // torah edition: short source moments in the forest
   ctx.tour = createTour({ W, env, reg, camera, canvas, ui, audio, imv: ctx.imv, missions, art: (id) => thumbs[id] || CARD_ART[id] || null });
   /* H: after the missions (not inside a mystery) */
-  if (!research) { try { ctx.after = createAfter({ W, env, reg, scene, camera, canvas, pipe, ui, audio, bus, markers, rig, imv: ctx.imv, tools: ctx.tools, spawnAnimal, art: (id) => CARD_ART[id] || thumbs[id] || null }); W.after = ctx.after; } catch (e) { console.error(e); ctx.after = null; } }
+  if (!research && !training) { try { ctx.after = createAfter({ W, env, reg, scene, camera, canvas, pipe, ui, audio, bus, markers, rig, imv: ctx.imv, tools: ctx.tools, spawnAnimal, art: (id) => CARD_ART[id] || thumbs[id] || null }); W.after = ctx.after; } catch (e) { console.error(e); ctx.after = null; } }
 
   // ─────────────────────────────────────────── start state
   ui.setBiome({ id: biome.id, name: biome.name, layers: biome.layers.map(l => ({ id: l.id, name: l.name, desc: l.desc })), hasSeasons: biome.id === 'grove' });
@@ -216,8 +219,8 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   if (research && research.makeSession && save) restore(save);   // a robot-lab mission on the player's own island (nothing is saved back)
   if (research && research.makeSession) ctx.session = research.makeSession({ W, env, reg, scene, light, markers, rig, ui, audio, bus, camera, canvas, tools: ctx.tools, spawnPlant, spawnAnimal, select, exit: () => onExit && onExit() });   // מעבדת הרובוטים: a lesson's field (src/robolab/three/session.js)
   else if (research) ctx.session = createResearchSession({ W, C: research, env, reg, scene, light, markers, rig, ui, audio, bus, tools: ctx.tools, fieldcam: ctx.fieldcam, thumbs, spawnPlant, spawnAnimal, randomPlaceSpot, findSpotNear, addStump, select, refit: () => fitViewToUI(true), exit: () => onExit && onExit() });
-  else if (save) restore(save); else seedStartingNature();
-  ctx.report = research ? null : createFieldReport({ W, reg, biome, light, missions, thumbs, ui, bus, audio, saved: save && save.report });   // a mystery has its own lab report
+  else if (save) restore(save); else if (!training) seedStartingNature();   // the training field starts bare
+  ctx.report = research || training ? null : createFieldReport({ W, reg, biome, light, missions, thumbs, ui, bus, audio, saved: save && save.report });   // a mystery has its own lab report
   W.report = ctx.report;
   if (W._toolSave) ctx.tools.restore(W._toolSave, (x, z) => W.plants.find(p => alive(p) && p.isTree && Math.hypot(p.x - x, p.z - z) < 1.5));
   updateLight(true);
@@ -232,13 +235,14 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
 
   addPart(ctx, createUpdate(ctx), 'Update');          // ─ main update
   addPart(ctx, createDispose(ctx), 'Dispose');         // ─ dispose
+  ctx.training = training ? startTraining(ctx) : null;   // רובו־דע leads the training field (stopped in dispose)
   const { checkPlace, place, setView, applyEffect, groundHit, startExperiment, endExperiment, chooseEvent, update,
     openJournal, dispose } = ctx;
 
   // debug / testing hooks
   let fakeT = 0;
   window.__game = W;
-  W.debug = { place: (id, x, z) => { const sp = reg.byId.get(id); const hit = { x, z, y: env.heightAt(x, z) }; const c = checkPlace(sp, hit); if (c.ok) return place(sp, hit, c); return c.reason; }, select, rig, setView, applyEffect, check: (cx, cy, id) => { const h = groundHit(cx, cy); return JSON.stringify({ h, c: checkPlace(reg.byId.get(id), h) }); }, startExperiment, endExperiment, unlockAll: () => { for (const s of biome.species) W.unlocked.add(s.id); W.allToolsUnlocked = true; refreshTray(); }, tools: () => ctx.tools, moments: () => ctx.moments, fieldcam: () => ctx.fieldcam, tour: () => ctx.tour, light: () => ({ score: light.score, shafts: ctx.shafts }), crowns: () => ctx.crowns, auto: () => { let r = ''; if (ctx.pendingEvent) { r = ctx.pendingEvent.id; chooseEvent({ eventId: ctx.pendingEvent.id, choiceId: ctx.pendingEvent.choices[0].id }); } ui.hideEvent(); ui.hideOutcome(); ui.hideDialog(); ui.hideJournal && ui.hideJournal(); return r; }, ff: (sec, step = 0.1) => { for (let i = 0; i < sec / step; i++) { if (ui.isModalOpen()) return 'modal at ' + W.simT.toFixed(0); fakeT += step; update(step, fakeT); } return 'ok ' + W.simT.toFixed(0); }, openJournal };
+  W.debug = { place: (id, x, z) => { const sp = reg.byId.get(id); const hit = { x, z, y: env.heightAt(x, z) }; const c = checkPlace(sp, hit); if (c.ok) return place(sp, hit, c); return c.reason; }, select, rig, setView, applyEffect, check: (cx, cy, id) => { const h = groundHit(cx, cy); return JSON.stringify({ h, c: checkPlace(reg.byId.get(id), h) }); }, startExperiment, endExperiment, unlockAll: () => { for (const s of biome.species) W.unlocked.add(s.id); W.allToolsUnlocked = true; refreshTray(); }, tools: () => ctx.tools, moments: () => ctx.moments, fieldcam: () => ctx.fieldcam, tour: () => ctx.tour, training: () => ctx.training, light: () => ({ score: light.score, shafts: ctx.shafts }), crowns: () => ctx.crowns, auto: () => { let r = ''; if (ctx.pendingEvent) { r = ctx.pendingEvent.id; chooseEvent({ eventId: ctx.pendingEvent.id, choiceId: ctx.pendingEvent.choices[0].id }); } ui.hideEvent(); ui.hideOutcome(); ui.hideDialog(); ui.hideJournal && ui.hideJournal(); return r; }, ff: (sec, step = 0.1) => { for (let i = 0; i < sec / step; i++) { if (ui.isModalOpen()) return 'modal at ' + W.simT.toFixed(0); fakeT += step; update(step, fakeT); } return 'ok ' + W.simT.toFixed(0); }, openJournal };
   return { W, update, dispose, rig };
 
   function tick0() { return new Promise(r => setTimeout(r, 30)); }

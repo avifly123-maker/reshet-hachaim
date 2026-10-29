@@ -51,6 +51,8 @@ export function createStart(ctx) {
           <button data-mode="kids" role="radio">${icon('sprout')}<span><b>מתחילים</b><small>מעט מינים, משימות קצרות</small></span></button>
           <button data-mode="full" role="radio">${icon('web')}<span><b>מתקדמים</b><small>כל המינים, אירועים וטכנולוגיה</small></span></button>
         </div>
+        <button class="st-train" data-train="1" data-part="training"><span class="st-tr-ic">${icon('sprout')}</span><span class="st-tr-t"><b></b><small></small></span>${icon('arrowL')}</button>
+        <button class="st-trskip" type="button" hidden></button>
         <div class="st-car" aria-roledescription="קרוסלה">
           <button class="st-arrow prev" data-car="-1" aria-label="הסביבה הקודמת">${icon('arrowR')}</button>
           <div class="st-ring">${biomes.map((b, i) => `<button class="st-isl" data-i="${i}" data-id="${esc(b.id)}" data-part="zone:${esc(b.id)}" style="--zc:${(b.palette && b.palette[1]) || '#6a9'};--zc2:${(b.palette && b.palette[2]) || '#f0b44c'}" aria-label="${esc(b.name)}">
@@ -94,6 +96,24 @@ export function createStart(ctx) {
     const veiled = (el) => !!(el && el.dataset.part && !JR.isOpen(el.dataset.part));
     const gate = (el, fn) => () => { if (veiled(el)) lockTip(el.dataset.part, { emit }); else fn(); };
     startEl.querySelectorAll('[data-learn]').forEach((b) => b.addEventListener('click', gate(b, () => emit('ui:learn', { screen: b.dataset.learn }))));
+    // 1.3.3 (29.10): שטח האימונים, the way into the game: big and first until it is done, then a small way back
+    const trainBtn = startEl.querySelector('.st-train');
+    trainBtn.addEventListener('click', () => emit('start:training'));
+    // 29.10 evening (Avi): a child who knows the game may skip the training; a second click confirms (no accidental skip)
+    const skipBtn = startEl.querySelector('.st-trskip');
+    skipBtn.addEventListener('click', () => {
+      const kd = S.mode === 'kids';
+      if (!skipBtn.dataset.sure) { skipBtn.dataset.sure = '1'; skipBtn.textContent = kd ? 'בְּטוּחִים? לְחִיצָה נוֹסֶפֶת תִּפְתַּח אֶת הָאִיִּים' : 'בטוחים? לחיצה נוספת תפתח את האיים'; return; }
+      delete skipBtn.dataset.sure; emit('start:skiptraining');
+    });
+    const paintTrain = () => {
+      const done = JR.trained(), kd = S.mode === 'kids';
+      trainBtn.classList.toggle('first', !done); trainBtn.classList.toggle('done', done);
+      skipBtn.hidden = done; delete skipBtn.dataset.sure; skipBtn.textContent = kd ? 'כְּבָר מַכִּירִים? לְדַלֵּג עַל הָאִמּוּן' : 'כבר מכירים? לדלג על האימון';
+      trainBtn.querySelector('b').textContent = kd ? 'שֶׁטַח הָאִמּוּנִים' : 'שטח האימונים';
+      trainBtn.querySelector('small').textContent = done ? (kd ? 'חוֹזְרִים לְהִתְאַמֵּן' : 'חוזרים להתאמן') : (kd ? 'מַתְחִילִים כָּאן: לוֹמְדִים אֵיךְ מְשַׂחֲקִים' : 'מתחילים כאן: לומדים איך משחקים');
+    };
+    S.paintTrain = paintTrain;
     const rsBtn = startEl.querySelector('[data-research]'), labBtn = startEl.querySelector('[data-lab]');
     rsBtn.addEventListener('click', gate(rsBtn, () => emit('ui:research')));
     labBtn.addEventListener('click', gate(labBtn, () => emit('ui:lab')));
@@ -172,6 +192,7 @@ export function createStart(ctx) {
         if (shut) el.setAttribute('aria-description', lockWords(el.dataset.part)); else el.removeAttribute('aria-description');
       });
       jbar.innerHTML = jbarHTML();
+      if (S.paintTrain) S.paintTrain();
       paintInfo();
     };
     S.paintJourney = paintJourney;

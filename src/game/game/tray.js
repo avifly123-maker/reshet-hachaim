@@ -34,7 +34,7 @@ export function createTray(ctx) {
   let toolLocks = null;   // which tools were still locked: a tool that opens now is presented by רובו־דע
   function refreshTray() {
     if (W.research) return;
-    const sp = trayCards(), ns = nurseryCards(), tc = ctx.tools ? ctx.tools.cards() : [];
+    const sp = trayCards(), ns = nurseryCards(), tc = ctx.tools && !W.training ? ctx.tools.cards() : [];   // the training field: plants and animals only
     if (ctx.tools) {
       const now = {}; for (const c of tc) now[c.id] = c.locked;
       const opened = toolLocks ? tc.filter(c => toolLocks[c.id] && !c.locked) : [];

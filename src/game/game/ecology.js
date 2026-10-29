@@ -196,7 +196,7 @@ export function createEcology(ctx) {
   W.onTreeLanded = (p) => { audio.play('thunder'); markers.burst(_v.set(p.x, p.y + 2, p.z), '#d8c6a0', 40, { size: 0.6, speed: 4 }); ctx.lightDirty = true; };
   W.animalLeaves = (a, reason) => {
     if (a.leaving) return;
-    if ((W.kids || W.research || a.touring) && reason === 'hunger') { a.energy = 0.35; return; }
+    if ((W.kids || W.research || W.training || a.touring) && reason === 'hunger') { a.energy = 0.35; return; }
     a.leave(); ctx.report?.animalLeft(reason);
     if (reason === 'hunger') W.stats.lossT = W.simT;
     if (reason === 'hunger' && W.xp && !W._hungryRobo) { W._hungryRobo = true; robo('zone:hungry'); }   // חוויה: רובו־דע says it once

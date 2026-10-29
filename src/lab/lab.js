@@ -893,7 +893,8 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     room: room && { face: (yaw, pitch = VIEW0.pitch, now = true) => room.face(yaw * Math.PI / 180, pitch * Math.PI / 180, now), get yaw() { return Math.round(wrapA(room.S.yaw) * 180 / Math.PI); },
       get pitch() { return Math.round(room.S.pitch * 180 / Math.PI); }, get view() { return view; }, get walking() { return walk ? (walk.st || 'back') : ''; }, get loaded() { return room.loaded; },
       robot: () => robot.root.position.toArray().map((x) => +x.toFixed(2)), slow: (k) => { slowDbg = k; } } };
-  return { open, close, update, isOpen: () => open_ };
+  // state(): for the first visit's tutorial (src/lab/tutorial.js, 1.3.3): which station is open, whether the room was turned
+  return { open, close, update, isOpen: () => open_, state: () => ({ open: open_, station, turned: !!(room && room.S.turned) }) };
 }
 
 // ───────────────────────────────────────── the atlas: every creature studied, with its stamps

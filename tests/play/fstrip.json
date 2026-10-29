@@ -1,0 +1,12 @@
+[
+{"wait": 2},
+{"js": "window.__journey.unlockAll('2580'); window.__guide.close(); window.__app.bus.emit('start:biome',{id:'amazon'}); 1"},
+{"until": "window.__game && window.__game.biomeId==='amazon' && window.__game.debug", "timeout": 300},
+{"wait": 4},
+{"key": "f"},
+{"wait": 3},
+{"js": "[...document.querySelectorAll('body > div')].map(d=>d.textContent).filter(t=>/fps/.test(t)).join(' | ')"},
+{"js": "console.error('test error x'); 1"},
+{"wait": 2},
+{"js": "[...document.querySelectorAll('body > div')].map(d=>d.textContent).filter(t=>/fps/.test(t)).join(' | ')"}
+]

@@ -1,0 +1,11 @@
+[
+{"wait": 3},
+{"js": "window.__guide.close(); 1"},
+{"wait": 1},
+{"js": "JSON.stringify({trained: window.__journey.trained(), skipShown: !document.querySelector('.st-trskip').hidden})"},
+{"clickSel": ".st-trskip"},{"wait": 0.5},
+{"js": "document.querySelector('.st-trskip').textContent"},
+{"clickSel": ".st-trskip"},{"wait": 2.5},
+{"shot": "shots/tr/s1-skipped.png"},
+{"js": "JSON.stringify({trained: window.__journey.trained(), amazon: window.__journey.isOpen('zone:amazon'), skipShown: !document.querySelector('.st-trskip').hidden, howstages: (document.querySelector('#rguide .rg-txt')||{}).textContent})"}
+]

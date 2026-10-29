@@ -52,7 +52,8 @@ import { createTreeShadows } from './tree-shadows.js';
 // bake fails) the far forest uses simple faceted crowns.
 // zoneEnv (optional): a zone pack's own environment factory (the reef's diorama, src/env/reef.js, comes in the reef pack
 // with its coral models, so the other zones and the start screen never load it).
-export function createEnvironment(pipeline, biomeId = 'amazon', { quality = 'medium', seed = 1, impostorTrees = null, zoneEnv = null } = {}) {
+// river / bare (1.3.3, the training field): a stream on a grove island, and bare soil with very little ground cover
+export function createEnvironment(pipeline, biomeId = 'amazon', { quality = 'medium', seed = 1, impostorTrees = null, zoneEnv = null, river = false, bare = false } = {}) {
   if (zoneEnv) return zoneEnv(pipeline, { quality, seed });
   if (biomeId === 'reef') throw new Error('the reef environment comes with the reef pack (zone.env)');
   // 1.4: the desert uses the grove's dry-land parts with its own look (isDesert; colours and shapes in desert-look.js)
@@ -85,7 +86,7 @@ export function createEnvironment(pipeline, biomeId = 'amazon', { quality = 'med
 
   // one shared context for the parts (see the header); each part's results are merged into it, in creation order
   const ctx = { pipeline, scene, biome, isAmazon, isDesert, quality, qual, seed, impostorTrees, noise, noiseB, root, disposables, track,
-    noiseTex, puffTex, U };
+    noiseTex, puffTex, U, river, bare };
   Object.assign(ctx, createTerrain(ctx));      // ─ island shape & height field, water layout, log crossings, rocks layout
   Object.assign(ctx, createGround(ctx));       // ─ ground (top surface)
   Object.assign(ctx, createIslandEdge(ctx));   // ─ island cross-section (skirt)
@@ -107,7 +108,7 @@ export function createEnvironment(pipeline, biomeId = 'amazon', { quality = 'med
   Object.assign(ctx, createControls(ctx));     // ─ overlay, gaps, isPlaceable, quality, dispose
 
   const { riverPts, riverHW, pools } = ctx;
-  const water = isAmazon
+  const water = ctx.hasRiver
     ? { path: riverPts.filter((p, i) => i % 2 === 0 || i === riverPts.length - 1).map(p => ({ x: p.x, z: p.z })), width: riverHW * 2, pools: pools.map(p => ({ x: p.x, z: p.z, r: p.r })) }
     : { pools: pools.map(p => ({ x: p.x, z: p.z, r: p.r })) };
 

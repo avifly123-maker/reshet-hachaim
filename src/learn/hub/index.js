@@ -32,6 +32,7 @@ import { BABA_DA_LOGO } from '../../data/logo.js';
 import { VERSE_LINKS } from '../../data/torah-links.js';
 import { SHIRA, SOURCE_CARDS, TZVI_SET } from '../../data/torah.js';
 import { avatarHTML } from '../../ui/avatars.js';
+import { hubTutorial } from '../../ui/tutorials.js';   // 1.3.3: the hands-on first visit (album, a pack, a card, home)
 import { icon } from '../../ui/ui.js';
 import { mountExpedition } from '../games/expedition.js';
 import { mountInventors } from '../games/inventors.js';
@@ -183,9 +184,18 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     const mine = tipMine; tipMine = null; g.close(mine);
   }
   // (הממציאים opened on the robot workshop, from the lab's robots door: the workshop is presented first, by its own lines)
+  // 1.3.3: the first time the hub's home opens, רובו־דע's hands-on steps come instead of the home's words; while they
+  // run, the other screens keep their words for another visit (the steps already show the album)
+  let tut = null;
+  const tutState = () => ({ open: open_, screen, packs: S.packs || 0, zoom: !modal.hidden, owned: Object.keys(S.owned || {}).length });
   function introFor(name, opts = {}) {
     const robots = name === 'inventors' && opts.view === 'robots' && !locked('robots');
     const part = robots ? 'robots' : INTRO_OF[name], g = guide(); if (!part || !g || !g.intro) return;
+    if (tut && tut.step) return;
+    if (name === 'home' && !locked('album')) { later(() => { if (!open_ || screen !== 'home' || (tut && tut.step)) return; tut = hubTutorial({ guide: g, hub: { state: tutState } }); if (!tut) introFor2(name, part, g); }, 450); return; }
+    introFor2(name, part, g);
+  }
+  function introFor2(name, part, g) {
     later(() => {
       if (!open_ || screen !== name) return;
       const mine = guideMine = g.intro(part, { modal: true }); mine.then(() => { if (guideMine === mine) guideMine = null; });
@@ -367,6 +377,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     try { $('.wl-back').focus({ preventScroll: true }); } catch (e) { /* */ }
   }
   function close() {
+    if (tut) { tut.stop(); tut = null; }   // the first-visit steps (they begin again next time, unless done or skipped)
     if (!open_) return;
     open_ = false; entered = null; clearTimers(); closeModal(); el.hidden = true; rootEl.classList.remove('wl-hubopen');
     if (guideMine) { const g = guide(); try { g && g.close(guideMine); } catch (e) { /* */ } guideMine = null; }

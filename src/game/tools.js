@@ -450,7 +450,7 @@ export function createTools(ctx) {
   const HURT_WAIT = 150, HURT_REMIND = 45;
   function injuredNear(x, z, r) { let best = null, bd = r; for (const a of W.animals) if (a.injured && !a.injured.saving && a.alive && !a.leaving) { const d = Math.hypot(a.pos.x - x, a.pos.z - z); if (d < bd) { bd = d; best = a; } } return best; }
   function maybeInjure(dt) {
-    if (W.kids || W.research || W.day < 2 || W.animals.some(a => a.injured)) return;
+    if (W.kids || W.research || W.training || W.day < 2 || W.animals.some(a => a.injured)) return;
     if (W.missions?.current()?.goal?.type === 'rescue') injuryT = Math.min(injuryT, 25);
     if (W.calmBusy && W.calmBusy() && W.missions?.current()?.goal?.type !== 'rescue') return;   // 25.10: waits for a calm moment
     injuryT -= dt; if (injuryT > 0) return;
