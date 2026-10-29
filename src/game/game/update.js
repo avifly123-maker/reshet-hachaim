@@ -20,6 +20,7 @@ export function createUpdate(ctx) {
 
   // ─────────────────────────────────────────── main update
   let autoSaveT = 40, fitT = 0, hudT = 0, simTickT = 0, vitT = 0, birthT = 0, weatherT = 0, panelT = 0, hungryWarn = {}, prevNight = 0, coachStarted = false, lightningT = 0;
+  const RAIN_CLOCK = 1.25;   // a shower's time runs at most this fast against the real clock (see weatherUpdate)
   let lightT = 0, linksT = 0, hoverT = 0;   // (declared with the light, links and pointer state before the split; only the update uses them)
   function computeVitality() {
     const present = W.aliveSpecies();
@@ -47,7 +48,7 @@ export function createUpdate(ctx) {
       const ended = ctx.report ? ctx.report.dayEnded() : null; W.day++;
       if (biome.id === 'grove') { const i = (SEASONS.indexOf(W.season) + 1) % 4; W.season = SEASONS[i]; if (!W.xp && !W.viewMode) ui.toast(`הגיעה עונת ה${SEASON_NAMES[W.season]}`, 'info'); seasonBegins(W.season); }
       ctx.report?.dayBegan(ended);   // the full mode offers to write "דוח החוקר"; חוויה has no daily report:
-      if (W.xp && !W.research && !W.viewMode && !(guide() && guide().isOpen())) {   // רובו־דע says one line at the end of the day instead
+      if (W.xp && !W.research && !W.training && !W.viewMode && !(guide() && guide().isOpen())) {   // רובו־דע says one line at the end of the day instead
         if (biome.id === 'grove') robo('zone:season:' + W.season, { key: null, force: true });
         else if (W.day % 6 === 0 && W.simT - (W._roboT ?? -999) > 150) roboOne('zone:dayend', W.day / 6);   // every sixth day (25.10: was third), and only after a quiet while
       }
@@ -94,7 +95,7 @@ export function createUpdate(ctx) {
     }
     autoSaveT -= rdt; if (autoSaveT <= 0) { if (W.experiment || ctx.pendingEvent) autoSaveT = 5; else { autoSaveT = 40; if (W.simT > 10) saveGame(true); } }
     // missions & events (start only after the welcome tutorial)
-    if (!W.missionsOn && !W.research && (ctx.coachStep < 0 && coachStarted && W.simT > 4)) W.missionsOn = true;
+    if (!W.missionsOn && !W.research && !W.training && (ctx.coachStep < 0 && coachStarted && W.simT > 4)) W.missionsOn = true;
     if (ctx.session) ctx.session.update(dt, rdt, t);
     if (W.missionsOn) missions.tick();
     ctx.moments?.tick(rdt);
@@ -141,7 +142,7 @@ export function createUpdate(ctx) {
     fitT -= rdt; if (fitT <= 0) { fitT = 0.5; fitViewToUI(false); }
     // audio ambience
     audio.update({ dayFrac: W.dayFrac, season: W.season, rain: W.rain, wind: W.wind, vitality: W.vitality, night, cameraHeight: camera.position.y, fire: W.fires.length ? 1 : 0, speed: dt > 0 ? W.speed : 0 });
-    if (!coachStarted) { coachStarted = true; if (!W.research) setTimeout(() => { if (!ctx.disposed) startIntro(); }, 900); }
+    if (!coachStarted) { coachStarted = true; if (!W.research && !W.training) setTimeout(() => { if (!ctx.disposed) startIntro(); }, 900); }
     if (W.animals.some(a => a.injured) || hurtArrowsOn) updateHurtArrows();
   }
 
@@ -217,8 +218,11 @@ export function createUpdate(ctx) {
         if (Math.random() < chance) { W.rainTarget = 0.6 + Math.random() * 0.35; W.rainT = 25 + Math.random() * 35; }
       }
     }
-    if (W.rainT > 0) { W.rainT -= dt; if (W.rainT <= 0) W.rainTarget = 0; }
-    W.rain = damp(W.rain, W.rainTarget, 0.5, dt || rdt * 0.2);
+    // 1.3.3 (a tester: "the rain was gone a few seconds after it began"): a shower is counted on a gentler clock than the
+    // forest's. At ×3 a 25-second shower used to end after 8 real seconds and fade within two; now its time runs at most
+    // RAIN_CLOCK× the real time, and it comes and goes over real seconds (a pause keeps it as it is).
+    if (W.rainT > 0) { W.rainT -= Math.min(dt, rdt * RAIN_CLOCK); if (W.rainT <= 0) W.rainTarget = 0; }
+    W.rain = damp(W.rain, W.rainTarget, 0.5, dt > 0 ? rdt : rdt * 0.2);
     if (W.droughtT > 0) { W.droughtT -= dt; if (W.droughtT <= 0) W.drought = 0; } else W.drought = damp(W.drought, 0, 0.2, dt);
     if (W.floodT > 0) { W.floodT -= dt; if (W.floodT <= 0) W.flood = 0; }
     if (W.heatT > 0) { W.heatT -= dt; if (W.heatT <= 0) W.heat = 0; }
@@ -232,7 +236,7 @@ export function createUpdate(ctx) {
     }
   }
   function seasonBegins(s) {
-    if (s === 'winter') { W.rainTarget = 0.8; W.rainT = 30; }
+    if (s === 'winter') { W.rainTarget = 0.8; W.rainT = Math.max(W.rainT, 30); }   // never cuts a longer shower short
     if (s === 'summer') amb('קיץ: אין גשם עד הסתיו. הכלניות והרקפות נחות מתחת לאדמה, והחורש חוסך מים.', 'info');
   }
   function afterFire() {

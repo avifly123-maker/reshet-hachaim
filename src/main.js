@@ -23,7 +23,9 @@ import * as threads from './core/threads.js';   // חוטים (1.3.2): the parts
 import { createVoice } from './audio/voice.js';
 import { createGuide } from './ui/robo-guide.js';
 import { startPlaytime } from './ui/playtime-ui.js';   // the parents' daily play time (1.3.3)
-import { STAGE_LINES, LEGACY_LINES } from './data/guide-lines.js';
+import { STAGE_LINES, LEGACY_LINES, GUIDE } from './data/guide-lines.js';
+import { trainingBiome } from './game/training.js';   // שטח האימונים (1.3.3, 29.10)
+import { labTutorial } from './ui/tutorials.js';   // the lab's first visit, hands-on (1.3.3)
 import './ui/stage-scenes.js';   // window.__stageScene(n): the short film of a new stage (area I)
 import './ui/flourish.js';   // window.__flourish: short flourishes (a part opening, a badge, a thread, the lab's doors, a mission's animal)
 
@@ -177,6 +179,30 @@ async function boot() {
     threads.announceSoon(THREAD_NOTE_MS);   // a thread opened in a forest, the lab or a game: רובו־דע says it on the start screen (after a stage moment)
     ui.showStart(Object.values(ZONES).map((z) => ({ id: z.id, name: z.name, subtitle: z.subtitle, intro: z.intro, kidsIntro: KIDS[z.id]?.intro, palette: z.palette, dev: !!z.dev })));
     if (window.__app_journey) window.__app_journey.nextStage();   // a stage moment that waited in a forest or the lab plays now
+    setTimeout(howStages, HOW_STAGES_MS);
+  }
+  // 1.3.3 (29.10, Avi: "a clear explanation of how to go from stage to stage"): after the training field, once, on the
+  // start screen: רובו־דע shows the journey bar, what is still missing and the locks (lines: start:howstages)
+  const HOW_STAGES_MS = 1500;
+  // …and after every mission in a forest, one short tip: what is still missing for the next stage (it closes by itself)
+  const STAGE_TIP_MS = 6500;   // after the mission banner and its animal
+  window.addEventListener('wol-progress', (e) => {
+    if (!e.detail || e.detail.kind !== 'mission') return;
+    let before = 0; try { before = journey.state().stage; } catch (er) { return; }
+    setTimeout(() => {
+      try {
+        if (!game) return;
+        const st = journey.state(); if (st.legacy || st.stage !== before || !st.next || st.next.soon) return;   // a new stage has its own moment
+        const need = st.next.need && st.next.need[0]; if (!need) return;
+        const f = `עוד צעד במסע! לשלב "${st.next.name}" חסר: ${need}.`, k = `עוֹד צַעַד בַּמַּסָּע! לַשָּׁלָב "${st.next.name}" חָסֵר: ${need}.`;
+        guide.tip({ f, k }, { ms: 8000 });
+      } catch (er) { console.error(er); }
+    }, STAGE_TIP_MS);
+  });
+  function howStages() {
+    if (game || loading || !ui.isStartShown()) return;   // (another bubble on screen: this one waits in the guide's queue)
+    try { if (!journey.wasUsed('training') || journey.introSeen('g:start:howstages')) return; } catch (e) { return; }
+    guide.say(GUIDE['start:howstages'] || [], { key: 'g:start:howstages', modal: true });
   }
 
   let gameZone = null;   // the zone whose pack the running (or last) game uses
@@ -188,10 +214,11 @@ async function boot() {
     audio.setBiome(null);   // every way out of an island silences its ambience (rain and river included)
   }
   // research = a mystery of חוקרי הטבע (src/research/): the zone's full content, the case's own island, no save
-  async function loadBiome(id, save = null, research = null) {
+  // training = שטח האימונים (1.3.3): the grove's pack, an empty field with a stream, רובו־דע's steps, no save
+  async function loadBiome(id, save = null, research = null, training = false) {
     if (loading) return; loading = true;
     ui.hideStart();
-    root.classList.toggle('kids', MODE === 'kids' && !research);
+    root.classList.toggle('kids', MODE === 'kids' && !research && !training);
     try {
       // the zone's pack: already in (chosen before, or loading since the click), or fetched now behind the loading screen
       if (!zoneOf(id) || !loadedPack('game')) { ui.setLoading(0.01, 'מכינים את היער...'); await Promise.all([loadPack(id), loadPack('game')]); }
@@ -201,7 +228,7 @@ async function boot() {
       ui.setLoadingActions([{ label: 'חזרה למסך הפתיחה', onClick: () => showStart() }]);
       loading = false; return;
     }
-    const biome = research ? zoneOf(id).data : biomeFor(id), Z = zoneOf(id);
+    const biome = research ? zoneOf(id).data : training ? trainingBiome(zoneOf(id).data) : biomeFor(id), Z = zoneOf(id);
     ui.setTips(biome.tips);
     ui.setLoading(0.02, 'מכינים את היער...');
     closeGame();
@@ -209,7 +236,7 @@ async function boot() {
     try {
       gameZone = id; guide.setScene('game');
       const { createGame } = loadedPack('game');
-      game = await createGame({ save, research, pipe, ui, audio, bus, biome, plantBuilders: Z.plants, animalBuilders: Z.animals, zoneEnv: Z.env || null, quality, onExit: () => { closeGame(); resetAutoQ(2); audio.setBiome(null); showStart(); if (research) researchHub.open(); } });
+      game = await createGame({ save, research, training, pipe, ui, audio, bus, biome, plantBuilders: Z.plants, animalBuilders: Z.animals, zoneEnv: Z.env || null, quality, onExit: () => { closeGame(); resetAutoQ(2); audio.setBiome(null); showStart(); if (research) researchHub.open(); } });
       const g = game;
       if (SOFTWARE_GL) setTimeout(() => game && game === g && ui.toast('שימו לב: המחשב הזה מצייר בלי מנהל התקן גרפי, ולכן המשחק איטי. עדכון מנהל ההתקן של כרטיס המסך יפתור את זה.', 'warn'), 2500);
       // warm up shaders before revealing
@@ -219,7 +246,7 @@ async function boot() {
     } catch (e) {
       console.error(e);
       closeGame();
-      const hasSave = !research && (!!save || !!readSave(id));
+      const hasSave = !research && !training && (!!save || !!readSave(id));
       ui.setLoading(0, hasSave ? 'משהו השתבש בטעינה של היער השמור. אפשר לחזור, או להתחיל יער חדש.' : 'משהו השתבש בטעינה. אפשר לחזור למסך הפתיחה ולנסות שוב.');
       ui.setLoadingActions([
         { label: 'חזרה למסך הפתיחה', onClick: () => showStart() },
@@ -242,6 +269,7 @@ async function boot() {
       buttons: [{ id: 'save-continue', label: 'להמשיך את היער השמור' }, { id: 'save-new', label: 'להתחיל יער חדש' }, { id: 'save-back', label: 'חזרה', kind: 'back' }], dismiss: 'save-back' });
   }
   // start fetching the zone's pack right at the click – it loads while the "continue the saved forest?" question is open
+  bus.on('start:training', () => { audio.start(); loadPack('game').catch(() => { }); loadPack('grove').catch(() => { }); pendingBiome = null; loadBiome('grove', null, null, true); });
   bus.on('start:biome', ({ id }) => { audio.start(); loadPack('game').catch(() => { }); loadPack(id).catch(() => { /* reported by loadBiome */ }); askSaved(id); });
   bus.on('dialog:button', ({ id }) => {
     if (!pendingBiome) return;
@@ -277,7 +305,8 @@ async function boot() {
   // { tutorial: true }: the guided mystery from the research centre's "הדרכה" button (src/research/tutorial.js)
   const researchHub = createResearchHub(root, { onPick: (id, opts) => { let C = caseById(id); if (!C) return; if (opts && opts.tutorial) C = { ...C, tutorial: true }; loadPack(C.zone).catch(() => { /* reported by loadBiome */ }); loadBiome(C.zone, null, C); }, onLab: () => openLab() });
   // מעבדת רובו־דע: its own pack; while it is open the frame loop draws it (there is no forest then)
-  let lab = null, labP = null, labFrom = 'hub', labOpening = false, labArt = null, labHow = null;
+  let lab = null, labP = null, labFrom = 'hub', labOpening = false, labArt = null, labHow = null, labTut = null;
+  const LAB_TUT_MS = 2400;   // after the lab's own hello
   // "איך משחקים" in the lab: four cards the first time (src/ui/howto.js), again from the "?" button in its top bar
   function showLabHowto(force) {
     if (labHow && labHow.open) return;
@@ -291,7 +320,7 @@ async function boot() {
     ui.setLoading && ui.setLoading(0.3, 'פותחים את המעבדה...');
     labP = labP || loadPack('lab').then((m) => {
       labArt = m.LAB_ART || null;
-      lab = m.createLab({ root, pipe, audio, onExit: () => { if (labHow) { labHow.close(); labHow = null; } startDrawn = false; showStart(); if (labFrom === 'hub') researchHub.open(); },
+      lab = m.createLab({ root, pipe, audio, onExit: () => { if (labHow) { labHow.close(); labHow = null; } if (labTut) { labTut.stop(); labTut = null; } startDrawn = false; showStart(); if (labFrom === 'hub') researchHub.open(); },
         openGame: (name, opts) => getHub().then((h) => (h.go ? h.go(name, { ...(opts || {}), from: 'lab' }) : h.open()), (e) => console.error(e)) });
       const think = root.querySelector('.lb .lb-think');
       if (think) {
@@ -303,7 +332,8 @@ async function boot() {
       }
       return lab;
     });
-    labP.then((L) => { labOpening = false; ui.hideLoading(); L.open(); setTimeout(() => { if (L.isOpen()) showLabHowto(false); }, 700); }, (e) => { labOpening = false; labP = null; ui.hideLoading(); console.error(e); showStart(); });
+    // the first visit: רובו־דע's hands-on steps (turn the room, the "?" button, a station); the four cards stay on "?"
+    labP.then((L) => { labOpening = false; ui.hideLoading(); L.open(); setTimeout(() => { if (!L.isOpen()) return; if (labTut) return; labTut = labTutorial({ guide, lab: L }); }, LAB_TUT_MS); }, (e) => { labOpening = false; labP = null; ui.hideLoading(); console.error(e); showStart(); });
   }
   bus.on('ui:research', () => { audio.start(); researchHub.open(); });
   bus.on('audio:mute', ({ muted }) => { audio.setMuted(muted); writeDeviceRaw(K.sound, muted ? 'off' : 'on'); });   // remembered for the computer (1.3.2)

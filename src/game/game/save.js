@@ -12,6 +12,7 @@ export function createSave(ctx) {
   // ─────────────────────────────────────────── save / load (localStorage, optional)
   const SAVE_KEY = zoneKey(biome.id);   // per player (core/storage.js)
   function saveProgress() {
+    if (W.training) return;   // the training field writes nothing into the grove's progress
     try { writePlayer(SAVE_KEY, { unlocked: [...W.unlocked], done: missions.missions.filter(m => m.done).map(m => m.id), discovered: [...W.discovered], placed: [...W.everPlaced], quiz: [...W.quizDone] }); } catch (e) { }
   }
 
@@ -42,7 +43,7 @@ export function createSave(ctx) {
     };
   }
   function saveGame(quiet) {
-    if (W.research) return true;
+    if (W.research || W.training) return true;   // a mystery and the training field are never saved
     try { if (!writePlayer(SAVE_SLOT, serialize())) throw new Error('not saved'); if (!quiet) { ui.toast('היער נשמר ✓ בפעם הבאה תוכלו להמשיך מכאן', 'good'); audio.play('points'); } return true; }
     catch (e) { if (!quiet) ui.toast('לא הצלחתי לשמור במחשב הזה', 'bad'); return false; }
   }
@@ -95,10 +96,14 @@ export function createSave(ctx) {
   function seedStartingNature() {
     const sp = (id) => reg.byId.get(id);
     const put = (id, growth, n = 1) => { const s = sp(id); if (!s) return; for (let i = 0; i < n; i++) { const p = randomPlaceSpot(s); if (p) { const e = spawnPlant(s, p.x, p.z, { growth: Math.min(1, growth * (0.85 + Math.random() * 0.3)) }); if (e) { e.wild = true; e.pop = 1; } } } W.everPlaced.add(id); };
-    if (W.kids) { for (const s2 of biome.species) { if (s2.kind === 'tree' || s2.kind === 'palm') put(s2.id, 0.95, 3); else if (s2.kind === 'shrub' || s2.kind === 'coral') put(s2.id, 1, 3); } return; }
-    if (biome.id === 'amazon') { put('kapok', 1, 1); put('fig', 1, 5); put('cecropia', 0.9, 2); put('acai', 0.9, 4); put('fern', 1, 8); }
-    else if (biome.id === 'reef') { put('branching', 1, 4); put('softcoral', 1, 3); put('sponge', 1, 3); put('seagrass', 1, 6); put('seaanemone', 1, 1); put('brain', 1, 2); }
-    else { put('oak', 0.95, 4); put('carob', 1, 2); put('pine', 1, 1); put('mastic', 1, 5); put('sage', 1, 3); put('buckthorn', 1, 2); }
+    // 1.3.3 (29.10, Avi: "each environment starts a little emptier, without trees already in it – not bare, designed,
+    // with a few things to begin with"): one landmark, some low plants on the ground; the child plants the rest.
+    // (before: amazon kapok 1, fig 5, cecropia 2, acai 4, fern 8; grove oak 4, carob 2, pine 1, mastic 5, sage 3,
+    // buckthorn 2; reef branching 4, softcoral 3, sponge 3, seagrass 6, anemone 1, brain 2; beginners 3 of each tree and shrub)
+    if (W.kids) { for (const s2 of biome.species) { if (s2.kind === 'shrub' || s2.kind === 'coral') put(s2.id, 1, 1); } const t = biome.species.find((s2) => s2.kind === 'tree' || s2.kind === 'palm'); if (t) put(t.id, 0.95, 1); return; }
+    if (biome.id === 'amazon') { put('kapok', 1, 1); put('fern', 1, 5); put('acai', 0.9, 1); }
+    else if (biome.id === 'reef') { put('branching', 1, 2); put('seagrass', 1, 4); put('sponge', 1, 1); put('brain', 1, 1); }
+    else { put('oak', 0.95, 1); put('mastic', 1, 2); put('sage', 1, 2); }
   }
   return { saveProgress, saveGame, restore, seedStartingNature };
 }

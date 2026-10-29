@@ -96,7 +96,7 @@ export function createScatter(ctx) {
 
 
   // Build scatter -----------------------------------------------------------
-  const sd = qual.scatter; const N = (n) => Math.max(1, Math.round(n * sd));
+  const sd = qual.scatter * (ctx.bare ? 0.12 : 1); const N = (n) => Math.max(1, Math.round(n * sd));
   const rrS = makeRng(seed * 977 + 13);
   const scatterRefs = {};
   if (isAmazon) {

@@ -3,7 +3,8 @@
 #   1. content and data validators (Hebrew text rules, nikud for beginners, guide lines, threads, lab, quiz, verses, mysteries, storage keys)
 #   2. both editions build (general and torah)
 #   3. the integration run at 800x460 (amazon, grove, reef, the hub) in both editions, with no script or page errors
-#   4. the parents' play time (tools/check-playtime.py)
+#   4. the training field and the first-visit tutorials of the lab and the hub (1.3.3: tests/play/training.json, tutorials.json)
+#      and the parents' play time (tools/check-playtime.py)
 #   5. saves of every released version load (tests/fixtures/saves-*.json)
 # --quick stops after step 2. A failing step stops the script with its name.
 set -u
@@ -41,6 +42,17 @@ step "integration, torah edition"
 out=$(timeout 1200 python3 tools/play.py dist/index-torah.html tests/play/integ.json 800 460 2>&1)
 echo "$out" | grep "hub ok 10" || fail "torah integration (no 'hub ok 10')"
 echo "$out" | grep "\[pageerror\]\|JS ERROR\|UNTIL TIMEOUT\|^\[error\]" && fail "torah integration: errors"
+
+step "training field and first-visit tutorials (1.3.3)"
+out=$(timeout 1200 python3 tools/play.py dist/index.html tests/play/training.json 800 460 2>&1)
+echo "$out" | grep "trained true" || fail "training field: the steps did not reach the end"
+echo "$out" | grep -q '"amazon":true' || fail "training field: the islands did not open"
+echo "$out" | grep -q '"keys":\[\]' || fail "training field: something was saved"
+echo "$out" | grep "\[pageerror\]\|JS ERROR\|^\[error\]" && fail "training field: errors"
+out=$(timeout 1200 python3 tools/play.py dist/index.html tests/play/tutorials.json 800 460 2>&1)
+echo "$out" | grep -q "guide open false" || fail "lab tutorial: did not end at the first station"
+echo "$out" | grep "\[pageerror\]\|JS ERROR\|^\[error\]" && fail "tutorials: errors"
+echo "training field and tutorials OK"
 
 step "parents' play time"
 out=$(timeout 1200 python3 tools/check-playtime.py dist/index-torah.html shots/playtime 2>&1)

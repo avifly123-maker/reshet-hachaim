@@ -9,14 +9,14 @@ import { TAU, C, V3 } from './common.js';
 
 export function createWater(ctx) {
   const {
-    U, isAmazon, track, root, seed, noise, riverPts, riverHW, WL, springPool, poolShapeR, bridges,
+    U, isAmazon, hasRiver, track, root, seed, noise, riverPts, riverHW, WL, springPool, poolShapeR, bridges,
     bridgeTops, riverExit, pools
   } = ctx;
   // ───────────────────────────── water
   const waterU = {
     uTime: U.uTime, uNoise: U.uNoise, uSunDir: U.uSunDir, uSunCol: U.uSunCol, uSky: U.uSkyCol, uLight: U.uLightCol, uWet: U.uWet,
     uDeep: { value: C(isAmazon ? '#2a3a1c' : '#174a52') }, uShallow: { value: C(isAmazon ? '#8a7440' : '#4a9a90') },
-    uFlow: { value: isAmazon ? 1 : 0 }, uNight: { value: 0 },
+    uFlow: { value: hasRiver ? 1 : 0 }, uNight: { value: 0 },
     ...THREE.UniformsLib.fog,
   };
   const waterMat = track(new THREE.ShaderMaterial({
@@ -60,7 +60,7 @@ export function createWater(ctx) {
   }));
   const waterMeshes = [];
   let waterfall = null, waterfallMat = null;
-  if (isAmazon) {
+  if (hasRiver) {   // the Amazon, and the training field's stream (1.3.3)
     // river ribbon
     const pts = riverPts; const pos = [], uv = [], idx = [];
     let acc = 0;
