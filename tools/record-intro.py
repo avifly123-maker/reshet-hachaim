@@ -9,8 +9,9 @@ from playwright.async_api import async_playwright
 ARGS = ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist']
 MIN = [3.4, 3.6, 3.6, 3.6, 4.2]
 
-def wav_len(p):
-    with wave.open(str(p)) as w: return w.getnframes() / w.getframerate()
+def wav_len(p):   # float wavs too (Chatterbox)
+    r = subprocess.run(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', str(p)], capture_output=True, text=True)
+    return float(r.stdout.strip() or 0)
 
 async def main(o):
     W, H = map(int, o.size.split('x'))

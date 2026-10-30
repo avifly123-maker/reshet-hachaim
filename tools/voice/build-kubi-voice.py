@@ -10,8 +10,9 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
 OUT = ROOT / 'src/data/kubi-voice.js'
 ART = ROOT / 'art/voice-kubi'
 
-def dur(p):
-    with wave.open(str(p)) as w: return w.getnframes() / w.getframerate()
+def dur(p):   # Chatterbox writes 32-bit float wavs, which the wave module cannot read
+    r = subprocess.run(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', str(p)], capture_output=True, text=True)
+    return float(r.stdout.strip() or 0)
 
 def main():
     wdir = pathlib.Path(sys.argv[1]); lines = json.load(open(sys.argv[2], encoding='utf-8'))
