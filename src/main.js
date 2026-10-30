@@ -179,7 +179,7 @@ async function boot() {
     root.classList.remove('kids');
     try { journey.check(); } catch (e) { console.error(e); }   // a stage reached in a forest, the lab or a game is announced here at the latest
     threads.announceSoon(THREAD_NOTE_MS);   // a thread opened in a forest, the lab or a game: רובו־דע says it on the start screen (after a stage moment)
-    ui.showStart(Object.values(ZONES).map((z) => ({ id: z.id, name: z.name, subtitle: z.subtitle, intro: z.intro, kidsIntro: KIDS[z.id]?.intro, palette: z.palette, dev: !!z.dev })));
+    ui.showStart(Object.values(ZONES).filter((z) => !z.wip).map((z) => ({ id: z.id, name: z.name, subtitle: z.subtitle, intro: z.intro, kidsIntro: KIDS[z.id]?.intro, palette: z.palette, dev: !!z.dev })));
     if (window.__app_journey) window.__app_journey.nextStage();   // a stage moment that waited in a forest or the lab plays now
     setTimeout(howStages, HOW_STAGES_MS);
   }

@@ -18,6 +18,7 @@ export const _v = new THREE.Vector3(), _w = new THREE.Vector3(), _ray = new THRE
 const FAR_TREES = {
   amazon: [['kapok', 'emergent'], ['brazilnut', 'emergent'], ['fig', 'canopy'], ['cecropia', 'canopy'], ['acai', 'palm']],
   grove: [['oak', 'tree'], ['carob', 'tree'], ['pine', 'tree'], ['mastic', 'bush']],
+  savanna: [['umbrella', 'tree'], ['marula', 'tree'], ['whistling', 'bush']],   // 1.4.2: lone acacias far over the plain
 };
 export function farTreeSources(biomeId, plantBuilders) {
   return (FAR_TREES[biomeId] || []).filter(([id]) => plantBuilders && plantBuilders[id]).map(([id, role]) => ({

@@ -9,13 +9,13 @@ import { TAU, C, V3 } from './common.js';
 
 export function createWater(ctx) {
   const {
-    U, isAmazon, hasRiver, track, root, seed, noise, riverPts, riverHW, WL, springPool, poolShapeR, bridges,
-    bridgeTops, riverExit, pools
+    U, isAmazon, isSavanna, hasRiver, track, root, seed, noise, riverPts, riverHW, WL, springPool, poolShapeR, bridges,
+    bridgeTops, riverExit, pools, holes = []
   } = ctx;
   // ───────────────────────────── water
   const waterU = {
     uTime: U.uTime, uNoise: U.uNoise, uSunDir: U.uSunDir, uSunCol: U.uSunCol, uSky: U.uSkyCol, uLight: U.uLightCol, uWet: U.uWet,
-    uDeep: { value: C(isAmazon ? '#2a3a1c' : '#174a52') }, uShallow: { value: C(isAmazon ? '#8a7440' : '#4a9a90') },
+    uDeep: { value: C(isAmazon ? '#2a3a1c' : isSavanna ? '#4a3c22' : '#174a52') }, uShallow: { value: C(isAmazon ? '#8a7440' : isSavanna ? '#9a8450' : '#4a9a90') },
     uFlow: { value: hasRiver ? 1 : 0 }, uNight: { value: 0 },
     ...THREE.UniformsLib.fog,
   };
@@ -89,6 +89,18 @@ export function createWater(ctx) {
       puv.setXY(i, rr0 * 0.0, 0);  // centre-ish → treat as calm
     }
     const pool = new THREE.Mesh(track(pg), waterMat); pool.renderOrder = 1; root.add(pool); waterMeshes.push(pool);
+    // 1.4.2: the savanna's waterholes, each a pool of its own (update.js shrinks them in the dry season: userData.hole)
+    for (const P of holes) {
+      const hg = new THREE.CircleGeometry(1, 40); hg.rotateX(-Math.PI / 2);
+      const hp = hg.attributes.position, huv = hg.attributes.uv;
+      for (let i = 0; i < hp.count; i++) {
+        const x = hp.getX(i), z = hp.getZ(i), rr0 = Math.hypot(x, z);
+        const k = poolShapeR(P, P.x + x * P.r, P.z + z * P.r) * 1.1;
+        hp.setXYZ(i, P.x + x * k, 0, P.z + z * k); huv.setXY(i, rr0, 0);
+      }
+      const hm = new THREE.Mesh(track(hg), waterMat); hm.position.y = P.wl; hm.renderOrder = 1; hm.name = 'waterhole';
+      hm.userData.hole = P; root.add(hm); waterMeshes.push(hm);
+    }
 
     // fallen-log crossings: an old trunk lying bank to bank, roots torn up at one end, mossy on top
     const logParts = [];

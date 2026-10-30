@@ -3,7 +3,7 @@
 // Exports: createLights(ctx) → { sunLight, hemi, fog, prevFog, prevBg, sun }.
 // Needs from ctx: pipeline, quality, root, scene.
 import * as THREE from 'three';
-import { V3 } from './common.js';
+import { V3, K } from './common.js';
 
 export function createLights(ctx) {
   const { pipeline, quality, root, scene } = ctx;
@@ -13,7 +13,7 @@ export function createLights(ctx) {
   const ss = pipeline.shadowSize || ({ low: 1024, medium: 2048, high: 4096 })[quality] || 2048;
   sunLight.shadow.mapSize.set(ss, ss);
   const sc = sunLight.shadow.camera;
-  sc.left = -54; sc.right = 54; sc.top = 54; sc.bottom = -54; sc.near = 1; sc.far = 260;
+  sc.left = -54 * K; sc.right = 54 * K; sc.top = 54 * K; sc.bottom = -54 * K; sc.near = 1; sc.far = 260;
   sunLight.shadow.bias = -0.0004; sunLight.shadow.normalBias = 0.05; sunLight.shadow.radius = 3;
   sunLight.target.position.set(0, 0, 0);
   root.add(sunLight, sunLight.target);

@@ -5,29 +5,31 @@
 // Needs from ctx: isAmazon, seed, noise, noiseB, qual; river (1.3.3: a stream on a grove island, the training field).
 import * as THREE from 'three';
 import { makeNoise2D, clamp, lerp, smoothstep } from '../../core/util.js';
-import { R, TAU, C, tmpC, V3 } from './common.js';
+import { R, K, TAU, C, tmpC, V3 } from './common.js';
 import { DESERT, desertHeight } from './desert-look.js';
+import { SAVANNA, savannaHeight, SAVANNA_BUMPS } from './savanna-look.js';
 
 export function createTerrain(ctx) {
-  const { isAmazon, isDesert, seed, noise, noiseB, qual } = ctx;
+  const { isAmazon, isDesert, isSavanna, seed, noise, noiseB, qual } = ctx;
   // 1.3.3: the training field (שטח האימונים) is the grove's land with the Amazon's stream running through it (ctx.river)
-  const hasRiver = isAmazon || !!ctx.river;
+  // 1.4.2: the savanna has a wide brown river across its plain
+  const hasRiver = isAmazon || isSavanna || !!ctx.river;
   // ───────────────────────────── island shape & height field
   const edgeNoise = makeNoise2D(seed * 13 + 3);
   function edgeR(theta) {
     const c = Math.cos(theta), s = Math.sin(theta);
-    return 44 + 1.7 * edgeNoise(c * 1.4 + 5, s * 1.4 + 5) + 0.7 * edgeNoise(c * 3.5 + 9, s * 3.5 - 2);
+    return 44 * K + 1.7 * edgeNoise(c * 1.4 + 5, s * 1.4 + 5) + 0.7 * edgeNoise(c * 3.5 + 9, s * 3.5 - 2);
   }
 
   // Water layout
   let WL = null; // water level
-  let riverPts = null, riverHW = 2.6, springPool = null, pools = [], riverExit = null;
+  let riverPts = null, riverHW = isSavanna ? SAVANNA.riverHW : 2.6, springPool = null, pools = [], riverExit = null;
   const rocks = [];
 
   if (hasRiver) {
-    const ctrl = [[-13, -31], [-8, -22], [-12, -12], [-4, -3], [8, 0], [15, 9], [21, 18], [29, 24], [37, 30], [45, 36], [52, 41]];
+    const ctrl = isSavanna ? SAVANNA.river : [[-13, -31], [-8, -22], [-12, -12], [-4, -3], [8, 0], [15, 9], [21, 18], [29, 24], [37, 30], [45, 36], [52, 41]];
     const curve = new THREE.CatmullRomCurve3(ctrl.map(([x, z]) => V3(x, 0, z)), false, 'catmullrom', 0.5);
-    const pts = curve.getSpacedPoints(110).map(p => ({ x: p.x, z: p.z }));
+    const pts = curve.getSpacedPoints(Math.round(110 * K)).map(p => ({ x: p.x, z: p.z }));
     // find exit
     let exitI = pts.length - 1;
     for (let i = 5; i < pts.length; i++) { const p = pts[i]; if (Math.hypot(p.x, p.z) > edgeR(Math.atan2(p.z, p.x)) - 0.2) { exitI = i; break; } }
@@ -39,6 +41,8 @@ export function createTerrain(ctx) {
     springPool = { x: pts[0].x, z: pts[0].z, r: 3.6 };
     pools = [springPool];
   }
+  // 1.4.2: the savanna's waterholes, pools of their own on the plain (their level is set below, once rawHeight exists)
+  const holes = isSavanna ? SAVANNA.holes.map((p) => ({ ...p, hole: true })) : [];
 
   function distToRiver(x, z) {
     let best = 1e9, bestS = 0, acc = 0;
@@ -56,8 +60,10 @@ export function createTerrain(ctx) {
 
   function rawHeight(x, z) {
     const r = Math.hypot(x, z);
-    let h = 0.7 + 1.5 * noise.fbm(x * 0.028 + 11, z * 0.028 - 7, 3) + 0.35 * noise(x * 0.1 + 3, z * 0.1 - 1);
+    const bumps = isSavanna ? SAVANNA_BUMPS : 1;   // the savanna: a flatter plain
+    let h = 0.7 + bumps * (1.5 * noise.fbm(x * 0.028 + 11, z * 0.028 - 7, 3) + 0.35 * noise(x * 0.1 + 3, z * 0.1 - 1));
     if (isDesert) h += desertHeight(x, z, noise);   // dunes, the dry wadi and the sandstone mesa (desert-look.js)
+    else if (isSavanna) h += savannaHeight(x, z, noise);   // long swells and the granite kopje (savanna-look.js)
     else if (!isAmazon) {
       h += 1.6 * Math.exp(-((x + 17) ** 2 + (z + 15) ** 2) / 200);   // rocky knoll (back-left)
       h += 0.8 * Math.exp(-((x - 22) ** 2 + (z + 20) ** 2) / 160);
@@ -77,6 +83,7 @@ export function createTerrain(ctx) {
     return p.r * (1 + 0.13 * Math.sin(a * 3 + 1.3) + 0.07 * Math.sin(a * 5 + 0.4));
   }
 
+  for (const P of holes) { P.h0 = rawHeight(P.x, P.z); P.wl = P.h0 - 0.14; pools.push(P); }
   // grove pool
   if (!hasRiver) {
     const P = isDesert ? { ...DESERT.pool } : { x: 13, z: -6, r: 4.3 };   // the desert: the oasis spring
@@ -107,6 +114,13 @@ export function createTerrain(ctx) {
         h = lerp(h, bankH, smoothstep(pr + 3, pr + 0.5, ds));
         if (ds < pr + 0.5) { const q = clamp(ds / pr); h = lerp(WL - 0.3 - 0.9 * (1 - q * q), h, smoothstep(pr - 0.7, pr + 0.5, ds)); }
       }
+      for (const P of holes) {   // a waterhole: a shallow bowl with muddy banks
+        const d = Math.hypot(x - P.x, z - P.z); if (d > P.r + 6) continue;
+        const pr = poolShapeR(P, x, z);
+        const bankH = P.h0 + 0.08 + Math.max(0, d - pr) * 0.16;
+        h = lerp(h, bankH, smoothstep(pr + 6, pr + 0.6, d));
+        if (d < pr + 0.6) { const q = clamp(d / pr); h = lerp(P.h0 - 0.4 - 0.8 * (1 - q * q), h, smoothstep(pr - 0.8, pr + 0.6, d)); }
+      }
     } else {
       const P = pools[0]; const d = Math.hypot(x - P.x, z - P.z);
       if (d < P.r + 7) {
@@ -130,7 +144,7 @@ export function createTerrain(ctx) {
   // ───────────────────────────── fallen-log crossings over the river (ground animals walk across them)
   const bridges = [];
   if (hasRiver) {
-    for (const i of [27, 61]) {
+    for (const i of [Math.round(27 * K), Math.round(61 * K)]) {
       const a = riverPts[i - 3], b = riverPts[i + 3], c = riverPts[i];
       const L = Math.hypot(b.x - a.x, b.z - a.z), nx = -(b.z - a.z) / L, nz = (b.x - a.x) / L;
       const half = riverHW + 1.7;
@@ -201,6 +215,8 @@ export function createTerrain(ctx) {
     addOutcrop(22, -18, 2.0);
   } else if (isDesert) {
     for (const [x, z, r] of DESERT.rocks) addOutcrop(x, z, r);
+  } else if (isSavanna) {
+    for (const [x, z, r] of SAVANNA.rocks) addOutcrop(x, z, r);
   } else {
     const cand = [[-17, -15, 3.8], [-25, 4, 2.8], [-8, 22, 2.6], [17, 22, 3.0], [26, -14, 3.2], [3, -24, 2.4], [-28, -22, 2.6], [17.5, -2.5, 1.8], [8.5, -10.5, 1.5]];
     for (const [x, z, r] of cand) if (!hasRiver || x * x + z * z > 400) addOutcrop(x, z, r);   // the training field: no rocks in the middle (the stream runs there)
@@ -210,6 +226,7 @@ export function createTerrain(ctx) {
   const SOIL = isAmazon
     ? { a: C('#3b2b1d'), b: C('#4c3624'), mud: C('#2c2219'), bed: C('#5a4a34'), rock: C('#5c5446') }
     : isDesert ? DESERT.soil
+    : isSavanna ? SAVANNA.soil
     : { a: C('#7a4a32'), b: C('#8c5a3a'), mud: C('#5e3a26'), bed: C('#8f826a'), rock: C('#9a6a4c') };   // terra rossa: earthy brown-red, not too saturated
 
   function rockInfluence(x, z) {
@@ -220,7 +237,7 @@ export function createTerrain(ctx) {
 
   function wetAt(x, z) { return WL === null ? 0 : smoothstep(isAmazon ? 4.5 : 2.5, 0.0, waterDist(x, z)); }
   function buildGround() {
-    const NS = qual.seg, NR = qual.rings;
+    const NS = Math.round(qual.seg * K), NR = Math.round(qual.rings * K);   // a bigger island keeps the same detail
     const pos = [], col = [], cov = [], idx = [];
     const thetas = []; for (let j = 0; j < NS; j++) thetas.push(j / NS * TAU);
     const ers = thetas.map(edgeR);
@@ -269,10 +286,11 @@ export function createTerrain(ctx) {
     c *= 1 - rockInfluence(x, z) * (isAmazon ? 0.3 : 0.75);
     const r = Math.hypot(x, z); c += smoothstep(R, R + 5, r) * 0.25;
     if (isDesert) c = c * 0.3 + (WL !== null ? smoothstep(6, 0.5, waterDist(x, z)) * 0.55 : 0);   // bare sand; green only by the oasis
+    else if (isSavanna) c = c * 0.8 + 0.25;   // 1.4.2: a plain of grass, with a little red earth between
     return clamp(c);
   }
   return {
-    hasRiver, edgeR, WL, riverPts, riverHW, springPool, pools, riverExit, rocks, heightAt, isWater, poolShapeR,
+    hasRiver, holes, edgeR, WL, riverPts, riverHW, springPool, pools, riverExit, rocks, heightAt, isWater, poolShapeR,
     bridges, bridgeTops, bridgeAt, nearBridge, walkRoute, waterDist, rockInfluence, buildGround, coverAt
   };
 }

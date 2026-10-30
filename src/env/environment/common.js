@@ -6,7 +6,14 @@
 import * as THREE from 'three';
 import { smoothstep } from '../../core/util.js';
 
-export const R = 38;
+// R is the playable radius. 1.4.2: the savanna's island is bigger (Avi, 28.10: about 75% more ground, so R × 1.32).
+// setIslandScale(k) runs first in createEnvironment (k = 1 for every other zone), and every part reads R and K at the
+// time it builds (ES module live bindings), so the island's layout numbers (edge, scatter radii, shadows, mist) grow
+// with it while the size of each thing (a tuft, a rock) stays the same. K = 1 leaves every older zone unchanged.
+export let K = 1;
+export let R = 38;
+export function setIslandScale(k = 1) { K = k; R = 38 * k; }
+export const islandScaleOf = (biomeId) => (biomeId === 'savanna' ? 1.32 : 1);
 export const MAX_SHAFTS = 20;
 export const MAX_FIRES = 6;
 export const MAX_SCORCH = 8;

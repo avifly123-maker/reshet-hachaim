@@ -22,7 +22,7 @@ export function createWater(ctx) {
 
   W.waterAt = (x, z) => {
     const spring = env.waterDist ? smoothstep(14, 1.5, env.waterDist(x, z)) : 0;
-    let w = 0.12 + 0.82 * spring + 0.45 * W.wetGround + 0.55 * W.wadiWet * wadiAt(x, z) - 0.25 * (W.drought || 0) - 0.12 * (W.heat || 0);
+    let w = 0.12 + 0.82 * spring + 0.45 * W.wetGround + 0.55 * W.wadiWet * wadiAt(x, z) - 0.25 * (W.drought || 0) - 0.12 * (W.heat || 0) - 0.3 * (W.dryK || 0);   // 1.4.2: the savanna's dry season (W.dryK, savanna/seasons.js)
     const d = devices(); if (d) w += d.waterAt(x, z);
     return clamp(w);
   };

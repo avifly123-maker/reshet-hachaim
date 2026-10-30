@@ -34,7 +34,7 @@ export const TYPE_COLORS = {
   decomposes: '#ab90dc', partner: '#f0d055', climbs: '#8fd067', eats: '#ec6a58',
 };
 export const typeColor = (t) => TYPE_COLORS[t] || '#9fc7a0';
-export const SEASON_ICON = { winter: 'drop', spring: 'flower', summer: 'sun', autumn: 'autumn' };
+export const SEASON_ICON = { winter: 'drop', spring: 'flower', summer: 'sun', autumn: 'autumn', wet: 'drop', dry: 'sun' };
 export const LAYER_TINT = {
   all: '#5d8f52', emergent: '#a8cf7a', canopy: '#6aa84f', understory: '#46803f', shrubs: '#5f8a3e',
   floor: '#7a5636', ground: '#7a5636', water: '#3f86a8', air: '#9ccbe6', sky: '#9ccbe6', nursery: '#e889a8',

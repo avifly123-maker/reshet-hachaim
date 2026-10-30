@@ -9,7 +9,9 @@ export const V3 = THREE.Vector3;
 export const Col = THREE.Color;
 export const UP = new V3(0, 1, 0);
 export const TAU = Math.PI * 2;
-export const SEASON_INDEX = { winter: 0, spring: 1, summer: 2, autumn: 3 };
+export const SEASON_INDEX = { winter: 0, spring: 1, summer: 2, autumn: 3, wet: 0, dry: 2 };
+// 1.4.2: the savanna's two seasons take half a year each (the rains: y 0 → .5, the dry season: y .5 → 1); a grove season a quarter
+export const SEASON_SPAN = { wet: 2, dry: 2 };
 
 // ---------------------------------------------------------------------------------------------------------------
 // Shader patch

@@ -35,8 +35,8 @@ for (const ln of allGuideLines()) {
 }
 for (const k of Object.keys(GUIDE)) if (!k.includes(':') && !PARTS[k]) err(`GUIDE key "${k}" is neither a journey part nor an 'area:place' key`);
 for (const k of Object.keys(GUIDE)) if (k.includes(':') && /^(zone|lab):/.test(k) && !PARTS[k] && !/^(zone|lab):[a-z]+(:|$)/.test(k)) err(`GUIDE key "${k}" looks like a part but is not in PARTS`);
-// 1.4: eight stages; the ones still to come (soon) are on the map only and open no part
-if (STAGES.length !== 8) err('eight stages expected');
+// 1.4.2: nine stages (the spread journey, docs/PLAN-1.4.2.md); the ones still to come (soon) are on the map only and open no part
+if (STAGES.length !== 9) err('nine stages expected');
 STAGES.forEach((S, i) => { if (S.n !== i + 1) err(`stage ${S.n} out of order`); if (i && S.soon === false) err(`stage ${S.n}: soon must be true or absent`); });
 const LASTN = STAGES.filter((S) => !S.soon).length;
 for (const [p, P] of Object.entries(PARTS)) { if (!(P.stage >= 1 && P.stage <= LASTN)) err(`part ${p}: stage out of range (or opened by a stage still to come)`); if (P.after && !PARTS[P.after]) err(`part ${p}: after ${P.after} is not a part`); if (!vocalised(P.kname)) err(`part ${p}: kname without nikud`); }

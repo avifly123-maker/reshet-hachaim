@@ -10,10 +10,11 @@ import { clamp, lerp, smoothstep, damp } from '../../core/util.js';
 import { TAU, MAX_SHAFTS, MAX_FIRES, MAX_SCORCH, MAX_GAPS, C, tmpC, tmpC2, V3, bump } from './common.js';
 import { SKY_C, samplePalette, sampleYear } from './palettes.js';
 import { DESERT } from './desert-look.js';
+import { SAVANNA } from './savanna-look.js';
 
 export function createUpdate(envCtx) {
   const {
-    isAmazon, isDesert, biome, quality, pipeline, U, skyU, sky, G, sun, sunLight, hemi, fog, farMat, farCrowns,
+    isAmazon, isDesert, isSavanna, biome, quality, pipeline, U, skyU, sky, G, sun, sunLight, hemi, fog, farMat, farCrowns,
     mistSeaU, mistSea, mistSea2, waterU, waterMeshes, WL, pools, scatterRefs, shaftU, shaftMesh,
     shaftGeo, shaftData, moteU, moteMesh, heightAt, pollenU, mistU, rainU, rainMesh, boltMesh, boltMat,
     makeBolt, fireU, scorch, flames, smoke, embers, birds
@@ -63,6 +64,32 @@ export function createUpdate(envCtx) {
     if (scatterRefs.flower) { const b = scatterRefs.flower.material.userData.uniforms.uBloom.value; const k = smoothstep(0.25, 0.8, gr) * (1 - dr * 0.8); b.set(k, k, k, k); }
     const low = dr * 0.25;
     if (waterMeshes[0]) { waterMeshes[0].position.y = WL - low; const s = 1 - low * 0.6; waterMeshes[0].scale.set(s, 1, s); waterMeshes[0].position.x = pools[0].x * (1 - s); waterMeshes[0].position.z = pools[0].z * (1 - s); }
+  }
+
+  // 1.4.2, the savanna: two seasons. In the rains the grass greens fast, flowers open and the waterholes fill; in the dry
+  // season everything turns to straw and the waterholes shrink (drought makes it worse). The grass of each place (tall or
+  // grazed, green or burnt) is the game's grass map (scatter.js setGrassMap); here only the colours of the whole island.
+  function updateSavanna(dt, season, frac) {
+    const target = season === 'dry' ? smoothstep(0.0, 0.35, frac) : 1 - smoothstep(0.0, 0.3, frac);
+    state.sdry = damp(state.sdry ?? target, target, 0.6, dt);
+    const sd = clamp(state.sdry + state.drought * 0.4), wet = state.wet;
+    G.uGrass.value.set(SAVANNA.wet.grass).lerp(CC(SAVANNA.dry.grass), sd);
+    G.uGrass2.value.set(SAVANNA.wet.grass2).lerp(CC(SAVANNA.dry.grass2), sd);
+    G.uCoverAmt.value = 0.9 - sd * 0.2;
+    G.uSoilWet.value = Math.max(wet * 0.8, (1 - sd) * 0.25);
+    const straw = CC('#e8d8a8'), green = CC('#c8dca0');
+    if (scatterRefs.grass) scatterRefs.grass.material.color.copy(green).lerp(straw, sd);
+    if (scatterRefs.lawn) scatterRefs.lawn.material.color.copy(G.uGrass.value).multiplyScalar(1.08);
+    if (scatterRefs.reed) scatterRefs.reed.material.color.set('#ffffff').lerp(CC('#d8c890'), sd * 0.6);
+    if (scatterRefs.flower) { const k = (1 - smoothstep(0.2, 0.6, sd)) * lerp(0.5, 1, state.vital); scatterRefs.flower.material.userData.uniforms.uBloom.value.set(k, k * 0.8, k * 0.6, k * 0.5); }
+    if (scatterRefs.bush) scatterRefs.bush.material.color.set('#ffffff').lerp(CC('#d8c8a0'), sd * 0.4);
+    // the waterholes shrink in the dry season (the river only drops a little)
+    for (const m of waterMeshes) {
+      const P = m.userData.hole; if (!P) continue;
+      const low = clamp(sd * 0.5 + state.drought * 0.35, 0, 0.75);
+      const s = 1 - low * 0.75; m.scale.set(s, 1, s); m.position.set(P.x * (1 - s), P.wl - low * 0.3, P.z * (1 - s));
+    }
+    if (waterMeshes[0] && !waterMeshes[0].userData.hole) waterMeshes[0].position.y = -sd * 0.1 - state.drought * 0.08;
   }
 
   function update(dt, ctx = {}) {
@@ -123,7 +150,7 @@ export function createUpdate(envCtx) {
     // hemisphere
     const hemiSky = tmpC.copy(cZen).lerp(cHor, 0.45);
     hemi.color.copy(hemiSky).lerp(CC('#ffffff'), 0.15 * dayAmt);
-    hemi.groundColor.set(isAmazon ? '#56622a' : isDesert ? DESERT.hemiGround : '#a0623e').multiplyScalar(0.25 + 0.75 * dayAmt).lerp(CC('#34436a'), night.v * 0.75);
+    hemi.groundColor.set(isAmazon ? '#56622a' : isDesert ? DESERT.hemiGround : isSavanna ? SAVANNA.hemiGround : '#a0623e').multiplyScalar(0.25 + 0.75 * dayAmt).lerp(CC('#34436a'), night.v * 0.75);
     if (isAmazon) hemi.color.lerp(CC('#cfe0b0'), 0.18 * dayAmt);   // humid golden-green skylight
     // an overcast sky gives soft light from everywhere: the sky light grows a little as the sun hides (winter rain stays grey, not gloomy)
     hemi.intensity = lerp((1.35 + 0.4 * bump(e, -0.05, 0.02, 0.1, 0.25)) * (isAmazon ? 1.0 : 1.05), isAmazon ? 3.0 : 2.5, night.v) * (1 + 0.22 * rn * dayAmt - 0.1 * rn * night.v);
@@ -179,6 +206,8 @@ export function createUpdate(envCtx) {
     // seasons (grove)
     if (isDesert) {
       updateDesert(dt);
+    } else if (isSavanna) {
+      updateSavanna(dt, ctx.season, clamp(ctx.seasonFrac || 0));
     } else if (!isAmazon) {
       const si = ['winter', 'spring', 'summer', 'autumn'].indexOf(ctx.season || 'spring');
       const p = (si < 0 ? 1 : si) + clamp(ctx.seasonFrac || 0);

@@ -88,6 +88,9 @@ export const SEASON_NAMES = {
   spring: 'אביב',
   summer: 'קיץ',
   autumn: 'סתיו',
+  // 1.4.2, the savanna's two seasons (the HUD shows "עונת ה…" style names as they are)
+  wet: 'גשמים',
+  dry: 'יובש',
 };
 
 export const ACTIVE_NAMES = {
@@ -162,6 +165,8 @@ export const GENDER = {
   honeybee: 'f', harvesterant: 'f', firefly: 'f', chameleon: 'f', owl: 'f', hoopoe: 'f', chukar: 'f',
   // reef
   seaanemone: 'f', clam: 'f', algae: 'fp', seafan: 'f', moray: 'f', jellyfish: 'f',
+  // savanna (1.4.2)
+  umbrella: 'f', whistling: 'f', sycamore: 'f', marula: 'f', zebra: 'f', giraffe: 'f', impala: 'f', termites: 'fp',
 };
 export const genderOf = (id) => GENDER[id] || 'm';
 

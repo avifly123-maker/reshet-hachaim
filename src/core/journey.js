@@ -65,9 +65,12 @@ export const PARTS = {
   experts: { stage: 6, name: 'משימות המומחים', kname: 'מְשִׂימוֹת הַמֻּמְחִים', where: 'zone' },
   // 1.4: the desert, a hard zone, opens at the expert stage (docs/PLAN-1.4.md section 3)
   'zone:desert': { stage: 6, v14: true, name: 'המדבר', kname: 'הַמִּדְבָּר', where: 'start' },
-  // 1.4.1: מעבדת הרובוטים opens at stage 6 with its first chapter; the other chapters and the puzzles at stage 7
-  robolab: { stage: 6, v14: true, name: 'מעבדת הרובוטים', kname: 'מַעְבֶּדֶת הָרוֹבּוֹטִים', where: 'start' },
-  'robolab:more': { stage: 7, v14: true, name: 'שאר שיעורי התכנות והחידות', kname: 'שְׁאָר שִׁעוּרֵי הַתִּכְנוּת וְהַחִידוֹת', where: 'robolab' },
+  // 1.4.2 (Avi, 30.10: "a spread journey", docs/PLAN-1.4.2.md): each high stage opens one new experience. Stage 7 opens
+  // the savanna and the robot lab's first chapter, stage 8 the other chapters and the puzzles (and, from 1.4.4, ניצוץ's
+  // inventors' workshop), stage 9 (1.4.3) the robot workshop, the missions on the player's own island and the sandbox.
+  'zone:savanna': { stage: 7, v14: true, name: 'הסוואנה', kname: 'הַסָּוַאנָה', where: 'start' },
+  robolab: { stage: 7, v14: true, name: 'מעבדת הרובוטים', kname: 'מַעְבֶּדֶת הָרוֹבּוֹטִים', where: 'start' },
+  'robolab:more': { stage: 8, v14: true, name: 'שאר שיעורי התכנות והחידות', kname: 'שְׁאָר שִׁעוּרֵי הַתִּכְנוּת וְהַחִידוֹת', where: 'robolab' },
 };
 
 // need: a list of ways (any one is enough). Keys: missions (done in all zones), badges (owned), lab (lab activities).
@@ -90,9 +93,11 @@ export const STAGES = [
   // of 1.4). Then `soon` goes, the new keys get their counters in metrics(), and the stage opens its parts:
   //   7 מתכנת: 6 desert missions, 12 programming lessons (code), a mystery solved in the desert or the savanna (solvedNew)
   //   8 יזם: 10 robot missions (robot), a desert island at the second rank (drank), two inventions (invent)
-  // 1.4.1 (Avi, 29.10): stage 7 opens now with the robot lab's first chapter; more parts join it in later rounds
-  { n: 7, id: 'programmer', name: 'מתכנת', kname: 'מְתַכְנֵת', need: [{ desert: 6, code: 6 }], kneed: [{ desert: 3, code: 4 }] },
-  { n: 8, id: 'entrepreneur', name: 'יזם', kname: 'יַזָּם', soon: true, need: [{ robot: 10, drank: 1, invent: 2 }], kneed: [{ robot: 5, drank: 1, invent: 1 }] },
+  // 1.4.2 (Avi, 30.10, the spread journey): 7 asks for the desert (its changes and its water prepare the savanna),
+  // 8 for the savanna and the programming lessons of stage 7, 9 (soon until 1.4.3) for robot missions and inventions
+  { n: 7, id: 'programmer', name: 'מתכנת', kname: 'מְתַכְנֵת', need: [{ desert: 6, invent: 2 }], kneed: [{ desert: 3, invent: 1 }] },
+  { n: 8, id: 'entrepreneur', name: 'יזם', kname: 'יַזָּם', need: [{ savanna: 6, code: 6 }], kneed: [{ savanna: 3, code: 4 }] },
+  { n: 9, id: 'engineer', name: 'מהנדס', kname: 'מְהַנְדֵּס', soon: true, need: [{ robot: 10, invent: 3 }], kneed: [{ robot: 5, invent: 2 }] },
 ];
 // the last stage a child can reach in this version (the soon ones are only shown on the map)
 export const LAST = STAGES.filter((st) => !st.soon).length;
@@ -101,8 +106,10 @@ export const LAST = STAGES.filter((st) => !st.soon).length;
 const isKids = () => levelNow() === 'kids';
 
 // ─────────────────────────────── what the child has done (read from the game's own saves)
-import { ZONE_IDS as ZONES } from '../data/zones.js';
+import { ZONE_IDS as ZONES, ALL_ZONE_IDS } from '../data/zones.js';
 export { ZONES };   // the zones whose saves count (core/threads.js reads the same)
+// missions are counted in every zone, also one still in the works (the testers' savanna counts for stage 8)
+const COUNTED = ALL_ZONE_IDS;
 // the missions done in a zone: what its save says now, joined with what this store remembers (a new forest, or the other
 // level, overwrites web-of-life-<zone>.done; a mission done once still counts)
 function doneIn(z, kept) {
@@ -114,7 +121,7 @@ function doneIn(z, kept) {
 export function metrics() {
   let missions = 0; const per = {};
   const kept = (readPlayer(K, null) || {}).done;
-  for (const z of ZONES) { per[z] = doneIn(z, kept).size; missions += per[z]; }
+  for (const z of COUNTED) { per[z] = doneIn(z, kept).size; missions += per[z]; }
   const b = readPlayer(KEY.badges, {}); const badges = b && b.own ? Object.keys(b.own).length : 0;
   const L = readPlayer(KEY.lab, {}) || {};
   const n = (o) => (o && typeof o === 'object' ? Object.keys(o).length : 0);
@@ -126,7 +133,7 @@ export function metrics() {
   const used = ((readPlayer(K, null) || {}).used) || {};
   const cardgame = (used.webpuzzle ? 1 : 0) + (used.keepforest ? 1 : 0);
   const RB = readPlayer(KEY.robolab, {}) || {}; const code = n(RB.done);   // robot-lab levels solved (1.4.1)
-  const m = { missions, amazon: per.amazon, grove: per.grove, reef: per.reef, desert: per.desert, badges, lab, cases, solved, cards, cardgame, invent: n(L.inventions) + n(L.solved), code };
+  const m = { missions, amazon: per.amazon, grove: per.grove, reef: per.reef, desert: per.desert, savanna: per.savanna, badges, lab, cases, solved, cards, cardgame, invent: n(L.inventions) + n(L.solved), code };
   // the island rank reads the forests' saves: only when a stage asks for it (check() runs often)
   let rank = null;
   Object.defineProperty(m, 'rank', { enumerable: true, get() {
@@ -183,7 +190,7 @@ export function state() {
   return { stage, stageId: st.id, name: kids ? st.kname : st.name, metrics: m, next, legacy: !!s.legacy, allOpen: allOpen(), kids };
 }
 // the words of one thing still missing ('' when it is done)
-const ZONE_IN = { amazon: ['באמזונס', 'בָּאָמָזוֹנָס'], grove: ['בחורש', 'בַּחֹרֶשׁ'], reef: ['בשונית', 'בַּשּׁוּנִית'], desert: ['במדבר', 'בַּמִּדְבָּר'] };
+const ZONE_IN = { amazon: ['באמזונס', 'בָּאָמָזוֹנָס'], grove: ['בחורש', 'בַּחֹרֶשׁ'], reef: ['בשונית', 'בַּשּׁוּנִית'], desert: ['במדבר', 'בַּמִּדְבָּר'], savanna: ['בסוואנה', 'בַּסָּוַאנָה'] };
 const RANK_WORDS = [null, ['אי אחד בדרגה השנייה (כמו חורש פורח)', 'אִי אֶחָד בַּדַּרְגָּה הַשְּׁנִיָּה (כְּמוֹ חֹרֶשׁ פּוֹרֵחַ)'],
   ['אי אחד בדרגה השלישית (כמו חורש עבות)', 'אִי אֶחָד בַּדַּרְגָּה הַשְּׁלִישִׁית (כְּמוֹ חֹרֶשׁ עָבוֹת)'], ['אי אחד בדרגה הרביעית', 'אִי אֶחָד בַּדַּרְגָּה הָרְבִיעִית']];
 function needWord(k, n, have, kids) {
@@ -253,7 +260,7 @@ export function check() {
   const s = store(), before = JSON.stringify(s);
   // remember every mission done so far (the zone's save may be overwritten by a new forest or the other level)
   const kept = s.done && typeof s.done === 'object' ? s.done : {};
-  for (const z of ZONES) kept[z] = [...doneIn(z, kept)];
+  for (const z of COUNTED) kept[z] = [...doneIn(z, kept)];
   s.done = kept;
   const m = metrics(), best = bestStage(s); const out = [];
   for (const st of STAGES) {

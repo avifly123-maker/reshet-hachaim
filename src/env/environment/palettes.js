@@ -35,6 +35,16 @@ export const SKY = {
     { e: 0.35, zen: '#2a68cc', hor: '#e2dccc', gnd: '#d2b48a', fog: '#e4dac6' },
     { e: 1.0, zen: '#2462c8', hor: '#e8e0d0', gnd: '#d8bc92', fog: '#e8e0ce' },
   ],
+  // 1.4.2: the savanna – a wide soft blue with a warm hazy horizon, golden afternoons and deep red-orange sunsets
+  savanna: [
+    { e: -1.0, zen: '#081536', hor: '#25375c', gnd: '#1c2640', fog: '#293c5e' },
+    { e: -0.22, zen: '#0b1a40', hor: '#2c4268', gnd: '#202c46', fog: '#30486a' },
+    { e: -0.08, zen: '#1e2c5a', hor: '#94586a', gnd: '#3a2e3a', fog: '#5e4456' },
+    { e: 0.0, zen: '#3c5490', hor: '#f27a3a', gnd: '#7a4a36', fog: '#d4825a' },
+    { e: 0.12, zen: '#4c7ac0', hor: '#f6b874', gnd: '#a88a5e', fog: '#e2b88a' },
+    { e: 0.35, zen: '#3a74c8', hor: '#e0d6bc', gnd: '#c4a878', fog: '#ddd0b4' },
+    { e: 1.0, zen: '#306cc4', hor: '#e4dcc4', gnd: '#c8ac7e', fog: '#e0d6bc' },
+  ],
 };
 export const SKY_C = {};
 for (const k in SKY) SKY_C[k] = SKY[k].map(s => ({ e: s.e, zen: C(s.zen), hor: C(s.hor), gnd: C(s.gnd), fog: C(s.fog) }));

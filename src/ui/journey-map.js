@@ -22,9 +22,9 @@ import { svcGuide } from '../core/services.js';
 const kids = () => J.playMode() === 'kids';
 const t = (f, k) => (kids() ? k : f);
 
-export const STAGE_COLOR = { 1: '#5f9a3e', 2: '#c98a2b', 3: '#2f7f6f', 4: '#2f6f9a', 5: '#b0602c', 6: '#a8433c', 7: '#6a55a8', 8: '#a8861e' };
+export const STAGE_COLOR = { 1: '#5f9a3e', 2: '#c98a2b', 3: '#2f7f6f', 4: '#2f6f9a', 5: '#b0602c', 6: '#a8433c', 7: '#6a55a8', 8: '#a8861e', 9: '#3e7a8a' };
 // emblems: an eye (observer), cards (collector), a shield with a leaf (keeper), a lens (researcher), a bulb (inventor),
-// a star (expert), code brackets (programmer), a rocket (entrepreneur). Stroke icons, no crossing bars anywhere.
+// a star (expert), code brackets (programmer), a rocket (entrepreneur), a cog (engineer, 1.4.2). Stroke icons, no crossing bars anywhere.
 const EMB = {
   1: '<path d="M2.6 12s3.6-6.2 9.4-6.2 9.4 6.2 9.4 6.2-3.6 6.2-9.4 6.2S2.6 12 2.6 12z"/><circle cx="12" cy="12" r="3"/><circle class="f" cx="12" cy="12" r="1.1"/>',
   2: '<rect x="8.4" y="3.6" width="10.4" height="14.6" rx="2" transform="rotate(9 13.6 10.9)"/><rect x="4.6" y="5.6" width="10.4" height="14.6" rx="2" transform="rotate(-7 9.8 12.9)"/><path d="M7.6 15.4c.4-3 2.4-4.8 5.2-5-.2 3-2.2 4.8-5.2 5z"/>',
@@ -34,6 +34,8 @@ const EMB = {
   6: '<path d="M12 2.8l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.1 6.4 20l1.1-6.2L3 9.4l6.2-.9z"/>',
   7: '<path d="M8.4 7.2L3.6 12l4.8 4.8"/><path d="M15.6 7.2l4.8 4.8-4.8 4.8"/><path d="M13.6 5.4l-3.2 13.2"/>',
   8: '<path d="M12 2.6c2.9 2.1 4.3 5.3 4.3 9v4.4H7.7v-4.4c0-3.7 1.4-6.9 4.3-9z"/><circle cx="12" cy="9.8" r="1.8"/><path d="M7.7 12.8l-2.7 2.9v3.1l2.7-1.6M16.3 12.8l2.7 2.9v3.1l-2.7-1.6"/><path d="M10.2 18.8l1.8 2.4 1.8-2.4"/>',
+  // 1.4.2: the engineer – a cog: a ring and six short teeth around it (they never meet in the middle)
+  9: '<circle cx="12" cy="12" r="5.2"/><circle class="f" cx="12" cy="12" r="1.6"/><path d="M12 3.2v2.6M12 18.2v2.6M19.6 7.6l-2.3 1.3M6.7 15.1l-2.3 1.3M19.6 16.4l-2.3-1.3M6.7 8.9L4.4 7.6"/>',
 };
 // a folded paper map (the journey bar's corner): three panels, the folds meet the edges only
 export const mapIcon = (cls = '') => `<svg class="ic${cls ? ' ' + cls : ''}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="f" d="M3 6.6l5.6-2.4 6.8 2.4L21 4.2v13.2l-5.6 2.4-6.8-2.4L3 19.8z" fill="currentColor" fill-opacity=".18" stroke="none"/><path d="M3 6.6l5.6-2.4 6.8 2.4L21 4.2v13.2l-5.6 2.4-6.8-2.4L3 19.8z"/><path d="M8.6 4.2v13.2M15.4 6.6v13.2"/></svg>`;

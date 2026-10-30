@@ -4,7 +4,7 @@
 // CONTRACT.md §3. Needs: kit.js, woody.js, herbs.js.
 import * as THREE from 'three';
 import { makeRng, clamp, lerp, smoothstep } from '../../core/util.js';
-import { V3, Col, UP, TAU, SEASON_INDEX, patchShader, makeUniforms, kf } from './kit.js';
+import { V3, Col, UP, TAU, SEASON_INDEX, SEASON_SPAN, patchShader, makeUniforms, kf } from './kit.js';
 import { WOODY, buildWoody } from './woody.js';
 import { buildSage, buildRockrose, buildCyclamen, buildAnemone, buildMushroom } from './herbs.js';
 
@@ -199,7 +199,7 @@ export function makePlantFrom(id, S, getG, opts = {}, prefix = 'plant-') {
     setSeason(season, frac = 0) {
       const i = SEASON_INDEX[season];
       if (i === undefined) return; // amazon / null season: keep current look
-      st.y = ((i + clamp(frac ?? 0, 0, 0.999)) / 4) % 1; refresh();
+      st.y = ((i + clamp(frac ?? 0, 0, 0.999) * (SEASON_SPAN[season] || 1)) / 4) % 1; refresh();
     },
     setBloom(b) { st.bloom = b == null ? null : clamp(b); refresh(); },
     setFruit(f) { st.fruit = f == null ? null : clamp(f); refresh(); },

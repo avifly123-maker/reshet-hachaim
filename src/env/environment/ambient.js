@@ -4,7 +4,7 @@
 // Needs from ctx: U, seed, track, root; the pollen also isAmazon, qual, heightAt.
 import * as THREE from 'three';
 import { makeRng } from '../../core/util.js';
-import { TAU, C } from './common.js';
+import { TAU, C, K } from './common.js';
 
 export function createPollen(ctx) {
   const { U, isAmazon, qual, seed, heightAt, track, root } = ctx;
@@ -14,7 +14,7 @@ export function createPollen(ctx) {
     const n = qual.pollen; const rr = makeRng(seed + 505);
     const pos = new Float32Array(n * 3), rnd = new Float32Array(n * 4);
     for (let i = 0; i < n; i++) {
-      const th = rr() * TAU, r = Math.sqrt(rr()) * 40; const x = Math.cos(th) * r, z = Math.sin(th) * r;
+      const th = rr() * TAU, r = Math.sqrt(rr()) * 40 * K; const x = Math.cos(th) * r, z = Math.sin(th) * r;
       const night = i % 4 === 0;
       pos[i * 3] = x; pos[i * 3 + 1] = heightAt(x, z) + (night ? 0.4 + rr() * 2.5 : 0.5 + rr() * 12); pos[i * 3 + 2] = z;
       rnd[i * 4] = rr(); rnd[i * 4 + 1] = rr(); rnd[i * 4 + 2] = night ? 1 : 0; rnd[i * 4 + 3] = rr();

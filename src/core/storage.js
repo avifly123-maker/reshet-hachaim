@@ -23,7 +23,8 @@
 import { key as profileKey } from './profiles.js';
 
 // the zones whose forests are saved (data/zones.js)
-import { ZONE_IDS } from '../data/zones.js';
+// every zone, also one still in the works (`wip` in data/zones.js): its saves need their keys from the first test
+import { ALL_ZONE_IDS as ZONE_IDS } from '../data/zones.js';
 export { ZONE_IDS };
 
 // The names the code uses. A per-zone key is made by zoneKey / saveKey.

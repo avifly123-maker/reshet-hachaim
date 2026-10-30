@@ -1,5 +1,5 @@
 // Packs: the parts of the game that only some screens need, loaded on demand.
-//   zone packs  – 'amazon', 'grove', 'reef', 'desert' (src/packs/<id>.js): a zone's content + species models
+//   zone packs  – 'amazon', 'grove', 'reef', 'desert', 'savanna' (src/packs/<id>.js): a zone's content + species models
 //   'hub'       – the learning hub and its card games (src/packs/hub.js)
 //   'lab'       – the lab of רובו־דע in the science centre (src/packs/lab.js)
 //   'game'      – the building game itself (src/packs/game.js: island, simulation, tools), loaded with the first zone
@@ -19,6 +19,7 @@ const LOADERS = {
   grove: () => import('../packs/grove.js'),
   reef: () => import('../packs/reef.js'),
   desert: () => import('../packs/desert.js'),   // 1.4
+  savanna: () => import('../packs/savanna.js'),   // 1.4.2
   game: () => import('../packs/game.js'),   // the building game (island, simulation, tools): with the first zone
   hub: () => import('../packs/hub.js'),
   lab: () => import('../packs/lab.js'),

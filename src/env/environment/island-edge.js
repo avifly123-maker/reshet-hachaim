@@ -4,16 +4,18 @@
 // Needs from ctx: noise, noiseB, isAmazon, ground, heightAt, track, U, biome, root.
 import * as THREE from 'three';
 import { desertStrata } from './desert-look.js';
+import { savannaStrata } from './savanna-look.js';
 import { clamp, lerp, smoothstep } from '../../core/util.js';
 import { TAU, tmpC, tmpC2, V3, patchMaterial } from './common.js';
 
 export function createIslandEdge(ctx) {
-  const { noise, noiseB, isAmazon, isDesert, ground, heightAt, track, U, biome, root } = ctx;
+  const { noise, noiseB, isAmazon, isDesert, isSavanna, ground, heightAt, track, U, biome, root } = ctx;
   // ───────────────────────────── island cross-section (skirt)
   function strataColor(depth, theta, out) {
     const n = noiseB(Math.cos(theta) * 3 + depth * 0.05, Math.sin(theta) * 3) * 0.5 + 0.5;
     const d = depth + (noise(theta * 4.0, depth * 0.3) * 1.3);
     if (isDesert) desertStrata(d, out, tmpC2);
+    else if (isSavanna) savannaStrata(d, out, tmpC2);
     else if (isAmazon) {
       if (d < 0.8) out.set('#2a1e14');
       else if (d < 2.2) out.set('#4d3420');

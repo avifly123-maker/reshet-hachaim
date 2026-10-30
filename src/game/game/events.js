@@ -140,7 +140,8 @@ export function createEvents(ctx) {
         if (n) { rig.focusOn(new THREE.Vector3(trees[0].x, 3, trees[0].z), 30); ctx.lightDirty = true; }
         break;
       }
-      case 'sandstorm': W.sandT = fx.seconds || 30; break;   // 1.4, the desert (src/game/game/water.js)
+      case 'sandstorm': W.sandT = fx.seconds || 30; break;
+      case 'migrate': case 'grassfire': if (ctx.savanna) ctx.savanna.effect(fx); break;   // 1.4.2, the savanna (src/game/savanna/)   // 1.4, the desert (src/game/game/water.js)
       case 'locust': W.locustT = fx.seconds || 25; break;
       case 'protect': W.protected = true; amb('היער הוא עכשיו שמורת טבע 🛡', 'good'); break;
       case 'road': buildRoad(); break;

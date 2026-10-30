@@ -4,12 +4,13 @@
 // Needs from ctx: seed, isAmazon, quality, pano, farHills (sky.js), impostorTrees, pipeline, track, root.
 import * as THREE from 'three';
 import { desertFar } from './desert-look.js';
+import { savannaFar } from './savanna-look.js';
 import { makeRng, makeNoise2D, clamp, smoothstep } from '../../core/util.js';
 import { TAU, C, tmpC, V3, bump } from './common.js';
 import { bakeImpostors, patchImpostorMaterial, impostorQuad } from '../impostors.js';
 
 export function createFarLand(ctx) {
-  const { seed, isAmazon, isDesert, quality, pano, farHills, impostorTrees, pipeline, track, root } = ctx;
+  const { seed, isAmazon, isDesert, isSavanna, quality, pano, farHills, impostorTrees, pipeline, track, root } = ctx;
   // ───────────────────────────── distant land (silhouettes below / around)
   let farMesh, farMat, farCrowns = null;
   const farRs = [];
@@ -60,6 +61,8 @@ export function createFarLand(ctx) {
           if (rd < 9) c.set('#8a8a6a');
         } else if (isDesert) {
           y = desertFar(x, z, r, fn, farHills, c).y;
+        } else if (isSavanna) {
+          y = savannaFar(x, z, r, fn, farHills, c).y;
         } else {
           let hh = (fn(x * 0.008 + 3, z * 0.008) * 0.5 + 0.5) * 45 + fn(x * 0.03, z * 0.03) * 5;
           hh = hh * 0.6 + (hh * 0.8 + 45) * smoothstep(200, 400, r) * farHills;
@@ -89,7 +92,7 @@ export function createFarLand(ctx) {
     root.add(farMesh);
 
     // instanced crowns on the distant land (amazon: layered jungle canopy + emergents; grove: round dark maquis bushes)
-    const nCrowns = Math.round((({ min: 0, low: 350, medium: 900, high: 1600 })[quality] ?? 900) * (isAmazon ? 2.2 : isDesert ? 0.25 : 1.4));   // the desert: a few far acacias
+    const nCrowns = Math.round((({ min: 0, low: 350, medium: 900, high: 1600 })[quality] ?? 900) * (isAmazon ? 2.2 : isDesert ? 0.25 : isSavanna ? 0.45 : 1.4));   // the savanna: lone acacias on the plain   // the desert: a few far acacias
     if (nCrowns > 0) {
       const rr = makeRng(seed * 59 + 3);
       // sample the far-land surface by ray-free lookup: rebuild the height the same way as the loop above
@@ -99,6 +102,7 @@ export function createFarLand(ctx) {
           return { y: -78 + (fn(x * 0.09, z * 0.09) * 1.8 + fn(x * 0.025 + 5, z * 0.025) * 5) * 1.4 + jungleRing(x, z, r) + (Math.max(0, fn(x * 0.006 + 9, z * 0.006 - 4)) * 70 + 30) * smoothstep(240, 420, r) * farHills - smoothstep(16, 5, rd) * 6, ok: rd > 12 };
         }
         if (isDesert) return desertFar(x, z, r, fn, farHills, null);
+        if (isSavanna) return savannaFar(x, z, r, fn, farHills, null);
         let hh = (fn(x * 0.008 + 3, z * 0.008) * 0.5 + 0.5) * 45 + fn(x * 0.03, z * 0.03) * 5;
         hh = hh * 0.6 + (hh * 0.8 + 45) * smoothstep(200, 400, r) * farHills;
         const st = 3.2; const fr = (hh / st) % 1;
@@ -123,10 +127,12 @@ export function createFarLand(ctx) {
           const k = rr(); if (k < 0.02) c.set('#a8962e'); else if (k < 0.032) c.set('#9a5a7e');   // a few flowering crowns
         } else if (isDesert) {
           c.set(rr() < 0.6 ? '#6a6a3a' : '#7a7442').lerp(C('#4a4a2a'), rr() * 0.4);
+        } else if (isSavanna) {
+          c.set(rr() < 0.6 ? '#5a6a2e' : '#6e7436').lerp(C('#3e4a22'), rr() * 0.4);
         } else {
           c.set(rr() < 0.6 ? '#2e4a22' : '#41582a').lerp(C('#26381c'), rr() * 0.5);
         }
-        items.push({ x, y: h.y + lift, z, s, flat: isAmazon ? 0.55 + rr() * 0.2 : 0.7, c, yaw: rr() * TAU, ground: h.y, emergent });
+        items.push({ x, y: h.y + lift, z, s, flat: isAmazon ? 0.55 + rr() * 0.2 : isSavanna ? 0.32 + rr() * 0.1 : 0.7, c, yaw: rr() * TAU, ground: h.y, emergent });
       }
       // real tree impostors (the zone's own trees baked into a small atlas); simple faceted crowns if that is not possible
       if (impostorTrees && impostorTrees.length && pipeline.renderer) {

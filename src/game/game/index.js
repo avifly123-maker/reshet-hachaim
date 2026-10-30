@@ -49,6 +49,7 @@ import { createAfter } from '../after.js';   /* H: after the missions (visitors,
 import { MAX_ANIMALS, MAX_ALL_PLANTS, farTreeSources, addPart } from './common.js';
 import { createEcology } from './ecology.js';
 import { createWater } from './water.js';
+import { createSavanna } from '../savanna/index.js';   // 1.4.2
 import { createPlacement } from './placement.js';
 import { createSelection } from './selection.js';
 import { createTrayDrag } from './tray-drag.js';
@@ -72,7 +73,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   const W = {
     biome, biomeId: biome.id, reg, plantBuilders, animalBuilders,
     plants: [], animals: [], fires: [], resprouters: RESPROUTERS,
-    simT: 0, day: 1, dayFrac: 0.3, season: biome.id === 'grove' ? 'winter' : null, seasonFrac: 0, nightGlow: 0,
+    simT: 0, day: 1, dayFrac: 0.3, season: biome.id === 'grove' ? 'winter' : biome.id === 'savanna' ? 'wet' : null, seasonFrac: 0, nightGlow: 0,
     rain: 0, rainTarget: 0, rainT: 0, drought: 0, droughtT: 0, flood: 0, floodT: 0, heat: 0, heatT: 0, wind: 0.25, storm: 0,
     growBoost: 1, points: START_POINTS, vitality: 0.5, speed: 1, lastTickDt: 0,
     unlocked: new Set(biome.species.filter(s => s.unlock === 'start').map(s => s.id)),
@@ -190,6 +191,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   addPart(ctx, createPointer(ctx), 'Pointer');         // ─ canvas pointer: hover, click-select, moving by dragging
   addPart(ctx, createRoad(ctx), 'Road');            // ─ human impact: stumps and roads
   addPart(ctx, createSave(ctx), 'Save');            // ─ save / restore the whole ecosystem
+  addPart(ctx, createSavanna(ctx), 'Savanna');      // ─ 1.4.2: the savanna's seasons, grass, herds, fire, elephants, stability
   const { spawnPlant, spawnAnimal, findSpotNear, select, refreshPanel, refreshTray, randomPlaceSpot, addStump,
     restore, seedStartingNature, alive, updateLight } = ctx;
 

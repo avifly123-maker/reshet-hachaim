@@ -27,7 +27,7 @@ export function createSave(ctx) {
     return {
       v: 1, biome: biome.id, savedAt: Date.now(), points: Math.round(W.points), day: W.day, dayFrac: W.dayFrac, season: W.season, simT: W.simT,
       unlocked: [...W.unlocked], discovered: [...W.discovered], everPlaced: [...W.everPlaced], quizDone: [...W.quizDone], seenNew: [...W.seenNew],
-      stats: { pollinations: W.stats.pollinations, dispersals: W.stats.dispersals, experiments: W.stats.experiments, births: W.stats.births, toolUse: W.stats.toolUse || {}, seeded: W.stats.seeded || 0, rescues: W.stats.rescues || 0, expSpecies: W.stats.expSpecies || [], uprooted: W.stats.uprooted || 0, moved: W.stats.moved || 0, letGo: W.stats.letGo || 0, transplants: W.stats.transplants || 0, scarsHealed: W.stats.scarsHealed || 0 },
+      stats: { pollinations: W.stats.pollinations, dispersals: W.stats.dispersals, experiments: W.stats.experiments, births: W.stats.births, toolUse: W.stats.toolUse || {}, seeded: W.stats.seeded || 0, rescues: W.stats.rescues || 0, expSpecies: W.stats.expSpecies || [], uprooted: W.stats.uprooted || 0, moved: W.stats.moved || 0, letGo: W.stats.letGo || 0, transplants: W.stats.transplants || 0, scarsHealed: W.stats.scarsHealed || 0, ...(W.stats.stableSeasons ? { stableSeasons: W.stats.stableSeasons } : {}) },
       ...(W.scars.length ? { scars: W.scars } : {}),
       missions: missions.missions.filter(m => m.done).map(m => m.id),
       missionProgress: missions.serializeProgress(),
@@ -38,6 +38,7 @@ export function createSave(ctx) {
       plants: plants.map(p => ({ id: p.sp.id, x: +p.x.toFixed(2), z: +p.z.toFixed(2), g: +p.growth.toFixed(3), h: +p.health.toFixed(2), w: p.wild ? 1 : 0, host: p.host ? (index.get(p.host) ?? -1) : -1, ai: p.attachIdx || 0, s: p.seed, b: Math.round(p.bornT ?? -1), ...(p.sownBy ? { a: p.sownBy } : {}), ...(p.strong ? { st: 1 } : {}) })),   // the seed keeps the same shape (and branch spots) after loading
       tools: ctx.tools ? ctx.tools.serialize() : null,
       report: ctx.report ? ctx.report.serialize() : undefined,
+      savanna: ctx.savanna ? ctx.savanna.serialize() : undefined,   // 1.4.2: the grass map, the herds' year, the stability
       animals: W.animals.filter(a => keepOnSave(a) && !a.leaving && !a.visitor).map(   /* H: a rare visitor is not saved */
         a => ({ id: a.sp.id, x: +a.pos.x.toFixed(2), y: +a.pos.y.toFixed(2), z: +a.pos.z.toFixed(2), e: +a.energy.toFixed(2), g: +a.grow.toFixed(2) })),
     };
@@ -58,6 +59,7 @@ export function createSave(ctx) {
     for (const id of S.quizDone || []) W.quizDone.add(id);
     for (const id of S.seenNew || []) W.seenNew.add(id);
     Object.assign(W.stats, S.stats || {});
+    if (ctx.savanna && S.savanna) ctx.savanna.restore(S.savanna);
     missions.restoreProgress(S.missionProgress);
     for (const m of missions.missions) if ((S.missions || []).includes(m.id)) { m.done = true; m.started = true; }
     // only answered events stay done; an event that fired but was never answered (old saves) is queued again
@@ -103,6 +105,7 @@ export function createSave(ctx) {
     if (W.kids) { for (const s2 of biome.species) { if (s2.kind === 'shrub' || s2.kind === 'coral') put(s2.id, 1, 1); } const t = biome.species.find((s2) => s2.kind === 'tree' || s2.kind === 'palm'); if (t) put(t.id, 0.95, 1); return; }
     if (biome.id === 'amazon') { put('kapok', 1, 1); put('fern', 1, 5); put('acai', 0.9, 1); }
     else if (biome.id === 'desert') { put('acacia', 0.95, 1); put('saltbush', 1, 2); put('retama', 1, 1); put('blooms', 1, 3); }   // 1.4.1: the desert starts as empty as the others
+    else if (biome.id === 'savanna') { put('umbrella', 0.95, 1); put('redoat', 1, 6); put('stargrass', 1, 3); }   // 1.4.2: one acacia and a little grass
     else if (biome.id === 'reef') { put('branching', 1, 2); put('seagrass', 1, 4); put('sponge', 1, 1); put('brain', 1, 1); }
     else { put('oak', 0.95, 1); put('mastic', 1, 2); put('sage', 1, 2); }
   }
