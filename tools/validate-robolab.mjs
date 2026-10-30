@@ -43,7 +43,7 @@ for (const L of ALL_LEVELS) {
   if (L.puzzle && !L.after) errs.push(w + ': a puzzle needs `after` (the lesson that opens it)');
   // programs that must NOT pass (a fixed path where the lesson wants an "if", one tool where it wants teamwork)
   (L.wrong || []).forEach((p, i) => { const r = runLevel(lev, { ...p, defs: { ...(L.defs0 || {}), ...(p.defs || {}) } }); if (r.ok) errs.push(`${w}: wrong program ${i + 1} passes, the lesson does not teach what it should`); });
-  if (L.par && best < 99 && best > L.par + 4) errs.push(`${w}: par ${L.par} is far below the best listed solution (${best})`);
+  if (L.par && best < 99 && best > L.par) errs.push(`${w}: par ${L.par} is below the best listed solution (${best}): three stars would be out of reach`);   // QA 30.10
 }
 if (errs.length) { console.error('validate-robolab: ' + errs.length + ' problem(s)\n  ' + errs.join('\n  ')); process.exit(1); }
 console.log('validate-robolab: ' + ALL_LEVELS.length + ' levels, every one solvable in at least two ways');

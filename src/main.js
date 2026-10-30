@@ -196,6 +196,8 @@ async function boot() {
     setTimeout(() => {
       try {
         if (!game && !lesson) return;
+        if (lesson && !document.querySelector('#ui .rl-home')) return;   // QA 30.10: not over a lesson; only on the lab's home
+        if (!lesson && robolab && robolab.isOpen && robolab.isOpen()) return;
         const st = journey.state(); if (st.stage !== before || !st.next || st.next.soon || (st.legacy && st.next.stage < 7)) return;   // a new stage has its own moment; a player from before 1.3.2 still walks the 1.4 stages (7, 8)
         const need = st.next.need && st.next.need[0]; if (!need) return;
         const f = `עוד צעד במסע! לשלב "${st.next.name}" חסר: ${need}.`, k = `עוֹד צַעַד בַּמַּסָּע! לַשָּׁלָב "${st.next.name}" חָסֵר: ${need}.`;

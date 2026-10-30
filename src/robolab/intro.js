@@ -104,7 +104,7 @@ export function playIntro(host, { kids = false, voice = null, sfx = () => { }, o
     for (const c of conf) { c.position.y -= c.userData.v * dt; c.rotation.x += c.userData.s * dt; c.rotation.y += c.userData.s * 0.7 * dt; if (c.position.y < 0.05) c.position.y = 0.05; }
     // the camera: close on קוּבִּי, then wider for the whole team
     const wide = ease((t - Math.min(at.robot, 1e8) + 0.5) / 2.5) * 0.5 + ease((t - at.end) / 2) * 0.5;
-    cam.position.set(0.3 + Math.sin(t * 0.15) * 0.4, 1.25 + wide * 1.3, 3.1 + wide * 3.2); cam.lookAt(0, 0.75 + wide * 0.1, 0);
+    cam.position.set(0.3 + Math.sin(t * 0.15) * 0.4, 1.25 + wide * 1.3, 3.1 + wide * 3.2); cam.lookAt(0, 0.62 + wide * 0.2, 0);   // קוּבִּי a little higher in the frame, clear of the caption (QA 30.10)
     renderer.render(scene, cam);
   }
   if (!film) requestAnimationFrame(() => { size(); raf = requestAnimationFrame(frame); });

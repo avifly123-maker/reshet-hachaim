@@ -5,7 +5,7 @@
 // Data: src/data/robolab/ (lessons, puzzles). Engine: ./engine/ (pure). Screen: ./ui/ (map, editor, icons).
 // Progress per player: ./progress.js. Debug (headless tests): window.__rlDebug = { open(id), solve(id), run(), state() }.
 import { CHAPTERS, LESSONS, PUZZLES, ALL_LEVELS } from '../data/robolab/index.js';
-import { runLevel } from './engine/run.js';
+import { runLevel, countBlocks } from './engine/run.js';
 import { levelsOf } from './engine/level.js';
 import { createMap } from './ui/map.js';
 import { createRoboSession } from './three/session.js';
@@ -198,6 +198,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
       tut = robolabTutorial({ guide: g, rl }) || (hasHat ? robolabEventTutorial({ guide: g, rl }) : null);
     }, 2600);
   }
+  function maxbUpdate() { const m = el.querySelector('.rl-maxb b'); if (!m || !ed || !cur) return; const n = countBlocks(ed.program()); m.textContent = n; m.parentNode.classList.toggle('full', !!cur.maxBlocks && n >= cur.maxBlocks); }
   function mountLevel(L, api) {
     flushDraft(); stopTut();
     const news = newsFor(L);
@@ -209,7 +210,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     el.innerHTML = `<div class="rl-level z-${L.zone}">
       <header class="rl-top"><button type="button" class="rl-back" data-home>${icon('home')}<span>${kids ? 'לַמַּעְבָּדָה' : 'למעבדה'}</span></button>
         <div class="rl-title"><h1>${esc(T(L.title))}</h1><p>${esc(T(zw))}${L.concept && conceptWord(L.concept).f ? ' · ' + esc(T(conceptWord(L.concept))) : ''}</p></div>
-        <div class="rl-goalbar">${L.par ? `<span class="rl-par">${icon('star')}${icon('star')}${icon('star')} ${kids ? 'עַד' : 'עד'} <b>${L.par}</b> ${kids ? 'בְּלוֹקִים' : 'בלוקים'}</span>` : ''}</div></header>
+        <div class="rl-goalbar">${L.maxBlocks ? `<span class="rl-maxb" title="${kids ? 'מֻתָּר עַד' : 'מותר עד'} ${L.maxBlocks}">🧱 <b>0</b> / ${L.maxBlocks}</span>` : ''}${L.par ? `<span class="rl-par">${icon('star')}${icon('star')}${icon('star')} ${kids ? 'עַד' : 'עד'} <b>${L.par}</b> ${kids ? 'בְּלוֹקִים' : 'בלוקים'}</span>` : ''}</div></header>
       <div class="rl-say"><canvas class="rl-kubi" aria-hidden="true"></canvas><p>${news.chapter ? `<span class="rl-chi">${esc(T(news.chapter))}</span> ` : ''}${(L.say || []).map((s) => esc(T(s))).join(' ')}${news.blocks.map((b) => `<span class="rl-newb"><i>${BLOCKS[b].emo || icon(BLOCKS[b].icon)}</i><b>${kids ? 'חָדָשׁ' : 'חדש'}</b> ${esc(T(BLOCK_INTRO[b]))}</span>`).join('')}</p></div>
       <div class="rl-body">
         <div class="rl-ed"></div>
@@ -223,12 +224,12 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
             ${api ? `<button type="button" data-view aria-label="${kids ? 'לְהַחֲזִיר אֶת הַמַּבָּט' : 'להחזיר את המבט'}">${icon('eye')}</button>` : ''}
           </div></div>
       </div></div>`;
-    ed = createEditor(el.querySelector('.rl-ed'), { lesson: L, kids, onChange: () => { lastRun = null; el.querySelector('[data-why]').disabled = true; if (map && !map.isPlaying()) map.reset(); hideMsg(); queueDraft(); } });
+    ed = createEditor(el.querySelector('.rl-ed'), { lesson: L, kids, onFull: () => { sfx('invalid'); const m = el.querySelector('.rl-maxb'); if (m) { m.classList.remove('full'); void m.offsetWidth; m.classList.add('full'); } }, onChange: () => { maxbUpdate(); lastRun = null; el.querySelector('[data-why]').disabled = true; if (map && !map.isPlaying()) map.reset(); hideMsg(); queueDraft(); } });
     // the child's own unfinished program comes back (a draft), else a puzzle's program to fix
     const draft = L.ownIsland ? null : draftOf(L.id);
     if (draft) { try { ed.set({ ...draft, defs: { ...(L.defs0 || {}), ...(draft.defs || {}) } }); } catch (e) { console.error(e); } }
     else if (L.start0) ed.set({ ...L.start0, defs: { ...(L.defs0 || {}), ...(L.start0.defs || {}) } });
-    draftDirty = false;
+    draftDirty = false; maxbUpdate();
     if (api) { map = stage3d(api); el.querySelector('.rl-map').remove(); }
     else { map = createMap(el.querySelector('.rl-map'), L, L.zone); requestAnimationFrame(() => map && map.redraw()); }
     // קוּבִּי explains the lesson from his corner of the strip (kubi-cam.js); later his voice says the words

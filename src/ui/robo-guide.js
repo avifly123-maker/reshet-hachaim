@@ -49,6 +49,7 @@ const CSS = `
 #ui #rguide .rg-dots i.on { width: 20px; border-radius: 6px; background: #1f7f78; }
 #ui #rguide button { font: inherit; font-size: calc(1em * var(--ts, 1)); cursor: pointer; border: 0; border-radius: 999px; min-height: 42px; padding: 6px 18px; font-weight: 800; }
 #ui #rguide .rg-act { background: #e9e2c8; color: #2c3a26; }
+#ui #rguide .rg-act.quiet { background: transparent; color: #6b6b52; text-decoration: underline; box-shadow: none; font-weight: 400; font-size: .9em; }
 #ui #rguide .rg-next, #ui #rguide .rg-act.primary { background: #2c9a92; color: #fff; box-shadow: 0 3px 0 #1d6b65; }
 #ui #rguide .rg-skip { background: transparent; color: #5a5a40; padding: 6px 10px; }
 #ui #rguide .rg-say { background: transparent; color: #1f7f78; padding: 6px 8px; min-width: 42px; }
@@ -90,13 +91,13 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
       <div class="rg-bub"><span class="rg-name">${kids ? 'רוֹבּוֹ־דַּע' : 'רובו־דע'}</span><p class="rg-txt">${esc(words(ln))}</p>
         <div class="rg-foot">${c.lines.length > 1 ? `<span class="rg-dots">${c.lines.map((_, j) => `<i class="${j === c.i ? 'on' : ''}"></i>`).join('')}</span>` : '<span class="rg-dots"></span>'}
           ${ln.id ? `<button class="rg-say" data-g="say" aria-label="${kids ? 'לִשְׁמֹעַ שׁוּב' : 'לשמוע שוב'}" title="${kids ? 'לִשְׁמֹעַ שׁוּב' : 'לשמוע שוב'}">${SPEAKER}</button>` : ''}
-          ${acts ? acts.map((a, j) => `<button class="rg-act${a.kind === 'primary' || (!a.kind && j === 0) ? ' primary' : ''}" data-act="${esc(a.id)}">${esc(a.label)}</button>`).join('')
+          ${acts ? acts.map((a, j) => `<button class="rg-act${a.kind === 'primary' || (!a.kind && j === 0) ? ' primary' : ''}${a.kind === 'quiet' ? ' quiet' : ''}" data-act="${esc(a.id)}">${esc(a.label)}</button>`).join('')
             : `<button class="rg-next" data-g="next">${lastOne ? (c.opts.tip ? (kids ? 'הָבַנְתִּי' : 'הבנתי') : (kids ? 'סִיּוּם' : 'סיום')) : (kids ? 'הַבָּא' : 'הבא')}</button>`}
           ${!lastOne && !c.opts.tip ? `<button class="rg-skip" data-g="skip">${kids ? 'דַּלֵּג' : 'דלג'}</button>` : ''}</div></div></div>`;
     placeRing(ln.at); placeWrap();
     synthTalk = Math.min(4, 0.9 + words(ln).length / 22);   // the mouth moves a little even without sound
     if (voice && ln.id && c.spokenI !== c.i) { c.spokenI = c.i; voice.say(ln.id).catch(() => { }); }
-    const btn = el.querySelector('.rg-next, .rg-act'); try { btn && btn.focus({ preventScroll: true }); } catch (e) { }
+    const btn = el.querySelector('.rg-next, .rg-act:not(.quiet)');   // a quiet one ("לדלג על ההדרכה") is never the button a child presses by default try { btn && btn.focus({ preventScroll: true }); } catch (e) { }
   }
   // an element the child can see now (a ring around a removed or hidden one would float over nothing)
   function shown(t) {
@@ -116,10 +117,13 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
     }
     // 1.4.1: the bubble never hides the thing it rings (small screens: a button at the bottom, a block low in a list);
     // it moves up to sit just above it, when there is room
-    if (!ringAt) return;
-    const r = ringAt.getBoundingClientRect(), b = w.getBoundingClientRect();
-    const over = r.left < b.right && r.right > b.left && r.top < b.bottom && r.bottom > b.top;
-    if (over && r.top - 10 > b.height) w.style.bottom = Math.round(innerHeight - r.top + 10) + 'px';
+    // the robot lab's run message (a win, a fail, "מה קרה?") is never hidden either (QA 30.10)
+    const keep = [ringAt, document.querySelector('#ui .rl-msg:not([hidden])')].filter((t) => t && shown(t));
+    for (const t of keep) {
+      const r = t.getBoundingClientRect(), b = w.getBoundingClientRect();
+      const over = r.left < b.right && r.right > b.left && r.top < b.bottom && r.bottom > b.top;
+      if (over && r.top - 10 > b.height) w.style.bottom = Math.round(innerHeight - r.top + 10) + 'px';
+    }
   }
   function placeRing(at) {
     const old = el.querySelector('.rg-ring'); if (old) old.remove();

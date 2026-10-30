@@ -126,6 +126,9 @@ export function createCourse(ctx, L) {
     const sp = spOf(it.kind), X = wx(it.x), Z = wz(it.y);
     const a = sp && spawnAnimal(sp, new THREE.Vector3(X, ground(X, Z), Z));
     if (a) { a.home.set(X, a.home.y, Z); a.range = Math.max(1, CS * 0.3); a.grow = 1; keep.push(a); animals.set(it.x + ',' + it.y, a); }
+    // the cell itself is marked (QA 30.10: a bird may perch on a tree near its cell, and the child must see where to go)
+    const ring = new THREE.Mesh(new THREE.RingGeometry(CS * 0.28, CS * 0.36, 40), new THREE.MeshBasicMaterial({ color: '#ffd25a', transparent: true, opacity: 0.85, depthWrite: false }));
+    ring.rotation.x = -Math.PI / 2; ring.position.set(X, ground(X, Z) + 0.06, Z); root.add(ring);
   }
 
   // ── the items and the tools (made again on every reset)

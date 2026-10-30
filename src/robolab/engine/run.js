@@ -19,7 +19,8 @@ const MAX_TICKS = 600, MAX_DEPTH = 40;
 
 export function countBlocks(program) {
   let n = 0;
-  const walk = (list) => { for (const nd of list || []) { n++; walk(nd.body); walk(nd.then); walk(nd.else); } };
+  // the surprise blocks (fireworks, dance…) are free: a child who adds them never loses a star for it
+  const walk = (list) => { for (const nd of list || []) { if (!(BLOCKS[nd.b] && BLOCKS[nd.b].fam === 'fun')) n++; walk(nd.body); walk(nd.then); walk(nd.else); } };
   for (const k of ['robot', 'drone', 'sub']) walk(program[k]);
   for (const k in (program.defs || {})) { n++; walk(program.defs[k]); }
   for (const h of program.on || []) { n++; walk(h.body); }

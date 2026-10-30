@@ -27,7 +27,7 @@ export function openGarage(host, { kids = false, sfx = () => { }, onClose } = {}
   el.innerHTML = `<header class="rl-top"><button type="button" class="rl-back" data-gclose>${icon('home')}<span>${kids ? 'לַמַּעְבָּדָה' : 'למעבדה'}</span></button>
       <div class="rl-title"><h1>${kids ? 'סַדְנַת הָעִצּוּב' : 'סדנת העיצוב'}</h1><p>${kids ? 'מְעַצְּבִים אֶת הַכֵּלִים שֶׁלָּכֶם' : 'מעצבים את הכלים שלכם: חלקים וצבעים'}</p></div></header>
     <div class="rl-gbody"><div class="rl-gside"><div class="rl-gtabs" role="tablist"></div><div class="rl-gopts"></div></div>
-      <div class="rl-gview"><canvas></canvas><small>${kids ? 'גְּרְרוּ כְּדֵי לְסוֹבֵב' : 'גררו כדי לסובב'}</small></div></div>`;
+      <div class="rl-gview"><canvas></canvas><small>${kids ? 'גִּרְרוּ כְּדֵי לְסוֹבֵב' : 'גררו כדי לסובב'}</small></div></div>`;
   const canvas = el.querySelector('canvas');
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));

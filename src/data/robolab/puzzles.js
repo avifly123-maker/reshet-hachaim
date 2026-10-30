@@ -60,7 +60,7 @@ export const PUZZLES = [
     tools: ['sub'], blocks: ['fwd', 'right', 'coral', 'repeat', 'until', 'if'],
     map: { rows: ['#######', '#~~~~~#', '#~~~~~#', '#######'] }, home: { x: 1, y: 1 }, tools0: { sub: { x: 1, y: 1, dir: 1 } },
     variants: [{ items: [...row('coral', [3], 1), ...row('coral', [2, 5], 2)] }, { items: [...row('coral', [2, 5], 1), ...row('coral', [4], 2)] }],
-    goal: { all: [{ t: 'done', item: 'corals' }, { t: 'nooops' }] }, par: 12,
+    goal: { all: [{ t: 'done', item: 'corals' }, { t: 'nooops' }] }, par: 13,
     solutions: [{ sub: [REP(4, [{ b: 'fwd' }, IF('coralspot', [{ b: 'coral' }])]), R, { b: 'fwd' }, IF('coralspot', [{ b: 'coral' }]), R, REP(4, [{ b: 'fwd' }, IF('coralspot', [{ b: 'coral' }])])] },
       { sub: [{ b: 'until', c: 'blocked', body: [{ b: 'fwd' }, IF('coralspot', [{ b: 'coral' }])] }, R, { b: 'fwd' }, IF('coralspot', [{ b: 'coral' }]), R, { b: 'until', c: 'blocked', body: [{ b: 'fwd' }, IF('coralspot', [{ b: 'coral' }])] }] }],
     wrong: [{ sub: [REP(4, [{ b: 'fwd' }, { b: 'coral' }]), R, { b: 'fwd' }, { b: 'coral' }, R, REP(4, [{ b: 'fwd' }, { b: 'coral' }])] }],

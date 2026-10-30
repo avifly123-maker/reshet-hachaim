@@ -213,7 +213,7 @@
 #ui.wol .rl-intro.end .rl-ititle { opacity: 1; transform: none; }
 #ui.wol .rl-ititle h1 { margin: 0; font-size: clamp(26px, 5vw, 48px); text-shadow: 0 3px 14px #0008; }
 #ui.wol .rl-ititle p { margin: 4px 0 0; font-size: clamp(14px, 2vw, 20px); color: #bfeee4; }
-#ui.wol .rl-icap { position: absolute; bottom: 12%; inset-inline: 8%; margin: 0; text-align: center; color: #fff; font-size: calc(clamp(16px, 2.3vw, 24px) * var(--ts, 1)); line-height: 1.5; background: #0b1f2acc; border-radius: 14px; padding: 10px 18px; opacity: 0; transition: opacity .35s; pointer-events: none; }
+#ui.wol .rl-icap { position: absolute; bottom: 4%; inset-inline: 8%; margin: 0; text-align: center; color: #fff; font-size: calc(clamp(16px, 2.3vw, 24px) * var(--ts, 1)); line-height: 1.5; background: #0b1f2acc; border-radius: 14px; padding: 10px 18px; opacity: 0; transition: opacity .35s; pointer-events: none; }
 #ui.wol .rl-icap.on { opacity: 1; }
 #ui.wol .rl-icap:empty { display: none; }
 #ui.wol .rl-iskip { position: absolute; top: 14px; inset-inline-end: 14px; padding: 8px 18px; border-radius: 20px; border: 1px solid #ffffff55; background: #ffffff22; color: #fff; font: inherit; font-size: 16px; cursor: pointer; }
@@ -223,3 +223,11 @@
 #ui.wol .rl-introb { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 16px; border: 1px solid #ffffff44; background: #ffffff18; color: inherit; font: inherit; font-size: 14px; cursor: pointer; align-self: center; }
 #ui.wol .rl-introb svg { width: 16px; height: 16px; }
 #ui.wol .rl-intro.end .rl-icap { bottom: 17%; }
+/* QA 30.10: the main program next to event blocks; a puzzle's block limit */
+#ui.wol .rl-mainp { border: 2px dashed #ffffff40; border-radius: 12px; padding: 4px 6px 6px; margin-bottom: 8px; }
+#ui.wol .rl-mainp > small { display: block; font-weight: 700; opacity: .85; margin: 0 2px 2px; }
+#ui.wol .rl-mainp .rl-list:empty, #ui.wol .rl-mainp > .rl-list > .rl-slot:only-child { min-height: 34px; }
+#ui.wol .rl-blk.no { animation: rl-no .35s; }
+@keyframes rl-no { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+#ui.wol .rl-maxb { display: inline-flex; gap: 4px; align-items: center; padding: 2px 10px; border-radius: 12px; background: #ffffff1c; font-weight: 700; }
+#ui.wol .rl-maxb.full { background: #e8873a; color: #fff; }

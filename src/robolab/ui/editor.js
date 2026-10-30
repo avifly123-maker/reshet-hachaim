@@ -6,6 +6,7 @@
 //   E.program()   → { robot, drone, sub, defs }   (node ids are kept for lighting the running block)
 //   E.light(nid)  E.clear()  E.set(program)
 import { BLOCKS, FAMILIES, SENSORS, SIGNALS } from '../engine/blocks.js';
+import { countBlocks } from '../engine/run.js';
 import { icon } from './icons.js';
 
 let UID = 1;
@@ -24,7 +25,7 @@ const newNode = (b) => {
   return nd;
 };
 
-export function createEditor(el, { lesson, kids, onChange }) {
+export function createEditor(el, { lesson, kids, onChange, onFull }) {
   const T = (o) => (kids && o.k ? o.k : o.f);
   const tools = lesson.tools || ['robot'];
   const hasDefs = (lesson.blocks || []).includes('call');
@@ -84,7 +85,9 @@ export function createEditor(el, { lesson, kids, onChange }) {
     renderTabs();
     const L = listOf();
     const hats = tab.startsWith('def:') ? [] : prog.on.filter((h) => h.tool === tab);
-    codeEl.innerHTML = renderList(L) + (L.length || hats.length ? '' : `<p class="rl-hint">${kids ? 'לַחֲצוּ עַל בְּלוֹק כְּדֵי לְהוֹסִיף אוֹתוֹ' : 'לחצו על בלוק כדי להוסיף אותו לתוכנית'}</p>`) + hats.map(renderHat).join('');
+    // with event blocks the main program gets its own labelled area (QA 30.10: a child could not find where it goes)
+    const main = hats.length ? `<div class="rl-mainp"><small>${kids ? 'הַתָּכְנִית הָרָאשִׁית' : 'התוכנית הראשית'}${L.length ? '' : (kids ? ' · לַחֲצוּ כָּאן וְאָז עַל בְּלוֹק' : ' · לחצו כאן ואז על בלוק')}</small>${renderList(L)}</div>` : renderList(L);
+    codeEl.innerHTML = main + (L.length || hats.length ? '' : `<p class="rl-hint">${kids ? 'לַחֲצוּ עַל בְּלוֹק כְּדֵי לְהוֹסִיף אוֹתוֹ' : 'לחצו על בלוק כדי להוסיף אותו לתוכנית'}</p>`) + hats.map(renderHat).join('');
     const on = codeEl.querySelector('.rl-slot.on'); if (on) on.scrollIntoView({ block: 'nearest' });
   }
   function find(list, id, parent = null) {
@@ -113,6 +116,10 @@ export function createEditor(el, { lesson, kids, onChange }) {
       return changed();
     }
     if (t.dataset.add) {
+      // a puzzle of few blocks: no more than it allows (the counter in the header shows it)
+      if (lesson.maxBlocks && !(BLOCKS[t.dataset.add].fam === 'fun') && countBlocks(prog) >= lesson.maxBlocks) {
+        t.classList.remove('no'); void t.offsetWidth; t.classList.add('no'); if (onFull) onFull(); return;
+      }
       const nd = newNode(t.dataset.add);
       if (nd.b === 'call') nd.f = Object.keys(prog.defs)[0];
       if (!cursor) setCursorEnd();
