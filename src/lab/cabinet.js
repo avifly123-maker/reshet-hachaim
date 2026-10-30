@@ -98,7 +98,7 @@ const D = {
 };
 const svgUrl = (body, vb = '0 0 100 100') => 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}">${body}</svg>`);
 const folder = (col) => `<path d="M14 30h26l6 8h40v46H14z" fill="${col}"/><path d="M14 42h72v42H14z" fill="${col}" opacity=".85"/><path d="M24 56h40M24 66h30" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".8"/>`;
-const ZONE_COL = { amazon: '#2f7a4a', grove: '#8a6a2a', reef: '#1f7a9a' };
+const ZONE_COL = { amazon: '#2f7a4a', grove: '#8a6a2a', reef: '#1f7a9a', desert: '#a8702a' };
 const jar = (k) => `<path d="M30 28h40v8q8 6 8 16v30q0 8 -8 8h-40q-8 0 -8 -8v-30q0 -10 8 -16z" fill="#dff0f4" stroke="#8ab0c0" stroke-width="2"/><path d="M28 22h44v8h-44z" fill="#8a6a3a"/><path d="M24 62q26 -8 52 0v20q0 6 -6 6h-40q-6 0 -6 -6z" fill="${['#5ab8a8', '#e0a43a', '#8a5ab8', '#d8606a'][k % 4]}" opacity=".7"/>`;
 // the six shelf things and their paintings (art/lab-items)
 const START = ['cone', 'acorn', 'jayfeather', 'carob', 'quill', 'pineseed'];
@@ -434,7 +434,7 @@ export function openClues(root, ctx) {
   const S = stationShell(root, { cls: 'clues', ic: 'search', title: CLUES_T.title, small: MENU_T.cabinet.title, sub: CLUES_T.sub, ...ctx });
   const { T, O, kids } = S;
   const LIST = CLUE_CASES.filter((c) => !kids || c.kids);
-  const ZONES = ['grove', 'amazon', 'reef'];
+  const ZONES = ['grove', 'amazon', 'reef', 'desert'].filter((z) => LIST.some((x) => x.zone === z));   // a zone shows once it has cases
   let zone = 'grove', cur = null, looks = 0, wrong = new Set(), out = new Set(), done = false;
   const sus = (id) => O(SUS[id]);
   function render() {
@@ -606,6 +606,7 @@ const CB_CSS = PICS_CSS + `
 #ui.wol .cl2-zones button.on.z-grove{background:#8a6a2a;border-color:#8a6a2a;color:#fff}
 #ui.wol .cl2-zones button.on.z-amazon{background:#2f7a4a;border-color:#2f7a4a;color:#fff}
 #ui.wol .cl2-zones button.on.z-reef{background:#1f7a9a;border-color:#1f7a9a;color:#fff}
+#ui.wol .cl2-zones button.on.z-desert{background:#a8702a;border-color:#a8702a;color:#fff}
 #ui.wol .cl2-zones button.on small{color:#fff!important}
 #ui.wol .cl2-count{margin-inline-start:auto}
 #ui.wol .cl2-cases{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;flex:none}

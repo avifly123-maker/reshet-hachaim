@@ -21,6 +21,10 @@ const ICONS = {
   reefball: svg('<path d="M10 50a22 22 0 0 1 44 0z" fill="#a8a29a"/><g fill="#4a4a48"><circle cx="22" cy="42" r="4"/><circle cx="36" cy="38" r="4"/><circle cx="46" cy="46" r="3"/><circle cx="30" cy="31" r="3"/></g><path d="M14 46l3-5M48 36l3-3" stroke="#e889a8" stroke-width="2.5"/><path d="M8 50h48" stroke="#d8c8a0" stroke-width="3"/>', '#d8f0f4'),
   buoy: svg('<path d="M8 22h48" stroke="#5ab0d8" stroke-width="2"/><circle cx="32" cy="20" r="9" fill="#f4f4f0"/><rect x="23" y="18" width="18" height="4" fill="#2a6ad8"/><path d="M32 29v22" stroke="#e8d8a8" stroke-width="2"/><rect x="26" y="50" width="12" height="5" rx="1" fill="#8a8a84"/><path d="M14 50l6 4" stroke="#e889a8" stroke-width="3"/>', '#cfeaf2'),
   sensor: svg('<path d="M8 34h48" stroke="#5ab0d8" stroke-width="2"/><rect x="24" y="28" width="16" height="10" rx="3" fill="#f2c21a"/><path d="M32 28V12" stroke="#f2c21a" stroke-width="3"/><rect x="22" y="18" width="14" height="7" fill="#1c3a6a" transform="rotate(-15 29 21)"/><circle cx="32" cy="11" r="2" fill="#ffb020"/><path d="M32 38v12" stroke="#c0c0b8" stroke-width="3"/><rect x="29" y="49" width="6" height="4" fill="#3a4048"/>', '#cfeaf2'),
+  // 1.4: the desert's devices (src/world/desert-tech.js). No cross shapes: a ring, an arch with a hexagonal net, slats.
+  drip: svg('<ellipse cx="30" cy="42" rx="20" ry="8" fill="none" stroke="#1d2226" stroke-width="3.5"/><g fill="#2a6ad8"><circle cx="12" cy="42" r="2.6"/><circle cx="22" cy="49" r="2.6"/><circle cx="38" cy="49" r="2.6"/><circle cx="48" cy="42" r="2.6"/></g><rect x="46" y="16" width="10" height="16" rx="3" fill="#3a8ab8"/><path d="M30 20c-4 6-6 9-6 12a6 6 0 0 0 12 0c0-3-2-6-6-12z" fill="#7ad0ff"/>', '#f2e2c4'),
+  fognet: svg('<path d="M12 50V34a20 20 0 0 1 40 0v16" fill="none" stroke="#8a8f92" stroke-width="3.5"/><path d="M16 34a16 16 0 0 1 32 0z" fill="#f0f4f0" opacity=".85"/><g fill="#3aa8e8"><circle cx="24" cy="40" r="2.2"/><circle cx="32" cy="43" r="2.2"/><circle cx="40" cy="40" r="2.2"/></g><rect x="50" y="40" width="8" height="12" rx="2" fill="#e8ecef"/>', '#d8e8ec'),
+  sandfence: svg('<path d="M8 52c16-6 32-6 48 0" fill="none" stroke="#c8a070" stroke-width="5"/><g fill="#a8784a"><rect x="12" y="22" width="5" height="26" rx="1"/><rect x="22" y="20" width="5" height="26" rx="1"/><rect x="32" y="19" width="5" height="26" rx="1"/><rect x="42" y="20" width="5" height="26" rx="1"/></g><path d="M12 22c12-4 24-4 35-2" fill="none" stroke="#e6d4aa" stroke-width="2"/>', '#f2dcb4'),
   // 1.3.2 (area G): the new technologies (src/world/tech.js). No cross shapes: no rods meeting at right angles.
   canopybot: svg('<circle cx="27" cy="18" r="12" fill="#4f9a45"/><circle cx="39" cy="21" r="8" fill="#63b056"/><rect x="23" y="24" width="8" height="32" rx="2" fill="#7a5532"/><rect x="31" y="33" width="15" height="13" rx="6.5" fill="#f3f1ea" stroke="#b9c3c2"/><rect x="34" y="36" width="9" height="5" rx="2.5" fill="#1d2b36"/><circle cx="36.6" cy="38.5" r="1.2" fill="#8ff2ff"/><circle cx="40.4" cy="38.5" r="1.2" fill="#8ff2ff"/><path d="M50 34a7 7 0 0 1 0 11M54 31a11 11 0 0 1 0 17" stroke="#2c9a92" stroke-width="2" fill="none" stroke-linecap="round"/>', '#dff1e6'),
   lidar: svg('<g fill="#2f7a5a"><rect x="11" y="42" width="8" height="14" rx="3"/><rect x="21" y="30" width="8" height="26" rx="3"/><rect x="33" y="37" width="8" height="19" rx="3"/><rect x="45" y="26" width="8" height="30" rx="3"/></g><path d="M32 19L15 41M32 19L25 29M32 19L37 36M32 19L49 25" stroke="#3ccf8e" stroke-width="1.5" opacity=".85"/><g><circle cx="15" cy="42" r="2.4" fill="#2fc0a8"/><circle cx="25" cy="30" r="2.4" fill="#9be15d"/><circle cx="37" cy="37" r="2.4" fill="#57d28a"/><circle cx="49" cy="26" r="2.4" fill="#ffd34d"/></g><ellipse cx="32" cy="14" rx="13" ry="4.5" fill="#f3f1ea" stroke="#2c9a92" stroke-width="2"/><ellipse cx="32" cy="12" rx="5" ry="3" fill="#f3f1ea"/><circle cx="32" cy="18" r="2.2" fill="#7dffb0"/>', '#e4f0f7'),
@@ -43,7 +47,7 @@ export const TOOL_DEFS = [
   { id: 'watergen', zones: ['amazon', 'grove'], name: 'מחולל מים מהאוויר', cost: 30, max: 3, needs: 2, color: '#3aa8e8',
     fact: 'המכשיר מקרר את האוויר ואוסף ממנו טיפות מים, כמו טל של בוקר. ככל שהאוויר לח יותר – הוא מפיק יותר מים.',
     hint: 'שימו ליד עצים וצמחים שצריכים מים' },
-  { id: 'seeddrone', zones: ['amazon', 'grove'], name: 'רחפן זריעה', cost: 25, max: 99, needs: 4, color: '#8a6a3e',
+  { id: 'seeddrone', zones: ['amazon', 'grove', 'desert'], name: 'רחפן זריעה', cost: 25, max: 99, needs: 4, color: '#8a6a3e',
     fact: 'רחפן זריעה מפזר כדורי זרעים עטופים באדמה ובדשן על שטח חשוף. כך משקמים יער אחרי שריפה או כריתה.',
     hint: 'גררו אל שטח חשוף' },
   { id: 'listener', zones: ['amazon', 'grove'], name: 'מאזין יער', cost: 30, max: 2, needs: 4, color: '#ffb547',
@@ -71,6 +75,16 @@ export const TOOL_DEFS = [
   { id: 'buoy', zones: ['reef'], name: 'מצוף עגינה', cost: 15, max: 3, needs: 4, color: '#2a6ad8',
     fact: 'סירה שמטילה עוגן על השונית שוברת אלמוגים. מצוף עגינה קשור לטבעת שקבועה בחול, והסירות נקשרות אליו במקום להטיל עוגן.',
     hint: 'שימו על החול ליד השונית – סירות ייקשרו אליו ולא יטילו עוגן על האלמוגים' },
+  // 1.4, the desert: ideas people use in dry lands (src/world/desert-tech.js; docs/sources.md "המדבר")
+  { id: 'drip', zones: ['desert'], name: 'קו טפטוף', cost: 20, max: 4, needs: 13, color: '#2a6ad8', tech: true,
+    fact: 'בהשקיה בטפטוף המים יוצאים לאט, טיפה אחרי טיפה, בדיוק ליד השורש. כך כמעט שום מים לא הולכים לאיבוד. הטפטוף פותח בישראל.',
+    hint: 'שימו ליד שתילים צעירים או במקום רחוק מהמעיין' },
+  { id: 'fognet', zones: ['desert'], name: 'רשת ערפל', cost: 25, max: 3, needs: 14, color: '#3aa8e8', tech: true,
+    fact: 'רשת ערפל היא רשת דקה שעומדת מול הרוח. טיפות זעירות של ערפל נתפסות בה, מתחברות לטיפות גדולות וזורמות למיכל. כך אוספים מים גם בלי גשם.',
+    hint: 'שימו ליד שיחים. הרשת אוספת הכי הרבה בבוקר, כשיש ערפל' },
+  { id: 'sandfence', zones: ['desert'], name: 'גדר חול', cost: 15, max: 4, needs: 16, color: '#a8784a', tech: true,
+    fact: 'גדר חול בנויה מלוחות עם רווחים. היא מאטה את הרוח, והחול שהרוח נושאת נופל מאחוריה במקום לקבור את השתילים.',
+    hint: 'שימו ליד שתילים צעירים, בצד שממנו הרוח באה' },
 ];
 // 1.3.2 (area G): six new technologies, one idea each from real research (docs/sources.md "Technologies on the island").
 // Kept apart from TOOL_DEFS: the learning hub builds album cards and quiz questions from TOOL_DEFS, and these have no

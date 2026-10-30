@@ -149,7 +149,7 @@ def eye_parts(c, r, bone, iris='#1a120a', side_dir=None):
     p = Part('eye', bone=bone, mat=1, color=srgb(iris)); p.add(*ellipsoid(c, (r, r, r), 10, 6))
     c = Vector(c); d = Vector(side_dir) if side_dir else Vector((0, 0, 1))
     hl = c + (d.normalized() * 0.75 + Vector((0, 0.45, 0.25))).normalized() * r * 0.92
-    h = Part('hl', bone=bone, mat=1, color=(1, 1, 1)); h.add(*ellipsoid(hl, (r * 0.22,) * 3, 6, 4))
+    h = Part('hl', bone=bone, mat=1, color=(1, 1, 1)); h.add(*ellipsoid(hl, (r * 0.14,) * 3, 6, 4))   # kit v6: a small catch-light
     return [p, h]
 
 def capsule_mesh(a, b, r0, r1, seg=14, ring=5, mid=6):

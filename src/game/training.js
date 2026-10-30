@@ -11,6 +11,7 @@ import * as THREE from 'three';
 import { runGuided } from '../ui/guided.js';
 import { GUIDE } from '../data/guide-lines.js';
 import { markTrained, playMode } from '../core/journey.js';
+import { svcGuide } from '../core/services.js';
 
 export const TRAIN_SPECIES = ['sage', 'anemone', 'cyclamen', 'mastic', 'oak', 'carob', 'hyrax', 'honeybee', 'butterfly'];
 const TRAIN_POINTS = 150;
@@ -30,7 +31,7 @@ export function trainingBiome(grove) {
 
 export function startTraining(ctx) {
   const { W, bus, onExit } = ctx;
-  const G = window.__guide; if (!G) return null;
+  const G = svcGuide(); if (!G) return null;
   W.points = Math.max(W.points, TRAIN_POINTS);
   const L = (k) => GUIDE[k] || [];
   const kidsW = () => playMode() === 'kids';

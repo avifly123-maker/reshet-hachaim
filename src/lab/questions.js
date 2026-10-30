@@ -15,7 +15,7 @@ import { PROBLEMS_K } from '../data/inventions-kids.js';
 import { questionMarked } from '../core/threads.js';   // חוטים: a relation found on the island marks its creature's question
 import { markHTML } from '../ui/threads-ui.js';
 
-const ZONES = [['amazon', 'אמזונס'], ['grove', 'חורש'], ['reef', 'שונית']];
+const ZONES_ALL = [['amazon', 'אמזונס'], ['grove', 'חורש'], ['reef', 'שונית'], ['desert', 'מדבר']];
 
 const CSS_ID = 'lb-quest-css';
 function injectCss() {
@@ -102,6 +102,7 @@ function guessOrder(q) {
 export function openQuestions(root, { say, thumbs = {}, audio, onClose, onBack, goScope, goInvent, start }) {
   injectCss();
   const kids = labKids(), K = QUEST_UI_K, QS = questionsFor(kids);
+  const ZONES = ZONES_ALL.filter(([z]) => QS.some((q) => q.zone === z));   // a zone tab shows once it has questions
   const el = document.createElement('div'); el.className = 'lb-panel lb-quest' + (kids ? ' kids' : ''); root.appendChild(el);
   let zone = 'amazon', cur = null, last = '', alive = true;
   if (start) { cur = QS.find((q) => q.id === start) || null; if (cur) zone = cur.zone; }

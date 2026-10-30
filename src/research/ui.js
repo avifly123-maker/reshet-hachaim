@@ -16,6 +16,8 @@ export const R_ICONS = {
   sprout: svgURL('<path d="M32 50V30" stroke="#3f8f2e" stroke-width="3.5"/><path d="M32 34c-2-8-9-11-16-10 0 7 7 11 16 10zM32 30c2-8 9-11 16-10 0 7-7 11-16 10z" fill="#6fbf4a"/><path d="M18 51h28" stroke="#8a5a32" stroke-width="3.5"/>', '#e6f2da'),
   rain: svgURL('<path d="M18 30a10 10 0 0 1 19-5 8 8 0 1 1 6 14H21a7 7 0 0 1-3-9z" fill="#b7c9d6"/><g stroke="#3a8fd0" stroke-width="3"><path d="M24 44l-3 7M33 44l-3 7M42 44l-3 7"/></g>', '#e6f1f8'),
   nightcam: TOOL_ICONS.camera, camera: TOOL_ICONS.camera, drone: TOOL_ICONS.drone, nestbox: TOOL_ICONS.nestbox, seeddrone: TOOL_ICONS.seeddrone, insecthotel: TOOL_ICONS.insecthotel,
+  // the desert (1.4)
+  weather: TOOL_ICONS.weather, sandfence: TOOL_ICONS.sandfence, drip: TOOL_ICONS.drip, fognet: TOOL_ICONS.fognet,
   // the reef
   rov: TOOL_ICONS.rov, uwcam: TOOL_ICONS.uwcam, nursery: TOOL_ICONS.nursery, reefball: TOOL_ICONS.reefball, buoy: TOOL_ICONS.buoy, sensor: TOOL_ICONS.sensor,
   holes: svgURL('<path d="M10 46c2-12 9-20 22-21s20 9 22 21z" fill="#b9a68a"/><g fill="#3d3328"><ellipse cx="24" cy="38" rx="4.5" ry="3.6"/><ellipse cx="37" cy="34" rx="4" ry="3.2"/><ellipse cx="44" cy="42" rx="3.4" ry="2.8"/><ellipse cx="31" cy="43" rx="3" ry="2.4"/></g><path d="M14 30c3-3 6-3 8 0M44 22c3-3 6-3 8 0" stroke="#e889a8" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M8 47h48" stroke="#e2cf9e" stroke-width="3"/>', '#d8eef4'),

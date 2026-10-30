@@ -15,6 +15,7 @@ import { icon } from '../../ui/ui.js';
 import { IC, KEYS_LAND, OPEN_PER_DAY, RARITY_GEMS, RARITY_MORE, RARITY_NAMES, STAT_HELP, STAT_ICON, STAT_NAMES, esc } from './base.js';
 import { IC_GEM, IC_KEY, cardHTML, gems } from './card-html.js';
 import { CARD, CARDS, IC_SCROLL, SETS, SET_BY, SET_WHERE, activeSets, setsOf } from './cards.js';
+import { ZONE_IDS, ZONE_LOOK } from '../../data/zones.js';
 
 export function createAlbum(ctx) {
   const { main, modal, S, sfx, toast, srcOn, collection, ownsIn, setProg, checkSets } = ctx;
@@ -59,7 +60,7 @@ export function createAlbum(ctx) {
       <button class="wl-btn" data-wl="filter" data-v="all">${icon('album')}כל הקלפים</button></div>`;
   }
   // a heading row inside the card grid (the "הכול" page shows the album part by part)
-  const ALBUM_PARTS = [['amazon', 'אמזונס', '#2f7a5a'], ['grove', 'חורש', '#9a7a2e'], ['reef', 'שונית', '#1f8ab0'], ['tech', 'טכנולוגיה', '#2c5f8f']];
+  const ALBUM_PARTS = [...ZONE_IDS.map((z) => [z, ZONE_LOOK[z].short, ZONE_LOOK[z].color]), ['tech', 'טכנולוגיה', '#2c5f8f']];
   const inPart = (c, v) => (v === 'tech' ? c.type === 'tool' : c.biome === v);
   const secHTML = (title, have, n, col, sub = '', cls = '') => `<div class="wl-gsec${cls ? ' ' + cls : ''}" style="--gc:${col}"><b>${title}</b>${sub ? `<span class="wl-gsub">${sub}</span>` : ''}<small>${have} מתוך ${n}</small><i></i></div>`;
   function renderAlbum() {
@@ -83,14 +84,14 @@ export function createAlbum(ctx) {
       body = ALBUM_PARTS.map(([v, t, col]) => { const l = CARDS.filter((c) => inPart(c, v)); return secHTML(t, l.filter((c) => S.owned[c.id]).length, l.length, col) + cards(l); }).join('');
       if (srcOn()) body += secHTML('מן המקורות', srcHave, SOURCE_CARDS.length, '#b8892e', 'סיפורים ופסוקים על הבריאה') + srcBySets();
     } else body = cards(CARDS.filter((c) => inPart(c, filter)));
-    const TAB_IC = { all: 'zones', amazon: 'amazon', grove: 'grove', reef: 'reef', tech: 'robot', src: 'scroll' };
+    const TAB_IC = { all: 'zones', tech: 'robot', src: 'scroll', ...Object.fromEntries(ZONE_IDS.map((z) => [z, z])) };
     const tab = (v, t) => `<button class="wl-tab${filter === v ? ' sel' : ''}" data-wl="filter" data-v="${v}" aria-pressed="${filter === v}">${icon(TAB_IC[v])}${t}</button>`;
     const sets = activeSets(), setsDone = sets.filter((st) => setProg(st).done).length;
     const late = S.packs && !opensLeft();
     main.innerHTML = `<section class="wl-screen wl-album">
       <div class="wl-abar paper">
         <div class="wl-count" title="אספתם ${have} מתוך ${total} קלפים"><b><span class="wl-cw">אספתם </span>${have} <span class="wl-cof">מתוך</span> ${total}</b><div class="wl-meter"><i style="width:${Math.round((have / total) * 100)}%"></i></div></div>
-        <div class="wl-tabs">${tab('all', 'הכול')}${tab('amazon', 'אמזונס')}${tab('grove', 'חורש')}${tab('reef', 'שונית')}${tab('tech', 'טכנולוגיה')}${srcOn() ? tab('src', 'מן המקורות') : ''}</div>
+        <div class="wl-tabs">${tab('all', 'הכול')}${ZONE_IDS.map((z) => tab(z, ZONE_LOOK[z].short)).join('')}${tab('tech', 'טכנולוגיה')}${srcOn() ? tab('src', 'מן המקורות') : ''}</div>
         <button class="wl-btn wl-setsbtn${curSet ? ' on' : ''}" data-wl="setsopen" aria-expanded="${setsOpen}" title="סדרות: אספו סדרה שלמה וקבלו חבילת קלפים במתנה">${icon('sets')}<span class="wl-bl">סדרות</span><span class="wl-setsc">${setsDone}/${sets.length}</span></button>
         <button class="wl-btn wl-legbtn" data-wl="legend" title="מה רואים על הקלף?" aria-label="מה רואים על הקלף?">${icon('help')}<span class="wl-bl">מה רואים על הקלף?</span></button>
         <span class="wl-sp"></span>

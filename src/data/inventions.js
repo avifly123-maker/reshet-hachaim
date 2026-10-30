@@ -27,6 +27,9 @@ export const TRAIT = {
   pace: 'יודעות כמה לשלוח', dance: 'ריקוד שמספר',
   // 1.3.1 (open inventions): colours from pigment (not structure), slimy skin, stinging arms, sticky tube feet
   bright: 'צבעים עזים', slime: 'עור חלקלק', sting: 'זרועות צורבות', tubefeet: 'רגליים דביקות',
+  // 1.4, the desert
+  fogcatch: 'תופס טיפות ערפל', suncompass: 'מנווט לפי השמש', storewater: 'שומר מים בגוף', soak: 'נוצות שסופגות מים',
+  bumpy: 'שריון עם בליטות', coolears: 'אוזניים שמוציאות חום', reflect: 'מחזיר את קרני השמש',
 };
 
 // species id → traits (the first one is the strongest; the cards show the first three)
@@ -53,10 +56,19 @@ export const TRAITS = {
   shrimp: ['snap', 'dig', 'team'], starfish: ['tubefeet', 'regrow', 'grip', 'patient'], hermit: ['armor', 'hide'], surgeonfish: ['fast', 'swim'], seaanemone: ['sting', 'shelter'],
   sponge: ['filter'], clam: ['lightspread', 'armor', 'filter'], seagrass: ['hold', 'shelter'], branching: ['shelter'], brain: ['ribs', 'shelter'], table: ['shelter'],
   softcoral: ['shelter'], firecoral: ['sting', 'shelter'], seafan: ['filter', 'shelter'], algae: ['sun'], plankton: ['float'],
+  // מדבר (1.4)
+  acacia: ['tall', 'spines'], datepalm: ['tall'], tamarisk: ['tall'], retama: ['shelter'], saltbush: ['shelter'], zygophyllum: ['storewater'],
+  caper: ['bloom'], calotropis: ['skinchem'], colocynth: ['storewater'], anastatica: ['opens', 'patient'], blooms: ['bloom', 'patient'], crust: ['hold', 'team'],
+  columncactus: ['storewater', 'spines', 'tall'], barrelcactus: ['storewater', 'spines'], fennec: ['coolears', 'nightsee', 'dig'], sandcat: ['nightsee', 'walk'],
+  caracal: ['fast', 'strong'], ibex: ['climb', 'grip'], dorcas: ['fast', 'walk'], camel: ['patient', 'strong', 'walk'], jerboa: ['tail', 'fast', 'dig'],
+  psammomys: ['dig', 'memory'], deserthedgehog: ['spines', 'armor', 'nightsee'], uromastyx: ['spines', 'sun', 'dig'], scorpion: ['bumpy', 'armor', 'nightsee'],
+  darkling: ['fogcatch', 'armor', 'walk'], desertant: ['suncompass', 'fast', 'team'], sandgrouse: ['soak', 'fly'], eagleowl: ['quiet', 'nightsee', 'fly'],
+  houbara: ['hide', 'walk'], hawkmoth: ['hover', 'nightsee', 'fly'], desertsnail: ['reflect', 'dome', 'patient'],
   // technology cards
   rov: ['machine', 'nightsee', 'swim'], uwcam: ['machine', 'nightsee'], camera: ['machine', 'nightsee'], drone: ['machine', 'hover'], seeddrone: ['machine', 'hover'],
   buoy: ['machine', 'float'], sensor: ['machine', 'float'], weather: ['machine'], watergen: ['machine'], listener: ['machine', 'quiet'], rescue: ['machine', 'strong'],
   nursery: ['machine', 'shelter'], reefball: ['shelter', 'armor'], nestbox: ['shelter'], insecthotel: ['shelter', 'team'],
+  drip: ['machine'], fognet: ['machine', 'fogcatch'], sandfence: ['shelter'],
 };
 const KIND_TRAITS = { tree: ['tall'], palm: ['tall'], shrub: ['shelter'], herb: ['bloom'], vine: ['hold'], epiphyte: ['bloom'], fungus: ['shelter'],
   'water-plant': ['float'], coral: ['shelter'], fish: ['swim'], bird: ['fly'], insect: ['fly'], mammal: ['fast'], reptile: ['sun'] };
@@ -82,6 +94,16 @@ export const THEMES = [
 // the problems. key: the trait that solves it (or need: two traits from two cards); half: traits that help a little.
 // real: the creature people really learned from; fact: what really happened (docs/sources.md).
 export const PROBLEMS = [
+  // 1.4, the desert (docs/sources.md "המדבר")
+  { id: 'fogwater', kids: true, theme: 'water', land: true, icon: 'drop', title: 'מים מן הערפל', ask: 'בכפר על הר יבש יש ערפל כמעט כל בוקר, אבל אין מעיין. איך אוספים מים?', key: 'fogcatch', half: ['storewater', 'soak', 'spines'],
+    real: 'darkling', fact: 'במדבר נמיב שבאפריקה יש חיפושית שחורה שעומדת בבוקר מול הרוח. טיפות ערפל נתפסות על הגב שלה ומתגלגלות אל הפה. לפי הרעיון הזה בונים רשתות ומשטחים שאוספים מים מהערפל.',
+    clue: 'מי במדבר יוצא בבוקר המוקדם, ומשהו על הגב שלו נרטב?', show: { fail: 'הרשת עמדה כל הבוקר בערפל, והמיכל נשאר יבש.', half: 'נאספו כמה טיפות, אבל רובן עפו ברוח.' } },
+  { id: 'antnav', kids: true, theme: 'robots', land: true, icon: 'gear', title: 'רובוט שמוצא את הדרך הביתה', ask: 'רובוט חוקר מסתובב במדבר, ואין לו אות לוויין. איך הוא יחזור לבסיס?', key: 'suncompass', half: ['memory', 'team', 'fast'],
+    real: 'desertant', fact: 'נמלת המדבר יודעת לפי השמש לאיזה כיוון ללכת, וסופרת צעדים. בשנת 2019 חוקרים בצרפת בנו רובוט בשם אנטבוט, שמוצא את הדרך הביתה כמוה, בלי לוויין.',
+    clue: 'מי במדבר הולך רחוק בדרך מתפתלת, וחוזר הביתה בקו ישר?', show: { fail: 'הרובוט הסתובב במעגלים ולא מצא את הבסיס.', half: 'הרובוט התקרב לבסיס, אבל פספס אותו.' } },
+  { id: 'sandproof', kids: true, theme: 'matter', land: true, icon: 'sparkle', title: 'משטח שהחול לא שוחק', ask: 'במדבר הרוח מעיפה חול, והוא שוחק את הלהבים של המכונות. איך מגינים עליהן?', key: 'bumpy', half: ['armor', 'tough', 'dome'],
+    real: 'scorpion', fact: 'על הגב של עקרב המדבר יש בליטות וחריצים קטנים, והחול שהרוח מעיפה כמעט לא שוחק אותו. חוקרים בסין עיצבו לפי זה משטחים עם בליטות, שעומדים בחול טוב יותר.',
+    clue: 'מי חי בחול כל החיים, ויש לו שריון עם בליטות קטנות?', show: { fail: 'אחרי סופת חול אחת הלהב כבר היה שחוק.', half: 'הלהב החזיק קצת יותר, אבל עדיין נשחק.' } },
   { id: 'swim', theme: 'water', kids: true, sea: true, icon: 'drop', title: 'בגד שחייה מהיר', ask: 'השחיינים רוצים לגלוש במים מהר יותר. ממי אפשר ללמוד?', key: 'slick', half: ['fast', 'swim', 'wave', 'microskin'],
     real: 'reefshark', fact: 'העור של הכריש מכוסה בקשקשים זעירים עם חריצים, והמים זורמים עליו בקלות. לפי הרעיון הזה תפרו בגדי שחייה מהירים, ועל מטוסים מדביקים יריעה עם חריצים כאלה כדי לחסוך בדלק.',
     clue: 'מי בשונית שוחה מהר מאוד, והעור שלו מכוסה קשקשים זעירים?', show: { fail: 'השחיין בבגד החדש שחה בדיוק כמו קודם.', half: 'הבגד עזר קצת, אבל המים עדיין מתחככים בו.' } },
@@ -253,6 +275,12 @@ export const PROBLEMS = [
 //   · `half` (when given here) replaces the problem's half list: traits that became an alt route leave it.
 // tools/check-inventions.mjs runs every card and every pair of cards against every problem.
 const ROUTES = {
+  fogwater: { want: 'משהו שתופס טיפות זעירות מהאוויר, ומוביל אותן למקום אחד.',
+    alt: [{ t: ['spines', 'storewater'], why: 'קוצים דקים, כמו של קקטוס: טיפות ערפל נתפסות עליהם ומחליקות אל הבסיס.', fact: 'חוקרים מצאו שהקוצים של קקטוס אחד ממקסיקו אוספים טיפות ערפל, והטיפות זזות לאורך הקוץ אל הצמח.' }] },
+  antnav: { want: 'מישהו שיודע לאן ללכת בלי שלטים ובלי מפה.',
+    alt: [{ t: ['dance'], why: 'הרובוט זוכר את הכיוון לפי השמש, כמו שהדבורה מספרת בריקוד לאן לעוף.', fact: 'דבורת הדבש מנווטת לפי השמש, ובריקוד שלה היא מספרת לחברות לאיזה כיוון לעוף, ביחס לשמש.' }] },
+  sandproof: { want: 'משטח קשה שהחול מחליק עליו ולא חורט אותו.',
+    alt: [{ t: ['wovenhard'], why: 'ציפוי קשה וארוג, כמו השיניים של התוכינון, שלא נשחקות גם כשהוא מגרד סלעים.', fact: 'השיניים של התוכינון בנויות מגבישים ארוגים, והן מהחומרים הקשים ביותר בטבע. חוקרים לומדים מהן איך לבנות חומרים חזקים.' }] },
   swim: { want: 'משהו שעוזר לבגד להחליק במים, עם פחות חיכוך.',
     alt: [{ t: ['slime'], why: 'בגד עם שכבה חלקלקה, כמו העור של המורנה: המים מתחככים בו פחות.', fact: 'חוקרים מצאו שהריר שעל העור של דגים מקטין את החיכוך עם המים.' }] },
   quiet: { want: 'משהו שעושה פחות רעש, או בולע את הרעש.',

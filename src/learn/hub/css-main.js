@@ -108,7 +108,7 @@ export const CSS_MAIN = `
 .wol-learn .wl-qart.paint .wl-anm{position:relative;z-index:1;box-shadow:0 2px 8px rgba(0,0,0,.3)}
 .wol-learn .wl-opt i{display:grid;place-items:center;width:1.7em;height:1.7em;flex:none;color:var(--moss)}
 .wol-learn .wl-opt i .wl-ic{width:100%;height:100%}
-.wol-learn .wl-opt.t-day i{color:#e09a2c}.wol-learn .wl-opt.t-night i{color:#3c4f8a}.wol-learn .wl-opt.t-amazon i{color:#2f6a8a}.wol-learn .wl-opt.t-grove i{color:#4d7a2e}.wol-learn .wl-opt.t-reef i{color:#1f8ab0}
+.wol-learn .wl-opt.t-day i{color:#e09a2c}.wol-learn .wl-opt.t-night i{color:#3c4f8a}.wol-learn .wl-opt.t-amazon i{color:#2f6a8a}.wol-learn .wl-opt.t-grove i{color:#4d7a2e}.wol-learn .wl-opt.t-reef i{color:#1f8ab0}.wol-learn .wl-opt.t-desert i{color:#c0802e}
 .wol-learn .wl-opt.t-yes i{color:#3f8a33}.wol-learn .wl-opt.t-no i{color:#b8463a}
 .wol-learn .wl-opt.ok{background:#e3f5d3;border-color:var(--leaf2);box-shadow:0 4px 0 #3f8a33;animation:wl-glow 1.2s ease-out both}
 .wol-learn .wl-opt.no{background:#f7e0d6;border-color:#d39380;box-shadow:0 4px 0 #b9705c;animation:wl-shake .5s both}

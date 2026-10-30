@@ -1,5 +1,5 @@
 // Environment: floating diorama island, sky, sun/moon, fog, water, weather, light shafts, fire, ground cover.
-// See CONTRACT.md §2. Biomes: 'amazon' | 'grove' (the reef's environment is src/env/reef.js, in the reef pack).
+// See CONTRACT.md §2. Biomes: 'amazon' | 'grove' | 'desert' (1.4) (the reef's environment is src/env/reef.js, in the reef pack).
 // 1.3.2: split from the single src/env/environment.js into this folder; the public API is unchanged (createEnvironment).
 // createEnvironment builds one shared context object (ctx) and calls the parts in the original creation order (scene
 // order and draw order depend on it); each part reads what it needs from ctx and its results are merged back into ctx.
@@ -38,6 +38,7 @@ import { createScatter } from './scatter.js';
 import { createProps } from './props.js';
 import { createLights } from './lights.js';
 import { createShafts } from './shafts.js';
+import { nearWadi } from './desert-look.js';
 import { createPollen, createBirds } from './ambient.js';
 import { createRain } from './weather.js';
 import { createFire } from './fire.js';
@@ -55,8 +56,10 @@ import { createTreeShadows } from './tree-shadows.js';
 export function createEnvironment(pipeline, biomeId = 'amazon', { quality = 'medium', seed = 1, impostorTrees = null, zoneEnv = null, river = false, bare = false } = {}) {
   if (zoneEnv) return zoneEnv(pipeline, { quality, seed });
   if (biomeId === 'reef') throw new Error('the reef environment comes with the reef pack (zone.env)');
-  const isAmazon = biomeId !== 'grove';
-  const biome = isAmazon ? 'amazon' : 'grove';
+  // 1.4: the desert uses the grove's dry-land parts with its own look (isDesert; colours and shapes in desert-look.js)
+  const isDesert = biomeId === 'desert';
+  const isAmazon = biomeId !== 'grove' && !isDesert;
+  const biome = isAmazon ? 'amazon' : isDesert ? 'desert' : 'grove';
   const scene = pipeline.scene;
   const qual = Q[quality] || Q.medium;
   const rng = makeRng(seed * 7919 + (isAmazon ? 11 : 23));
@@ -82,7 +85,7 @@ export function createEnvironment(pipeline, biomeId = 'amazon', { quality = 'med
   };
 
   // one shared context for the parts (see the header); each part's results are merged into it, in creation order
-  const ctx = { pipeline, scene, biome, isAmazon, quality, qual, seed, impostorTrees, noise, noiseB, root, disposables, track,
+  const ctx = { pipeline, scene, biome, isAmazon, isDesert, quality, qual, seed, impostorTrees, noise, noiseB, root, disposables, track,
     noiseTex, puffTex, U, river, bare };
   Object.assign(ctx, createTerrain(ctx));      // ─ island shape & height field, water layout, log crossings, rocks layout
   Object.assign(ctx, createGround(ctx));       // ─ ground (top surface)
@@ -112,13 +115,14 @@ export function createEnvironment(pipeline, biomeId = 'amazon', { quality = 'med
   Object.assign(ctx, createTreeShadows(ctx));  // ─ soft tree shadows
 
   const {
-    WL, heightAt, isWater, isPlaceable, bridges, bridgeAt, walkRoute, rocks, groundMesh, waterMeshes,
+    WL, heightAt, isWater, isPlaceable, waterDist, bridges, bridgeAt, walkRoute, rocks, groundMesh, waterMeshes,
     rockMesh, sun, update, setLightOverlay, setGap, setQuality, dispose, setTreeShadows, setFallenFruit,
     night
   } = ctx;
   const env = {
     biome, radius: R, root,
     heightAt, isWater, isPlaceable, waterLevel: WL, water,
+    waterDist, nearWadi: isDesert ? nearWadi : null,   // 1.4: the desert's water (src/game/game/water.js)
     bridges: bridges.map(b => ({ ax: b.ax, az: b.az, bx: b.bx, bz: b.bz })), bridgeAt, walkRoute,
     rocks: rocks.map(r => ({ x: r.x, z: r.z, r: r.r, top: r.top })),
     groundMeshes: [groundMesh],

@@ -10,6 +10,7 @@ import * as TH from '../core/threads.js';
 import { playMode } from '../core/journey.js';
 import { STAMPS, STAMP_NAME, THREAD_WORDS, threadById } from '../data/threads.js';
 import { HUB_ICONS } from './icons-hub.js';
+import { svcGuide } from '../core/services.js';
 
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const kids = () => playMode() === 'kids';
@@ -100,7 +101,7 @@ export function mountMapThreads(jm, { emit } = {}) {
     const id = c.dataset.th; const it = list().find((x) => x.t.id === id); if (!it) return;
     try { emit && emit('ui:click'); } catch (er) { }
     setFocus(id);
-    const g = window.__guide; if (!g) return;
+    const g = svcGuide(); if (!g) return;
     const ln = it.open ? TH.lineOf(id) : null;
     g.tip(ln ? { ...ln } : { f: it.t.hint.f, k: it.t.hint.k, expr: 'curious' }, { ms: 8000 });
   });
@@ -114,7 +115,7 @@ export function mountMapThreads(jm, { emit } = {}) {
   // the threads that opened since רובו־דע last spoke: their lines glow and he says them, one bubble each (at most three)
   async function announceFresh() {
     let f = []; try { f = TH.fresh(); } catch (e) { return; }
-    const g = window.__guide; if (!f.length || !g) return;
+    const g = svcGuide(); if (!f.length || !g) return;
     f = f.slice(0, 3); TH.markShown(f.map((t) => t.id));
     const lns = f.map((t) => ({ ...(TH.lineOf(t.id) || { id: 'th.' + t.id, f: t.name.f, k: t.name.k }), at: `.jm-th[data-th="${t.id}"]` }));
     for (const t of f) path.querySelectorAll('.jm-th-ln').forEach((l) => { if (l.dataset.ids.split(' ').includes(t.id)) l.classList.add('new'); });

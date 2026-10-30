@@ -3,6 +3,7 @@
 import { BIOME as AMAZON } from '../src/data/amazon.js';
 import { BIOME as GROVE } from '../src/data/grove.js';
 import { BIOME as REEF } from '../src/data/reef.js';
+import { BIOME as DESERT } from '../src/data/desert.js';
 import * as COMMON from '../src/data/common.js';
 
 const SPECIES = {
@@ -21,13 +22,20 @@ const SPECIES = {
     'clownfish', 'parrotfish', 'surgeonfish', 'cleaner', 'butterflyfish', 'lionfish', 'moray', 'grouper', 'goby', 'shrimp', 'turtle',
     'octopus', 'urchin', 'starfish', 'stingray', 'hermit', 'jellyfish', 'reefshark',
   ],
+  desert: [
+    'acacia', 'datepalm', 'tamarisk', 'retama', 'saltbush', 'zygophyllum', 'caper', 'calotropis', 'colocynth', 'anastatica', 'blooms',
+    'crust', 'columncactus', 'barrelcactus',
+    'fennec', 'sandcat', 'caracal', 'ibex', 'dorcas', 'camel', 'jerboa', 'psammomys', 'deserthedgehog', 'uromastyx', 'scorpion',
+    'darkling', 'desertant', 'sandgrouse', 'eagleowl', 'houbara', 'hawkmoth', 'desertsnail',
+  ],
 };
 const LAYER_IDS = {
   amazon: ['emergent', 'canopy', 'understory', 'floor', 'water'],
   grove: ['canopy', 'understory', 'floor'],
   reef: ['shallow', 'slope', 'sand', 'open'],
+  desert: ['canopy', 'understory', 'floor'],
 };
-const KINDS = ['tree', 'palm', 'shrub', 'herb', 'epiphyte', 'vine', 'fungus', 'water-plant', 'animal', 'colony', 'swarm', 'coral', 'sessile', 'seaplant'];
+const KINDS = ['tree', 'palm', 'shrub', 'herb', 'epiphyte', 'vine', 'fungus', 'water-plant', 'animal', 'colony', 'swarm', 'coral', 'sessile', 'seaplant', 'cactus'];
 const ANIMAL_KINDS = ['animal', 'colony', 'swarm'];
 const LOCOMOTION = ['ground', 'arboreal', 'flying', 'water', 'swim'];
 const ACTIVE = ['day', 'night', 'both'];
@@ -49,6 +57,7 @@ const GOAL_PARTS = {
   plantLight: ['species', 'min', 'count'], growTo: ['species', 'min', 'count'], pollinate: ['species', 'count'],
   swimKinds: ['count'], kinds: ['count'], link: ['from', 'to'], calm: ['seconds'], eventDone: ['event'], seasons: ['count', 'kinds'],
   transplant: ['count'], scarHealed: ['count'], strongGrown: ['min', 'count'],   // the coral nursery (reef, 1.3.1)
+  nightKinds: ['count'],   // the desert (1.4): species active at night, alive now
 };
 const DID_STATS = ['uprooted', 'moved', 'letGo', 'reshaped'];
 const EFFECTS = {
@@ -56,6 +65,7 @@ const EFFECTS = {
   flood: ['seconds'], points: ['amount'], add: ['species', 'count'], remove: ['species', 'count'], unlock: ['species'],
   boost: ['species', 'amount'], plant: ['species', 'count', 'where'],
   logging: ['count'], anchor: ['count'], breakCorals: ['count'], protect: [], road: [], ecoBridge: [], removeRoad: [],
+  sandstorm: ['seconds'], locust: ['seconds'],   // the desert (1.4)
 };
 // Forbidden content (hard content rules). Matched as substrings on all Hebrew/English text.
 const FORBIDDEN = [
@@ -349,6 +359,7 @@ function validateBiome(B, id) {
 validateBiome(AMAZON, 'amazon');
 validateBiome(GROVE, 'grove');
 validateBiome(REEF, 'reef');
+validateBiome(DESERT, 'desert');
 
 // common.js
 for (const t of REL_TYPES) if (!COMMON.RELATION_TYPES?.[t]?.name) err('common', `RELATION_TYPES.${t} missing`);

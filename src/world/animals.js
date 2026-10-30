@@ -497,7 +497,7 @@ export class Animal {
     // energy
     const active = this.isActive();
     const pred = this.sp.diet2.some(e => e.part === 'animals');
-    const drain = (this.state === 'sleep' ? 0.0013 : pred ? 0.0022 : 0.0034) * (this.sp.diet2.length ? 1 : 0.2);
+    const drain = (this.state === 'sleep' ? 0.0013 : pred ? 0.0022 : 0.0034) * (this.sp.diet2.length ? 1 : 0.2) * (W.thirstK ? W.thirstK(this) : 1);   // 1.4: thirst far from water
     this.energy = clamp(this.energy - drain * dt, 0, 1);
     if (!this.sp.diet2.length) this.energy = Math.max(this.energy, 0.6);
     if (this.sp.roams) this.energy = Math.max(this.energy, 0.3);   // a roaming hunter (the reef shark) also feeds beyond the reef edge: it does not leave hungry

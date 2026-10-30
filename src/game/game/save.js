@@ -102,6 +102,7 @@ export function createSave(ctx) {
     // buckthorn 2; reef branching 4, softcoral 3, sponge 3, seagrass 6, anemone 1, brain 2; beginners 3 of each tree and shrub)
     if (W.kids) { for (const s2 of biome.species) { if (s2.kind === 'shrub' || s2.kind === 'coral') put(s2.id, 1, 1); } const t = biome.species.find((s2) => s2.kind === 'tree' || s2.kind === 'palm'); if (t) put(t.id, 0.95, 1); return; }
     if (biome.id === 'amazon') { put('kapok', 1, 1); put('fern', 1, 5); put('acai', 0.9, 1); }
+    else if (biome.id === 'desert') { put('acacia', 0.95, 1); put('saltbush', 1, 2); put('retama', 1, 1); put('blooms', 1, 3); }   // 1.4.1: the desert starts as empty as the others
     else if (biome.id === 'reef') { put('branching', 1, 2); put('seagrass', 1, 4); put('sponge', 1, 1); put('brain', 1, 1); }
     else { put('oak', 0.95, 1); put('mastic', 1, 2); put('sage', 1, 2); }
   }

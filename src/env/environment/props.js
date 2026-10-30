@@ -10,7 +10,7 @@ import { propGeometry } from '../../world/props.js';
 
 export function createProps(ctx) {
   const {
-    quality, root, track, isAmazon, scatterMaterial, slopeQuat, samplePoints, dryLand, rrS, rocks,
+    quality, root, track, isAmazon, isDesert, scatterMaterial, slopeQuat, samplePoints, dryLand, rrS, rocks,
     heightAt, rockInfluence, WL, waterDist, isWater
   } = ctx;
   // ───────────────────────────── ground details modelled in Blender (src/world/props.js)
@@ -46,6 +46,15 @@ export function createProps(ctx) {
         .map(p => ({ p: V3(p.x, heightAt(p.x, p.z) - 0.02, p.z), q: slopeQuat(p.x, p.z, rrS() * TAU, 0.4), s: V3(1, 1, 1).multiplyScalar(1.8 + rrS() * 1.2), c: grey(0.85, 1.1) })));
       if (WL !== null) addProp('river_stones', samplePoints(NP(40), 0, 46, (x, z) => { const d = waterDist(x, z); return d > -0.5 && d < 1.0; }, rrS)
         .map(p => ({ p: V3(p.x, heightAt(p.x, p.z) - 0.03, p.z), q: slopeQuat(p.x, p.z, rrS() * TAU, 0.25), s: V3(1, 1, 1).multiplyScalar(0.9 + rrS() * 0.9), c: grey(0.85, 1.1) })));
+    } else if (isDesert) {
+      // sandstone rocks and stones (the grove's rock models, painted warm), and smooth pebbles in the wadi and by the spring
+      const sand = () => C('#d89a68').multiplyScalar(0.85 + rrS() * 0.2);
+      addProp('rock_lime', samplePoints(NP(16), 6, 44, (x, z) => dryLand(0.8)(x, z) && rrS() < 0.25 + rockInfluence(x, z) * 1.5, rrS)
+        .map(p => ({ p: V3(p.x, heightAt(p.x, p.z) - 0.18, p.z), q: lying(p.x, p.z), s: V3(1, 0.8 + rrS() * 0.4, 1).multiplyScalar(0.45 + rrS() * 0.8), c: sand() })), { castShadow: true });
+      addProp('rock_lime2', samplePoints(NP(22), 4, 44, (x, z) => dryLand(0.6)(x, z) && rrS() < 0.3 + rockInfluence(x, z) * 1.5, rrS)
+        .map(p => ({ p: V3(p.x, heightAt(p.x, p.z) - 0.12, p.z), q: lying(p.x, p.z), s: V3(1, 1, 1).multiplyScalar(0.4 + rrS() * 0.6), c: sand() })), { castShadow: true });
+      if (WL !== null) addProp('river_stones', samplePoints(NP(12), 0, 46, (x, z) => { const d = waterDist(x, z); return d > -0.4 && d < 0.8; }, rrS)
+        .map(p => ({ p: V3(p.x, heightAt(p.x, p.z) - 0.03, p.z), q: slopeQuat(p.x, p.z, rrS() * TAU, 0.25), s: V3(1, 1, 1).multiplyScalar(0.8 + rrS() * 0.6), c: C('#d8c0a0').multiplyScalar(0.9 + rrS() * 0.15) })));
     } else {
       // a fallen pine or oak branch; limestone rocks with lichen; mushrooms after the rains
       addProp('log_grove', samplePoints(NP(7), 12, 40, (x, z) => dryLand(1.5)(x, z) && awayFromRocks(1)(x, z), rrS)

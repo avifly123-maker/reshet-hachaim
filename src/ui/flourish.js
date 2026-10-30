@@ -19,6 +19,8 @@ import { PARTS } from '../core/journey.js';
 import { current as currentPlayer } from '../core/profiles.js';
 import { loadPack, loadedPack } from '../core/packs.js';
 import { makeRng } from '../core/util.js';
+import { ZONE_IDS, ZONE_LOOK } from '../data/zones.js';
+import { svcApp } from '../core/services.js';
 
 const reduced = () => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } };
 const host = () => document.getElementById('ui') || document.body;
@@ -86,7 +88,7 @@ function labDoors() {
   if (reduced() || document.querySelector('.fl-doors')) return;
   const d = document.createElement('div'); d.className = 'fl-doors'; d.setAttribute('aria-hidden', 'true'); d.innerHTML = '<i></i><i></i>';
   host().appendChild(d);
-  try { const a = window.__app && window.__app.audio; if (a) setTimeout(() => a.play('pop'), 250); } catch (e) { }
+  try { const a = svcApp() && svcApp().audio; if (a) setTimeout(() => a.play('pop'), 250); } catch (e) { }
   setTimeout(() => d.remove(), 1500);
 }
 
@@ -149,8 +151,8 @@ if (!watchHub()) { const mo = new MutationObserver(() => { if (watchHub()) mo.di
 
 // ───────────────────────────────────────── the animal of a finished mission celebrates
 // its own small canvas next to the banner: a hop (walkers), a loop (fliers) or a spin (fish), with round sparks
-const ZONES = ['amazon', 'grove', 'reef'];
-const MASCOT = { amazon: 'toucan', grove: 'hoopoe', reef: 'clownfish' };
+const ZONES = ZONE_IDS;
+const MASCOT = Object.fromEntries(ZONE_IDS.map((z) => [z, ZONE_LOOK[z].mascot]));
 let heroBusy = false;
 async function mission(speciesId, opts = {}) {
   if (heroBusy || reduced()) return; heroBusy = true;
@@ -159,13 +161,13 @@ async function mission(speciesId, opts = {}) {
   try {
     // the zone of the animal: the running forest's pack first, then any loaded zone pack that has the species
     let zone = opts.zone || null, Z = null;
-    try { const g = window.__app && window.__app.game; if (!zone && g && g.biome) zone = g.biome.id || g.biome; } catch (e) { }
+    try { const g = svcApp() && svcApp().game; if (!zone && g && g.biome) zone = g.biome.id || g.biome; } catch (e) { }
     const zs = zone ? [zone, ...ZONES.filter((z) => z !== zone)] : ZONES;
     for (const z of zs) { const P = loadedPack(z); if (P && P.zone && P.zone.animals && P.zone.animals[speciesId]) { Z = P.zone; zone = z; break; } }
     if (!Z) { zone = zone && ZONES.includes(zone) ? zone : 'amazon'; Z = (await loadPack(zone)).zone; if (!Z.animals[speciesId]) speciesId = MASCOT[zone]; }
     const make = Z.animals[speciesId]; if (!make) return;
     v = make({ seed: 3, rng: makeRng(3) }); if (!v || !v.object) return;
-    const q = (() => { try { return (window.__app && window.__app.pipe && window.__app.pipe.quality) || 'medium'; } catch (e) { return 'medium'; } })();
+    const q = (() => { try { return (svcApp() && svcApp().pipe && svcApp().pipe.quality) || 'medium'; } catch (e) { return 'medium'; } })();
     const low = q === 'min' || q === 'low';
     box = document.createElement('div'); box.className = 'fl-hero'; box.setAttribute('aria-hidden', 'true');
     const cv = document.createElement('canvas'); box.appendChild(cv);
@@ -197,7 +199,7 @@ async function mission(speciesId, opts = {}) {
     try { renderer.compile(scene, cam); } catch (e) { }
     v.update(0.016, { action: kind === 'hop' ? 'idle' : moveClip }); renderer.render(scene, cam);
     host().appendChild(box);
-    try { const a = window.__app && window.__app.audio; if (a) setTimeout(() => a.play('pop'), 200); } catch (e) { }
+    try { const a = svcApp() && svcApp().audio; if (a) setTimeout(() => a.play('pop'), 200); } catch (e) { }
     const t0 = performance.now(); let last = t0;
     await new Promise((res) => {
       const frame = (now) => {

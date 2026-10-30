@@ -17,13 +17,14 @@ import { TORAH } from '../core/edition.js';
 import { BABA_DA_LOGO } from '../data/logo.js';
 import { STAGE_LINES } from '../data/guide-lines.js';
 import { mountMapThreads } from './threads-ui.js';
+import { svcGuide } from '../core/services.js';
 
 const kids = () => J.playMode() === 'kids';
 const t = (f, k) => (kids() ? k : f);
 
-export const STAGE_COLOR = { 1: '#5f9a3e', 2: '#c98a2b', 3: '#2f7f6f', 4: '#2f6f9a', 5: '#b0602c', 6: '#a8433c' };
+export const STAGE_COLOR = { 1: '#5f9a3e', 2: '#c98a2b', 3: '#2f7f6f', 4: '#2f6f9a', 5: '#b0602c', 6: '#a8433c', 7: '#6a55a8', 8: '#a8861e' };
 // emblems: an eye (observer), cards (collector), a shield with a leaf (keeper), a lens (researcher), a bulb (inventor),
-// a star (expert). Stroke icons, no crossing bars anywhere.
+// a star (expert), code brackets (programmer), a rocket (entrepreneur). Stroke icons, no crossing bars anywhere.
 const EMB = {
   1: '<path d="M2.6 12s3.6-6.2 9.4-6.2 9.4 6.2 9.4 6.2-3.6 6.2-9.4 6.2S2.6 12 2.6 12z"/><circle cx="12" cy="12" r="3"/><circle class="f" cx="12" cy="12" r="1.1"/>',
   2: '<rect x="8.4" y="3.6" width="10.4" height="14.6" rx="2" transform="rotate(9 13.6 10.9)"/><rect x="4.6" y="5.6" width="10.4" height="14.6" rx="2" transform="rotate(-7 9.8 12.9)"/><path d="M7.6 15.4c.4-3 2.4-4.8 5.2-5-.2 3-2.2 4.8-5.2 5z"/>',
@@ -31,6 +32,8 @@ const EMB = {
   4: '<circle cx="10.4" cy="10.4" r="6"/><path d="M14.8 14.8l5.4 5.4" stroke-width="2.6"/><path d="M7.6 8.6a3.4 3.4 0 0 1 2.6-1.9"/>',
   5: '<path d="M12 2.8a6.4 6.4 0 0 0-3.8 11.5c.7.6 1.1 1.4 1.1 2.3h5.4c0-.9.4-1.7 1.1-2.3A6.4 6.4 0 0 0 12 2.8z"/><path d="M9.6 19.2h4.8M10.6 21.6h2.8"/><path d="M10.2 11.6l1.8 1.6 1.8-1.6"/>',
   6: '<path d="M12 2.8l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.1 6.4 20l1.1-6.2L3 9.4l6.2-.9z"/>',
+  7: '<path d="M8.4 7.2L3.6 12l4.8 4.8"/><path d="M15.6 7.2l4.8 4.8-4.8 4.8"/><path d="M13.6 5.4l-3.2 13.2"/>',
+  8: '<path d="M12 2.6c2.9 2.1 4.3 5.3 4.3 9v4.4H7.7v-4.4c0-3.7 1.4-6.9 4.3-9z"/><circle cx="12" cy="9.8" r="1.8"/><path d="M7.7 12.8l-2.7 2.9v3.1l2.7-1.6M16.3 12.8l2.7 2.9v3.1l-2.7-1.6"/><path d="M10.2 18.8l1.8 2.4 1.8-2.4"/>',
 };
 // a folded paper map (the journey bar's corner): three panels, the folds meet the edges only
 export const mapIcon = (cls = '') => `<svg class="ic${cls ? ' ' + cls : ''}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="f" d="M3 6.6l5.6-2.4 6.8 2.4L21 4.2v13.2l-5.6 2.4-6.8-2.4L3 19.8z" fill="currentColor" fill-opacity=".18" stroke="none"/><path d="M3 6.6l5.6-2.4 6.8 2.4L21 4.2v13.2l-5.6 2.4-6.8-2.4L3 19.8z"/><path d="M8.6 4.2v13.2M15.4 6.6v13.2"/></svg>`;
@@ -43,7 +46,7 @@ const quoted = (s) => (/[?!]$/.test(s) ? `"${s}"` : s);
 export const lockWords = (part) => J.lockWords(part);
 // one bubble of רובו־דע: what opens it, and how far it is
 export function lockTip(part, opts = {}) {
-  const g = window.__guide; const P = J.PARTS[part]; if (!g || !P) return;
+  const g = svcGuide(); const P = J.PARTS[part]; if (!g || !P) return;
   const name = quoted(partLabel(part));
   let f, k;
   if (P.after && J.stageNow() >= P.stage) {
@@ -65,15 +68,18 @@ const partsOf = (n) => J.partsOf(n).filter((p) => p !== 'versematch' || TORAH);
 // a stage with many parts gets two columns of tiles (the map never scrolls on 800x460): its grid span
 const MANY_PARTS = 5;   // more parts than this: two columns
 const spanOf = (n) => (partsOf(n).length > MANY_PARTS ? 2 : 1);
-// the trail through the six medallions, right to left, in a 600 x 60 box (each stage at the middle of its columns)
+// the width of a stage on the map: its columns, and a narrow one for a stage still to come (no parts to show)
+const SOON_W = 0.45;
+const widthOf = (S) => (S.soon ? SOON_W : spanOf(S.n));
+// the trail through the medallions, right to left, in a 600 x 60 box (each stage at the middle of its columns)
 function trailSVG(stage, progress) {
-  const spans = J.STAGES.map((S) => spanOf(S.n)), cols = spans.reduce((a, b) => a + b, 0);
+  const spans = J.STAGES.map(widthOf), cols = spans.reduce((a, b) => a + b, 0);
   const mid = spans.map((sp, i) => spans.slice(0, i).reduce((a, b) => a + b, 0) + sp / 2);
   const X = (i) => 600 - mid[i] * (600 / cols), Y = (i) => (i % 2 ? 36 : 24);
   const seg = (i) => `M${X(i)} ${Y(i)} C${X(i) - 50} ${Y(i)}, ${X(i + 1) + 50} ${Y(i + 1)}, ${X(i + 1)} ${Y(i + 1)}`;
   let walked = '', ahead = '', part = '';
-  for (let i = 0; i < 5; i++) { if (i + 1 < stage) walked += seg(i) + ' '; else ahead += seg(i) + ' '; }
-  if (stage < 6) part = `<path class="jm-tr-part" d="${seg(stage - 1)}" pathLength="1" stroke-dasharray="${Math.max(0.001, progress).toFixed(3)} 1"/>`;
+  for (let i = 0; i < J.STAGES.length - 1; i++) { if (i + 1 < stage) walked += seg(i) + ' '; else ahead += seg(i) + ' '; }
+  if (stage < J.LAST) part = `<path class="jm-tr-part" d="${seg(stage - 1)}" pathLength="1" stroke-dasharray="${Math.max(0.001, progress).toFixed(3)} 1"/>`;
   return `<svg class="jm-trail" viewBox="0 0 600 60" preserveAspectRatio="none" aria-hidden="true">
     <path class="jm-tr-bed" d="${walked}${ahead}"/>${ahead ? `<path class="jm-tr-ahead" d="${ahead}"/>` : ''}${walked ? `<path class="jm-tr-walk" d="${walked}"/>` : ''}${part}</svg>`;
 }
@@ -93,7 +99,7 @@ export function openJourneyMap(host, { onPart, emit, onClose } = {}) {
           <div class="jm-ntxt"><b>${t(`הדרך לשלב ${next.stage}: ${next.name}`, `הַדֶּרֶךְ לְשָׁלָב ${next.stage}: ${next.name}`)}</b>
           <span class="jm-bar"><i style="width:${Math.round(next.progress * 100)}%"></i></span>
           <small>${esc(next.need.join(t(', או ', ', אוֹ ')))}</small></div></div>`
-      : `<div class="jm-next done"><span class="jm-nmed" style="--c:${STAGE_COLOR[6]}">${stageEmblem(6)}</span><div class="jm-ntxt"><b>${t('הגעתם לשלב האחרון. אתם מומחים!', 'הִגַּעְתֶּם לַשָּׁלָב הָאַחֲרוֹן. אַתֶּם מֻמְחִים!')}</b></div></div>`;
+      : `<div class="jm-next done"><span class="jm-nmed" style="--c:${STAGE_COLOR[J.LAST]}">${stageEmblem(J.LAST)}</span><div class="jm-ntxt"><b>${t('הגעתם לשלב האחרון. אתם מומחים!', 'הִגַּעְתֶּם לַשָּׁלָב הָאַחֲרוֹן. אַתֶּם מֻמְחִים!')}</b></div></div>`;
     const note = st.allOpen ? t('מצב מדריכים: כל החלקים פתוחים במחשב הזה.', 'כָּל הַחֲלָקִים פְּתוּחִים בַּמַּחְשֵׁב הַזֶּה.')
       : st.legacy ? t('שיחקתם עוד לפני המסע, ולכן הכול פתוח לכם.', 'שִׂחַקְתֶּם עוֹד לִפְנֵי הַמַּסָּע, וְלָכֵן הַכֹּל פָּתוּחַ לָכֶם.') : '';
     el.dataset.stage = String(cur);
@@ -106,14 +112,14 @@ export function openJourneyMap(host, { onPart, emit, onClose } = {}) {
         </header>
         <div class="jm-path">
           ${trailSVG(cur, next ? next.progress : 1)}
-          <ol class="jm-stages" style="--cols:${J.STAGES.reduce((a, S) => a + spanOf(S.n), 0)}">${J.STAGES.map((S) => {
-            const n = S.n, cls = n < cur ? 'done' : n === cur ? 'cur' : 'ahead';
+          <ol class="jm-stages" style="grid-template-columns:${J.STAGES.map((S) => `minmax(0, ${widthOf(S)}fr)`).join(' ')}">${J.STAGES.map((S) => {
+            const n = S.n, cls = (n < cur ? 'done' : n === cur ? 'cur' : 'ahead') + (S.soon ? ' soon' : '');
             const parts = partsOf(n), many = spanOf(n) > 1;
-            return `<li class="jm-st ${cls}${many ? ' many' : ''}" data-n="${n}" style="--c:${STAGE_COLOR[n]};--span:${spanOf(n)}">
+            return `<li class="jm-st ${cls}${many ? ' many' : ''}" data-n="${n}" style="--c:${STAGE_COLOR[n]}">
               <div class="jm-medw"><span class="jm-med">${stageEmblem(n)}</span><i class="jm-num">${n}</i>
                 ${n <= cur ? `<button class="jm-replay" data-replay="${n}" aria-label="${esc(t(`לראות שוב את שלב ${n}`, `לִרְאוֹת שׁוּב אֶת שָׁלָב ${n}`))}" title="${esc(t('לראות שוב', 'לִרְאוֹת שׁוּב'))}">${icon('play')}</button>` : ''}</div>
               <b class="jm-name">${esc(t(S.name, S.kname))}</b>
-              ${n === cur ? `<small class="jm-here">${t('אתם כאן', 'אַתֶּם כָּאן')}</small>` : `<small class="jm-sn">${t('שלב', 'שָׁלָב')} ${n}</small>`}
+              ${n === cur ? `<small class="jm-here">${t('אתם כאן', 'אַתֶּם כָּאן')}</small>` : S.soon ? `<small class="jm-sn jm-soon">${t('בקרוב', 'בְּקָרוֹב')}</small>` : `<small class="jm-sn">${t('שלב', 'שָׁלָב')} ${n}</small>`}
               <ul class="jm-parts">${parts.map((p) => { const open = J.isOpen(p); return `<li><button class="jm-part${open ? '' : ' jv'}" data-part="${p}"
                 title="${esc(open ? partLabel(p) : lockWords(p))}"><i class="jm-dot"></i><span>${esc(partLabel(p))}</span></button></li>`; }).join('')}</ul>
             </li>`; }).join('')}</ol>
@@ -131,7 +137,7 @@ export function openJourneyMap(host, { onPart, emit, onClose } = {}) {
     el.classList.add('replaying');
     try { if (typeof window.__stageScene === 'function') await Promise.resolve(window.__stageScene(n)).catch(() => { }); } catch (e) { }
     el.classList.remove('replaying');
-    const g = window.__guide;
+    const g = svcGuide();
     try { if (g) await g.say(STAGE_LINES[n] || [], { modal: true, place: 'center' }); } catch (e) { }
     busy = false;
   }
@@ -146,7 +152,7 @@ export function openJourneyMap(host, { onPart, emit, onClose } = {}) {
     if (onPart && onPart(part) === true) close();
   });
   // bubble phase: an open bubble of רובו־דע takes Escape first (robo-guide.js stops it in the capture phase)
-  const onKey = (e) => { if (e.key === 'Escape' && !(window.__guide && window.__guide.isOpen())) { e.preventDefault(); close(); } };
+  const onKey = (e) => { if (e.key === 'Escape' && !(svcGuide() && svcGuide().isOpen())) { e.preventDefault(); close(); } };
   addEventListener('keydown', onKey);
   const repaint = () => { if (el.isConnected) { render(); drawThreads(); } };
   addEventListener('wol-journey', repaint);
@@ -161,8 +167,8 @@ export function openJourneyMap(host, { onPart, emit, onClose } = {}) {
   // the first visit: רובו־דע shows how to read the map
   // then the threads that opened since רובו־דע last spoke: their lines glow while he says them
   setTimeout(() => {
-    if (!el.isConnected || !window.__guide) return;
-    Promise.resolve(window.__guide.intro('start:map', { modal: true })).then(() => { if (el.isConnected && threads) return threads.announceFresh(); }).catch((e) => console.error(e));
+    if (!el.isConnected || !svcGuide()) return;
+    Promise.resolve(svcGuide().intro('start:map', { modal: true })).then(() => { if (el.isConnected && threads) return threads.announceFresh(); }).catch((e) => console.error(e));
   }, 450);
   return { close, el, repaint };
 }

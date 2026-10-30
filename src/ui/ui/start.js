@@ -17,6 +17,7 @@ import { openSettings } from '../settings.js';
 import { canopySVG, VINE, waxSeal } from './art.js';
 import { esc } from './helpers.js';
 import { icon } from './icons.js';
+import { svcGuide } from '../../core/services.js';
 
 export function createStart(ctx) {
   const { root, emit, S, toolbar, startEl } = ctx;
@@ -41,8 +42,8 @@ export function createStart(ctx) {
       <header class="st-head"><div class="st-seal">${waxSeal(124)}</div>
         <div class="st-titles"><h1 class="st-title">רשת החיים</h1>${EDITION_NAME ? `<span class="st-edition">${EDITION_NAME}</span>` : ''}${VINE}<p class="st-sub">בונים יער חי, מגלים מי צריך את מי</p></div></header>
       <nav class="st-tabs" role="tablist">
-        <button role="tab" data-tab="env">${icon('leaf')}<span><b>סביבות משחק</b><small>אמזונס, חורש ושונית</small></span></button>
-        <button role="tab" data-tab="sci" data-research-tab="1" data-part="science">${icon('flask')}<span><b>המרכז המדעי</b><small>חוקרי הטבע ומעבדת רובו־דע</small><small class="jv-note"></small></span></button>
+        <button role="tab" data-tab="env">${icon('leaf')}<span><b>סביבות משחק</b><small>אמזונס, חורש, שונית ומדבר</small></span></button>
+        <button role="tab" data-tab="sci" data-research-tab="1" data-part="science">${icon('flask')}<span><b>המרכז המדעי</b><small>חוקרי הטבע, המעבדה ומעבדת הרובוטים</small><small class="jv-note"></small></span></button>
         <button role="tab" data-tab="learn" data-part="learn">${icon('book')}<span><b>מרכז הלמידה</b><small>חידון, אלבום ומשחקי קלפים</small><small class="jv-note"></small></span></button>
       </nav>
       <section class="st-pane" data-pane="env">
@@ -67,6 +68,8 @@ export function createStart(ctx) {
             <span class="st-ptext"><b>חוקרי הטבע</b><small>תעלומות בטבע: מודדים, משערים, מנסים ומאזנים. שלוש רמות, משלוש הסביבות.</small><em>${icon('arrowL')}לתעלומות</em><em class="jv-note"></em></span></button>
           <button class="st-panel" data-lab="1" data-part="lab"><span class="st-pimg lab">${ISLAND_ART.lab ? `<img src="${ISLAND_ART.lab}" alt="" draggable="false">` : ''}<i class="jv-curtain" aria-hidden="true"></i></span>
             <span class="st-ptext"><b>המעבדה של רובו־דע</b><small>מיקרוסקופ, שולחן ממציאים ואטלס. ממציאים בעזרת הטבע ומשדרגים את הכלים.</small><em>${icon('arrowL')}למעבדה</em><em class="jv-note"></em></span></button>
+          <button class="st-panel" data-robolab="1" data-part="robolab"><span class="st-pimg rlb" aria-hidden="true"><i class="rlb-bot"></i><i class="rlb-drone"></i><i class="rlb-blocks"></i><i class="jv-curtain" aria-hidden="true"></i></span>
+            <span class="st-ptext"><b>מעבדת הרובוטים</b><small>מתכננים, בונים ומפעילים: רובוט, רחפן ורובוט צולל בתוך הסביבות. שיעורים, חידות ותגים.</small><em>${icon('arrowL')}למעבדת הרובוטים</em><em class="jv-note"></em></span></button>
         </div>
       </section>
       <section class="st-pane" data-pane="learn">
@@ -114,6 +117,7 @@ export function createStart(ctx) {
     const rsBtn = startEl.querySelector('[data-research]'), labBtn = startEl.querySelector('[data-lab]');
     rsBtn.addEventListener('click', gate(rsBtn, () => emit('ui:research')));
     labBtn.addEventListener('click', gate(labBtn, () => emit('ui:lab')));
+    const rlBtn = startEl.querySelector('[data-robolab]'); if (rlBtn) rlBtn.addEventListener('click', gate(rlBtn, () => emit('ui:robolab')));
     // tabs
     const paintTab = () => {
       startEl.querySelectorAll('[data-tab]').forEach((b) => { const on = b.dataset.tab === S.stTab; b.classList.toggle('on', on); b.setAttribute('aria-selected', String(on)); });
@@ -173,7 +177,7 @@ export function createStart(ctx) {
       jbar.style.setProperty('--c', c);
       jbar.setAttribute('aria-label', `${kids ? 'מַפַּת הַמַּסָּע' : 'מפת המסע'}: ${st.name}. ${need}`);
       return `<span class="jb-med">${stageEmblem(st.stage)}<i>${st.stage}</i></span>
-        <span class="jb-txt"><small>${kids ? `שָׁלָב ${st.stage} מִתּוֹךְ 6` : `שלב ${st.stage} מתוך 6`}</small><b>${esc(st.name)}</b></span>
+        <span class="jb-txt"><small>${kids ? `שָׁלָב ${st.stage} מִתּוֹךְ ${JR.STAGES.length}` : `שלב ${st.stage} מתוך ${JR.STAGES.length}`}</small><b>${esc(st.name)}</b></span>
         <span class="jb-prog"><i style="width:${Math.round((nx ? nx.progress : 1) * 100)}%"></i></span>
         <small class="jb-need">${esc(need)}</small>${mapIcon('jb-map')}`;
     };
@@ -203,6 +207,7 @@ export function createStart(ctx) {
       if (part === 'research') { emit('ui:research'); return true; }
       if (part === 'robots') { emit('ui:learn', { screen: 'inventors', opts: { view: 'robots' } }); return true; }   // the robot workshop tab
       if (part === 'lab' || part.startsWith('lab:')) { emit('ui:lab'); return true; }
+      if (part === 'robolab' || part.startsWith('robolab:')) { emit('ui:robolab'); return true; }
       return false;
     };
     const openMap = () => { emit('ui:click'); map = openJourneyMap(root, { emit, onPart: goPart, onClose: () => { map = null; try { jbar.focus({ preventScroll: true }); } catch (e) { } } }); };
@@ -220,20 +225,20 @@ export function createStart(ctx) {
         getQuality: () => S.toggles.quality || 'medium', setQuality: (q) => { S.toggles.quality = q; paintToggles(); emit('quality', { q }); },
         onClose: () => { gear.setAttribute('aria-expanded', 'false'); try { gear.focus({ preventScroll: true }); } catch (e) { } } });
       // the first time: רובו־דע presents the rows that are on screen (beginners have no play mode row)
-      setTimeout(() => { const g = window.__guide; if (g && startEl.querySelector('.set-layer')) g.say(g.lines('start:settings').filter((l) => !l.at || startEl.querySelector(l.at)), { key: 'g:start:settings' }); }, 300);
+      setTimeout(() => { const g = svcGuide(); if (g && startEl.querySelector('.set-layer')) g.say(g.lines('start:settings').filter((l) => !l.at || startEl.querySelector(l.at)), { key: 'g:start:settings' }); }, 300);
     });
     // listen once (the start screen is drawn again after every visit)
     if (!S.jListen) {
       S.jListen = true;
       const onStart = () => startEl.classList.contains('on') && !root.classList.contains('ingame') && !root.querySelector('.rs-hub.on') && !(window.__wolLearn && window.__wolLearn.isOpen && window.__wolLearn.isOpen());
       // the first visit of a player: רובו־דע presents the journey bar (after his hello, which main.js queues first)
-      S.journeyIntro = () => { clearTimeout(S.jIntroT); S.jIntroT = setTimeout(() => { if (onStart() && window.__guide) window.__guide.intro('journey', { modal: true }); }, 1500); };
+      S.journeyIntro = () => { clearTimeout(S.jIntroT); S.jIntroT = setTimeout(() => { if (onStart() && svcGuide()) svcGuide().intro('journey', { modal: true }); }, 1500); };
       addEventListener('wol-journey', () => { if (S.paintJourney) S.paintJourney(); S.journeyIntro(); });
       // a stage moment closed: offer to go to what opened ("בואו נלך!" / "אחר כך"), switch the tab and ring the new button
       const GO = { 2: { tab: 'learn' }, 3: { tab: 'learn' }, 4: { tab: 'sci' }, 5: { tab: 'sci' }, 6: { tab: 'learn' } };
       addEventListener('wol-stage-done', (e) => {
         if (S.paintJourney) S.paintJourney();
-        const n = e.detail && e.detail.stage, g = window.__guide; const go = GO[n];
+        const n = e.detail && e.detail.stage, g = svcGuide(); const go = GO[n];
         if (!go || !g || !onStart() || !e.detail || !['done', 'skip'].includes(e.detail.result)) return;
         if (JR.state().stage > n) return;   // several stages at once: only the last one offers the way (its moment comes next)
         const kids = JR.playMode() === 'kids', ask = (g.lines('start:go') || []).find((l) => l.id === 'start.go.ask');

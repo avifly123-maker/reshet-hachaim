@@ -1,0 +1,233 @@
+/* מעבדת הרובוטים (1.4.1): a workshop look of its own (blueprint navy, warm orange, white boards), fully right to
+   left. The screen is one layer over everything else (--z-panels, like the lab). Sized for 800x460 and up. */
+#ui.wol .rl { position: absolute; inset: 0; z-index: var(--z-panels); pointer-events: auto; color: #eef4f8; font-family: var(--sans);
+  background: radial-gradient(120% 90% at 70% 0%, #1f4a6e 0%, #15324d 55%, #0e2234 100%); overflow: hidden; }
+#ui.wol .rl::before { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .18;
+  background-image: linear-gradient(#9cc8e8 1px, transparent 1px), linear-gradient(90deg, #9cc8e8 1px, transparent 1px); background-size: 28px 28px; }
+#ui.wol .rl[hidden] { display: none; }
+#ui.wol .rl button { font: inherit; color: inherit; cursor: pointer; }
+#ui.wol .rl svg { width: 1.2em; height: 1.2em; flex: none; }
+#ui.wol .rl-home, #ui.wol .rl-level { position: relative; height: 100%; display: flex; flex-direction: column; }
+#ui.wol .rl-top { display: flex; align-items: center; gap: 12px; padding: 8px 14px; background: rgba(8, 20, 32, .55); box-shadow: 0 2px 0 rgba(0, 0, 0, .25); }
+#ui.wol .rl-title { flex: 1; min-width: 0; }
+#ui.wol .rl-title h1 { margin: 0; font-family: var(--serif); font-size: 1.45em; line-height: 1.05; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#ui.wol .rl-title p { margin: 2px 0 0; font-size: .82em; color: #f2b46a; }
+#ui.wol .rl-back { display: flex; align-items: center; gap: 6px; padding: 7px 12px; border: 0; border-radius: 12px; background: #e8873a; color: #fff; font-weight: 700; box-shadow: 0 3px 0 #9a4f22; }
+#ui.wol .rl-back:active { transform: translateY(2px); box-shadow: 0 1px 0 #9a4f22; }
+#ui.wol .rl-count { display: flex; align-items: center; gap: 5px; color: #ffd66a; }
+#ui.wol .rl-count b { font-size: 1.3em; }
+#ui.wol .rl-count small { color: #cfe0ec; }
+#ui.wol .rl-scroll { flex: 1; overflow: auto; padding: 12px 16px 20px; position: relative; }
+#ui.wol .rl-sec h2 { display: flex; align-items: center; gap: 8px; margin: 4px 0 10px; font-family: var(--serif); font-size: 1.25em; color: #ffd66a; }
+#ui.wol .rl-ch { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 9px 12px; margin-bottom: 9px; border-radius: 14px;
+  background: rgba(255, 255, 255, .07); box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .08); border-inline-start: 6px solid var(--cc); }
+#ui.wol .rl-chh { display: flex; align-items: center; gap: 10px; min-width: 210px; }
+#ui.wol .rl-chh > b { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--cc); color: #fff; font-size: 1.15em; }
+#ui.wol .rl-chh strong { display: block; font-size: 1.05em; }
+#ui.wol .rl-chh small { display: block; color: #b9cfde; font-size: .8em; }
+#ui.wol .rl-lv { display: flex; gap: 8px; flex-wrap: wrap; }
+#ui.wol .rl-lvb, #ui.wol .rl-pzb { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 58px; padding: 6px 6px 5px; border: 0; border-radius: 12px;
+  background: #f5f1e8; color: #1d2c38; box-shadow: 0 3px 0 #9fb3c2; }
+#ui.wol .rl-lvb b { font-size: 1.15em; }
+#ui.wol .rl-lvb.done, #ui.wol .rl-pzb.done { background: #fff6dc; }
+#ui.wol .rl-lvb:disabled, #ui.wol .rl-pzb:disabled { opacity: .38; cursor: default; filter: grayscale(.6); }
+#ui.wol .rl-lvb:not(:disabled):hover, #ui.wol .rl-pzb:not(:disabled):hover { transform: translateY(-2px); }
+#ui.wol .rl-z { position: absolute; top: 5px; inset-inline-start: 5px; width: 9px; height: 9px; border-radius: 50%; background: #7a9a4a; }
+#ui.wol .rl-z.z-amazon { background: #2f7d4a; } #ui.wol .rl-z.z-reef { background: #2fa3b8; } #ui.wol .rl-z.z-desert { background: #d8a85a; }
+#ui.wol .rl-st { display: inline-flex; gap: 1px; }
+#ui.wol .rl-st i { color: #c9d3da; display: inline-flex; } #ui.wol .rl-st i svg { width: .85em; height: .85em; }
+#ui.wol .rl-st i.on { color: #f5b82e; }
+#ui.wol .rl-st.big i svg { width: 1.9em; height: 1.9em; }
+#ui.wol .rl-pz { display: flex; gap: 10px; flex-wrap: wrap; }
+#ui.wol .rl-pzb { min-width: 150px; padding: 10px 12px; }
+
+/* one level */
+#ui.wol .rl-goalbar { color: #ffd66a; font-size: .85em; white-space: nowrap; }
+#ui.wol .rl-par { display: inline-flex; align-items: center; gap: 2px; }
+#ui.wol .rl-par svg { width: .9em; height: .9em; }
+#ui.wol .rl-say { position: relative; display: flex; align-items: center; gap: 10px; margin: 8px 14px 0; padding: 7px 12px 7px 12px; padding-inline-start: 84px; min-height: 52px; border-radius: 14px; background: #f5f1e8; color: #1d2c38; font-size: .95em; line-height: 1.35; }
+#ui.wol .rl-say p { margin: 0; }
+#ui.wol .rl-teach { flex: none; width: 34px; height: 34px; border-radius: 10px; background: conic-gradient(#3b82c4, #e08a2b, #3f9a4a, #8a5cc4, #3b82c4); box-shadow: inset 0 0 0 4px #f5f1e8; }
+#ui.wol .rl-body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(300px, 46%) 1fr; gap: 10px; padding: 8px 14px 10px; }
+#ui.wol .rl-ed { min-height: 0; display: grid; grid-template-columns: 116px 1fr; gap: 8px; }
+#ui.wol .rl-pal { min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 7px; padding-inline-end: 2px; }
+#ui.wol .rl-fam small { display: block; margin: 2px 2px 3px; font-size: .72em; color: #b9cfde; }
+#ui.wol .rl-blk { display: flex; align-items: center; gap: 6px; width: 100%; margin-bottom: 4px; padding: 6px 8px; border: 0; border-radius: 10px;
+  background: var(--fc); color: #fff; font-weight: 700; font-size: .86em; text-align: start; box-shadow: 0 3px 0 rgba(0, 0, 0, .3); }
+#ui.wol .rl-blk:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0, 0, 0, .3); }
+#ui.wol .rl-blk.pop { animation: rlpop .25s ease-out; }
+@keyframes rlpop { 0% { transform: scale(1); } 40% { transform: scale(1.09); } 100% { transform: scale(1); } }
+#ui.wol .rl-ic { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 8px; background: rgba(255, 255, 255, .22); }
+#ui.wol .rl-prog { min-height: 0; display: flex; flex-direction: column; border-radius: 14px; background: #f5f1e8; color: #1d2c38; overflow: hidden; }
+#ui.wol .rl-tabs { display: flex; gap: 3px; padding: 5px 5px 0; background: #e3dccb; }
+#ui.wol .rl-tabs button { display: flex; align-items: center; gap: 4px; padding: 5px 9px; border: 0; border-radius: 9px 9px 0 0; background: transparent; color: #5a6670; font-size: .82em; font-weight: 700; }
+#ui.wol .rl-tabs button[aria-selected="true"] { background: #f5f1e8; color: #1d2c38; }
+#ui.wol .rl-code { flex: 1; min-height: 0; overflow: auto; padding: 6px 8px 14px; }
+#ui.wol .rl-list { display: flex; flex-direction: column; }
+#ui.wol .rl-slot { height: 9px; margin: 1px 0; border: 0; border-radius: 6px; background: transparent; }
+#ui.wol .rl-slot:hover { background: rgba(232, 135, 58, .25); }
+#ui.wol .rl-slot.on { height: 12px; background: #e8873a; box-shadow: 0 0 0 3px rgba(232, 135, 58, .25); animation: rlblink 1.2s infinite; }
+@keyframes rlblink { 50% { opacity: .45; } }
+#ui.wol .rl-node { border-radius: 10px; background: var(--fc); color: #fff; box-shadow: 0 2px 0 rgba(0, 0, 0, .25); }
+#ui.wol .rl-node.run { outline: 3px solid #ffd66a; outline-offset: 1px; }
+#ui.wol .rl-head { display: flex; align-items: center; gap: 6px; padding: 4px 6px; font-weight: 700; font-size: .86em; }
+#ui.wol .rl-head .rl-bt { flex: 1; min-width: 0; }
+#ui.wol .rl-tools { display: inline-flex; gap: 1px; opacity: .8; }
+#ui.wol .rl-tools button { display: grid; place-items: center; width: 22px; height: 22px; padding: 0; border: 0; border-radius: 6px; background: rgba(0, 0, 0, .15); }
+#ui.wol .rl-tools button svg { width: 15px; height: 15px; }
+#ui.wol .rl-num { display: inline-flex; align-items: center; gap: 2px; padding: 1px 4px; border-radius: 8px; background: rgba(255, 255, 255, .25); }
+#ui.wol .rl-num button { display: grid; place-items: center; width: 20px; height: 20px; padding: 0; border: 0; border-radius: 6px; background: rgba(0, 0, 0, .15); }
+#ui.wol .rl-num b { min-width: 1em; text-align: center; font-size: 1.1em; }
+#ui.wol .rl-num small { font-size: .8em; }
+#ui.wol .rl-node select { max-width: 150px; padding: 2px 4px; border: 0; border-radius: 7px; font: inherit; font-size: .9em; color: #1d2c38; background: #fff; }
+#ui.wol .rl-in { margin: 0 14px 6px 4px; padding: 2px 6px 4px; border-radius: 8px; background: rgba(255, 255, 255, .9); color: #1d2c38; }
+#ui.wol .rl-in > small { display: block; margin: 3px 2px 0; font-size: .75em; color: #6a5a40; font-weight: 700; }
+#ui.wol .rl-lock { display: block; margin-top: 2px; font-style: normal; font-size: .78em; color: #f0b44c; }
+#ui.wol .rl-hint { margin: 10px 4px; color: #6a7680; font-size: .9em; }
+#ui.wol .rl-stage { position: relative; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
+#ui.wol .rl-map { flex: 1; width: 100%; min-height: 0; border-radius: 14px; background: rgba(0, 0, 0, .2); box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .12); }
+#ui.wol .rl-run { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; padding-left: 52px; /* room for the music button at the bottom left */ }
+#ui.wol .rl-run button { display: flex; align-items: center; gap: 5px; padding: 7px 12px; border: 0; border-radius: 12px; background: rgba(255, 255, 255, .14); font-weight: 700; }
+#ui.wol .rl-run button:disabled { opacity: .4; cursor: default; }
+#ui.wol .rl-run .rl-go { background: #3f9a4a; box-shadow: 0 3px 0 #23602b; padding: 7px 18px; font-size: 1.05em; }
+#ui.wol .rl-msg { position: absolute; inset-inline: 12px; bottom: 56px; padding: 10px 14px; border-radius: 14px; background: #f5f1e8; color: #1d2c38; font-size: .95em; line-height: 1.4;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .35); animation: rlin .2s ease-out; }
+#ui.wol .rl-msg[hidden] { display: none; }
+#ui.wol .rl-msg.fail { border-inline-start: 6px solid #e8562a; }
+#ui.wol .rl-msg.oops, #ui.wol .rl-msg.fun { border-inline-start: 6px solid #d66aa8; }
+#ui.wol .rl-msg.why { border-inline-start: 6px solid #3b82c4; }
+#ui.wol .rl-msg p { margin: 2px 0; }
+#ui.wol .rl-win { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
+#ui.wol .rl-win b { font-size: 1.08em; }
+#ui.wol .rl-win small { color: #5a6670; }
+#ui.wol .rl-winb { display: flex; gap: 8px; margin-top: 4px; }
+#ui.wol .rl-winb button { padding: 7px 14px; border: 0; border-radius: 11px; background: #e8873a; color: #fff; font-weight: 700; box-shadow: 0 3px 0 #9a4f22; }
+#ui.wol .rl-winb button + button { background: #dfe6ea; color: #1d2c38; box-shadow: 0 3px 0 #a9b6bf; }
+@keyframes rlin { from { transform: translateY(8px); opacity: 0; } }
+@media (max-height: 520px) {
+  #ui.wol .rl-title h1 { font-size: 1.2em; }
+  #ui.wol .rl-say { margin-top: 5px; padding: 5px 10px; padding-inline-start: 74px; min-height: 44px; font-size: .86em; }
+  #ui.wol .rl-kubi { width: 62px; }
+  #ui.wol .rl-teach { width: 26px; height: 26px; }
+  #ui.wol .rl-body { padding-top: 5px; gap: 8px; }
+  #ui.wol .rl-ed { grid-template-columns: 104px 1fr; }
+  #ui.wol .rl-blk { padding: 4px 6px; font-size: .8em; }
+  #ui.wol .rl-ic { width: 22px; height: 22px; }
+  #ui.wol .rl-run { flex-wrap: nowrap; gap: 4px; }
+  #ui.wol .rl-run button { padding: 5px 8px; font-size: .84em; white-space: nowrap; }
+  #ui.wol .rl-run .rl-go { padding: 5px 12px; }
+}
+
+/* the start screen's panel (science centre tab): a small drawn scene instead of a picture, until the opening film */
+#ui.wol .st-pimg.rlb { position: relative; background: radial-gradient(90% 90% at 60% 30%, #2a5f8a, #14314a); overflow: hidden; }
+#ui.wol .st-pimg.rlb::before { content: ''; position: absolute; inset: 0; opacity: .25; background-image: linear-gradient(#9cc8e8 1px, transparent 1px), linear-gradient(90deg, #9cc8e8 1px, transparent 1px); background-size: 18px 18px; }
+#ui.wol .rlb-bot { position: absolute; left: 22%; bottom: 16%; width: 30%; aspect-ratio: 1.1; border-radius: 22%; background: #f5f1e8; box-shadow: inset 0 -8px 0 #d8d0bd, 0 6px 0 #2b2b2b; }
+#ui.wol .rlb-bot::before { content: ''; position: absolute; inset: 16% 16% 46%; border-radius: 14%; background: #e8873a; }
+#ui.wol .rlb-bot::after { content: ''; position: absolute; top: 24%; left: 32%; width: 12%; aspect-ratio: 1; border-radius: 50%; background: #fff; box-shadow: 220% 0 0 #fff; }
+#ui.wol .rlb-drone { position: absolute; right: 18%; top: 14%; width: 22%; aspect-ratio: 1; border-radius: 50%; background: #3b82c4; box-shadow: 0 0 0 6px rgba(214, 221, 227, .9); animation: rlbfly 3.2s ease-in-out infinite; }
+#ui.wol .rlb-blocks { position: absolute; right: 12%; bottom: 14%; width: 30%; height: 26%; border-radius: 8px;
+  background: linear-gradient(#3b82c4 0 30%, transparent 30% 35%, #3f9a4a 35% 65%, transparent 65% 70%, #e08a2b 70%); }
+@keyframes rlbfly { 50% { transform: translateY(-8px) rotate(6deg); } }
+
+/* a lesson in 3D (Avi, 29.10): the island shows through; only the panels take clicks, the rest turns the camera */
+#ui.wol .rl.in3d { background: transparent; pointer-events: none; }
+#ui.wol .rl.in3d::before { display: none; }
+#ui.wol .rl.in3d .rl-top, #ui.wol .rl.in3d .rl-say, #ui.wol .rl.in3d .rl-ed, #ui.wol .rl.in3d .rl-run, #ui.wol .rl.in3d .rl-msg { pointer-events: auto; }
+#ui.wol .rl.in3d .rl-top { background: rgba(8, 20, 32, .72); }
+#ui.wol .rl.in3d .rl-say { box-shadow: 0 4px 14px rgba(0, 0, 0, .3); }
+#ui.wol .rl.in3d .rl-ed { padding: 6px; border-radius: 14px; background: rgba(14, 34, 52, .84); box-shadow: 0 6px 18px rgba(0, 0, 0, .3); }
+#ui.wol .rl.in3d .rl-stage { justify-content: flex-end; }
+#ui.wol .rl.in3d .rl-run { padding: 6px 52px 6px 6px; border-radius: 14px; background: rgba(8, 20, 32, .55); align-self: center; }
+#ui.wol .rl.in3d .rl-run button { background: rgba(255, 255, 255, .18); }
+#ui.wol .rl.in3d .rl-run .rl-go { background: #3f9a4a; }
+#ui.wol .rl.in3d .rl-msg { bottom: 60px; }
+/* the forest's own HUD steps aside while a lesson runs on the island */
+#ui.wol.rl3d > .hud, #ui.wol.rl3d > .toolbar, #ui.wol.rl3d > .species, #ui.wol.rl3d > .hud-logo, #ui.wol.rl3d > .cam-pad,
+#ui.wol.rl3d > .imv-dock, #ui.wol.rl3d > .coach, #ui.wol.rl3d > .coach-ring, #ui.wol.rl3d > .toasts, #ui.wol.rl3d > .tour-pick,
+#ui.wol.rl3d > .mus-btn, #ui.wol.rl3d > .rightcol, #ui.wol.rl3d > .tray, #ui.wol.rl3d > .hurt-arrows { display: none !important; }
+
+/* סדנת העיצוב (garage.js): the tools' parts and colours, a turning preview */
+#ui.wol .rl-gbtn { display: flex; align-items: center; gap: 6px; padding: 7px 12px; border: 0; border-radius: 12px; background: #2fa39a; color: #fff; font-weight: 700; box-shadow: 0 3px 0 #1d6b65; }
+#ui.wol .rl-garage { position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; background: radial-gradient(120% 90% at 30% 0%, #234f74 0%, #15324d 60%, #0e2234 100%); }
+#ui.wol .rl-gbody { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(300px, 46%) 1fr; gap: 10px; padding: 8px 14px 12px; }
+#ui.wol .rl-gside { min-height: 0; display: flex; flex-direction: column; gap: 8px; }
+#ui.wol .rl-gtabs { display: flex; gap: 6px; }
+#ui.wol .rl-gtabs button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 7px 8px; border: 0; border-radius: 12px; background: rgba(255, 255, 255, .1); font-weight: 700; }
+#ui.wol .rl-gtabs button[aria-selected="true"] { background: #f5f1e8; color: #1d2c38; }
+#ui.wol .rl-gopts { flex: 1; min-height: 0; overflow: auto; padding: 8px 10px; border-radius: 14px; background: #f5f1e8; color: #1d2c38; }
+#ui.wol .rl-grow { margin-bottom: 9px; }
+#ui.wol .rl-grow > b { display: block; margin-bottom: 4px; font-size: .9em; color: #6a5a40; }
+#ui.wol .rl-gchips { display: flex; flex-wrap: wrap; gap: 5px; }
+#ui.wol .rl-gchip { display: inline-flex; align-items: center; gap: 4px; padding: 6px 11px; border: 0; border-radius: 10px; background: #e3dccb; color: #1d2c38 !important; font-weight: 700; font-size: .88em; }
+#ui.wol .rl-gchip.on { background: #e8873a; color: #fff !important; box-shadow: 0 2px 0 #9a4f22; }
+#ui.wol .rl-gchip.locked { opacity: .55; cursor: default; flex-direction: column; align-items: flex-start; gap: 0; }
+#ui.wol .rl-gchip.locked svg { width: .9em; height: .9em; }
+#ui.wol .rl-gchip small { font-weight: 400; font-size: .78em; }
+#ui.wol .rl-gsw { display: flex; flex-wrap: wrap; gap: 6px; }
+#ui.wol .rl-sw { width: 30px; height: 30px; padding: 0; border: 3px solid #fff; border-radius: 50%; background: var(--sw); box-shadow: 0 1px 3px rgba(0, 0, 0, .35); }
+#ui.wol .rl-sw.on { outline: 3px solid #e8873a; outline-offset: 1px; }
+#ui.wol .rl-sw.locked { opacity: .3; cursor: default; }
+#ui.wol .rl-gview { position: relative; min-height: 0; border-radius: 16px; background: radial-gradient(80% 70% at 50% 40%, #5b88aa 0%, #2c5373 70%, #1f3f5a 100%); overflow: hidden; }
+#ui.wol .rl-gview canvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: grab; }
+#ui.wol .rl-gview small { position: absolute; bottom: 8px; inset-inline: 0; text-align: center; color: #d6e6f2; font-size: .8em; pointer-events: none; }
+/* the signals (send / wait for a signal): three shapes in colour, readable without words */
+#ui.wol .rl-sig { display: inline-flex; gap: 3px; }
+#ui.wol .rl-sigb { display: grid; place-items: center; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 7px; background: rgba(255, 255, 255, .25); }
+#ui.wol .rl-sigb.on { background: #fff; box-shadow: 0 0 0 2px var(--sc); }
+#ui.wol .rl-sigb i { display: block; width: 13px; height: 13px; background: var(--sc); }
+#ui.wol .rl-sigb i.sh-circle { border-radius: 50%; }
+#ui.wol .rl-sigb i.sh-triangle { clip-path: polygon(50% 5%, 95% 92%, 5% 92%); }
+#ui.wol .rl-sigb i.sh-star { clip-path: polygon(50% 2%, 62% 38%, 98% 38%, 69% 60%, 80% 96%, 50% 74%, 20% 96%, 31% 60%, 2% 38%, 38% 38%); }
+
+/* קוּבִּי's window in the lesson's strip: he leans out of it a little (kubi-cam.js) */
+#ui.wol .rl-kubi { position: absolute; inset-inline-start: 6px; top: -8px; bottom: -4px; width: 72px; height: auto; pointer-events: none; }
+#ui.wol .rl-hello { display: flex; align-items: center; gap: 12px; margin: 0 0 10px; padding: 6px 14px 6px 10px; border-radius: 16px; background: #f5f1e8; color: #1d2c38; }
+#ui.wol .rl-hello p { margin: 0; font-size: .98em; line-height: 1.4; }
+#ui.wol .rl-hkubi { flex: none; width: 96px; height: 104px; margin-block: -14px -6px; }
+@media (max-height: 520px) { #ui.wol .rl-hkubi { width: 80px; height: 86px; } }
+/* a colour picture on the block (blocks.js emo): big and clear, readable before reading */
+#ui.wol .rl-ic.emo { background: rgba(255, 255, 255, .88); }
+#ui.wol .rl-ic.emo i { font-style: normal; font-size: 17px; line-height: 1; font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif; }
+/* control blocks: the sensor list or the number may take a second line in a narrow program panel */
+#ui.wol .rl-node.ctl > .rl-head { flex-wrap: wrap; row-gap: 3px; }
+#ui.wol .rl-node.ctl > .rl-head select { max-width: 100%; flex: 1 1 120px; }
+/* the level and puzzle buttons keep their dark text (".rl button" inherits the screen's white) */
+#ui.wol .rl .rl-lvb, #ui.wol .rl .rl-pzb { color: #1d2c38; }
+#ui.wol .rl-pzb small { font-size: .74em; color: #6a5a40; }
+/* קוּבִּי's first words: the chapter's idea, then a new block with its picture */
+#ui.wol .rl-chi { font-weight: 700; color: #8a4a12; }
+#ui.wol .rl-newb { display: flex; align-items: center; gap: 6px; margin-top: 4px; padding: 3px 8px; border-radius: 9px; background: #fff3d6; font-size: .92em; }
+#ui.wol .rl-newb i { font-style: normal; font-size: 1.15em; font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif; }
+#ui.wol .rl-newb b { color: #c4504a; }
+#ui.wol .rl-say p { max-height: 7.5em; overflow: auto; }
+/* the counter during a run (chapter 6): a small chip by the run buttons */
+#ui.wol .rl-ctr { display: inline-flex; align-items: center; gap: 4px; padding: 5px 10px; border-radius: 12px; background: #c4504a; color: #fff; font-weight: 700; }
+#ui.wol .rl-ctr b { min-width: 1.2em; text-align: center; font-size: 1.1em; }
+#ui.wol .rl-ctr.pop { animation: rlpop .25s ease-out; }
+#ui.wol .rl-isl-note { margin: -4px 0 8px; color: #b9cfde; font-size: .88em; }
+#ui.wol .rl .rl-islb { min-width: 110px; background: #e9f4ea; }
+/* the opening film (src/robolab/intro.js) over the lab's home */
+#ui.wol .rl-intro { position: absolute; inset: 0; z-index: 3; background: #0d2a3a; overflow: hidden; }
+#ui.wol .rl-intro canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+#ui.wol .rl-ititle { position: absolute; top: 6%; inset-inline: 0; text-align: center; color: #fff; opacity: 0; transform: translateY(-10px); transition: opacity .8s, transform .8s; pointer-events: none; }
+#ui.wol .rl-intro.end .rl-ititle { opacity: 1; transform: none; }
+#ui.wol .rl-ititle h1 { margin: 0; font-size: clamp(26px, 5vw, 48px); text-shadow: 0 3px 14px #0008; }
+#ui.wol .rl-ititle p { margin: 4px 0 0; font-size: clamp(14px, 2vw, 20px); color: #bfeee4; }
+#ui.wol .rl-icap { position: absolute; bottom: 4%; inset-inline: 8%; margin: 0; text-align: center; color: #fff; font-size: calc(clamp(16px, 2.3vw, 24px) * var(--ts, 1)); line-height: 1.5; background: #0b1f2acc; border-radius: 14px; padding: 10px 18px; opacity: 0; transition: opacity .35s; pointer-events: none; }
+#ui.wol .rl-icap.on { opacity: 1; }
+#ui.wol .rl-icap:empty { display: none; }
+#ui.wol .rl-iskip { position: absolute; top: 14px; inset-inline-end: 14px; padding: 8px 18px; border-radius: 20px; border: 1px solid #ffffff55; background: #ffffff22; color: #fff; font: inherit; font-size: 16px; cursor: pointer; }
+#ui.wol .rl-iskip:hover { background: #ffffff33; }
+#ui.wol .rl-igo { position: absolute; bottom: 3%; left: 50%; transform: translateX(-50%); padding: 12px 34px; border-radius: 26px; border: 0; background: #e8873a; color: #fff; font: inherit; font-size: 20px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 16px #0006; }
+#ui.wol .rl-igo:hover { background: #f09a50; }
+#ui.wol .rl-introb { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 16px; border: 1px solid #ffffff44; background: #ffffff18; color: inherit; font: inherit; font-size: 14px; cursor: pointer; align-self: center; }
+#ui.wol .rl-introb svg { width: 16px; height: 16px; }
+#ui.wol .rl-intro.end .rl-icap { bottom: 17%; }
+/* QA 30.10: the main program next to event blocks; a puzzle's block limit */
+#ui.wol .rl-mainp { border: 2px dashed #ffffff40; border-radius: 12px; padding: 4px 6px 6px; margin-bottom: 8px; }
+#ui.wol .rl-mainp > small { display: block; font-weight: 700; opacity: .85; margin: 0 2px 2px; }
+#ui.wol .rl-mainp .rl-list:empty, #ui.wol .rl-mainp > .rl-list > .rl-slot:only-child { min-height: 34px; }
+#ui.wol .rl-blk.no { animation: rl-no .35s; }
+@keyframes rl-no { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+#ui.wol .rl-maxb { display: inline-flex; gap: 4px; align-items: center; padding: 2px 10px; border-radius: 12px; background: #ffffff1c; font-weight: 700; }
+#ui.wol .rl-maxb.full { background: #e8873a; color: #fff; }

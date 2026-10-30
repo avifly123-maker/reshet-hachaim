@@ -77,6 +77,7 @@ export const KINDS = {
   swarm: 'חרק', // the firefly; the reef's plankton has its own kindLabel
   // the reef: corals, sponges, anemones and giant clams are animals that stay in place – in the game they are placed and
   // grow like plants (src/sim/species.js PLANT_KINDS); a species' kindLabel says what it really is on its card
+  cactus: 'קקטוס',
   coral: 'אלמוג',
   sessile: 'בעל חיים שלא זז',
   seaplant: 'צמח ים',

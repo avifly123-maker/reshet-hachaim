@@ -272,6 +272,8 @@ const CSS = `
 .kf-bt[data-b="grove"]{--paper:#ece0c4}.kf-bt[data-b="grove"] h2{color:#55601f}
 .kf-bt[data-b="reef"]{--paper:#d3e7ec}.kf-bt[data-b="reef"] h2{color:#1d6680}
 .kf-bt[data-b="reef"].on{border-color:#2a8ac0!important;box-shadow:0 0 0 4px rgba(64,160,210,.45),var(--shadow)}
+.kf-bt[data-b="desert"]{--paper:#f0e0c0}.kf-bt[data-b="desert"] h2{color:#8a5a22}
+.kf-bt[data-b="desert"].on{border-color:#c08a3a!important;box-shadow:0 0 0 4px rgba(214,160,80,.45),var(--shadow)}
 .kf-bt[data-b="amazon"].on{border-color:#3f8f84!important;box-shadow:0 0 0 4px rgba(79,163,154,.45),var(--shadow)}
 .kf-bt[data-b="grove"].on{border-color:#b07a12!important;box-shadow:0 0 0 4px rgba(236,199,126,.55),var(--shadow)}
 .kf-goalbox{--paper:#ece6d0}

@@ -20,7 +20,7 @@ TMP = os.path.join(D, 'pv'); os.makedirs(TMP, exist_ok=True)
 os.makedirs(os.path.join(D, 'out'), exist_ok=True)
 
 ns = bpy.app.driver_namespace.get('wol_ns') or {'__name__': 'wol_kit'}
-for f in ('animal_kit.py', 'animal_kit_hd.py', 'reef_kit.py'):
+for f in ('animal_kit.py', 'animal_kit_hd.py', 'reef_kit.py', 'desert_kit.py'):
     p = os.path.join(D, f)
     if os.path.exists(p): exec(compile(open(p, encoding='utf-8').read(), p, 'exec'), ns)
 bpy.app.driver_namespace['wol_ns'] = ns

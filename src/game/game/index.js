@@ -6,6 +6,7 @@
 // are merged back into ctx.
 //   common.js      constants (day length, caps), scratch vectors, the far forest's tree sources, late()
 //   ecology.js     queries used by entities (food, perches, room) and the ecological events they report (W.observe ...)
+//   water.js       1.4: water at the roots, thirst, shelter from sand, sandstorms and locusts (only the desert uses it)
 //   placement.js   spawning, placement checks, nursery corals, random spots, crowns and light (updateLight)
 //   selection.js   selection, the species card, the links overlay, picking with the pointer
 //   tray-drag.js   drag and drop from the tray (species, tools, nursery corals)
@@ -47,6 +48,7 @@ import { GUIDE } from '../../data/guide-lines.js';
 import { createAfter } from '../after.js';   /* H: after the missions (visitors, photos, challenges, rank) */
 import { MAX_ANIMALS, MAX_ALL_PLANTS, farTreeSources, addPart } from './common.js';
 import { createEcology } from './ecology.js';
+import { createWater } from './water.js';
 import { createPlacement } from './placement.js';
 import { createSelection } from './selection.js';
 import { createTrayDrag } from './tray-drag.js';
@@ -60,6 +62,7 @@ import { createRoad } from './road.js';
 import { createSave } from './save.js';
 import { createUpdate } from './update.js';
 import { createDispose } from './dispose.js';
+import { svcGuide } from '../../core/services.js';
 import { startTraining } from '../training.js';
 
 export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, animalBuilders, zoneEnv = null, quality, onExit, save = null, research = null, training = false }) {
@@ -97,7 +100,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   };
   W.amb = amb;
   // רובו־דע in the forest (src/ui/robo-guide.js, lines in src/data/guide/zone.js). Nothing from him inside a mystery.
-  const guide = () => (W.research || W.training ? null : window.__guide || null);   // the training field speaks only through its own steps
+  const guide = () => (W.research || W.training ? null : svcGuide() || null);   // the training field speaks only through its own steps
   function robo(key, opts = {}) {
     const G = guide(), lines = GUIDE[key]; if (!G || !lines || !lines.length) return Promise.resolve('none');
     if (!(opts.key !== null && !opts.force && introSeen('g:' + key))) W._roboT = W.simT;   // when he last spoke (the day-end line waits for quiet)
@@ -169,12 +172,13 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     lastFit = key;
     camera.setViewOffset(w, h, 0, offY, w, h); camera.updateProjectionMatrix();
     rig.distScale = clamp(520 / freeH, 0.9, 1.5) * clamp(1.5 / Math.max(0.8, w / h), 1, 1.5);
-    if (!force && W.simT < 6 && rig.layer === 'all') rig.setLayer('all');
+    if (!force && W.simT < 6 && rig.layer === 'all' && !(W.research && W.research.robolab)) rig.setLayer('all');   // a robot-lab field keeps its own view
   }
   fitViewToUI(true);
   rig.setLayer('all');
 
   addPart(ctx, createEcology(ctx), 'Ecology');         // ─ queries used by entities, discovery & ecological events
+  addPart(ctx, createWater(ctx), 'Water');             // ─ 1.4: water and wind where the zone has a water story (the desert)
   addPart(ctx, createPlacement(ctx), 'Placement');       // ─ spawning & placement, crowns & light
   addPart(ctx, createSelection(ctx), 'Selection');       // ─ selection, the species card, links, picking
   addPart(ctx, createTrayDrag(ctx), 'TrayDrag');        // ─ drag & drop from the tray
@@ -212,7 +216,9 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   ui.setTips(biome.tips);
   // a saved forest, or a few wild things so a new island never starts empty
   ctx.session = null;
-  if (research) ctx.session = createResearchSession({ W, C: research, env, reg, scene, light, markers, rig, ui, audio, bus, tools: ctx.tools, fieldcam: ctx.fieldcam, thumbs, spawnPlant, spawnAnimal, randomPlaceSpot, findSpotNear, addStump, select, refit: () => fitViewToUI(true), exit: () => onExit && onExit() });
+  if (research && research.makeSession && save) restore(save);   // a robot-lab mission on the player's own island (nothing is saved back)
+  if (research && research.makeSession) ctx.session = research.makeSession({ W, env, reg, scene, light, markers, rig, ui, audio, bus, camera, canvas, tools: ctx.tools, spawnPlant, spawnAnimal, select, exit: () => onExit && onExit() });   // מעבדת הרובוטים: a lesson's field (src/robolab/three/session.js)
+  else if (research) ctx.session = createResearchSession({ W, C: research, env, reg, scene, light, markers, rig, ui, audio, bus, tools: ctx.tools, fieldcam: ctx.fieldcam, thumbs, spawnPlant, spawnAnimal, randomPlaceSpot, findSpotNear, addStump, select, refit: () => fitViewToUI(true), exit: () => onExit && onExit() });
   else if (save) restore(save); else if (!training) seedStartingNature();   // the training field starts bare
   ctx.report = research || training ? null : createFieldReport({ W, reg, biome, light, missions, thumbs, ui, bus, audio, saved: save && save.report });   // a mystery has its own lab report
   W.report = ctx.report;
@@ -236,7 +242,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   // debug / testing hooks
   let fakeT = 0;
   window.__game = W;
-  W.debug = { place: (id, x, z) => { const sp = reg.byId.get(id); const hit = { x, z, y: env.heightAt(x, z) }; const c = checkPlace(sp, hit); if (c.ok) return place(sp, hit, c); return c.reason; }, select, rig, setView, applyEffect, check: (cx, cy, id) => { const h = groundHit(cx, cy); return JSON.stringify({ h, c: checkPlace(reg.byId.get(id), h) }); }, startExperiment, endExperiment, unlockAll: () => { for (const s of biome.species) W.unlocked.add(s.id); W.allToolsUnlocked = true; refreshTray(); }, tools: () => ctx.tools, moments: () => ctx.moments, fieldcam: () => ctx.fieldcam, tour: () => ctx.tour, training: () => ctx.training, light: () => ({ score: light.score, shafts: ctx.shafts }), crowns: () => ctx.crowns, auto: () => { let r = ''; if (ctx.pendingEvent) { r = ctx.pendingEvent.id; chooseEvent({ eventId: ctx.pendingEvent.id, choiceId: ctx.pendingEvent.choices[0].id }); } ui.hideEvent(); ui.hideOutcome(); ui.hideDialog(); ui.hideJournal && ui.hideJournal(); return r; }, ff: (sec, step = 0.1) => { for (let i = 0; i < sec / step; i++) { if (ui.isModalOpen()) return 'modal at ' + W.simT.toFixed(0); fakeT += step; update(step, fakeT); } return 'ok ' + W.simT.toFixed(0); }, openJournal };
+  W.debug = { place: (id, x, z) => { const sp = reg.byId.get(id); const hit = { x, z, y: env.heightAt(x, z) }; const c = checkPlace(sp, hit); if (c.ok) return place(sp, hit, c); return c.reason; }, select, rig, setView, applyEffect, check: (cx, cy, id) => { const h = groundHit(cx, cy); return JSON.stringify({ h, c: checkPlace(reg.byId.get(id), h) }); }, startExperiment, endExperiment, unlockAll: () => { for (const s of biome.species) W.unlocked.add(s.id); W.allToolsUnlocked = true; refreshTray(); }, tools: () => ctx.tools, moments: () => ctx.moments, fieldcam: () => ctx.fieldcam, tour: () => ctx.tour, training: () => ctx.training, desertTut: () => ctx.desertTut, light: () => ({ score: light.score, shafts: ctx.shafts }), crowns: () => ctx.crowns, auto: () => { let r = ''; if (ctx.pendingEvent) { r = ctx.pendingEvent.id; chooseEvent({ eventId: ctx.pendingEvent.id, choiceId: ctx.pendingEvent.choices[0].id }); } ui.hideEvent(); ui.hideOutcome(); ui.hideDialog(); ui.hideJournal && ui.hideJournal(); return r; }, ff: (sec, step = 0.1) => { for (let i = 0; i < sec / step; i++) { if (ui.isModalOpen()) return 'modal at ' + W.simT.toFixed(0); fakeT += step; update(step, fakeT); } return 'ok ' + W.simT.toFixed(0); }, openJournal };
   return { W, update, dispose, rig };
 
   function tick0() { return new Promise(r => setTimeout(r, 30)); }

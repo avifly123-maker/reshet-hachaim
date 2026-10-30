@@ -15,3 +15,5 @@ release-files/
 # local agent worktrees
 .claude/
 art/voice/*.wav
+desktop/release-1.4/
+tools/blender/refs/*.png

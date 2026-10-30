@@ -99,6 +99,7 @@ export class Plant {
     if (W.flood > 0 && sp.kind !== 'water-plant' && sp.id !== 'acai' && W.nearWater(this.x, this.z, 7)) water -= 0.25 * W.flood;
     if (sp.kind === 'water-plant') water = 1;
     if (W.waterBonusAt) water = Math.min(1, water + W.waterBonusAt(this.x, this.z));
+    if (W.plantWater) water = W.plantWater(this, dt);   // 1.4, the desert: its own water at the roots (src/game/game/water.js)
     // the reef in a heat wave: corals (and the anemone and the clam, which also hold tiny algae) bleach; they turn pale and
     // come back when the water cools. A strong coral from the nursery (its parents stood the heat) bleaches much less:
     // clones of heat-tolerant parents resisted bleaching 20 to 85% better (docs/sources.md, "Coral nursery").

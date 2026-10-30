@@ -19,6 +19,7 @@ import { buildRegistry } from '../src/sim/species.js';
 import { BIOME as AMAZON } from '../src/data/amazon.js';
 import { BIOME as GROVE } from '../src/data/grove.js';
 import { BIOME as REEF } from '../src/data/reef.js';
+import { BIOME as DESERT } from '../src/data/desert.js';
 
 const errors = []; const err = (m) => errors.push(m);
 const HEB = /[א-ת]/g, NIK = /[ְ-ׇּׁׂ]/g;
@@ -40,7 +41,7 @@ function text(where, v) {
   }
 }
 
-const ZONE = { amazon: AMAZON, grove: GROVE, reef: REEF };
+const ZONE = { amazon: AMAZON, grove: GROVE, reef: REEF, desert: DESERT };
 const SP = {}; const EDGES = new Set(); const EVENTS = new Map();
 for (const [z, B] of Object.entries(ZONE)) {
   SP[z] = new Set(B.species.map((s) => s.id));

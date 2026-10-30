@@ -8,6 +8,7 @@ import { TORAH } from '../../core/edition.js';
 import { grantSource } from '../../core/sources-store.js';
 import { problemsWaiting } from '../../core/threads.js';   // חוטים (1.3.2): problems "מחכות לכם"
 import { markHTML } from '../../ui/threads-ui.js';
+import { ZONE_IDS, ZONE_LOOK } from '../../data/zones.js';
 // "הממציאים" – a sandbox of inventions for the learning hub and the lab of רובו־דע (single player).
 // Two workshops:
 //  · בעיות להמציא – a real problem people solved by learning from a creature. The child puts one or two of
@@ -315,7 +316,7 @@ export function mountInventors(root, ctx, opts = {}) {
   const isTool = (c) => c.type === 'tool';
   const isPlant = (c) => !isTool(c) && c.sp && !c.sp.animal;
   const traits = (c) => traitsOf({ id: c.id, type: c.type, skind: c.sp && c.sp.kind });
-  const cardOfSp = (sp) => ['amazon', 'grove', 'reef'].map((b) => ctx.CARD.get(b + ':' + sp)).find(Boolean) || null;
+  const cardOfSp = (sp) => ZONE_IDS.map((b) => ctx.CARD.get(b + ':' + sp)).find(Boolean) || null;
   const asBench = (c) => ({ id: c.id, tr: traits(c), tool: isTool(c), biome: c.biome, card: c });
   // {m|f|mp|fp} → the words for the card name's gender and number
   const fill = (s, c, p) => String(s).replace(/\{n\}/g, nm(c)).replace(/\{p\}/g, p ? p.title : '')
@@ -509,8 +510,8 @@ export function mountInventors(root, ctx, opts = {}) {
         const chips = [...new Set([...(hint ? tr.filter((t) => marks.has(t)) : []), ...tr])].slice(0, 3);
         return `<div class="iv-hc${used.has(c.id) ? ' used' : ''}${hint ? ' hint' : ''}" data-iv="card" data-c="${esc(c.id)}" title="${esc(tr.map((t) => TRAIT[t]).join(' · '))}">${ctx.cardHTML(c)}<div class="iv-tr">${chips.map((t) => `<i class="${hint && marks.has(t) ? 'k' : ''}">${esc(TRAIT[t])}</i>`).join('')}${lentIds.has(c.id) ? `<i class="iv-lb">${ui('מושאל', 'lentOne')}</i>` : ''}</div></div>`; }).join('')}</div>`;
   }
-  const F_IC = { all: 'zones', amazon: 'amazon', grove: 'grove', reef: 'reef', tech: 'robot' };
-  const filtersHTML = () => [['all', 'הכול'], ['amazon', 'אמזונס'], ['grove', 'חורש'], ['reef', 'שונית'], ['tech', 'טכנולוגיה']].map(([v, t]) => `<button class="iv-f${filter === v ? ' on' : ''}" data-iv="filter" data-v="${v}">${icon(F_IC[v])}${kids ? U.filters[v] : t}</button>`).join('');
+  const F_IC = { all: 'zones', tech: 'robot', ...Object.fromEntries(ZONE_IDS.map((z) => [z, z])) };
+  const filtersHTML = () => [['all', 'הכול'], ...ZONE_IDS.map((z) => [z, ZONE_LOOK[z].short]), ['tech', 'טכנולוגיה']].map(([v, t]) => `<button class="iv-f${filter === v ? ' on' : ''}" data-iv="filter" data-v="${v}">${icon(F_IC[v])}${kids ? U.filters[v] || ZONE_LOOK[v]?.shortK || t : t}</button>`).join('');
 
   /* ───────────── robots */
   const mission = () => MISSIONS.find((m) => m.id === R.mission) || null;

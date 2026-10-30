@@ -21,8 +21,10 @@
 import * as THREE from 'three';
 import { drawRoboFace } from '../ui/robo-face.js';
 import { toolDef } from '../game/tool-defs.js';
+import { DESERT_TECH_IDS, desertModel, createDesertTech } from './desert-tech.js';   // 1.4: drip line, fog net, sand fence
 
-export const TECH_IDS = new Set(['canopybot', 'lidar', 'thermal', 'firetower', 'reefspeaker', 'spawnbot']);
+export const TECH_IDS = new Set(['canopybot', 'lidar', 'thermal', 'firetower', 'reefspeaker', 'spawnbot', ...DESERT_TECH_IDS]);
+import { svcGuide } from '../core/services.js';
 export const TECH_HOST = new Set(['canopybot']);   // hangs on a tree (like the forest listener)
 // warm-blooded: birds and mammals glow in the thermal camera; reptiles, insects and others stay near the night's air
 const COOL = new Set(['chameleon', 'agama', 'tortoise', 'gecko', 'frog', 'dartfrog', 'caiman', 'anaconda', 'boa', 'iguana', 'turtle']);
@@ -179,6 +181,7 @@ function makeSpawnBot() {
   return g;
 }
 export function techModel(id) {
+  if (DESERT_TECH_IDS.has(id)) return desertModel(id);
   let g;
   if (id === 'canopybot') g = makeCanopyBot();
   else if (id === 'lidar' || id === 'thermal') { g = makeDroneStation(id); g.scale.setScalar(1.2); return g; }
@@ -274,7 +277,9 @@ export function createTech(ctx) {
   function xpOnce(key) { if (!xp()) return true; if (told.has(key)) return false; told.add(key); return true; }
 
   // ───── device life
+  const desert = createDesertTech(ctx);   // 1.4: the desert's devices live in world/desert-tech.js
   function init(p, saved) {
+    if (DESERT_TECH_IDS.has(p.id)) return desert.init(p, saved);
     const m = p.mesh;
     if (p.id === 'canopybot') {
       const h = p.host;
@@ -304,6 +309,7 @@ export function createTech(ctx) {
   }
   const toolName = (id) => (toolDef(id) || {}).name || '';
   function save(p) {
+    if (DESERT_TECH_IDS.has(p.id)) return desert.save(p);
     if (p.id === 'reefspeaker') return { came: p.came || 0, hist: (p.hist || []).slice(-8) };
     if (p.id === 'spawnbot') return { sown: p.sown || 0, nights: p.nights || 0 };
     return {};
@@ -740,6 +746,7 @@ export function createTech(ctx) {
 
   // ───── per device, per frame
   function tick(p, dt, rdt, t) {
+    if (DESERT_TECH_IDS.has(p.id)) return desert.tick(p, dt, rdt, t);
     switch (p.id) {
       case 'canopybot': return tickCanopy(p, dt, rdt, t);
       case 'lidar': return tickLidar(p, dt, rdt, t);
@@ -780,7 +787,8 @@ export function createTech(ctx) {
   return {
     model: techModel, init, tick, save, removed, afterEventStart, frame, dispose, showBoard,
     roboAt: robo.pointAt, robo,
-    setDevices(fn) { devicesFn = fn; },
+    setDevices(fn) { devicesFn = fn; desert.setDevices(fn); },
+    desert,   // the desert's water and shelter from its devices (src/game/game/water.js)
     // headless tests (window.__tech): start a device's moment now
     debug: {
       go(id) {
@@ -858,7 +866,7 @@ function createIslandRobo({ W, scene, camera, rig }) {
     } catch (e) { failed = true; console.warn('island robot', e); }
   }
   let disposed = false;
-  const guideOpen = () => { const G = typeof window !== 'undefined' && window.__guide; return !!(G && G.isOpen && G.isOpen()); };
+  const guideOpen = () => { const G = svcGuide(); return !!(G && G.isOpen && G.isOpen()); };
   function pointAt(v) { if (!v) return; point = v.clone ? v.clone() : new THREE.Vector3(v.x, v.y || 0, v.z); pointT = performance.now(); if (shown) goal = point.clone(); }
   // where he waits: in front of the camera target, toward the camera and to the left side of the view (the bubble is on
   // the right), a little above the middle; his size keeps about the same on the screen

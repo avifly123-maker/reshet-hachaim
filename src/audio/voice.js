@@ -14,12 +14,13 @@ import { voiceOn, playMode } from '../core/journey.js';
 // the audio context is suspended and its clock stands still)
 const END_MARGIN_MS = 400;
 
-export function createVoice(audio) {
+// A second voice (קוּבִּי, 1.4.1) passes its own library: createVoice(audio, { load: () => import(...) })
+export function createVoice(audio, { load = null } = {}) {
   let data = null, cur = null, analyser = null, buf = null;
   let gen = 0;   // every say() and stop() starts a new generation: a line still loading when a newer one comes is dropped
   const cache = new Map();
   const ctx = () => (audio && audio.ready ? audio.context : null);
-  const lib = () => (data = data || import('../data/voice.js').then((m) => m.VOICE || {}, () => ({}))); 
+  const lib = () => (data = data || (load ? load() : import('../data/voice.js').then((m) => m.VOICE || {})).then((x) => x || {}, () => ({})));
   async function decode(id) {
     if (cache.has(id)) return cache.get(id);
     const ac = ctx(); if (!ac) return null;

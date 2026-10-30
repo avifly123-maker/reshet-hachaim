@@ -10,9 +10,11 @@ export const BADGE_GROUPS = [
   { id: 'amazon', name: 'יער הגשם של האמזונס', short: 'אמזונס', col: '#2f7a4a', col2: '#e8c050' },
   { id: 'grove', name: 'החורש הארץ־ישראלי', short: 'חורש', col: '#8a6a2a', col2: '#e8202a' },
   { id: 'reef', name: 'שונית האלמוגים של אילת', short: 'שונית', col: '#1f7a9a', col2: '#f08a24' },
+  { id: 'desert', name: 'המדבר', short: 'מדבר', col: '#a8702a', col2: '#3a8a8a' },
   { id: 'lab', name: 'הממציאים והמעבדה', short: 'מעבדה', col: '#5a4a8a', col2: '#f6cf72' },
   { id: 'deep', name: 'משלחת לעומק', short: 'משלחת', col: '#163a5a', col2: '#6fd0ff' },
   { id: 'research', name: 'חוקרי הטבע', short: 'חוקרים', col: '#3a5a2a', col2: '#f6cf72' },
+  { id: 'robolab', name: 'מעבדת הרובוטים', short: 'רובוטים', col: '#1f4a6e', col2: '#e8873a' },
   // torah edition only (hidden in the general edition and while "מקורות ופסוקים" is off)
   { id: 'sources', name: 'מה הפסוק מלמד?', short: 'מקורות', col: '#7a5420', col2: '#f6dfa0', torah: true },
 ];
@@ -31,6 +33,10 @@ export const BADGES = [
   { id: 'b_rx2', group: 'reef', art: 'parrotfish', name: 'רועה האצות', how: 'משימת מומחים "אצות במידה" בשונית', earn: 'mission:rx2' },
   { id: 'b_rx3', group: 'reef', art: 'cleaner', name: 'מנהל התחנה', how: 'משימת מומחים "תחנת ניקוי עמוסה" בשונית', earn: 'mission:rx3' },
   { id: 'b_rx4', group: 'reef', art: 'turtle', name: 'מים צלולים', how: 'משימת מומחים "השונית שורדת חום" בשונית', earn: 'mission:rx4' },
+  { id: 'b_dx1', group: 'desert', art: 'dorcas', name: 'מחדש השיטים', how: 'משימת מומחים "שיטות חדשות" במדבר', earn: 'mission:dx1' },
+  { id: 'b_dx2', group: 'desert', art: 'retama', name: 'עוצר החול', how: 'משימת מומחים "סופה בדרך" במדבר', earn: 'mission:dx2' },
+  { id: 'b_dx3', group: 'desert', art: 'ibex', name: 'מביא המים', how: 'משימת מומחים "יעלים רחוק מהמעיין" במדבר', earn: 'mission:dx3' },
+  { id: 'b_dx4', group: 'desert', art: 'eagleowl', name: 'שומר הלילה של המדבר', how: 'משימת מומחים "רשת של לילה" במדבר', earn: 'mission:dx4' },
   // ── הממציאים (src/learn/games/inventors.js) and the lab
   { id: 'b_inv1', group: 'lab', art: 'reefshark', name: 'הפטנט הראשון', how: 'ממציאים המצאה ראשונה במשחק "הממציאים"', earn: 'inv:first' },
   { id: 'b_inv5', group: 'lab', art: 'owl', name: 'ממציא חרוץ', how: 'חמש המצאות שונות ב"הממציאים"', earn: 'inv:five' },
@@ -101,6 +107,9 @@ export const BADGES = [
   { id: 'b_rc_mice', group: 'research', art: 'owl', name: 'בית לתנשמת', how: 'פותרים את התעלומה "יותר מדי קוצנים"', earn: 'research:case:mice-owl' },
   { id: 'b_rc_bees', group: 'research', art: 'rockrose', name: 'פרחים וזרעים', how: 'פותרים את התעלומה "הפרחים שלא נותנים זרעים"', earn: 'research:case:flowers-bees' },
   { id: 'b_rc_greenreef', group: 'research', art: 'parrotfish', name: 'שונית נקייה', how: 'פותרים את התעלומה "השונית הירוקה"', earn: 'research:case:green-reef' },
+  { id: 'b_rc_sand', group: 'research', art: 'retama', name: 'עוצרים את החול', how: 'פותרים את התעלומה "החול שקובר את השתילים"', earn: 'research:case:moving-sand' },
+  { id: 'b_rc_acacias', group: 'research', art: 'dorcas', name: 'הדרך של הצבי', how: 'פותרים את התעלומה "השיטות שלא מתחדשות"', earn: 'research:case:lonely-acacias' },
+  { id: 'b_rc_oasis', group: 'research', art: 'sandgrouse', name: 'שומרי המעיין', how: 'פותרים את התעלומה "נווה המדבר שהולך ונעלם"', earn: 'research:case:shrinking-oasis' },
   { id: 'b_rc_frogs', group: 'research', art: 'dartfrog', name: 'בריכה על ענף', how: 'פותרים את התעלומה "איפה הצפרדעים?"', earn: 'research:case:frogs' },
   { id: 'b_rc_brazil', group: 'research', art: 'orchidbee', name: 'שותפי האגוז', how: 'פותרים את התעלומה "אגוזי הברזיל שלא נותנים פרי"', earn: 'research:case:brazil-nut' },
   { id: 'b_rc_cleaning', group: 'research', art: 'cleaner', name: 'התחנה נפתחה', how: 'פותרים את התעלומה "תחנת הניקוי נסגרה"', earn: 'research:case:cleaning-station' },
@@ -119,6 +128,20 @@ export const BADGES = [
   { id: 'b_rh_thrift', group: 'research', art: 'agouti', name: 'חוקר חסכן', how: 'פותרים תעלומה בתקציב קטן, בלי לבזבז', earn: 'research:thrift' },
   { id: 'b_rh_book', group: 'research', art: 'blackbird', name: 'מחברת של חוקר', how: 'במחברת: פוסלים השערה אחת לפחות ובוחרים השערה, והתעלומה נפתרת', earn: 'research:notebook' },
   { id: 'b_rh_order', group: 'research', art: 'tortoise', name: 'צעד אחר צעד', how: 'מודדים וכותבים השערה לפני הרעיון הראשון, ופותרים', earn: 'research:order' },
+  // ── מעבדת הרובוטים (1.4.1, src/robolab/badges.js): a badge for every chapter, for good programs, for puzzles and fun
+  { id: 'b_ro_ch1', group: 'robolab', art: 'leafcutter', name: 'לפי הסדר', how: 'כל השיעורים של פרק "סדר פעולות"', earn: 'robo:ch:1' },
+  { id: 'b_ro_ch2', group: 'robolab', art: 'hummingbird', name: 'אלוף הלולאות', how: 'כל השיעורים של פרק "חזרות"', earn: 'robo:ch:2' },
+  { id: 'b_ro_ch3', group: 'robolab', art: 'harvesterant', name: 'בונה בלוקים', how: 'כל השיעורים של פרק "הבלוק שלי"', earn: 'robo:ch:3' },
+  { id: 'b_ro_ch4', group: 'robolab', art: 'owl', name: 'רובוט שחושב', how: 'כל השיעורים של פרק "תנאים וחיישנים"', earn: 'robo:ch:4' },
+  { id: 'b_ro_ch5', group: 'robolab', art: 'gazelle', name: 'מגיב בזמן', how: 'כל השיעורים של פרק "אירועים"', earn: 'robo:ch:5' },
+  { id: 'b_ro_ch6', group: 'robolab', art: 'parrotfish', name: 'סופר מדויק', how: 'כל השיעורים של פרק "מונים"', earn: 'robo:ch:6' },
+  { id: 'b_ro_ch7', group: 'robolab', art: 'harpy', name: 'צוות מנצח', how: 'כל השיעורים של פרק "עבודת צוות"', earn: 'robo:ch:7' },
+  { id: 'b_ro_star10', group: 'robolab', art: 'toucan', name: 'מתכנת חסכן', how: 'שלושה כוכבים בעשרה שיעורים', earn: 'robo:stars:10' },
+  { id: 'b_ro_star30', group: 'robolab', art: 'macaw', name: 'קוד קצר וחכם', how: 'שלושה כוכבים בשלושים שיעורים', earn: 'robo:stars:30' },
+  { id: 'b_ro_puz1', group: 'robolab', art: 'octopus', name: 'פותר חידות', how: 'פותרים חידה ראשונה במעבדת הרובוטים', earn: 'robo:puzzles:1' },
+  { id: 'b_ro_puz5', group: 'robolab', art: 'chameleon', name: 'ראש חידות', how: 'פותרים חמש חידות', earn: 'robo:puzzles:5' },
+  { id: 'b_ro_fun', group: 'robolab', art: 'firefly', name: 'זיקוקים לכל הכיוונים', how: 'לוחצים עשרים פעם על בלוקים מפתיעים', earn: 'robo:fun' },
+  { id: 'b_ro_design', group: 'robolab', art: 'butterfly', name: 'מעצב רובוטים', how: 'צובעים כלי בסדנת העיצוב', earn: 'robo:design' },
 ];
 
 // card frames for the album: a group's frame opens with `need` of its badges ('all': badges of any group)

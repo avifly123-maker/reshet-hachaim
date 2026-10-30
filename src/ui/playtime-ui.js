@@ -11,6 +11,7 @@
 import * as PT from '../core/playtime.js';
 import { icon } from './ui/icons.js';
 import { ROBO_ART } from '../data/robo-art.js';
+import { svcGuide, svcApp } from '../core/services.js';
 
 const CODE_TRIES = 5, CODE_WAIT_MS = 30e3;
 
@@ -68,8 +69,8 @@ export function startPlaytime({ root, kids = () => false, onLock, onUnlock } = {
     lockEl.addEventListener('click', onClick);
     lockEl.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.matches('#pt-code')) { e.preventDefault(); tryCode(); } });
     lockEl.addEventListener('input', (e) => { if (e.target.matches('#pt-code')) { const er = lockEl.querySelector('.pt-err'); if (er) er.hidden = true; } });
-    try { window.__guide && window.__guide.close(); } catch (e) { }
-    try { window.__app && window.__app.voice && window.__app.voice.stop(); } catch (e) { }
+    try { svcGuide() && svcGuide().close(); } catch (e) { }
+    try { svcApp() && svcApp().voice && svcApp().voice.stop(); } catch (e) { }
     try { onLock && onLock(); } catch (e) { console.error(e); }
   }
   function unlock() {

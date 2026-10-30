@@ -25,7 +25,7 @@ export const SAMPLE_OF = {
   reefshark: 'sharkskin', owl: 'owlfeather', honeybee: 'beeleg', branching: 'coralpolyp', morpho: 'morphowing',
   firefly: 'fireflylamp', toucan: 'toucanbeak', chameleon: 'chameleonskin', octopus: 'octosucker', hedgehog: 'hedgehogspine',
   sloth: 'slothhair', kapok: 'kapokfibre', parrotfish: 'parrottooth', urchin: 'urchinteeth', mushroom: 'mycelium',
-  clam: 'clammantle', leafcutter: 'leafbac',
+  clam: 'clammantle', leafcutter: 'leafbac', scorpion: 'scorpionback', desertsnail: 'snailshell',
 };
 // a photo of these marks a sample of a near creature (a glowing fungus grows threads like every fungus)
 export const PHOTO_SAMPLE = { glowfungus: 'mycelium' };
@@ -33,13 +33,16 @@ export const PHOTO_SAMPLE = { glowfungus: 'mycelium' };
 export const QUESTION_SPECIES = ['agama', 'branching', 'brazilnut', 'butterfly', 'chameleon', 'clam', 'clownfish', 'coati', 'dartfrog', 'firefly',
   'fruitbat', 'glowfungus', 'harvesterant', 'hedgehog', 'honeybee', 'hoopoe', 'hummingbird', 'jellyfish', 'kapok', 'leafcutter', 'liana', 'morpho',
   'mushroom', 'octopus', 'owl', 'parrotfish', 'pine', 'porcupine', 'reefshark', 'shrimp', 'sloth', 'spinymouse', 'stingray', 'tortoise', 'toucan',
-  'turtle', 'urchin', 'waterlily'];
+  'turtle', 'urchin', 'waterlily', 'fennec', 'desertsnail', 'desertant', 'sandgrouse', 'scorpion'];
 // the species each mystery is about (the card stamp 'case'): from the case's board (src/research/cases)
 export const CASE_SPECIES = {
   'mice-owl': ['grove', 'spinymouse', 'owl', 'sage'],
   'flowers-bees': ['grove', 'honeybee', 'rockrose'],
   'brazil-nut': ['amazon', 'orchidbee', 'agouti', 'brazilnut', 'orchid'],
   'green-reef': ['reef', 'parrotfish', 'branching', 'algae'],
+  'moving-sand': ['desert', 'acacia', 'retama'],
+  'lonely-acacias': ['desert', 'dorcas', 'acacia'],
+  'shrinking-oasis': ['desert', 'datepalm', 'camel', 'retama', 'ibex', 'sandgrouse'],
   'cleaning-station': ['reef', 'butterflyfish', 'cleaner', 'brain'],
   'white-coral': ['reef', 'branching', 'surgeonfish', 'algae'],
   'the-trap': ['grove', 'spinymouse', 'owl', 'fox'],
@@ -51,7 +54,7 @@ export const CASE_SPECIES = {
   gazelles: ['grove', 'gazelle'],
 };
 // the regular missions of each zone: [id prefix, count] in the full game and the beginners' count (k1…kN)
-export const REGULAR = { amazon: ['a', 21, 7], grove: ['g', 21, 7], reef: ['r', 13, 6] };
+export const REGULAR = { amazon: ['a', 21, 7], grove: ['g', 21, 7], reef: ['r', 13, 6], desert: ['d', 18, 6] };
 // the card stamps, in the order they are drawn on a card (src/learn/hub/)
 export const STAMPS = ['seen', 'photo', 'scope', 'invent', 'case', 'source'];
 export const STAMP_NAME = {
@@ -228,6 +231,10 @@ export const THREADS = [
     parts: ['zone:reef', 'inventors'], name: L('ממציאים מהשונית', 'מַמְצִיאִים מֵהַשּׁוּנִית'),
     hint: L('השלימו את כל המשימות בשונית.', 'הַשְׁלִימוּ אֶת כָּל הַמְּשִׂימוֹת בַּשּׁוּנִית.'),
     fact: 'The reef shark, the clownfish and the octopus all taught real inventions (see their problems).', src: S.inventors },
+  { id: 'zone-desert', mode: 'full', from: { kind: 'zone', id: 'desert' }, to: { kind: 'problem', ids: ['fogwater', 'antnav', 'sandproof'] },
+    parts: ['zone:desert', 'inventors'], name: L('ממציאים מהמדבר', 'מַמְצִיאִים מֵהַמִּדְבָּר'),
+    hint: L('השלימו את כל המשימות במדבר.', 'הַשְׁלִימוּ אֶת כָּל הַמְּשִׂימוֹת בַּמִּדְבָּר.'),
+    fact: 'A darkling beetle, the desert ant and a desert scorpion all taught real inventions (see their problems).', src: S.inventors },
   { id: 'robot-out', mode: 'exp', from: { kind: 'robot', id: '*' }, to: { kind: 'robotout', id: '*' },
     parts: ['robots', 'zone:reef'], name: L('הרובוט שלכם באי', 'הָרוֹבּוֹט שֶׁלָּכֶם בָּאִי'),
     hint: L('בנו רובוט בסדנת הרובוטים.', 'בְּנוּ רוֹבּוֹט בְּסַדְנַת הָרוֹבּוֹטִים.'),

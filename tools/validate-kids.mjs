@@ -4,8 +4,9 @@ import { KIDS } from '../src/data/kids.js';
 import { BIOME as AMAZON } from '../src/data/amazon.js';
 import { BIOME as GROVE } from '../src/data/grove.js';
 import { BIOME as REEF } from '../src/data/reef.js';
+import { BIOME as DESERT } from '../src/data/desert.js';
 
-const BIOMES = { amazon: AMAZON, grove: GROVE, reef: REEF };
+const BIOMES = { amazon: AMAZON, grove: GROVE, reef: REEF, desert: DESERT };
 const PLANT_KINDS = new Set(['tree', 'palm', 'shrub', 'herb', 'epiphyte', 'vine', 'fungus', 'water-plant', 'coral', 'sessile', 'seaplant']);
 const GOAL_FIELDS = {
   place: ['species', 'count'], pollinate: ['species', 'count'], link: ['from', 'to'], disperse: ['count'],
@@ -80,6 +81,8 @@ for (const [bid, K] of Object.entries(KIDS)) {
   for (const a of roamers) if (edges.some((e) => e.from === a && e.type === 'eats')) err(bid, `roamer ${a} eats something in the set`);
   // the reef has no flowers and no seeds to carry: its story is partnership, so it needs a home / partner relation instead
   if (bid === 'reef') { if (!edges.some((e) => e.type === 'partner' || e.type === 'home')) err(bid, 'no partnership in the set'); }
+  // the desert's story is water: the beginners meet a seed carrier (the gazelle and the acacia), not a pollinator
+  else if (bid === 'desert') { if (!dispersals.length) err(bid, 'no dispersal relation in the set'); }
   else {
     if (!plants.some((p) => pollinatorsOf(p).length)) err(bid, 'no working pollination relation in the set');
     if (!dispersals.length) err(bid, 'no dispersal relation in the set');

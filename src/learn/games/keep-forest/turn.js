@@ -76,7 +76,10 @@ export function createTurn(K) {
       if (best >= 0) { K.S.board[best].wilted = false; K.S.board[best].fresh = true; return dn(C(K.S.board[best].ref)); }
       return '';
     };
-    if (t === 'watergen') { K.S.waterBoost += 4; text = 'המחולל אוסף מים מהאוויר: עוד 4 מים לאירוע הבא.'; }
+    if (t === 'drip') { K.S.waterBoost += 4; text = 'קו הטפטוף נותן מים ישר לשורשים: עוד 4 מים לאירוע הבא.'; }
+    else if (t === 'fognet') { K.S.waterBoost += 2; K.S.revealed.add(K.S.evIdx); const ev = K.S.events[K.S.evIdx]; text = `רשת הערפל אספה מים בבוקר: עוד 2 מים. ${ev ? 'מה בדרך: ' + evName(ev) + '.' : ''}`; }
+    else if (t === 'sandfence') { K.S.watch = true; text = 'גדר החול במקום: היא עוצרת חול ושומרת על השיחים מעדר שרועה יותר מדי.'; }
+    else if (t === 'watergen') { K.S.waterBoost += 4; text = 'המחולל אוסף מים מהאוויר: עוד 4 מים לאירוע הבא.'; }
     else if (t === 'weather') { K.S.revealed.add(K.S.evIdx); const ev = K.S.events[K.S.evIdx]; text = `תחנת מזג האוויר מזהירה: ${evName(ev)}! ${EV[ev.id].good ? '' : 'צריך: ' + needOf(ev)}`; }
     else if (t === 'sensor') { K.S.revealed.add(K.S.evIdx); const ev = K.S.events[K.S.evIdx]; text = `מצוף החיישנים מזהיר: ${evName(ev)}! ${EV[ev.id].good ? '' : 'צריך: ' + needOf(ev)}`; }
     else if (t === 'uwcam') { for (let i = K.S.evIdx; i < Math.min(K.S.events.length, K.S.evIdx + 3); i++) K.S.revealed.add(i); K.S.watch = true; text = 'המצלמה התת־ימית מגלה מה מחכה לשונית, ושומרת עליה.'; }
@@ -254,8 +257,8 @@ export function createTurn(K) {
       const c = C(K.S.hand[i]); if (c.type !== 'tool' || !canUse(K.S.hand[i]).ok) continue;
       const t = c.tool.id;
       const soon = turnsToEvent() === 1 && nextEv;
-      if (t === 'watergen' && !(soon && nextEv.id === 'drought')) continue;
-      if ((t === 'listener' || t === 'buoy') && K.S.watch) continue;
+      if ((t === 'watergen' || t === 'drip') && !(soon && nextEv.id === 'drought')) continue;
+      if ((t === 'listener' || t === 'buoy' || t === 'sandfence') && K.S.watch) continue;
       useTool(i); return true;
     }
     const m = bestMove();

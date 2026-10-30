@@ -32,6 +32,7 @@ import './ui/flourish.js';   // window.__flourish: short flourishes (a part open
 // Zones (biomes): the start screen draws them from the registry (data/zones.js); a zone's content and species models
 // arrive in its pack – { zone: { data, plants, animals }, release() } – loaded when the zone is chosen (core/packs.js).
 const zoneOf = (id) => { const m = loadedPack(id); return m ? m.zone : null; };
+import { setService } from './core/services.js';
 
 // Beginners (ages 6–8): a small set of species, short missions, no events, two tools.
 function kidsBiome(base) {
@@ -113,13 +114,14 @@ async function boot() {
   // the film). Each moment belongs to the player who reached it.
   const STAGE_GAP_MS = 600;     // a breath between two stage moments
   const STAGE_RETRY_MS = 1000;  // how often a waiting moment looks again for a calm place
+  let robolab = null, robolabP = null;   // מעבדת הרובוטים (1.4.1), see openRoboLab
   const stageQ = []; let stageRun = null, stageT = 0;
   const playerId = () => { try { return profiles.current().id; } catch (e) { return ''; } };
   const calmForStage = () => {
     if (game || loading || labOpening) return false;
     if (document.querySelector('.ss, .bdg-pop, #howto, #rguide.modal:not([hidden])')) return false;
     if (hub && hub.isOpen()) return !!root.querySelector('#wol-learn .wl-home');   // the hub's home (over the lab too)
-    if ((lab && lab.isOpen()) || researchHub.isOpen()) return false;
+    if ((lab && lab.isOpen()) || researchHub.isOpen() || (robolab && robolab.isOpen())) return false;
     return ui.isStartShown();
   };
   function nextStage() {
@@ -187,12 +189,16 @@ async function boot() {
   // …and after every mission in a forest, one short tip: what is still missing for the next stage (it closes by itself)
   const STAGE_TIP_MS = 6500;   // after the mission banner and its animal
   window.addEventListener('wol-progress', (e) => {
-    if (!e.detail || e.detail.kind !== 'mission') return;
+    const d = e.detail || {};
+    const lesson = d.kind === 'robolab' && d.id != null && !!d.first;   // 1.4.1: a lesson solved for the first time counts for stage 7 too
+    if (d.kind !== 'mission' && !lesson) return;
     let before = 0; try { before = journey.state().stage; } catch (er) { return; }
     setTimeout(() => {
       try {
-        if (!game) return;
-        const st = journey.state(); if (st.legacy || st.stage !== before || !st.next || st.next.soon) return;   // a new stage has its own moment
+        if (!game && !lesson) return;
+        if (lesson && !document.querySelector('#ui .rl-home')) return;   // QA 30.10: not over a lesson; only on the lab's home
+        if (!lesson && robolab && robolab.isOpen && robolab.isOpen()) return;
+        const st = journey.state(); if (st.stage !== before || !st.next || st.next.soon || (st.legacy && st.next.stage < 7)) return;   // a new stage has its own moment; a player from before 1.3.2 still walks the 1.4 stages (7, 8)
         const need = st.next.need && st.next.need[0]; if (!need) return;
         const f = `עוד צעד במסע! לשלב "${st.next.name}" חסר: ${need}.`, k = `עוֹד צַעַד בַּמַּסָּע! לַשָּׁלָב "${st.next.name}" חָסֵר: ${need}.`;
         guide.tip({ f, k }, { ms: 8000 });
@@ -215,6 +221,10 @@ async function boot() {
   }
   // research = a mystery of חוקרי הטבע (src/research/): the zone's full content, the case's own island, no save
   // training = שטח האימונים (1.3.3): the grove's pack, an empty field with a stream, רובו־דע's steps, no save
+  // a load that failed: back to where it came from (a robot-lab lesson goes back to the lab, which is still open)
+  const backAction = (research) => (research && research.robolab && research.onExit
+    ? { label: 'חזרה למעבדה', onClick: () => { ui.hideLoading(); research.onExit(); } }
+    : { label: 'חזרה למסך הפתיחה', onClick: () => showStart() });
   async function loadBiome(id, save = null, research = null, training = false) {
     if (loading) return; loading = true;
     ui.hideStart();
@@ -225,18 +235,18 @@ async function boot() {
     } catch (e) {
       console.error(e);
       ui.setLoading(0, 'משהו השתבש בטעינה. אפשר לחזור למסך הפתיחה ולנסות שוב.');
-      ui.setLoadingActions([{ label: 'חזרה למסך הפתיחה', onClick: () => showStart() }]);
+      ui.setLoadingActions([backAction(research)]);
       loading = false; return;
     }
-    const biome = research ? zoneOf(id).data : training ? trainingBiome(zoneOf(id).data) : biomeFor(id), Z = zoneOf(id);
+    const biome = research && !research.ownIsland ? zoneOf(id).data : training ? trainingBiome(zoneOf(id).data) : biomeFor(id), Z = zoneOf(id);   // a mission on the player's island keeps his level's species
     ui.setTips(biome.tips);
-    ui.setLoading(0.02, 'מכינים את היער...');
+    ui.setLoading(0.02, research && research.robolab ? 'מכינים את מגרש האימון...' : 'מכינים את היער...');
     closeGame();
     resetAutoQ(2);   // a fresh island: forget the previous one's frame timing (the loading gap would count as one huge frame)
     try {
       gameZone = id; guide.setScene('game');
       const { createGame } = loadedPack('game');
-      game = await createGame({ save, research, training, pipe, ui, audio, bus, biome, plantBuilders: Z.plants, animalBuilders: Z.animals, zoneEnv: Z.env || null, quality, onExit: () => { closeGame(); resetAutoQ(2); audio.setBiome(null); showStart(); if (research) researchHub.open(); } });
+      game = await createGame({ save, research, training, pipe, ui, audio, bus, biome, plantBuilders: Z.plants, animalBuilders: Z.animals, zoneEnv: Z.env || null, quality, onExit: () => { closeGame(); resetAutoQ(2); audio.setBiome(null); if (research && research.onExit) { research.onExit(); return; } showStart(); if (research) researchHub.open(); } });
       const g = game;
       if (SOFTWARE_GL) setTimeout(() => game && game === g && ui.toast('שימו לב: המחשב הזה מצייר בלי מנהל התקן גרפי, ולכן המשחק איטי. עדכון מנהל ההתקן של כרטיס המסך יפתור את זה.', 'warn'), 2500);
       // warm up shaders before revealing
@@ -249,7 +259,7 @@ async function boot() {
       const hasSave = !research && !training && (!!save || !!readSave(id));
       ui.setLoading(0, hasSave ? 'משהו השתבש בטעינה של היער השמור. אפשר לחזור, או להתחיל יער חדש.' : 'משהו השתבש בטעינה. אפשר לחזור למסך הפתיחה ולנסות שוב.');
       ui.setLoadingActions([
-        { label: 'חזרה למסך הפתיחה', onClick: () => showStart() },
+        backAction(research),
         ...(hasSave ? [{ label: 'להתחיל יער חדש (היער השמור יימחק)', onClick: () => { removePlayer(slotOf(id)); loadBiome(id); } }] : []),
       ]);
     }
@@ -337,6 +347,18 @@ async function boot() {
     labP.then((L) => { labOpening = false; ui.hideLoading(); L.open(); setTimeout(() => { if (!L.isOpen()) return; if (labTut) return; labTut = labTutorial({ guide, lab: L }); }, LAB_TUT_MS); }, (e) => { labOpening = false; labP = null; ui.hideLoading(); console.error(e); showStart(); });
   }
   bus.on('ui:research', () => { audio.start(); researchHub.open(); });
+  // מעבדת הרובוטים (1.4.1): its own pack, opened from the science centre; leaving goes back to the start screen
+  function openRoboLab() {
+    audio.start(); ui.hideStart();
+    ui.setLoading && ui.setLoading(0.3, 'פותחים את מעבדת הרובוטים...');
+    robolabP = robolabP || loadPack('robolab').then((m) => (robolab = m.createRoboLab({ root, audio, kids: playerMode() === 'kids', onExit: () => { startDrawn = false; showStart(); },
+      // a lesson in 3D: the zone's island as a controlled field (src/robolab/three/), back to the lab's home on leaving
+      enter3d: (desc) => { loadPack(desc.zone).catch(() => { /* reported by loadBiome */ }); loadBiome(desc.zone, desc.ownIsland ? readSave(desc.zone) : null, desc); },
+      hasIsland: (zone) => { const sv = readSave(zone); return !!(sv && Array.isArray(sv.plants) && sv.plants.length); },
+      leave3d: () => { if (game) { closeGame(); resetAutoQ(2); audio.setBiome(null); } } })));
+    robolabP.then((R) => { ui.hideLoading(); R.open(); }, (e) => { robolabP = null; ui.hideLoading(); console.error(e); showStart(); });
+  }
+  bus.on('ui:robolab', openRoboLab);
   bus.on('audio:mute', ({ muted }) => { audio.setMuted(muted); writeDeviceRaw(K.sound, muted ? 'off' : 'on'); });   // remembered for the computer (1.3.2)
   if (readDeviceRaw(K.sound) === 'off') { audio.setMuted(true); ui.setToggles({ sound: false }); }
   // the parents' play time (1.3.3): when the day's time is over the lock screen covers everything; the forest stops
@@ -351,6 +373,7 @@ async function boot() {
     if (game || loading) return null;
     if (hub && hub.isOpen()) return null;
     if ((lab && lab.isOpen()) || labOpening) return 'lab';
+    if (robolab && robolab.isOpen()) return 'lab';   // the robot lab shares the lab's music
     if (researchHub.isOpen()) return null;
     return ui.isStartShown() ? 'start' : null;
   };
@@ -473,16 +496,29 @@ async function boot() {
     const mw = musicWanted(); music.want(mw); ui.setMusicPlace(mw);
     t += dt;
     if (lab && lab.isOpen()) { if (!(hub && hub.isOpen())) { lab.update(dt); pipe.render(dt); } startDrawn = false; }   // the learning hub covers the lab: no need to draw the room under it
+    else if (game && robolab && robolab.coversGame()) { /* the robot lab's home covers a kept lesson island: nothing to update or draw */ }
     else if (game) { game.update(dt, t); autoQuality(); }
     else {
       // start screen: draw a dark backdrop only
       pipe.renderer.setClearColor('#0d1a14');
     }
-    if (!window.__noRender && !(lab && lab.isOpen()) && (game || !startDrawn)) { pipe.render(dt); if (!game) startDrawn = true; else startDrawn = false; }
+    if (!window.__noRender && !(lab && lab.isOpen()) && !(game && robolab && robolab.coversGame()) && (game || !startDrawn)) { pipe.render(dt); if (!game) startDrawn = true; else startDrawn = false; }
     if (fpsEl) { fpsN++; const now = performance.now(); if (now - fpsT > 1000) { const i = pipe.renderer.info.render; let lost = false; try { lost = pipe.renderer.getContext().isContextLost(); } catch (e) { } fpsEl.textContent = `${Math.round(fpsN * 1000 / (now - fpsT))} fps · ${quality} · x${pipe.resScale.toFixed(2)} · ${i.calls} calls · ${Math.round(i.triangles / 1000)}k tris${islandInfo()}${lost || ctxLost ? ' · GL LOST ' + ctxLost : ''}${lastErr.m ? ' · ERR ' + Math.round((now - lastErr.t) / 1000) + 's: ' + lastErr.m : ''}`; fpsN = 0; fpsT = now; } }
   }
   frame();
+  // films made headless (tools/record-intro.py): one sound effect rendered offline, as 16-bit wav bytes in base64
+  window.__renderSfx = async (name, dur = 2.5) => {
+    const R = 44100, ctx = new OfflineAudioContext(1, Math.round(R * dur), R), a = createAudio({ context: ctx });
+    a.start(); a.play(name); const buf = await ctx.startRendering(); const x = buf.getChannelData(0);
+    const out = new DataView(new ArrayBuffer(44 + x.length * 2)); const w = (o, str) => { for (let i = 0; i < str.length; i++) out.setUint8(o + i, str.charCodeAt(i)); };
+    w(0, 'RIFF'); out.setUint32(4, 36 + x.length * 2, true); w(8, 'WAVEfmt '); out.setUint32(16, 16, true); out.setUint16(20, 1, true); out.setUint16(22, 1, true);
+    out.setUint32(24, R, true); out.setUint32(28, R * 2, true); out.setUint16(32, 2, true); out.setUint16(34, 16, true); w(36, 'data'); out.setUint32(40, x.length * 2, true);
+    for (let i = 0; i < x.length; i++) out.setInt16(44 + i * 2, Math.max(-1, Math.min(1, x[i])) * 32767, true);
+    let bin = ''; const u = new Uint8Array(out.buffer); for (let i = 0; i < u.length; i += 0x8000) bin += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000));
+    return btoa(bin);
+  };
   window.__app = { bus, ui, audio, music, pipe, voice, guide, journey, loadBiome, researchHub, openLab: () => openLab(), openCase: (id, opts) => { let C = caseById(id); if (C && opts && opts.tutorial) C = { ...C, tutorial: true }; if (C) loadBiome(C.zone, null, C); }, get game() { return game; } };
+  setService('app', window.__app);   // the parts read it through src/core/services.js; window.__app stays for the test tools
 }
 
 boot();

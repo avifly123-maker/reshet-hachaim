@@ -50,6 +50,7 @@ import { buildRound } from './quiz-build.js';
 import { createQuiz } from './quiz.js';
 import { loadState } from './storage.js';
 import { injectCss } from './styles.js';
+import { svcGuide } from '../../core/services.js';
 
 /* ───────────────────────────────────────────── the hub */
 export function createLearningHub(rootEl, { onClose, audio } = {}) {
@@ -158,7 +159,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   // רובו־דע presents a screen the first time it opens (src/data/guide/hub.js); 'learn' is the hub itself
   const INTRO_OF = { home: 'learn', setup: 'quiz', album: 'album', duel: 'duel', webpuzzle: 'webpuzzle', keepforest: 'keepforest', inventors: 'inventors', expedition: 'expedition', badges: 'badges', frames: 'frames', versematch: 'versematch' };
   const locked = (part) => { try { return !isOpen(part); } catch (e) { return false; } };
-  const guide = () => (typeof window !== 'undefined' && window.__guide) || null;
+  const guide = () => (svcGuide()) || null;
   let tipAt = 0, guideMine = null, entered = null;   // guideMine: the hub's own bubble (the promise say() gave), closed alone
   // a click on a veiled part: רובו־דע says what opens it (one short bubble; a second click soon after does not stack another)
   function lockTip(part) {
@@ -230,6 +231,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   const GAMES = { webpuzzle: mountWebPuzzle, keepforest: mountKeepForest, inventors: mountInventors, expedition: mountExpedition, versematch: mountVerseMatch };
   let gameInst = null;
   function go(name, opts = {}) {
+    if (!name) return;   // nothing to open (a stray call with no screen)
     // a part that is not open yet (מסע החוקר): רובו־דע says what opens it, and the screen stays as it is
     // (the hub itself was just opened into it: the home). opts.force (the _go test hook) opens it anyway.
     const part = PART_OF[name];
@@ -256,7 +258,8 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     $('.wl-crumb').textContent = TITLES[name] || '';
     $('.wl-back span').textContent = name === 'home' ? 'חזרה למשחק' : 'חזרה';
     updateChip(false);
-    ({ home: renderHome, setup: renderSetup, quiz: () => startQuiz(opts), end: renderEnd, album: renderAlbum, pack: renderPack, duel: () => startDuel(), badges: renderBadges, frames: renderFrames })[name]();
+    const R = { home: renderHome, setup: renderSetup, quiz: () => startQuiz(opts), end: renderEnd, album: renderAlbum, pack: renderPack, duel: () => startDuel(), badges: renderBadges, frames: renderFrames };
+    if (R[name]) R[name](); else renderHome();   // an unknown screen opens the home (it used to throw)
     main.scrollTop = 0;
     if (screen === name && ['album', 'pack', 'badges', 'frames'].includes(name)) played();   // looking through them is using them
     if (screen === name && entering) introFor(name);
@@ -339,7 +342,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     if (!open_) return;
     // רובו־דע's bubble takes the key first (its own capture listener, added before this one, closes the bubble and stops
     // the event): the same Escape must not also leave the hub. cancelBubble reads that stop; isOpen() covers any order.
-    if (e.cancelBubble || (window.__guide && window.__guide.isOpen())) return;
+    if (e.cancelBubble || (svcGuide() && svcGuide().isOpen())) return;
     e.stopPropagation();
     if (e.key === 'Escape') { e.preventDefault(); back(); }
     else if ((e.key === 'Enter' || e.key === ' ') && e.target && e.target.matches && e.target.matches('[data-wl][role=button]')) { e.preventDefault(); e.target.click(); }

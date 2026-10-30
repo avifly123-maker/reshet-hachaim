@@ -96,6 +96,7 @@
   background: #0f2118; opacity: 0; visibility: hidden; transition: opacity .7s, visibility .7s;
 }
 #ui.wol .loading.on { opacity: 1; visibility: visible; }
+#ui.wol .loading:not(.on) { pointer-events: none; }   /* while it fades out it no longer swallows the first clicks */
 #ui.wol .ld-inner { position: relative; text-align: center; width: min(520px, 86vw); }
 #ui.wol .ld-title { font-family: var(--serif); font-size: 3.6em; margin: .2em 0 .6em; color: var(--chalk); text-shadow: 0 3px 0 #07130c; }
 #ui.wol .ld-bar { height: 10px; border-radius: 2px; background: #0a1710; box-shadow: 0 0 0 1px rgba(180, 203, 102, .35); position: relative; }
@@ -1187,6 +1188,8 @@
 #ui.wol .st-isl[data-k="0"] .st-glow { opacity: .9; }
 #ui.wol .st-isl[data-k="1"] { transform: translate(calc(-50% - 86%), -56%) translateZ(-420px) rotateY(26deg) scale(.8); z-index: 1; opacity: .62; filter: saturate(.55) brightness(.62); }
 #ui.wol .st-isl[data-k="-1"] { transform: translate(calc(-50% + 86%), -56%) translateZ(-420px) rotateY(-26deg) scale(.8); z-index: 1; opacity: .62; filter: saturate(.55) brightness(.62); }
+/* 1.4: a fourth island waits behind the chosen one, small and dim */
+#ui.wol .st-isl[data-k="2"], #ui.wol .st-isl[data-k="-2"] { transform: translate(-50%, -66%) translateZ(-760px) scale(.62); z-index: 0; opacity: .36; filter: saturate(.4) brightness(.5); pointer-events: none; }
 #ui.wol .st-isl[data-k="1"]:hover, #ui.wol .st-isl[data-k="-1"]:hover { opacity: .85; filter: saturate(.8) brightness(.85); }
 #ui.wol .st-isl[data-k="0"]:hover img { filter: drop-shadow(0 30px 34px rgba(0, 0, 0, .6)) brightness(1.06); }
 #ui.wol .st-arrow { position: absolute; top: 50%; z-index: 5; width: 54px; height: 54px; margin-top: -27px; border-radius: 50%; display: grid; place-items: center; color: #2a1d0c;
@@ -1296,6 +1299,7 @@
 #ui.wol .start[data-zone="amazon"] { --stbg: #23704a; --stbg2: #0c2c1c; --stglow: #a8f08a; --stleaf: #0f3a24; }
 #ui.wol .start[data-zone="grove"] { --stbg: #6f8f32; --stbg2: #2e3c12; --stglow: #ffe28a; --stleaf: #34461a; }
 #ui.wol .start[data-zone="reef"] { --stbg: #1d7f98; --stbg2: #0a3346; --stglow: #9cf2f4; --stleaf: #0d4656; }
+#ui.wol .start[data-zone="desert"] { --stbg: #b8803e; --stbg2: #4a2c12; --stglow: #ffe2a0; --stleaf: #5a3a1a; }
 #ui.wol .st-bg { background:
   radial-gradient(ellipse 46% 40% at 50% 50%, color-mix(in srgb, var(--stglow) 46%, transparent), transparent 72%),
   radial-gradient(ellipse 80% 70% at 50% 46%, color-mix(in srgb, var(--stglow) 14%, transparent), transparent 80%),

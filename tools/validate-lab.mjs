@@ -20,6 +20,7 @@ import { PROBLEMS, TRAIT, THEMES, WILD, SAY, TRIALS, MISSIONS, ROBOT_SAY } from 
 import { BIOME as AMAZON } from '../src/data/amazon.js';
 import { BIOME as GROVE } from '../src/data/grove.js';
 import { BIOME as REEF } from '../src/data/reef.js';
+import { BIOME as DESERT } from '../src/data/desert.js';
 
 const errors = [], warns = [];
 const err = (w, m) => errors.push(`${w}: ${m}`);
@@ -121,7 +122,7 @@ for (const [key, lines] of Object.entries(SAY_K)) for (const [i, l] of lines.ent
 
 // every card name a child can put on the bench: all species and every device (src/game/tools.js, with the reef look)
 const names = new Set();
-for (const B of [AMAZON, GROVE, REEF]) for (const s of B.species) names.add(s.name);
+for (const B of [AMAZON, GROVE, REEF, DESERT]) for (const s of B.species) names.add(s.name);
 const toolsSrc = fs.readFileSync(new URL('../src/game/tool-defs.js', import.meta.url), 'utf8');
 for (const m of toolsSrc.matchAll(/^\s*(?:\{ id: '[a-z]+'[^\n]*?|[a-z]+: \{ )name: '([^']+)'/gm)) names.add(m[1]);
 for (const n of names) if (!NAMES_K[n]) err('NAMES_K', `no vocalised name for the card "${n}"`);
@@ -186,7 +187,7 @@ for (const c of CLUE_CASES) {
   for (const s of c.sus.slice(1)) if (!c.no[s]) err(w, `no reason why it is not ${s}`);
   if (c.kids) clueKids[c.zone] = (clueKids[c.zone] || 0) + 1;
 }
-for (const z of ['amazon', 'grove', 'reef']) { const n = CLUE_CASES.filter((c) => c.zone === z).length; if (n < 8) err('CLUE_CASES', `${n} cases in ${z}, at least 8`); if ((clueKids[z] || 0) < 4) err('CLUE_CASES', `${clueKids[z] || 0} beginners' cases in ${z}, at least 4`); }
+for (const z of ['amazon', 'grove', 'reef', 'desert']) { const n = CLUE_CASES.filter((c) => c.zone === z).length; if (n < 8) err('CLUE_CASES', `${n} cases in ${z}, at least 8`); if ((clueKids[z] || 0) < 4) err('CLUE_CASES', `${clueKids[z] || 0} beginners' cases in ${z}, at least 4`); }
 let obsKids = 0;
 for (const c of OBS_CASES) {
   const w = 'OBS_CASES.' + c.id;

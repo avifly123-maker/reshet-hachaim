@@ -15,7 +15,7 @@ def pack(key, p, width, q, alpha=False):
     buf = io.BytesIO(); im.save(buf, 'WEBP', quality=q, method=6, alpha_quality=90)
     out[key] = 'data:image/webp;base64,' + base64.b64encode(buf.getvalue()).decode()
     print(key, im.size, len(buf.getvalue()) // 1024, 'KB')
-for b in ('amazon', 'grove', 'reef'):
+for b in ('amazon', 'grove', 'reef', 'desert'):
     pack(b, os.path.join(ROOT, 'art', 'islands', b + '.png'), 960, 80)
     pack('c_' + b, os.path.join(ROOT, 'art', 'islands', 'carousel', b + '.png'), 1000, 84, alpha=True)
 pack('lab', os.path.join(ROOT, 'art', 'lab', 'st_home.png'), 760, 80)

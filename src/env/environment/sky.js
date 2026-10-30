@@ -7,7 +7,7 @@ import { PANO } from '../../data/panorama.js';
 import { C, V3 } from './common.js';
 
 export function createSky(ctx) {
-  const { U, isAmazon, track, root } = ctx;
+  const { U, isAmazon, biome, track, root } = ctx;
   // ───────────────────────────── sky dome
   const skyU = {
     uZen: { value: C('#3f7fc6') }, uHor: { value: C('#cde') }, uGnd: { value: C('#999') },
@@ -18,7 +18,7 @@ export function createSky(ctx) {
     uPanoTint: { value: C('#fff') }, uPanoHazeSrc: { value: C('#fff') }, uPanoHazeAdd: { value: 0 }, uPanoRot: { value: 0 },
   };
   // the panorama loads asynchronously from embedded images; the sky simply shows without it until ready
-  const pano = PANO && PANO[isAmazon ? 'amazon' : 'grove'];
+  const pano = PANO && PANO[biome];   // 1.4: a zone without a painted panorama (the desert, until it is rendered) shows the far hills
   const farHills = pano ? 0 : 1;   // with the painted panorama the old low-poly horizon hills are not needed
   if (pano && pano.img && pano.mist) {
     const ld = new THREE.TextureLoader();

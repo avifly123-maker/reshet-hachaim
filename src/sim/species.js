@@ -1,8 +1,8 @@
 // Species registry: wraps the BIOME content with derived lookups used by the simulation.
 import { RELATION_TYPES, DIET_VERBS, KINDS, ACTIVE_NAMES, SEASON_NAMES, dietVerb } from '../data/common.js';
 
-export const PLANT_KINDS = new Set(['tree', 'palm', 'shrub', 'herb', 'epiphyte', 'vine', 'fungus', 'water-plant', 'coral', 'sessile', 'seaplant']);
-export const INSECTS = new Set(['leafcutter', 'orchidbee', 'morpho', 'honeybee', 'butterfly', 'harvesterant', 'firefly']);
+export const PLANT_KINDS = new Set(['tree', 'palm', 'shrub', 'herb', 'epiphyte', 'vine', 'fungus', 'water-plant', 'coral', 'sessile', 'seaplant', 'cactus']);
+export const INSECTS = new Set(['leafcutter', 'orchidbee', 'morpho', 'honeybee', 'butterfly', 'harvesterant', 'firefly', 'darkling', 'desertant', 'hawkmoth']);
 // Grove plants that resprout from the base after fire (well documented for Quercus calliprinos, Pistacia, Cistus, Ceratonia)
 export const RESPROUTERS = new Set(['oak', 'terebinth', 'carob', 'mastic', 'buckthorn', 'rockrose', 'sage']);
 export const GEOPHYTES = new Set(['cyclamen', 'anemone']); // survive fire & summer underground (tuber / rhizome)

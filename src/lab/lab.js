@@ -35,6 +35,7 @@ import { openGrow, openSeeds } from './greenhouse.js';
 import { openCollection, openSort, openClues, collectionCount, shelfPeek } from './cabinet.js';
 // the look-around room (19.10): a panorama from the room's centre, turning, and the robot's walks to the stations
 import { createRoomView, yawOf } from './room-view.js';
+import { svcGuide, svcApp } from '../core/services.js';
 
 const STATION_INFO = {
   home: { name: 'החדר', ic: 'home' },
@@ -390,7 +391,7 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
   function cancelIntro() { clearTimeout(introWait); stopIntro(); }
   function stopIntro() {
     introTok++; clearTimeout(introT); setRing(null);
-    if (introVoice) { introVoice = false; try { window.__app && window.__app.voice && window.__app.voice.stop(); } catch (e) { /* */ } }
+    if (introVoice) { introVoice = false; try { svcApp() && svcApp().voice && svcApp().voice.stop(); } catch (e) { /* */ } }
   }
   function setRing(at) { ringAt = at || null; if (!ringAt) ringEl.hidden = true; else placeRing(); }
   function placeRing() {
@@ -400,7 +401,7 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     ringEl.hidden = false; ringEl.style.cssText = `left:${r.left - o.left - 5}px;top:${r.top - o.top - 5}px;width:${r.width + 10}px;height:${r.height + 10}px`;
   }
   // the big guide speaking over the lab (a stage moment, a badge): his own bubbles wait, so his voice never cuts it off
-  const guideBusy = () => { try { return !!(window.__guide && window.__guide.isOpen()); } catch (e) { return false; } };
+  const guideBusy = () => { try { return !!(svcGuide() && svcGuide().isOpen()); } catch (e) { return false; } };
   function sayLines(lines) {
     stopIntro(); const tok = introTok;
     const step = (i) => {
@@ -411,7 +412,7 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
       if (panel && panel.talk) panel.talk(text, ex); else say(text, ex, true);
       setRing(ln.at);
       const t0 = Date.now(), need = readMs(text);
-      let p = null; try { const v = window.__app && window.__app.voice; if (v && ln.id) { p = v.say(ln.id); introVoice = true; } } catch (e) { p = null; }
+      let p = null; try { const v = svcApp() && svcApp().voice; if (v && ln.id) { p = v.say(ln.id); introVoice = true; } } catch (e) { p = null; }
       const next = (ok) => { if (tok !== introTok) return; introVoice = false; introT = setTimeout(() => step(i + 1), ok ? 500 : Math.max(400, need - (Date.now() - t0))); };
       Promise.resolve(p).then(next, () => next(false));
     };

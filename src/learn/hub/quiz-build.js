@@ -10,6 +10,9 @@ import { TQUIZ_ALL } from '../../data/torah-quiz.js';
 import { TOOL_DEFS, TOOL_ICONS } from '../../game/tool-defs.js';
 import { BIOMES, BIOME_IN, EASY_PARTS, EASY_PART_LABEL, IC, PART_ICON, ROUND, firstSentence, leaksName, maskName, pick, sample, shuffle, stemOf, uniq } from './base.js';
 import { CARD, SP, SPK, TOOL_SHORT, animalsIn, spOf } from './cards.js';
+import { ZONE_IDS } from '../../data/zones.js';
+// the answer words and icons of "where does it live?" for each zone (a zone without an entry here fails validate-zones' quiz check)
+const WHERE_OPT = { amazon: ['באמזונס', () => IC.rain], grove: ['בחורש', () => IC.tree], reef: ['בשונית', () => IC.drop], desert: ['במדבר', () => IC.sun] };
 
 /* ───────────────────────────────────────────── variety across visits
    Each player keeps a list of the questions asked lately (S.seen in the hub's own store, oldest first; old saves have
@@ -33,7 +36,7 @@ function freshest(list, n, idOf) {
 function freshestSpread(list, n, idOf) {
   const by = {};
   for (const x of list) (by[x.z] || (by[x.z] = [])).push(x);
-  const zones = shuffle(['amazon', 'grove', 'reef'].filter((z) => by[z] && by[z].length));
+  const zones = shuffle(ZONE_IDS.filter((z) => by[z] && by[z].length));
   const quota = {};
   if (by.all && Math.random() < 0.25 && n > 0) quota.all = 1;
   for (let k = 0, left = n - (quota.all || 0); left > 0 && zones.length; k++, left--) { const z = zones[k % zones.length]; quota[z] = (quota[z] || 0) + 1; }
@@ -66,7 +69,7 @@ export function buildTorahRound() {
 }
 
 /* ───────────────────────────────────────────── the hand-written bank (src/data/quiz-bank.js) */
-const BANK_TAG = { amazon: 'יער הגשם', grove: 'החורש', reef: 'השונית', all: 'הידעת?' };
+const BANK_TAG = { amazon: 'יער הגשם', grove: 'החורש', reef: 'השונית', desert: 'המדבר', all: 'הידעת?' };
 function bankQ(b) {
   let art = null;
   if (b.art && b.art.startsWith('tool:')) { const c = CARD.get(b.art); if (c) art = { id: c.id.slice(5), img: c.img, color: c.color, name: c.name, tool: true }; }
@@ -161,8 +164,8 @@ const GEN = {
     const s = freshFrom(pool.filter((x) => x.img), used); if (!s) return null;
     used.add(s.key);
     return { tag: s.name, q: s.animal ? gw(s.id, 'איפה הוא גר?', 'איפה היא גרה?', 'איפה הם גרים?', 'איפה הן גרות?') : gw(s.id, 'איפה הוא גדל?', 'איפה היא גדלה?', 'איפה הם גדלים?', 'איפה הן גדלות?'), art: s,
-      options: [opt('באמזונס', s.biome === 'amazon', { icon: IC.rain, tone: 'amazon' }), opt('בחורש', s.biome === 'grove', { icon: IC.tree, tone: 'grove' }),
-        ...(s.biome === 'reef' || Math.random() < 0.5 ? [opt('בשונית', s.biome === 'reef', { icon: IC.drop, tone: 'reef' })] : [])],
+      // 1.4: every zone of the list can be an answer: the right one and two others (three options, as before)
+      options: [s.biome, ...shuffle(ZONE_IDS.filter((z) => z !== s.biome)).slice(0, 2)].map((z) => opt(WHERE_OPT[z][0], z === s.biome, { icon: WHERE_OPT[z][1](), tone: z })),
       fact: `את ${defName(s.id, s.name)} פוגשים ${BIOME_IN[s.biome]}.` };
   },
   // ── advanced
@@ -233,7 +236,7 @@ const GEN = {
       const says = Math.random() < 0.5 ? 'day' : 'night';
       stmt = `את ${defName(s.id, s.name)} פוגשים בעיקר ${says === 'day' ? 'ביום' : 'בלילה'}.`; truth = says === s.active; fact = `${s.name} – ${activeNameFor(s.id, s.active)}.`;
     } else {
-      const says = ['amazon', 'grove', 'reef'][(Math.random() * 3) | 0];
+      const says = ZONE_IDS[(Math.random() * ZONE_IDS.length) | 0];
       stmt = `את ${defName(s.id, s.name)} פוגשים ${BIOME_IN[says]}.`; truth = says === s.biome; fact = `את ${defName(s.id, s.name)} פוגשים ${BIOME_IN[s.biome]}. ${firstSentence(s.fact)}`;
     }
     return { tag: 'נכון או לא נכון?', q: stmt, art: s, options: [opt('נכון', truth, { icon: IC.check, tone: 'yes' }), opt('לא נכון', !truth, { icon: IC.cross, tone: 'no' })], fact, keepOrder: true };

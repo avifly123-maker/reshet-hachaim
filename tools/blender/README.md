@@ -95,6 +95,43 @@ Running it: Blender calls must answer within 60 s, so builds run in a background
 - `session.py`: when a species has no `idle` clip (the fruit bat), the preview uses its `meta['map']`.
 - How it was measured: for each species, how far the trunk reaches past the head bone's base, and the head-chain weight at the head's base, quarter and middle (the porcupine had 0.10, 0.32, 0.67 before).
 
+### v6, first layer (29.10.2026, 1.4): how a studio modeller looks at an animal
+
+Avi (29.10): the models must look as if a 3D artist in a big studio made them, and the improvements belong in the
+kit, so every animal gets them. The checklist a studio uses, and what the kit does for each point:
+
+1. **Silhouette first.** The animal must be recognisable as a black shape from the side and from the front. Every
+   new animal is rendered from two angles (`run(ids, views=((35,8),(90,5)))`) and from close (`head_job`), and the
+   renders are looked at before export. A shape that reads wrong (a stick neck, a wing standing out like a plate,
+   legs on stilts) is fixed in the spec, not hidden in the paint.
+2. **Real proportions.** Leg girth, body depth and neck length from the real animal. The anatomical legs are rebuilt
+   by the kit (`anat_legs`), so a spec's own leg blobs are dropped: a stockier species sets the girth through
+   `ANAT[sid] = (kind, dict(scale=k))` (the ibex: 1.9), never by scaling its leg blobs.
+3. **Eyes sit in the head.** An eyeball is sunk into the skull (`_set_eyes`) and framed: an almond lid for fur and
+   scales, and since v6 a thin ring of bare skin for birds (`lidCol`, `lidShape` per spec). The catch-light is small
+   (0.14 of the eye), so the gloss of the eye's material does the work and the eye never reads as a bead.
+4. **Detail that does not shout.** Feathers are smaller (0.019 of the body) and their edges are a soft shade (half
+   the old darkening), so a bird is feathered and not drawn over with a net. Patterns are soft-edged shapes on the
+   form (a chin patch is a soft oval facing forward, a breast band only on the front), never a hard rectangle or a
+   ring round the whole body.
+5. **Parts belong to the body.** Anything that pokes through the skin is either inside it or part of the blob union
+   (an owl's thighs are blobs on the leg bones, so no leg tube shows where it leaves the belly; a snail's body goes
+   into the shell's opening).
+6. **Rest poses of the animal itself.** A moth rests with its wings swept back flat, not folded up like a butterfly;
+   an owl turns its head and hardly tilts it.
+
+7. **Cats follow the cat rules.** A cat is built on `animals/cheetah.py` (its own felid model: `BODY_OF = 'felid'`
+   for one smooth trunk with the waist tucked up, `ANAT 'cat'` legs, a round head with a short muzzle), never on the
+   jaguar: the jaguar's tweak (`_jaguar_head`) adds body parts at the jaguar's own coordinates, so a cat moved or
+   reshaped from it got a thin middle and stray lumps (Avi, 29.10: "built from geometric shapes"). The caracal and the
+   sand cat are built this way (`base('cheetah', g); own(sid); derive('cheetah', sid)`); the sand cat is pressed
+   shorter and lower by one transform, and its paint reads the cheetah's coordinates back.
+8. **Call `own(sid)` before `derive`.** The kit's tables are shared by every spec of a Blender session, so an earlier
+   build can leave another relative's entries (a tweak, a body plan) for the same id; `own` clears them first.
+
+Still to come in v6 (docs/PLAN-1.4.md 11.1): proportions from measured tables per species, toes and claws, an
+opening mouth, short hair shells for the cats, high resolution colour maps, and the far model for every animal.
+
 ## The reef (October 2026)
 
 - `reef_kit.py` (exec'd by `bridge/session.py` after the two kits): `fish_spec(sid, P)` builds a fish from a side profile

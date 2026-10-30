@@ -39,3 +39,31 @@ export function hubTutorial({ guide, hub, force = false }) {
   ];
   return runGuided({ guide, steps, onEnd: (r) => { if (r !== 'abort') { markIntro(KEY); markIntro('g:learn'); } } });
 }
+
+// מעבדת הרובוטים (1.4.1): the first lesson teaches the editor and the run; the first lesson with an event block teaches
+// the event (a hat that waits for its moment). rl.state() → { level, blocks, runs, hats } (src/robolab/index.js).
+export function robolabTutorial({ guide, rl, force = false }) {
+  const KEY = 'g:rltut';
+  if (!guide || !rl || !rl.state || (!force && introSeen(KEY))) return null;
+  const st = () => rl.state();
+  let runs0 = 0;
+  const steps = [
+    { id: 'hello', lines: L('rltut:hello') },
+    { id: 'block', lines: L('rltut:block'), wait: () => st().blocks > 0 },
+    { id: 'program', lines: L('rltut:program') },
+    { id: 'run', lines: L('rltut:run'), before: () => { runs0 = st().runs; }, wait: () => st().runs > runs0 },
+    { id: 'end', lines: L('rltut:end') },
+  ];
+  return runGuided({ guide, steps, onEnd: (r) => { if (r !== 'abort') markIntro(KEY); } });
+}
+export function robolabEventTutorial({ guide, rl, force = false }) {
+  const KEY = 'g:rltut:ev';
+  if (!guide || !rl || !rl.state || (!force && introSeen(KEY))) return null;
+  const st = () => rl.state();
+  const steps = [
+    { id: 'ev', lines: L('rltut:ev'), wait: () => st().hats > 0,   // the event blocks sit low in the palette: bring them into view
+      before: () => { const b = document.querySelector('#ui .rl-pal .rl-blk.f-event'); if (b) b.scrollIntoView({ block: 'center' }); } },
+    { id: 'evbody', lines: L('rltut:evbody') },
+  ];
+  return runGuided({ guide, steps, onEnd: (r) => { if (r !== 'abort') markIntro(KEY); } });
+}

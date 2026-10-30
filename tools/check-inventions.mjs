@@ -15,6 +15,7 @@ import { scoreProblem, routesOf, robotTest, covers } from '../src/data/invent-sc
 import { BIOME as AMAZON } from '../src/data/amazon.js';
 import { BIOME as GROVE } from '../src/data/grove.js';
 import { BIOME as REEF } from '../src/data/reef.js';
+import { BIOME as DESERT } from '../src/data/desert.js';
 
 const SHOW = process.argv.includes('--cards');
 const errors = [], warns = [];
@@ -22,7 +23,7 @@ const err = (m) => errors.push(m), warn = (m) => warns.push(m);
 
 // the cards of the hub (src/learn/hub/): every species, every device (and the reef's own devices)
 const cards = [];
-for (const B of [AMAZON, GROVE, REEF]) for (const s of B.species) cards.push({ id: `${B.id || ''}:${s.id}`, sp: s.id, name: s.name, skind: s.kind, type: 'species', tool: false });
+for (const B of [AMAZON, GROVE, REEF, DESERT]) for (const s of B.species) cards.push({ id: `${B.id || ''}:${s.id}`, sp: s.id, name: s.name, skind: s.kind, type: 'species', tool: false });
 const toolsSrc = fs.readFileSync(new URL('../src/game/tool-defs.js', import.meta.url), 'utf8');
 const toolIds = [...new Set([...toolsSrc.matchAll(/^\s*\{ id: '([a-z]+)'.*?name: '([^']+)'/gm)].map((m) => m[1] + '|' + m[2]))].map((x) => x.split('|'));
 for (const [id, name] of [...toolIds, ['rov', 'רובוט צולל'], ['uwcam', 'מצלמה תת־ימית'], ['sensor', 'מצוף חיישנים']]) cards.push({ id: 'tool:' + id, sp: id, name, type: 'tool', tool: true });

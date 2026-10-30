@@ -10,14 +10,15 @@ import { THUMBS } from '../../data/thumbs.js';
 import { SHIRA_SET, SOURCE_CARDS, SOURCE_SETS, TZVI_SET } from '../../data/torah.js';
 import { REEF_TOOL_CARDS, TOOL_DEFS, TOOL_ICONS } from '../../game/tool-defs.js';
 import { BIOMES, IC, KEYS_LAND, KEYS_REEF, clamp, firstSentence, sv } from './base.js';
+import { ZONE_IDS } from '../../data/zones.js';
 
 /* ───────────────────────────────────────────── data → species + cards */
 const isAnimalKind = (k) => k === 'animal' || k === 'colony' || k === 'swarm';
 export const SP = [];
-for (const bid of ['amazon', 'grove', 'reef']) {
+for (const bid of ZONE_IDS) {
   for (const s of BIOMES[bid].species) {
     // the reef has no rendered thumbnails yet: its card painting stands in for them
-    SP.push({ ...s, biome: bid, key: bid + ':' + s.id, animal: isAnimalKind(s.kind) || s.showAs === 'animal', img: (THUMBS[bid] || {})[s.id] || (bid === 'reef' ? CARD_ART[s.id] || '' : '') });
+    SP.push({ ...s, biome: bid, key: bid + ':' + s.id, animal: isAnimalKind(s.kind) || s.showAs === 'animal', img: (THUMBS[bid] || {})[s.id] || (!THUMBS[bid] ? CARD_ART[s.id] || '' : '') });
   }
 }
 export const SPK = new Map(SP.map((s) => [s.key, s]));
@@ -35,7 +36,8 @@ for (const s of SP) {
 }
 
 const KEYSTONE = new Set(['amazon:kapok', 'amazon:fig', 'amazon:brazilnut', 'amazon:glowfungus', 'grove:oak', 'grove:honeybee', 'grove:firefly',
-  'reef:branching', 'reef:parrotfish', 'reef:seaanemone', 'reef:cleaner']);
+  'reef:branching', 'reef:parrotfish', 'reef:seaanemone', 'reef:cleaner',
+  'desert:acacia', 'desert:columncactus']);   // 1.4: the acacia of the Negev and the saguaro are keystone trees of their deserts (docs/sources.md)
 const LAYER_LIGHT = { emergent: 5, canopy: 4, water: 4, understory: 3, floor: 2, shallow: 5, slope: 3, sand: 4, open: 4 };
 const WATER_OVR = { 'amazon:dartfrog': 5, 'amazon:capybara': 5, 'amazon:waterlily': 5, 'amazon:bromeliad': 5, 'amazon:tapir': 5,
   'grove:hyrax': 1, 'grove:agama': 1, 'grove:sage': 1, 'grove:rockrose': 1, 'grove:gazelle': 1, 'grove:carob': 1, 'grove:pine': 1, 'grove:cyclamen': 3, 'grove:firefly': 3, 'grove:mushroom': 4 };
@@ -47,6 +49,7 @@ const TOOL_STATS = {
   drone: [4, 2, 5], camera: [2, 2, 4], rescue: [3, 3, 3], watergen: [3, 5, 2], seeddrone: [4, 3, 4],
   listener: [5, 2, 3], nestbox: [3, 1, 4], insecthotel: [4, 1, 5], weather: [4, 4, 3],
   nursery: [4, 4, 4], reefball: [3, 5, 5], buoy: [3, 2, 3], rov: [3, 1, 5], uwcam: [2, 1, 4], sensor: [4, 1, 3],
+  drip: [3, 5, 3], fognet: [3, 4, 3], sandfence: [3, 2, 4],
 };
 export const TOOL_SHORT = {
   drone: 'טס מעל היער וסופר צמחים ובעלי חיים', camera: 'מצלמת בעלי חיים שעוברים לידה, גם בלילה',
@@ -55,6 +58,7 @@ export const TOOL_SHORT = {
   nestbox: 'בית מעץ שבו ציפורים מקננות', insecthotel: 'מחסה לדבורי בר ולפרפרים', weather: 'מודדת רוח, חום ולחות ומזהירה מראש',
   nursery: 'מגדלת שברי אלמוג ושותלת אותם בשונית', reefball: 'כיפת בטון עם חורים, בית לדגים ולאלמוגים', buoy: 'הסירות נקשרות אליו ולא מטילות עוגן',
   rov: 'צולל לאורך השונית וסופר דגים ואלמוגים', uwcam: 'מצלמת דגים מתוך קופסה אטומה למים', sensor: 'מודד את חום המים ומזהיר מראש',
+  drip: 'צינור דק שנותן מים ישר לשורשים', fognet: 'רשת שאוספת מים מהערפל', sandfence: 'גדר שעוצרת את החול שהרוח מעיפה',
 };
 
 function speciesStats(s) {
@@ -123,7 +127,7 @@ const SET_DEFS = [
   { id: 'seeds', name: 'מפיצי זרעים', where: 'amazon', col: '#5f9a3e', ic: IC.seed, sub: 'מפזרים זרעים – וכך גדלים עצים חדשים',
     sp: (s) => s.biome === 'amazon' && hasRel(s, 'disperses') },
   { id: 'giants', name: 'ענקי היער', where: 'both', col: '#2f7a5a', ic: IC.tree, sub: 'העצים הגדולים של שני היערות',
-    sp: (s) => s.kind === 'tree' },
+    sp: (s) => s.kind === 'tree' && (s.biome === 'amazon' || s.biome === 'grove') },
   { id: 'wings', name: 'בעלי כנף', where: 'amazon', col: '#3b8fb8', ic: SET_IC.wing, sub: 'עפים בין העצים של יער הגשם',
     sp: (s) => s.biome === 'amazon' && s.animal && s.locomotion === 'flying' },
   { id: 'night', name: 'פעילים בלילה', where: 'grove', col: '#5b4a8f', ic: IC.moon, sub: 'יוצאים לדרך כשהחורש נרדם',
@@ -138,6 +142,14 @@ const SET_DEFS = [
     sp: (s) => s.biome === 'reef' && ['clownfish', 'seaanemone', 'goby', 'shrimp', 'cleaner', 'grouper', 'moray'].includes(s.id) },
   { id: 'reefguards', name: 'שומרי השונית', where: 'tech', col: '#1f6f9a', ic: SET_IC.eye, sub: 'טכנולוגיה מתחת למים',
     tools: ['rov', 'uwcam', 'sensor', 'nursery', 'reefball', 'buoy'] },
+  { id: 'waterstore', name: 'מחסני מים', where: 'desert', col: '#4a9a6a', ic: IC.leaf, sub: 'שומרים מים בגוף לימים היבשים',
+    sp: (s) => s.biome === 'desert' && !s.animal && (s.stores || 0) >= 0.4 },
+  { id: 'desertnight', name: 'לילה במדבר', where: 'desert', col: '#4a3f7a', ic: IC.moon, sub: 'ביום מסתתרים מהחום, בלילה יוצאים',
+    sp: (s) => s.biome === 'desert' && ['fennec', 'sandcat', 'jerboa', 'deserthedgehog', 'scorpion', 'eagleowl'].includes(s.id) },
+  { id: 'acacia', name: 'סביב השיטה', where: 'desert', col: '#a8702a', ic: IC.tree, sub: 'השיטה היא מין מפתח במדבר, כל אלה קשורים אליה',
+    sp: (s) => s.biome === 'desert' && linkedTo(s, 'acacia') },
+  { id: 'desertwater', name: 'מים למדבר', where: 'tech', col: '#2a7ab0', ic: SET_IC.eye, sub: 'מביאים מים לשורשים, עוצרים את החול וזורעים מחדש',
+    tools: ['drip', 'fognet', 'sandfence', 'seeddrone'] },
   { id: 'watchers', name: 'שומרי היער', where: 'tech', col: '#2c5f8f', ic: SET_IC.eye, sub: 'רואים, שומעים ומזהירים בזמן',
     tools: ['drone', 'camera', 'listener', 'weather'] },
   { id: 'helpers', name: 'עוזרים לטבע', where: 'tech', col: '#c8473a', ic: SET_IC.heart, sub: 'מחזירים לטבע חיים, מים ובית',
@@ -154,7 +166,7 @@ if (TORAH) for (const d of SOURCE_SETS) SETS.push({ ...d, where: 'src', torah: t
 export const activeSets = () => SETS.filter((st) => !st.torah || sourcesOn());
 export const SET_BY = new Map(SETS.map((st) => [st.id, st]));
 export const setsOf = (id) => activeSets().filter((st) => st.cards.some((c) => c.id === id));
-export const SET_WHERE = { amazon: 'אמזונס', grove: 'חורש', reef: 'שונית', both: 'שני היערות', tech: 'טכנולוגיה', src: 'מן המקורות' };
+export const SET_WHERE = { amazon: 'אמזונס', grove: 'חורש', reef: 'שונית', desert: 'מדבר', both: 'שני היערות', tech: 'טכנולוגיה', src: 'מן המקורות' };
 // sanity check (dev console): 4–8 cards, and a rare or very rare card in every species set
 for (const st of SETS) {
   if (st.torah) continue;

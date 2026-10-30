@@ -6,9 +6,10 @@
 import * as THREE from 'three';
 import { makeNoise2D, clamp, lerp, smoothstep } from '../../core/util.js';
 import { R, TAU, C, tmpC, V3 } from './common.js';
+import { DESERT, desertHeight } from './desert-look.js';
 
 export function createTerrain(ctx) {
-  const { isAmazon, seed, noise, noiseB, qual } = ctx;
+  const { isAmazon, isDesert, seed, noise, noiseB, qual } = ctx;
   // 1.3.3: the training field (שטח האימונים) is the grove's land with the Amazon's stream running through it (ctx.river)
   const hasRiver = isAmazon || !!ctx.river;
   // ───────────────────────────── island shape & height field
@@ -56,7 +57,8 @@ export function createTerrain(ctx) {
   function rawHeight(x, z) {
     const r = Math.hypot(x, z);
     let h = 0.7 + 1.5 * noise.fbm(x * 0.028 + 11, z * 0.028 - 7, 3) + 0.35 * noise(x * 0.1 + 3, z * 0.1 - 1);
-    if (!isAmazon) {
+    if (isDesert) h += desertHeight(x, z, noise);   // dunes, the dry wadi and the sandstone mesa (desert-look.js)
+    else if (!isAmazon) {
       h += 1.6 * Math.exp(-((x + 17) ** 2 + (z + 15) ** 2) / 200);   // rocky knoll (back-left)
       h += 0.8 * Math.exp(-((x - 22) ** 2 + (z + 20) ** 2) / 160);
     }
@@ -77,7 +79,7 @@ export function createTerrain(ctx) {
 
   // grove pool
   if (!hasRiver) {
-    const P = { x: 13, z: -6, r: 4.3 };
+    const P = isDesert ? { ...DESERT.pool } : { x: 13, z: -6, r: 4.3 };   // the desert: the oasis spring
     P.h0 = rawHeight(P.x, P.z);
     WL = P.h0 - 0.12;
     pools = [P];
@@ -197,6 +199,8 @@ export function createTerrain(ctx) {
     addOutcrop(sp.x + 3.6, sp.z - 2.2, 1.8);
     addOutcrop(-24, 14, 2.6);
     addOutcrop(22, -18, 2.0);
+  } else if (isDesert) {
+    for (const [x, z, r] of DESERT.rocks) addOutcrop(x, z, r);
   } else {
     const cand = [[-17, -15, 3.8], [-25, 4, 2.8], [-8, 22, 2.6], [17, 22, 3.0], [26, -14, 3.2], [3, -24, 2.4], [-28, -22, 2.6], [17.5, -2.5, 1.8], [8.5, -10.5, 1.5]];
     for (const [x, z, r] of cand) if (!hasRiver || x * x + z * z > 400) addOutcrop(x, z, r);   // the training field: no rocks in the middle (the stream runs there)
@@ -205,6 +209,7 @@ export function createTerrain(ctx) {
   // ───────────────────────────── ground (top surface)
   const SOIL = isAmazon
     ? { a: C('#3b2b1d'), b: C('#4c3624'), mud: C('#2c2219'), bed: C('#5a4a34'), rock: C('#5c5446') }
+    : isDesert ? DESERT.soil
     : { a: C('#7a4a32'), b: C('#8c5a3a'), mud: C('#5e3a26'), bed: C('#8f826a'), rock: C('#9a6a4c') };   // terra rossa: earthy brown-red, not too saturated
 
   function rockInfluence(x, z) {
@@ -263,6 +268,7 @@ export function createTerrain(ctx) {
     c *= smoothstep(-0.2, isAmazon ? 2.0 : 1.4, wd);
     c *= 1 - rockInfluence(x, z) * (isAmazon ? 0.3 : 0.75);
     const r = Math.hypot(x, z); c += smoothstep(R, R + 5, r) * 0.25;
+    if (isDesert) c = c * 0.3 + (WL !== null ? smoothstep(6, 0.5, waterDist(x, z)) * 0.55 : 0);   // bare sand; green only by the oasis
     return clamp(c);
   }
   return {

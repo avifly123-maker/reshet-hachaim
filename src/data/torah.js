@@ -91,6 +91,22 @@ export const SOURCE_CARDS = [
   { id: 'tikva', title: 'יֵשׁ לָעֵץ תִּקְוָה', ref: 'איוב יד, ז', icon: 'tree', col: '#5a7a3a', earn: 'research:young-oaks',
     quote: 'כִּי יֵשׁ לָעֵץ תִּקְוָה, אִם יִכָּרֵת וְעוֹד יַחֲלִיף, וְיֹנַקְתּוֹ לֹא תֶחְדָּל.',
     lesson: 'גם עץ שנכרת יכול לצמוח שוב, וממנו יוצאים ענפים צעירים. החורש מתחדש כשנותנים לנבטים הצעירים לגדול.' },
+  // חוקרי הטבע, the desert, beginners: "החול שקובר את השתילים" (src/research/cases/moving-sand.js)
+  { id: 'shita', title: 'אֶתֵּן בַּמִּדְבָּר שִׁטָּה', ref: 'ישעיהו מא, יט', icon: 'tree', col: '#b07a32', earn: 'research:moving-sand',
+    quote: 'אֶתֵּן בַּמִּדְבָּר אֶרֶז שִׁטָּה וַהֲדַס וְעֵץ שָׁמֶן.',
+    lesson: 'הנביא מבטיח שגם במדבר יצמחו עצים. השיטה גדלה במדבר באמת, כשהשיחים סביבה שומרים על השתילים הצעירים שלה מפני החול.' },
+  // חוקרי הטבע, the desert, middle: "השיטות שלא מתחדשות" (src/research/cases/lonely-acacias.js)
+  { id: 'shittim', title: 'עֲצֵי שִׁטִּים עֹמְדִים', ref: 'שמות כו, טו', icon: 'tree', col: '#9a6a2a', earn: 'research:lonely-acacias',
+    quote: 'וְעָשִׂיתָ אֶת הַקְּרָשִׁים לַמִּשְׁכָּן עֲצֵי שִׁטִּים עֹמְדִים.',
+    lesson: 'המשכן במדבר נבנה מעצי שיטה, עץ שגדל במדבר. כדי שיהיו שיטות גם בעתיד, שומרים על הצבי שמפזר את הזרעים שלהן.' },
+  // חוקרי הטבע, the desert, advanced: "נווה המדבר שהולך ונעלם" (src/research/cases/shrinking-oasis.js)
+  { id: 'mayim', title: 'נִבְקְעוּ בַמִּדְבָּר מַיִם', ref: 'ישעיהו לה, ו', icon: 'drop', col: '#2a7ab0', earn: 'research:shrinking-oasis',
+    quote: 'כִּי נִבְקְעוּ בַמִּדְבָּר מַיִם, וּנְחָלִים בָּעֲרָבָה.',
+    lesson: 'במדבר כל מעיין הוא מתנה גדולה. כשחוסכים במים, יש מספיק לצמחים ולבעלי החיים.' },
+  // the desert's torah mission dt1 (TORAH_MISSIONS below)
+  { id: 'yesusum', title: 'יְשֻׂשׂוּם מִדְבָּר וְצִיָּה', ref: 'ישעיהו לה, א', icon: 'flower', col: '#c08a3a', earn: 'mission:dt1',
+    quote: 'יְשֻׂשׂוּם מִדְבָּר וְצִיָּה, וְתָגֵל עֲרָבָה וְתִפְרַח כַּחֲבַצָּלֶת.',
+    lesson: 'גם במקום הכי יבש יש פרחים. הצלף פורח בקיץ החם, ואחרי גשם טוב המדבר כולו מתכסה פרחים.' },
   // חוקרי הטבע, the Amazon, middle: "הנמלים שאכלו את היער" (src/research/cases/leafcutters.js)
   { id: 'shnayim', title: 'טוֹבִים הַשְּׁנַיִם מִן הָאֶחָד', ref: 'קהלת ד, ט', icon: 'bug', col: '#7a6a2a', earn: 'research:leafcutters',
     quote: 'טוֹבִים הַשְּׁנַיִם מִן הָאֶחָד, אֲשֶׁר יֵשׁ לָהֶם שָׂכָר טוֹב בַּעֲמָלָם.',
@@ -129,6 +145,8 @@ export const SOURCE_SETS = [
     cards: ['ant', 'small4', 'lion', 'sheal'] },
   { id: 'src-harim', name: 'מן ההרים עד הים', col: '#2f7a9a', sub: 'צבאים על ההרים, כפירים ביער וחיות בים הגדול',
     cards: ['tzvi', 'tzvaim', 'kfirim', 'yam'] },
+  { id: 'src-midbar', name: 'המדבר יפרח', col: '#b07a32', sub: 'שיטה, מעיין ופרחים, גם במקום הכי יבש',
+    cards: ['shita', 'shittim', 'mayim', 'yesusum'] },
 ];
 export const EARN_TEXT = { quiz: 'מקבלים בחידון "מן המקורות" (7 תשובות נכונות ומעלה)', 'mission:gt1': 'מקבלים במשימה "לך אל נמלה" בחורש',
   'mission:gt2': 'מקבלים במשימה "החרוב של חוני" בחורש', 'set:avot': 'מקבלים כשמשלימים את הסדרה "רץ כצבי"',
@@ -146,6 +164,10 @@ export const EARN_TEXT = { quiz: 'מקבלים בחידון "מן המקורות
   'research:frogs': 'מקבלים כשפותרים את התעלומה "איפה הצפרדעים?" בחוקרי הטבע',
   'research:young-oaks': 'מקבלים כשפותרים את התעלומה "החורש שלא מתחדש" בחוקרי הטבע',
   'research:leafcutters': 'מקבלים כשפותרים את התעלומה "הנמלים שאכלו את היער" בחוקרי הטבע',
+  'research:moving-sand': 'מקבלים כשפותרים את התעלומה "החול שקובר את השתילים" בחוקרי הטבע',
+  'research:lonely-acacias': 'מקבלים כשפותרים את התעלומה "השיטות שלא מתחדשות" בחוקרי הטבע',
+  'research:shrinking-oasis': 'מקבלים כשפותרים את התעלומה "נווה המדבר שהולך ונעלם" בחוקרי הטבע',
+  'mission:dt1': 'מקבלים במשימה "ישושום מדבר" במדבר',
   'lab:sharkskin': 'מקבלים כשממציאים את מעיל עור הכריש במעבדה של רובו־דע' };
 
 // ───────────────────────────────────────── missions in the grove (inserted into the chain after g3 and g4)
@@ -159,6 +181,12 @@ export const TORAH_MISSIONS = {
       text: 'חוני המעגל ראה אדם נוטע חרוב בשביל הנכדים שלו. שתלו עץ חרוב, ושמרו עליו עד שיגדל לעץ צעיר.',
       hint: 'החרוב גדל לאט, כמו בסיפור. בינתיים אפשר להמשיך לבנות את החורש.',
       goal: { type: 'growTo', species: 'carob', min: 0.7, count: 1 }, reward: { points: 40, source: 'choni' } },
+  ],
+  desert: [
+    { id: 'dt1', insertAfter: 'd8', title: 'ישושום מדבר',
+      text: 'הנביא אמר: "ישושום מדבר וציה, ותגל ערבה ותפרח כחבצלת". גם במדבר יש פרחים. שתלו צלף, ושמרו עליו עד שיגדל ויפרח.',
+      hint: 'הצלף אוהב לגדול בין סלעים. הוא פורח בקיץ, כשכמעט כל המדבר יבש.',
+      goal: { type: 'growTo', species: 'caper', min: 0.7, count: 1 }, reward: { points: 35, source: 'yesusum' } },
   ],
   reef: [
     { id: 'rt1', insertAfter: 'r3', title: 'שם רמש ואין מספר',

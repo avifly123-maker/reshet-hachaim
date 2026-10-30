@@ -9,6 +9,7 @@ import * as THREE from 'three';
 import { esc } from '../ui/ui.js';
 import { nameK } from '../data/inventions-kids.js';
 import { readVisitors } from './rank.js';
+import { svcGuide } from '../core/services.js';
 
 // Q: small questions about the island (after.js). kids: the beginners' list (their species set is smaller).
 export const VISITORS = {
@@ -96,7 +97,7 @@ export function createVisitors({ W, env, reg, ui, audio, markers, rig, imv, spaw
     setTimeout(() => btn.classList.remove('new'), 2400);
     try { markers.locate([a], '#ffd84a', (e, out) => { if (!e.alive || e.leaving) return null; const f = e.focusPoint(_f); out.set(f.x, env.heightAt(f.x, f.z), f.z); return Math.max(1, f.y - out.y + 0.8); }, 10); } catch (e) { }
     audio && audio.play && audio.play('discover');
-    const g = window.__guide, L = g && g.lines('after:visit:' + v.id);
+    const g = svcGuide(), L = g && g.lines('after:visit:' + v.id);
     if (g && L && L.length) g.say(L, { tip: true, ms: 10000, key: 'g:visit:' + v.id });   // once per player: the button and the beacon tell the rest
     guests++; lastSeen[v.id] = nowS();
     return true;
@@ -112,7 +113,7 @@ export function createVisitors({ W, env, reg, ui, audio, markers, rig, imv, spaw
     if (!cur || cur.a !== a || cur.shot) return false;
     cur.shot = true; btn.classList.add('shot');
     cur.until = Math.max(cur.until, W.simT + 20);   // a little more time to look at it
-    const g = window.__guide, L = g && g.lines('after:fact:' + cur.v.id);
+    const g = svcGuide(), L = g && g.lines('after:fact:' + cur.v.id);
     if (g && L && L.length) setTimeout(() => { if (!disposed) g.say(L, { tip: true, ms: 9000 }); }, 2600);
     return true;
   }
