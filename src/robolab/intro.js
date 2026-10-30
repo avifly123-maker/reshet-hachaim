@@ -139,9 +139,9 @@ export function playIntro(host, { kids = false, voice = null, sfx = () => { }, o
     await wait(1.9); if (closed) return;
     K.set('wave'); sfx('pop');
     await beat(0);
-    await beat(1, () => { at.robot = t; K.set('point'); sfx('pop'); });
-    await beat(2, () => { at.drone = t; K.set('explain'); sfx('pop'); });
-    await beat(3, () => { at.sub = t; K.set('point'); sfx('pop'); });
+    await beat(1, () => { at.robot = t; K.set('point'); sfx('rlRobot'); });
+    await beat(2, () => { at.drone = t; K.set('explain'); sfx('rlDrone'); });
+    await beat(3, () => { at.sub = t; K.set('point'); sfx('rlSub'); });
     await beat(4, () => { at.end = t; K.set('cheer'); confetti(); sfx('mission'); el.classList.add('end'); });
     if (closed) return;
     const go = el.querySelector('[data-igo]'); go.hidden = false; el.querySelector('[data-iskip]').hidden = true; go.focus();

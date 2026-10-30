@@ -35,13 +35,22 @@ async def main(o):
             await pg.evaluate(f"window.__rlFilm.seek({i / o.fps}, {1 / o.fps})")
             await pg.screenshot(path=str(tmp / f'{i:05d}.jpg'), type='jpeg', quality=90)
             if i % 48 == 0: print('frame', i, '/', n, flush=True)
+        sfx = {}
+        if o.voice:   # the tools' arrival sounds (src/audio/audio.js rlRobot, rlDrone, rlSub), rendered offline by the game itself
+            import base64
+            for k in ('rlRobot', 'rlDrone', 'rlSub'):
+                data = await pg.evaluate(f"window.__renderSfx('{k}', 2.5)")
+                p_ = tmp.parent / f'{k}.wav'; p_.write_bytes(base64.b64decode(data)); sfx[k] = p_
         await b.close()
     cmd = ['ffmpeg', '-y', '-loglevel', 'error', '-framerate', str(o.fps), '-i', str(tmp / '%05d.jpg')]
     if o.voice:   # each line starts at its beat
         starts = []; at = 1.9
         for L in lens: starts.append(at); at += L
         for i in range(5): cmd += ['-i', str(pathlib.Path(o.voice) / f'ki_{i}.wav')]
-        mix = ''.join(f'[{i + 1}:a]adelay={int(starts[i] * 1000)}|{int(starts[i] * 1000)}[a{i}];' for i in range(5)) + ''.join(f'[a{i}]' for i in range(5)) + 'amix=inputs=5:normalize=0[a]'
+        tracks = [(starts[i], i + 1) for i in range(5)]
+        for j, k in enumerate(('rlRobot', 'rlDrone', 'rlSub')):   # beats 1, 2, 3 bring the robot, the drone, the sub
+            cmd += ['-i', str(sfx[k])]; tracks.append((starts[j + 1], 6 + j))
+        mix = ''.join(f'[{n}:a]aresample=44100,adelay={int(s * 1000)}|{int(s * 1000)}[a{q}];' for q, (s, n) in enumerate(tracks)) + ''.join(f'[a{q}]' for q in range(len(tracks))) + f'amix=inputs={len(tracks)}:normalize=0[a]'
         cmd += ['-filter_complex', mix, '-map', '0:v', '-map', '[a]', '-c:a', 'aac', '-b:a', '128k']
     cmd += ['-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '21', '-movflags', '+faststart', o.out]
     subprocess.run(cmd, check=True); shutil.rmtree(tmp); print('wrote', o.out, round(total, 1), 's')

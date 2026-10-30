@@ -251,9 +251,11 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   function stopRun() { if (map) map.stop(); if (ed) ed.light(null); }
 
   let runs = 0;
+  const toolSound = (k, vol = 0.6) => { try { audio && audio.play && audio.play('rl' + k[0].toUpperCase() + k.slice(1), { volume: vol }); } catch (e) { } };
   function run(speed) {
     if (!cur || !ed) return;
     runs++;
+    for (const k of cur.tools || ['robot']) toolSound(k);   // each tool sets off with its own sound
     hideMsg();
     const prog = ed.program();
     const r = runLevel(levelsOf(cur), prog);
@@ -306,7 +308,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     if (b.dataset.exit != null) { close(); if (onExit) onExit(); return; }
     if (b.dataset.home != null) { sfx('click'); home(); return; }
     if (b.dataset.intro != null) { sfx('click'); showIntro(); return; }
-    if (b.dataset.garage != null) { sfx('click'); if (garage) garage.close(); garage = openGarage(el, { kids, sfx, onClose: () => { garage = null; checkRoboBadges(); } }); return; }
+    if (b.dataset.garage != null) { sfx('click'); if (garage) garage.close(); garage = openGarage(el, { kids, sfx, toolSound, onClose: () => { garage = null; checkRoboBadges(); } }); return; }
     if (b.dataset.level) { sfx('click'); openLevel(b.dataset.level); return; }
     if (b.dataset.run) { run(b.dataset.run); return; }
     if (b.dataset.again != null) { stopRun(); hideMsg(); map.reset(); return; }

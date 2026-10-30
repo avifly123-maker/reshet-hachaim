@@ -812,6 +812,29 @@ export function createAudio(options = {}) {
       tone(v, t, 349.23, 340, 0.02, 0.22, 0.13, 'triangle', lp); tone(v, t + 0.2, 311.13, 300, 0.02, 0.35, 0.12, 'triangle', lp);
     },
     pop(v, t) { tone(v, t, 320, 900, 0.003, 0.07, 0.17); tone(v, t + 0.02, 1400, 0, 0.002, 0.05, 0.03); },
+    // מעבדת הרובוטים (1.4.1, Avi: "sounds when the robots arrive"): the robot drives in, the drone buzzes, the sub bubbles
+    rlRobot(v, t) {                     // a small electric motor that speeds up, wheel ticks, a happy double beep
+      const lp = vfilter(v, 'lowpass', 520, 0.9, v.out);
+      const g = vgain(v, 0, lp); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.16, t + 0.18); g.gain.setValueAtTime(0.16, t + 1.05); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.35); g.gain.setValueAtTime(0, t + 1.36);
+      const o = vosc(v, 'sawtooth', 62, t, t + 1.4, g); o.frequency.exponentialRampToValueAtTime(118, t + 1.0);
+      const o2 = vosc(v, 'square', 124, t, t + 1.4, g); o2.frequency.exponentialRampToValueAtTime(236, t + 1.0); o2.detune.value = 8;
+      for (let i = 0; i < 9; i++) noiseHit(v, t + 0.08 + i * 0.11, bufW, 'bandpass', 2600, 4, 0.002, 0.03, 0.05);
+      tone(v, t + 1.25, 880, 0, 0.004, 0.09, 0.09, 'square'); tone(v, t + 1.38, 1318.5, 0, 0.004, 0.12, 0.08, 'square');
+    },
+    rlDrone(v, t) {                     // rotors: two detuned tones with a fast flutter, coming closer, then settling
+      const lp = vfilter(v, 'lowpass', 1600, 0.7, v.out);
+      const g = vgain(v, 0, lp); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.13, t + 0.5); g.gain.setValueAtTime(0.13, t + 1.3); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.9); g.gain.setValueAtTime(0, t + 1.91);
+      const flut = vgain(v, 1, g);
+      const lfo = vosc(v, 'sine', 31, t, t + 1.95); const lg = vgain(v, 0.45); lfo.connect(lg); lg.connect(flut.gain);
+      const a = vosc(v, 'sawtooth', 168, t, t + 1.95, flut); a.frequency.linearRampToValueAtTime(196, t + 0.6); a.frequency.linearRampToValueAtTime(178, t + 1.9);
+      const b = vosc(v, 'triangle', 171, t, t + 1.95, flut); b.frequency.linearRampToValueAtTime(201, t + 0.6); b.frequency.linearRampToValueAtTime(182, t + 1.9);
+      noiseHit(v, t, bufP, 'bandpass', 900, 0.8, 0.5, 1.2, 0.035);   // the air of the rotors
+    },
+    rlSub(v, t) {                       // bubbles rising, a soft propeller under them
+      noiseHit(v, t, bufB, 'lowpass', 300, 0.7, 0.3, 1.3, 0.12);
+      let tt = t + 0.05;
+      for (let i = 0; i < 14; i++) { const f = 380 + Math.random() * 520; tone(v, tt, f, f * (2.2 + Math.random()), 0.003, 0.05 + Math.random() * 0.04, 0.06 + Math.random() * 0.05); tt += 0.05 + Math.random() * 0.11; }
+    },
   };
 
   function play(name, opts = {}) {

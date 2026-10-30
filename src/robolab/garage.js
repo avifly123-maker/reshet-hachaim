@@ -16,7 +16,7 @@ const TOOLS = [['robot', { f: 'רובוט', k: 'רוֹבּוֹט' }], ['drone', 
 const PAINT_ROWS = [['body', { f: 'גוף', k: 'גּוּף' }], ['trim', { f: 'פסים', k: 'פַּסִּים' }], ['accent', { f: 'קישוטים', k: 'קִשּׁוּטִים' }]];
 const NONE = { f: 'בלי', k: 'בְּלִי' };
 
-export function openGarage(host, { kids = false, sfx = () => { }, onClose } = {}) {
+export function openGarage(host, { kids = false, sfx = () => { }, toolSound = null, onClose } = {}) {
   const T = (o) => (o ? (kids && o.k ? o.k : o.f) : '');
   const ES = earnState();
   let tool = 'robot', look = toolLook(tool);
@@ -108,7 +108,7 @@ export function openGarage(host, { kids = false, sfx = () => { }, onClose } = {}
   el.addEventListener('click', (e) => {
     const b = e.target.closest('button'); if (!b || b.disabled) return;
     if (b.dataset.gclose != null) { close(); if (onClose) onClose(); return; }
-    if (b.dataset.gtool) { tool = b.dataset.gtool; look = toolLook(tool); sfx('click'); renderTabs(); renderOpts(); rebuild(); return; }
+    if (b.dataset.gtool) { tool = b.dataset.gtool; look = toolLook(tool); if (toolSound) toolSound(tool, 0.5); else sfx('click'); renderTabs(); renderOpts(); rebuild(); return; }
     if (b.dataset.gsock) {
       const s = b.dataset.gsock, id = b.dataset.gpart;
       look.parts[s] = id || null;

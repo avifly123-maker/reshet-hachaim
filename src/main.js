@@ -506,6 +506,17 @@ async function boot() {
     if (fpsEl) { fpsN++; const now = performance.now(); if (now - fpsT > 1000) { const i = pipe.renderer.info.render; let lost = false; try { lost = pipe.renderer.getContext().isContextLost(); } catch (e) { } fpsEl.textContent = `${Math.round(fpsN * 1000 / (now - fpsT))} fps · ${quality} · x${pipe.resScale.toFixed(2)} · ${i.calls} calls · ${Math.round(i.triangles / 1000)}k tris${islandInfo()}${lost || ctxLost ? ' · GL LOST ' + ctxLost : ''}${lastErr.m ? ' · ERR ' + Math.round((now - lastErr.t) / 1000) + 's: ' + lastErr.m : ''}`; fpsN = 0; fpsT = now; } }
   }
   frame();
+  // films made headless (tools/record-intro.py): one sound effect rendered offline, as 16-bit wav bytes in base64
+  window.__renderSfx = async (name, dur = 2.5) => {
+    const R = 44100, ctx = new OfflineAudioContext(1, Math.round(R * dur), R), a = createAudio({ context: ctx });
+    a.start(); a.play(name); const buf = await ctx.startRendering(); const x = buf.getChannelData(0);
+    const out = new DataView(new ArrayBuffer(44 + x.length * 2)); const w = (o, str) => { for (let i = 0; i < str.length; i++) out.setUint8(o + i, str.charCodeAt(i)); };
+    w(0, 'RIFF'); out.setUint32(4, 36 + x.length * 2, true); w(8, 'WAVEfmt '); out.setUint32(16, 16, true); out.setUint16(20, 1, true); out.setUint16(22, 1, true);
+    out.setUint32(24, R, true); out.setUint32(28, R * 2, true); out.setUint16(32, 2, true); out.setUint16(34, 16, true); w(36, 'data'); out.setUint32(40, x.length * 2, true);
+    for (let i = 0; i < x.length; i++) out.setInt16(44 + i * 2, Math.max(-1, Math.min(1, x[i])) * 32767, true);
+    let bin = ''; const u = new Uint8Array(out.buffer); for (let i = 0; i < u.length; i += 0x8000) bin += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000));
+    return btoa(bin);
+  };
   window.__app = { bus, ui, audio, music, pipe, voice, guide, journey, loadBiome, researchHub, openLab: () => openLab(), openCase: (id, opts) => { let C = caseById(id); if (C && opts && opts.tutorial) C = { ...C, tutorial: true }; if (C) loadBiome(C.zone, null, C); }, get game() { return game; } };
   setService('app', window.__app);   // the parts read it through src/core/services.js; window.__app stays for the test tools
 }
