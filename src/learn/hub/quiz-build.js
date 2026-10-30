@@ -209,7 +209,7 @@ const GEN = {
     // a plant that sits on a tree (bromeliad on the kapok) or an animal that lives in one can be met there too – never a "wrong" layer
     const near = new Set((s.relations || []).filter((r) => r.type === 'climbs' || r.type === 'home')
       .map((r) => (spOf(s.biome, r.target) || {}).layer).filter(Boolean));
-    // reef life that grows in two zones (as "מחזיקים את היער" places it): brain coral and anemones also on the slope, sponges and algae also on the sand
+    // reef life that grows in two zones (as "מחזיקים את הסביבה" places it): brain coral and anemones also on the slope, sponges and algae also on the sand
     const ALSO = { 'reef:brain': 'slope', 'reef:seaanemone': 'slope', 'reef:sponge': 'sand', 'reef:algae': 'sand' };
     if (ALSO[s.key]) near.add(ALSO[s.key]);
     const wrong = sample(layers.filter((l) => l !== L && !near.has(l.id)), 2); if (!wrong.length) return null;

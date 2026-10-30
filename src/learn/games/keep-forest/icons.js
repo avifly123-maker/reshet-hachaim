@@ -1,4 +1,4 @@
-// מחזיקים את היער – inline SVG icons (I.sun, I.thread, I.key, ...) and the owl companion "שומר היער" (no human figures).
+// מחזיקים את הסביבה – inline SVG icons (I.sun, I.thread, I.key, ...) and the owl companion "שומר היער" (no human figures).
 // Exports: I, OWL. Needs nothing.
 
 /* ───────────────────────────── icons (inline SVG) */

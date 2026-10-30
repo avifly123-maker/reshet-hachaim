@@ -1,4 +1,4 @@
-// מחזיקים את היער – a turn: placing a card (gold threads, the rare bonus, the owl's words), using a tool, skipping, the
+// מחזיקים את הסביבה – a turn: placing a card (gold threads, the rare bonus, the owl's words), using a tool, skipping, the
 // end of a turn, an event (flip, resolve: ready / keystone / a card wilts) and going on; then hints (bestMove), the
 // hint button and auto play (autoStep, used by the debug hook).
 // Gives K: place, canUse, useTool, skip, resolve, cont, bestMove, hintText, showHint, autoStep.

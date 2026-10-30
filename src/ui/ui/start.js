@@ -80,7 +80,7 @@ export function createStart(ctx) {
             <button data-learn="setup" data-part="quiz">${tileIcon('quiz', 'st-lic')}<span><b>חידון</b><small>שאלות על היער והשונית</small><small class="jv-note"></small></span></button>
             <button data-learn="album" data-part="album">${tileIcon('album', 'st-lic')}<span><b>אלבום הקלפים</b><small>חבילות, סדרות ואוסף</small><small class="jv-note"></small></span></button>
             <button data-learn="duel" data-part="duel">${tileIcon('strong', 'st-lic')}<span><b>מי חזק ברשת?</b><small>קלף מול קלף</small><small class="jv-note"></small></span></button>
-            <button data-learn="keepforest" data-part="keepforest">${tileIcon('keep', 'st-lic')}<span><b>מחזיקים את היער</b><small>משחק קלפים ואירועים</small><small class="jv-note"></small></span></button>
+            <button data-learn="keepforest" data-part="keepforest">${tileIcon('keep', 'st-lic')}<span><b>מחזיקים את הסביבה</b><small>משחק קלפים ואירועים</small><small class="jv-note"></small></span></button>
             <button data-learn="webpuzzle" data-part="webpuzzle">${tileIcon('thread', 'st-lic')}<span><b>חוט הקשר</b><small>מחברים את הרשת</small><small class="jv-note"></small></span></button>
             <button data-learn="inventors" data-part="inventors">${tileIcon('invent', 'st-lic')}<span><b>הממציאים</b><small>פותרים בעיות בעזרת הטבע</small><small class="jv-note"></small></span></button>
             <button data-learn="expedition" data-part="expedition">${tileIcon('dive', 'st-lic')}<span><b>משלחת לעומק</b><small>צוללים עם הקלפים לשונית</small><small class="jv-note"></small></span></button>

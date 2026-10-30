@@ -1,4 +1,4 @@
-// מחזיקים את היער – deck building and a new run: the player's cards for a place (a big album is trimmed to a well
+// מחזיקים את הסביבה – deck building and a new run: the player's cards for a place (a big album is trimmed to a well
 // connected deck), borrowed starter cards when the deck is small or a layer has no plants, the events of a run and what
 // each needs, newRun() (the run's state K.S) and draw().
 // Gives K: biomeInfo, newRun, draw.

@@ -1,4 +1,4 @@
-// "מחזיקים את היער" – solitaire mini-game for the learning hub (single player, gentle, cooperative).
+// "מחזיקים את הסביבה" – solitaire mini-game for the learning hub (single player, gentle, cooperative).
 // The player builds a small forest (3 layers × 3 slots) from album cards; every 2 turns "nature" flips an
 // event card (drought, heat, flood...). A forest that is ready holds on; otherwise its weakest card wilts a little.
 // Every real relation between two cards on the board is a glowing gold thread = +1 vitality (חִיּוּת).

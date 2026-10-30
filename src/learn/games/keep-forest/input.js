@@ -1,4 +1,4 @@
-// מחזיקים את היער – the player's hands: selecting a card, dragging it with a ghost card to a slot (or a tool onto the
+// מחזיקים את הסביבה – the player's hands: selecting a card, dragging it with a ghost card to a slot (or a tool onto the
 // board), tapping a slot, and the click handler of every button (data-a), place tile (data-b) and slot.
 // Owns the drag's ghost card.
 // Gives K: cleanupDrag, onDown, onMove, onUp, onClick.

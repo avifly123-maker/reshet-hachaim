@@ -43,7 +43,7 @@ export const PARTS = {
   quiz: { stage: 2, name: 'החידון', kname: 'הַחִידוֹן', where: 'hub' },
   learn: { stage: 2, name: 'מרכז הלמידה', kname: 'מֶרְכַּז הַלְּמִידָה', where: 'start' },
   webpuzzle: { stage: 3, name: 'חוט הקשר', kname: 'חוּט הַקֶּשֶׁר', where: 'hub' },
-  keepforest: { stage: 3, name: 'מחזיקים את היער', kname: 'מַחֲזִיקִים אֶת הַיַּעַר', where: 'hub' },
+  keepforest: { stage: 3, name: 'מחזיקים את הסביבה', kname: 'מַחֲזִיקִים אֶת הַסְּבִיבָה', where: 'hub' },
   badges: { stage: 3, name: 'התגים שלי', kname: 'הַתָּגִים שֶׁלִּי', where: 'hub' },
   'zone:reef': { stage: 4, name: 'השונית', kname: 'הַשּׁוּנִית', where: 'start' },
   science: { stage: 4, name: 'המרכז המדעי', kname: 'הַמֶּרְכָּז הַמַּדָּעִי', where: 'start' },
@@ -76,7 +76,7 @@ export const PARTS = {
 // "missions or badges" was one road). Each stage now asks for several things together, among them the part that the
 // stage before opened: the album's cards, a card game, the lab, the reef, a mystery, an invention, an island's rank.
 // Keys: missions (all zones), amazon / grove / reef (missions in that zone), cards (in the album), cardgame (חוט הקשר or
-// מחזיקים את היער played), lab (lab activities), solved (mysteries healed), invent (inventions and inventors' problems
+// מחזיקים את הסביבה played), lab (lab activities), solved (mysteries healed), invent (inventions and inventors' problems
 // solved), rank (the best island rank reached: 0 = the first, 3 = the last; RANKS in game/rank.js).
 export const STAGES = [
   { n: 1, id: 'observer', name: 'מתבונן', kname: 'מִתְבּוֹנֵן', need: null, kneed: null },
@@ -194,7 +194,7 @@ function needWord(k, n, have, kids) {
   if (k === 'badges') return left === 1 ? w('עוד תג אחד', 'עוֹד תָּג אֶחָד') : w(`עוד ${left} תגים`, `עוֹד ${left} תָּגִים`);
   if (k === 'lab') return left === 1 ? w('עוד גילוי אחד במעבדה', 'עוֹד גִּלּוּי אֶחָד בַּמַּעְבָּדָה') : w(`עוד ${left} גילויים במעבדה`, `עוֹד ${left} גִּלּוּיִים בַּמַּעְבָּדָה`);
   if (k === 'cards') return left === 1 ? w('עוד קלף אחד באלבום', 'עוֹד קְלָף אֶחָד בָּאַלְבּוֹם') : w(`עוד ${left} קלפים באלבום`, `עוֹד ${left} קְלָפִים בָּאַלְבּוֹם`);
-  if (k === 'cardgame') return w('משחק קלפים אחד (חוט הקשר או מחזיקים את היער)', 'מִשְׂחַק קְלָפִים אֶחָד (חוּט הַקֶּשֶׁר אוֹ מַחֲזִיקִים אֶת הַיַּעַר)');
+  if (k === 'cardgame') return w('משחק קלפים אחד (חוט הקשר או מחזיקים את הסביבה)', 'מִשְׂחַק קְלָפִים אֶחָד (חוּט הַקֶּשֶׁר אוֹ מַחֲזִיקִים אֶת הַסְּבִיבָה)');
   if (k === 'solved') return left === 1 ? w('תעלומה פתורה אחת', 'תַּעֲלוּמָה פְּתוּרָה אַחַת') : w(`עוד ${left} תעלומות פתורות`, `עוֹד ${left} תַּעֲלוּמוֹת פְּתוּרוֹת`);
   if (k === 'invent') return left === 1 ? w('המצאה אחת', 'הַמְצָאָה אַחַת') : w(`עוד ${left} המצאות`, `עוֹד ${left} הַמְצָאוֹת`);
   if (k === 'code') return left === 1 ? w('עוד שיעור אחד במעבדת הרובוטים', 'עוֹד שִׁעוּר אֶחָד בְּמַעְבֶּדֶת הָרוֹבּוֹטִים') : w(`עוד ${left} שיעורים במעבדת הרובוטים`, `עוֹד ${left} שִׁעוּרִים בְּמַעְבֶּדֶת הָרוֹבּוֹטִים`);

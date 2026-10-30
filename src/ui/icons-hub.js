@@ -35,7 +35,7 @@ export const HUB_ICONS = {
   // חוט הקשר: two creatures joined by a curving thread
   thread: '<circle class="f" cx="5.5" cy="17.5" r="3"/><circle cx="5.5" cy="17.5" r="3"/><circle class="f" cx="18.5" cy="6.5" r="3"/><circle cx="18.5" cy="6.5" r="3"/>'
     + '<path d="M8 15.8c3.4-1.8 1-5.6 4.4-6.6 1.6-.5 2.6.3 3.6-.6"/><circle cx="11.2" cy="11.6" r=".9" fill="currentColor" stroke="none"/>',
-  // מחזיקים את היער: a young tree (a wide, bumpy crown) cradled by two leaves
+  // מחזיקים את הסביבה: a young tree (a wide, bumpy crown) cradled by two leaves
   keep: '<path class="f" d="M7.6 10.4a2.7 2.7 0 0 1 .1-5.4 4.5 4.5 0 0 1 8.6-.3 2.8 2.8 0 0 1 .3 5.7z"/><path d="M7.6 10.4a2.7 2.7 0 0 1 .1-5.4 4.5 4.5 0 0 1 8.6-.3 2.8 2.8 0 0 1 .3 5.7z"/><path d="M12 10.4v9.4M12 13.4l-1.6-1.4"/>'
     + '<path class="f" d="M12 20.2c-4 0-7-2-8-5.8 4 0 7 2 8 5.8zM12 20.2c4 0 7-2 8-5.8-4 0-7 2-8 5.8z"/>'
     + '<path d="M12 20.2c-4 0-7-2-8-5.8 4 0 7 2 8 5.8zM12 20.2c4 0 7-2 8-5.8-4 0-7 2-8 5.8z"/>',

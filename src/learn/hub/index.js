@@ -153,7 +153,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
 
   /* ── navigation */
   const PARENT = { home: null, setup: 'home', quiz: 'setup', end: 'home', album: 'home', pack: 'album', duel: 'home', webpuzzle: 'home', keepforest: 'home', inventors: 'home', expedition: 'home', badges: 'home', frames: 'home', versematch: 'home' };
-  const TITLES = { home: 'מרכז הלמידה', setup: 'חידון', quiz: 'חידון', end: 'חידון', album: 'אלבום הקלפים', pack: 'פתיחת חבילה', duel: 'מי חזק ברשת?', webpuzzle: 'חוט הקשר', keepforest: 'מחזיקים את היער', inventors: 'הממציאים', expedition: 'משלחת לעומק', badges: 'התגים שלי', frames: 'המסגרות שלי', versematch: 'מה הפסוק מלמד?' };
+  const TITLES = { home: 'מרכז הלמידה', setup: 'חידון', quiz: 'חידון', end: 'חידון', album: 'אלבום הקלפים', pack: 'פתיחת חבילה', duel: 'מי חזק ברשת?', webpuzzle: 'חוט הקשר', keepforest: 'מחזיקים את הסביבה', inventors: 'הממציאים', expedition: 'משלחת לעומק', badges: 'התגים שלי', frames: 'המסגרות שלי', versematch: 'מה הפסוק מלמד?' };
   /* ── מסע החוקר: the journey part behind each screen (core/journey.js PARTS) */
   const PART_OF = { setup: 'quiz', quiz: 'quiz', end: 'quiz', album: 'album', pack: 'album', duel: 'duel', webpuzzle: 'webpuzzle', keepforest: 'keepforest', inventors: 'inventors', expedition: 'expedition', badges: 'badges', frames: 'frames', versematch: 'versematch' };
   // רובו־דע presents a screen the first time it opens (src/data/guide/hub.js); 'learn' is the hub itself

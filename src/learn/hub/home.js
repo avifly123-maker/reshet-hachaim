@@ -26,7 +26,7 @@ export function createHomeScreens(ctx) {
      A part that is not open yet (core/journey.js) is veiled: dimmed, a curtain, and the words of what opens it. */
   const HOME_GAMES = [
     { part: 'webpuzzle', ic: 'thread', name: 'חוט הקשר' },
-    { part: 'keepforest', ic: 'keep', name: 'מחזיקים את היער' },
+    { part: 'keepforest', ic: 'keep', name: 'מחזיקים את הסביבה' },
     { part: 'duel', ic: 'strong', name: 'מי חזק ברשת?' },
     { part: 'inventors', ic: 'invent', name: 'הממציאים' },
     { part: 'expedition', ic: 'dive', name: 'משלחת לעומק' },
