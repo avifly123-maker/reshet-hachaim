@@ -69,7 +69,8 @@ export function createUpdate(envCtx) {
   // 1.4.2, the savanna: two seasons. In the rains the grass greens fast, flowers open and the waterholes fill; in the dry
   // season everything turns to straw and the waterholes shrink (drought makes it worse). The grass of each place (tall or
   // grazed, green or burnt) is the game's grass map (scatter.js setGrassMap); here only the colours of the whole island.
-  function updateSavanna(dt, season, frac) {
+  function updateSavanna(dt, season, frac, cam) {
+    if (envCtx.grassLOD && cam) envCtx.grassLOD.update(cam.position);
     const target = season === 'dry' ? smoothstep(0.0, 0.35, frac) : 1 - smoothstep(0.0, 0.3, frac);
     state.sdry = damp(state.sdry ?? target, target, 0.6, dt);
     const sd = clamp(state.sdry + state.drought * 0.4), wet = state.wet;
@@ -207,7 +208,7 @@ export function createUpdate(envCtx) {
     if (isDesert) {
       updateDesert(dt);
     } else if (isSavanna) {
-      updateSavanna(dt, ctx.season, clamp(ctx.seasonFrac || 0));
+      updateSavanna(dt, ctx.season, clamp(ctx.seasonFrac || 0), cam);
     } else if (!isAmazon) {
       const si = ['winter', 'spring', 'summer', 'autumn'].indexOf(ctx.season || 'spring');
       const p = (si < 0 ? 1 : si) + clamp(ctx.seasonFrac || 0);

@@ -8,7 +8,7 @@ import * as THREE from 'three';
 import { makeRng, makeNoise2D, smoothstep } from '../../core/util.js';
 import { R, K, TAU, C, tmpC, V3, patchMaterial } from './common.js';
 import { SAVANNA } from './savanna-look.js';
-import { leafLitterGeom, fernGeom, upNormals, pebbleGeom, bigLeafGeom, blobGeom, grassTuftGeom, flowerGeom, thistleGeom } from './scatter-geoms.js';
+import { leafLitterGeom, fernGeom, upNormals, pebbleGeom, bigLeafGeom, blobGeom, grassTuftGeom, savGrassGeom, flowerGeom, thistleGeom } from './scatter-geoms.js';
 
 export function createScatter(ctx) {
   const {
@@ -117,6 +117,7 @@ export function createScatter(ctx) {
   const sd = qual.scatter * (ctx.bare ? 0.12 : 1); const N = (n) => Math.max(1, Math.round(n * sd));
   const rrS = makeRng(seed * 977 + 13);
   const scatterRefs = {};
+  let grassLOD = null;   // 1.4.2, the savanna's tall grass in tiles (update.js updateSavanna moves it with the camera)
   if (isAmazon) {
     // leaf litter
     {
@@ -162,12 +163,45 @@ export function createScatter(ctx) {
     // 1.4.2, the savanna: a sea of tall grass (its height, green and burnt patches come from the game's grass map), short
     // lawn grass between, a few white and yellow flowers after the rains, granite gravel by the kopje, red-earth pebbles,
     // reeds by the river, and low thorny bushes at the rim
+    // the tall grass: a sea of full clumps in square tiles of the island, each tile one instanced mesh. Near the camera a
+    // tile draws all its clumps, far away only some (grassLOD below: the clumps of a tile are in random order, so drawing
+    // the first part of them thins the tile evenly). Every clump reads its height, green and burnt from the grass map.
     {
-      const pts = samplePoints(N(11000), 0, 46, (x, z) => dryLand(0.5)(x, z) && rrS() < 0.45 + coverAt(x, z) * 0.7, rrS);
-      const geo = grassTuftGeom(10, makeRng(37));
-      const items = pts.map(p => ({ p: V3(p.x, heightAt(p.x, p.z) - 0.04, p.z), q: slopeQuat(p.x, p.z, rrS() * TAU, 0.3), s: V3(1.5, 1.5 + rrS() * 1.0, 1.5).multiplyScalar(0.55 + rrS() * 0.35), c: tmpC.setHSL(0, 0, 0.82 + rrS() * 0.3).clone() }));
-      upNormals(geo, 1);
-      scatterRefs.grass = addScatter('grass', geo, scatterMaterial('sav-grass', { sway: 1.2, cards: true, rough: 0.92, grass: true }), items);
+      const pts = samplePoints(N(30000), 0, 46, (x, z) => dryLand(0.5)(x, z) && rrS() < 0.5 + coverAt(x, z) * 0.6, rrS);
+      const geo = upNormals(savGrassGeom(14, makeRng(37)), 1);
+      const mat = scatterMaterial('sav-grass', { sway: 1.3, cards: true, rough: 0.92, grass: true });
+      const T = 17 * K, tiles = new Map();
+      for (const p of pts) { const k = Math.floor(p.x / T) + ',' + Math.floor(p.z / T); if (!tiles.has(k)) tiles.set(k, []); tiles.get(k).push(p); }
+      const lodTiles = [];
+      for (const list of tiles.values()) {
+        for (let i = list.length - 1; i > 0; i--) { const j = Math.floor(rrS() * (i + 1)); [list[i], list[j]] = [list[j], list[i]]; }
+        const items = list.map(p => ({ p: V3(p.x, heightAt(p.x, p.z) - 0.05, p.z), q: slopeQuat(p.x, p.z, rrS() * TAU, 0.25),
+          s: V3(1.25, 1.2 + rrS() * 0.9, 1.25).multiplyScalar(0.6 + rrS() * 0.4), c: tmpC.setHSL(0.11 + rrS() * 0.04, 0.12, 0.8 + rrS() * 0.3).clone() }));
+        const mesh = new THREE.InstancedMesh(geo, mat, items.length), m4 = new THREE.Matrix4();
+        items.forEach((it, i) => { m4.compose(it.p, it.q, it.s); mesh.setMatrixAt(i, m4); mesh.setColorAt(i, it.c); });
+        mesh.instanceMatrix.needsUpdate = true; mesh.instanceColor.needsUpdate = true;
+        mesh.computeBoundingSphere(); mesh.boundingSphere.radius += 2.5;   // the grass sways and grows above its roots
+        mesh.receiveShadow = true; mesh.castShadow = false; mesh.name = 'scatter-sav-grass'; mesh.frustumCulled = true;
+        root.add(mesh);
+        const c = list.reduce((a, p) => (a.x += p.x / list.length, a.z += p.z / list.length, a), { x: 0, z: 0 });
+        lodTiles.push({ mesh, full: items.length, x: c.x, z: c.z });
+      }
+      track(geo);
+      scatterRefs.grass = { material: mat };   // update.js colours it by season
+      let qk = 1, lastX = 1e9, lastZ = 1e9, lastY = 1e9;
+      grassLOD = {
+        tiles: lodTiles,
+        setQuality(k) { qk = k; lastX = 1e9; },
+        update(cam) {   // a tile near the camera draws all its clumps; one far away about a third
+          if (Math.abs(cam.x - lastX) + Math.abs(cam.z - lastZ) + Math.abs(cam.y - lastY) < 1.5) return;
+          lastX = cam.x; lastZ = cam.z; lastY = cam.y;
+          for (const t of lodTiles) {
+            const d = Math.hypot(t.x - cam.x, t.z - cam.z, cam.y * 0.6);
+            const k = qk * (0.32 + 0.68 * (1 - smoothstep(22, 110, d)));
+            t.mesh.count = Math.max(1, Math.min(t.full, Math.round(t.full * k)));
+          }
+        },
+      };
     }
     {
       const pts = samplePoints(N(2600), 0, 46, (x, z) => dryLand(0.3)(x, z) && rrS() < 0.5, rrS);
@@ -294,5 +328,5 @@ export function createScatter(ctx) {
       scatterRefs.bush = addScatter('bush', blobGeom(makeRng(21), 5, 0.65), scatterMaterial('bush', { sway: 0.06, flat: true, rough: 0.85 }), items, { castShadow: true });
     }
   }
-  return { scatterMeshes, scatterMaterial, slopeQuat, samplePoints, onRock, dryLand, rrS, scatterRefs, setGrassMap, GM_N };
+  return { scatterMeshes, scatterMaterial, slopeQuat, samplePoints, onRock, dryLand, rrS, scatterRefs, setGrassMap, GM_N, grassLOD };
 }

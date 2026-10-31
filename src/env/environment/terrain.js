@@ -286,7 +286,7 @@ export function createTerrain(ctx) {
     c *= 1 - rockInfluence(x, z) * (isAmazon ? 0.3 : 0.75);
     const r = Math.hypot(x, z); c += smoothstep(R, R + 5, r) * 0.25;
     if (isDesert) c = c * 0.3 + (WL !== null ? smoothstep(6, 0.5, waterDist(x, z)) * 0.55 : 0);   // bare sand; green only by the oasis
-    else if (isSavanna) c = c * 0.8 + 0.25;   // 1.4.2: a plain of grass, with a little red earth between
+    else if (isSavanna) c = c * 0.55 + 0.5;   // 1.4.2: a plain of grass, with only a little red earth between
     return clamp(c);
   }
   return {

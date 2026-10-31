@@ -6,7 +6,11 @@ import { HELLO, INTRO, CHAPTER_INTRO, BLOCK_INTRO } from '../../src/data/robolab
 import { ALL_LEVELS } from '../../src/data/robolab/index.js';
 import { WIN_LINES, FAIL_LINES, GOAL_LINES, OOPS_LINES } from '../../src/data/robolab/lines.js';
 const out = [];
-const add = (id, o) => { if (o && o.k) out.push({ id, text: o.k }); };
+// 31.10 (Avi heard "שׁ" where the text has "שׂ"): Chatterbox reads every ש as shin, also with the sin dot. The text it
+// reads spells a sin as ס (with the same vowels), so שְׂרֵפוֹת is said srefot; the words on the screen stay as they are.
+const SIN = /ש([\u0591-\u05C7]*?)\u05C2([\u0591-\u05C7]*)/g;
+export const forVoice = (t) => t.replace(SIN, 'ס$1$2');
+const add = (id, o) => { if (o && o.k) out.push({ id, text: forVoice(o.k) }); };
 if (process.argv.includes('--test')) {
   out.push({ id: 'test_nikud', text: HELLO.first.k }, { id: 'test_plain', text: HELLO.first.f });
 }

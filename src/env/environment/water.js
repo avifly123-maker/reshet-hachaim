@@ -15,7 +15,7 @@ export function createWater(ctx) {
   // ───────────────────────────── water
   const waterU = {
     uTime: U.uTime, uNoise: U.uNoise, uSunDir: U.uSunDir, uSunCol: U.uSunCol, uSky: U.uSkyCol, uLight: U.uLightCol, uWet: U.uWet,
-    uDeep: { value: C(isAmazon ? '#2a3a1c' : isSavanna ? '#4a3c22' : '#174a52') }, uShallow: { value: C(isAmazon ? '#8a7440' : isSavanna ? '#9a8450' : '#4a9a90') },
+    uDeep: { value: C(isAmazon ? '#2a3a1c' : isSavanna ? '#0f5a78' : '#174a52') }, uShallow: { value: C(isAmazon ? '#8a7440' : isSavanna ? '#3ec0b8' : '#4a9a90') },   // the savanna (Avi, 31.10): a beautiful clear blue-green river, not a muddy one
     uFlow: { value: hasRiver ? 1 : 0 }, uNight: { value: 0 },
     ...THREE.UniformsLib.fog,
   };

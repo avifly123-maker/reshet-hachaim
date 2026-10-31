@@ -106,6 +106,7 @@ export function createSavanna(ctx) {
     }
     if (!best || bs < 0.15) { amb('העשב ירוק או קצר מדי, והאש כבתה לבד.', 'info'); return null; }
     const wa = Math.random() * Math.PI * 2, f = { x: best.x, z: best.z, r: 3 + size * 2, intensity: 0, t: 0, dur: 40 + size * 20, grass: true, vx: Math.cos(wa) * 0.9, vz: Math.sin(wa) * 0.9 };
+    grass.burn(f.x, f.z, 2.5);   // where it is lit, the grass burns at once
     W.fires.push(f); st.lastFireYear = Math.floor((W.day - 1) / (year.wet + year.dry));
     if (ctx.rig && ctx.rig.focusOn && !W.research) ctx.rig.focusOn(new THREE.Vector3(f.x, 3, f.z), 44);
     return f;

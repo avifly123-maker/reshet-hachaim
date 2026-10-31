@@ -17,8 +17,8 @@ export const SAVANNA = {
   kopje: { x: 27, z: 22, r: 9 },
   soil: { a: C('#a8623a'), b: C('#bc7444'), mud: C('#6a4630'), bed: C('#8a7258'), rock: C('#9a8a78') },   // red earth
   // grass colours by season: green after the rains, straw in the dry season (scatter + ground, update.js)
-  wet: { grass: '#7a9a3a', grass2: '#8aa046' },
-  dry: { grass: '#c8a456', grass2: '#d4b46a' },
+  wet: { grass: '#78a038', grass2: '#94ac44' },
+  dry: { grass: '#d4ac52', grass2: '#e0bc68' },   // golden straw (Avi, 31.10: beautiful before accurate)
   bedrock: [0.5, 0.36, 0.27],   // bare red-brown earth showing through between the grass (the ground shader's bedrock)
   hemiGround: '#b88a58',
   rockA: '#a89a88', rockB: '#8a7c6c', rockLight: '#d0c4b2', rockDark: '#6a5e52',   // granite: grey with warm light
