@@ -1,67 +1,73 @@
-# אריה (Panthera leo), a grown male – savanna, kit v6, modelled on its own from the measures of an adult seen from the
-# side (about 1.15 m at the shoulder, a heavy body, much heavier than the cheetah's): a deep chest, a straight back, thick
-# forelegs with big paws, a broad head with a short wide muzzle and eyes that look forward, round ears half hidden in the
-# mane; the mane is a deep ruff round the face that runs down the neck and the chest, darker away from the face; a long
-# tail with a dark tuft. Plain tawny coat, a pale belly, a pale chin and muzzle, the backs of the ears dark.
+# אריה (Panthera leo), a grown male – savanna, kit v6, traced from a side photo (Commons "Panthera leo (male)
+# (181091659).jpg", 31.10.2026; refs/README.md): the photo's shoulder (208 px) is 1.2 m, so 1 px = 5.77 mm;
+# z = (px - 180) × 5.77 mm forward, y = (318 - py) × 5.77 mm up. A long heavy body with a straight back, the belly at
+# about half a metre, thick forelegs on big paws, a broad head with a short wide muzzle, and the mane: a deep ruff that
+# rises above the shoulders and hangs down the chest to below the elbows, darker away from the face. A long tail with a
+# dark tuft. Plain tawny coat, a pale belly, a pale chin and muzzle.
 own('lion')
-ANAT['lion'] = ('cat', dict(arm=0.17, sh=(0.13, 0.6, 0.2), fa0=0.1, fa1=0.076, wr=0.08, can=0.068, th=(0.13, 0.6, 0.2),
-                            gas0=0.15, gas1=0.085, hock=0.085, mt=0.07, paw=(0.1, 0.058, 0.13)))
+ANAT['lion'] = ('cat', dict(arm=0.15, sh=(0.12, 0.55, 0.18), fa0=0.09, fa1=0.07, wr=0.07, can=0.06, th=(0.1, 0.5, 0.16),
+                            gas0=0.13, gas1=0.075, hock=0.07, mt=0.06, paw=(0.08, 0.045, 0.095)))
 EYE['lion'] = ('#b8862e', 'round', 0.84, 0.46)
-TRUNK = [(0.55, 1.05, 0.66), (0.4, 1.12, 0.58), (0.15, 1.1, 0.57), (-0.15, 1.07, 0.6), (-0.45, 1.06, 0.66), (-0.7, 1.07, 0.72),
-         (-0.88, 1.02, 0.78), (-0.98, 0.94, 0.82)]
-TAIL = [(0, 0.98, -0.98), (0, 0.78, -1.18), (0, 0.6, -1.4), (0, 0.55, -1.62), (0, 0.62, -1.8)]
-blobs = trunk_from_profile(TRUNK, lambda z: 0.24 if z > 0.1 else (0.225 if z > -0.6 else 0.21))
+PX = 0.00577
+def ph(x, y): return ((x - 180) * PX, (318 - y) * PX)
+TRUNK = []
+for x, t, b in ((235, 105, 222), (210, 110, 228), (180, 112, 230), (150, 112, 228), (120, 112, 220), (95, 115, 205), (70, 120, 190),
+                (50, 132, 175), (38, 150, 165)):
+    z, top = ph(x, t); _, bot = ph(x, b); TRUNK.append((z, top, bot))
+TAIL = [(0, 0.97, -0.83), (0, 0.75, -0.9), (0, 0.55, -0.93), (0, 0.42, -0.95), (0, 0.36, -1.0)]
+MANE = [((0, 1.1, 0.55), (0.32, 0.36, 0.32)), ((0, 1.3, 0.72), (0.3, 0.22, 0.22)), ((0, 0.82, 0.66), (0.22, 0.24, 0.18))]
+blobs = trunk_from_profile(TRUNK, lambda z: 0.2 if z > 0.0 else (0.19 if z > -0.5 else 0.18))
 blobs += [
-    dict(t='cap', a=(0, 0.98, 0.45), b2=(0, 1.0, 0.72), r=(0.2, 0.15), bone='neck'),               # the thick neck
-    dict(t='ell', c=(0, 1.02, 0.82), r=(0.15, 0.15, 0.17), bone='head'),                           # the broad skull
-    dict(t='ell', c=(0, 0.9, 0.9), r=(0.12, 0.07, 0.09), bone='head'),                             # the jaw
-    dict(t='ell', c=(0, 0.94, 1.0), r=(0.1, 0.085, 0.09), bone='head'),                            # the short wide muzzle
-    dict(t='cap', a=(0, 1.08, 0.84), b2=(0, 1.0, 1.02), r=(0.06, 0.045), bone='head'),             # the bridge of the nose
-    # the mane: a ruff round the face, the neck and the chest
-    dict(t='ell', c=(0, 1.04, 0.76), r=(0.27, 0.24, 0.14), bone='head'),
-    dict(t='ell', c=(0, 1.08, 0.6), r=(0.29, 0.3, 0.26), bone='neck'),
-    dict(t='ell', c=(0, 0.88, 0.66), r=(0.25, 0.26, 0.22), bone='neck'),
-    dict(t='cap', a=TAIL[0], b2=TAIL[1], r=(0.05, 0.045), bone='tail1'),
-    dict(t='cap', a=TAIL[1], b2=TAIL[2], r=(0.045, 0.04), bone='tail2'),
-    dict(t='cap', a=TAIL[2], b2=TAIL[3], r=(0.04, 0.036), bone='tail3'),
-    dict(t='cap', a=TAIL[3], b2=TAIL[4], r=(0.036, 0.032), bone='tail4'),
-    dict(t='ell', c=(0, 0.64, -1.84), r=(0.06, 0.07, 0.08), bone='tail4'),                         # the tuft
+    dict(t='cap', a=(0, 1.05, 0.4), b2=(0, 1.15, 0.9), r=(0.2, 0.15), bone='neck'),                # the thick neck, under the mane
+    dict(t='ell', c=(0, 1.24, 0.98), r=(0.16, 0.13, 0.16), bone='head'),                           # the broad skull
+    dict(t='ell', c=(0, 1.12, 1.12), r=(0.12, 0.09, 0.09), bone='head'),                           # the short wide muzzle
+    dict(t='ell', c=(0, 1.0, 1.04), r=(0.12, 0.08, 0.1), bone='head'),                             # the jaw and chin
+    dict(t='cap', a=(0, 1.3, 0.98), b2=(0, 1.18, 1.17), r=(0.07, 0.055), bone='head'),             # the bridge of the nose
+    dict(t='cap', a=TAIL[0], b2=TAIL[1], r=(0.045, 0.04), bone='tail1'),
+    dict(t='cap', a=TAIL[1], b2=TAIL[2], r=(0.04, 0.036), bone='tail2'),
+    dict(t='cap', a=TAIL[2], b2=TAIL[3], r=(0.036, 0.032), bone='tail3'),
+    dict(t='cap', a=TAIL[3], b2=TAIL[4], r=(0.032, 0.03), bone='tail4'),
+    dict(t='ell', c=(0, 0.33, -1.03), r=(0.05, 0.07, 0.06), bone='tail4'),                         # the tuft
 ]
-bones = [('hips', None, (0, 0.98, -0.95), (0, 1.02, 0.0)), ('chest', 'hips', (0, 1.02, 0.0), (0, 1.04, 0.42)),
-         ('neck', 'chest', (0, 1.0, 0.42), (0, 1.02, 0.72)), ('head', 'neck', (0, 1.02, 0.72), (0, 0.94, 1.04))] + chain('tail', TAIL, 'hips')
+blobs += [dict(t='ell', c=c, r=r, bone='neck') for c, r in MANE]                                  # the mane
+bones = [('hips', None, (0, 1.0, -0.78), (0, 1.05, 0.0)), ('chest', 'hips', (0, 1.05, 0.0), (0, 1.08, 0.38)),
+         ('neck', 'chest', (0, 1.05, 0.38), (0, 1.15, 0.9)), ('head', 'neck', (0, 1.2, 0.9), (0, 1.08, 1.2))] + chain('tail', TAIL, 'hips')
 for sx, L in ((1, 'l'), (-1, 'r')):
-    bones += [('f' + L, 'chest', (sx * 0.16, 0.95, 0.38), (sx * 0.16, 0.52, 0.4)), ('f' + L + '2', 'f' + L, (sx * 0.16, 0.52, 0.4), (sx * 0.16, 0.0, 0.43)),
-              ('h' + L, 'hips', (sx * 0.15, 0.98, -0.78), (sx * 0.155, 0.56, -0.64)), ('h' + L + '2', 'h' + L, (sx * 0.155, 0.56, -0.64), (sx * 0.155, 0.0, -0.82))]
-    blobs += [dict(t='ell', c=(sx * 0.16, 0.045, 0.47), r=(0.075, 0.048, 0.095), bone='f' + L + '2', foot=True),
-              dict(t='ell', c=(sx * 0.155, 0.044, -0.79), r=(0.07, 0.046, 0.09), bone='h' + L + '2', foot=True)]
-cat_muscles(blobs, bones, sh=(0.1, 0.22, 0.14), th=(0.12, 0.22, 0.17))
-E = blob_ears(blobs, bones, base=(0.1, 1.15, 0.84), d=(0.4, 1, 0.3), H=0.1, w=0.06, t=0.016, tip=0.3, turn=25)
+    bones += [('f' + L, 'chest', (sx * 0.14, 1.0, 0.33), (sx * 0.14, 0.55, 0.35)), ('f' + L + '2', 'f' + L, (sx * 0.14, 0.55, 0.35), (sx * 0.14, 0.0, 0.4)),
+              ('h' + L, 'hips', (sx * 0.14, 1.02, -0.6), (sx * 0.14, 0.55, -0.5)), ('h' + L + '2', 'h' + L, (sx * 0.14, 0.55, -0.5), (sx * 0.14, 0.0, -0.66))]
+    blobs += [dict(t='ell', c=(sx * 0.14, 0.04, 0.44), r=(0.062, 0.04, 0.075), bone='f' + L + '2', foot=True),
+              dict(t='ell', c=(sx * 0.14, 0.04, -0.62), r=(0.058, 0.04, 0.07), bone='h' + L + '2', foot=True)]
+cat_muscles(blobs, bones, sh=(0.1, 0.2, 0.13), th=(0.12, 0.22, 0.17))
+E = blob_ears(blobs, bones, base=(0.11, 1.33, 0.88), d=(0.4, 1, 0.2), H=0.07, w=0.05, t=0.015, tip=0.3, turn=25)
 
-TAWNY, TAWNY2, CREAM, MANE, MANE2, BLACK = srgb('#c8964e'), srgb('#b07e3e'), srgb('#ecdcb8'), srgb('#8a5428'), srgb('#4e2e16'), srgb('#1c1410')
+TAWNY, TAWNY2, CREAM, MANE_C, MANE2, BLACK = srgb('#c8964e'), srgb('#b07e3e'), srgb('#ecdcb8'), srgb('#9a6430'), srgb('#4a2a12'), srgb('#1c1410')
 def paint(P, N, tag):
     e = ear_paint(P, N, E)
     x, y, z = P
     n = noise.noise(Vector((x * 18, y * 18, z * 18)))
-    if e: return mix(mix(TAWNY2, BLACK, 0.7 * smooth(0.2, 0.6, e[0])), CREAM, e[2] * 0.6)
+    if e: return mix(mix(TAWNY2, BLACK, 0.7 * smooth(0.2, 0.6, e[0])), CREAM, e[2] * 0.25)
     c = mix(TAWNY, TAWNY2, 0.3 + 0.35 * n)
-    belly = smooth(0.68, 0.6, y) * smooth(-0.15, -0.6, N.y) if -0.95 < z < 0.4 else 0
+    belly = smooth(0.62, 0.54, y) * smooth(-0.15, -0.6, N.y) if -0.8 < z < 0.4 else 0
     c = mix(c, CREAM, belly * 0.7)
-    face = smooth(0.84, 0.9, z) * smooth(0.2, 0.15, abs(x)) * smooth(1.22, 1.16, y)
-    mane = smooth(0.34, 0.46, z) * (1 - face)
+    mane = 0.0
+    for c0, r0 in MANE:
+        d = math.sqrt(((x - c0[0]) / r0[0]) ** 2 + ((y - c0[1]) / r0[1]) ** 2 + ((z - c0[2]) / r0[2]) ** 2)
+        mane = max(mane, smooth(1.12, 0.95, d))
+    mane *= smooth(1.0, 0.92, z) if y > 1.0 else 1.0                       # the face stays clear
     if mane > 0:
         hair = noise.noise(Vector((x * 60, y * 14, z * 60)))                 # long hair falling down
-        m = mix(MANE, MANE2, min(1.0, smooth(0.62, 0.4, z) * 0.55 + smooth(0.85, 0.6, y) * 0.3 + 0.25 * hair + 0.15))
+        m = mix(MANE_C, MANE2, max(0.0, min(1.0, smooth(0.8, 0.45, z) * 0.45 + smooth(1.1, 0.6, y) * 0.45 + 0.45 * hair)))
         c = mix(c, m, mane)
-    if z > 0.92 and y < 0.97: c = mix(c, CREAM, 0.75)                         # the pale muzzle and chin
-    if z > 0.9 and y < 0.88: c = mix(c, CREAM, 0.8)
-    if z < -1.76: c = mix(c, MANE2, 0.85)                                      # the dark tuft
+    if z > 1.05 and y < 1.12: c = mix(c, CREAM, 0.45)                         # the pale muzzle and chin
+    if z > 0.95 and y < 1.0 and abs(x) < 0.12: c = mix(c, CREAM, 0.4)
+    if z < -0.98 and y < 0.42: c = mix(c, MANE2, 0.85)                        # the dark tuft
     return c
 
 parts = []
 for sx in (1, -1):
-    parts += eye_parts((sx * 0.075, 1.06, 0.955), 0.017, 'head', '#b8862e', (sx * 0.45, 0.1, 0.9))
-    parts.append(whiskers((sx * 0.045, 0.93, 1.06), sx, 'head', 5, 0.12, srgb('#f0ece4')))
-nose = Part('nose', bone='head', mat=1, color=srgb('#5a3428')); nose.add(*ellipsoid((0, 0.975, 1.08), (0.026, 0.016, 0.012), 8, 5)); parts.append(nose)
+    parts += eye_parts((sx * 0.08, 1.27, 1.11), 0.018, 'head', '#b8862e', (sx * 0.45, 0.1, 0.9))
+    parts.append(whiskers((sx * 0.05, 1.11, 1.19), sx, 'head', 5, 0.12, srgb('#f0ece4')))
+nose = Part('nose', bone='head', mat=1, color=srgb('#5a3428')); nose.add(*ellipsoid((0, 1.165, 1.21), (0.028, 0.018, 0.012), 8, 5)); parts.append(nose)
 
 names = [b[0] for b in bones]
 acts = quad_actions(names, dict(amp=24, knee=34, run_amp=40, bob=0.02, drop=0.4, head_eat=30, neck_eat=30, look=22, tailsw=14, earflick=14,
@@ -73,4 +79,4 @@ def walk(ph):     # a cat's walk: the head low and level, the shoulders rolling,
     return p
 acts['walk'] = (40, walk)
 SPEC = dict(id='lion', bones=bones, blobs=blobs, parts=parts, paint=paint, res=0.012, tris=5600, smooth=12, actions=acts,
-            meta=dict(height=1.3, length=2.6, speeds={'walk': 1.2, 'run': 11.0}, map={'sit': 'idle'}))
+            meta=dict(height=1.55, length=2.3, speeds={'walk': 1.2, 'run': 11.0}, map={'sit': 'idle'}))
