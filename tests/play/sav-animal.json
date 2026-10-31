@@ -1,0 +1,17 @@
+[
+{ "wait": 3 },
+{ "js": "window.__guide && window.__guide.close(); window.__journey.unlockAll('2580'); window.__journey.markTrained(); window.__app.bus.emit('quality',{q:'medium'}); 1" },
+{ "wait": 1 },
+{ "js": "window.__app.bus.emit('start:biome', { id: 'savanna' }); 1" },
+{ "until": "window.__game && window.__game.savanna && window.__game.debug", "timeout": 300 },
+{ "wait": 14 },
+{ "js": "const b=[...document.querySelectorAll('button')].find(x=>/דלג/.test(x.textContent)); if (b) b.click(); window.__guide && window.__guide.close(); 1" },
+{ "wait": 2 },
+{ "js": "const W=window.__game; W.debug.unlockAll(); const r=W.debug.place('$ANIMAL',6,4); 'eval place ' + (typeof r==='string'?r:'ok')" },
+{ "wait": 3 },
+{ "js": "const W=window.__game; const a=W.animals.find(a=>a.sp.id==='$ANIMAL'); if(!a) 'eval none'; else { W.debug.rig.followEntity(a, 12); 'eval follow' }" },
+{ "wait": 6 },
+{ "shot": "shots/sav-$ANIMAL-1.png" },
+{ "wait": 4 },
+{ "shot": "shots/sav-$ANIMAL-2.png" }
+]

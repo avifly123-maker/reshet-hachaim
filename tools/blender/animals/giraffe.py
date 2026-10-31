@@ -5,11 +5,15 @@
 # lines round large brown patches (worley2: the border between two cells), the patches smaller on the legs and the
 # face, the lower legs nearly white.
 own('giraffe')
-blobs = [
-    dict(t='ell', c=(0, 2.2, -0.5), r=(0.42, 0.47, 0.6), rot=(-10, 0, 0), bone='hips'),
-    dict(t='ell', c=(0, 2.42, 0.18), r=(0.46, 0.57, 0.6), rot=(-8, 0, 0), bone='chest'),
-    dict(t='ell', c=(0, 2.78, 0.3), r=(0.24, 0.3, 0.42), bone='chest'),                 # the high withers
-    dict(t='ell', c=(0, 2.0, 0.36), r=(0.22, 0.22, 0.24), bone='chest'),                # the deep chest between the forelegs
+# 31.10 (kit v6, Avi: the savanna's first pilot): the body is one traced line (trunk_from_profile), from the measures of
+# a standing adult giraffe seen from the side (a female, about 4.5 m to the horns): the withers high above the forelegs
+# (3.05 m), the back falling in a straight slope to a low rump (2.5 m), a deep chest (its floor at 1.75 m, between the
+# elbows) and a belly line that rises a little to the flank. (z, top of the back, bottom of the belly), front to back.
+TRUNK = [(0.62, 2.78, 2.0), (0.45, 3.02, 1.78), (0.25, 3.06, 1.76), (0.02, 2.97, 1.8), (-0.25, 2.85, 1.85), (-0.5, 2.74, 1.9),
+         (-0.75, 2.63, 1.98), (-0.95, 2.53, 2.08), (-1.1, 2.4, 2.2)]
+blobs = trunk_from_profile(TRUNK, lambda z: 0.34 + 0.05 * smooth(-0.9, 0.2, z) - 0.04 * smooth(0.3, 0.62, z), chest_z=0.3)
+blobs += [
+    dict(t='ell', c=(0, 1.86, 0.4), r=(0.2, 0.16, 0.2), bone='chest'),                  # the brisket between the forelegs
     # the long neck, thick at the shoulders, thin under the head
     dict(t='cap', a=(0, 2.62, 0.5), b2=(0, 3.4, 0.92), r=(0.27, 0.17), bone='neck'),
     dict(t='cap', a=(0, 3.4, 0.92), b2=(0, 4.08, 1.2), r=(0.17, 0.115), bone='neck'),
@@ -25,17 +29,17 @@ blobs = [
 for sx, L in ((1, 'l'), (-1, 'r')):
     blobs += [
         # foreleg: the shoulder, a long forearm, the knobby knee, the long cannon, the fetlock, the big split hoof
-        dict(t='ell', c=(sx * 0.24, 2.18, 0.42), r=(0.15, 0.36, 0.2), bone='f' + L),
-        dict(t='cap', a=(sx * 0.22, 1.95, 0.45), b2=(sx * 0.2, 1.16, 0.5), r=(0.11, 0.07), bone='f' + L),
+        dict(t='ell', c=(sx * 0.25, 2.12, 0.4), r=(0.17, 0.4, 0.22), bone='f' + L),            # the shoulder and upper arm, part of the body
+        dict(t='cap', a=(sx * 0.22, 1.9, 0.45), b2=(sx * 0.2, 1.16, 0.5), r=(0.125, 0.075), bone='f' + L),
         dict(t='ell', c=(sx * 0.2, 1.14, 0.51), r=(0.075, 0.08, 0.08), bone='f' + L + '2'),
-        dict(t='cap', a=(sx * 0.2, 1.1, 0.51), b2=(sx * 0.2, 0.2, 0.53), r=(0.055, 0.045), bone='f' + L + '2'),
+        dict(t='cap', a=(sx * 0.2, 1.1, 0.51), b2=(sx * 0.2, 0.2, 0.53), r=(0.062, 0.05), bone='f' + L + '2'),
         dict(t='ell', c=(sx * 0.2, 0.18, 0.54), r=(0.058, 0.07, 0.062), bone='f' + L + '2'),
         dict(t='ell', c=(sx * 0.2, 0.06, 0.58), r=(0.075, 0.06, 0.1), bone='f' + L + '2', foot=True),
         # hind leg: the big thigh, the hock, the cannon, the fetlock, the hoof
-        dict(t='ell', c=(sx * 0.24, 1.98, -0.62), r=(0.16, 0.42, 0.26), bone='h' + L),
-        dict(t='cap', a=(sx * 0.22, 1.7, -0.72), b2=(sx * 0.2, 1.12, -0.9), r=(0.1, 0.065), bone='h' + L),
+        dict(t='ell', c=(sx * 0.25, 2.0, -0.66), r=(0.18, 0.46, 0.3), bone='h' + L),             # the big thigh, part of the body
+        dict(t='cap', a=(sx * 0.22, 1.7, -0.74), b2=(sx * 0.2, 1.12, -0.9), r=(0.12, 0.07), bone='h' + L),
         dict(t='ell', c=(sx * 0.2, 1.1, -0.92), r=(0.06, 0.085, 0.08), bone='h' + L + '2'),
-        dict(t='cap', a=(sx * 0.2, 1.06, -0.9), b2=(sx * 0.2, 0.2, -0.78), r=(0.05, 0.043), bone='h' + L + '2'),
+        dict(t='cap', a=(sx * 0.2, 1.06, -0.9), b2=(sx * 0.2, 0.2, -0.78), r=(0.058, 0.048), bone='h' + L + '2'),
         dict(t='ell', c=(sx * 0.2, 0.18, -0.77), r=(0.056, 0.068, 0.06), bone='h' + L + '2'),
         dict(t='ell', c=(sx * 0.2, 0.06, -0.73), r=(0.072, 0.058, 0.096), bone='h' + L + '2', foot=True),
     ]
@@ -78,11 +82,11 @@ parts = []
 for sx in (1, -1):
     parts += eye_parts((sx * 0.098, 4.22, 1.33), 0.032, 'head', '#2a160a', (sx, 0.2, 0.5))
     # the ossicones: two short horns covered with skin, a tuft of dark hair on top
-    oc = Part('horn', bone='head', color=mix(PATCH, CREAM, 0.3))
-    a = Vector((sx * 0.055, 4.27, 1.22)); b = a + Vector((sx * 0.03, 0.17, -0.04))
+    oc = Part('horn', bone='head', color=mix(PATCH, PATCH2, 0.4))
+    a = Vector((sx * 0.055, 4.27, 1.22)); b = a + Vector((sx * 0.03, 0.13, -0.03))
     oc.add(*tube([tuple(a), tuple(a + (b - a) * 0.6), tuple(b)], [0.034, 0.028, 0.03], 9))
     parts.append(oc)
-    tuft = Part('tuft', bone='head', color=DARK); tuft.add(*ellipsoid(tuple(b + Vector((0, 0.012, 0))), (0.036, 0.028, 0.036), 10, 6)); parts.append(tuft)
+    tuft = Part('tuft', bone='head', color=DARK); tuft.add(*ellipsoid(tuple(b + Vector((0, 0.012, 0))), (0.042, 0.034, 0.042), 10, 6)); parts.append(tuft)
 nos = Part('nose', bone='head', mat=1, color=DARK)
 for sx in (1, -1): nos.add(*ellipsoid((sx * 0.035, 4.0, 1.78), (0.014, 0.008, 0.02), 8, 5))
 parts.append(nos)
