@@ -20,8 +20,14 @@ blobs = trunk_from_profile(TRUNK, lambda z: 0.2 if z > 0.0 else (0.19 if z > -0.
 blobs += [
     dict(t='cap', a=(0, 1.05, 0.4), b2=(0, 1.15, 0.9), r=(0.2, 0.15), bone='neck'),                # the thick neck, under the mane
     dict(t='ell', c=(0, 1.24, 0.98), r=(0.16, 0.13, 0.16), bone='head'),                           # the broad skull
-    dict(t='ell', c=(0, 1.12, 1.12), r=(0.12, 0.09, 0.09), bone='head'),                           # the short wide muzzle
-    dict(t='ell', c=(0, 1.0, 1.04), r=(0.12, 0.08, 0.1), bone='head'),                             # the jaw and chin
+    dict(t='ell', c=(0, 1.14, 1.12), r=(0.09, 0.08, 0.09), bone='head'),                           # the short wide muzzle
+    dict(t='ell', c=(0.045, 1.1, 1.15), r=(0.065, 0.06, 0.068), bone='head'),                      # the two whisker pads
+    dict(t='ell', c=(-0.045, 1.1, 1.15), r=(0.065, 0.06, 0.068), bone='head'),
+    dict(t='ell', c=(0, 1.01, 1.04), r=(0.09, 0.06, 0.08), bone='head'),                           # the chin, tucked in
+    dict(t='ell', c=(0.07, 1.31, 1.05), r=(0.05, 0.03, 0.05), bone='head'),                        # the brows over the eyes
+    dict(t='ell', c=(-0.07, 1.31, 1.05), r=(0.05, 0.03, 0.05), bone='head'),
+    dict(t='ell', c=(0.11, 1.15, 0.99), r=(0.06, 0.07, 0.08), bone='head'),                        # the cheeks
+    dict(t='ell', c=(-0.11, 1.15, 0.99), r=(0.06, 0.07, 0.08), bone='head'),
     dict(t='cap', a=(0, 1.3, 0.98), b2=(0, 1.18, 1.17), r=(0.07, 0.055), bone='head'),             # the bridge of the nose
     dict(t='cap', a=TAIL[0], b2=TAIL[1], r=(0.045, 0.04), bone='tail1'),
     dict(t='cap', a=TAIL[1], b2=TAIL[2], r=(0.04, 0.036), bone='tail2'),
@@ -58,8 +64,16 @@ def paint(P, N, tag):
         hair = noise.noise(Vector((x * 60, y * 14, z * 60)))                 # long hair falling down
         m = mix(MANE_C, MANE2, max(0.0, min(1.0, smooth(0.8, 0.45, z) * 0.45 + smooth(1.1, 0.6, y) * 0.45 + 0.45 * hair)))
         c = mix(c, m, mane)
-    if z > 1.05 and y < 1.12: c = mix(c, CREAM, 0.45)                         # the pale muzzle and chin
-    if z > 0.95 and y < 1.0 and abs(x) < 0.12: c = mix(c, CREAM, 0.4)
+    if z > 0.9:                                                                # the face
+        for sx in (1, -1):
+            de = math.sqrt((x - sx * 0.08) ** 2 + (y - 1.27) ** 2 + (z - 1.1) ** 2)
+            c = mix(c, BLACK, smooth(0.034, 0.024, de) * 0.7)                    # the dark rim round the eye
+            c = mix(c, CREAM, smooth(0.06, 0.035, math.sqrt((x - sx * 0.06) ** 2 + (y - 1.23) ** 2 + (z - 1.1) ** 2)) * 0.35)   # pale under the eye
+            dp = math.sqrt((x - sx * 0.045) ** 2 + (y - 1.1) ** 2 + (z - 1.15) ** 2)
+            c = mix(c, CREAM, smooth(0.08, 0.05, dp) * 0.5)                      # pale whisker pads
+            if smooth(0.075, 0.06, dp) > 0.5 and N.z > 0.2 and (int(x * 400) + int(y * 400)) % 9 == 0: c = mix(c, BLACK, 0.5)   # whisker spots
+        if y < 1.0 and abs(x) < 0.1: c = mix(c, CREAM, 0.5)                    # the pale chin
+        if 1.04 < y < 1.065 and z > 1.08: c = mix(c, BLACK, 0.6)               # the line of the lips
     if z < -0.98 and y < 0.42: c = mix(c, MANE2, 0.85)                        # the dark tuft
     return c
 
@@ -67,7 +81,7 @@ parts = []
 for sx in (1, -1):
     parts += eye_parts((sx * 0.08, 1.27, 1.11), 0.018, 'head', '#b8862e', (sx * 0.45, 0.1, 0.9))
     parts.append(whiskers((sx * 0.05, 1.11, 1.19), sx, 'head', 5, 0.12, srgb('#f0ece4')))
-nose = Part('nose', bone='head', mat=1, color=srgb('#5a3428')); nose.add(*ellipsoid((0, 1.165, 1.21), (0.028, 0.018, 0.012), 8, 5)); parts.append(nose)
+nose = Part('nose', bone='head', mat=1, color=srgb('#3c2219')); nose.add(*ellipsoid((0, 1.185, 1.205), (0.038, 0.022, 0.02), 10, 6)); parts.append(nose)   # the broad nose pad
 
 names = [b[0] for b in bones]
 acts = quad_actions(names, dict(amp=24, knee=34, run_amp=40, bob=0.02, drop=0.4, head_eat=30, neck_eat=30, look=22, tailsw=14, earflick=14,
