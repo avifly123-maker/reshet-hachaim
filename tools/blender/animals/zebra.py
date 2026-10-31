@@ -21,10 +21,12 @@ blobs += [
     dict(t='cap', a=(0, 1.02, 0.5), b2=(0, 1.38, 0.9), r=(0.2, 0.13), bone='neck'),                # the thick neck
     dict(t='cap', a=(0, 0.9, 0.62), b2=(0, 1.2, 0.98), r=(0.11, 0.075), bone='neck'),              # its throat
     dict(t='cap', a=(0, 1.3, 0.46), b2=(0, 1.6, 0.98), r=(0.045, 0.035), bone='neck'),             # the upright mane
-    dict(t='ell', c=(0, 1.42, 1.04), r=(0.1, 0.11, 0.13), bone='head'),                            # the skull
+    dict(t='ell', c=(0, 1.42, 1.04), r=(0.105, 0.11, 0.13), bone='head'),                            # the skull
     dict(t='ell', c=(0, 1.19, 1.05), r=(0.095, 0.09, 0.1), bone='head'),                           # the round cheek
-    dict(t='cap', a=(0, 1.38, 1.1), b2=(0, 1.1, 1.23), r=(0.085, 0.068), bone='head'),             # the long face
-    dict(t='ell', c=(0, 1.06, 1.22), r=(0.072, 0.07, 0.072), bone='head'),                         # the muzzle
+    dict(t='ell', c=(0.07, 1.47, 1.07), r=(0.035, 0.025, 0.04), bone='head'),                       # the brows over the eyes
+    dict(t='ell', c=(-0.07, 1.47, 1.07), r=(0.035, 0.025, 0.04), bone='head'),
+    dict(t='cap', a=(0, 1.38, 1.1), b2=(0, 1.12, 1.22), r=(0.07, 0.052), bone='head'),             # the long face
+    dict(t='ell', c=(0, 1.06, 1.22), r=(0.066, 0.068, 0.07), bone='head'),                         # the muzzle
     dict(t='cap', a=(0, 1.1, -0.8), b2=(0, 0.66, -0.83), r=(0.04, 0.024), bone='hips'),             # the tail
     dict(t='ell', c=(0, 0.56, -0.84), r=(0.05, 0.16, 0.05), bone='hips'),                           # its tuft
 ]
@@ -71,16 +73,16 @@ def paint(P, N, tag):
     if 0.46 < z < 0.98 and abs(x) < 0.05:                                                                   # the mane, dark at its top
         top = 1.3 + (z - 0.46) / 0.52 * 0.3
         c = mix(c, BLACK, smooth(top + 0.0, top + 0.05, y) * 0.8)
-    c = mix(c, MUZ, 0.9 * smooth(1.18, 1.24, z))                                                                         # the dark soft muzzle
+    c = mix(c, MUZ, 0.9 * smooth(1.2, 1.26, z))                                                                         # the dark soft muzzle
     if y < 0.06 and abs(x) > 0.07: c = mix(c, BLACK, 0.9)                                                     # the hooves
     if z < -0.78 and y < 0.72: c = mix(c, BLACK, 0.9)                                                         # the tail tuft
     return c
 
 parts = []
 for sx in (1, -1):
-    parts += eye_parts((sx * 0.093, 1.42, 1.08), 0.022, 'head', '#2a1a10', (sx, 0.25, 0.5))
-nose = Part('nose', bone='head', mat=1, color=srgb('#141212'))
-for sx in (1, -1): nose.add(*ellipsoid((sx * 0.035, 1.07, 1.285), (0.014, 0.01, 0.018), 8, 5))
+    parts += eye_parts((sx * 0.086, 1.43, 1.08), 0.02, 'head', '#2a1a10', (sx, 0.25, 0.5))
+nose = Part('nose', bone='head', color=srgb('#0e0c0c'))                 # matte slit nostrils (a glossy round one reads as an eye)
+for sx in (1, -1): nose.add(*ellipsoid((sx * 0.032, 1.08, 1.283), (0.008, 0.016, 0.01), 8, 5, rot=(0, 0, sx * 25)))
 parts.append(nose)
 
 names = [b[0] for b in bones]

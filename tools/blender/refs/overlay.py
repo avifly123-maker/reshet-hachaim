@@ -7,7 +7,7 @@ with light stand-ins for the kit (needs `pip install mathutils`): the blobs are 
 and capsules, a plain union, so the real metaball body is a little fuller), the leg bones as lines, the photo half
 faded under them. Good enough to see a wrong back line, belly, neck or leg length before a Blender run.
 """
-import math, sys, types
+import math, random, sys, types
 from mathutils import Vector, Quaternion
 from PIL import Image, ImageDraw
 
@@ -15,7 +15,7 @@ HERE = __file__.rsplit('/', 2)[0]
 
 
 def kit_ns():
-    ns = {'math': math, 'Vector': Vector, 'Quaternion': Quaternion, 'TAU': math.tau, 'ANAT': {}, 'EYE': {}}
+    ns = {'random': random, 'math': math, 'Vector': Vector, 'Quaternion': Quaternion, 'TAU': math.tau, 'ANAT': {}, 'EYE': {}}
     src = open(HERE + '/animal_kit.py', encoding='utf-8').read()
     for name in ('smooth', 'chain', 'bez'):          # pure helpers copied from the kit
         i = src.index('def %s(' % name); j = src.find('\ndef ', i + 1); exec(src[i:j if j > 0 else None], ns)
@@ -27,7 +27,7 @@ def kit_ns():
         def __init__(self, *a, **k): self.v = []; self.bone = k.get('bone'); self.tag = a[0] if a else ''
         def add(self, verts=(), faces=(), cols=None): self.v += [tuple(x) for x in verts]; return self
     ns.update(own=lambda s: s, srgb=lambda h: h, mix=lambda a, b, t: a, Part=Part, noise=types.SimpleNamespace(noise=lambda v: 0.0), Euler=None,
-              eye_parts=lambda *a, **k: [], ellipsoid=lambda *a, **k: ([], []), tube=lambda *a, **k: ([], []),
+              eye_parts=lambda *a, **k: [], ellipsoid=lambda *a, **k: ([], []), tube=lambda pts, *a, **k: ([tuple(p) for p in pts], []),
               whiskers=lambda *a, **k: Part(), worley2=lambda *a, **k: (0, 1, 0), derive=lambda *a, **k: None, base=lambda *a, **k: None,
               quad_actions=lambda names, c=None: {'walk': (30, lambda ph: {})})
     return ns

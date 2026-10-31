@@ -23,7 +23,7 @@ blobs += [
     dict(t='ell', c=(0, 1.14, 1.12), r=(0.09, 0.08, 0.09), bone='head'),                           # the short wide muzzle
     dict(t='ell', c=(0.045, 1.1, 1.15), r=(0.065, 0.06, 0.068), bone='head'),                      # the two whisker pads
     dict(t='ell', c=(-0.045, 1.1, 1.15), r=(0.065, 0.06, 0.068), bone='head'),
-    dict(t='ell', c=(0, 1.01, 1.04), r=(0.09, 0.06, 0.08), bone='head'),                           # the chin, tucked in
+    dict(t='ell', c=(0, 1.04, 1.06), r=(0.075, 0.045, 0.065), bone='head'),                        # the chin, small and tucked in
     dict(t='ell', c=(0.07, 1.31, 1.05), r=(0.05, 0.03, 0.05), bone='head'),                        # the brows over the eyes
     dict(t='ell', c=(-0.07, 1.31, 1.05), r=(0.05, 0.03, 0.05), bone='head'),
     dict(t='ell', c=(0.11, 1.15, 0.99), r=(0.06, 0.07, 0.08), bone='head'),                        # the cheeks
@@ -72,16 +72,60 @@ def paint(P, N, tag):
             dp = math.sqrt((x - sx * 0.045) ** 2 + (y - 1.1) ** 2 + (z - 1.15) ** 2)
             c = mix(c, CREAM, smooth(0.08, 0.05, dp) * 0.5)                      # pale whisker pads
             if smooth(0.075, 0.06, dp) > 0.5 and N.z > 0.2 and (int(x * 400) + int(y * 400)) % 9 == 0: c = mix(c, BLACK, 0.5)   # whisker spots
-        if y < 1.0 and abs(x) < 0.1: c = mix(c, CREAM, 0.5)                    # the pale chin
-        if 1.04 < y < 1.065 and z > 1.08: c = mix(c, BLACK, 0.6)               # the line of the lips
+        if y < 1.05 and abs(x) < 0.09: c = mix(c, CREAM, 0.4)                    # the pale chin
+        if 1.05 < y < 1.065 and z > 1.1: c = mix(c, BLACK, 0.45)               # the line of the lips
     if z < -0.98 and y < 0.42: c = mix(c, MANE2, 0.85)                        # the dark tuft
     return c
+
+
+# the mane's hair: locks grown from the mane volume, so it reads as hair and not as a cap. Each lock is a thin tapered
+# three-sided tube of four segments, rooted a little inside the volume, leaning out, then falling down and back, longer
+# on the chest and the neck than round the face; dark at the root, golden at the tip, each lock a little different.
+def mane_locks(n=330, seed=7):
+    rnd = random.Random(seed); out = []
+    tries = 0
+    while len(out) < n and tries < n * 30:
+        tries += 1
+        (c0, r0) = rnd.choice(MANE + [MANE[1]] * 2)                     # more round the face
+        th = rnd.uniform(0, math.pi); ph = rnd.uniform(0, TAU)
+        dirn = Vector((math.sin(th) * math.cos(ph), math.cos(th), math.sin(th) * math.sin(ph)))
+        p = Vector(c0) + Vector((dirn.x * r0[0], dirn.y * r0[1], dirn.z * r0[2])) * 0.9
+        nrm = Vector((dirn.x / r0[0], dirn.y / r0[1], dirn.z / r0[2])).normalized()
+        if p.z > 0.9 and abs(p.x) < 0.15 and p.y > 0.95: continue          # keep the face clear
+        if p.z < 0.3 or p.y < 0.5: continue                                 # not on the back or under the belly
+        if nrm.z < -0.6 and p.z < 0.5: continue                             # not pointing into the body
+        L = rnd.uniform(0.13, 0.2) + 0.08 * smooth(1.1, 0.7, p.y)          # longer low on the neck and the chest
+        out.append((p, nrm, L, rnd.uniform(-1, 1)))
+    return out
+def lock_part():
+    part = Part('mane', bone='neck', color=MANE_C)
+    for p, nrm, L, v in mane_locks():
+        down = Vector((0, -1, -0.35)).normalized()
+        pts = []
+        for k in range(5):
+            t = k / 4
+            d = (nrm * (1 - t) * 0.8 + down * (0.3 + t)).normalized()
+            q = (pts[-1] if pts else p - nrm * 0.03) + d * (L / 4 if pts else 0.0)
+            q += Vector((0.012 * v * t, 0, 0.01 * v * t))
+            pts.append(q)
+        rr = [0.026, 0.022, 0.016, 0.009, 0.002]
+        V, F = tube([tuple(x) for x in pts], rr, 3, cap0=False, cap1=False)
+        tone = 0.5 + 0.5 * v
+        C = []
+        for i in range(len(V)):
+            t = (i // 3) / 4
+            root = mix(MANE2, MANE_C, 0.25 + 0.2 * tone)
+            tip = mix(MANE_C, srgb('#d4a058'), 0.3 + 0.4 * tone)
+            C.append(mix(root, tip, t))
+        part.add(V, F, C)
+    return part
 
 parts = []
 for sx in (1, -1):
     parts += eye_parts((sx * 0.08, 1.27, 1.11), 0.018, 'head', '#b8862e', (sx * 0.45, 0.1, 0.9))
     parts.append(whiskers((sx * 0.05, 1.11, 1.19), sx, 'head', 5, 0.12, srgb('#f0ece4')))
-nose = Part('nose', bone='head', mat=1, color=srgb('#3c2219')); nose.add(*ellipsoid((0, 1.185, 1.205), (0.038, 0.022, 0.02), 10, 6)); parts.append(nose)   # the broad nose pad
+parts.append(lock_part())
+nose = Part('nose', bone='head', color=srgb('#6a3c30')); nose.add(*ellipsoid((0, 1.178, 1.212), (0.042, 0.022, 0.018), 12, 7)); parts.append(nose)   # the broad nose pad
 
 names = [b[0] for b in bones]
 acts = quad_actions(names, dict(amp=24, knee=34, run_amp=40, bob=0.02, drop=0.4, head_eat=30, neck_eat=30, look=22, tailsw=14, earflick=14,

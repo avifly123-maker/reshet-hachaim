@@ -19,6 +19,8 @@ blobs += [
     dict(t='ell', c=(0, 2.5, 1.72), r=(0.4, 0.25, 0.35), bone='head'),                            # the domed forehead
     dict(t='ell', c=(0, 2.06, 1.94), r=(0.3, 0.35, 0.26), bone='head'),                            # the face and the root of the trunk
     dict(t='ell', c=(0, 1.82, 1.68), r=(0.2, 0.14, 0.18), bone='head'),                            # the lower lip
+    dict(t='ell', c=(0.2, 1.88, 1.96), r=(0.085, 0.09, 0.1), bone='head'),                          # the lip sheaths the tusks come out of
+    dict(t='ell', c=(-0.2, 1.88, 1.96), r=(0.085, 0.09, 0.1), bone='head'),
     # the trunk, hanging to near the ground and turning a little forward at the end
     dict(t='cap', a=(0, 1.95, 1.98), b2=(0, 1.4, 2.1), r=(0.22, 0.17), bone='head'),
     dict(t='cap', a=(0, 1.4, 2.1), b2=(0, 0.9, 2.15), r=(0.17, 0.13), bone='head'),
@@ -63,10 +65,16 @@ def paint(P, N, tag):
     # the wrinkles: fine creases everywhere, rings across the trunk
     cr = abs(math.sin(y * 70 + n2 * 2.0)) if (z > 1.85 and y < 2.0) else abs(n2)
     c = mix(c, CREASE, smooth(0.1, 0.0, cr) * 0.5)
+    if y < 1.1 and abs(x) > 0.18: c = mix(c, CREASE, smooth(0.25, 0.0, abs(math.sin(y * 48 + n * 3))) * 0.35)   # level folds round the legs
     c = mix(c, EARTH, smooth(0.9, 0.25, y) * 0.16 + smooth(1.3, 1.05, y) * smooth(-0.2, -0.6, N.y) * 0.12)   # red earth from dust baths
     if 0.05 < y < 0.22 and abs(x) > 0.2:                                                          # the toenails, at the front of each foot
         xc = 0.45 if x > 0 else -0.45; dz = z - (0.68 if z > 0 else -0.93)
         if dz > 0.12 and abs(math.sin(math.atan2(x - xc, dz) * 4)) < 0.35: c = mix(c, NAIL, 0.6)
+    if z > 1.6 and y > 2.0:                                                                         # the eye: a dark wet patch and folds round it
+        for sx in (1, -1):
+            de = math.sqrt((x - sx * 0.34) ** 2 + (y - 2.33) ** 2 + (z - 1.88) ** 2)
+            c = mix(c, CREASE, smooth(0.12, 0.05, de) * 0.45)
+            c = mix(c, DARK, smooth(0.11, 0.06, math.sqrt((x - sx * 0.36) ** 2 + (y - 2.28) ** 2 + (z - 1.72) ** 2)) * 0.35)   # the temple gland
     if z < -1.3 and y < 1.2: c = mix(c, DARK, 0.85)                                                 # the tail tuft
     return c
 
@@ -126,9 +134,9 @@ for sx in (1, -1):
     parts += eye_parts((sx * 0.34, 2.33, 1.88), 0.03, 'head', '#2a1a10', (sx, 0.1, 0.55))
     lid = Part('lid', bone='head', color=SKIN2); lid.add(*ellipsoid((sx * 0.345, 2.35, 1.885), (0.025, 0.014, 0.038), 10, 6)); parts.append(lid)
     tk = Part('tusk', bone='head', color=IVORY)
-    a = Vector((sx * 0.22, 1.85, 2.0))
-    tk.add(*tube([tuple(a), tuple(a + Vector((sx * 0.04, -0.08, 0.25))), tuple(a + Vector((sx * 0.08, -0.06, 0.5))), tuple(a + Vector((sx * 0.08, 0.05, 0.72)))],
-                 [0.078, 0.07, 0.052, 0.022], 12))
+    a = Vector((sx * 0.2, 1.86, 1.98))                       # slender tusks out of their lip sheaths, curving forward and up
+    pts = bez([tuple(a), tuple(a + Vector((sx * 0.03, -0.14, 0.24))), tuple(a + Vector((sx * 0.07, -0.16, 0.5))), tuple(a + Vector((sx * 0.08, 0.04, 0.74)))], 14)
+    tk.add(*tube(pts, [0.058 * (1 - i / 13) ** 0.7 + 0.008 for i in range(14)], 14))
     parts.append(tk)
 
 names = [b[0] for b in bones]
