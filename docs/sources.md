@@ -833,6 +833,14 @@ Mysteries (src/research/cases):
   136: 85–99), and transfrontier corridors let elephants move between parks
   (https://en.wikipedia.org/wiki/Great_Limpopo_Transfrontier_Park).
 
+Devices (src/world/desert-tech.js):
+- Beehive fences: elephants avoid bees; hives hung on a wire between posts kept elephants out of farms in Kenya (King,
+  Douglas-Hamilton & Vollrath 2011, African Journal of Ecology 49: 431; https://elephantsandbees.com).
+- Solar pumps fill troughs from boreholes in African parks so animals have water in the dry season (e.g. Hwange,
+  https://en.wikipedia.org/wiki/Hwange_National_Park); too many water points keep elephants in one area (Smit et al.
+  2007, above).
+- The fire tower: as in the grove (1.3.2), a fire seen early stays small.
+
 Lab and inventors:
 - Zebra stripes are black and white hairs on a dark skin; horse-flies land much less on striped coats (Caro et al. 2019,
   PLOS ONE 14: e0210831). Cows painted with zebra stripes got far fewer fly bites (Kojima et al. 2019, PLOS ONE 14:
