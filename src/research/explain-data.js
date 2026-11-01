@@ -77,6 +77,39 @@ export const EXPLAIN = {
       fognet: 'רשת ערפל נותנת מעט מים בבוקר. זה עוזר, אבל הדקלים שותים הרבה יותר.',
     },
   },
+  // 1.4.2, the savanna
+  'thorny-plain': {
+    forms: { shrubs: 'mp', grass: 'ms', zebras: 'fp', elephants: 'mp' },
+    hyp: { shrubs: ['shrubs', 'grass', 'elephants'], rain: ['grass'], zebras: ['zebras', 'grass'] },
+    why: {
+      grass: 'הַשִּׂיחִים תּוֹפְסִים אֶת הַמָּקוֹם, וְהָעֵשֶׂב הֶחָדָשׁ לֹא גָּדֵל. קֹדֶם צָרִיךְ לִפְתֹּחַ אֶת הַמִּישׁוֹר.',
+      zebras: 'יֵשׁ מְעַט עֵשֶׂב, וְהַזֶּבְּרוֹת הַחֲדָשׁוֹת רְעֵבוֹת. הֵן עוֹזְבוֹת.',
+    },
+  },
+  'old-grass': {
+    forms: { old: 'ms', fresh: 'ms', zebras: 'fp', buffalo: 'mp', shrubs: 'mp' },
+    hyp: { old: ['old', 'fresh', 'zebras'], water: ['zebras'], lions: ['zebras'], shrubs: ['shrubs', 'fresh'] },
+    why: {
+      grass: 'העשב החדש מזדקן ומצטרף לעשב הישן. חסר מי שיפתח את העשב הישן.',
+      trough: 'הזברות שותות, אבל אין להן מספיק עשב ירוק. חסר אוכל, לא מים.',
+      zebras: 'בין העשב הישן יש מעט עשב ירוק. הזברות החדשות רעבות ועוזבות.',
+      cut: 'השיחים לא מסתירים את העשב. העשב הישן והיבש הוא שמסתיר את העשב הירוק.',
+      fence: 'הגדר משאירה את הזברות, אבל לא נותנת להן אוכל. בתוך הגדר הן רעבות.',
+      mow: 'פס אחד קטן מדי. רוב המישור עדיין מכוסה בעשב ישן.',
+    },
+  },
+  'too-many-elephants': {
+    forms: { elephants: 'mp', trees: 'fp', young: 'mp', giraffes: 'fp', grass: 'ms', hold: 'ms' },
+    hyp: { water: ['hold', 'elephants', 'trees', 'young'], rain: ['grass'], giraffes: ['giraffes', 'trees'], old: ['trees', 'young'] },
+    why: {
+      water: 'עוד מים מחזיקים עוד פילים כל השנה. הם לא עוזבים, והעצים לא מקבלים מנוחה.',
+      saplings: 'יש כאן הרבה פילים, והם אוכלים את השתילים מהר.',
+      cages: 'הגדר שומרת על כמה עצים בלבד. שאר העצים והשתילים עדיין פתוחים לפילים.',
+      giraffes: 'חסרים עצים עם עלים. הג׳ירפות החדשות רעבות.',
+      truck: 'השוקות עדיין מחזיקות מים כל השנה. פילים אחרים מגיעים במקום אלה שהועברו.',
+      grass: 'הפילים אוכלים את העשב, ובכל זאת ממשיכים להפיל עצים. הבעיה היא כמה פילים נשארים כאן.',
+    },
+  },
   'moving-sand': {
     forms: { acacia: 'fp', young: 'fp', sand: 'ms' },
     hyp: { sand: ['sand', 'young'], thirst: ['young'], seeds: ['acacia', 'young'] },

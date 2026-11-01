@@ -15,8 +15,12 @@ import { GAZELLES } from './gazelles.js';
 import { MOVING_SAND } from './moving-sand.js';
 import { LONELY_ACACIAS } from './lonely-acacias.js';
 import { SHRINKING_OASIS } from './shrinking-oasis.js';
+import { THORNY_PLAIN } from './thorny-plain.js';
+import { OLD_GRASS } from './old-grass.js';
+import { TOO_MANY_ELEPHANTS } from './too-many-elephants.js';
 export const CASES = [MICE_OWL, FLOWERS_BEES, BRAZIL_NUT, GREEN_REEF, CLEANING_STATION, WHITE_CORAL, THE_TRAP];
 CASES.push(FROGS, YOUNG_OAKS, LEAFCUTTERS);
 CASES.push(NO_PREDATORS, SUMMER_FIRE, GAZELLES);   // advanced: the forest without hunters, summer fire, the vanishing gazelles
 CASES.push(MOVING_SAND, LONELY_ACACIAS, SHRINKING_OASIS);   // 1.4, the desert: the sand that buries the seedlings (beginners), the acacias that do not renew (middle), the shrinking oasis (advanced)
+CASES.push(THORNY_PLAIN, OLD_GRASS, TOO_MANY_ELEPHANTS);   // 1.4.2, the savanna
 export const caseById = (id) => CASES.find((c) => c.id === id) || null;

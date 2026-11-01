@@ -4,6 +4,7 @@ import { icon, esc } from '../ui/ui.js';
 import { tileIcon } from '../ui/icons-hub.js';
 import { ISLAND_ART } from '../data/island-art.js';
 import { CASES } from './cases/index.js';
+import { isWip } from '../data/zones.js';
 import { researchProgress } from './progress.js';
 import { RESEARCH_NAME } from './texts.js';
 import { howto, howtoButton } from '../ui/howto.js';
@@ -36,7 +37,7 @@ const LEVELS = [
   { id: 'middle', name: 'בינוני', sub: 'שתי סיבות ומלכודת', ic: 'binoc' },
   { id: 'advanced', name: 'מתקדמים', sub: 'רשת שלמה, איזון לאורך זמן', ic: 'web' },
 ];
-const ZONE_NAME = { grove: 'החורש', amazon: 'האמזונס', reef: 'השונית' };
+const ZONE_NAME = { grove: 'החורש', amazon: 'האמזונס', reef: 'השונית', desert: 'המדבר', savanna: 'הסוואנה' };
 
 export function createResearchHub(root, { onPick, onClose, onLab }) {
   const el = document.createElement('div');
@@ -59,7 +60,7 @@ export function createResearchHub(root, { onPick, onClose, onLab }) {
         <div class="rs-h-logo"><img src="${BABA_DA_LOGO}" alt="בבא דע"></div></header>
       ${rsOpen ? '' : `<p class="rs-h-veil">${icon('sprout')}<span>${esc(lockWords('research'))}</span></p>`}${recHTML}
       ${LEVELS.map((L) => {
-        const mine = CASES.filter((c) => c.level === L.id).sort((a, b) => a.order - b.order);
+        const mine = CASES.filter((c) => c.level === L.id && !isWip(c.zone))   // a zone in the works keeps its mysteries hidden.sort((a, b) => a.order - b.order);
         const soon = SOON[L.id] || [];
         return `<section class="rs-h-level"><h2>${icon(L.ic)}<span>${esc(L.name)}</span><small>${esc(L.sub)}</small></h2><div class="rs-h-cases">
           ${mine.map((c) => `<button class="rs-h-case${rec.has(c.id) ? ' th-rec' : ''}${veil(rsOpen, 'research')}" data-case="${c.id}">${rec.has(c.id) ? markHTML('recommend') : ''}<div class="rs-h-art"><img src="${ISLAND_ART[c.zone] || ''}" alt=""><span class="rs-h-zone">${esc(ZONE_NAME[c.zone] || '')}</span></div>

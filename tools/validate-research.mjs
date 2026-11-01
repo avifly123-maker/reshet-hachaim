@@ -10,10 +10,11 @@ import { BIOME as AMAZON } from '../src/data/amazon.js';
 import { BIOME as GROVE } from '../src/data/grove.js';
 import { BIOME as REEF } from '../src/data/reef.js';
 import { BIOME as DESERT } from '../src/data/desert.js';
+import { BIOME as SAVANNA } from '../src/data/savanna.js';
 
 const errors = [];
 const err = (w, m) => errors.push(`${w}: ${m}`);
-const zones = { amazon: AMAZON, grove: GROVE, reef: REEF, desert: DESERT };
+const zones = { amazon: AMAZON, grove: GROVE, reef: REEF, desert: DESERT, savanna: SAVANNA };
 const HEB = /[א-ת]/g, NIK = /[ְ-ׇּׁׂ]/g;
 function vocalised(s) {
   const letters = (String(s).match(HEB) || []).length; if (!letters) return true;
