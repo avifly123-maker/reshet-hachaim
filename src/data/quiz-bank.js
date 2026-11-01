@@ -11,6 +11,7 @@
 // "Quiz bank" and "Quiz bank, 1.3.1" in docs/sources.md. Hebrew for grades 3–5, no em dashes. Easy questions are
 // plain Hebrew (the quiz shows no nikud at either level); tools/validate-quiz.mjs checks counts per place and duplicates.
 import { QBANK_DESERT } from './quiz-bank-desert.js';
+import { QBANK_SAVANNA } from './quiz-bank-savanna.js';
 
 export const QBANK = [
   // ───────────────────────────── יער הגשם – מתחילים
@@ -491,4 +492,5 @@ export const QBANK = [
   { id: 'rh63', z: 'reef', lvl: 'hard', q: 'כמה רחב מפרץ אילת?', o: ['בערך 24 קילומטרים במקום הרחב', 'מטר אחד', 'אלף קילומטרים'], e: 'מפרץ אילת צר וארוך: בערך 24 קילומטרים רוחב במקום הרחב ביותר, ובערך 160 קילומטרים אורך.' },
   { id: 'rh64', z: 'reef', lvl: 'hard', q: 'מאיפה באות מדוזות צעירות?', o: ['מפוליפ קטן שיושב על קרקעית הים', 'מתוך צדפה', 'מתוך עשב הים'], art: 'reef:jellyfish', e: 'בחלק מהחיים שלה, המדוזה היא פוליפ קטן שיושב על הקרקעית. ממנו ניתקות מדוזות קטנטנות שמתחילות לשחות.' },
   ...QBANK_DESERT,
+  ...QBANK_SAVANNA,
 ];
