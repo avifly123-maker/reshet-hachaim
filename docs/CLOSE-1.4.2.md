@@ -30,7 +30,8 @@ lines (voiced); keep-forest board; island-art (tools/render-island.py on Avi's P
 
 ## D. Tutorial and voice
 - [x] first-visit tutorial (src/game/savanna-tutorial.js, tests/play/savanna-tutorial.json in check-all)
-- [ ] voice: all new guide lines with tools/voice/make.py (shaul.onnx from Avi's PC); Kubi's 24 remaining re-recorded
+- [x] voice (1.11 11:40): all new guide lines voiced; Kubi's 28 re-recorded lines (kubi_redo31.json) packed with build-kubi-voice.py --update
+- [x] (was) voice: all new guide lines with tools/voice/make.py (shaul.onnx from Avi's PC); Kubi's 24 remaining re-recorded
       lines (voice\kubi_redo31.json, out_kubi3 has ki_1,2,4, kc_1) with Chatterbox when the PC's memory is free,
       checked with the recognizer, packed by tools/voice/build-kubi-voice.py
 

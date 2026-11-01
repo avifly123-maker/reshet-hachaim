@@ -4,7 +4,8 @@ Input: a folder of <id>.wav from cb_say.py (Chatterbox on the owner's PC) and th
 Each wav is trimmed of silence, made mono 24 kHz Opus (like רובו־דע's voice) and stored as a data URI.
 A line whose audio is far too short for its words (the model sometimes stops early) is reported and left out, so the
 game shows the words without a broken sound; record it again and run this once more.
-usage: python3 tools/voice/build-kubi-voice.py <wav_dir> <lines.json> [--min-cps 7]"""
+usage: python3 tools/voice/build-kubi-voice.py <wav_dir> <lines.json> [--update]
+  --update: only the wavs in wav_dir are (re)made; every other line keeps its ogg in art/voice-kubi (re-recorded lines)"""
 import sys, json, base64, subprocess, pathlib, wave, tempfile, os
 ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
 OUT = ROOT / 'src/data/kubi-voice.js'
@@ -23,7 +24,10 @@ def main():
         i = L['id']
         if i.startswith('test_'): continue
         p = wdir / (i + '.wav')
-        if not p.exists(): missing.append(i); continue
+        if not p.exists():
+            old = ART / (i + '.ogg')
+            if '--update' in sys.argv and old.exists(): out[i] = 'data:audio/ogg;base64,' + base64.b64encode(old.read_bytes()).decode(); continue
+            missing.append(i); continue
         letters = sum(1 for ch in L['text'] if 'א' <= ch <= 'ת')
         d = dur(p)
         if d <= 0.3 or letters / max(d, 0.1) > max_cps: bad.append((i, round(d, 1), letters)); continue
