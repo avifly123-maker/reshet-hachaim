@@ -37,6 +37,7 @@ lines (voiced); keep-forest board; island-art (tools/render-island.py on Avi's P
 
 ## E. Close
 - [x] check-all (1.11 12:20, all passed), old saves; CHANGELOG 1.4.2; 1.4.2 built (tools/pack-1.4.sh: exe 133 MB, mac zip, html); film re-recorded with the new trees and hyena
+- [x] (1.11 19:06) rebuilt after the Gemini music, the film light and the baboon rounds 7-13; film video re-recorded (/tmp/svfilm3.mp4, sent to Avi); summary doc for Avi: https://claude.ai/artifact/JvrRCJPTUSCuMWEAJiKExh
 - [ ] copy the release files to Documents\reshet-hachaim-1.4\installer\1.4.2 and the private Drive folder (24 MB parts, join, sha256)
 
 ## F. After 1.4.2 (Avi, 1.11 04:13–04:17)
