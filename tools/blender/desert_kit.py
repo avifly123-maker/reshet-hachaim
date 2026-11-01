@@ -160,7 +160,7 @@ def organic(blobs, seed=1, amt=1.0):
 
 
 # fur: besides the fine strands, soft clumps and lumps at the size of a hand, so the skin is not a smooth moulded part
-if '_detail_base' not in globals(): _detail_base = _detail
+if '_detail_base' not in globals() and '_detail' in globals(): _detail_base = _detail
 def _detail(P, N, f, skin, s):
     d, g = _detail_base(P, N, f, skin, s)
     if skin == 'fur':

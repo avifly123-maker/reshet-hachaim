@@ -20,7 +20,7 @@ def kit_ns():
     for name in ('smooth', 'chain', 'bez'):          # pure helpers copied from the kit
         i = src.index('def %s(' % name); j = src.find('\ndef ', i + 1); exec(src[i:j if j > 0 else None], ns)
     dk = open(HERE + '/desert_kit.py', encoding='utf-8').read()
-    for name in ('trunk_from_profile', 'cat_muscles', 'blob_ears', 'ear_paint'):
+    for name in ('trunk_from_profile', 'cat_muscles', 'blob_ears', 'ear_paint', 'organic'):
         i = dk.index('def %s(' % name); j = dk.find('\ndef ', i + 1); exec(dk[i:j if j > 0 else None], ns)
 
     class Part:

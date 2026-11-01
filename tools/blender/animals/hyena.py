@@ -5,8 +5,9 @@
 # short bristly mane along the back, a big broad head with a short blunt muzzle, round ears, fairly long front legs and
 # shorter hind legs, a short tail with a dark bushy tip. Sandy-grey coat with dark brown round spots, a dark muzzle.
 own('hyena')
-ANAT['hyena'] = ('cat', dict(arm=0.12, sh=(0.07, 0.5, 0.12), fa0=0.098, fa1=0.068, wr=0.06, can=0.052, th=(0.05, 0.3, 0.08),   # round 3-5 (Avi: "not so nice"):
-                             gas0=0.095, gas1=0.06, hock=0.056, mt=0.05, paw=(0.065, 0.038, 0.09)))   # a small haunch, so the back slopes down to the rump as in the photo
+# round 12 (Avi, 1.11: "more care in the details, not geometric shapes"): no kit legs (ANAT); every leg is built
+# from its own parts as on the giraffe: the shoulder and the forearm muscle, the wrist, the pastern, the paw with four toes
+# and dark claws; the gaskin, the bony hock, the long metatarsus behind.
 EYE['hyena'] = ('#3a2412', 'round', 0.82, 0.5)
 PX = 0.00394
 def ph(x, y): return ((x - 200) * PX, (266 - y) * PX)
@@ -34,8 +35,23 @@ bones = [('hips', None, P3(70, 106), P3(200, 62)), ('chest', 'hips', P3(200, 62)
 for sx, L in ((1, 'l'), (-1, 'r')):
     bones += [('f' + L, 'chest', P3(288, 118, sx * 0.075), P3(294, 210, sx * 0.075)), ('f' + L + '2', 'f' + L, P3(294, 210, sx * 0.075), P3(300, 266, sx * 0.075)),
               ('h' + L, 'hips', P3(112, 112, sx * 0.07), P3(84, 206, sx * 0.072)), ('h' + L + '2', 'h' + L, P3(84, 206, sx * 0.072), P3(100, 266, sx * 0.072))]   # round 9: the hock bent back
-    blobs += [dict(t='ell', c=P3(306, 258, sx * 0.075), r=(0.036, 0.026, 0.042), bone='f' + L + '2', foot=True),
-              dict(t='ell', c=P3(104, 259, sx * 0.072), r=(0.034, 0.025, 0.04), bone='h' + L + '2', foot=True)]
+    X, Xh = sx * 0.075, sx * 0.072
+    blobs += [   # the foreleg
+        dict(t='ell', c=P3(292, 132, X * 1.05), r=(0.07, 0.13, 0.095), bone='f' + L),                 # the shoulder and the upper arm
+        dict(t='cap', a=P3(292, 168, X), b2=P3(296, 210, X), r=(0.062, 0.044), bone='f' + L),           # the forearm, muscled at the top
+        dict(t='ell', c=P3(296, 212, X), r=(0.042, 0.04, 0.046), bone='f' + L + '2'),                   # the wrist
+        dict(t='cap', a=P3(297, 218, X), b2=P3(301, 250, X), r=(0.035, 0.031), bone='f' + L + '2'),     # the pastern, a little forward
+        dict(t='ell', c=P3(305, 259, X), r=(0.042, 0.022, 0.048), bone='f' + L + '2', foot=True),       # the paw
+    ]
+    blobs += [   # the hind leg
+        dict(t='cap', a=P3(104, 168, Xh), b2=P3(86, 202, Xh), r=(0.064, 0.046), bone='h' + L),          # the gaskin
+        dict(t='ell', c=P3(83, 205, Xh), r=(0.038, 0.046, 0.042), bone='h' + L + '2'),                  # the bony hock, pointing back
+        dict(t='cap', a=P3(86, 210, Xh), b2=P3(98, 250, Xh), r=(0.034, 0.03), bone='h' + L + '2'),      # the long metatarsus
+        dict(t='ell', c=P3(103, 259, Xh), r=(0.04, 0.021, 0.046), bone='h' + L + '2', foot=True),       # the paw
+    ]
+    for tz, bn, XX in ((314, 'f' + L + '2', X), (112, 'h' + L + '2', Xh)):   # four toes on each paw
+        for k, dx in enumerate((-0.027, -0.009, 0.009, 0.027)):
+            blobs.append(dict(t='ell', c=P3(tz - abs(dx) * 120, 262, XX + dx), r=(0.012, 0.012, 0.016), bone=bn, foot=True))
 cat_muscles(blobs, bones, sh=(0.06, 0.12, 0.08), th=(0.06, 0.11, 0.09), sh_t=0.3, th_t=0.4)   # round 8: big thighs
 for sx in (1, -1):   # round 8: the powerful hindquarters of the photo: the round gluteal mass and the thick thigh above the stifle
     blobs += [dict(t='ell', c=P3(84, 120, sx * 0.075), r=(0.075, 0.085, 0.095), bone='hips'),
@@ -65,6 +81,7 @@ def paint(P, N, tag):
     if z > ph(380, 0)[0]: c = mix(c, DARK, smooth(ph(380, 0)[0], ph(395, 0)[0], z) * 0.85)     # the dark tip of the muzzle
     if abs(x) < 0.05 and N.y > 0.6 and -0.3 < z < ph(330, 0)[0]: c = mix(c, mix(SAND2, srgb('#8a5a2a'), 0.5), 0.7)   # the reddish mane along the back
     if y < 0.06 and abs(x) > 0.04: c = mix(c, DARK, 0.6)                                        # the paws
+    if y < 0.025 and abs(x) > 0.04 and (z > ph(310, 0)[0] or ph(105, 0)[0] < z < ph(125, 0)[0]): c = mix(c, srgb('#141010'), 0.85)   # the claws
     if y < 0.4 and z < -0.5 and abs(x) < 0.05: c = mix(c, DARK, 0.85)                           # the tail tip
     return c
 
