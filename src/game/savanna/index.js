@@ -52,9 +52,15 @@ export function createSavanna(ctx) {
     padding:4px 10px;border-radius:12px;background:rgba(40,30,18,.62);color:#f6ead2;font:600 calc(13px*var(--ts,1)) system-ui,sans-serif;pointer-events:auto;z-index:3}
     #ui .sv-stab .sv-st-bar{width:96px;height:9px;border-radius:5px;background:rgba(255,255,255,.18);overflow:hidden;display:block}
     #ui .sv-stab .sv-st-bar i{display:block;height:100%;width:50%;border-radius:5px;background:linear-gradient(90deg,#d8a040,#8ac04a);transition:width .8s}
-    #ui .sv-stab.low .sv-st-bar i{background:linear-gradient(90deg,#c8502a,#e0a040)}`;
+    #ui .sv-stab.low .sv-st-bar i{background:linear-gradient(90deg,#c8502a,#e0a040)}
+    #ui .hud .sv-stab.h-item{position:static;background:none;padding:0 6px;border-radius:0}`;
+  // 1.4.2 (Avi, 1.11): the bar sat over the missions panel; it lives in the HUD now, beside the season (fallback: the corner)
   const uiRoot = document.getElementById('ui');
-  if (uiRoot && !W.research && !W.training) { uiRoot.appendChild(style); uiRoot.appendChild(bar); }
+  if (uiRoot && !W.research && !W.training) {
+    uiRoot.appendChild(style);
+    const hud = uiRoot.querySelector('.hud'), sp = hud && hud.querySelector('.speed');
+    if (sp) { bar.classList.add('h-item'); hud.insertBefore(bar, sp); } else uiRoot.appendChild(bar);
+  }
   function paintBar() {
     const i = bar.querySelector('i'); if (i) i.style.width = Math.round(stability.value * 100) + '%';
     bar.classList.toggle('low', stability.value < 0.35);

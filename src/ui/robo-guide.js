@@ -16,7 +16,7 @@
 //   guide.setScene('game'|'app')          main.js: a forest runs / no forest (requests remember where they were made)
 // Several requests wait in a queue: one bubble set at a time. Everything is RTL; the figure sits at the bottom right.
 import { drawRoboFace, ROBO_SVG, VISOR } from './robo-face.js';
-import { introSeen, markIntro, playMode } from '../core/journey.js';
+import { introSeen, markIntro, playMode, guideQuiet, setGuideQuiet } from '../core/journey.js';
 import { GUIDE } from '../data/guide-lines.js';
 import { setService } from '../core/services.js';
 
@@ -26,6 +26,11 @@ const TRAY_GAP_PX = 8;        // in a forest a tip sits this far above the tray 
 const WAVE_MS = 2600;         // he waves at the start of a set of bubbles
 const NEXT_SET_MS = 250;      // a breath before the next request in the queue
 const TIP_MS = 9000;          // a tip closes by itself after this (opts.ms changes it)
+// 1.4.2 (Avi, 1.11: "he talks all the time"): the quiet switch (journey.js guideQuiet, the settings row 'guide', and
+// the "שקט" button on his bubbles in a forest). Quiet: tips and forest bubbles that nobody asked for are dropped; what the
+// child asks for (force), hands-on tutorials (guided) and presentations of a new part (modal) still come.
+const HUSH = { f: 'בסדר, אדבר רק כשצריך. אפשר להחזיר בהגדרות.', k: 'בְּסֵדֶר, אֲדַבֵּר רַק כְּשֶׁצָּרִיךְ. אֶפְשָׁר לְהַחְזִיר בַּהַגְדָּרוֹת.' };
+const hushable = (opts, sc) => !opts.force && !opts.guided && !opts.modal && (opts.tip || sc === 'game');
 const CSS = `
 #ui #rguide { position: absolute; inset: 0; z-index: var(--z-guide); pointer-events: none; direction: rtl; font-family: var(--sans, sans-serif); }
 #ui #rguide.modal { pointer-events: auto; background: rgba(6, 14, 9, .55); animation: rg-fade .25s ease-out; }
@@ -93,7 +98,8 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
           ${ln.id ? `<button class="rg-say" data-g="say" aria-label="${kids ? 'לִשְׁמֹעַ שׁוּב' : 'לשמוע שוב'}" title="${kids ? 'לִשְׁמֹעַ שׁוּב' : 'לשמוע שוב'}">${SPEAKER}</button>` : ''}
           ${acts ? acts.map((a, j) => `<button class="rg-act${a.kind === 'primary' || (!a.kind && j === 0) ? ' primary' : ''}${a.kind === 'quiet' ? ' quiet' : ''}" data-act="${esc(a.id)}">${esc(a.label)}</button>`).join('')
             : `<button class="rg-next" data-g="next">${lastOne ? (c.opts.tip ? (kids ? 'הָבַנְתִּי' : 'הבנתי') : (kids ? 'סִיּוּם' : 'סיום')) : (kids ? 'הַבָּא' : 'הבא')}</button>`}
-          ${!lastOne && !c.opts.tip ? `<button class="rg-skip" data-g="skip">${kids ? 'דַּלֵּג' : 'דלג'}</button>` : ''}</div></div></div>`;
+          ${!lastOne && !c.opts.tip ? `<button class="rg-skip" data-g="skip">${kids ? 'דַּלֵּג' : 'דלג'}</button>` : ''}
+          ${hushable(c.opts, c.scene) && !c.opts.hush ? `<button class="rg-act quiet rg-hush" data-g="hush" title="${kids ? 'רוֹבּוֹ־דַּע יְדַבֵּר רַק כְּשֶׁצָּרִיךְ' : 'רובו־דע ידבר רק כשצריך'}">${kids ? 'שֶׁקֶט, רוֹבּוֹ־דַּע' : 'שקט, רובו־דע'}</button>` : ''}</div></div></div>`;
     placeRing(ln.at); placeWrap();
     synthTalk = Math.min(4, 0.9 + words(ln).length / 22);   // the mouth moves a little even without sound
     if (voice && ln.id && c.spokenI !== c.i) { c.spokenI = c.i; voice.say(ln.id).catch(() => { }); }
@@ -180,6 +186,11 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
     const g = e.target.closest('[data-g]'); if (!g) { if (e.target === el && cur.opts.modal) { /* a click outside does nothing: the child chooses */ } return; }
     if (g.dataset.g === 'say') { const ln = cur.lines[cur.i]; if (voice && ln.id) voice.say(ln.id); synthTalk = 2; return; }
     if (g.dataset.g === 'skip') { finish('skip'); return; }
+    if (g.dataset.g === 'hush') {   // quiet from now on: drop the waiting tips too, and say once where it comes back
+      setGuideQuiet(true);
+      for (let i = queue.length - 1; i >= 0; i--) if (hushable(queue[i].opts, queue[i].scene)) { const q = queue.splice(i, 1)[0]; try { q.resolve('quiet'); } catch (er) { } }
+      finish('skip'); say([HUSH], { tip: true, force: true, hush: true, ms: 4500 }); return;
+    }
     if (g.dataset.g === 'next') { if (cur.i < cur.lines.length - 1) { cur.i++; render(); } else finish('done'); }
   });
   addEventListener('keydown', (e) => {
@@ -192,6 +203,7 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
   function say(lines, opts = {}) {
     lines = (lines || []).filter((l) => l && (l.f || l.k)); if (!lines.length) return Promise.resolve('none');
     if (opts.key && !opts.force && introSeen(opts.key)) return Promise.resolve('seen');
+    if (guideQuiet() && hushable(opts, opts.scene || scene)) return Promise.resolve('quiet');
     if (opts.key && (queue.some((q) => q.opts.key === opts.key) || (cur && cur.opts.key === opts.key))) return Promise.resolve('queued');
     const item = { lines, opts, resolve: null, scene: opts.scene || scene };
     const p = new Promise((resolve) => { item.resolve = resolve; });
