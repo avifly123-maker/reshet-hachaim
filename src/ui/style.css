@@ -1218,12 +1218,17 @@
 #ui.wol .st-panel:hover { transform: translateY(-4px) rotate(-.4deg); }
 #ui.wol .st-pimg { position: relative; display: block; height: clamp(150px, 30vh, 300px); overflow: hidden; }
 #ui.wol .st-pimg.lab img { width: 100%; height: 100%; object-fit: cover; display: block; }
+#ui.wol .st-pimg.rlb.pic { background: #173d4e; }
+#ui.wol .st-pimg.rlb.pic img { width: 100%; height: 100%; object-fit: contain; object-position: 50% 100%; display: block; }
 #ui.wol .st-pimg.rs { background: radial-gradient(ellipse at 50% 70%, #2f5a3a, #102419); }
-#ui.wol .st-pimg.rs img { position: absolute; width: 46%; bottom: 8%; object-fit: contain; filter: drop-shadow(0 12px 14px rgba(0, 0, 0, .5)); }
-#ui.wol .st-pimg.rs img:nth-child(1) { right: 2%; bottom: 20%; transform: scale(.8); }
-#ui.wol .st-pimg.rs img:nth-child(2) { right: 27%; z-index: 2; }
-#ui.wol .st-pimg.rs img:nth-child(3) { left: 2%; bottom: 20%; transform: scale(.8); }
-#ui.wol .st-lens { position: absolute; top: 12%; left: 10%; z-index: 3; width: 74px; height: 74px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(180deg, #f8d98a, #e8a43a); color: #3a2608; box-shadow: 0 6px 16px rgba(0, 0, 0, .45); transform: rotate(-12deg); }
+#ui.wol .st-pimg.rs img { position: absolute; width: 38%; object-fit: contain; filter: drop-shadow(0 12px 14px rgba(0, 0, 0, .5)); }
+/* 1.4.2: the five islands (amazon, grove, reef, desert, savanna): three behind, two in front */
+#ui.wol .st-pimg.rs img:nth-child(1) { right: 0; bottom: 42%; transform: scale(.78); }
+#ui.wol .st-pimg.rs img:nth-child(2) { right: 31%; bottom: 48%; transform: scale(.72); }
+#ui.wol .st-pimg.rs img:nth-child(3) { left: 0; bottom: 42%; transform: scale(.78); }
+#ui.wol .st-pimg.rs img:nth-child(4) { right: 10%; bottom: 3%; width: 44%; z-index: 2; }
+#ui.wol .st-pimg.rs img:nth-child(5) { left: 10%; bottom: 3%; width: 44%; z-index: 2; }
+#ui.wol .st-lens { position: absolute; top: 6%; left: 44%; z-index: 4; width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(180deg, #f8d98a, #e8a43a); color: #3a2608; box-shadow: 0 6px 16px rgba(0, 0, 0, .45); transform: rotate(-12deg); }
 #ui.wol .st-lens .ic { width: 42px; height: 42px; }
 #ui.wol .st-ptext { display: flex; flex-direction: column; gap: 4px; padding: 14px 18px 16px; }
 #ui.wol .st-ptext b { font-family: var(--serif); font-size: 1.7em; line-height: 1.05; color: var(--moss); }

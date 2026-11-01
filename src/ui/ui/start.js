@@ -42,7 +42,7 @@ export function createStart(ctx) {
       <header class="st-head"><div class="st-seal">${waxSeal(124)}</div>
         <div class="st-titles"><h1 class="st-title">רשת החיים</h1>${EDITION_NAME ? `<span class="st-edition">${EDITION_NAME}</span>` : ''}${VINE}<p class="st-sub">בונים יער חי, מגלים מי צריך את מי</p></div></header>
       <nav class="st-tabs" role="tablist">
-        <button role="tab" data-tab="env">${icon('leaf')}<span><b>סביבות משחק</b><small>אמזונס, חורש, שונית ומדבר</small></span></button>
+        <button role="tab" data-tab="env">${icon('leaf')}<span><b>סביבות משחק</b><small>אמזונס, חורש, שונית, מדבר וסוואנה</small></span></button>
         <button role="tab" data-tab="sci" data-research-tab="1" data-part="science">${icon('flask')}<span><b>המרכז המדעי</b><small>חוקרי הטבע, המעבדה ומעבדת הרובוטים</small><small class="jv-note"></small></span></button>
         <button role="tab" data-tab="learn" data-part="learn">${icon('book')}<span><b>מרכז הלמידה</b><small>חידון, אלבום ומשחקי קלפים</small><small class="jv-note"></small></span></button>
       </nav>
@@ -64,11 +64,11 @@ export function createStart(ctx) {
       </section>
       <section class="st-pane" data-pane="sci">
         <div class="st-big2">
-          <button class="st-panel" data-research="1" data-part="research"><span class="st-pimg rs">${biomes.slice(0, 3).map((b) => `<img src="${isl(b.id)}" alt="" draggable="false">`).join('')}<i class="st-lens">${icon('search')}</i><i class="jv-curtain" aria-hidden="true"></i></span>
-            <span class="st-ptext"><b>חוקרי הטבע</b><small>תעלומות בטבע: מודדים, משערים, מנסים ומאזנים. שלוש רמות, משלוש הסביבות.</small><em>${icon('arrowL')}לתעלומות</em><em class="jv-note"></em></span></button>
+          <button class="st-panel" data-research="1" data-part="research"><span class="st-pimg rs">${biomes.slice(0, 5).map((b) => `<img src="${isl(b.id)}" alt="" draggable="false">`).join('')}<i class="st-lens">${icon('search')}</i><i class="jv-curtain" aria-hidden="true"></i></span>
+            <span class="st-ptext"><b>חוקרי הטבע</b><small>תעלומות בטבע: מודדים, משערים, מנסים ומאזנים. שלוש רמות, מחמש הסביבות.</small><em>${icon('arrowL')}לתעלומות</em><em class="jv-note"></em></span></button>
           <button class="st-panel" data-lab="1" data-part="lab"><span class="st-pimg lab">${ISLAND_ART.lab ? `<img src="${ISLAND_ART.lab}" alt="" draggable="false">` : ''}<i class="jv-curtain" aria-hidden="true"></i></span>
             <span class="st-ptext"><b>המעבדה של רובו־דע</b><small>מיקרוסקופ, שולחן ממציאים ואטלס. ממציאים בעזרת הטבע ומשדרגים את הכלים.</small><em>${icon('arrowL')}למעבדה</em><em class="jv-note"></em></span></button>
-          <button class="st-panel" data-robolab="1" data-part="robolab"><span class="st-pimg rlb" aria-hidden="true"><i class="rlb-bot"></i><i class="rlb-drone"></i><i class="rlb-blocks"></i><i class="jv-curtain" aria-hidden="true"></i></span>
+          <button class="st-panel" data-robolab="1" data-part="robolab"><span class="st-pimg rlb${ISLAND_ART.robolab ? ' pic' : ''}" aria-hidden="true">${ISLAND_ART.robolab ? `<img src="${ISLAND_ART.robolab}" alt="" draggable="false">` : '<i class="rlb-bot"></i><i class="rlb-drone"></i><i class="rlb-blocks"></i>'}<i class="jv-curtain" aria-hidden="true"></i></span>
             <span class="st-ptext"><b>מעבדת הרובוטים</b><small>מתכננים, בונים ומפעילים: רובוט, רחפן ורובוט צולל בתוך הסביבות. שיעורים, חידות ותגים.</small><em>${icon('arrowL')}למעבדת הרובוטים</em><em class="jv-note"></em></span></button>
         </div>
       </section>
