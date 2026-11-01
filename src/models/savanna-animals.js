@@ -13,5 +13,6 @@ export const ANIMALS = { termites: G.harvesterant };
 export const STANDIN_RIGGED = {
   elephant: AM.tapir, giraffe: DE.camel, zebra: DE.ibex, wildebeest: DE.ibex, impala: DE.dorcas,
   lion: AM.jaguar, crocodile: DE.uromastyx, weaver: GR.blackbird,
+  buffalo: DE.ibex, hyena: DE.caracal, baboon: AM.howler,
 };
 export function releaseCaches() {}

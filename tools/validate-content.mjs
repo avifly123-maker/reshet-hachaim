@@ -32,7 +32,7 @@ const SPECIES = {
   // 1.4.2
   savanna: [
     'umbrella', 'baobab', 'whistling', 'redoat', 'stargrass', 'kigelia', 'sycamore', 'marula', 'doum', 'papyrus', 'termitemound',
-    'zebra', 'wildebeest', 'impala', 'giraffe', 'elephant', 'lion', 'crocodile', 'weaver',
+    'zebra', 'wildebeest', 'impala', 'giraffe', 'elephant', 'lion', 'crocodile', 'weaver', 'buffalo', 'hyena', 'baboon',
   ],
 };
 const LAYER_IDS = {

@@ -38,6 +38,10 @@ export const BADGES = [
   { id: 'b_dx2', group: 'desert', art: 'retama', name: 'עוצר החול', how: 'משימת מומחים "סופה בדרך" במדבר', earn: 'mission:dx2' },
   { id: 'b_dx3', group: 'desert', art: 'ibex', name: 'מביא המים', how: 'משימת מומחים "יעלים רחוק מהמעיין" במדבר', earn: 'mission:dx3' },
   { id: 'b_dx4', group: 'desert', art: 'eagleowl', name: 'שומר הלילה של המדבר', how: 'משימת מומחים "רשת של לילה" במדבר', earn: 'mission:dx4' },
+  { id: 'b_sx1', group: 'savanna', art: 'redoat', name: 'מחדש המרעה', how: 'משימת מומחים "אחרי האש" בסוואנה', earn: 'mission:sx1' },
+  { id: 'b_sx2', group: 'savanna', art: 'elephant', name: 'מאזן הפילים', how: 'משימת מומחים "פילים ועצים" בסוואנה', earn: 'mission:sx2' },
+  { id: 'b_sx3', group: 'savanna', art: 'zebra', name: 'מסדר הרעייה', how: 'משימת מומחים "סדר הרעייה" בסוואנה', earn: 'mission:sx3' },
+  { id: 'b_sx4', group: 'savanna', art: 'baobab', name: 'שומר הסוואנה', how: 'משימת מומחים "יציבה בכל עונה" בסוואנה', earn: 'mission:sx4' },
   // ── הממציאים (src/learn/games/inventors.js) and the lab
   { id: 'b_inv1', group: 'lab', art: 'reefshark', name: 'הפטנט הראשון', how: 'ממציאים המצאה ראשונה במשחק "הממציאים"', earn: 'inv:first' },
   { id: 'b_inv5', group: 'lab', art: 'owl', name: 'ממציא חרוץ', how: 'חמש המצאות שונות ב"הממציאים"', earn: 'inv:five' },

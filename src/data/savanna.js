@@ -56,7 +56,7 @@ export const BIOME = {
       stores: 0.3,
       seasons: { bloom: ['wet'], fruit: ['dry'] },
       relations: [],
-      cost: 30,
+      cost: 40,
       groupSize: [1, 1],
       maxCount: 6,
       unlock: 'start',
@@ -88,7 +88,7 @@ export const BIOME = {
       stores: 0.9,
       seasons: { bloom: ['wet'], fruit: ['dry'], },
       relations: [],
-      cost: 45,
+      cost: 60,
       groupSize: [1, 1],
       maxCount: 3,
       unlock: 'sv3',
@@ -120,7 +120,7 @@ export const BIOME = {
       stores: 0.2,
       seasons: { bloom: ['wet'] },
       relations: [],
-      cost: 20,
+      cost: 24,
       groupSize: [1, 2],
       maxCount: 6,
       unlock: 'sv4',
@@ -187,7 +187,7 @@ export const BIOME = {
       cost: 6,
       groupSize: [3, 5],
       maxCount: 30,
-      unlock: 'sv1',
+      unlock: 'start',
       fact: 'עשב הכוכב נמוך וזוחל על האדמה. גם כשאוכלים אותו הרבה, הוא מתחדש מהר.',
       more:
         'עשב הכוכב שולח גבעולים שזוחלים על האדמה ומצמיחים שורשים חדשים. ' +
@@ -216,7 +216,7 @@ export const BIOME = {
       stores: 0.1,
       seasons: { bloom: ['dry'], fruit: ['wet'] },
       relations: [],
-      cost: 35,
+      cost: 45,
       groupSize: [1, 1],
       maxCount: 3,
       unlock: 'sv6',
@@ -248,7 +248,7 @@ export const BIOME = {
       stores: 0.1,
       needs: { water: true },
       relations: [],
-      cost: 35,
+      cost: 45,
       groupSize: [1, 1],
       maxCount: 3,
       unlock: 'sv5',
@@ -280,7 +280,7 @@ export const BIOME = {
       stores: 0.3,
       seasons: { fruit: ['wet'] },
       relations: [],
-      cost: 30,
+      cost: 40,
       groupSize: [1, 1],
       maxCount: 3,
       unlock: 'sv6',
@@ -311,7 +311,7 @@ export const BIOME = {
       thirst: 0.6,
       stores: 0.1,
       relations: [],
-      cost: 30,
+      cost: 40,
       groupSize: [1, 1],
       maxCount: 3,
       unlock: 'sv5',
@@ -344,7 +344,7 @@ export const BIOME = {
       cost: 12,
       groupSize: [1, 2],
       maxCount: 8,
-      unlock: 'sv2',
+      unlock: 'sv1',
       fact: 'הפפירוס גדל במים רדודים ליד הנהר. בעבר הרחוק עשו ממנו נייר, סירות וסלים.',
       more:
         'לפפירוס יש גבעולים ירוקים וגבוהים, ובקצה של כל אחד מהם פורצת "זיקוקית" של חוטים דקים. ' +
@@ -410,10 +410,10 @@ export const BIOME = {
         { id: 'stargrass', part: 'leaves' },
       ],
       relations: [],
-      cost: 30,
+      cost: 24,
       groupSize: [3, 4],
       maxCount: 8,
-      unlock: 'sv2',
+      unlock: 'sv1',
       fact: 'הזברות אוכלות את הגבעולים הגבוהים והקשים של העשב, ופותחות את המרעה לבעלי החיים שבאים אחריהן.',
       more:
         'לכל זברה יש פסים משלה, ואין שתי זברות עם אותם פסים. הזברות רועות את החלק העליון והקשה של העשב. ' +
@@ -445,10 +445,10 @@ export const BIOME = {
         { id: 'stargrass', part: 'leaves' },
       ],
       relations: [],
-      cost: 30,
+      cost: 24,
       groupSize: [3, 5],
       maxCount: 10,
-      unlock: 'sv3',
+      unlock: 'sv2',
       fact: 'בכל שנה יותר ממיליון גנו נודדים בעקבות הגשמים, אל המקום שבו העשב ירוק.',
       more:
         'הגנו חיים בעדרים ענקיים. כשהגשמים מגיעים, העשב מוריק והגנו באים לאכול. כשהעשב מתייבש, הם ממשיכים הלאה. ' +
@@ -481,10 +481,10 @@ export const BIOME = {
         { id: 'whistling', part: 'leaves' },
       ],
       relations: [],
-      cost: 25,
+      cost: 20,
       groupSize: [3, 5],
       maxCount: 8,
-      unlock: 'sv4',
+      unlock: 'sv3',
       fact: 'האימפלה יכולה לקפוץ גבוה יותר מגובה של אדם, ולמרחק של כמה מכוניות!',
       more:
         'האימפלה אוכלת עשב קצר וטרי, ובעונת היובש היא אוכלת גם עלים של שיחים ועצים. ' +
@@ -515,7 +515,7 @@ export const BIOME = {
         { id: 'marula', part: 'leaves' },
       ],
       relations: [],
-      cost: 40,
+      cost: 34,
       groupSize: [1, 2],
       maxCount: 4,
       unlock: 'sv2',
@@ -554,7 +554,7 @@ export const BIOME = {
       relations: [
         { type: 'disperses', target: 'marula', text: 'הפיל אוכל פירות מרולה ומפזר את הזרעים שלהם רחוק מהעץ.' },
       ],
-      cost: 60,
+      cost: 55,
       groupSize: [1, 2],
       maxCount: 3,
       unlock: 'sv5',
@@ -587,12 +587,13 @@ export const BIOME = {
         { id: 'zebra', part: 'animals' },
         { id: 'wildebeest', part: 'animals' },
         { id: 'impala', part: 'animals' },
+        { id: 'buffalo', part: 'animals' },
       ],
       relations: [],
       cost: 55,
       groupSize: [1, 2],
       maxCount: 3,
-      unlock: 'sv6',
+      unlock: 'sv7',
       fact: 'האריות חיים בלהקה. הם צדים בעיקר בערב ובלילה, וישנים רוב שעות היום בצל.',
       more:
         'האריה הוא החתול היחיד שחי בלהקה. כשהעדרים מגיעים בנדידה, יש לאריות הרבה אוכל. ' +
@@ -627,7 +628,7 @@ export const BIOME = {
       cost: 45,
       groupSize: [1, 1],
       maxCount: 2,
-      unlock: 'sv7',
+      unlock: 'sv8',
       fact: 'התנין יכול לחכות במים בשקט זמן רב מאוד. בזמן הנדידה הוא מחכה במקום שבו העדרים חוצים את הנהר.',
       more:
         'תנין היאור הוא זוחל גדול שחי בנהרות ובאגמים של אפריקה. העיניים והנחיריים שלו נמצאים למעלה על הראש, ' +
@@ -662,7 +663,7 @@ export const BIOME = {
       cost: 12,
       groupSize: [2, 3],
       maxCount: 8,
-      unlock: 'sv1',
+      unlock: 'start',
       fact: 'האורג הזכר קולע קן מסיבים של עשב, קשר אחרי קשר, ותולה אותו בקצה של ענף.',
       more:
         'האורג הוא ציפור קטנה וצהובה. הזכר בונה קן עגול מעשב ועלים, עם פתח מלמטה. ' +
@@ -678,9 +679,122 @@ export const BIOME = {
         'https://www.britannica.com/animal/weaver-bird',
       ],
     },
+    // 1.4.2 closing round: three more animals decided with Avi (31.10): the buffalo, the hyena (the lion and the hyena
+    // compete for the same food, shown gently: a chase and chasing away, no hunting scenes) and the baboon
+    {
+      id: 'buffalo',
+      name: 'תאו אפריקאי',
+      nameEn: 'African buffalo (Syncerus caffer)',
+      kind: 'animal',
+      layer: 'understory',
+      locomotion: 'ground',
+      active: 'both',
+      drinks: 'daily',
+      needs: { water: true },
+      graze: 'tall',
+      herd: true,
+      diet: [
+        { id: 'redoat', part: 'leaves' },
+        { id: 'papyrus', part: 'leaves' },
+      ],
+      relations: [],
+      cost: 32,
+      groupSize: [2, 3],
+      maxCount: 6,
+      unlock: 'sv4',
+      fact: 'התאו האפריקאי אוכל עשב גבוה וקשה. כשטורף מתקרב, התאואים עומדים יחד מולו ושומרים זה על זה.',
+      more:
+        'התאו האפריקאי חי בעדרים גדולים ליד מים, כי הוא צריך לשתות כל יום. הוא אוכל הרבה עשב גבוה וגס, ' +
+        'ופותח את המרעה לבעלי חיים שאוכלים עשב נמוך יותר. לזכרים יש קרניים עבות שנפגשות על המצח. ' +
+        'בצהריים החמים התאואים אוהבים לשכב בבוץ ובמים.',
+      question: {
+        q: 'מה עושה עדר התאואים כשטורף מתקרב?',
+        options: ['עומד יחד מול הטורף', 'מטפס על העצים', 'נכנס למחילות'],
+        answer: 0,
+      },
+      color: '#3a3330',
+      sources: [
+        'https://en.wikipedia.org/wiki/African_buffalo',
+        'https://www.britannica.com/animal/Cape-buffalo',
+      ],
+    },
+    {
+      id: 'hyena',
+      name: 'צבוע מנומר',
+      nameEn: 'Spotted hyena (Crocuta crocuta)',
+      kind: 'animal',
+      layer: 'floor',
+      locomotion: 'ground',
+      active: 'night',
+      drinks: 'rarely',
+      follows: true,
+      diet: [
+        { id: 'wildebeest', part: 'animals' },
+        { id: 'zebra', part: 'animals' },
+        { id: 'impala', part: 'animals' },
+      ],
+      relations: [],
+      cost: 40,
+      groupSize: [1, 2],
+      maxCount: 3,
+      unlock: 'sv9',
+      fact: 'הצבוע המנומר חי בלהקה וצד בעיקר בלילה. הוא מתחרה עם האריות על אותו אוכל, ולפעמים מבריח אותם.',
+      more:
+        'הצבוע המנומר הוא צייד מצוין, ולא רק אוכל שאריות. הלסתות החזקות שלו אוכלות גם עצמות, וכך כמעט שום דבר לא נשאר. ' +
+        'הצבועים והאריות מתחרים על אותו טרף: כשיש הרבה צבועים הם מבריחים אריות, וכשיש הרבה אריות הם מבריחים את הצבועים. ' +
+        'הקול שלו נשמע כמו צחוק.',
+      question: {
+        q: 'עם מי מתחרה הצבוע על האוכל?',
+        options: ['עם האריות', 'עם הזברות', 'עם הג׳ירפות'],
+        answer: 0,
+      },
+      color: '#b8a070',
+      sources: [
+        'https://en.wikipedia.org/wiki/Spotted_hyena',
+        'https://www.britannica.com/animal/spotted-hyena',
+      ],
+    },
+    {
+      id: 'baboon',
+      name: 'בבון',
+      nameEn: 'Olive baboon (Papio anubis)',
+      kind: 'animal',
+      layer: 'understory',
+      locomotion: 'ground',
+      active: 'day',
+      drinks: 'daily',
+      diet: [
+        { id: 'redoat', part: 'seeds' },
+        { id: 'marula', part: 'fruit' },
+        { id: 'sycamore', part: 'fruit' },
+        { id: 'doum', part: 'fruit' },
+      ],
+      relations: [
+        { type: 'disperses', target: 'marula', text: 'הבבון אוכל את פירות המרולה ומפזר את הזרעים שלה במקומות חדשים.' },
+      ],
+      cost: 24,
+      groupSize: [2, 4],
+      maxCount: 8,
+      unlock: 'sv6',
+      fact: 'הבבון הוא הקוף של הסוואנה. ביום הוא הולך על ארבע על האדמה, ובלילה הוא עולה לישון על עצים גבוהים או על סלעים.',
+      more:
+        'הבבונים חיים בלהקות גדולות. ביום הם מסתובבים על האדמה ומחפשים זרעים, פירות, שורשים וחרקים. ' +
+        'בלילה הם עולים על עצים גבוהים או על צוקים, ושם בטוח יותר. כשהם אוכלים פירות, הם מפזרים את הזרעים למקומות חדשים.',
+      question: {
+        q: 'איפה ישנים הבבונים בלילה?',
+        options: ['על עצים גבוהים או על סלעים', 'בתוך הנהר', 'במחילה מתחת לאדמה'],
+        answer: 0,
+      },
+      color: '#8a7a50',
+      sources: [
+        'https://en.wikipedia.org/wiki/Olive_baboon',
+        'https://www.britannica.com/animal/baboon',
+      ],
+    },
   ],
 
-  // round 1: the first missions (the guided start and the systems); the content round adds the rest (about 22 and 4 experts)
+  // 1.4.2: 14 regular missions and 4 expert missions. More animals, fewer trees (Avi, 31.10): the trees cost more
+  // and the missions ask for herds, grazers in order, the river and the change of seasons.
   missions: [
     {
       id: 'sv1', title: 'ים של עשב',
@@ -688,7 +802,7 @@ export const BIOME = {
       hint: 'העשב צומח מהר בעונת הגשמים. שתלו אותו בשטח פתוח, לא בצל של עצים.',
       after: null,
       goal: { type: 'place', species: 'redoat', count: 4 },
-      reward: { points: 25, unlock: ['stargrass', 'weaver'] },
+      reward: { points: 25, unlock: ['papyrus', 'zebra'] },
     },
     {
       id: 'sv2', title: 'מטרייה במישור',
@@ -696,7 +810,7 @@ export const BIOME = {
       hint: 'השיטה גדלה לאט. כדאי לשתול אותה מוקדם.',
       after: 'sv1',
       goal: { type: 'place', species: 'umbrella', count: 2 },
-      reward: { points: 30, unlock: ['zebra', 'giraffe', 'papyrus'] },
+      reward: { points: 30, unlock: ['giraffe', 'wildebeest'] },
     },
     {
       id: 'sv3', title: 'מי פותח את המרעה?',
@@ -704,7 +818,7 @@ export const BIOME = {
       hint: 'לחצו על הזברה, ובכרטיס שלה מצאו את עשב השיבולת ב"קשרים ברשת".',
       after: 'sv2',
       goal: { type: 'link', from: 'zebra', to: 'redoat' },
-      reward: { points: 30, unlock: ['wildebeest', 'baobab'] },
+      reward: { points: 30, unlock: ['impala', 'baobab'] },
     },
     {
       id: 'sv4', title: 'עונת היובש',
@@ -712,7 +826,7 @@ export const BIOME = {
       hint: 'פס היציבות מראה אם הסוואנה חוזרת לאיזון. מים, עשב ומעט עצים עוזרים לה להחזיק מעמד.',
       after: 'sv3',
       goal: { type: 'stable', value: 0.5, season: 'dry' },
-      reward: { points: 35, unlock: ['impala', 'whistling'] },
+      reward: { points: 35, unlock: ['whistling', 'buffalo'] },
     },
     {
       id: 'sv5', title: 'קן תלוי',
@@ -728,15 +842,119 @@ export const BIOME = {
       hint: 'לפיל צריך מים קרובים, עשב ועצים. שיטה אחת לא מספיקה לו.',
       after: 'sv5',
       goal: { type: 'place', species: 'elephant', count: 1 },
-      reward: { points: 35, unlock: ['lion', 'kigelia', 'marula'] },
+      reward: { points: 35, unlock: ['baboon', 'marula', 'kigelia'] },
     },
     {
-      id: 'sv7', title: 'סוואנה מלאה חיים',
-      text: 'סוואנה חזקה היא סוואנה עשירה. גדלו בה לפחות 12 מינים שונים.',
-      hint: 'עשבים, עצים, אוכלי עשב, ציפורים וגם טורף אחד. כל אחד מחזיק חלק ברשת.',
+      id: 'sv7', title: 'עדר ליד המים',
+      text: 'התאואים צריכים לשתות כל יום. הביאו 3 תאואים, וודאו שיש להם מים ועשב גבוה.',
+      hint: 'שימו אותם קרוב לנהר או לבור מים. בעונת היובש הבורות קטנים.',
       after: 'sv6',
-      goal: { type: 'speciesAlive', count: 12 },
-      reward: { points: 40, unlock: ['crocodile', 'termitemound'] },
+      goal: { type: 'place', species: 'buffalo', count: 3 },
+      reward: { points: 35, unlock: ['lion', 'termitemound'] },
+    },
+    {
+      id: 'sv8', title: 'אחרי הזברות',
+      text: 'הזברות אוכלות את העשב הגבוה, והגנו באים אחריהן ואוכלים את העלים הרכים. גלו את הקשר בין הגנו לעשב הכוכב.',
+      hint: 'צריך זברות, גנו ועשב כוכב. לחצו על גנו, ומצאו את עשב הכוכב בכרטיס שלו.',
+      after: 'sv7',
+      goal: { type: 'link', from: 'wildebeest', to: 'stargrass' },
+      reward: { points: 35, unlock: ['crocodile'] },
+    },
+    {
+      id: 'sv9', title: 'הקוף והמרולה',
+      text: 'הבבונים אוכלים את פירות המרולה. גלו איך הם עוזרים למרולה.',
+      hint: 'צריך מרולה בוגרת עם פירות, ובבונים. לחצו על בבון, ומצאו את המרולה בכרטיס שלו.',
+      after: 'sv8',
+      goal: { type: 'link', from: 'baboon', to: 'marula' },
+      reward: { points: 35, unlock: ['hyena'] },
+    },
+    {
+      id: 'sv10', title: 'הנדידה חוזרת',
+      text: 'הגשמים חזרו, ואיתם העדרים. עזרו לסוואנה לעבור את הנדידה הגדולה ולהישאר חזקה.',
+      hint: 'עדרים גדולים אוכלים הרבה עשב. כשיש מספיק עשב ומים, הסוואנה מחזיקה מעמד.',
+      after: 'sv9',
+      goal: { type: 'survive', event: 'sv_migrate2' },
+      reward: { points: 40, unlock: [] },
+    },
+    {
+      id: 'sv11', title: 'מתחרים על הטרף',
+      text: 'הצבועים והאריות אוכלים את אותו טרף, ולפעמים מבריחים זה את זה. הביאו להקת צבועים לסוואנה שיש בה אריות.',
+      hint: 'לטורפים צריך הרבה אוכלי עשב. בלי עדרים, הם עוזבים.',
+      after: 'sv10',
+      goal: { type: 'place', species: 'hyena', count: 1 },
+      reward: { points: 40, unlock: [] },
+    },
+    {
+      id: 'sv12', title: 'בית מאדמה',
+      text: 'הטרמיטים בונים תלים, ומסביב לתל האדמה עשירה. הציבו 2 תלי טרמיטים במישור.',
+      hint: 'תל טרמיטים עומד טוב בשטח פתוח, לא בתוך המים.',
+      after: 'sv11',
+      goal: { type: 'place', species: 'termitemound', count: 2 },
+      reward: { points: 35, unlock: [] },
+    },
+    {
+      id: 'sv13', title: 'עונה אחרי עונה',
+      text: 'סוואנה חזקה לא נשארת אותו דבר. היא משתנה, וחוזרת לאיזון. החזיקו אותה יציבה לאורך עונת גשמים שלמה.',
+      hint: 'כשמשהו משתנה, בדקו את פס היציבות: חסר עשב? חסרים מים? יותר מדי שיחים?',
+      after: 'sv12',
+      goal: { type: 'stable', value: 0.6, season: 'wet' },
+      reward: { points: 45, unlock: [] },
+    },
+    {
+      id: 'sv14', title: 'סוואנה מלאה חיים',
+      text: 'סוואנה חזקה היא סוואנה עשירה. גדלו בה לפחות 16 מינים שונים.',
+      hint: 'עשבים, עצים, אוכלי עשב, ציפורים וגם טורפים. כל אחד מחזיק חלק ברשת.',
+      after: 'sv13',
+      goal: { type: 'speciesAlive', count: 16 },
+      reward: { points: 50, unlock: [] },
+    },
+    // ── expert missions (full level only, after the regular chain; each gives its badge)
+    {
+      id: 'sx1', expert: true, after: 'sv14', title: 'אחרי האש',
+      text: 'אש קטנה עומדת לעבור במישור. אחרי האש, העשב צריך לצמוח מחדש. הכינו את הסוואנה, כך שאחרי האש יהיו בה 8 גושי עשב חיים.',
+      hint: 'לעשב השיבולת יש שורשים שנשארים חיים באדמה. אחרי גשם הוא צומח מהר.',
+      how: 'איך עושים: חכו לאש, תנו לה לעבור, ושתלו עשב במקום שנשרף.',
+      goal: { type: 'all', parts: [
+        { type: 'eventDone', event: 'sv_fire2', label: 'האש עברה' },
+        { type: 'alive', species: 'redoat', count: 8, label: '8 גושי עשב שיבולת' },
+      ] },
+      reward: { points: 120, unlock: [] },
+    },
+    {
+      id: 'sx2', expert: true, after: 'sx1', title: 'פילים ועצים',
+      text: 'בלי פילים הסוואנה מתמלאת שיחים, ועם יותר מדי פילים העצים נעלמים. מצאו את האיזון: 2 פילים, 4 שיטות, ולא יותר מ־4 שיחים קוצניים.',
+      hint: 'הפילים מפילים שיחים ועצים צעירים. כמה פילים מתאימים לכמה עצים?',
+      how: 'איך עושים: הביאו פילים, שתלו שיטות, וצפו מה קורה לשיחים.',
+      goal: { type: 'all', parts: [
+        { type: 'alive', species: 'elephant', count: 2, label: '2 פילים' },
+        { type: 'alive', species: 'umbrella', count: 4, label: '4 שיטות סוככניות' },
+        { type: 'atMost', species: 'whistling', max: 4, label: 'לא יותר מ־4 שיחים קוצניים' },
+      ], hold: 60, holdLabel: 'האיזון נשמר דקה' },
+      reward: { points: 140, unlock: [] },
+    },
+    {
+      id: 'sx3', expert: true, after: 'sx2', title: 'סדר הרעייה',
+      text: 'הזברות אוכלות את העשב הגבוה, הגנו את האמצעי, והאימפלות את הנמוך. בנו סוואנה שבה שלושתם שבעים.',
+      hint: 'כל אחד אוכל גובה אחר של עשב. צריך הרבה עשב, וגם עשב כוכב נמוך.',
+      how: 'איך עושים: שתלו הרבה עשב, הביאו 3 מכל אחד, וחכו שכולם יאכלו.',
+      goal: { type: 'all', parts: [
+        { type: 'alive', species: 'zebra', count: 3, label: '3 זברות' },
+        { type: 'alive', species: 'wildebeest', count: 3, label: '3 גנו' },
+        { type: 'alive', species: 'impala', count: 3, label: '3 אימפלות' },
+        { type: 'fed', species: 'zebra', min: 0.6, label: 'הזברות שבעות' },
+        { type: 'fed', species: 'impala', min: 0.6, label: 'האימפלות שבעות' },
+      ] },
+      reward: { points: 140, unlock: [] },
+    },
+    {
+      id: 'sx4', expert: true, after: 'sx3', title: 'יציבה בכל עונה',
+      text: 'סוואנה אמיתית עוברת גשמים ויובש, נדידות ואש. החזיקו לפחות 14 מינים חיים במשך 2 עונות שלמות.',
+      hint: 'בעונת היובש חסרים מים ועשב. מה יעזור לבעלי החיים להחזיק מעמד?',
+      how: 'איך עושים: הריצו את הזמן מהר יותר, ובכל שינוי בדקו את פס היציבות.',
+      goal: { type: 'all', parts: [
+        { type: 'seasons', count: 2, kinds: 14, label: '2 עונות עם 14 מינים לפחות' },
+      ] },
+      reward: { points: 160, unlock: [] },
     },
   ],
 
@@ -759,6 +977,46 @@ export const BIOME = {
       choices: [
         { id: 'let', label: 'לתת לאש קטנה לעבור', outcome: 'האש שרפה עשב יבש ושיחים קטנים. אחרי הגשם יצמח שם עשב ירוק וטרי.', effects: [{ type: 'points', amount: 10 }] },
         { id: 'stop', label: 'לעצור את האש ליד העצים', outcome: 'האש נעצרה לפני העצים. העשב הישן נשאר, וגם השיחים.', effects: [{ type: 'grassfire', size: 0 }, { type: 'points', amount: 5 }] },
+      ],
+    },
+    {
+      id: 'sv_drought', title: 'הגשמים מאחרים',
+      text: 'עונת הגשמים הייתה צריכה להתחיל, אבל השמיים עדיין בהירים. בורות המים מתייבשים, והעשב צהוב. מה עושים?',
+      trigger: { type: 'day', day: 4 },
+      start: [{ type: 'drought', strength: 0.6, seconds: 50 }],
+      choices: [
+        { id: 'river', label: 'לתת לבעלי החיים להתקרב לנהר', outcome: 'העדרים מצאו מים בנהר. הנהר לא מתייבש, גם כשהבורות ריקים.', effects: [{ type: 'points', amount: 10 }] },
+        { id: 'wait', label: 'לחכות לגשם', outcome: 'אחרי כמה ימים הגשם הגיע, והעשב הוריק שוב. העצים עם השורשים העמוקים כמעט לא נפגעו.', effects: [{ type: 'rain', seconds: 20 }] },
+      ],
+    },
+    {
+      id: 'sv_flood', title: 'הנהר עולה',
+      text: 'גשם חזק ירד בהרים, והנהר עלה על גדותיו. המים מכסים חלק מהמישור. מה עושים?',
+      trigger: { type: 'mission', id: 'sv5', delay: 40 },
+      start: [{ type: 'flood', seconds: 30 }, { type: 'rain', seconds: 12 }],
+      choices: [
+        { id: 'papyrus', label: 'לשתול פפירוס על הגדה', outcome: 'השורשים של הפפירוס החזיקו את הגדה, והאדמה לא נסחפה.', effects: [{ type: 'plant', species: 'papyrus', count: 2, where: 'any' }] },
+        { id: 'wait', label: 'לחכות שהמים ירדו', outcome: 'המים ירדו, והשאירו אחריהם בוץ עשיר. העשב צמח שם מהר.', effects: [{ type: 'points', amount: 10 }] },
+      ],
+    },
+    {
+      id: 'sv_migrate2', title: 'הנדידה הגדולה',
+      text: 'הפעם העדרים גדולים במיוחד. אלפי זברות וגנו עוברים במישור, חוצים את הנהר וממשיכים. מה עושים?',
+      trigger: { type: 'mission', id: 'sv10', delay: 20 },
+      start: [{ type: 'migrate', herds: 4 }],
+      choices: [
+        { id: 'grass', label: 'לשתול עוד עשב לפני שהם מגיעים', outcome: 'היה מספיק עשב לכולם. העדרים אכלו והמשיכו, והעשב צמח שוב.', effects: [{ type: 'plant', species: 'redoat', count: 3, where: 'any' }] },
+        { id: 'watch', label: 'לצפות בחציית הנהר', outcome: 'העדרים חצו את הנהר בזהירות. התנינים חיכו, אבל רוב העדר עבר בשלום.', effects: [{ type: 'points', amount: 15 }] },
+      ],
+    },
+    {
+      id: 'sv_fire2', title: 'אש מתקרבת',
+      text: 'רוח יבשה נושבת, וברק הצית את העשב בקצה המישור. האש מתקדמת לאט. מה עושים?',
+      trigger: { type: 'mission', id: 'sx1', delay: 30 },
+      start: [{ type: 'grassfire', size: 1 }],
+      choices: [
+        { id: 'let', label: 'לתת לאש לעבור', outcome: 'האש שרפה את העשב היבש. השורשים נשארו חיים באדמה, ועכשיו העשב יכול לצמוח מחדש.', effects: [{ type: 'points', amount: 10 }] },
+        { id: 'trees', label: 'לשמור על העצים הגדולים', outcome: 'האש נעצרה ליד העצים. שאר העשב נשרף, והאדמה מחכה לגשם.', effects: [{ type: 'grassfire', size: 0 }, { type: 'points', amount: 5 }] },
       ],
     },
   ],

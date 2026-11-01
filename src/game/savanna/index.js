@@ -22,7 +22,7 @@ import { createStability } from './stability.js';
 import { createHerdCrowd } from '../../world/herd-crowd.js';
 import { SEASON_NAMES } from '../../data/common.js';
 
-const GRAZERS = new Set(['zebra', 'wildebeest', 'impala']);
+const GRAZERS = new Set(['zebra', 'wildebeest', 'impala', 'buffalo']);
 const BROWSE_TREES = new Set(['umbrella', 'whistling', 'marula', 'kigelia']);   // what an elephant pushes over (never the baobab or the fig)
 
 export function createSavanna(ctx) {

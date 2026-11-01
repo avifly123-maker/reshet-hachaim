@@ -145,7 +145,7 @@ export function createMissions(W) {
       case 'link': return `איך עושים: לחצו על ${nm(g.from)} ${zoneWord('in')} או על הקלף שלו במגש. בכרטיס שנפתח, ברשימה "קשרים ברשת", מצאו את ${nm(g.to)} ולחצו "גלה את הקשר". שניהם צריכים להיות ${zoneWord('in')}.`;
       case 'chain': return `איך עושים: הביאו ${zoneWord('to')} צמח, בעל חיים שאוכל אותו, ובעל חיים שאוכל את בעל החיים הזה. בכרטיס של כל אחד, ב"קשרים ברשת", רואים מי אוכל את מי.`;
       case 'discover': return 'איך עושים: לחצו על צמח או על בעל חיים, ובכרטיס שלו לחצו "גלה את הקשר" ליד קשר שעוד לא גיליתם.';
-      case 'place': case 'grow': case 'growTo': case 'bloom': return `איך עושים: גררו ${nm(g.species)} מהמגש אל היער.` + find(g.species);
+      case 'place': case 'grow': case 'growTo': case 'bloom': return `איך עושים: גררו ${nm(g.species)} מהמגש ${zoneWord('to')}.` + find(g.species);
       case 'pollinate': return 'איך עושים: מאביקים צריכים להיות קרובים לפרחים.' + find(g.species);
       case 'experiment': return 'איך עושים: לחצו על צמח או על בעל חיים, ובכרטיס שלו לחצו "מה יקרה אם ייעלם?".';
       case 'tool': case 'photos': case 'rescue': case 'seeded': return 'איך עושים: הכלים נמצאים בלשונית "טכנולוגיה" במגש. גוררים אותם אל היער כמו צמח.';
