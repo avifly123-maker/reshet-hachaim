@@ -253,7 +253,7 @@ export function mountVerseMatch(root, ctx, opts = {}) {
       ctx.badge('verse:first');
       if (G.firstTry === n) ctx.badge('verse:perfect');
       if (ST.rounds >= 5) ctx.badge('verse:five');
-      if (playable().every((c) => ST.met[c.id])) ctx.badge('verse:all');
+      if (SOURCE_CARDS.every((c) => !VERSE_LINKS[c.id] || ST.met[c.id] || !VERSE_LINKS[c.id].links.some((l) => ctx.CARD.get(l.c)))) ctx.badge('verse:all');
       ctx.sfx(stars === 3 ? 'mission' : 'discover');
     }
     const title = stars === 3 ? u('end3') : stars === 2 ? u('end2') : u('end1');
