@@ -120,6 +120,7 @@ export const LEAF_NAMES = {
 
 // Generic labels for mission goals (the UI may fill in names/numbers)
 export const GOAL_LABELS = {
+  stable: 'סוואנה יציבה',
   place: 'שתלו / הביאו',
   speciesAlive: 'מינים חיים',
   link: 'צרו קשר',
