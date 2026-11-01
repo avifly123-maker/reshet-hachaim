@@ -773,8 +773,8 @@ export const BIOME = {
         { type: 'disperses', target: 'marula', text: 'הבבון אוכל את פירות המרולה ומפזר את הזרעים שלה במקומות חדשים.' },
       ],
       cost: 24,
-      groupSize: [2, 4],
-      maxCount: 8,
+      groupSize: [4, 6],   // 1.11 (Avi): baboons live in troops
+      maxCount: 14,
       unlock: 'sv6',
       fact: 'הבבון הוא הקוף של הסוואנה. ביום הוא הולך על ארבע על האדמה, ובלילה הוא עולה לישון על עצים גבוהים או על סלעים.',
       more:

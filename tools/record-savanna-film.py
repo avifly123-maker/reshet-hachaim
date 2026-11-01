@@ -37,13 +37,15 @@ async def main(o):
         if o.start:   # resume an interrupted recording: run the film to that frame without pictures
             await pg.evaluate(f'window.__svFilm.step({o.start})')
             await pg.wait_for_function('window.__svFilm.budget <= 0', timeout=3600000, polling=1000)
+        n = min(n, o.end) if o.end else n
         for i in range(o.start, n):
             await pg.evaluate('window.__svFilm.step(1)')
             await pg.wait_for_function('window.__svFilm.budget <= 0', timeout=60000)
             await pg.evaluate('new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))')
-            await pg.screenshot(path=str(tmp / f'{i:05d}.jpg'), type='jpeg', quality=90)
+            await pg.screenshot(path=str(tmp / f'{i:05d}.jpg'), type='jpeg', quality=90, timeout=180000)
             if i % 48 == 0: print('frame', i, '/', n, flush=True)
         await b.close()
+    if o.frames_only: print('frames', o.start, '..', n); return
     music = ROOT / 'art' / 'music' / 'savanna.ogg'
     cmd = ['ffmpeg', '-hide_banner', '-loglevel', 'error', '-y', '-framerate', str(o.fps), '-i', str(tmp / '%05d.jpg')]
     if music.exists(): cmd += ['-i', str(music), '-map', '0:v', '-map', '1:a', '-c:a', 'aac', '-b:a', '160k', '-shortest']
@@ -58,4 +60,6 @@ if __name__ == '__main__':
     ap.add_argument('build'); ap.add_argument('out')
     ap.add_argument('--fps', type=int, default=24); ap.add_argument('--size', default='1280x720'); ap.add_argument('--q', default='high')
     ap.add_argument('--start', type=int, default=0, help='resume from this frame (the frames already made are kept)')
+    ap.add_argument('--end', type=int, default=0, help='stop before this frame (several recorders can share the work)')
+    ap.add_argument('--frames-only', action='store_true', help='make the frames and stop (assemble with a last run)')
     asyncio.run(main(ap.parse_args()))
