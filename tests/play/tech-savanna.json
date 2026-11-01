@@ -1,6 +1,6 @@
 [
 {
-"js": "window.__app.journey.unlockAll('2580'); window.__app.journey.markTrained(); try{window.__guide.close()}catch(e){}; window.__app.bus.emit('start:biome',{id:'savanna'}); 1"
+"js": "window.__app.journey.unlockAll('2580'); window.__app.journey.markTrained(); window.__journey.markIntro('g:svfilm'); try{window.__guide.close()}catch(e){}; window.__app.bus.emit('start:biome',{id:'savanna'}); 1"
 },
 {
 "until": "window.__game && window.__game.debug && window.__game.debug.tools",

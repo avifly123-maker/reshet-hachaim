@@ -297,5 +297,5 @@ if (typeof window !== 'undefined') {
   const later = () => setTimeout(() => { try { check(); } catch (e) { console.error(e); } }, CHECK_DELAY_MS);
   window.addEventListener('wol-badge', later);
   window.addEventListener('wol-progress', later);
-  window.__journey = { state, isOpen, trained, markTrained, check, metrics, markUsed, playMode, setPlayMode, unlockAll, lockAgain, reload, PARTS, STAGES, LAST };
+  window.__journey = { state, isOpen, trained, markTrained, check, metrics, markUsed, playMode, setPlayMode, unlockAll, lockAgain, reload, markIntro, introSeen, PARTS, STAGES, LAST };
 }

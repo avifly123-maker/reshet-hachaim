@@ -39,7 +39,7 @@ export function createDispose(ctx) {
     for (const v of W.warm || []) { try { v.dispose(); } catch (err) { } }
     W.warm = null;
     try { light.texture.dispose(); } catch (err) { }
-    ctx.tour.dispose(); ctx.fieldcam.dispose(); ctx.imv.dispose(); ctx.moments?.dispose();
+    ctx.svFilm?.dispose(); ctx.tour.dispose(); ctx.fieldcam.dispose(); ctx.imv.dispose(); ctx.moments?.dispose();
     if (ctx.savanna) { try { ctx.savanna.dispose(); } catch (e) { console.error(e); } }   // 1.4.2: the herds and the stability bar
     links.dispose(); markers.dispose(); rig.controls.dispose(); env.dispose(); ctx.tools.dispose(); camPad.dispose(); setGamepadRig(null);
     disposeObject(impactGroup); barkMat.dispose(); cutMat.dispose(); W.stumps = []; ctx.roadMesh = null; ctx.bridgeMesh = null;

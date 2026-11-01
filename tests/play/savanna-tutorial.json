@@ -3,7 +3,7 @@
 "wait": 3
 },
 {
-"js": "window.__guide && window.__guide.close(); window.__journey.unlockAll('2580'); window.__journey.markTrained(); window.__guide && window.__guide.close(); 1"
+"js": "window.__guide && window.__guide.close(); window.__journey.unlockAll('2580'); window.__journey.markTrained(); window.__journey.markIntro('g:svfilm'); window.__guide && window.__guide.close(); 1"
 },
 {
 "wait": 1

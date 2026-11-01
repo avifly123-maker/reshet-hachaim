@@ -37,7 +37,7 @@ lines (voiced); keep-forest board; island-art (tools/render-island.py on Avi's P
 - [ ] check-all, old saves, regression shots; CHANGELOG 1.4.2; build with tools/pack-1.4.sh into Avi's private folders
 
 ## F. After 1.4.2 (Avi, 1.11 04:13–04:17)
-- [ ] an opening film for the savanna, about 25 seconds, in the engine (the island, the Blender animals, the camera moving over
+- [x] (1.11 05:20, src/game/savanna/film.js) an opening film for the savanna, about 25 seconds, in the engine (the island, the Blender animals, the camera moving over
       herds, the waterhole, maybe a gentle chase of lions and hyenas), an original African rhythm (drums and kalimba, made with
       tools/music/compose.py), shown on the first visit with a button to watch again; also recorded to a video for Avi
 - [ ] later: such an opening film for every zone (Avi: "not now, put it on the list")

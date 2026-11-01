@@ -50,6 +50,7 @@ import { MAX_ANIMALS, MAX_ALL_PLANTS, farTreeSources, addPart } from './common.j
 import { createEcology } from './ecology.js';
 import { createWater } from './water.js';
 import { createSavanna } from '../savanna/index.js';   // 1.4.2
+import { createSavannaFilm } from '../savanna/film.js';   // 1.4.2: the savanna's opening film
 import { createPlacement } from './placement.js';
 import { createSelection } from './selection.js';
 import { createTrayDrag } from './tray-drag.js';
@@ -202,6 +203,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   ctx.imv = createImmersive({ W, rig, camera, ui, camPad, refit: () => fitViewToUI(true), deselect: () => { select(null); ctx.panelId = null; rig.stopFollow(); } });
   ctx.fieldcam = createFieldCam({ W, env, tools: ctx.tools, camera, canvas, ui, audio, imv: ctx.imv });
   ctx.moments = createSourceMoments({ W, ui, audio });   // torah edition: short source moments in the forest
+  ctx.svFilm = biome.id === 'savanna' && !research && !training ? createSavannaFilm({ W, env, imv: ctx.imv, camera, audio }) : null;   // before the tour: its button comes first
   ctx.tour = createTour({ W, env, reg, camera, canvas, ui, audio, imv: ctx.imv, missions, art: (id) => thumbs[id] || CARD_ART[id] || null });
   /* H: after the missions (not inside a mystery) */
   if (!research && !training) { try { ctx.after = createAfter({ W, env, reg, scene, camera, canvas, pipe, ui, audio, bus, markers, rig, imv: ctx.imv, tools: ctx.tools, spawnAnimal, art: (id) => CARD_ART[id] || thumbs[id] || null }); W.after = ctx.after; } catch (e) { console.error(e); ctx.after = null; } }
