@@ -50,10 +50,9 @@ export const ZONES = {
       'בנו מדבר חי, שמרו על כל טיפה – וגלו את רשת החיים במקום הכי יבש.',
     palette: ['#7a4a22', '#d8a85a', '#3a8a8a'],
   },
-  // 1.4.2: the African savanna (src/data/savanna.js, docs/PLAN-1.4.2.md). `wip` while it is being built: a zone in the
-  // works is left out of ZONE_IDS (the start screen, the album, the quiz, the card games), so the game stays whole and the
-  // checks pass; its saves and packs work (ALL_ZONE_IDS) and the testers open it with window.__app.loadBiome('savanna').
-  // `node tools/validate-zones.mjs savanna` lists what it still lacks. Remove `wip` when that list is empty.
+  // 1.4.2: the African savanna (src/data/savanna.js, docs/PLAN-1.4.2.md). Complete since 1.11 (validate-zones lists nothing).
+  // A future zone in the works gets `wip: true`: it is left out of ZONE_IDS (the start screen, the album, the quiz, the card
+  // games) while its saves and packs work (ALL_ZONE_IDS); `node tools/validate-zones.mjs <zone>` lists what it still lacks.
   savanna: {
     id: 'savanna',
     name: 'הסוואנה האפריקאית',
@@ -63,7 +62,6 @@ export const ZONES = {
       'ביובש העשב מצהיב, בורות המים מתכווצים, והעדרים ממשיכים בדרכם. פילים, ג\'ירפות ואריות חיים כאן יחד. ' +
       'בנו סוואנה חזקה, שתחזור לאיזון אחרי כל שינוי – וגלו את רשת החיים של המישור הגדול.',
     palette: ['#6a4a1e', '#c8a24a', '#d86a2a'],
-    wip: true,
   },
 };
 

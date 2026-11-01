@@ -19,11 +19,12 @@ kids-text words; sort-data words; audio.js sound bed; kids.js beginners set; bad
 lines (voiced); keep-forest board; island-art (tools/render-island.py on Avi's PC).
 
 ## C. Content
-- [~] cards: 19 of 22 paintings in (art/<id>.webp, 1.11 05:00); buffalo, hyena, baboon and the 4 source cards wait for Gemini's limit
+- [x] cards: all 22 paintings (art/<id>.webp) and the 4 source cards (art/sources/), 1.11 05:00–05:50; island picture rendered
+- [x] `wip` removed from src/data/zones.js (validate-zones: savanna complete); tools/_ca_tmp.sh deleted
 - [x] album sets 3; quiz 112 (src/data/quiz-bank-savanna.js)
 - [x] 3 mysteries (thorny-plain, old-grass, too-many-elephants), samples 2, atlas questions 5, clue cases 6, observe 2,
       sort pool 9, inventors problems 3, thread zone-savanna
-- [x] torah: 4 source cards (chatzir, deshe, zman, bahamot), set src-savanna, mission st1 (Sefaria checked); paintings missing
+- [x] torah: 4 source cards (chatzir, deshe, zman, bahamot) with paintings, set src-savanna, mission st1 (Sefaria checked)
 - [x] missions: 14 + 4 experts, 6 events; trees cost more, animals less
 - [~] devices: solarpump, beefence (desert-tech.js), firetower in the savanna; more (collar, corridor, counting camera) later
 
