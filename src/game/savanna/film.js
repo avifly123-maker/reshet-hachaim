@@ -2,8 +2,9 @@
 // and again from the button under the toolbar. It is played in the engine on the island itself (no video file): the
 // camera flies over the plain, a zebra herd gallops, wildebeest cross the river, elephants drink at the waterhole with a
 // giraffe beside them, two hyenas come too close to a resting lion and he chases them off (gently: nobody is caught),
-// and the camera rises over the island at the end of the day. Music: an original piece in an African style
-// (tools/music/savanna_film.py, MUSIC.savanna), played once and timed with the shots.
+// and the camera rises over the island at the end of the day. Music: MUSIC.savanna, played once, made in Gemini at Avi's
+// request (1.11: real African instruments) and edited to the film's length (art/music/savanna.json; the synthesised
+// tools/music/savanna_film.py is the fallback).
 //
 // The actors are the Blender models of the zone pack (W.animalBuilders), placed on their own group for the film and
 // removed after it; the player's island, its saved state and its simulation are not touched (the clock stands still,
@@ -51,7 +52,7 @@ const ease = (x) => { x = clamp01(x); return x * x * (3 - 2 * x); };
 const lerp = (a, b, k) => a + (b - a) * k;
 const wrapA = (a) => { while (a > Math.PI) a -= Math.PI * 2; while (a < -Math.PI) a += Math.PI * 2; return a; };
 
-export function createSavannaFilm({ W, env, imv, camera, audio }) {
+export function createSavannaFilm({ W, env, imv, camera, audio, pipe = null }) {
   if (!document.getElementById(CSS_ID)) { const st = document.createElement('style'); st.id = CSS_ID; st.textContent = CSS; document.head.appendChild(st); }
   const root = document.getElementById('ui');
   let run = null;   // the film that is playing
@@ -224,7 +225,12 @@ export function createSavannaFilm({ W, env, imv, camera, audio }) {
     }
 
     // ── the light, the clock
-    const saved = { dayFrac: W.dayFrac, speed: W.speed, rain: W.rain, rainTarget: W.rainTarget, fov: camera.fov };
+    const saved = { dayFrac: W.dayFrac, speed: W.speed, rain: W.rain, rainTarget: W.rainTarget, fov: camera.fov, exp: pipe && pipe.renderer ? pipe.renderer.toneMappingExposure : null };
+    // 1.11 (Avi: "some animals are really dark"): a film light. A soft sky fill and a light from behind the camera lift the
+    // dark coats (wildebeest, buffalo, elephants), and the exposure is raised a little while the film plays.
+    const fill = new THREE.HemisphereLight('#fff4e0', '#8a7a5a', 0.7); stage.add(fill);
+    const key = new THREE.DirectionalLight('#fff0d8', 1.1); stage.add(key); stage.add(key.target);
+    if (pipe && pipe.renderer) pipe.renderer.toneMappingExposure = (saved.exp || 1) * 1.12;
     W.speed = 0; W.rain = 0; W.rainTarget = 0;
 
     // ── the camera, shot by shot
@@ -244,12 +250,12 @@ export function createSavannaFilm({ W, env, imv, camera, audio }) {
         pos.set(c.x - R.dz * 10 - R.dx * lerp(4, -1, e), gy(c) + 2.1, c.z + R.dx * 10 - R.dz * lerp(4, -1, e));
         look.set(c.x + R.dx * 2.5, gy(c) + 0.9, c.z + R.dz * 2.5); fov = 42;
       } else if (s.id === 'river') {
-        const c = { x: mid.x + along.x * 9 - n.x * 2, z: mid.z + along.z * 9 - n.z * 2 };
+        const c = { x: mid.x + along.x * 6 - n.x * 1, z: mid.z + along.z * 6 - n.z * 1 };   // closer to the crossing line
         pos.set(c.x + along.x * lerp(2, -1, e), Math.max(gy(c), env.waterLevel || 0) + lerp(1.6, 2.4, e), c.z + along.z * lerp(2, -1, e));
         look.set(mid.x + n.x * lerp(-3, 4, e), (env.waterLevel || gy(mid)) + 0.8, mid.z + n.z * lerp(-3, 4, e)); fov = 44;
       } else if (s.id === 'hole') {
-        const a0 = Math.atan2(mid.z - H.z, mid.x - H.x) - 1.9 + e * 0.9, r = lerp(15, 12, e);
-        pos.set(H.x + Math.cos(a0) * r, gy(H) + lerp(3.2, 4.4, e), H.z + Math.sin(a0) * r);
+        const a0 = Math.atan2(mid.z - H.z, mid.x - H.x) - 1.5 + e * 0.8, r = lerp(13, 10.5, e);   // closer (Avi: the elephants were not clear)
+        pos.set(H.x + Math.cos(a0) * r, gy(H) + lerp(3.4, 4.0, e), H.z + Math.sin(a0) * r);
         look.set(H.x + Math.cos(a0 + 2.2) * 2, gy(H) + 1.6, H.z + Math.sin(a0 + 2.2) * 2); fov = 46;
       } else if (s.id === 'chase') {
         const lion = actors.find((a) => a.id === 'lion') || { x: L.x, z: L.z };
@@ -265,6 +271,7 @@ export function createSavannaFilm({ W, env, imv, camera, audio }) {
       // never under the ground
       const gh = groundY(pos.x, pos.z); if (pos.y < gh + 1.1) pos.y = gh + 1.1;
       camera.position.copy(pos); camera.lookAt(look);
+      key.position.copy(pos).add(new THREE.Vector3(0, 6, 0)); key.target.position.copy(look);
       if (camera.fov !== fov) { camera.fov = fov; camera.updateProjectionMatrix(); }
       // a short dip to black at each cut, the titles
       let d = 0;
@@ -273,7 +280,7 @@ export function createSavannaFilm({ W, env, imv, camera, audio }) {
       dip.style.opacity = d.toFixed(3);
       tA.style.opacity = (clamp01((t - 0.7) / 0.6) * clamp01((SHOTS[0].t1 - 0.3 - t) / 0.6)).toFixed(3);
       tB.style.opacity = (clamp01((t - (SHOTS[5].t0 + 1.4)) / 0.7) * clamp01((FILM_LEN - 0.5 - t) / 0.6)).toFixed(3);
-      W.dayFrac = lerp(0.34, 0.71, ease(t / FILM_LEN));
+      W.dayFrac = lerp(0.4, 0.67, ease(t / FILM_LEN));   // full daylight, golden only at the end
     }
 
     run = { t: 0, done: false, stage, actors, fixed: 0, budget: 0 };
@@ -284,6 +291,7 @@ export function createSavannaFilm({ W, env, imv, camera, audio }) {
       for (const a of actors) { try { a.v.dispose ? a.v.dispose() : a.o.removeFromParent(); } catch (e) { } }
       for (const p of plants) { try { p.dispose ? p.dispose() : p.object.removeFromParent(); } catch (e) { } }
       stage.removeFromParent();
+      if (pipe && pipe.renderer && saved.exp != null) pipe.renderer.toneMappingExposure = saved.exp;
       W.dayFrac = saved.dayFrac; W.speed = saved.speed || 1; W.rain = saved.rain; W.rainTarget = saved.rainTarget;
       el.classList.remove('on'); setTimeout(() => el.remove(), 650);
       markIntro(FILM_KEY);
