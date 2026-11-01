@@ -27,7 +27,7 @@ import { FAIL_LINES, GOAL_LINES, WIN_LINES, OOPS_LINES, FUN_LINES } from '../dat
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const pick = (arr, seed) => arr[Math.abs(seed | 0) % arr.length];
-const ZONE_WORD = { grove: { f: 'חורש', k: 'חֹרֶשׁ' }, amazon: { f: 'אמזונס', k: 'אָמָזוֹנַס' }, reef: { f: 'שונית', k: 'שׁוּנִית' }, desert: { f: 'מדבר', k: 'מִדְבָּר' } };
+const ZONE_WORD = { grove: { f: 'חורש', k: 'חֹרֶשׁ' }, amazon: { f: 'אמזונס', k: 'אָמָזוֹנַס' }, reef: { f: 'שונית', k: 'שׁוּנִית' }, desert: { f: 'מדבר', k: 'מִדְבָּר' }, savanna: { f: 'סוואנה', k: 'סַוָּנָה' } };
 
 export function createRoboLab({ root, audio, kids = false, onExit, enter3d = null, leave3d = null, hasIsland = null }) {
   const T = (o) => (o ? (kids && o.k ? o.k : o.f) : '');

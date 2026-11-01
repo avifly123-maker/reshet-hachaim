@@ -20,6 +20,7 @@ const LIFE = {
   amazon: { tree: ['acai', 'cecropia'], sapling: 'brazilnut', thirsty: 'heliconia', treeG: 0.3 },
   desert: { tree: ['acacia', 'barrelcactus'], sapling: 'acacia', thirsty: 'saltbush', treeG: 0.9 },
   reef:   { tree: ['brain', 'table', 'branching'], sapling: 'branching', thirsty: 'seagrass', treeG: 0.55 },
+  savanna: { tree: ['umbrella', 'marula'], sapling: 'umbrella', thirsty: 'redoat', treeG: 0.8 },   // 1.4.2
 };
 const TILE = { '.': '#f3ecd2', s: '#f0d9a0', '~': '#4fb4d8', T: '#d8e8c0', R: '#d8d2c4' };
 const DUR = { slow: 0.85, normal: 0.42, fast: 0.12 };   // seconds per step of the trace

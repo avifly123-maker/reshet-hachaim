@@ -33,7 +33,7 @@
 #ui.wol .rl-lvb:disabled, #ui.wol .rl-pzb:disabled { opacity: .38; cursor: default; filter: grayscale(.6); }
 #ui.wol .rl-lvb:not(:disabled):hover, #ui.wol .rl-pzb:not(:disabled):hover { transform: translateY(-2px); }
 #ui.wol .rl-z { position: absolute; top: 5px; inset-inline-start: 5px; width: 9px; height: 9px; border-radius: 50%; background: #7a9a4a; }
-#ui.wol .rl-z.z-amazon { background: #2f7d4a; } #ui.wol .rl-z.z-reef { background: #2fa3b8; } #ui.wol .rl-z.z-desert { background: #d8a85a; }
+#ui.wol .rl-z.z-amazon { background: #2f7d4a; } #ui.wol .rl-z.z-reef { background: #2fa3b8; } #ui.wol .rl-z.z-desert { background: #d8a85a; } #ui.wol .rl-z.z-savanna { background: #b8862e; }
 #ui.wol .rl-st { display: inline-flex; gap: 1px; }
 #ui.wol .rl-st i { color: #c9d3da; display: inline-flex; } #ui.wol .rl-st i svg { width: .85em; height: .85em; }
 #ui.wol .rl-st i.on { color: #f5b82e; }

@@ -5,7 +5,7 @@
 // read from the ground, and a mission is chosen that fits the zone. Every mission is checked to be reachable.
 //   makeIslandLevel({ W, env }, zone, { kind, seed }) → level (with place: { OX, OZ, CS } and ownIsland: true) | null
 const KINDS = {
-  grove: ['plant', 'water', 'fire'], amazon: ['plant', 'fruit', 'water'], desert: ['water', 'fire', 'plant'], reef: ['coral', 'net'],
+  grove: ['plant', 'water', 'fire'], amazon: ['plant', 'fruit', 'water'], desert: ['water', 'fire', 'plant'], reef: ['coral', 'net'], savanna: ['fire', 'water', 'plant'],
 };
 const T2 = (f, k) => ({ f, k });
 const SAY = {

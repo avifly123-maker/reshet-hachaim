@@ -74,6 +74,12 @@ n=$(echo "$out" | grep -c "CHECK .* ok")
 echo "$out" | grep "CHECK .* FAIL" && fail "robot lab tutorial: a check failed"
 echo "$out" | grep "\[pageerror\]\|JS ERROR\|UNTIL TIMEOUT\|NO ELEMENT" && fail "robot lab tutorial: errors"
 [ "$n" = 8 ] || fail "robot lab tutorial: $n of 8 checks"
+# the savanna's robot lessons (1.4.2, Avi 1.11): listed, and one runs on the savanna island in 3D
+out=$(timeout 1200 python3 tools/play.py dist/index.html tests/play/robolab-savanna.json 800 460 2>&1)
+n=$(echo "$out" | grep -c "CHECK .* ok")
+echo "$out" | grep "CHECK .* FAIL" && fail "robot lab savanna: a check failed"
+echo "$out" | grep "\[pageerror\]\|JS ERROR\|UNTIL TIMEOUT\|NO ELEMENT" && fail "robot lab savanna: errors"
+[ "$n" = 2 ] || fail "robot lab savanna: $n of 2 checks"
 # the desert's first visit (1.4.1): plant a saltbush, bring a sand rat, run time on (tests/play/desert-tutorial.json)
 out=$(timeout 1200 python3 tools/play.py dist/index.html tests/play/desert-tutorial.json 800 460 2>&1)
 n=$(echo "$out" | grep -c "CHECK .* ok")
