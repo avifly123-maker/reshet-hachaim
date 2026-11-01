@@ -36,7 +36,8 @@ lines (voiced); keep-forest board; island-art (tools/render-island.py on Avi's P
       checked with the recognizer, packed by tools/voice/build-kubi-voice.py
 
 ## E. Close
-- [ ] check-all, old saves, regression shots; CHANGELOG 1.4.2; build with tools/pack-1.4.sh into Avi's private folders
+- [x] check-all (1.11 12:20, all passed), old saves; CHANGELOG 1.4.2; 1.4.2 built (tools/pack-1.4.sh: exe 133 MB, mac zip, html); film re-recorded with the new trees and hyena
+- [ ] copy the release files to Documents\reshet-hachaim-1.4\installer\1.4.2 and the private Drive folder (24 MB parts, join, sha256)
 
 ## F. After 1.4.2 (Avi, 1.11 04:13–04:17)
 - [x] (1.11 05:20, src/game/savanna/film.js) an opening film for the savanna, about 25 seconds, in the engine (the island, the Blender animals, the camera moving over
