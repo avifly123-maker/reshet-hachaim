@@ -79,7 +79,7 @@ out=$(timeout 1200 python3 tools/play.py dist/index.html tests/play/robolab-sava
 n=$(echo "$out" | grep -c "CHECK .* ok")
 echo "$out" | grep "CHECK .* FAIL" && fail "robot lab savanna: a check failed"
 echo "$out" | grep "\[pageerror\]\|JS ERROR\|UNTIL TIMEOUT\|NO ELEMENT" && fail "robot lab savanna: errors"
-[ "$n" = 2 ] || fail "robot lab savanna: $n of 2 checks"
+[ "$n" = 3 ] || fail "robot lab savanna: $n of 3 checks"
 # the desert's first visit (1.4.1): plant a saltbush, bring a sand rat, run time on (tests/play/desert-tutorial.json)
 out=$(timeout 1200 python3 tools/play.py dist/index.html tests/play/desert-tutorial.json 800 460 2>&1)
 n=$(echo "$out" | grep -c "CHECK .* ok")

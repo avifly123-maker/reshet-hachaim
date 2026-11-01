@@ -4,7 +4,9 @@
   c_<biome>   art/islands/carousel/<biome>.png   the island alone on a transparent background (start-screen carousel;
                                                  rendered from the game over black and white: tools/render-island.py; the Amazon one gets a shadow lift)
   lab         art/lab/st_home.png                the lab of רובו־דע (the start screen's science tab)
-  robolab     art/robolab/panel.png              קוּבִּי and the three tools, a still of the lab's opening film (1.4.2)
+  robolab     art/robolab/panel.png              קוּבִּי and the three tools, a still of the lab's opening film (1.4.2), recorded
+              with a light sky instead of the film's night (Avi: a zone picture should be bright; the gradient colours
+              of intro.js swapped in a copy of the build: #a9d6e8, #dcf0f2, #efe6d2)
   (desert.png and savanna.png in art/islands/ are the carousel islands over a drawn sky of clouds, 1.11; a Blender
    render can replace them)"""
 import base64, io, json, os
