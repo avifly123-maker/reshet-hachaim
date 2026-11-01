@@ -15,7 +15,7 @@ import { checkRoboBadges } from './badges.js';
 import { ZONE_IDS, ZONE_LOOK } from '../data/zones.js';
 import { BLOCK_INTRO, CHAPTER_INTRO } from '../data/robolab/kubi-lines.js';
 import { playIntro } from './intro.js';
-import { robolabTutorial, robolabEventTutorial } from '../ui/tutorials.js';   // hands-on: the editor and the run, then events
+import { robolabTutorial, robolabEventTutorial, robolabLoopTutorial } from '../ui/tutorials.js';   // hands-on: the editor and the run, then events
 import { svcGuide } from '../core/services.js';
 import { BLOCKS } from './engine/blocks.js';
 import { createVoice } from '../audio/voice.js';
@@ -27,10 +27,13 @@ import { FAIL_LINES, GOAL_LINES, WIN_LINES, OOPS_LINES, FUN_LINES } from '../dat
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const pick = (arr, seed) => arr[Math.abs(seed | 0) % arr.length];
+let viewMode = 0;   // the eye button's camera view (0 the whole field, 1 from above, 2 close to the tool)
+const VIEW_WORDS = [['כל המגרש', 'כָּל הַמִּגְרָשׁ'], ['מלמעלה', 'מִלְמַעְלָה'], ['קרוב לכלי', 'קָרוֹב לַכְּלִי']];
 const ZONE_WORD = { grove: { f: 'חורש', k: 'חֹרֶשׁ' }, amazon: { f: 'אמזונס', k: 'אָמָזוֹנַס' }, reef: { f: 'שונית', k: 'שׁוּנִית' }, desert: { f: 'מדבר', k: 'מִדְבָּר' }, savanna: { f: 'סוואנה', k: 'סַוָּנָה' } };
 
 export function createRoboLab({ root, audio, kids = false, onExit, enter3d = null, leave3d = null, hasIsland = null }) {
   const T = (o) => (o ? (kids && o.k ? o.k : o.f) : '');
+  const viewWord = (m) => (kids ? VIEW_WORDS[m][1] : VIEW_WORDS[m][0]);
   const el = document.createElement('div');
   el.className = 'rl'; el.hidden = true; el.setAttribute('dir', 'rtl');
   root.appendChild(el);
@@ -185,21 +188,25 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   const countHats = (prog) => { let n = 0; const walk = (xs) => (xs || []).forEach((nd) => { if (BLOCKS[nd.b] && BLOCKS[nd.b].kind === 'hat') n++; walk(nd.body); walk(nd.then); walk(nd.else); });
     for (const k of ['robot', 'drone', 'sub']) walk(prog[k]); return n + (prog.on || []).length; };   // handlers live in prog.on
   const countAll = (prog) => { let n = 0; const walk = (xs) => (xs || []).forEach((nd) => { n++; walk(nd.body); walk(nd.then); walk(nd.else); }); for (const k of ['robot', 'drone', 'sub']) walk(prog[k]); return n; };
-  const tutState = () => { const p = ed ? ed.program() : {}; return { level: cur && cur.id, blocks: ed ? countAll(p) : 0, runs, hats: ed ? countHats(p) : 0 }; };
+  // loops: "חזור" / "עד ש" blocks in the program; inLoop: blocks placed inside one (the loop tutorial, 1.4.2)
+  const countLoops = (prog) => { let n = 0, inside = 0; const walk = (xs) => (xs || []).forEach((nd) => { if (nd.body && BLOCKS[nd.b] && BLOCKS[nd.b].kind !== 'hat') { n++; inside += nd.body.length; } walk(nd.body); walk(nd.then); walk(nd.else); }); for (const k of ['robot', 'drone', 'sub']) walk(prog[k]); return { n, inside }; };
+  const tutState = () => { const p = ed ? ed.program() : {}; const lp = ed ? countLoops(p) : { n: 0, inside: 0 }; return { level: cur && cur.id, blocks: ed ? countAll(p) : 0, runs, hats: ed ? countHats(p) : 0, loops: lp.n, inLoop: lp.inside }; };
   function stopTut() { clearTimeout(tutT); if (tut) { const t = tut; tut = null; t.stop(); } }
   function queueTut(L) {
     clearTimeout(tutT);
     if (L.ownIsland) return;
     const hasHat = (L.blocks || []).some((b) => BLOCKS[b] && BLOCKS[b].kind === 'hat');
+    const hasLoop = (L.blocks || []).includes('repeat');
     tutT = setTimeout(() => {
       if ((tut && tut.step) || intro || cur !== L) return;
       const g = svcGuide(); if (!g) return;
       const rl = { state: tutState };
-      tut = robolabTutorial({ guide: g, rl }) || (hasHat ? robolabEventTutorial({ guide: g, rl }) : null);
+      tut = robolabTutorial({ guide: g, rl }) || (hasLoop ? robolabLoopTutorial({ guide: g, rl }) : null) || (hasHat ? robolabEventTutorial({ guide: g, rl }) : null);
     }, 2600);
   }
   function maxbUpdate() { const m = el.querySelector('.rl-maxb b'); if (!m || !ed || !cur) return; const n = countBlocks(ed.program()); m.textContent = n; m.parentNode.classList.toggle('full', !!cur.maxBlocks && n >= cur.maxBlocks); }
   function mountLevel(L, api) {
+    viewMode = 0;   // a new lesson starts with the whole field in view
     flushDraft(); stopTut();
     const news = newsFor(L);
     stopRun(); if (map) map.dispose();
@@ -221,7 +228,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
             <button type="button" data-again>${icon('again')}<span>${kids ? 'מֵהַהַתְחָלָה' : 'מההתחלה'}</span></button>
             <button type="button" data-why disabled>${icon('why')}<span>${kids ? 'מָה קָרָה?' : 'מה קרה?'}</span></button>
             ${(L.blocks || []).includes('add') ? `<span class="rl-ctr" title="${kids ? 'הַמּוֹנֶה' : 'המונה'}">🔢 <b>0</b></span>` : ''}
-            ${api ? `<button type="button" data-view aria-label="${kids ? 'לְהַחֲזִיר אֶת הַמַּבָּט' : 'להחזיר את המבט'}">${icon('eye')}</button>` : ''}
+            ${api ? `<button type="button" data-view>${icon('eye')}<span>${viewWord(1)}</span></button>` : ''}
           </div></div>
       </div></div>`;
     ed = createEditor(el.querySelector('.rl-ed'), { lesson: L, kids, onFull: () => { sfx('invalid'); const m = el.querySelector('.rl-maxb'); if (m) { m.classList.remove('full'); void m.offsetWidth; m.classList.add('full'); } }, onChange: () => { maxbUpdate(); lastRun = null; el.querySelector('[data-why]').disabled = true; if (map && !map.isPlaying()) map.reset(); hideMsg(); queueDraft(); } });
@@ -313,7 +320,10 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     if (b.dataset.run) { run(b.dataset.run); return; }
     if (b.dataset.again != null) { stopRun(); hideMsg(); map.reset(); return; }
     if (b.dataset.why != null) { why(); return; }
-    if (b.dataset.view != null) { if (in3d && in3d.api) in3d.api.frame(); return; }
+    if (b.dataset.view != null) {   // the eye: the whole field → from above → close to the tool → the whole field
+      if (in3d && in3d.api) { viewMode = (viewMode + 1) % 3; in3d.api.frame(viewMode); const sp = b.querySelector('span'); if (sp) sp.textContent = viewWord((viewMode + 1) % 3); sfx('click'); }
+      return;
+    }
     if (b.dataset.stay != null) { hideMsg(); map.reset(); return; }
     if (b.dataset.island) { sfx('click'); openIsland(b.dataset.island); return; }
     if (b.dataset.next != null && cur && cur.ownIsland) { openIsland(cur.zone); return; }

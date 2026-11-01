@@ -1,0 +1,20 @@
+[{"wait": 4},
+ {"js": "window.__guide && window.__guide.close(); window.__journey.unlockAll('2580'); window.__journey.markIntro('g:rltut'); window.__app.bus.emit('ui:robolab'); 1"},
+ {"until": "!!document.querySelector('.rl-home')", "timeout": 60},
+ {"js": "window.__guide && window.__guide.close(); window.__rlDebug.open('l2-1', true); 1"},
+ {"until": "!!document.querySelector('#rguide .rg-ring')", "timeout": 30},
+ {"js": "'CHECK loop-ring ' + (document.querySelector('#rguide .rg-txt').textContent.includes('חזור') ? 'ok' : 'FAIL')"},
+ {"clickSel": "#ui .rl-pal .rl-blk[data-add=repeat]"},
+ {"wait": 1.5},
+ {"js": "'CHECK inside-shown ' + (document.querySelector('#rguide .rg-txt') && document.querySelector('#rguide .rg-txt').textContent.includes('זוהר') ? 'ok' : 'FAIL')"},
+ {"js": "document.querySelector('#rguide .rg-next') && document.querySelector('#rguide .rg-next').click(); 1"},
+ {"wait": 0.6},
+ {"clickSel": "#ui .rl-pal .rl-blk[data-add=fwd]"},
+ {"wait": 1.5},
+ {"js": "const p = window.__rlDebug.prog(); const r = (p.robot || p.drone || [])[0]; 'CHECK block-inside ' + (r && r.b === 'repeat' && r.body.length === 1 ? 'ok' : 'FAIL ' + JSON.stringify(p))"},
+ {"js": "'CHECK count-step ' + (document.querySelector('#rguide .rg-txt') && document.querySelector('#rguide .rg-txt').textContent.includes('כמה פעמים') ? 'ok' : 'FAIL')"},
+ {"js": "document.querySelector('#rguide .rg-next') && document.querySelector('#rguide .rg-next').click(); 1"},
+ {"wait": 1.2},
+ 
+ {"js": "'CHECK after-step ' + (document.querySelector('#rguide .rg-txt') && document.querySelector('#rguide .rg-txt').textContent.includes('אחרי הלולאה') ? 'ok' : 'FAIL')"}
+]
