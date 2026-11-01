@@ -1,10 +1,10 @@
 # אורג (Ploceus cucullatus, village weaver, male) – savanna, from the blackbird's bird build (blackbird.py) at the weaver's
 # size and stockier: a bright yellow body, a black mask over the face and the throat, a chestnut tinge on the nape, a red
 # eye, a thick black cone of a beak for seeds, yellow-green wings with dark feather centres, a short olive tail.
-LEGH = 0.1
+LEGH = 0.075   # 1.11 round 2: shorter legs, a slimmer body (Avi's review of the first run)
 blobs = [
-    dict(t='ell', c=(0, 0.0, -0.02), r=(0.062, 0.064, 0.095), rot=(-18, 0, 0), bone='hips'),
-    dict(t='ell', c=(0, 0.022, 0.045), r=(0.054, 0.058, 0.06), bone='chest'),
+    dict(t='ell', c=(0, 0.0, -0.02), r=(0.052, 0.056, 0.09), rot=(-12, 0, 0), bone='hips'),
+    dict(t='ell', c=(0, 0.022, 0.045), r=(0.05, 0.055, 0.058), bone='chest'),
     dict(t='cap', a=(0, 0.045, 0.06), b2=(0, 0.078, 0.088), r=(0.036, 0.03), bone='neck'),
     dict(t='ell', c=(0, 0.088, 0.1), r=(0.034, 0.033, 0.04), bone='head'),
 ]
@@ -24,7 +24,7 @@ def tcol(t, u, top): return mix(OLIVE, WDARK, 0.4 * t)
 
 parts = [];
 for sx, L in ((1, 'l'), (-1, 'r')):
-    wp, wb = wing_part(L, sx, (sx * 0.045, 0.035, 0.045), 0.17, 0.09, wcol, sweep=0.035, thick=0.016); parts.append(wp); bones += wb
+    wp, wb = wing_part(L, sx, (sx * 0.04, 0.035, 0.045), 0.19, 0.1, wcol, sweep=0.04, thick=0.014); parts.append(wp); bones += wb
     parts += eye_parts((sx * 0.029, 0.096, 0.113), 0.0075, 'head', '#b81c10', (sx, 0.2, 0.6))
 lp, lb = bird_legs((0.022, -0.04, 0.0), (0.026, -LEGH, 0.008), 0.032, srgb('#3a2c22'), 0.0045); parts += lp; bones += lb
 parts.append(beak_part((0, 0.086, 0.126), 0.034, 0.014, 0.013, srgb('#141210'), srgb('#2a2622'), curve=0.04))   # a thick seed-cracking cone

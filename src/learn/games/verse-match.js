@@ -113,7 +113,8 @@ export function mountVerseMatch(root, ctx, opts = {}) {
   const offs = [];
   const on = (t, ev, fn) => { t.addEventListener(ev, fn); offs.push(() => t.removeEventListener(ev, fn)); };
   const SRC = new Map(SOURCE_CARDS.map((c) => [c.id, c]));
-  const playable = () => SOURCE_CARDS.filter((c) => VERSE_LINKS[c.id] && (!kids || VERSE_LINKS[c.id].kids));
+  // a source whose best cards are not in the album yet (a zone in the works) is not played
+  const playable = () => SOURCE_CARDS.filter((c) => VERSE_LINKS[c.id] && (!kids || VERSE_LINKS[c.id].kids) && VERSE_LINKS[c.id].links.some((l) => l.w === 2 && ctx.CARD.get(l.c)));
   const metCount = () => SOURCE_CARDS.filter((c) => ST.met[c.id]).length;
 
   /* ── a round */
@@ -252,7 +253,7 @@ export function mountVerseMatch(root, ctx, opts = {}) {
       ctx.badge('verse:first');
       if (G.firstTry === n) ctx.badge('verse:perfect');
       if (ST.rounds >= 5) ctx.badge('verse:five');
-      if (SOURCE_CARDS.every((c) => !VERSE_LINKS[c.id] || ST.met[c.id])) ctx.badge('verse:all');
+      if (playable().every((c) => ST.met[c.id])) ctx.badge('verse:all');
       ctx.sfx(stars === 3 ? 'mission' : 'discover');
     }
     const title = stars === 3 ? u('end3') : stars === 2 ? u('end2') : u('end1');

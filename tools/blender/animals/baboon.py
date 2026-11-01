@@ -15,17 +15,17 @@ TRUNK = []
 for x, t, b in ((300, 118, 160), (285, 96, 165), (265, 95, 172), (240, 99, 184), (215, 102, 190), (190, 104, 186), (165, 106, 172),
                 (140, 108, 165), (118, 112, 172), (102, 122, 178)):
     z, top = ph(x, t); _, bot = ph(x, b); TRUNK.append((z, top, bot))
-TAIL = [P3(110, 116), P3(118, 78), P3(100, 74), P3(92, 120), P3(90, 190), P3(92, 250)]
+TAIL = [P3(110, 116), P3(120, 88), P3(112, 70), P3(98, 80), P3(91, 130), P3(90, 200), P3(93, 255)]
 blobs = trunk_from_profile(TRUNK, lambda z: 0.11 + 0.025 * smooth(-0.2, 0.3, z), n=36)
 blobs += [
     dict(t='cap', a=P3(290, 108), b2=P3(305, 100), r=(0.09, 0.08), bone='neck'),              # the short neck and the mane over it
-    dict(t='ell', c=P3(305, 96), r=(0.075, 0.075, 0.08), bone='head'),                         # the skull
+    dict(t='ell', c=P3(303, 94), r=(0.09, 0.09, 0.095), bone='head'),                          # the big skull, the cheek fur round it
     dict(t='cap', a=P3(298, 86), b2=P3(318, 88), r=(0.03, 0.025), bone='head'),               # the brow ridge
-    dict(t='cap', a=P3(315, 104), b2=P3(342, 126), r=(0.045, 0.035), bone='head'),            # the long muzzle
+    dict(t='cap', a=P3(314, 102), b2=P3(342, 125), r=(0.055, 0.045), bone='head'),            # the long muzzle
     dict(t='ell', c=P3(322, 118), r=(0.042, 0.03, 0.05), bone='head'),                        # the jaw
 ]
 for i in range(len(TAIL) - 1):
-    blobs.append(dict(t='cap', a=TAIL[i], b2=TAIL[i + 1], r=(0.03 - 0.003 * i, 0.027 - 0.003 * i), bone='tail%d' % (i + 1)))
+    blobs.append(dict(t='cap', a=TAIL[i], b2=TAIL[i + 1], r=(0.022 - 0.002 * i, 0.02 - 0.002 * i), bone='tail%d' % (i + 1)))
 bones = [('hips', None, P3(104, 118), P3(200, 104)), ('chest', 'hips', P3(200, 104), P3(292, 100)),
          ('neck', 'chest', P3(290, 108), P3(306, 98)), ('head', 'neck', P3(306, 96), P3(344, 128))] + chain('tail', TAIL, 'hips')
 for sx, L in ((1, 'l'), (-1, 'r')):
@@ -44,7 +44,7 @@ def paint(P, N, tag):
     n = noise.noise(Vector((x * 16, y * 16, z * 16))); n2 = noise.noise(Vector((x * 70, y * 70, z * 70)))
     c = mix(OLIVE, OLIVE2, 0.35 + 0.3 * n + 0.2 * n2)
     if N.y < -0.4 and -0.4 < z < 0.3: c = mix(c, PALE, 0.35)                                    # a paler belly
-    if z > ph(310, 0)[0]: c = mix(c, FACE, smooth(ph(310, 0)[0], ph(318, 0)[0], z) * 0.9)      # the dark bare face and muzzle
+    if z > ph(312, 0)[0] and y < ph(0, 92)[1]: c = mix(c, FACE, smooth(ph(312, 0)[0], ph(322, 0)[0], z) * 0.9)   # the dark bare muzzle
     if y < 0.07 and abs(x) > 0.04: c = mix(c, DARK, 0.7)                                         # the dark hands and feet
     return c
 

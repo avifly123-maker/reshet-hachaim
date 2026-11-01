@@ -10,6 +10,7 @@ import { BIOME as AMAZON } from '../src/data/amazon.js';
 import { BIOME as GROVE } from '../src/data/grove.js';
 import { BIOME as REEF } from '../src/data/reef.js';
 import { BIOME as DESERT } from '../src/data/desert.js';
+import { BIOME as SAVANNA } from '../src/data/savanna.js';
 import { SOURCE_CARDS, SOURCE_SETS } from '../src/data/torah.js';
 import { VERSE_LINKS, VERSE_UI } from '../src/data/torah-links.js';
 
@@ -23,7 +24,7 @@ function vocalised(s) {
   return marks * 2 >= letters * 0.8;
 }
 const CARD_IDS = new Set();
-for (const B of [AMAZON, GROVE, REEF, DESERT]) for (const s of B.species) CARD_IDS.add(B.id + ':' + s.id);
+for (const B of [AMAZON, GROVE, REEF, DESERT, SAVANNA]) for (const s of B.species) CARD_IDS.add(B.id + ':' + s.id);
 for (const m of fs.readFileSync(new URL('../src/game/tool-defs.js', import.meta.url), 'utf8').matchAll(/^\s*\{ id: '([a-z]+)'/gm)) CARD_IDS.add('tool:' + m[1]);
 const W = ['אישה', 'אשה', 'נשים', 'ילדה', 'ילדות', 'נערה', 'דינוזאור', 'דינוזאורים', 'אבולוציה'];
 const BAD = new RegExp(`(^|[^א-ת])[והבלכמש]{0,2}(${W.join('|')})(?=$|[^א-ת])`);

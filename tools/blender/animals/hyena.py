@@ -16,14 +16,14 @@ for x, t, b in ((305, 70, 145), (285, 52, 152), (260, 52, 158), (235, 55, 165), 
                 (135, 67, 176), (110, 72, 168), (88, 80, 160), (70, 96, 148)):
     z, top = ph(x, t); _, bot = ph(x, b); TRUNK.append((z, top, bot))
 TAIL = [P3(68, 100), P3(64, 140), P3(62, 175), P3(62, 198)]
-blobs = trunk_from_profile(TRUNK, lambda z: 0.13 + 0.025 * smooth(-0.3, 0.3, z))     # broad at the shoulders, narrow behind
+blobs = trunk_from_profile(TRUNK, lambda z: 0.13 + 0.025 * smooth(-0.3, 0.3, z), n=34)     # broad at the shoulders, narrow behind
 blobs += [
     dict(t='cap', a=P3(292, 92), b2=P3(342, 86), r=(0.115, 0.09), bone='neck'),          # the thick neck
-    dict(t='ell', c=P3(356, 84), r=(0.085, 0.085, 0.09), bone='head'),                     # the broad skull
+    dict(t='ell', c=P3(354, 84), r=(0.1, 0.095, 0.1), bone='head'),                        # the big broad skull
     dict(t='ell', c=P3(360, 100), r=(0.08, 0.055, 0.07), bone='head'),                      # the strong cheeks
-    dict(t='cap', a=P3(368, 94), b2=P3(400, 106), r=(0.058, 0.045), bone='head'),          # the short blunt muzzle
+    dict(t='cap', a=P3(366, 92), b2=P3(398, 104), r=(0.065, 0.055), bone='head'),          # the short blunt muzzle
     dict(t='ell', c=P3(375, 114), r=(0.05, 0.03, 0.055), bone='head'),                      # the jaw
-    dict(t='cap', a=P3(150, 58), b2=P3(320, 50), r=(0.022, 0.018), bone='chest'),          # the short bristly mane
+    dict(t='cap', a=P3(170, 64), b2=P3(300, 56), r=(0.03, 0.026), bone='chest'),           # the short bristly mane, sunk into the back
     dict(t='cap', a=TAIL[0], b2=TAIL[1], r=(0.03, 0.026), bone='tail1'),
     dict(t='cap', a=TAIL[1], b2=TAIL[2], r=(0.026, 0.03), bone='tail2'),
     dict(t='ell', c=TAIL[3], r=(0.04, 0.055, 0.04), bone='tail3'),                          # the dark bushy tip
@@ -38,12 +38,12 @@ for sx, L in ((1, 'l'), (-1, 'r')):
 cat_muscles(blobs, bones, sh=(0.06, 0.11, 0.08), th=(0.075, 0.13, 0.1))
 E = blob_ears(blobs, bones, base=(0.045, ph(345, 62)[1], ph(345, 62)[0]), d=(0.35, 1, -0.2), H=0.085, w=0.06, t=0.012, tip=0.95, turn=20)
 
-SAND, SAND2, SPOT, DARK, CREAM = srgb('#a89a78'), srgb('#948664'), srgb('#4a3a28'), srgb('#2a2018'), srgb('#c8bc9c')
+SAND, SAND2, SPOT, DARK, CREAM = srgb('#8e7e5c'), srgb('#7a6a4c'), srgb('#3a2c1e'), srgb('#2a2018'), srgb('#b0a282')
 SPOTS = []
 import random as _rnd
 _r = _rnd.Random(7)
-for i in range(70):   # round spots on the flanks, the shoulders and the legs (not on the neck and the head)
-    SPOTS.append(Vector((_r.choice((1, -1)) * 0.2, 0.15 + _r.random() * 0.6, -0.55 + _r.random() * 0.95)))
+for i in range(200):   # round spots on the flanks, the shoulders and the legs (not on the neck and the head)
+    SPOTS.append(Vector((_r.choice((1, -1)) * 0.2, 0.08 + _r.random() * 0.62, -0.55 + _r.random() * 1.0)))
 def paint(P, N, tag):
     x, y, z = P
     e = ear_paint(P, N, E)
@@ -54,7 +54,7 @@ def paint(P, N, tag):
         for s in SPOTS:
             if s.x * x < 0: continue
             d = Vector((0, y - s.y, z - s.z)).length
-            if d < 0.04: c = mix(c, SPOT, smooth(0.04, 0.022, d) * 0.85); break
+            if d < 0.03: c = mix(c, SPOT, smooth(0.03, 0.016, d) * 0.85); break
     if z > 0.5 and y < ph(0, 95)[1]: c = mix(c, DARK, smooth(0.6, 0.72, z) * 0.85)            # the dark muzzle
     if y > ph(0, 60)[1] and abs(x) < 0.04 and z < 0.5: c = mix(c, mix(SAND2, DARK, 0.4), 0.6) # the darker mane
     if y < 0.06 and abs(x) > 0.04: c = mix(c, DARK, 0.6)                                        # the paws
