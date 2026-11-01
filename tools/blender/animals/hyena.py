@@ -56,7 +56,7 @@ cat_muscles(blobs, bones, sh=(0.06, 0.12, 0.08), th=(0.06, 0.11, 0.09), sh_t=0.3
 for sx in (1, -1):   # round 8: the powerful hindquarters of the photo: the round gluteal mass and the thick thigh above the stifle
     blobs += [dict(t='ell', c=P3(84, 120, sx * 0.075), r=(0.075, 0.085, 0.095), bone='hips'),
               dict(t='ell', c=P3(104, 150, sx * 0.085), r=(0.065, 0.1, 0.1), bone='hl' if sx > 0 else 'hr')]
-E = blob_ears(blobs, bones, base=(0.06, ph(343, 54)[1], ph(343, 54)[0]), d=(0.15, 1, -0.15), H=0.13, w=0.095, t=0.016, tip=0.9, turn=35)   # big round ears (round 8: bigger, as in the photo)
+E = blob_ears(blobs, bones, base=(0.06, ph(343, 54)[1], ph(343, 54)[0]), d=(0.25, 1, -0.25), H=0.115, w=0.085, t=0.02, tip=0.5, turn=25)   # big round ears (round 13: rounder, thicker, a cup and not a plate)
 
 SAND, SAND2, SPOT, DARK, CREAM = srgb('#7e6e52'), srgb('#625440'), srgb('#2a1e14'), srgb('#201810'), srgb('#9a8c6c')
 SPOTS = []
@@ -78,7 +78,11 @@ def paint(P, N, tag):
             if s.x * x < 0: continue
             d = Vector((0, (y - s.y) * 0.85, z - s.z)).length + wob
             if d < rad: c = mix(c, SPOT, smooth(rad, rad * 0.5, d) * k); break
-    if z > ph(380, 0)[0]: c = mix(c, DARK, smooth(ph(380, 0)[0], ph(395, 0)[0], z) * 0.85)     # the dark tip of the muzzle
+    if z > ph(372, 0)[0]: c = mix(c, mix(SAND2, DARK, 0.45), smooth(ph(372, 0)[0], ph(388, 0)[0], z) * 0.7)   # round 13: the muzzle darkens gradually
+    if z > ph(398, 0)[0]: c = mix(c, DARK, smooth(ph(398, 0)[0], ph(406, 0)[0], z) * 0.8)                  # only the nose is black
+    if 0.06 < y < 0.42 and abs(x) > 0.04 and (z > 0.3 or z < -0.2):                                         # round 14: small spots down the legs
+        d1, d2, rid = worley2((x * 1.4, y, z), 26, 5)
+        if rid < 0.7: c = mix(c, SPOT, smooth(0.32, 0.18, d1) * 0.7)
     if abs(x) < 0.05 and N.y > 0.6 and -0.3 < z < ph(330, 0)[0]: c = mix(c, mix(SAND2, srgb('#8a5a2a'), 0.5), 0.7)   # the reddish mane along the back
     if y < 0.06 and abs(x) > 0.04: c = mix(c, DARK, 0.6)                                        # the paws
     if y < 0.025 and abs(x) > 0.04 and (z > ph(310, 0)[0] or ph(105, 0)[0] < z < ph(125, 0)[0]): c = mix(c, srgb('#141010'), 0.85)   # the claws

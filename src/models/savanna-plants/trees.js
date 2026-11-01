@@ -6,6 +6,18 @@ import { makeRng, makeNoise2D, hashString } from '../../core/util.js';
 import { V3, Col, UP, TAU, Geo, jit, lum, tube, walk, blob, card, gem, taper, barkFn } from '../grove-plants/kit.js';
 import { seedling } from '../desert-plants/parts.js';
 
+// 1.11 (Avi: "trees must look natural"): a trunk is not a pipe stuck in the ground. Root flares spread at its foot, and
+// a second, thinner stem is grown along the trunk on one side (a living trunk is never perfectly round).
+function trunkFoot(wood, rng, pts, r, bark, n = 5) {
+  for (let k = 0; k < n; k++) {
+    const az = k / n * TAU + rng.range(-0.4, 0.4), a = new V3(Math.cos(az) * r * 0.5, 0.25 + r * 0.4, Math.sin(az) * r * 0.5);
+    const b = new V3(Math.cos(az) * r * rng.range(2.0, 2.8), -0.05, Math.sin(az) * r * rng.range(2.0, 2.8));
+    tube(wood, [a, a.clone().lerp(b, 0.5).add(new V3(0, 0.03, 0)), b], [r * 0.55, r * 0.32, r * 0.1], 5, bark, {});
+  }
+  const az = rng() * TAU, off = new V3(Math.cos(az) * r * 0.45, 0, Math.sin(az) * r * 0.45), m = Math.max(2, Math.floor(pts.length * 0.75));
+  tube(wood, pts.slice(0, m).map((p, i) => p.clone().addScaledVector(off, 1 - 0.6 * i / m)), taper(m, r * 0.7, r * 0.35), 6, bark, {});
+}
+
 const geomsOf = (o) => Object.fromEntries(Object.entries(o).map(([k, g]) => [k, g.build()]));
 
 // a flat crown: many low, wide leaf blobs spread on a disc at height y (the acacia's umbrella, the marula's dome)
@@ -28,6 +40,7 @@ export function buildUmbrella(variant) {
   const split = H * rng.range(0.32, 0.42);
   const trunk = walk(new V3(0, 0, 0), new V3(rng.range(-0.12, 0.12), 1, rng.range(-0.12, 0.12)), split, 4, rng, 0.06, 0.1);
   tube(wood, trunk.pts, taper(trunk.pts.length, 0.26, 0.2), 7, bark, {});
+  trunkFoot(wood, rng, trunk.pts, 0.26, bark);
   const top = trunk.pts[trunk.pts.length - 1], perch = [];
   const nL = rng.int(4, 6);
   for (let i = 0; i < nL; i++) {
@@ -147,6 +160,7 @@ export function buildKigelia(variant) {
   const bark = barkFn('#7a7060', '#9a9080', rng, noise, { fiss: 3 });
   const trunk = walk(new V3(0, 0, 0), UP, H * 0.45, 4, rng, 0.05, 0.05);
   tube(wood, trunk.pts, taper(trunk.pts.length, 0.3, 0.22), 8, bark, {});
+  trunkFoot(wood, rng, trunk.pts, 0.3, bark);
   const top = trunk.pts[trunk.pts.length - 1], perch = [];
   for (let i = 0; i < 5; i++) {
     const az = i / 5 * TAU + rng.range(-0.3, 0.3), end = new V3(Math.cos(az) * R * 0.7, H * 0.82, Math.sin(az) * R * 0.7);
@@ -178,6 +192,7 @@ export function buildSycamore(variant) {
   const bark = barkFn('#a09a7a', '#b8ae8a', rng, noise, { fiss: 2, vert: 0.6 });
   const trunk = walk(new V3(0, 0, 0), UP, H * 0.35, 4, rng, 0.04, 0.05);
   tube(wood, trunk.pts, taper(trunk.pts.length, 0.6, 0.45), 10, bark, {});
+  trunkFoot(wood, rng, trunk.pts, 0.6, bark, 7);
   for (let b = 0; b < 4; b++) {   // buttress roots
     const a = b / 4 * TAU + rng(), e = new V3(Math.cos(a) * 1.1, 0.02, Math.sin(a) * 1.1);
     tube(wood, [new V3(Math.cos(a) * 0.3, 0.8, Math.sin(a) * 0.3), e.clone().lerp(new V3(0, 0.4, 0), 0.4), e], [0.2, 0.14, 0.06], 5, bark, {});
@@ -210,6 +225,7 @@ export function buildMarula(variant) {
   const bark = barkFn('#7a7268', '#9a9288', rng, noise, { fiss: 4 });
   const trunk = walk(new V3(0, 0, 0), UP, H * 0.5, 4, rng, 0.05, 0.06);
   tube(wood, trunk.pts, taper(trunk.pts.length, 0.28, 0.2), 8, bark, {});
+  trunkFoot(wood, rng, trunk.pts, 0.28, bark);
   const top = trunk.pts[trunk.pts.length - 1], perch = [];
   for (let i = 0; i < 5; i++) {
     const az = i / 5 * TAU + rng.range(-0.3, 0.3), end = new V3(Math.cos(az) * R * 0.7, H * 0.85, Math.sin(az) * R * 0.7);
@@ -235,24 +251,31 @@ export function buildDoum(variant) {
   const crowns = [];
   const fork = (start, dir, len, depth) => {
     const w = walk(start, dir, len, 4, rng, 0.04, 0.02);
-    tube(wood, w.pts, taper(w.pts.length, depth ? 0.17 : 0.25, depth ? 0.14 : 0.2), 7, ring, {});
+    tube(wood, w.pts, taper(w.pts.length, [0.26, 0.18, 0.13][depth], [0.21, 0.15, 0.11][depth]), 7, ring, {});
     const end = w.pts[w.pts.length - 1];
-    if (depth < 1) {
+    if (depth < (rng() < 0.55 ? 2 : 1)) {   // 1.11: forks once or twice, the doum's mark
       const side = new V3(rng.range(-1, 1), 0, rng.range(-1, 1)).normalize();
-      fork(end, UP.clone().addScaledVector(side, 0.45).normalize(), len * 0.8, depth + 1);
-      fork(end, UP.clone().addScaledVector(side, -0.45).normalize(), len * 0.75, depth + 1);
+      fork(end, UP.clone().addScaledVector(side, 0.45).normalize(), len * (depth ? 0.6 : 0.8), depth + 1);
+      fork(end, UP.clone().addScaledVector(side, -0.45).normalize(), len * (depth ? 0.55 : 0.75), depth + 1);
     } else crowns.push(end);
   };
   fork(new V3(0, 0, 0), UP, H * 0.45, 0);
   for (const top of crowns) {
-    for (let i = 0; i < 12; i++) {   // fan leaves: a stalk and a round fan of stiff segments
+    for (let i = 0; i < 14; i++) {   // a skirt of dry hanging fans under the crown (1.11)
+      const az = i * 2.39996 + 0.7, d = new V3(Math.cos(az), -1.6, Math.sin(az)).normalize(), e = top.clone().addScaledVector(d, 0.7);
+      for (let k = -2; k <= 2; k++) {
+        const ld = d.clone().add(new V3(-Math.sin(az) * k * 0.15, 0, Math.cos(az) * k * 0.15)).normalize();
+        card(leaves, e.clone().addScaledVector(ld, 0.25), new V3(Math.cos(az), 0.2, Math.sin(az)), 0.6, 0.1, rng, jit('#a08a58', rng, 0.08), top, rng.range(0.04, 0.96), { t: ld, fold: 0.2 });
+      }
+    }
+    for (let i = 0; i < 18; i++) {   // fan leaves: a stalk and a round fan of stiff segments
       const az = i * 2.39996, up = rng.range(-0.1, 0.7);
       const d = new V3(Math.cos(az), up, Math.sin(az)).normalize(), stalkEnd = top.clone().addScaledVector(d, 0.8);
       tube(wood, [top.clone(), stalkEnd], [0.03, 0.02], 3, () => jit('#7a8a4a', rng, 0.06), {});
       const rank = rng.range(0.04, 0.96), side = new V3().crossVectors(d, UP).normalize();
-      for (let k = -4; k <= 4; k++) {
-        const ld = d.clone().addScaledVector(side, k * 0.22).addScaledVector(UP, 0.1).normalize();
-        card(leaves, stalkEnd.clone().addScaledVector(ld, 0.45), UP.clone().lerp(d, 0.3).normalize(), 0.85, 0.09, rng, jit('#7e9850', rng, 0.08), stalkEnd, rank, { t: ld, fold: 0.3 });
+      for (let k = -6; k <= 6; k++) {
+        const ld = d.clone().addScaledVector(side, k * 0.16).addScaledVector(UP, 0.1 - Math.abs(k) * 0.015).normalize();
+        card(leaves, stalkEnd.clone().addScaledVector(ld, 0.5), UP.clone().lerp(d, 0.3).normalize(), 0.95, 0.12, rng, jit('#7e9850', rng, 0.08), stalkEnd, rank, { t: ld, fold: 0.3 });
       }
     }
     perch.push(top.clone());
