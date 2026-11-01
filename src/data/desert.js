@@ -1089,7 +1089,7 @@ export const BIOME = {
       text: 'הצבי הנגבי אוכל תרמילים ועלים של שיטה. הביאו 3 צבאים, וגלו את הקשר בין הצבי לשיטה. האם יש מספיק שיטות לכולם?',
       hint: 'צבי רעב עוזב. אם הצבאים רעבים, שתלו עוד שיטות.',
       after: 'd2',
-      goal: { type: 'all', parts: [{ type: 'link', from: 'dorcas', to: 'acacia', label: 'הקשר בין הצבי לשיטה' }, { type: 'alive', species: 'dorcas', count: 3, label: '3 צבאים' }, { type: 'fed', species: 'dorcas', min: 0.6, label: 'הצבאים שבעים' }] },
+      goal: { type: 'all', parts: [{ type: 'link', from: 'dorcas', to: 'acacia', label: 'הקשר בין הצבי לשיטה' }, { type: 'alive', species: 'dorcas', count: 3, label: '3 צבאים' }, { type: 'fed', species: 'dorcas', min: 0.6, label: 'הצבאים שבעים' }], hold: 45, holdLabel: 'שבעים לאורך זמן' },
       reward: { points: 30, unlock: [] },
     },
     {
@@ -1105,7 +1105,7 @@ export const BIOME = {
       text: 'הפסמון אוכל כמעט רק עלים של מלוח. הביאו 4 פסמונים, וגלו את הקשר שלהם למלוח. כמה מלוח צריך כדי שכולם יהיו שבעים?',
       hint: 'מכרסם שאוכל רק צמח אחד תלוי בו לגמרי. שתלו מלוח לפני שמביאים פסמונים.',
       after: 'd4',
-      goal: { type: 'all', parts: [{ type: 'link', from: 'psammomys', to: 'saltbush', label: 'הקשר בין הפסמון למלוח' }, { type: 'alive', species: 'psammomys', count: 4, label: '4 פסמונים' }, { type: 'fed', species: 'psammomys', min: 0.6, label: 'הפסמונים שבעים' }] },
+      goal: { type: 'all', parts: [{ type: 'link', from: 'psammomys', to: 'saltbush', label: 'הקשר בין הפסמון למלוח' }, { type: 'alive', species: 'psammomys', count: 4, label: '4 פסמונים' }, { type: 'fed', species: 'psammomys', min: 0.6, label: 'הפסמונים שבעים' }], hold: 60, holdLabel: 'שבעים דקה שלמה' },
       reward: { points: 30, unlock: ['sandgrouse', 'crust', 'desertsnail'] },
     },
     {
@@ -1113,7 +1113,7 @@ export const BIOME = {
       text: 'הקטה אוכלת זרעים יבשים, ולכן היא צריכה לשתות כל יום. הביאו 3 קטות, וגלו מאיזה צמח הן אוכלות. דאגו שיהיו להן זרעים.',
       hint: 'פריחה אחרי גשם נותנת זרעים. שתלו אותה ליד המעיין, שם יש מים לקטות.',
       after: 'd5',
-      goal: { type: 'all', parts: [{ type: 'link', from: 'sandgrouse', to: 'blooms', label: 'הקשר בין הקטה לפריחה' }, { type: 'alive', species: 'sandgrouse', count: 3, label: '3 קטות' }, { type: 'fed', species: 'sandgrouse', min: 0.6, label: 'הקטות שבעות' }] },
+      goal: { type: 'all', parts: [{ type: 'link', from: 'sandgrouse', to: 'blooms', label: 'הקשר בין הקטה לפריחה' }, { type: 'alive', species: 'sandgrouse', count: 3, label: '3 קטות' }, { type: 'fed', species: 'sandgrouse', min: 0.6, label: 'הקטות שבעות' }], hold: 45, holdLabel: 'שבעות לאורך זמן' },
       reward: { points: 35, unlock: ['fennec', 'desertant'] },
     },
     {
@@ -1129,7 +1129,7 @@ export const BIOME = {
       text: 'קיפוד המדבר אוכל עקרבים וחיפושיות. הביאו 2 קיפודים, וגלו את הקשר בין הקיפוד לעקרב. דאגו שיהיה להם מספיק אוכל.',
       hint: 'העקרבים אוכלים חיפושיות שחורות, והחיפושיות אוכלות עלים יבשים. שרשרת שלמה צריכה כל חוליה.',
       after: 'd7',
-      goal: { type: 'all', parts: [{ type: 'link', from: 'deserthedgehog', to: 'scorpion', label: 'הקשר בין הקיפוד לעקרב' }, { type: 'alive', species: 'deserthedgehog', count: 2, label: '2 קיפודים' }, { type: 'fed', species: 'deserthedgehog', min: 0.6, label: 'הקיפודים שבעים' }] },
+      goal: { type: 'all', parts: [{ type: 'link', from: 'deserthedgehog', to: 'scorpion', label: 'הקשר בין הקיפוד לעקרב' }, { type: 'alive', species: 'deserthedgehog', count: 2, label: '2 קיפודים' }, { type: 'fed', species: 'deserthedgehog', min: 0.6, label: 'הקיפודים שבעים' }], hold: 45, holdLabel: 'שבעים לאורך זמן' },
       reward: { points: 35, unlock: ['caper', 'hawkmoth'] },
     },
     {
@@ -1153,7 +1153,7 @@ export const BIOME = {
       text: 'היעלים צריכים לשתות כמעט כל יום, והמעיין נחלש. הביאו 3 יעלים, גלו אילו שיחים הם אוכלים, ושמרו שיהיו שבעים גם אחרי שהמעיין נחלש.',
       hint: 'היעלים אוכלים רותם, שיטה וזוגן. כשיש פחות מים, יש פחות צמחים ליד המעיין.',
       after: 'd10',
-      goal: { type: 'all', parts: [{ type: 'link', from: 'ibex', to: 'retama', label: 'הקשר בין היעל לרותם' }, { type: 'alive', species: 'ibex', count: 3, label: '3 יעלים' }, { type: 'eventDone', event: 'd_spring', label: 'המעיין נחלש' }, { type: 'fed', species: 'ibex', min: 0.6, label: 'היעלים שבעים' }] },
+      goal: { type: 'all', parts: [{ type: 'link', from: 'ibex', to: 'retama', label: 'הקשר בין היעל לרותם' }, { type: 'alive', species: 'ibex', count: 3, label: '3 יעלים' }, { type: 'eventDone', event: 'd_spring', label: 'המעיין נחלש' }, { type: 'fed', species: 'ibex', min: 0.6, label: 'היעלים שבעים' }], hold: 60, holdLabel: 'שבעים דקה אחרי שהמעיין נחלש' },
       reward: { points: 40, unlock: ['sandcat', 'eagleowl'] },
     },
     {
@@ -1161,7 +1161,7 @@ export const BIOME = {
       text: 'בלילה כולם קשורים. הביאו אוח מדבר, ובנו לו מספיק טרף: ירבועים ופסמונים, ומספיק צמחים בשבילם.',
       hint: 'האוח צד בלילה. בעלי החיים שהוא אוכל צריכים מלוח, פריחה וחיפושיות.',
       after: 'd11',
-      goal: { type: 'all', parts: [{ type: 'alive', species: 'eagleowl', count: 1, label: 'אוח מדבר' }, { type: 'alive', species: 'jerboa', count: 4, label: '4 ירבועים' }, { type: 'alive', species: 'psammomys', count: 4, label: '4 פסמונים' }, { type: 'fed', species: 'eagleowl', min: 0.5, label: 'האוח שבע' }] },
+      goal: { type: 'all', parts: [{ type: 'alive', species: 'eagleowl', count: 1, label: 'אוח מדבר' }, { type: 'alive', species: 'jerboa', count: 4, label: '4 ירבועים' }, { type: 'alive', species: 'psammomys', count: 4, label: '4 פסמונים' }, { type: 'fed', species: 'eagleowl', min: 0.5, label: 'האוח שבע' }], hold: 60, holdLabel: 'השרשרת מחזיקה דקה' },
       reward: { points: 40, unlock: ['caracal', 'camel'] },
     },
     {
@@ -1177,7 +1177,7 @@ export const BIOME = {
     { id: 'd15', title: 'מים מן הערפל', text: 'בבוקר יש באוויר טיפות זעירות. הציבו רשת ערפל, וגדלו לידה 3 שיחי מלוח גדולים.', hint: 'הרשת אוספת מים לשיחים שסביבה. שתלו את השיחים קרוב אליה.', after: 'd14', goal: { type: 'all', parts: [{ type: 'toolSince', tool: 'fognet', count: 1, label: 'רשת ערפל' }, { type: 'young', species: 'saltbush', min: 0.8, count: 3, label: '3 שיחי מלוח שגדלו' }] }, reward: { points: 35, unlock: [] } },
     { id: 'd16', title: 'מי עבר בחושך?', text: 'הציבו מצלמות שטח, וצלמו 4 מינים של בעלי חיים. רובם יוצאים רק בלילה.', hint: 'מצלמה ליד המעיין תצלם את מי שבא לשתות. מצלמה ליד המחילות תצלם את הירבוע.', after: 'd15', goal: { type: 'photos', count: 4 }, reward: { points: 35, unlock: [] } },
     { id: 'd17', title: 'עוצרים את החול', text: 'הרוח מזיזה חול וקוברת שתילים. הציבו 2 גדרות חול, וגדלו מאחוריהן 2 רותמים צעירים.', hint: 'שתלו את הרותם בצד של הגדר שהרוח לא מגיעה אליו.', after: 'd16', goal: { type: 'all', parts: [{ type: 'toolSince', tool: 'sandfence', count: 2, label: '2 גדרות חול' }, { type: 'young', species: 'retama', min: 0.4, count: 2, label: '2 רותמים צעירים שגדלו' }] }, reward: { points: 40, unlock: [] } },
-    { id: 'd18', title: 'מדבר מלא חיים', text: 'האתגר הגדול: מדבר מלא חיים. הגיעו ל־18 מינים שחיים ביחד, והחזיקו אותם דקה בלי שאף אחד יעזוב רעב.', hint: 'ליד המים יש הכי הרבה חיים. בנו כל שרשרת מלמטה: צמח, אוכל צמחים, ורק אחר כך טורף.', after: 'd17', goal: { type: 'all', parts: [{ type: 'kinds', count: 18, label: '18 מינים' }, { type: 'calm', seconds: 60, label: 'דקה בלי הפסדים' }] }, reward: { points: 120, unlock: [] } },
+    { id: 'd18', title: 'מדבר מלא חיים', text: 'האתגר הגדול: מדבר מלא חיים. הגיעו ל־18 מינים שחיים ביחד, והחזיקו אותם דקה וחצי בלי שאף אחד יעזוב רעב.', hint: 'ליד המים יש הכי הרבה חיים. בנו כל שרשרת מלמטה: צמח, אוכל צמחים, ורק אחר כך טורף.', after: 'd17', goal: { type: 'all', parts: [{ type: 'kinds', count: 18, label: '18 מינים' }, { type: 'calm', seconds: 90, label: 'דקה וחצי בלי הפסדים' }] }, reward: { points: 120, unlock: [] } },
 
     // ───── משימות מומחים: each one asks for a plan, not for waiting
     { id: 'dx1', expert: true, after: 'd18', title: 'שיטות חדשות',

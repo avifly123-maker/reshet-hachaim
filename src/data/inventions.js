@@ -31,7 +31,7 @@ export const TRAIT = {
   fogcatch: 'תופס טיפות ערפל', suncompass: 'מנווט לפי השמש', storewater: 'שומר מים בגוף', soak: 'נוצות שסופגות מים',
   bumpy: 'שריון עם בליטות', coolears: 'אוזניים שמוציאות חום', reflect: 'מחזיר את קרני השמש',
   // 1.4.2, the savanna
-  airtunnels: 'תעלות אוויר בקיר', stripes: 'פסים שחורים ולבנים', trunkgrip: 'חדק גמיש שאוחז',
+  airtunnels: 'תעלות אוויר בקיר', stripes: 'פסים שחורים ולבנים', trunkgrip: 'חדק גמיש שאוחז', tightskin: 'עור הדוק ברגליים',
 };
 
 // species id → traits (the first one is the strongest; the cards show the first three)
@@ -69,7 +69,7 @@ export const TRAITS = {
   // סוואנה (1.4.2)
   umbrella: ['tall', 'spines', 'shelter'], baobab: ['storewater', 'tall'], whistling: ['spines', 'team'], redoat: ['patient'], stargrass: ['hold'],
   kigelia: ['tall', 'bloom'], sycamore: ['tall', 'shelter'], marula: ['tall'], doum: ['tall'], papyrus: ['hold', 'float'], termitemound: ['airtunnels', 'team', 'shelter'],
-  zebra: ['stripes', 'walk', 'team'], wildebeest: ['walk', 'team'], impala: ['fast', 'team'], giraffe: ['tall', 'walk'], elephant: ['trunkgrip', 'coolears', 'strong'],
+  zebra: ['stripes', 'walk', 'team'], wildebeest: ['walk', 'team'], impala: ['fast', 'team'], giraffe: ['tightskin', 'tall', 'walk'], elephant: ['trunkgrip', 'coolears', 'strong'],
   lion: ['strong', 'team', 'nightsee'], crocodile: ['armor', 'patient', 'swim'], weaver: ['fly', 'hold'], buffalo: ['strong', 'team'], hyena: ['strong', 'team', 'nightsee'],
   baboon: ['climb', 'team', 'grip'],
   // technology cards
@@ -112,6 +112,9 @@ export const PROBLEMS = [
   { id: 'softarm', kids: true, theme: 'robots', land: true, icon: 'gear', title: 'זרוע רובוט רכה', ask: 'רובוט במפעל צריך להרים דברים שבירים, ולעבוד ליד אנשים בלי לפגוע בהם. איזו זרוע מתאימה לו?', key: 'trunkgrip', half: ['grip', 'coil', 'strong'],
     real: 'elephant', fact: 'לחדק של הפיל אין עצמות, אבל הוא חזק וגמיש, ויכול להרים גם בול עץ וגם עלה קטן. בשנת 2010 חברה בגרמניה בנתה זרוע רובוט רכה לפי החדק של הפיל.',
     clue: 'למי בסוואנה יש אף ארוך בלי עצמות, שמרים גם עלה קטן וגם ענף כבד?', show: { fail: 'הזרוע הקשה שברה את הביצה.', half: 'הזרוע תפסה בעדינות, אבל לא הצליחה להרים דברים כבדים.' } },
+  { id: 'swelllegs', theme: 'health', land: true, icon: 'shield', title: 'רגליים שלא מתנפחות', ask: 'מי שעומד כל היום בעבודה, הרגליים שלו מתנפחות בערב. מה יעזור לו?', key: 'tightskin', half: ['strong', 'walk'],
+    real: 'giraffe', fact: 'לג׳ירפה יש עור הדוק וחזק ברגליים, והרגליים שלה לא מתנפחות, גם כשהיא עומדת כל היום. בשנות השבעים מהנדס אמריקאי בנה לפי זה תחבושת לחץ שלא נמתחת, שעוזרת לרגליים של אנשים לא להתנפח.',
+    clue: 'למי בסוואנה יש רגליים ארוכות מאוד, עם עור הדוק וחזק?', show: { fail: 'הרגליים התנפחו בדיוק כמו קודם.', half: 'הנפיחות ירדה קצת, אבל לא מספיק.' } },
   // 1.4, the desert (docs/sources.md "המדבר")
   { id: 'fogwater', kids: true, theme: 'water', land: true, icon: 'drop', title: 'מים מן הערפל', ask: 'בכפר על הר יבש יש ערפל כמעט כל בוקר, אבל אין מעיין. איך אוספים מים?', key: 'fogcatch', half: ['storewater', 'soak', 'spines'],
     real: 'darkling', fact: 'במדבר נמיב שבאפריקה יש חיפושית שחורה שעומדת בבוקר מול הרוח. טיפות ערפל נתפסות על הגב שלה ומתגלגלות אל הפה. לפי הרעיון הזה בונים רשתות ומשטחים שאוספים מים מהערפל.',
@@ -294,6 +297,8 @@ export const PROBLEMS = [
 // tools/check-inventions.mjs runs every card and every pair of cards against every problem.
 const ROUTES = {
   // 1.4.2, the savanna
+  swelllegs: { want: 'משהו שלוחץ על הרגליים מבחוץ, או שעוזר לדם לעלות מהן חזרה למעלה.', half: ['strong'],
+    alt: [{ t: ['walk'], why: 'הליכה מזיזה את שרירי הרגליים, והם לוחצים על כלי הדם ודוחפים את הדם בחזרה למעלה.', fact: 'רופאים ממליצים למי שעומד הרבה ללכת ולהזיז את הרגליים: שרירי השוק לוחצים על הוורידים ועוזרים לדם לחזור אל הלב.' }] },
   coolhouse: { want: 'משהו שמכניס אוויר קריר ומוציא אוויר חם, בלי מנוע.', half: ['shelter', 'dome'],
     alt: [{ t: ['reflect'], why: 'קירות וגג לבנים ומבריקים מחזירים את קרני השמש, כמו הקונכייה של חילזון המדבר, והבניין מתחמם פחות.', fact: 'צבע לבן מחזיר את רוב קרני השמש. לכן בערים חמות צובעים גגות וקירות בלבן.' }] },
   nobites: { want: 'משהו שמבלבל את הזבובים, כך שלא ימצאו איפה לנחות.', half: ['hide', 'team'],

@@ -66,6 +66,32 @@ export function createSavanna(ctx) {
     bar.classList.toggle('low', stability.value < 0.35);
   }
 
+  // ─────────────────────────────────── 1.4.2 (Avi, 1.11): the plain pushes back
+  // Grass that runs out: a grazer standing where its band of grass is eaten, dry or burnt grows hungry faster (on top of
+  // the desert's thirst, water.js). Lions and hyenas compete: when the hyenas are twice the lions they steal the kills
+  // and the lions go hungry; when the lions outnumber them, they chase the hyenas off. W.thirstK is the hook the animals
+  // already read (world/animals.js); it stays 1 in a mystery, the training field and the robot lab.
+  const BAND_NEED = { zebra: 0.5, wildebeest: 0.3, buffalo: 0.3, impala: 0.12 };
+  const rival = { lionK: 1, hyenaK: 1 };
+  const baseThirst = W.thirstK || (() => 1);
+  const calmPlace = () => W.research || W.training;
+  W.thirstK = (a) => {
+    let k = baseThirst(a);
+    if (calmPlace()) return k;
+    const need = BAND_NEED[a.sp.id];
+    if (need) { const g = grass.at(a.pos.x, a.pos.z); if (g.h < need) { k *= 1 + 1.4 * (1 - g.h / need); if (a.energy < 0.4) once('grass-low', 'העשב כאן נגמר, והרועים רעבים. שתלו עוד עשב, פזרו אותו, או הביאו פחות רועים.', 'warn'); } }
+    if (a.sp.id === 'lion') k *= rival.lionK; else if (a.sp.id === 'hyena') k *= rival.hyenaK;
+    return k;
+  };
+  function rivalTick() {
+    let L = 0, Hy = 0;
+    for (const a of W.animals) { if (!ctx.alive(a) || a.leaving) continue; if (a.sp.id === 'lion') L++; else if (a.sp.id === 'hyena') Hy++; }
+    rival.lionK = L > 0 && Hy >= 2 && Hy >= 2 * L ? 1.8 : 1;
+    rival.hyenaK = Hy > 0 && L > Hy ? 1.5 : 1;
+    if (rival.lionK > 1) once('hy-steal', 'הצבועים רבים מהאריות, והם גונבים מהם את הטרף. האריות רעבים.', 'warn');
+    if (rival.hyenaK > 1) once('li-chase', 'האריות רבים מהצבועים, ומגרשים אותם מהטרף. הצבועים רעבים.', 'warn');
+  }
+
   // ─────────────────────────────────── the year
   function seasonTick() {
     const s = seasonAt(W.day, W.dayFrac, year), Y = year.wet + year.dry, yi = Math.floor((W.day - 1) / Y);
@@ -192,6 +218,7 @@ export function createSavanna(ctx) {
     stabT -= dt;
     if (stabT <= 0) {
       stabT = 3;
+      if (!calmPlace()) rivalTick();
       let grazers = herds.count() * 0.3, preds = 0, trees = 0;
       for (const a of W.animals) { if (!ctx.alive(a) || a.leaving) continue; if (GRAZERS.has(a.sp.id)) grazers++; if (a.sp.id === 'lion' || a.sp.id === 'crocodile') preds++; }
       for (const p of W.plants) if (ctx.alive(p) && p.isTree && p.growth > 0.4) trees++;
@@ -216,7 +243,7 @@ export function createSavanna(ctx) {
     st.migOn = !!o.m; st.arrived = o.a ?? -1; st.wildeArrived = o.w ?? -1; st.left = o.l ?? -1; st.lastFireYear = o.f ?? -1;
     W.stability = stability.value; paintBar();
   }
-  function dispose() { crowd.dispose(); bar.remove(); style.remove(); }
+  function dispose() { crowd.dispose(); bar.remove(); style.remove(); if (W.thirstK !== baseThirst) W.thirstK = baseThirst; }
   paintBar();
   const api = { tick, effect, serialize, restore, dispose, grass, herds, stability, startFire, debug: { st, arrive, encroach, elephantTick } };
   W.savanna = api;   // the tests (tests/play/savanna.json) read it through window.__game.savanna

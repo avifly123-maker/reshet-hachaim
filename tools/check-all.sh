@@ -80,6 +80,9 @@ n=$(echo "$out" | grep -c "CHECK .* ok")
 echo "$out" | grep "CHECK .* FAIL" && fail "robot lab loop tutorial: a check failed"
 echo "$out" | grep "\[pageerror\]\|JS ERROR\|UNTIL TIMEOUT\|NO ELEMENT" && fail "robot lab loop tutorial: errors"
 [ "$n" = 5 ] || fail "robot lab loop tutorial: $n of 5 checks"
+# the savanna pushes back (1.4.2, Avi 1.11): three hyenas against one lion steal its kills (W.thirstK)
+out=$(timeout 1200 python3 tools/play.py dist/index.html tests/play/savanna-rival.json 800 460 2>&1)
+echo "$out" | grep -q "CHECK rival ok" || fail "savanna rivalry: $(echo "$out" | grep CHECK)"
 # the savanna's robot lessons (1.4.2, Avi 1.11): listed, and one runs on the savanna island in 3D
 out=$(timeout 1200 python3 tools/play.py dist/index.html tests/play/robolab-savanna.json 800 460 2>&1)
 n=$(echo "$out" | grep -c "CHECK .* ok")

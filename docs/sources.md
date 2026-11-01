@@ -856,3 +856,5 @@ Lab and inventors:
   out of reach of snakes (https://en.wikipedia.org/wiki/Village_weaver).
 - חוטים: `zone-savanna` (1.4.2): the termite mound (Eastgate Centre), the zebra (Kojima et al. 2019) and the elephant
   (Bionic Handling Assistant) taught real inventions (see above).
+
+- הממציאים, "רגליים שלא מתנפחות" (1.11.2026): העור ההדוק ברגלי הג׳ירפה ותחבושת הלחץ הקשיחה של פרנק שו משנות השבעים: https://www.medi.de/en/products/highlights/circaid-adjustable-compression/giraffes/ (וגם חליפת BioSuit של MIT בהשראת הג׳ירפה). ההליכה ושרירי השוק: ידע רפואי כללי.
