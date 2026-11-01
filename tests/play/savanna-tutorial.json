@@ -69,12 +69,6 @@
 "js": "'CHECK savanna-tut-dry-step ' + (window.__game.debug.savannaTut().step === 'dry' ? 'ok' : 'FAIL ' + window.__game.debug.savannaTut().step)"
 },
 {
-"clickSel": "#rguide .rg-next"
-},
-{
-"wait": 0.6
-},
-{
 "shot": "shots/stut-3.png"
 },
 {
