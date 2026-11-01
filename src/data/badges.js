@@ -11,6 +11,7 @@ export const BADGE_GROUPS = [
   { id: 'grove', name: 'החורש הארץ־ישראלי', short: 'חורש', col: '#8a6a2a', col2: '#e8202a' },
   { id: 'reef', name: 'שונית האלמוגים של אילת', short: 'שונית', col: '#1f7a9a', col2: '#f08a24' },
   { id: 'desert', name: 'המדבר', short: 'מדבר', col: '#a8702a', col2: '#3a8a8a' },
+  { id: 'savanna', name: 'הסוואנה האפריקאית', short: 'סוואנה', col: '#a8822a', col2: '#5a8a3a' },
   { id: 'lab', name: 'הממציאים והמעבדה', short: 'מעבדה', col: '#5a4a8a', col2: '#f6cf72' },
   { id: 'deep', name: 'משלחת לעומק', short: 'משלחת', col: '#163a5a', col2: '#6fd0ff' },
   { id: 'research', name: 'חוקרי הטבע', short: 'חוקרים', col: '#3a5a2a', col2: '#f6cf72' },

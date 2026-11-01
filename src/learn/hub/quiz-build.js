@@ -12,7 +12,7 @@ import { BIOMES, BIOME_IN, EASY_PARTS, EASY_PART_LABEL, IC, PART_ICON, ROUND, fi
 import { CARD, SP, SPK, TOOL_SHORT, animalsIn, spOf } from './cards.js';
 import { ZONE_IDS } from '../../data/zones.js';
 // the answer words and icons of "where does it live?" for each zone (a zone without an entry here fails validate-zones' quiz check)
-const WHERE_OPT = { amazon: ['באמזונס', () => IC.rain], grove: ['בחורש', () => IC.tree], reef: ['בשונית', () => IC.drop], desert: ['במדבר', () => IC.sun] };
+const WHERE_OPT = { amazon: ['באמזונס', () => IC.rain], grove: ['בחורש', () => IC.tree], reef: ['בשונית', () => IC.drop], desert: ['במדבר', () => IC.sun], savanna: ['בסוואנה', () => IC.sun] };
 
 /* ───────────────────────────────────────────── variety across visits
    Each player keeps a list of the questions asked lately (S.seen in the hub's own store, oldest first; old saves have
@@ -69,7 +69,7 @@ export function buildTorahRound() {
 }
 
 /* ───────────────────────────────────────────── the hand-written bank (src/data/quiz-bank.js) */
-const BANK_TAG = { amazon: 'יער הגשם', grove: 'החורש', reef: 'השונית', desert: 'המדבר', all: 'הידעת?' };
+const BANK_TAG = { amazon: 'יער הגשם', grove: 'החורש', reef: 'השונית', desert: 'המדבר', savanna: 'הסוואנה', all: 'הידעת?' };
 function bankQ(b) {
   let art = null;
   if (b.art && b.art.startsWith('tool:')) { const c = CARD.get(b.art); if (c) art = { id: c.id.slice(5), img: c.img, color: c.color, name: c.name, tool: true }; }

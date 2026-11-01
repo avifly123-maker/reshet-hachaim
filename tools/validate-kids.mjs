@@ -5,8 +5,9 @@ import { BIOME as AMAZON } from '../src/data/amazon.js';
 import { BIOME as GROVE } from '../src/data/grove.js';
 import { BIOME as REEF } from '../src/data/reef.js';
 import { BIOME as DESERT } from '../src/data/desert.js';
+import { BIOME as SAVANNA } from '../src/data/savanna.js';
 
-const BIOMES = { amazon: AMAZON, grove: GROVE, reef: REEF, desert: DESERT };
+const BIOMES = { amazon: AMAZON, grove: GROVE, reef: REEF, desert: DESERT, savanna: SAVANNA };
 const PLANT_KINDS = new Set(['tree', 'palm', 'shrub', 'herb', 'epiphyte', 'vine', 'fungus', 'water-plant', 'coral', 'sessile', 'seaplant']);
 const GOAL_FIELDS = {
   place: ['species', 'count'], pollinate: ['species', 'count'], link: ['from', 'to'], disperse: ['count'],
@@ -83,6 +84,8 @@ for (const [bid, K] of Object.entries(KIDS)) {
   if (bid === 'reef') { if (!edges.some((e) => e.type === 'partner' || e.type === 'home')) err(bid, 'no partnership in the set'); }
   // the desert's story is water: the beginners meet a seed carrier (the gazelle and the acacia), not a pollinator
   else if (bid === 'desert') { if (!dispersals.length) err(bid, 'no dispersal relation in the set'); }
+  // 1.4.2: the savanna's story is grazing and change: the beginners meet a home on a tree (the weaver's nest on the acacia)
+  else if (bid === 'savanna') { if (!edges.some((e) => e.type === 'home' || e.type === 'disperses')) err(bid, 'no home or dispersal relation in the set'); }
   else {
     if (!plants.some((p) => pollinatorsOf(p).length)) err(bid, 'no working pollination relation in the set');
     if (!dispersals.length) err(bid, 'no dispersal relation in the set');

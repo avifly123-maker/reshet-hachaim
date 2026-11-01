@@ -364,6 +364,38 @@ export function createAudio(options = {}) {
     set(b.trickle.gain, 0.03 * (1 - 0.6 * S.high));
     set(b.night.gain, 0.014 * S.night * ground * (0.3 + 0.7 * S.rich));
   }
+  // the savanna (1.4.2): a soft wind in the tall grass, the river, insects buzzing in the grass by day, weavers
+  // chattering at their nests and doves, crickets and a small owl at night. The dry season is windier and quieter.
+  function buildSavanna() {
+    const f = P();
+    const out = f.gain(0, ambBus);
+    const wind = f.gain(0, out);
+    const gust = f.gain(0.6, wind); f.lfo(0.06, 0.35, gust.gain); f.lfo(0.17, 0.12, gust.gain);
+    const wlp = f.filter('lowpass', 900, 0.5, gust); f.lfo(0.08, 260, wlp.frequency); f.tap(srcB, wlp);
+    const trickle = f.gain(0, f.pan(-0.35, out));
+    const tbp = f.filter('bandpass', 1300, 2, trickle); f.lfo(0.19, 220, tbp.frequency); f.tap(srcP, tbp);
+    const buzz = f.gain(0, out);
+    cricket(f, buzz, 6200, 48, 0.9, 0.4, 0.6);
+    cricket(f, buzz, 5600, 40, 1.3, -0.4, 0.5);
+    const night = f.gain(0, out);
+    cricket(f, night, 4500, 24, 2.4, 0.3, 0.8);
+    cricket(f, night, 5000, 31, 1.7, -0.5, 0.6);
+    const dry = () => (S.season === 'dry' ? 1 : 0);
+    const emitters = [
+      emitter(() => S.day * (0.12 + 0.25 * S.dawn) * S.rich * (1 - 0.4 * dry()) * (1 - 0.6 * S.rain), sparrow, 2),
+      emitter(() => S.day * 0.025 * S.rich * (1 - 0.5 * S.rain), dove, 9),
+      emitter(() => (S.dawn * 0.05 + S.day * 0.008) * S.rich, chukar, 20),
+      emitter(() => S.night * 0.04 * (0.3 + 0.7 * S.rich), scops, 12),
+    ];
+    return { id: 'savanna', f, out, wind, trickle, buzz, night, emitters, levels: savannaLevels };
+  }
+  function savannaLevels(b, set) {
+    const ground = 1 - 0.6 * S.high, dry = S.season === 'dry' ? 1 : 0;
+    set(b.wind.gain, 0.09 * (0.7 + 0.3 * S.day) * (1 + 0.5 * dry) * (1 + 0.4 * S.rain));
+    set(b.trickle.gain, 0.035 * (1 - 0.4 * dry) * (1 - 0.6 * S.high));
+    set(b.buzz.gain, 0.012 * S.day * sstep(0.1, 0.6, S.heat + 0.3) * ground * (0.3 + 0.7 * S.rich) * (1 - 0.8 * S.rain));
+    set(b.night.gain, 0.016 * S.night * ground * (0.3 + 0.7 * S.rich) * (1 - 0.6 * S.rain));
+  }
   function groveBirdSeason() {
     return { winter: 0.45, spring: 1.2, summer: 0.7, autumn: 0.75 }[S.season] || 1;
   }
@@ -383,7 +415,7 @@ export function createAudio(options = {}) {
     const now = ac.currentTime;
     for (const k in beds) if (k !== id) closeBed(k);
     if (!beds[id]) {
-      beds[id] = id === 'amazon' ? buildAmazon() : id === 'grove' ? buildGrove() : id === 'reef' ? buildReef() : id === 'desert' ? buildDesert() : null;
+      beds[id] = id === 'amazon' ? buildAmazon() : id === 'grove' ? buildGrove() : id === 'reef' ? buildReef() : id === 'desert' ? buildDesert() : id === 'savanna' ? buildSavanna() : null;
       if (!beds[id]) { delete beds[id]; return; }
     }
     const b = beds[id];
@@ -902,7 +934,7 @@ export function createAudio(options = {}) {
 
   // ------------------------------------------------------------- controls
   function setBiome(id) {
-    id = id === 'amazon' || id === 'grove' || id === 'reef' || id === 'desert' ? id : null;
+    id = id === 'amazon' || id === 'grove' || id === 'reef' || id === 'desert' || id === 'savanna' ? id : null;
     if (id === biome) return;
     biome = id;
     if (!ready) return;

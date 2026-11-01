@@ -231,4 +231,27 @@ export const KIDS = {
       'השורשים של השיטה ארוכים מאוד.',
     ],
   },
+  // 1.4.2: the savanna. Plants: red oat grass, umbrella acacia, papyrus by the water, baobab; animals: zebra (eats the
+  // grass), giraffe (eats the acacia), weaver (nests on the acacia), elephant. No hunters for the beginners.
+  savanna: {
+    intro: 'בסוואנה יש עשב גבוה, עצים בודדים ועדרים גדולים. בואו נבנה יחד סוואנה!',
+    species: ['redoat', 'umbrella', 'papyrus', 'baobab', 'zebra', 'giraffe', 'weaver', 'elephant'],
+    start: ['redoat', 'umbrella', 'papyrus', 'zebra'],
+    missions: [
+      { id: 'k1', title: 'עשב למרעה', text: 'בסוואנה הכול מתחיל בעשב. שתלו 3 גושים של עשב השיבולת.', hint: 'גררו עשב השיבולת מהמגש אל הסוואנה.', k: 'גִּרְרוּ עֵשֶׂב הַשִּׁבֹּלֶת מֵהַמַּגָּשׁ אֶל הַסַּוָּנָה.', after: null, goal: { type: 'place', species: 'redoat', count: 3 }, reward: { points: 20, unlock: [] } },
+      { id: 'k2', title: 'הזברה רועה', text: 'הזברה אוכלת את העשב הגבוה. הביאו זברה אל העשב.', hint: 'גררו זברה אל הסוואנה, ליד העשב.', k: 'גִּרְרוּ זֶבְּרָה אֶל הַסַּוָּנָה, לְיַד הָעֵשֶׂב.', after: 'k1', goal: { type: 'link', from: 'zebra', to: 'redoat' }, reward: { points: 25, unlock: ['giraffe'] } },
+      { id: 'k3', title: 'הג׳ירפה והשיטה', text: 'הג׳ירפה אוכלת עלים גבוהים של שיטה. שתלו שיטה והביאו ג׳ירפה.', hint: 'גררו ג׳ירפה אל הסוואנה, ליד השיטה.', k: 'שִׁתְלוּ שִׁטָּה, וְאָז גִּרְרוּ גִ׳ירָפָה אֶל הַשִּׁטָּה.', after: 'k2', goal: { type: 'link', from: 'giraffe', to: 'umbrella' }, reward: { points: 25, unlock: ['weaver'] } },
+      { id: 'k4', title: 'קן על השיטה', text: 'האורג קולע קן מעשב ותולה אותו על השיטה. הביאו אורג אל השיטה.', hint: 'גררו אורג אל הסוואנה, ליד השיטה.', k: 'גִּרְרוּ אוֹרֵג אֶל הַסַּוָּנָה, לְיַד הַשִּׁטָּה.', after: 'k3', goal: { type: 'link', from: 'weaver', to: 'umbrella' }, reward: { points: 30, unlock: ['elephant', 'baobab'] } },
+      { id: 'k5', title: 'הפיל מגיע', text: 'הפיל הוא החיה הגדולה ביותר ביבשה. הביאו פיל אל הסוואנה.', hint: 'גררו פיל מהמגש אל הסוואנה, קרוב למים.', k: 'גִּרְרוּ פִּיל מֵהַמַּגָּשׁ אֶל הַסַּוָּנָה, קָרוֹב לַמַּיִם.', after: 'k4', goal: { type: 'place', species: 'elephant', count: 1 }, reward: { points: 30, unlock: [] } },
+      { id: 'k6', title: 'סוואנה מלאה חיים', text: 'הגיעו ל־6 סוגים של צמחים ובעלי חיים בסוואנה.', hint: 'שתלו עוד עשב ועצים, והביאו עוד בעלי חיים.', k: 'שִׁתְלוּ עוֹד עֵשֶׂב וְעֵצִים, וְהָבִיאוּ עוֹד בַּעֲלֵי חַיִּים.', after: 'k5', goal: { type: 'speciesAlive', count: 6 }, reward: { points: 40, unlock: [] } },
+    ],
+    tips: [
+      'בסוואנה יש עונת גשמים ועונת יובש.',
+      'הזברה אוכלת עשב גבוה.',
+      'הג׳ירפה אוכלת עלים בראש העץ.',
+      'האורג תולה את הקן שלו על ענף.',
+      'הפיל שותה הרבה מים בכל יום.',
+      'הבאובב שומר מים בגזע העבה שלו.',
+    ],
+  },
 };

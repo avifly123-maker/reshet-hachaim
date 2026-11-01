@@ -15,7 +15,7 @@ import { PROBLEMS_K } from '../data/inventions-kids.js';
 import { questionMarked } from '../core/threads.js';   // חוטים: a relation found on the island marks its creature's question
 import { markHTML } from '../ui/threads-ui.js';
 
-const ZONES_ALL = [['amazon', 'אמזונס'], ['grove', 'חורש'], ['reef', 'שונית'], ['desert', 'מדבר']];
+const ZONES_ALL = [['amazon', 'אמזונס'], ['grove', 'חורש'], ['reef', 'שונית'], ['desert', 'מדבר'], ['savanna', 'סוואנה']];
 
 const CSS_ID = 'lb-quest-css';
 function injectCss() {

@@ -76,6 +76,9 @@ export const HUB_ICONS = {
   // the desert (1.4): a dune under the sun
   desert: '<circle class="f" cx="16.5" cy="7" r="3.2"/><circle cx="16.5" cy="7" r="3.2"/>'
     + '<path class="f" d="M2.5 19.5c3.2-5 7.6-6.6 11.4-4.4 2.4 1.4 4.6 1.6 7.6.8v3.6z"/><path d="M2.5 19.5c3.2-5 7.6-6.6 11.4-4.4 2.4 1.4 4.6 1.6 7.6.8"/><path d="M2.5 19.5h19"/>',
+  // the savanna (1.4.2): an umbrella acacia on the plain
+  savanna: '<path class="f" d="M4 9.6c1.6-2.6 4.8-3.6 8-3.6s6.4 1 8 3.6c-2.4 1-5.2 1.4-8 1.4s-5.6-.4-8-1.4z"/><path d="M4 9.6c1.6-2.6 4.8-3.6 8-3.6s6.4 1 8 3.6c-2.4 1-5.2 1.4-8 1.4s-5.6-.4-8-1.4z"/>'
+    + '<path d="M12 11v8.6M12 14.2l-2.6-3M12 13l2.4-2.2"/><path d="M2.5 19.6c3-1 6-1.4 9.5-1.4s6.5.4 9.5 1.4"/>',
   zones: '<circle class="f" cx="12" cy="8.2" r="4.6"/><circle cx="12" cy="8.2" r="4.6"/><circle cx="8" cy="15" r="4.6"/><circle cx="16" cy="15" r="4.6"/>',
   // technology cards: a small robot head with one antenna
   robot: '<rect class="f" x="4.5" y="7.5" width="15" height="11.5" rx="3.6"/><rect x="4.5" y="7.5" width="15" height="11.5" rx="3.6"/>'
@@ -98,7 +101,7 @@ export const HUB_ICONS = {
 export const TILE_TONE = {
   learn: '#3d7a3a', quiz: '#2f7a52', album: '#a8641a', strong: '#b2492e', keep: '#2b7268', thread: '#a3466e',
   invent: '#3a4d5c', dive: '#22648c', medal: '#8e6a12', scroll: '#8a6420', lab: '#3a4d5c', research: '#3f6a2e',
-  amazon: '#2f7a52', grove: '#9a6a1a', reef: '#22648c', desert: '#a8702a', zones: '#4f6a3a', robot: '#3a4d5c',
+  amazon: '#2f7a52', grove: '#9a6a1a', reef: '#22648c', desert: '#a8702a', savanna: '#a8822a', zones: '#4f6a3a', robot: '#3a4d5c',
 };
 // the svg the same way ui.js icon() draws it (class "ic": the game's CSS sizes it and softens the "f" fill)
 export const hubIcon = (n, cls) => `<svg class="ic${cls ? ' ' + cls : ''}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${HUB_ICONS[n] || ''}</svg>`;

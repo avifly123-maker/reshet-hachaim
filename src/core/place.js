@@ -7,6 +7,7 @@ const WORDS = {
   field: { the: 'השטח', in: 'בשטח', to: 'אל השטח', lamed: 'לשטח', from: 'מהשטח', all: 'כל השטח' },   // שטח האימונים (1.3.3)
   reef: { the: 'השונית', in: 'בשונית', to: 'אל השונית', lamed: 'לשונית', from: 'מהשונית', all: 'כל השונית' },
   desert: { the: 'המדבר', in: 'במדבר', to: 'אל המדבר', lamed: 'למדבר', from: 'מהמדבר', all: 'כל המדבר' },
+  savanna: { the: 'הסוואנה', in: 'בסוואנה', to: 'אל הסוואנה', lamed: 'לסוואנה', from: 'מהסוואנה', all: 'כל הסוואנה' },
 };
 export function setPlace(id) { if (WORDS[id]) cur = id; }
 export function zoneWord(form = 'the') { return WORDS[cur][form] || WORDS[cur].the; }
