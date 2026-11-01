@@ -12,7 +12,9 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 async def main(o):
     W, H = map(int, o.size.split('x'))
-    tmp = pathlib.Path(o.out).with_suffix('.frames'); shutil.rmtree(tmp, ignore_errors=True); tmp.mkdir(parents=True)
+    tmp = pathlib.Path(o.out).with_suffix('.frames')
+    if not o.start: shutil.rmtree(tmp, ignore_errors=True)
+    tmp.mkdir(parents=True, exist_ok=True)
     async with async_playwright() as p:
         b = await p.chromium.launch(args=ARGS); pg = await b.new_page(viewport={'width': W, 'height': H})
         pg.on('pageerror', lambda e: print('page error', e))
@@ -32,7 +34,10 @@ async def main(o):
         await pg.wait_for_timeout(1200)   # the shaders of the cast are compiled before the first frame
         total = await pg.evaluate('window.__svFilm.length')
         n = int(total * o.fps)
-        for i in range(n):
+        if o.start:   # resume an interrupted recording: run the film to that frame without pictures
+            await pg.evaluate(f'window.__svFilm.step({o.start})')
+            await pg.wait_for_function('window.__svFilm.budget <= 0', timeout=3600000, polling=1000)
+        for i in range(o.start, n):
             await pg.evaluate('window.__svFilm.step(1)')
             await pg.wait_for_function('window.__svFilm.budget <= 0', timeout=60000)
             await pg.evaluate('new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))')
@@ -52,4 +57,5 @@ if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     ap.add_argument('build'); ap.add_argument('out')
     ap.add_argument('--fps', type=int, default=24); ap.add_argument('--size', default='1280x720'); ap.add_argument('--q', default='high')
+    ap.add_argument('--start', type=int, default=0, help='resume from this frame (the frames already made are kept)')
     asyncio.run(main(ap.parse_args()))
