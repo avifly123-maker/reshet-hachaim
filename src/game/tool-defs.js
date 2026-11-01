@@ -25,6 +25,9 @@ const ICONS = {
   drip: svg('<ellipse cx="30" cy="42" rx="20" ry="8" fill="none" stroke="#1d2226" stroke-width="3.5"/><g fill="#2a6ad8"><circle cx="12" cy="42" r="2.6"/><circle cx="22" cy="49" r="2.6"/><circle cx="38" cy="49" r="2.6"/><circle cx="48" cy="42" r="2.6"/></g><rect x="46" y="16" width="10" height="16" rx="3" fill="#3a8ab8"/><path d="M30 20c-4 6-6 9-6 12a6 6 0 0 0 12 0c0-3-2-6-6-12z" fill="#7ad0ff"/>', '#f2e2c4'),
   fognet: svg('<path d="M12 50V34a20 20 0 0 1 40 0v16" fill="none" stroke="#8a8f92" stroke-width="3.5"/><path d="M16 34a16 16 0 0 1 32 0z" fill="#f0f4f0" opacity=".85"/><g fill="#3aa8e8"><circle cx="24" cy="40" r="2.2"/><circle cx="32" cy="43" r="2.2"/><circle cx="40" cy="40" r="2.2"/></g><rect x="50" y="40" width="8" height="12" rx="2" fill="#e8ecef"/>', '#d8e8ec'),
   sandfence: svg('<path d="M8 52c16-6 32-6 48 0" fill="none" stroke="#c8a070" stroke-width="5"/><g fill="#a8784a"><rect x="12" y="22" width="5" height="26" rx="1"/><rect x="22" y="20" width="5" height="26" rx="1"/><rect x="32" y="19" width="5" height="26" rx="1"/><rect x="42" y="20" width="5" height="26" rx="1"/></g><path d="M12 22c12-4 24-4 35-2" fill="none" stroke="#e6d4aa" stroke-width="2"/>', '#f2dcb4'),
+  // 1.4.2, the savanna (src/world/desert-tech.js): a solar pump with a round trough, a fence of beehives in an arc
+  solarpump: svg('<path d="M10 30l22-12 22 12-22 4z" fill="#24407a" stroke="#9ab4d8" stroke-width="1.5"/><path d="M15 28l17-9M21 30l17-9" stroke="#5a7ab8" stroke-width="1.2"/><rect x="30" y="31" width="4" height="15" rx="1" fill="#8a8f92"/><ellipse cx="32" cy="50" rx="20" ry="6" fill="#8a6a4a"/><ellipse cx="32" cy="49" rx="16" ry="4" fill="#3aa8e8"/>'),
+  beefence: svg('<path d="M6 30c16-8 36-8 52 0" fill="none" stroke="#6a6a62" stroke-width="2"/><g fill="#7a5a3a"><rect x="8" y="28" width="4" height="26" rx="1"/><rect x="52" y="28" width="4" height="26" rx="1"/></g><g fill="#e8c050" stroke="#8a6a20" stroke-width="1.2"><rect x="18" y="30" width="10" height="9" rx="2"/><rect x="36" y="30" width="10" height="9" rx="2"/></g><g fill="#2a2010"><circle cx="24" cy="23" r="1.6"/><circle cx="40" cy="22" r="1.6"/><circle cx="31" cy="26" r="1.4"/></g>'),
   // 1.3.2 (area G): the new technologies (src/world/tech.js). No cross shapes: no rods meeting at right angles.
   canopybot: svg('<circle cx="27" cy="18" r="12" fill="#4f9a45"/><circle cx="39" cy="21" r="8" fill="#63b056"/><rect x="23" y="24" width="8" height="32" rx="2" fill="#7a5532"/><rect x="31" y="33" width="15" height="13" rx="6.5" fill="#f3f1ea" stroke="#b9c3c2"/><rect x="34" y="36" width="9" height="5" rx="2.5" fill="#1d2b36"/><circle cx="36.6" cy="38.5" r="1.2" fill="#8ff2ff"/><circle cx="40.4" cy="38.5" r="1.2" fill="#8ff2ff"/><path d="M50 34a7 7 0 0 1 0 11M54 31a11 11 0 0 1 0 17" stroke="#2c9a92" stroke-width="2" fill="none" stroke-linecap="round"/>', '#dff1e6'),
   lidar: svg('<g fill="#2f7a5a"><rect x="11" y="42" width="8" height="14" rx="3"/><rect x="21" y="30" width="8" height="26" rx="3"/><rect x="33" y="37" width="8" height="19" rx="3"/><rect x="45" y="26" width="8" height="30" rx="3"/></g><path d="M32 19L15 41M32 19L25 29M32 19L37 36M32 19L49 25" stroke="#3ccf8e" stroke-width="1.5" opacity=".85"/><g><circle cx="15" cy="42" r="2.4" fill="#2fc0a8"/><circle cx="25" cy="30" r="2.4" fill="#9be15d"/><circle cx="37" cy="37" r="2.4" fill="#57d28a"/><circle cx="49" cy="26" r="2.4" fill="#ffd34d"/></g><ellipse cx="32" cy="14" rx="13" ry="4.5" fill="#f3f1ea" stroke="#2c9a92" stroke-width="2"/><ellipse cx="32" cy="12" rx="5" ry="3" fill="#f3f1ea"/><circle cx="32" cy="18" r="2.2" fill="#7dffb0"/>', '#e4f0f7'),
@@ -100,7 +103,7 @@ export const TECH_DEFS = [
   { id: 'thermal', zones: ['grove'], name: 'רחפן מצלמת חום', cost: 30, max: 1, needs: 8, color: '#ff8a3a', tech: true,
     fact: 'מצלמת חום רואה את החום שבעלי חיים מפיצים, גם בחושך. חוקרים שולחים רחפנים כאלה בלילה, כדי לספור בעלי חיים בלי להפריע להם.',
     hint: 'שימו במקום פתוח. בלילה הרחפן ימריא ויספור את בעלי החיים החמים' },
-  { id: 'firetower', zones: ['grove'], name: 'מגדל תצפית אש', cost: 35, max: 1, needs: 7, color: '#e8743a', tech: true,
+  { id: 'firetower', zones: ['grove', 'savanna'], name: 'מגדל תצפית אש', cost: 35, max: 1, needs: 7, color: '#e8743a', tech: true,
     fact: 'ממגדל תצפית גבוה רואים עשן מרחוק. כשמגלים שריפה מוקדם, הכבאים מגיעים כשהיא עוד קטנה. גם ביערות בארץ יש תצפיות אש.',
     hint: 'שימו במקום פתוח. כשיש שריפה, המגדל יגלה את העשן מוקדם' },
   { id: 'reefspeaker', zones: ['reef'], name: 'רמקול שונית בריאה', cost: 25, max: 2, needs: 7, color: '#2a9ab8', tech: true,
@@ -109,6 +112,13 @@ export const TECH_DEFS = [
   { id: 'spawnbot', zones: ['reef'], name: 'רובוט אלמוגים צעירים', cost: 30, max: 1, needs: 8, color: '#e889a8', tech: true,
     fact: 'אחרי לילה של ביצים, חוקרים מגדלים מהביצים אלמוגים זעירים. רובוט מיוחד מפזר אותם במקומות שבהם השונית נפגעה.',
     hint: 'שימו על החול. בלילה הרובוט יפזר אלמוגים צעירים במקומות שנפגעו' },
+  // 1.4.2, the savanna (src/world/desert-tech.js; docs/sources.md "הסוואנה")
+  { id: 'solarpump', zones: ['savanna'], name: 'משאבה סולארית', cost: 30, max: 3, needs: 6, color: '#3a7ab8', tech: true,
+    fact: 'משאבה שעובדת באור השמש מעלה מים מבאר עמוקה אל שוקת. בפארקים באפריקה משתמשים בהן, כדי שיהיו מים לבעלי החיים גם בעונת היובש. אבל יותר מדי שוקות משאירות את הפילים במקום אחד.',
+    hint: 'שימו רחוק מהנהר, במקום שאין בו מים בעונת היובש' },
+  { id: 'beefence', zones: ['savanna'], name: 'גדר כוורות', cost: 25, max: 3, needs: 9, color: '#e8c050', tech: true,
+    fact: 'פילים נזהרים מדבורים. בקניה תולים כוורות על חוט בין עמודים, וכשפיל נוגע בחוט, הדבורים מזמזמות והפיל הולך. כך שומרים על עצים ועל שדות בלי לפגוע בפילים.',
+    hint: 'שימו ליד עצים שהפילים מפילים, כמו שיטות צעירות' },
 ];
 export const ISLAND_TOOLS = [...TOOL_DEFS, ...TECH_DEFS];
 export const TOOL_ICONS = ICONS;

@@ -136,7 +136,8 @@ export function createSavanna(ctx) {
     if (trees.length <= 2) { once('ele-few', 'הפילים מחפשים עצים ושיחים, ומעט מאוד נשארו. כשיש יותר מדי פילים, העצים נעלמים.', 'warn'); return; }
     for (const e of els) {
       if (Math.random() > 0.45) continue;
-      const near = trees.filter((p) => Math.hypot(p.x - e.pos.x, p.z - e.pos.z) < 14 && (p.sp.kind === 'shrub' || p.growth < 0.75));
+      const dev = ctx.tools && ctx.tools.tech && ctx.tools.tech.desert;   // 1.4.2: a beehive fence keeps the elephants off
+      const near = trees.filter((p) => Math.hypot(p.x - e.pos.x, p.z - e.pos.z) < 14 && (p.sp.kind === 'shrub' || p.growth < 0.75) && !(dev && dev.guardAt(p.x, p.z) > 0.4));
       if (!near.length) continue;
       const p = near[(Math.random() * near.length) | 0];
       if (p.sp.kind === 'shrub' || p.growth < 0.45) { p.die('elephant'); once('ele-open', `הפיל הפיל ${p.sp.name} ופתח מקום לעשב. כך הסוואנה נשארת פתוחה.`, 'good'); }

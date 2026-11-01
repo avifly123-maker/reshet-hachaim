@@ -86,7 +86,13 @@ n=$(echo "$out" | grep -c "CHECK .* ok")
 echo "$out" | grep "CHECK .* FAIL" && fail "savanna tutorial: a check failed"
 echo "$out" | grep "\[pageerror\]\|JS ERROR\|UNTIL TIMEOUT\|NO ELEMENT" && fail "savanna tutorial: errors"
 [ "$n" = 8 ] || fail "savanna tutorial: $n of 8 checks"
-echo "training field and tutorials OK (robot lab tutorial 8/8, desert tutorial 6/6, savanna tutorial 8/8)"
+# the savanna's devices (1.4.2): a solar pump gives water, a beehive fence guards trees from elephants, the fire tower
+out=$(timeout 1200 python3 tools/play.py dist/index.html tests/play/tech-savanna.json 800 460 2>&1)
+n=$(echo "$out" | grep -c "CHECK .* ok")
+echo "$out" | grep "CHECK .* FAIL" && fail "savanna devices: a check failed"
+echo "$out" | grep "\[pageerror\]\|JS ERROR\|UNTIL TIMEOUT\|NO ELEMENT" && fail "savanna devices: errors"
+[ "$n" = 4 ] || fail "savanna devices: $n of 4 checks"
+echo "training field and tutorials OK (robot lab tutorial 8/8, desert tutorial 6/6, savanna tutorial 8/8, savanna devices 4/4)"
 
 step "parents' play time"
 out=$(timeout 1200 python3 tools/check-playtime.py dist/index-torah.html shots/playtime 2>&1)
