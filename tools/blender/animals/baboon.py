@@ -15,28 +15,29 @@ TRUNK = []
 for x, t, b in ((300, 118, 160), (285, 96, 165), (265, 95, 172), (240, 99, 184), (215, 102, 190), (190, 104, 186), (165, 106, 172),
                 (140, 108, 165), (118, 112, 172), (102, 122, 178)):
     z, top = ph(x, t); _, bot = ph(x, b); TRUNK.append((z, top, bot))
-TAIL = [P3(110, 116), P3(120, 88), P3(112, 70), P3(98, 80), P3(91, 130), P3(90, 200), P3(93, 255)]
+TAIL = [P3(106, 118), P3(102, 98), P3(92, 90), P3(82, 100), P3(78, 140), P3(77, 190), P3(78, 232)]   # round 4: up from the rump, an arch back, then hanging
 blobs = trunk_from_profile(TRUNK, lambda z: 0.11 + 0.025 * smooth(-0.2, 0.3, z), n=36)
 blobs += [
     dict(t='cap', a=P3(290, 108), b2=P3(305, 100), r=(0.09, 0.08), bone='neck'),              # the short neck and the mane over it
-    dict(t='ell', c=P3(303, 94), r=(0.09, 0.09, 0.095), bone='head'),                          # the big skull, the cheek fur round it
+    dict(t='ell', c=P3(282, 104), r=(0.12, 0.09, 0.1), bone='chest'),                         # round 3: the shaggy mane over the shoulders
+    dict(t='ell', c=P3(303, 92), r=(0.1, 0.1, 0.1), bone='head'),                          # the big skull, the cheek fur round it
     dict(t='cap', a=P3(298, 86), b2=P3(318, 88), r=(0.03, 0.025), bone='head'),               # the brow ridge
-    dict(t='cap', a=P3(314, 102), b2=P3(342, 125), r=(0.055, 0.045), bone='head'),            # the long muzzle
-    dict(t='ell', c=P3(322, 118), r=(0.042, 0.03, 0.05), bone='head'),                        # the jaw
+    dict(t='cap', a=P3(314, 100), b2=P3(346, 110), r=(0.052, 0.04), bone='head'),            # the long muzzle, forward (round 4)
+    dict(t='ell', c=P3(324, 114), r=(0.04, 0.026, 0.05), bone='head'),                        # the jaw
 ]
 for i in range(len(TAIL) - 1):
-    blobs.append(dict(t='cap', a=TAIL[i], b2=TAIL[i + 1], r=(0.022 - 0.002 * i, 0.02 - 0.002 * i), bone='tail%d' % (i + 1)))
+    blobs.append(dict(t='cap', a=TAIL[i], b2=TAIL[i + 1], r=(0.026 - 0.002 * i, 0.024 - 0.002 * i), bone='tail%d' % (i + 1)))
 bones = [('hips', None, P3(104, 118), P3(200, 104)), ('chest', 'hips', P3(200, 104), P3(292, 100)),
          ('neck', 'chest', P3(290, 108), P3(306, 98)), ('head', 'neck', P3(306, 96), P3(344, 128))] + chain('tail', TAIL, 'hips')
 for sx, L in ((1, 'l'), (-1, 'r')):
     bones += [('f' + L, 'chest', P3(280, 140, sx * 0.07), P3(285, 212, sx * 0.07)), ('f' + L + '2', 'f' + L, P3(285, 212, sx * 0.07), P3(298, 290, sx * 0.07)),
               ('h' + L, 'hips', P3(128, 150, sx * 0.07), P3(140, 228, sx * 0.072)), ('h' + L + '2', 'h' + L, P3(140, 228, sx * 0.072), P3(126, 292, sx * 0.072))]
-    blobs += [dict(t='ell', c=P3(306, 292, sx * 0.07), r=(0.035, 0.022, 0.055), bone='f' + L + '2', foot=True),   # the hands
-              dict(t='ell', c=P3(140, 292, sx * 0.072), r=(0.035, 0.022, 0.07), bone='h' + L + '2', foot=True)]  # the long feet
+    blobs += [dict(t='ell', c=P3(306, 292, sx * 0.07), r=(0.028, 0.02, 0.042), bone='f' + L + '2', foot=True),   # the hands
+              dict(t='ell', c=P3(140, 292, sx * 0.072), r=(0.028, 0.02, 0.055), bone='h' + L + '2', foot=True)]  # the long feet
 cat_muscles(blobs, bones, sh=(0.04, 0.08, 0.055), th=(0.05, 0.09, 0.07))
 E = blob_ears(blobs, bones, base=(0.06, ph(0, 88)[1], ph(296, 0)[0]), d=(0.6, 0.8, -0.3), H=0.04, w=0.035, t=0.01, tip=0.95, turn=20)
 
-OLIVE, OLIVE2, FACE, DARK, PALE = srgb('#8a845e'), srgb('#706a4a'), srgb('#3a3634'), srgb('#2a2620'), srgb('#a8a07a')
+OLIVE, OLIVE2, FACE, DARK, PALE = srgb('#8a845e'), srgb('#706a4a'), srgb('#4e4844'), srgb('#3a3428'), srgb('#a8a07a')
 def paint(P, N, tag):
     x, y, z = P
     e = ear_paint(P, N, E)
@@ -45,16 +46,17 @@ def paint(P, N, tag):
     c = mix(OLIVE, OLIVE2, 0.35 + 0.3 * n + 0.2 * n2)
     if N.y < -0.4 and -0.4 < z < 0.3: c = mix(c, PALE, 0.35)                                    # a paler belly
     if z > ph(312, 0)[0] and y < ph(0, 92)[1]: c = mix(c, FACE, smooth(ph(312, 0)[0], ph(322, 0)[0], z) * 0.9)   # the dark bare muzzle
-    if y < 0.07 and abs(x) > 0.04: c = mix(c, DARK, 0.7)                                         # the dark hands and feet
+    if y < 0.04 and abs(x) > 0.04: c = mix(c, DARK, 0.6)                                         # the dark hands and feet
     return c
 
 parts = []
 for sx in (1, -1):
     parts += eye_parts((sx * 0.035, ph(0, 92)[1], ph(316, 0)[0]), 0.012, 'head', '#4a2a14', (sx, 0.15, 0.8))
-nose = Part('nose', bone='head', mat=1, color=srgb('#141212')); nose.add(*ellipsoid((0, ph(0, 126)[1], ph(343, 0)[0]), (0.028, 0.02, 0.014), 8, 5)); parts.append(nose)
+nose = Part('nose', bone='head', mat=1, color=srgb('#141212')); nose.add(*ellipsoid((0, ph(0, 110)[1], ph(348, 0)[0]), (0.028, 0.02, 0.014), 8, 5)); parts.append(nose)
 
 names = [b[0] for b in bones]
 acts = quad_actions(names, dict(amp=24, knee=40, run_amp=40, bob=0.02, drop=0.3, head_eat=30, neck_eat=30, look=30, tailsw=6, earflick=0,
                                 frames=dict(walk=30, run=16, idle=140, eat=60, sleep=120)))
-SPEC = dict(id='baboon', bones=bones, blobs=blobs, parts=parts, paint=paint, res=0.007, tris=5200, smooth=12, actions=acts,
+blobs = organic(blobs, 29)   # 1.11 (Avi): not two mirrored halves of clean parts
+SPEC = dict(id='baboon', bones=bones, blobs=blobs, parts=parts, paint=paint, res=0.007, tris=5200, smooth=16, actions=acts,
             meta=dict(height=1.0, length=1.6, scale=0.875, speeds={'walk': 1.2, 'run': 7.0, 'climb': 1.0}, map={'sit': 'idle', 'swim': 'walk', 'climb': 'walk'}))

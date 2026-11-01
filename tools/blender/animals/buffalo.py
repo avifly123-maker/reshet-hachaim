@@ -19,9 +19,9 @@ blobs += [
     dict(t='cap', a=(0, 1.16, 0.78), b2=(0, 1.1, 1.08), r=(0.26, 0.2), bone='neck'),               # the thick short neck
     dict(t='cap', a=(0, 0.92, 0.85), b2=(0, 0.9, 1.08), r=(0.14, 0.1), bone='neck'),               # the throat and dewlap
     dict(t='cap', a=(0, 1.3, 0.55), b2=(0, 1.32, 0.95), r=(0.2, 0.17), bone='neck'),               # the hump over the shoulders, into the neck
-    dict(t='ell', c=(0, 1.12, 1.2), r=(0.2, 0.19, 0.18), bone='head'),                            # the big broad skull
+    dict(t='ell', c=(0, 1.12, 1.2), r=(0.24, 0.21, 0.2), bone='head'),                            # the big broad skull (round 2: bigger, the photos)
     dict(t='cap', a=(0, 1.0, 1.28), b2=(0, 0.8, 1.4), r=(0.15, 0.13), bone='head'),                # the broad short face
-    dict(t='ell', c=(0, 0.78, 1.44), r=(0.15, 0.1, 0.1), bone='head'),                             # the wide muzzle
+    dict(t='ell', c=(0, 0.8, 1.42), r=(0.18, 0.12, 0.11), bone='head'),                             # the wide muzzle (round 2: wider)
     dict(t='ell', c=(0, 0.94, 1.24), r=(0.13, 0.11, 0.12), bone='head'),                           # the jaw
     dict(t='cap', a=(0, 1.22, -0.82), b2=(0, 0.55, -0.87), r=(0.04, 0.025), bone='hips'),          # the tail
     dict(t='ell', c=(0, 0.48, -0.87), r=(0.05, 0.12, 0.05), bone='hips'),                          # its dark tuft
@@ -49,10 +49,10 @@ def paint(P, N, tag):
     return c
 
 parts = []
-boss = Part('boss', bone='head', color=BOSS); boss.add(*ellipsoid((0, 1.31, 1.16), (0.25, 0.07, 0.12), 14, 8)); parts.append(boss)
+boss = Part('boss', bone='head', color=BOSS); boss.add(*ellipsoid((0, 1.33, 1.16), (0.28, 0.08, 0.14), 14, 8)); parts.append(boss)
 for sx in (1, -1):
     parts += eye_parts((sx * 0.13, 1.1, 1.26), 0.022, 'head', '#1a120c', (sx, 0.2, 0.5))
-    hp = bez([(sx * 0.08, 1.32, 1.15), (sx * 0.3, 1.32, 1.12), (sx * 0.42, 1.08, 1.1), (sx * 0.5, 1.1, 1.2), (sx * 0.5, 1.36, 1.24)], 16)
+    hp = bez([(sx * 0.08, 1.34, 1.15), (sx * 0.34, 1.33, 1.1), (sx * 0.52, 1.06, 1.08), (sx * 0.6, 1.14, 1.18), (sx * 0.48, 1.4, 1.2)], 16)   # round 2: out, down, up, tips turned in
     hv, hf = tube(hp, [0.095 * (1 - i / 15) ** 0.75 + 0.012 for i in range(16)], 10)
     parts.append(Part('horn', bone='head', color=HORN).add(hv, hf))
 nose = Part('nose', bone='head', color=srgb('#0e0c0c'))
@@ -62,5 +62,6 @@ parts.append(nose)
 names = [b[0] for b in bones]
 acts = quad_actions(names, dict(amp=18, knee=44, run_amp=30, bob=0.025, drop=0.55, head_eat=25, neck_eat=30, look=15, earflick=22, tailsw=30,
                                 frames=dict(walk=34, run=18, idle=160, eat=72, sleep=150)))
+blobs = organic(blobs, 23)   # 1.11 (Avi): not two mirrored halves of clean parts
 SPEC = dict(id='buffalo', bones=bones, blobs=blobs, parts=parts, paint=paint, res=0.011, tris=5600, smooth=14, actions=acts, lidCol='#241e1a',
             meta=dict(height=1.7, length=2.9, speeds={'walk': 1.2, 'run': 8.0}, map={'swim': 'walk', 'sit': 'sleep'}))

@@ -122,3 +122,49 @@ def cat_muscles(blobs, bones, sh, th, sh_t=0.5, th_t=0.55, th_back=0.04):
         blobs.append(dict(t='ell', c=tuple(c), r=sh, bone='f' + L, foot=True))   # foot=True: anat_legs keeps it
         S, E = bb['h' + L]; c = S + (E - S) * th_t + Vector((0, 0, -th_back))
         blobs.append(dict(t='ell', c=tuple(c), r=th, bone='h' + L, foot=True))
+
+
+# ───────────────────────────────────────── 1.11 (Avi: "too symmetric, as if put together from whole parts")
+def organic(blobs, seed=1, amt=1.0):
+    """A living body is never two mirrored halves of clean shapes. Every blob is moved and resized by a smooth field of
+    the place it sits in (neighbouring blobs move together, so a chain of trunk ellipsoids bends and swells softly and
+    never ribs), and the field differs between the left side and the right side. The feet stay on the ground.
+    Call it once, after all the blobs are made: blobs = organic(blobs, seed)."""
+    import random as _r, math as _m
+    rr = _r.Random(seed)
+    W = [(rr.uniform(2.0, 5.0), rr.uniform(0, 6.3), rr.uniform(-1, 1), rr.uniform(-1, 1)) for _ in range(6)]
+    def field(p, k):
+        x, y, z = p; sd = 1.0 if x >= 0 else -0.6
+        v = 0.0
+        for i, (f, ph, a, b) in enumerate(W):
+            if i % 3 != k: continue
+            v += _m.sin(f * (z + a * y) + ph + sd * b * 1.7)
+        return v * 0.5
+    out = []
+    for b in blobs:
+        b = dict(b); R = b.get('r')
+        sc = max(R) if isinstance(R, (tuple, list)) else (R or 0.05)
+        j = 0.05 * sc * amt
+        for key in ('c', 'a', 'b2'):
+            if key in b:
+                v = list(b[key]); p = tuple(v)
+                v[0] += j * field(p, 0)
+                if not b.get('foot'): v[1] += j * field(p, 1)
+                v[2] += j * 0.6 * field(p, 2); b[key] = tuple(v)
+        if isinstance(R, (tuple, list)):
+            p = b.get('c') or b.get('a') or (0, 0, 0)
+            g = 1 + 0.06 * amt * field(p, 1)
+            b['r'] = tuple(x * g for x in R)
+        out.append(b)
+    return out
+
+
+# fur: besides the fine strands, soft clumps and lumps at the size of a hand, so the skin is not a smooth moulded part
+if '_detail_base' not in globals(): _detail_base = _detail
+def _detail(P, N, f, skin, s):
+    d, g = _detail_base(P, N, f, skin, s)
+    if skin == 'fur':
+        lump = noise.noise(P * (1 / (0.09 * s)) + Vector((5.3, 1.9, 8.1)))
+        tuft = noise.noise((P - f * (P.dot(f)) * 0.7) * (1 / (0.02 * s)) + Vector((2.2, 9.4, 4.4)))
+        d += s * (0.0045 * lump + 0.0018 * tuft); g = max(0.0, min(1.0, g + 0.15 * (0.5 - 0.5 * tuft)))
+    return d, g
