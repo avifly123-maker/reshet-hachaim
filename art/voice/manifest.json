@@ -3283,5 +3283,130 @@
   "h": "4b9014d561c0",
   "text": "הִשְׁלַמְתֶּם אֶת הַמִּדְבָּר! אֵצֶל הַמַּמְצִיאִים מְחַכּוֹת לָכֶם שָׁלֹשׁ בְּעָיוֹת מֵהַמִּדְבָּר.",
   "ipa": "hiʃlˈamtem ʔˈet hamidbˈaʁ! ʔˈetsel hamamtsiʔˈim meχakˈot laχˈem ʃalˈoʃ beʔajˈot mehamidbˈaʁ."
+ },
+ "zone.savanna.1": {
+  "h": "ff9ba06006db",
+  "text": "בְּרוּכִים הַבָּאִים לְסַוָואנָה! כָּאן הַכּוֹל מִשְׁתַּנֶּה, וְאַתֶּם שׁוֹמְרִים שֶׁהַמִּישׁוֹר יַחֲזוֹר לְאִיזּוּן.",
+  "ipa": "beʁuχˈim habaʔˈim lasavˈana! kˈan hakˈol miʃtanˈe, veʔˈatem ʃomʁˈim ʃehamiʃˈoʁ jaχazˈoʁ leʔizˈun."
+ },
+ "zone.savanna.1.k": {
+  "h": "7a0c4f4b86e3",
+  "text": "בְּרוּכִים הַבָּאִים לַסַּוָּנָה! כָּאן הַכֹּל מִשְׁתַּנֶּה, וְאַתֶּם שׁוֹמְרִים שֶׁהַמִּישׁוֹר יַחֲזֹר לְאִזּוּן.",
+  "ipa": "beʁuχˈim habaʔˈim lasavanˈa! kˈan hakˈol miʃtanˈe, veʔˈatem ʃomʁˈim ʃehamiʃˈoʁ jaχazˈoʁ leʔizˈun."
+ },
+ "zone.savanna.2": {
+  "h": "12265a0deb7a",
+  "text": "כָּאן מְחַכֶּה הַמְּשִׂימָה שֶׁלָּכֶם. הִיא אוֹמֶרֶת מָה לַעֲשׂוֹת עַכְשָׁיו.",
+  "ipa": "kˈan meχakˈe hamesimˈa ʃelaχˈem. hˈi ʔomˈeʁet mˈa laʔasˈot aχʃˈav."
+ },
+ "zone.savanna.2.k": {
+  "h": "ca6bff10f734",
+  "text": "כָּאן מְחַכָּה הַמְּשִׂימָה שֶׁלָּכֶם. הִיא אוֹמֶרֶת מָה לַעֲשׂוֹת עַכְשָׁו.",
+  "ipa": "kˈan meχakˈa hamesimˈa ʃelaχˈem. hˈi ʔomˈeʁet mˈa laʔasˈot aχʃˈav."
+ },
+ "zone.savanna.3": {
+  "h": "2a16f37cab20",
+  "text": "גִּרְרוּ קְלָף מֵהַמַּגָּשׁ אֶל הַסְּוָואנָה. כָּךְ מְבִיאִים צֶמַח אוֹ בַּעַל חַיִּים.",
+  "ipa": "ɡiʁʁˈu klˈaf mehamaɡˈaʃ ʔˈel hasavˈana. kˈaχ meviʔˈim tsˈemaχ ʔˈo bˈaʔal χajˈim."
+ },
+ "zone.savanna.3.k": {
+  "h": "281ffee27177",
+  "text": "גִּרְרוּ קְלָף מֵהַמַּגָּשׁ אֶל הַסַּוָּנָה. כָּךְ מְבִיאִים צֶמַח אוֹ בַּעַל חַיִּים.",
+  "ipa": "ɡiʁʁˈu klˈaf mehamaɡˈaʃ ʔˈel hasavanˈa. kˈaχ meviʔˈim tsˈemaχ ʔˈo bˈaʔal χajˈim."
+ },
+ "zone.savanna.4": {
+  "h": "5149e380e4e5",
+  "text": "כָּאן הַנְּקוּדּוֹת שֶׁלָּכֶם. מְשַׁלְּמִים בָּהֶן עַל כָּל קְלָף.",
+  "ipa": "kˈan hanekudˈot ʃelaχˈem. meʃalemˈim bahˈen ʔˈal kˈol klˈaf."
+ },
+ "zone.savanna.4.k": {
+  "h": "e8365b33b787",
+  "text": "כָּאן הַנְּקֻדּוֹת שֶׁלָּכֶם. מְשַׁלְּמִים בָּהֶן עַל כָּל קְלָף.",
+  "ipa": "kˈan hanekudˈot ʃelaχˈem. meʃalemˈim bahˈen ʔˈal kˈol klˈaf."
+ },
+ "zone.savanna.5": {
+  "h": "ebe9cd051d10",
+  "text": "לֹא בְּטוּחִים מָה עַכְשָׁיו? לָחֲצוּ עַל \"מָה עוֹשִׂים עַכְשָׁיו?\" וַאֲנִי אֶעֱזוֹר.",
+  "ipa": "lˈo betuχˈim mˈa aχʃˈav? laχatsˈu ʔˈal mˈa ʔosˈim aχʃˈav? vaʔanˈi ʔeʔezˈoʁ."
+ },
+ "zone.savanna.5.k": {
+  "h": "46a4d442d0c7",
+  "text": "לֹא בְּטוּחִים מָה עַכְשָׁו? לִחֲצוּ עַל \"מָה עוֹשִׂים עַכְשָׁו?\" וַאֲנִי אֶעֱזֹר.",
+  "ipa": "lˈo betuχˈim mˈa aχʃˈav? liχatsˈu ʔˈal mˈa ʔosˈim aχʃˈav? vaʔanˈi ʔeʔezˈoʁ."
+ },
+ "th.zone-savanna": {
+  "h": "26ac0ac3fdae",
+  "text": "הִשְׁלַמְתֶּם אֶת הַסְּוָואנָה! אֵצֶל הַמַּמְצִיאִים מְחַכּוֹת לָכֶם שָׁלוֹשׁ בְּעָיוֹת מֵהַסּוָואנָה.",
+  "ipa": "hiʃlˈamtem ʔˈet hasavˈana! ʔˈetsel hamamtsiʔˈim meχakˈot laχˈem ʃalˈoʃ beʔajˈot mehasavˈana."
+ },
+ "th.zone-savanna.k": {
+  "h": "70c6d5c24757",
+  "text": "הִשְׁלַמְתֶּם אֶת הַסַּוָּנָה! אֵצֶל הַמַּמְצִיאִים מְחַכּוֹת לָכֶם שָׁלֹשׁ בְּעָיוֹת מֵהַסַּוָּנָה.",
+  "ipa": "hiʃlˈamtem ʔˈet hasavanˈa! ʔˈetsel hamamtsiʔˈim meχakˈot laχˈem ʃalˈoʃ beʔajˈot mehasavanˈa."
+ },
+ "st.hello.1": {
+  "h": "6089c26d5f88",
+  "text": "בְּרוּכִים הַבָּאִים לְסַוָואנָה! כָּאן יֵשׁ עוֹנַת גְּשָׁמִים וְעוֹנַת יוֹבַשׁ.",
+  "ipa": "beʁuχˈim habaʔˈim lasavˈana! kˈan jˈeʃ ʔonˈat ɡʃamˈim veʔonˈat jˈoveʃ."
+ },
+ "st.hello.1.k": {
+  "h": "9c9a5df3fd8f",
+  "text": "בְּרוּכִים הַבָּאִים לַסַּוָּנָה! כָּאן יֵשׁ עוֹנַת גְּשָׁמִים וְעוֹנַת יֹבֶשׁ.",
+  "ipa": "beʁuχˈim habaʔˈim lasavanˈa! kˈan jˈeʃ ʔonˈat ɡʃamˈim veʔonˈat jˈoveʃ."
+ },
+ "st.hello.2": {
+  "h": "89c9f1a76b7b",
+  "text": "הַכּוֹל מִשְׁתַּנֶּה כָּאן, וְאַתֶּם עוֹזְרִים לַמִּישׁוֹר לַחֲזוֹר לְאִיזּוּן.",
+  "ipa": "hakˈol miʃtanˈe kˈan, veʔˈatem ʔozʁˈim lamiʃˈoʁ laχazˈoʁ leʔizˈun."
+ },
+ "st.hello.2.k": {
+  "h": "e792110a6172",
+  "text": "הַכֹּל מִשְׁתַּנֶּה כָּאן, וְאַתֶּם עוֹזְרִים לַמִּישׁוֹר לַחֲזֹר לְאִזּוּן.",
+  "ipa": "hakˈol miʃtanˈe kˈan, veʔˈatem ʔozʁˈim lamiʃˈoʁ laχazˈoʁ leʔizˈun."
+ },
+ "st.plant.1": {
+  "h": "2cfc733b9f91",
+  "text": "בְּסַוָואנָה הַכּוֹל מַתְחִיל בָּעֵשֶׂב. גִּרְרוּ עֵשֶׂב שִׁיבּוֹלֶת אֶל הַמִּישׁוֹר.",
+  "ipa": "basavˈana hakˈol matχˈil baʔˈesev. ɡiʁʁˈu ʔˈesev ʃibˈolet ʔˈel hamiʃˈoʁ."
+ },
+ "st.plant.1.k": {
+  "h": "13e6aeab4176",
+  "text": "בַּסַּוָּנָה הַכֹּל מַתְחִיל בָּעֵשֶׂב. גִּרְרוּ עֵשֶׂב שִׁבֹּלֶת אֶל הַמִּישׁוֹר.",
+  "ipa": "basavanˈa hakˈol matχˈil baʔˈesev. ɡiʁʁˈu ʔˈesev ʃibˈolet ʔˈel hamiʃˈoʁ."
+ },
+ "st.weaver.1": {
+  "h": "a9c59b6fba57",
+  "text": "הָאוֹרֵג אוֹכֵל זְרָעִים שֶׁל עֵשֶׂב, וּבוֹנֶה קֵן עַל הַשִּׁיטָה. גִּרְרוּ אוֹרֵג אֶל הַסְוָואנָה.",
+  "ipa": "haʔoʁˈeɡ ʔoχˈel zʁaʔˈim ʃˈel ʔˈesev, uvonˈe kˈen ʔˈal haʃitˈa. ɡiʁʁˈu ʔoʁˈeɡ ʔˈel hasavˈana."
+ },
+ "st.weaver.1.k": {
+  "h": "e29910b41b62",
+  "text": "הָאוֹרֵג אוֹכֵל זְרָעִים שֶׁל עֵשֶׂב, וּבוֹנֶה קֵן עַל הַשִּׁטָּה. גִּרְרוּ אוֹרֵג אֶל הַסַּוָּנָה.",
+  "ipa": "haʔoʁˈeɡ ʔoχˈel zʁaʔˈim ʃˈel ʔˈesev, uvonˈe kˈen ʔˈal haʃitˈa. ɡiʁʁˈu ʔoʁˈeɡ ʔˈel hasavanˈa."
+ },
+ "st.stab.1": {
+  "h": "3dc993ff4fd3",
+  "text": "הַפַּס הַזֶּה מַרְאֶה אִם הַסּוָואנָה יַצִּיבָה. כְּשֶׁמַּשֶּׁהוּ מִשְׁתַּנֶּה, הִסְתַּכְּלוּ עָלָיו.",
+  "ipa": "hapˈas hazˈe maʁʔˈe ʔˈim hasavˈana jatsivˈa. keʃemaʃehˈu miʃtanˈe, histakelˈu ʔalˈav."
+ },
+ "st.stab.1.k": {
+  "h": "a6ee159db0c0",
+  "text": "הַפַּס הַזֶּה מַרְאֶה אִם הַסַּוָּנָה יַצִּיבָה. כְּשֶׁמַּשֶּׁהוּ מִשְׁתַּנֶּה, הִסְתַּכְּלוּ עָלָיו.",
+  "ipa": "hapˈas hazˈe maʁʔˈe ʔˈim hasavanˈa jatsivˈa. keʃemaʃehˈu miʃtanˈe, histakelˈu ʔalˈav."
+ },
+ "st.dry.1": {
+  "h": "2ebbde1bfd0c",
+  "text": "לַחֲצוּ עַל הַכַּפְתּוֹר הַמָּהִיר, וּרְאוּ אֵיךְ הָעֵשֶׂב מַצְהִיב כְּשֶׁהַגְּשָׁמִים נִגְמָרִים.",
+  "ipa": "laχatsˈu ʔˈal hakaftˈoʁ hamahˈiʁ, uʁʔˈu ʔˈejχ haʔˈesev matshˈiv keʃehaɡeʃamˈim niɡmaʁˈim."
+ },
+ "st.end.1": {
+  "h": "b0544ed91a77",
+  "text": "כָּל הַכָּבוֹד! בְּסַוָואנָה לֹא עוֹצְרִים אֶת הַשִּׁינּוּי. עוֹזְרִים לָהּ לַחֲזוֹר לְאִיזּוּן.",
+  "ipa": "kˈol hakavˈod! basavˈana lˈo ʔotsʁˈim ʔˈet haʃinˈuj. ʔozʁˈim lˈah laχazˈoʁ leʔizˈun."
+ },
+ "st.end.1.k": {
+  "h": "4c0d81c84430",
+  "text": "כָּל הַכָּבוֹד! בַּסַּוָּנָה לֹא עוֹצְרִים אֶת הַשִּׁנּוּי. עוֹזְרִים לָהּ לַחֲזֹר לְאִזּוּן.",
+  "ipa": "kˈol hakavˈod! basavanˈa lˈo ʔotsʁˈim ʔˈet haʃinˈuj. ʔozʁˈim lˈah laχazˈoʁ leʔizˈun."
  }
 }
