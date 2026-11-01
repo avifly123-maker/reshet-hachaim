@@ -30,6 +30,8 @@ export const TRAIT = {
   // 1.4, the desert
   fogcatch: 'תופס טיפות ערפל', suncompass: 'מנווט לפי השמש', storewater: 'שומר מים בגוף', soak: 'נוצות שסופגות מים',
   bumpy: 'שריון עם בליטות', coolears: 'אוזניים שמוציאות חום', reflect: 'מחזיר את קרני השמש',
+  // 1.4.2, the savanna
+  airtunnels: 'תעלות אוויר בקיר', stripes: 'פסים שחורים ולבנים', trunkgrip: 'חדק גמיש שאוחז',
 };
 
 // species id → traits (the first one is the strongest; the cards show the first three)
@@ -64,6 +66,12 @@ export const TRAITS = {
   psammomys: ['dig', 'memory'], deserthedgehog: ['spines', 'armor', 'nightsee'], uromastyx: ['spines', 'sun', 'dig'], scorpion: ['bumpy', 'armor', 'nightsee'],
   darkling: ['fogcatch', 'armor', 'walk'], desertant: ['suncompass', 'fast', 'team'], sandgrouse: ['soak', 'fly'], eagleowl: ['quiet', 'nightsee', 'fly'],
   houbara: ['hide', 'walk'], hawkmoth: ['hover', 'nightsee', 'fly'], desertsnail: ['reflect', 'dome', 'patient'],
+  // סוואנה (1.4.2)
+  umbrella: ['tall', 'spines', 'shelter'], baobab: ['storewater', 'tall'], whistling: ['spines', 'team'], redoat: ['patient'], stargrass: ['hold'],
+  kigelia: ['tall', 'bloom'], sycamore: ['tall', 'shelter'], marula: ['tall'], doum: ['tall'], papyrus: ['hold', 'float'], termitemound: ['airtunnels', 'team', 'shelter'],
+  zebra: ['stripes', 'walk', 'team'], wildebeest: ['walk', 'team'], impala: ['fast', 'team'], giraffe: ['tall', 'walk'], elephant: ['trunkgrip', 'coolears', 'strong'],
+  lion: ['strong', 'team', 'nightsee'], crocodile: ['armor', 'patient', 'swim'], weaver: ['fly', 'hold'], buffalo: ['strong', 'team'], hyena: ['strong', 'team', 'nightsee'],
+  baboon: ['climb', 'team', 'grip'],
   // technology cards
   rov: ['machine', 'nightsee', 'swim'], uwcam: ['machine', 'nightsee'], camera: ['machine', 'nightsee'], drone: ['machine', 'hover'], seeddrone: ['machine', 'hover'],
   buoy: ['machine', 'float'], sensor: ['machine', 'float'], weather: ['machine'], watergen: ['machine'], listener: ['machine', 'quiet'], rescue: ['machine', 'strong'],
@@ -94,6 +102,16 @@ export const THEMES = [
 // the problems. key: the trait that solves it (or need: two traits from two cards); half: traits that help a little.
 // real: the creature people really learned from; fact: what really happened (docs/sources.md).
 export const PROBLEMS = [
+  // 1.4.2, the savanna (docs/sources.md "הסוואנה")
+  { id: 'coolhouse', kids: true, theme: 'build', land: true, icon: 'box', title: 'בניין קריר בלי מזגן', ask: 'בעיר חמה בונים בניין גדול. מזגנים עולים הרבה חשמל. איך שומרים עליו קריר?', key: 'airtunnels', half: ['shelter', 'reflect', 'dome'],
+    real: 'termitemound', fact: 'הטרמיטים בונים תלים עם תעלות אוויר, והקן בפנים נשאר נוח. בעיר הרארה שבזימבבואה בנו בשנת 1996 בניין משרדים גדול, איסטגייט, עם תעלות אוויר כאלה. הוא צורך הרבה פחות חשמל לקירור.',
+    clue: 'מי בסוואנה בונה בית גבוה מאדמה, עם תעלות בתוך הקירות?', show: { fail: 'הבניין התחמם כמו תנור בצהריים.', half: 'נעשה קצת יותר קריר, אבל עדיין חם מדי בצהריים.' } },
+  { id: 'nobites', kids: true, theme: 'matter', land: true, icon: 'sparkle', title: 'פרות בלי זבובים', ask: 'זבובים עוקצים את הפרות ברפת, והן לא נחות. איך מרחיקים את הזבובים בלי חומרים מזיקים?', key: 'stripes', half: ['hide', 'skinchem', 'team'],
+    real: 'zebra', fact: 'חוקרים מצאו שזבובים מתקשים לנחות על פסים כמו של זברה. ביפן ציירו בשנת 2019 פסים שחורים ולבנים על פרות, ועליהן נחתו הרבה פחות זבובים עוקצים.',
+    clue: 'מי בסוואנה מכוסה בפסים שחורים ולבנים?', show: { fail: 'הזבובים המשיכו לנחות על הפרות.', half: 'מעט פחות זבובים נחתו, אבל עדיין הרבה.' } },
+  { id: 'softarm', kids: true, theme: 'robots', land: true, icon: 'gear', title: 'זרוע רובוט רכה', ask: 'רובוט במפעל צריך להרים דברים שבירים, ולעבוד ליד אנשים בלי לפגוע בהם. איזו זרוע מתאימה לו?', key: 'trunkgrip', half: ['grip', 'coil', 'strong'],
+    real: 'elephant', fact: 'לחדק של הפיל אין עצמות, אבל הוא חזק וגמיש, ויכול להרים גם בול עץ וגם עלה קטן. בשנת 2010 חברה בגרמניה בנתה זרוע רובוט רכה לפי החדק של הפיל.',
+    clue: 'למי בסוואנה יש אף ארוך בלי עצמות, שמרים גם עלה קטן וגם ענף כבד?', show: { fail: 'הזרוע הקשה שברה את הביצה.', half: 'הזרוע תפסה בעדינות, אבל לא הצליחה להרים דברים כבדים.' } },
   // 1.4, the desert (docs/sources.md "המדבר")
   { id: 'fogwater', kids: true, theme: 'water', land: true, icon: 'drop', title: 'מים מן הערפל', ask: 'בכפר על הר יבש יש ערפל כמעט כל בוקר, אבל אין מעיין. איך אוספים מים?', key: 'fogcatch', half: ['storewater', 'soak', 'spines'],
     real: 'darkling', fact: 'במדבר נמיב שבאפריקה יש חיפושית שחורה שעומדת בבוקר מול הרוח. טיפות ערפל נתפסות על הגב שלה ומתגלגלות אל הפה. לפי הרעיון הזה בונים רשתות ומשטחים שאוספים מים מהערפל.',
@@ -275,6 +293,13 @@ export const PROBLEMS = [
 //   · `half` (when given here) replaces the problem's half list: traits that became an alt route leave it.
 // tools/check-inventions.mjs runs every card and every pair of cards against every problem.
 const ROUTES = {
+  // 1.4.2, the savanna
+  coolhouse: { want: 'משהו שמכניס אוויר קריר ומוציא אוויר חם, בלי מנוע.', half: ['shelter', 'dome'],
+    alt: [{ t: ['reflect'], why: 'קירות וגג לבנים ומבריקים מחזירים את קרני השמש, כמו הקונכייה של חילזון המדבר, והבניין מתחמם פחות.', fact: 'צבע לבן מחזיר את רוב קרני השמש. לכן בערים חמות צובעים גגות וקירות בלבן.' }] },
+  nobites: { want: 'משהו שמבלבל את הזבובים, כך שלא ימצאו איפה לנחות.', half: ['hide', 'team'],
+    alt: [{ t: ['reflect'], why: 'כיסוי לבן ומבריק מושך פחות זבובים מכיסוי כהה.', fact: 'חוקרים בהונגריה מצאו שזבובי סוס נוחתים הרבה פחות על סוסים לבנים מאשר על סוסים כהים.' }] },
+  softarm: { want: 'זרוע רכה בלי עצמות, שמתכופפת לכל כיוון ואוחזת בעדינות.', half: ['strong'],
+    alt: [{ t: ['grip', 'coil'], why: 'זרוע רכה שמתלפפת סביב חפץ ואוחזת בו, כמו זרוע של תמנון.', fact: 'באיטליה בנו חוקרים זרוע רובוט רכה לפי הזרוע של התמנון.' }] },
   fogwater: { want: 'משהו שתופס טיפות זעירות מהאוויר, ומוביל אותן למקום אחד.',
     alt: [{ t: ['spines', 'storewater'], why: 'קוצים דקים, כמו של קקטוס: טיפות ערפל נתפסות עליהם ומחליקות אל הבסיס.', fact: 'חוקרים מצאו שהקוצים של קקטוס אחד ממקסיקו אוספים טיפות ערפל, והטיפות זזות לאורך הקוץ אל הצמח.' }] },
   antnav: { want: 'מישהו שיודע לאן ללכת בלי שלטים ובלי מפה.',

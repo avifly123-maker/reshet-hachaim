@@ -734,6 +734,7 @@ A thread rests on a fact that is already checked elsewhere in this file; what th
 - `ev-fire`: dry vegetation is the fuel of summer fires (KKL, above). `ev-heat`: warm water bleaches corals; clean water helps Eilat's corals stand it (the reef, above). `ev-dry`: dart frogs raise tadpoles in rainwater held by bromeliads (Amazon, above). `ev-road`: roads and fences cut gazelle herds (the mystery "הצבאים נעלמים", above).
 - `zone-amazon`, `zone-grove`, `zone-reef`: the three problems of each zone are real inventions learned from its creatures (הממציאים, above): water lily, morpho, kapok; barn owl, hedgehog, tortoise; reef shark, clownfish, octopus.
 - `zone-desert` (1.4): a Namib darkling beetle catches fog on its back (Parker & Lawrence 2001, Nature 414: 33); the desert ant navigates by the sun and counts steps, and AntBot (CNRS 2019) navigates the same way: https://www.cnrs.fr/en/press/first-walking-robot-moves-without-gps ; desert scorpion armour with bumps resists sand erosion (Han et al. 2012, Langmuir): https://phys.org/news/2012-01-scorpions-scientists-tougher-surfaces-machinery.html . Alt routes: cactus spines collect fog (Ju et al. 2012, Nature Communications 3: 1247, Opuntia microdasys); honeybees navigate by the sun and tell the direction in their dance; parrotfish teeth are woven crystals, among the hardest biominerals.
+- `zone-savanna` (1.4.2): termite mounds and the Eastgate Centre, Harare (https://en.wikipedia.org/wiki/Eastgate_Centre); cows painted with zebra stripes got fewer fly bites (Kojima et al. 2019, PLOS ONE 14: e0223447); the Festo Bionic Handling Assistant modelled on the elephant's trunk (2010). Alt routes: white surfaces reflect sunlight; white horses attract fewer horse-flies (Horváth et al. 2010, J. Exp. Biol. 213: 1643); octopus-inspired soft arm (Laschi et al. 2012).
 - `robot-out`: the robot of the workshop going out to the island is game logic.
 
 ## Technologies on the island (1.3.2, area G: src/game/tool-defs.js TECH_DEFS, src/world/tech.js)
@@ -780,3 +781,70 @@ the game (how often, how many, how strong) is game logic and is said so here. Ch
   every coral; where the reef was hurt (W.scars) a young coral is planted, one a night (two on the spawning night).
 - Not claimed: no numbers of eggs, larvae survival rates or fish counts from the studies appear in the game; the board
   numbers are the island's own.
+
+## הסוואנה (1.4.2)
+
+Species (src/data/savanna.js; every fact text of a species leans on its sources):
+- שיטה סוככנית (Umbrella thorn acacia (Vachellia tortilis)): https://en.wikipedia.org/wiki/Vachellia_tortilis ; https://www.britannica.com/plant/acacia
+- באובב (African baobab (Adansonia digitata)): https://en.wikipedia.org/wiki/Adansonia_digitata ; https://www.britannica.com/plant/baobab
+- שיטת הקוצים השורקים (Whistling thorn (Vachellia drepanolobium)): https://en.wikipedia.org/wiki/Vachellia_drepanolobium ; https://www.britannica.com/plant/whistling-thorn
+- עשב השיבולת האדום (Red oat grass (Themeda triandra)): https://en.wikipedia.org/wiki/Themeda_triandra ; https://www.britannica.com/place/savanna
+- עשב כוכב (Star grass / couch grass (Cynodon dactylon)): https://en.wikipedia.org/wiki/Cynodon_dactylon ; https://www.britannica.com/plant/Bermuda-grass
+- עץ הנקניקיות (Sausage tree (Kigelia africana)): https://en.wikipedia.org/wiki/Kigelia ; https://www.britannica.com/plant/sausage-tree
+- פיקוס השקמה (Sycamore fig (Ficus sycomorus)): https://en.wikipedia.org/wiki/Ficus_sycomorus ; https://www.britannica.com/plant/sycamore-fig
+- מרולה (Marula (Sclerocarya birrea)): https://en.wikipedia.org/wiki/Sclerocarya_birrea ; https://www.britannica.com/plant/marula
+- דום (Doum palm (Hyphaene thebaica)): https://en.wikipedia.org/wiki/Hyphaene_thebaica ; https://www.britannica.com/plant/doum-palm
+- פפירוס (Papyrus (Cyperus papyrus)): https://en.wikipedia.org/wiki/Cyperus_papyrus ; https://www.britannica.com/plant/papyrus-plant
+- תל טרמיטים (Termite mound (Macrotermes)): https://en.wikipedia.org/wiki/Mound-building_termites ; https://www.britannica.com/animal/termite
+- זברה (Plains zebra (Equus quagga)): https://en.wikipedia.org/wiki/Plains_zebra ; https://en.wikipedia.org/wiki/Grazing_succession
+- גנו (Blue wildebeest (Connochaetes taurinus)): https://en.wikipedia.org/wiki/Blue_wildebeest ; https://www.britannica.com/animal/wildebeest
+- אימפלה (Impala (Aepyceros melampus)): https://en.wikipedia.org/wiki/Impala ; https://www.britannica.com/animal/impala
+- ג׳ירפה (Giraffe (Giraffa camelopardalis)): https://en.wikipedia.org/wiki/Giraffe ; https://www.britannica.com/animal/giraffe
+- פיל אפריקאי (African bush elephant (Loxodonta africana)): https://en.wikipedia.org/wiki/African_bush_elephant ; https://en.wikipedia.org/wiki/Ecosystem_engineer
+- אריה (Lion (Panthera leo)): https://en.wikipedia.org/wiki/Lion ; https://www.britannica.com/animal/lion
+- תנין היאור (Nile crocodile (Crocodylus niloticus)): https://en.wikipedia.org/wiki/Nile_crocodile ; https://www.britannica.com/animal/Nile-crocodile
+- אורג (Village weaver (Ploceus cucullatus)): https://en.wikipedia.org/wiki/Village_weaver ; https://www.britannica.com/animal/weaver-bird
+- תאו אפריקאי (African buffalo (Syncerus caffer)): https://en.wikipedia.org/wiki/African_buffalo ; https://www.britannica.com/animal/Cape-buffalo
+- צבוע מנומר (Spotted hyena (Crocuta crocuta)): https://en.wikipedia.org/wiki/Spotted_hyena ; https://www.britannica.com/animal/spotted-hyena
+- בבון (Olive baboon (Papio anubis)): https://en.wikipedia.org/wiki/Olive_baboon ; https://www.britannica.com/animal/baboon
+
+Systems and missions:
+- Seasons: East African savannas have a wet season and a dry season; the grass greens with the rains and dries, and the
+  herds follow the green grass (https://en.wikipedia.org/wiki/Serengeti_migration ; more than a million wildebeest move
+  each year, https://www.britannica.com/place/Serengeti-National-Park).
+- Grazing order (grazing succession): zebras eat the tall coarse stems, wildebeest the leafy middle, smaller antelopes
+  the short regrowth (Bell 1971, Scientific American 225: 86–93; https://en.wikipedia.org/wiki/Grazing_succession).
+  Buffalo are bulk grazers of tall coarse grass and open the sward (https://en.wikipedia.org/wiki/African_buffalo).
+- Fire: savanna grasses regrow from the roots after fire, and the fresh shoots draw grazers; park managers burn small
+  patches on purpose (https://en.wikipedia.org/wiki/Fire_ecology ; https://www.sanparks.org/parks/kruger/conservation/scientific/key_issues/fire.php).
+- Elephants as engineers: they push over and debark trees, eat saplings and open space for grass; without elephants (and
+  fire) bushes spread (bush encroachment, https://en.wikipedia.org/wiki/Bush_encroachment); too many in one place
+  destroy the trees (https://en.wikipedia.org/wiki/African_bush_elephant#Ecology).
+- Lion and spotted hyena compete for the same prey and chase each other off kills; which wins depends on numbers
+  (https://en.wikipedia.org/wiki/Spotted_hyena#Interspecific_predatory_relationships). Shown gently in the game.
+
+Mysteries (src/research/cases):
+- `thorny-plain` (beginners): bush encroachment where elephants no longer pass; elephants or cutting reopen the plain
+  (Bush encroachment, above; elephants as engineers, above).
+- `old-grass` (middle): years without fire leave a thick layer of old dry grass that shades the new shoots and is poor
+  food; a small fire, or bulk grazers (buffalo), open it (Fire ecology and grazing succession, above).
+- `too-many-elephants` (advanced): artificial water points keep elephants near them all year and raise their impact on
+  trees; Kruger closed many of its water points for this reason (Smit, Grant & Devereux 2007, Biological Conservation
+  136: 85–99), and transfrontier corridors let elephants move between parks
+  (https://en.wikipedia.org/wiki/Great_Limpopo_Transfrontier_Park).
+
+Lab and inventors:
+- Zebra stripes are black and white hairs on a dark skin; horse-flies land much less on striped coats (Caro et al. 2019,
+  PLOS ONE 14: e0210831). Cows painted with zebra stripes got far fewer fly bites (Kojima et al. 2019, PLOS ONE 14:
+  e0223447). White horses attract fewer horse-flies than dark ones (Horváth et al. 2010, J. Exp. Biol. 213: 1643).
+- Termite mounds are full of tunnels and pores that move air through the nest; the Eastgate Centre in Harare (Mick
+  Pearce, 1996) uses passive ventilation inspired by them (https://en.wikipedia.org/wiki/Eastgate_Centre).
+- The elephant's trunk has no bones and lifts both logs and small leaves; Festo's Bionic Handling Assistant (2010) is a
+  soft robot arm modelled on it (https://www.festo.com/group/en/cms/10241.htm). Octopus-inspired soft arm: Laschi et
+  al. 2012, Advanced Robotics 26: 709.
+- Elephants flap their ears to cool the blood in the many vessels there (https://en.wikipedia.org/wiki/Elephant#Ears).
+- The giraffe's long prehensile tongue and tough lips strip acacia leaves between the thorns
+  (https://en.wikipedia.org/wiki/Giraffe#Feeding). Weaver nests hang at the tips of thin branches, the entrance below,
+  out of reach of snakes (https://en.wikipedia.org/wiki/Village_weaver).
+- חוטים: `zone-savanna` (1.4.2): the termite mound (Eastgate Centre), the zebra (Kojima et al. 2019) and the elephant
+  (Bionic Handling Assistant) taught real inventions (see above).

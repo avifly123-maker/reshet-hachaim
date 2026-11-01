@@ -588,6 +588,71 @@ const SNAIL = {
   },
 };
 
-export const SAMPLES = [SHARK, OWL, BEE, CORAL, MORPHO, FIREFLY, TOUCAN, CHAMELEON, OCTOPUS, HEDGEHOG, SLOTH, KAPOK, PARROT, URCHIN, MYCEL, CLAM, LEAFBAC, SCORP, SNAIL];
+// 1.4.2, the savanna
+const ZEBRA = {
+  id: 'zebrahair', species: 'zebra', name: 'פרווה של זברה', zone: 'savanna', zoom: 2, focus: 52,
+  task: 'מצאו שלוש שערות לבנות בתוך הפס השחור.',
+  hints: ['בהגדלה הכי גדולה רואים שהפס בנוי משערות רבות.', 'רוב השערות בפס השחור כהות. חפשו את הבהירות.'],
+  found: 'הפסים של הזברה בנויים משערות שחורות ושערות לבנות. חוקרים מצאו שזבובים מתקשים לנחות על פסים כאלה.',
+  idea: 'אולי בגד עם פסים ירחיק זבובים?',
+  targets: [],
+  view(level) {
+    const r = rnd(71 + level);
+    if (level === 0) {
+      // the stripes: smooth black bands across a white coat
+      let b = ''; for (let k = -2; k < 9; k++) { const x = k * 56; b += `<path d="M${f(x)} 0 C${f(x + 40)} 120 ${f(x - 20)} 260 ${f(x + 30)} 400 L${f(x + 58)} 400 C${f(x + 8)} 260 ${f(x + 68)} 120 ${f(x + 28)} 0 z" fill="#1e1c1a"/>`; }
+      return `<defs>${grain('g0', 0.05, 0.14)}</defs><rect width="400" height="400" fill="#f2efe6"/>${b}<rect width="400" height="400" fill="#000" filter="url(#g0)"/>`;
+    }
+    if (level === 1) {
+      // the edge of a stripe: dark hairs on one side, light hairs on the other
+      let h = ''; for (let k = 0; k < 420; k++) { const x = r() * 400, y = r() * 400, dark = x + (r() - 0.5) * 60 < 210, a = 1.1 + r() * 0.4; h += `<line x1="${f(x)}" y1="${f(y)}" x2="${f(x + Math.cos(a) * 26)}" y2="${f(y + Math.sin(a) * 26)}" stroke="${dark ? '#2a2622' : '#ece6d6'}" stroke-width="3" stroke-linecap="round"/>`; }
+      return `<rect width="400" height="400" fill="#8a8274"/>${h}`;
+    }
+    // single hairs inside a black stripe; three of them are white
+    let h = '', tips = [];
+    for (let k = 0; k < 60; k++) {
+      const x = 20 + (k % 10) * 38 + r() * 8, y = 20 + Math.floor(k / 10) * 64 + r() * 10, white = k % 23 === 6;
+      h += `<path d="M${f(x)} ${f(y)} q14 26 6 52" stroke="${white ? '#fbf8ee' : '#24201c'}" stroke-width="${white ? 9 : 8}" fill="none" stroke-linecap="round"/>`;
+      h += `<path d="M${f(x - 2)} ${f(y + 4)} q12 22 5 44" stroke="${white ? '#ffffff' : '#4a443c'}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".7"/>`;
+      if (white) tips.push({ x: x + 8, y: y + 26, r: 32 });
+    }
+    ZEBRA.targets = tips.slice(0, 3);
+    return `<defs>${grain('g2', 0.07, 0.12)}</defs><rect width="400" height="400" fill="#5a544a"/>${h}<rect width="400" height="400" fill="#000" filter="url(#g2)"/>`;
+  },
+};
+
+const MOUND = {
+  id: 'moundwall', species: 'termitemound', name: 'קיר של תל טרמיטים', zone: 'savanna', zoom: 2, focus: 44,
+  task: 'מצאו שלוש תעלות אוויר גדולות בקיר.',
+  hints: ['הקיר נראה מלא, אבל בהגדלה רואים בו חורים.', 'התעלות הגדולות כהות ועמוקות יותר מהחורים הקטנים.'],
+  found: 'קיר התל מלא תעלות וחורים זעירים. אוויר זורם בהם, וכך הקן בפנים לא מתחמם מדי.',
+  idea: 'בניין עם תעלות כאלה יכול להתקרר כמעט בלי מזגן.',
+  targets: [],
+  view(level) {
+    const r = rnd(83 + level);
+    if (level === 0) {
+      // the mound: a red earth tower with a few dark openings
+      let o = ''; for (let k = 0; k < 9; k++) o += `<ellipse cx="${f(150 + r() * 100)}" cy="${f(90 + k * 30)}" rx="${f(4 + r() * 4)}" ry="${f(3 + r() * 3)}" fill="#4a2410"/>`;
+      return `<defs><linearGradient id="md" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8a4420"/><stop offset=".5" stop-color="#c06a3a"/><stop offset="1" stop-color="#7a3a1a"/></linearGradient>${grain('g0', 0.06, 0.2)}</defs>
+        <rect width="400" height="400" fill="#e8d8a8"/><path d="M200 30 C230 40 250 120 270 230 C290 320 300 370 310 400 L90 400 C100 370 110 320 130 230 C150 120 170 40 200 30 z" fill="url(#md)"/>${o}<rect width="400" height="400" fill="#000" filter="url(#g0)"/>`;
+    }
+    if (level === 1) {
+      // grains of earth glued together, with small pores between them
+      let g = ''; for (let k = 0; k < 300; k++) { const x = r() * 400, y = r() * 400; g += `<circle cx="${f(x)}" cy="${f(y)}" r="${f(6 + r() * 8)}" fill="${r() < 0.5 ? '#b8603a' : '#a0502e'}" stroke="#6a3018" stroke-width="1.5"/>`; }
+      return `<rect width="400" height="400" fill="#4a2010"/>${g}`;
+    }
+    // the wall up close: many tiny pores and three big air tunnels
+    let d = '', tips = [];
+    for (let k = 0; k < 90; k++) d += `<ellipse cx="${f(r() * 400)}" cy="${f(r() * 400)}" rx="${f(4 + r() * 5)}" ry="${f(3 + r() * 4)}" fill="#3a1a0a"/>`;
+    for (const [x, y] of [[90, 110], [290, 170], [170, 300]]) {
+      d += `<ellipse cx="${x}" cy="${y + 6}" rx="30" ry="24" fill="#c87a4a" opacity=".6"/><ellipse cx="${x}" cy="${y}" rx="26" ry="20" fill="#2a1006"/><ellipse cx="${x - 4}" cy="${y - 4}" rx="14" ry="10" fill="#120602"/>`;
+      tips.push({ x, y, r: 34 });
+    }
+    MOUND.targets = tips;
+    return `<defs>${grain('g2', 0.08, 0.16)}</defs><rect width="400" height="400" fill="#a85a34"/>${d}<rect width="400" height="400" fill="#000" filter="url(#g2)"/>`;
+  },
+};
+
+export const SAMPLES = [SHARK, OWL, BEE, CORAL, MORPHO, FIREFLY, TOUCAN, CHAMELEON, OCTOPUS, HEDGEHOG, SLOTH, KAPOK, PARROT, URCHIN, MYCEL, CLAM, LEAFBAC, SCORP, SNAIL, ZEBRA, MOUND];
 export const sampleById = (id) => SAMPLES.find((s) => s.id === id) || null;
 export const ZOOMS = ['פי 10', 'פי 100', 'פי 1000'];

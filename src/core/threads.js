@@ -90,7 +90,7 @@ function snap() {
 const solvedProblem = (s, id) => !!(s.lab.solved[id] || s.hubSolved[id]);
 const anyCase = (s) => Object.keys(s.cases).length > 0;
 function zoneDone(s, z) {
-  const R = REGULAR[z]; if (!R) return false; const d = s.zones[z].done;
+  const R = REGULAR[z]; if (!R || !s.zones[z]) return false; const d = s.zones[z].done;   // a zone outside the journey's list (wip) is never done
   const full = [...Array(R[1])].every((_, i) => d.has(R[0] + (i + 1)));
   const kids = [...Array(R[2])].every((_, i) => d.has('k' + (i + 1)));
   return full || kids;
