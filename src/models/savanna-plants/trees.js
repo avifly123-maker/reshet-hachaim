@@ -58,36 +58,84 @@ export function buildUmbrella(variant) {
 }
 
 // the baobab: a huge bottle trunk that stores water, short stubby branches like roots in the air, few leaves (none in the
-// dry season), big white flowers that open at night and long velvety fruit hanging on stalks
+// dry season), big white flowers that open at night and long velvety fruit hanging on stalks.
+// 1.11 (Avi: "a big cylinder with a few branches up; trees must look natural"): the trunk is grown as several stems
+// fused together (a real baobab's trunk is fluted and lobed, wider at the foot, bulging, leaning a little), each with
+// its own lean and swell, with root flares at the ground; the limbs leave it at different heights, bend outward and fork
+// two or three times into gnarled, root-like twigs, so the crown is a wide irregular tangle and not a ring of sticks.
 export function buildBaobab(variant) {
   const rng = makeRng(hashString('baobab') + variant * 7919), noise = makeNoise2D(53 + variant);
   const wood = new Geo(), leaves = new Geo(), flowers = new Geo(), fruit = new Geo(), seed = new Geo();
-  const H = rng.range(7.5, 8.8), Rb = rng.range(1.25, 1.5);
+  const H = rng.range(7.5, 8.8), Rb = rng.range(1.2, 1.45);
   const bark = barkFn('#8a7a6a', '#a8988a', rng, noise, { fiss: 2, vert: 0.4 });
-  // the trunk: fat at the base, a little waist, then a wide top where the branches start
-  const n = 9, pts = [], rads = [];
-  for (let i = 0; i <= n; i++) { const t = i / n; pts.push(new V3(Math.sin(t * 2) * 0.08, t * H * 0.72, 0)); rads.push(Rb * (1.0 - 0.28 * Math.sin(t * Math.PI * 0.9) + 0.12 * t)); }
-  tube(wood, pts, rads, 14, bark, {});
-  const top = pts[n], perch = [];
-  const nB = rng.int(6, 8);
-  for (let i = 0; i < nB; i++) {
-    const az = i / nB * TAU + rng.range(-0.25, 0.25), L = rng.range(1.8, 2.8);
-    const d = new V3(Math.cos(az), rng.range(0.55, 0.9), Math.sin(az)).normalize();
-    const w = walk(top.clone().addScaledVector(new V3(Math.cos(az), 0, Math.sin(az)), Rb * 0.7), d, L, 4, rng, 0.25, 0.08);
-    tube(wood, w.pts, taper(w.pts.length, 0.32, 0.08), 6, bark, {});
-    const e = w.pts[w.pts.length - 1]; perch.push(e.clone());
-    for (let t = 0; t < 2; t++) {
-      const a2 = az + rng.range(-1, 1), ee = e.clone().add(new V3(Math.cos(a2) * 0.7, 0.5, Math.sin(a2) * 0.7));
-      tube(wood, [e.clone(), e.clone().lerp(ee, 0.5).add(new V3(0, 0.1, 0)), ee], [0.08, 0.05, 0.025], 4, bark, {});
-      blob(leaves, ee.clone().add(new V3(0, 0.15, 0)), rng.range(0.5, 0.75), 0.6, rng, { crownC: new V3(0, H, 0), rx: 3, ry: 1.5, base: jit('#6e8a3a', rng, 0.08), rank: rng.range(0.04, 0.96), center: ee, spiky: 0.3, faceN: 0.3, aoLo: 0.6 });
-      gem(flowers, ee.clone().add(new V3(0, -0.15, 0)), new V3(0, -1, 0), 0.22, 0.12, 5, new Col('#f6f2e6'), new Col('#e6dcc4'), ee, rng.range(0.04, 0.96));
-      const f0 = ee.clone().add(new V3(rng.range(-0.3, 0.3), -0.3, rng.range(-0.3, 0.3)));
-      tube(fruit, [f0, f0.clone().add(new V3(0, -0.3, 0))], [0.01, 0.01], 3, () => new Col('#6a5a3a'), { ce: f0, rank: 0.5 });
-      gem(fruit, f0.clone().add(new V3(0, -0.5, 0)), UP, 0.36, 0.09, 6, jit('#b8a878', rng, 0.06), new Col('#9a8a5e'), f0, rng.range(0.04, 0.96));
+  const Ht = H * rng.range(0.62, 0.7);                       // where the trunk ends and the limbs take over
+  const lean = new V3(rng.range(-0.25, 0.25), 0, rng.range(-0.25, 0.25));
+  // the fused stems: a core and 4-5 lobes round it, each a slightly different bottle
+  const nLobe = rng.int(4, 5), stems = [];
+  for (let k = 0; k <= nLobe; k++) {
+    const core = k === 0, az = k / nLobe * TAU + rng.range(-0.4, 0.4);
+    const off = core ? 0 : Rb * rng.range(0.32, 0.45), r0 = core ? Rb * 0.85 : Rb * rng.range(0.52, 0.68);
+    const top = core ? 1 : rng.range(0.82, 1.0), swell = rng.range(0.1, 0.22), ph = rng.range(0, 1);
+    const n = 10, pts = [], rads = [];
+    for (let i = 0; i <= n; i++) {
+      const t = i / n, y = t * Ht * top;
+      const pull = core ? 1 : 1 - 0.55 * t;                    // the lobes lean in and merge as they rise
+      const wob = 0.07 * Math.sin(t * 5 + ph * 6);
+      pts.push(new V3(Math.cos(az) * off * pull + lean.x * t * t + wob, y, Math.sin(az) * off * pull + lean.z * t * t - wob * 0.6));
+      // a wide foot, a full belly a third of the way up, narrowing to the top
+      rads.push(r0 * (1 + 0.32 * Math.exp(-t * 9) + swell * Math.sin(Math.min(1, t * 1.6) * Math.PI) - 0.42 * t * t));
+    }
+    tube(wood, pts, rads, core ? 14 : 10, bark, {});
+    stems.push(pts[n]);
+  }
+  // root flares where the trunk meets the ground
+  for (let k = 0; k < 6; k++) {
+    const az = rng() * TAU, a = new V3(Math.cos(az) * Rb * 0.7, 0.35, Math.sin(az) * Rb * 0.7);
+    const b = new V3(Math.cos(az) * Rb * rng.range(1.35, 1.7), -0.05, Math.sin(az) * Rb * rng.range(1.35, 1.7));
+    tube(wood, [a, a.clone().lerp(b, 0.5).add(new V3(0, 0.04, 0)), b], [0.32, 0.2, 0.08], 6, bark, {});
+  }
+  const topC = new V3(lean.x, Ht, lean.z), perch = [], crownC = new V3(lean.x, H, lean.z);
+  // the limbs: forking, gnarled, thick at the base
+  function limb(p, d, L, r, depth) {
+    const w = walk(p, d, L, 4, rng, depth === 0 ? 0.18 : 0.28, depth === 0 ? 0.06 : 0.12);
+    tube(wood, w.pts, taper(w.pts.length, r, r * 0.55, 0.8), depth === 0 ? 8 : depth === 1 ? 6 : 4, bark, {});
+    const e = w.pts[w.pts.length - 1];
+    if (depth >= 2 || r < 0.06) {
+      perch.push(e.clone());
+      // pass 2: thin twiglets at every tip, and small leaf tufts on them (not one big lump per branch)
+      for (let q = 0; q < 3; q++) {
+        const tw = e.clone().add(new V3(rng.range(-0.45, 0.45), rng.range(0.15, 0.45), rng.range(-0.45, 0.45)));
+        tube(wood, [e.clone(), e.clone().lerp(tw, 0.5).add(new V3(0, 0.05, 0)), tw], [r * 0.5, 0.025, 0.01], 3, bark, {});
+        if (rng() < 0.8) blob(leaves, tw.clone().add(new V3(0, 0.06, 0)), rng.range(0.22, 0.36), 0.5, rng, { crownC, rx: 4, ry: 1.8, base: jit(rng() < 0.5 ? '#6e8a3a' : '#86a046', rng, 0.08), rank: rng.range(0.04, 0.96), center: tw, spiky: 0.45, faceN: 0.3, aoLo: 0.6 });
+      }
+      if (rng() < 0.4) gem(flowers, e.clone().add(new V3(0, -0.12, 0)), new V3(0, -1, 0), 0.2, 0.11, 5, new Col('#f6f2e6'), new Col('#e6dcc4'), e, rng.range(0.04, 0.96));
+      if (rng() < 0.35) {
+        const f0 = e.clone().add(new V3(rng.range(-0.2, 0.2), -0.2, rng.range(-0.2, 0.2)));
+        tube(fruit, [f0, f0.clone().add(new V3(0, -0.35, 0))], [0.01, 0.01], 3, () => new Col('#6a5a3a'), { ce: f0, rank: 0.5 });
+        gem(fruit, f0.clone().add(new V3(0, -0.6, 0)), UP, 0.36, 0.09, 6, jit('#b8a878', rng, 0.06), new Col('#9a8a5e'), f0, rng.range(0.04, 0.96));
+      }
+      return;
+    }
+    blob(wood, e.clone(), r * 0.95, 0.9, rng, { crownC: e, rx: 1, ry: 1, base: jit('#968676', rng, 0.05), rank: 0.5, center: e, spiky: 0.05, faceN: 0, aoLo: 0.8 });   // pass 2: a swollen knuckle where the limb forks
+    const nk = depth === 0 ? rng.int(2, 3) : rng.int(2, 3);
+    for (let k = 0; k < nk; k++) {
+      const side = new V3(rng.range(-1, 1), 0, rng.range(-1, 1)).normalize();
+      const d2 = w.dir.clone().addScaledVector(side, rng.range(0.35, 0.75)).add(new V3(0, rng.range(0.1, 0.4), 0)).normalize();
+      limb(e, d2, L * rng.range(0.5, 0.7), r * rng.range(0.5, 0.62), depth + 1);
     }
   }
+  const nB = rng.int(5, 7);
+  for (let i = 0; i < nB; i++) {
+    const az = i / nB * TAU + rng.range(-0.35, 0.35), out = new V3(Math.cos(az), 0, Math.sin(az));
+    const h = Ht - rng.range(0, 0.9);                          // the limbs leave at different heights
+    const start = topC.clone().setY(h).addScaledVector(out, Rb * rng.range(0.25, 0.5));
+    const d = out.clone().multiplyScalar(rng.range(0.7, 1.1)).add(new V3(0, rng.range(0.55, 1.0), 0)).normalize();
+    limb(start, d, rng.range(1.5, 2.3), rng.range(0.3, 0.42), 0);
+  }
+  // a short stump of a limb or two in the middle, as on old trees
+  for (let k = 0; k < 2; k++) limb(topC.clone().add(new V3(rng.range(-0.3, 0.3), -0.1, rng.range(-0.3, 0.3))), new V3(rng.range(-0.3, 0.3), 1, rng.range(-0.3, 0.3)).normalize(), rng.range(0.9, 1.4), 0.28, 1);
   seedling(seed, rng, '#6e8a3a', '#8a7a6a', 0.45);
-  const info = { H: H + 1.4, crownTop: H + 1.4, crownBottom: H * 0.68, crownR: 3.2, trunkR: Rb, perch, attach: [], leafL: lum('#6e8a3a'), flowerL: lum('#f6f2e6'), fruitL: lum('#b8a878'), seedH: 0.45 };
+  const info = { H: H + 1.4, crownTop: H + 1.4, crownBottom: H * 0.62, crownR: 3.8, trunkR: Rb, perch: perch.slice(0, 12), attach: [], leafL: lum('#6e8a3a'), flowerL: lum('#f6f2e6'), fruitL: lum('#b8a878'), seedH: 0.45 };
   return { geoms: geomsOf({ wood, leaves, flowers, fruit, seed }), info };
 }
 

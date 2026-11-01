@@ -22,8 +22,9 @@ blobs += [
     dict(t='ell', c=P3(282, 104), r=(0.12, 0.09, 0.1), bone='chest'),                         # round 3: the shaggy mane over the shoulders
     dict(t='ell', c=P3(303, 92), r=(0.1, 0.1, 0.1), bone='head'),                          # the big skull, the cheek fur round it
     dict(t='cap', a=P3(298, 86), b2=P3(318, 88), r=(0.03, 0.025), bone='head'),               # the brow ridge
-    dict(t='cap', a=P3(314, 100), b2=P3(346, 110), r=(0.052, 0.04), bone='head'),            # the long muzzle, forward (round 4)
-    dict(t='ell', c=P3(324, 114), r=(0.04, 0.026, 0.05), bone='head'),                        # the jaw
+    dict(t='cap', a=P3(312, 98), b2=P3(344, 108), r=(0.058, 0.05), bone='head'),            # the long muzzle, forward and deep, not a flat bill (round 5)
+    dict(t='ell', c=P3(322, 118), r=(0.045, 0.032, 0.055), bone='head'),
+    dict(t='ell', c=P3(300, 104), r=(0.075, 0.06, 0.05), bone='head'),                        # round 5: the full cheek fur round the face                        # the jaw
 ]
 for i in range(len(TAIL) - 1):
     blobs.append(dict(t='cap', a=TAIL[i], b2=TAIL[i + 1], r=(0.026 - 0.002 * i, 0.024 - 0.002 * i), bone='tail%d' % (i + 1)))
@@ -37,7 +38,7 @@ for sx, L in ((1, 'l'), (-1, 'r')):
 cat_muscles(blobs, bones, sh=(0.04, 0.08, 0.055), th=(0.05, 0.09, 0.07))
 E = blob_ears(blobs, bones, base=(0.06, ph(0, 88)[1], ph(296, 0)[0]), d=(0.6, 0.8, -0.3), H=0.04, w=0.035, t=0.01, tip=0.95, turn=20)
 
-OLIVE, OLIVE2, FACE, DARK, PALE = srgb('#8a845e'), srgb('#706a4a'), srgb('#4e4844'), srgb('#3a3428'), srgb('#a8a07a')
+OLIVE, OLIVE2, FACE, DARK, PALE = srgb('#8a845e'), srgb('#706a4a'), srgb('#5a524a'), srgb('#3a3428'), srgb('#a8a07a')
 def paint(P, N, tag):
     x, y, z = P
     e = ear_paint(P, N, E)
@@ -45,7 +46,7 @@ def paint(P, N, tag):
     n = noise.noise(Vector((x * 16, y * 16, z * 16))); n2 = noise.noise(Vector((x * 70, y * 70, z * 70)))
     c = mix(OLIVE, OLIVE2, 0.35 + 0.3 * n + 0.2 * n2)
     if N.y < -0.4 and -0.4 < z < 0.3: c = mix(c, PALE, 0.35)                                    # a paler belly
-    if z > ph(312, 0)[0] and y < ph(0, 92)[1]: c = mix(c, FACE, smooth(ph(312, 0)[0], ph(322, 0)[0], z) * 0.9)   # the dark bare muzzle
+    if z > ph(310, 0)[0] and y < ph(0, 92)[1]: c = mix(c, FACE, smooth(ph(310, 0)[0], ph(330, 0)[0], z) * (0.55 + 0.35 * smooth(ph(330, 0)[0], ph(344, 0)[0], z)))   # the bare muzzle, darkest at the nose
     if y < 0.04 and abs(x) > 0.04: c = mix(c, DARK, 0.6)                                         # the dark hands and feet
     return c
 

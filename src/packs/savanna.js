@@ -6,6 +6,8 @@ import { PLANTS, releaseCaches as releasePlants } from '../models/savanna-plants
 import { ANIMALS, STANDIN_RIGGED, releaseCaches as releaseAnimals } from '../models/savanna-animals.js';
 import { withRigged, releaseRigged } from '../models/rigged.js';
 import { RIGGED } from '../data/rigged-savanna.js';
+import { savannaHQ, withHQ, releaseCaches as releaseHQ } from '../models/hq-trees.js';
+import { releaseCaches as releaseFoliage } from '../models/foliage.js';
 
-export const zone = { data: BIOME, plants: PLANTS, animals: withRigged(ANIMALS, { ...STANDIN_RIGGED, ...RIGGED }) };
-export function release() { releasePlants(); releaseAnimals(); releaseRigged(); }
+export const zone = { data: BIOME, plants: withHQ(PLANTS, savannaHQ(PLANTS)), animals: withRigged(ANIMALS, { ...STANDIN_RIGGED, ...RIGGED }) };
+export function release() { releasePlants(); releaseAnimals(); releaseHQ(); releaseFoliage(); releaseRigged(); }
