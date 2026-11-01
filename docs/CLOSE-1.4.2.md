@@ -5,11 +5,11 @@ prints what the zone still lacks (31 items on 1.11 02:30); remove `wip` from `sr
 
 ## A. Animals (Blender, Avi's PC; method in tools/blender/refs/README.md, overlay before every run)
 - [x] giraffe, zebra, elephant, lion, wildebeest, impala, crocodile, weaver: Blender models in the game
-- [ ] weaver: check the 1.11 run (yellow crown, wider tail, shorter legs: pv\rd_weaver_*.jpg, out\weaver.json)
+- [x] weaver: the 1.11 run is packed (the wing plate still needs a softer shape in a later round)
 - [ ] lion face round 2 (pale area smaller, ears out of the mane); wildebeest coat (dark bands, beard, black face)
 - [ ] rounds 2–5 for all (legs and hooves/paws, coat, ears/tail, motion in the game: walk/eat/sleep clips)
-- [~] new species: buffalo (Commons cand5 b3), hyena (cand5 h1 mirrored), baboon (cand4 p3): data, missions and lab done (1.11);
-      Blender specs traced and run (round 1 buffalo, round 2 hyena/baboon queued 03:12); out\*.json still to pack; paintings missing
+- [x] new species: buffalo, hyena, baboon: data, missions, lab; Blender models packed (1.11 05:00). Hyena round 7 (Avi: "the belly
+      and the hind part"): the chest is the deepest and the belly rises evenly. Still rough for all three: head, legs, ears (later rounds)
 - [ ] herds in instanced crowds use the real models (herd-crowd.js draws simple shapes now); consider @three.ez/instanced-mesh
 
 ## B. Registry entries (small code, each listed by validate-zones)  [x] done 1.11 (island-art still needs render-island.py on the PC)
@@ -19,7 +19,7 @@ kids-text words; sort-data words; audio.js sound bed; kids.js beginners set; bad
 lines (voiced); keep-forest board; island-art (tools/render-island.py on Avi's PC).
 
 ## C. Content
-- [ ] cards: 19 paintings (Gemini in Avi's Chrome, CLAUDE.md "Card paintings") + 3 new species
+- [~] cards: 19 of 22 paintings in (art/<id>.webp, 1.11 05:00); buffalo, hyena, baboon and the 4 source cards wait for Gemini's limit
 - [x] album sets 3; quiz 112 (src/data/quiz-bank-savanna.js)
 - [x] 3 mysteries (thorny-plain, old-grass, too-many-elephants), samples 2, atlas questions 5, clue cases 6, observe 2,
       sort pool 9, inventors problems 3, thread zone-savanna
@@ -35,3 +35,9 @@ lines (voiced); keep-forest board; island-art (tools/render-island.py on Avi's P
 
 ## E. Close
 - [ ] check-all, old saves, regression shots; CHANGELOG 1.4.2; build with tools/pack-1.4.sh into Avi's private folders
+
+## F. After 1.4.2 (Avi, 1.11 04:13–04:17)
+- [ ] an opening film for the savanna, about 25 seconds, in the engine (the island, the Blender animals, the camera moving over
+      herds, the waterhole, maybe a gentle chase of lions and hyenas), an original African rhythm (drums and kalimba, made with
+      tools/music/compose.py), shown on the first visit with a button to watch again; also recorded to a video for Avi
+- [ ] later: such an opening film for every zone (Avi: "not now, put it on the list")

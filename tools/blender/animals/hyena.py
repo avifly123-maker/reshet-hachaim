@@ -5,18 +5,19 @@
 # short bristly mane along the back, a big broad head with a short blunt muzzle, round ears, fairly long front legs and
 # shorter hind legs, a short tail with a dark bushy tip. Sandy-grey coat with dark brown round spots, a dark muzzle.
 own('hyena')
-ANAT['hyena'] = ('cat', dict(arm=0.12, sh=(0.07, 0.5, 0.12), fa0=0.085, fa1=0.062, wr=0.058, can=0.052, th=(0.05, 0.3, 0.08),   # round 3-4 (Avi: "not so nice"):
+ANAT['hyena'] = ('cat', dict(arm=0.12, sh=(0.07, 0.5, 0.12), fa0=0.085, fa1=0.062, wr=0.058, can=0.052, th=(0.05, 0.3, 0.08),   # round 3-5 (Avi: "not so nice"):
                              gas0=0.08, gas1=0.056, hock=0.056, mt=0.05, paw=(0.065, 0.038, 0.09)))   # a small haunch, so the back slopes down to the rump as in the photo
 EYE['hyena'] = ('#3a2412', 'round', 0.82, 0.5)
 PX = 0.00394
 def ph(x, y): return ((x - 200) * PX, (266 - y) * PX)
 def P3(x, y, X=0.0): z, yy = ph(x, y); return (X, yy, z)
 TRUNK = []
-for x, t, b in ((305, 70, 140), (285, 50, 146), (260, 52, 152), (235, 56, 158), (210, 60, 164), (185, 64, 168), (160, 68, 168),
-                (135, 74, 164), (110, 82, 158), (88, 92, 152), (70, 106, 142)):
+for x, t, b in ((305, 70, 142), (285, 48, 158), (260, 50, 162), (235, 54, 158), (210, 58, 150), (185, 63, 142), (160, 69, 136),
+                (135, 76, 132), (110, 85, 130), (88, 96, 128), (72, 108, 124)):   # round 7 (Avi: "the belly and the hind part"): the chest is the deepest, the belly
+                                                                                       # rises evenly to the flank (no sagging pot belly), the rump is small but rounded
     z, top = ph(x, t); _, bot = ph(x, b); TRUNK.append((z, top, bot))
 TAIL = [P3(70, 108), P3(64, 145), P3(62, 178), P3(62, 202)]
-blobs = trunk_from_profile(TRUNK, lambda z: 0.13 + 0.025 * smooth(-0.3, 0.3, z), n=34)     # broad at the shoulders, narrow behind
+blobs = trunk_from_profile(TRUNK, lambda z: 0.095 + 0.06 * smooth(-0.35, 0.3, z), n=34)   # broad deep chest, narrow rump     # broad at the shoulders, narrow behind
 blobs += [
     dict(t='cap', a=P3(282, 92), b2=P3(340, 78), r=(0.14, 0.11), bone='neck'),           # the thick strong neck, carried forward and up
     dict(t='ell', c=P3(352, 80), r=(0.12, 0.115, 0.12), bone='head'),                      # the big broad skull
@@ -25,19 +26,19 @@ blobs += [
     dict(t='ell', c=P3(375, 114), r=(0.05, 0.03, 0.055), bone='head'),                      # the jaw
     dict(t='cap', a=TAIL[0], b2=TAIL[1], r=(0.035, 0.03), bone='tail1'),
     dict(t='cap', a=TAIL[1], b2=TAIL[2], r=(0.032, 0.04), bone='tail2'),
-    dict(t='ell', c=TAIL[3], r=(0.05, 0.075, 0.05), bone='tail3'),                          # the dark bushy tip
+    dict(t='ell', c=P3(62, 196), r=(0.042, 0.085, 0.04), bone='tail3'),                     # the dark bushy tip, a tuft and not a ball
 ]
 bones = [('hips', None, P3(70, 106), P3(200, 62)), ('chest', 'hips', P3(200, 62), P3(300, 62)),
-         ('neck', 'chest', P3(300, 86), P3(346, 84)), ('head', 'neck', P3(348, 82), P3(404, 108))] + chain('tail', TAIL, 'hips')
+         ('neck', 'chest', P3(296, 90), P3(344, 76)), ('head', 'neck', P3(346, 74), P3(404, 100))] + chain('tail', TAIL, 'hips')
 for sx, L in ((1, 'l'), (-1, 'r')):
     bones += [('f' + L, 'chest', P3(288, 118, sx * 0.075), P3(294, 210, sx * 0.075)), ('f' + L + '2', 'f' + L, P3(294, 210, sx * 0.075), P3(300, 266, sx * 0.075)),
               ('h' + L, 'hips', P3(108, 108, sx * 0.07), P3(92, 212, sx * 0.072)), ('h' + L + '2', 'h' + L, P3(92, 212, sx * 0.072), P3(102, 266, sx * 0.072))]
-    blobs += [dict(t='ell', c=P3(306, 258, sx * 0.075), r=(0.045, 0.03, 0.06), bone='f' + L + '2', foot=True),
-              dict(t='ell', c=P3(108, 258, sx * 0.072), r=(0.042, 0.03, 0.056), bone='h' + L + '2', foot=True)]
-cat_muscles(blobs, bones, sh=(0.055, 0.11, 0.075), th=(0.045, 0.085, 0.065), sh_t=0.3, th_t=0.35)
+    blobs += [dict(t='ell', c=P3(306, 258, sx * 0.075), r=(0.04, 0.03, 0.05), bone='f' + L + '2', foot=True),
+              dict(t='ell', c=P3(108, 258, sx * 0.072), r=(0.038, 0.028, 0.046), bone='h' + L + '2', foot=True)]
+cat_muscles(blobs, bones, sh=(0.06, 0.12, 0.08), th=(0.035, 0.065, 0.05), sh_t=0.3, th_t=0.3)
 E = blob_ears(blobs, bones, base=(0.06, ph(343, 54)[1], ph(343, 54)[0]), d=(0.35, 1, -0.2), H=0.1, w=0.075, t=0.014, tip=0.98, turn=20)   # big round ears
 
-SAND, SAND2, SPOT, DARK, CREAM = srgb('#7e6e52'), srgb('#6a5c44'), srgb('#2e2216'), srgb('#221a12'), srgb('#a09272')
+SAND, SAND2, SPOT, DARK, CREAM = srgb('#72644a'), srgb('#5c503c'), srgb('#2a1e14'), srgb('#201810'), srgb('#9a8c6c')
 SPOTS = []
 import random as _rnd
 _r = _rnd.Random(7)
