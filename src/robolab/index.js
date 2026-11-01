@@ -70,6 +70,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   window.addEventListener('beforeunload', flushDraft);
   window.addEventListener('pagehide', flushDraft);
   function home() {
+    clearTimeout(stageT);
     flushDraft(); stopTut(); clearTimeout(talkT); speakGen++; kvoice.stop();
     requestAnimationFrame(helloKubi);   // קוּבִּי greets once the home is drawn
     stopRun(); if (map) { map.dispose(); map = null; } ed = null; cur = null;
@@ -113,6 +114,22 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   let garage = null;        // סדנת העיצוב while open (garage.js)
   let kubiDo = () => { };   // what קוּבִּי does (his window in the lesson's strip)
   let kcam = null;
+  // 1.4.2 (Avi, 1.11: "קוּבִּי is tiny, like a sample"): when he explains a lesson or cheers a win he comes forward, big,
+  // at the side of the field (the same window, grown: css .rl-kubi.stage), and goes back to his corner after. A click on
+  // him sends him back at once.
+  let stageT = 0;
+  function stageKubi(on, afterMs = 0) {
+    clearTimeout(stageT);
+    const c = el.querySelector('.rl-kubi'); if (!c) return;
+    // the strip clips and transforms its children: on stage the canvas moves to the lab's own layer, and comes back after
+    const set = (v) => {
+      if (!c.isConnected) return;   // the lesson closed meanwhile
+      const home = el.querySelector('.rl-say');
+      if (v && c.parentNode !== el) el.appendChild(c); else if (!v && home && c.parentNode !== home) home.insertBefore(c, home.firstChild);
+      c.classList.toggle('stage', v); requestAnimationFrame(() => { if (kcam && kcam.resize) kcam.resize(); });
+    };
+    if (on) set(true); else if (afterMs > 0) stageT = setTimeout(() => set(false), afterMs); else set(false);
+  }
   // קוּבִּי's voice (recorded lines, src/data/kubi-voice.js; tools/voice/kubi-lines.mjs lists them). Without a file
   // for a line he still "talks" for a while, so his mouth goes with the words on the screen.
   const kvoice = createVoice(audio, { load: () => import('../data/kubi-voice.js').then((m) => m.KUBI_VOICE) });
@@ -207,6 +224,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   function maxbUpdate() { const m = el.querySelector('.rl-maxb b'); if (!m || !ed || !cur) return; const n = countBlocks(ed.program()); m.textContent = n; m.parentNode.classList.toggle('full', !!cur.maxBlocks && n >= cur.maxBlocks); }
   function mountLevel(L, api) {
     viewMode = 0;   // a new lesson starts with the whole field in view
+    clearTimeout(stageT); el.querySelectorAll(':scope > .rl-kubi').forEach((x) => x.remove());   // קוּבִּי left on stage by the lesson before
     flushDraft(); stopTut();
     const news = newsFor(L);
     stopRun(); if (map) map.dispose();
@@ -244,7 +262,13 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     kcam = kubiCam(el.querySelector('.rl-kubi'));
     kubiDo = (what, sec = 0) => { if (!kcam) return; if (what) kcam.set(what); if (sec > 0) kcam.talk(true, sec); };
     queueTut(L);
-    clearTimeout(talkT); talkT = setTimeout(() => { if (!open || cur !== L) return; kubiDo('explain'); speak([...(news.chapter ? ['kc_' + L.ch] : []), 'kl_' + L.id, ...news.blocks.map((b) => 'kb_' + b)], Math.min(9, 1.2 + (el.querySelector('.rl-say p') || { textContent: '' }).textContent.length / 16)); }, 700);
+    clearTimeout(talkT); talkT = setTimeout(() => {
+      if (!open || cur !== L) return; kubiDo('explain');
+      const sec = Math.min(9, 1.2 + (el.querySelector('.rl-say p') || { textContent: '' }).textContent.length / 16), t0 = performance.now();
+      stageKubi(true);   // 1.4.2 (Avi, 1.11): he steps forward, big, while he explains the lesson
+      speak([...(news.chapter ? ['kc_' + L.ch] : []), 'kl_' + L.id, ...news.blocks.map((b) => 'kb_' + b)], sec)
+        .then(() => { if (cur === L) stageKubi(false, Math.max(1200, sec * 1000 - (performance.now() - t0) + 600)); });
+    }, 700);
   }
   const CONCEPT = {
     step: { f: 'סדר פעולות', k: 'סֵדֶר פְּעֻלּוֹת' }, turn: { f: 'פניות', k: 'פְּנִיּוֹת' }, path: { f: 'מסלול', k: 'מַסְלוּל' }, order: { f: 'קודם ואחר כך', k: 'קֹדֶם וְאַחַר כָּךְ' },
@@ -282,7 +306,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
       if (r.ok) {
         const { first } = cur.ownIsland ? { first: !!addIsland() } : markSolved(cur.id, r.stars, r.blocks);
         setTimeout(checkRoboBadges, 1200);   // after the win message (the badge toast comes on its own)
-        kubiDo('cheer'); speak(['kw_' + (Math.abs(seedN) % WIN_LINES.length)], 2);
+        kubiDo('cheer'); stageKubi(true); speak(['kw_' + (Math.abs(seedN) % WIN_LINES.length)], 2).then(() => stageKubi(false, 2600));
         msg(`<div class="rl-win"><span class="rl-st big">${stars(r.stars)}</span><b>${esc(T(pick(WIN_LINES, seedN)))}</b><small>${r.variants > 1 ? (kids ? `עָבַד בְּכָל ${r.variants} הַגִּרְסָאוֹת · ` : `עבד בכל ${r.variants} הגרסאות · `) : ''}${r.blocks} ${kids ? 'בְּלוֹקִים' : 'בלוקים'}${r.stars < 3 && cur.par ? ' · ' + esc(T({ f: 'אפשר גם ב־' + cur.par, k: 'אֶפְשָׁר גַּם בְּ־' + cur.par })) : ''}</small>
           <span class="rl-winb"><button type="button" data-next>${kids ? 'לַשִּׁעוּר הַבָּא' : 'לשיעור הבא'}</button><button type="button" data-stay>${kids ? 'לְנַסּוֹת שׁוּב' : 'לנסות שוב'}</button></span></div>`, 'win');
         sfx(first ? 'mission' : 'pop');
@@ -311,6 +335,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   }
 
   el.addEventListener('click', (e) => {
+    if (e.target.classList && e.target.classList.contains('rl-kubi') && e.target.classList.contains('stage')) { stageKubi(false); return; }   // back to his corner
     const b = e.target.closest('button'); if (!b || !el.contains(b) || b.disabled) return;
     if (b.dataset.exit != null) { close(); if (onExit) onExit(); return; }
     if (b.dataset.home != null) { sfx('click'); home(); return; }
@@ -343,7 +368,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   window.addEventListener('keydown', onKey);
 
   function openLab() { open = true; el.hidden = false; markSeen('home'); home(); }
-  function close() { flushDraft(); stopTut(); clearTimeout(talkT); open = false; speakGen++; kvoice.stop(); stopRun(); if (kcam) { kcam.dispose(); kcam = null; } if (garage) { garage.close(); garage = null; } if (in3d) end3d(); if (map) { map.dispose(); map = null; } el.hidden = true; el.innerHTML = ''; }
+  function close() { flushDraft(); stopTut(); clearTimeout(talkT); clearTimeout(stageT); el.querySelectorAll(':scope > .rl-kubi').forEach((x) => x.remove()); open = false; speakGen++; kvoice.stop(); stopRun(); if (kcam) { kcam.dispose(); kcam = null; } if (garage) { garage.close(); garage = null; } if (in3d) end3d(); if (map) { map.dispose(); map = null; } el.hidden = true; el.innerHTML = ''; }
   const R = {
     open: openLab, close, isOpen: () => open,
     coversGame: () => open && !!in3d && !!in3d.api && !el.classList.contains('in3d'),   // (while it loads, or closes for lack of room, the game runs its own update)   // the home over a kept island (main.js skips it)
