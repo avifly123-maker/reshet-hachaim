@@ -22,8 +22,10 @@ blobs += [
     dict(t='ell', c=P3(282, 104), r=(0.12, 0.09, 0.1), bone='chest'),                         # round 3: the shaggy mane over the shoulders
     dict(t='ell', c=P3(303, 92), r=(0.1, 0.1, 0.1), bone='head'),                          # the big skull, the cheek fur round it
     dict(t='cap', a=P3(298, 86), b2=P3(318, 88), r=(0.03, 0.025), bone='head'),               # the brow ridge
-    dict(t='cap', a=P3(312, 98), b2=P3(344, 108), r=(0.058, 0.05), bone='head'),            # the long muzzle, forward and deep, not a flat bill (round 5)
-    dict(t='ell', c=P3(322, 118), r=(0.045, 0.032, 0.055), bone='head'),
+    dict(t='ell', c=P3(318, 100), r=(0.045, 0.052, 0.05), bone='head'),                     # round 6: the muzzle is narrow and tall (a dog's
+    dict(t='ell', c=P3(333, 104), r=(0.037, 0.045, 0.045), bone='head'),                     # snout seen from the side), not a wide flat bill
+    dict(t='ell', c=P3(343, 107), r=(0.03, 0.035, 0.025), bone='head'),                      # the blunt nose end
+    dict(t='ell', c=P3(322, 119), r=(0.034, 0.028, 0.05), bone='head'),
     dict(t='ell', c=P3(300, 104), r=(0.075, 0.06, 0.05), bone='head'),                        # round 5: the full cheek fur round the face                        # the jaw
 ]
 for i in range(len(TAIL) - 1):
