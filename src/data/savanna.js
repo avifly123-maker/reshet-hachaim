@@ -981,12 +981,14 @@ export const BIOME = {
     },
     {
       id: 'sv_drought', title: 'הגשמים מאחרים',
-      text: 'עונת הגשמים הייתה צריכה להתחיל, אבל השמיים עדיין בהירים. בורות המים מתייבשים, והעשב צהוב. מה עושים?',
-      trigger: { type: 'day', day: 4 },
-      start: [{ type: 'drought', strength: 0.6, seconds: 50 }],
+      text: 'עונת הגשמים צריכה להתחיל, אבל השמיים עדיין בהירים. בורות המים מתייבשים, והעשב צהוב. מה עושים?',
+      // 2.11 (Avi: it rained in the drought): on the last day of the dry season, long enough to hold back the first
+      // shower of the rains (rainsGate in savanna/seasons.js); the rain comes only when the drought is over
+      trigger: { type: 'day', day: 6 },
+      start: [{ type: 'drought', strength: 0.6, seconds: 260 }],
       choices: [
         { id: 'river', label: 'לתת לבעלי החיים להתקרב לנהר', outcome: 'העדרים מצאו מים בנהר. הנהר לא מתייבש, גם כשהבורות ריקים.', effects: [{ type: 'points', amount: 10 }] },
-        { id: 'wait', label: 'לחכות לגשם', outcome: 'אחרי כמה ימים הגשם הגיע, והעשב הוריק שוב. העצים עם השורשים העמוקים כמעט לא נפגעו.', effects: [{ type: 'rain', seconds: 20 }] },
+        { id: 'wait', label: 'לחכות לגשם', outcome: 'הגשם יגיע כשהבצורת תיגמר, והעשב יוריק שוב. עד אז העצים עם השורשים העמוקים מחזיקים מעמד.', effects: [{ type: 'points', amount: 5 }] },
       ],
     },
     {

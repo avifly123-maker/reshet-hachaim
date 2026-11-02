@@ -3,7 +3,7 @@
 import { createGrass, BANDS } from '../../src/game/savanna/grass.js';
 import { createHerds } from '../../src/game/savanna/herds.js';
 import { createStability } from '../../src/game/savanna/stability.js';
-import { seasonAt } from '../../src/game/savanna/seasons.js';
+import { seasonAt, rainsGate, grassWet } from '../../src/game/savanna/seasons.js';
 
 const fails = [];
 const ok = (c, msg) => { if (!c) fails.push(msg); };
@@ -90,5 +90,17 @@ const land = (x, z) => Math.hypot(x, z) < 54;
   ok(poor.value < steady - 0.15, 'a poor island is less stable than a rich one');
 }
 
+// 2.11: a drought holds the rains back (Avi: "in the drought mission it rains")
+{
+  const st = { season: 'dry', late: false };
+  ok(rainsGate(st, 'wet', false) === 'rain', 'the rains begin with a shower');
+  st.season = 'dry';
+  ok(rainsGate(st, 'wet', true) === 'held', 'a drought at the turn of the season holds the shower');
+  st.season = 'wet';
+  ok(rainsGate(st, 'wet', true) === null, 'no rain while the drought lasts');
+  ok(rainsGate(st, 'wet', false) === 'rain' && !st.late, 'the shower comes when the drought ends, once');
+  ok(rainsGate(st, 'wet', false) === null, 'and only once');
+  ok(grassWet(1, 0.6) < 0.55 && grassWet(1, 0) === 1, 'the grass hardly grows in a drought');
+}
 if (fails.length) { console.log('savanna systems:\n  ' + fails.join('\n  ')); process.exit(1); }
 console.log('savanna systems: all rules hold');

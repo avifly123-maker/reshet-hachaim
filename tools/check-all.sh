@@ -43,14 +43,14 @@ echo "$out" | grep -q "eval: reef ok [1-9]" || fail "integration: the reef did n
 
 step "robot lab: editing, drafts, menus, islands, leaving mid-run"
 # real clicks: blocks in order, a block into a slot, remove, a condition and a count edited, back to the menu and after a
-# reload the draft is there, a lesson in 3D, the next lesson of the same zone at once, another zone in the middle of a
-# run, the menu and the exit in the middle of a run (tests/play/robolab.json, 20 checks, with the opening film and its skip)
+# reload the lesson opens empty and old drafts are gone, the stars stay, a lesson in 3D, the next lesson of the same zone at once, another zone in the middle of a
+# run, the menu and the exit in the middle of a run (tests/play/robolab.json, 22 checks, with the opening film and its skip)
 out=$(timeout 1200 python3 tools/play.py dist/index.html tests/play/robolab.json 800 460 2>&1)
 n=$(echo "$out" | grep -c "CHECK .* ok")
-echo "robot lab: $n/20 checks"
+echo "robot lab: $n/22 checks"
 echo "$out" | grep "CHECK .* FAIL" && fail "robot lab: a check failed"
 echo "$out" | grep "\[pageerror\]\|JS ERROR\|UNTIL TIMEOUT\|NO ELEMENT" && fail "robot lab: errors in the page or the script"
-[ "$n" = 20 ] || fail "robot lab: $n of 20 checks"
+[ "$n" = 22 ] || fail "robot lab: $n of 22 checks"
 
 step "integration, torah edition"
 out=$(timeout 1200 python3 tools/play.py dist/index-torah.html tests/play/integ.json 800 460 2>&1)
@@ -98,7 +98,13 @@ n=$(echo "$out" | grep -c "CHECK .* ok")
 echo "$out" | grep "CHECK .* FAIL" && fail "savanna film: a check failed"
 echo "$out" | grep "\[pageerror\]\|JS ERROR\|UNTIL TIMEOUT\|NO ELEMENT" && fail "savanna film: errors"
 [ "$n" = 7 ] || fail "savanna film: $n of 7 checks"
-echo "training field and tutorials OK (robot lab tutorial 8/8, desert tutorial 6/6, savanna tutorial 8/8, savanna devices 4/4, savanna film 7/7)"
+# the savanna's late rains (1.4.3, Avi: "in the drought mission it rains"): no rain while the drought lasts, a shower after it
+out=$(timeout 1200 python3 tools/play.py dist/index.html tests/play/savanna-drought.json 800 460 2>&1)
+n=$(echo "$out" | grep -c "CHECK .* ok")
+echo "$out" | grep "CHECK .* FAIL" && fail "savanna drought: a check failed"
+echo "$out" | grep "\[pageerror\]\|JS ERROR\|UNTIL TIMEOUT\|NO ELEMENT" && fail "savanna drought: errors"
+[ "$n" = 2 ] || fail "savanna drought: $n of 2 checks"
+echo "training field and tutorials OK (robot lab tutorial 8/8, desert tutorial 6/6, savanna tutorial 8/8, savanna devices 4/4, savanna film 7/7, savanna drought 2/2)"
 
 step "parents' play time"
 out=$(timeout 1200 python3 tools/check-playtime.py dist/index-torah.html shots/playtime 2>&1)

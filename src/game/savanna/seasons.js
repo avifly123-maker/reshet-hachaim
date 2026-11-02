@@ -13,3 +13,17 @@ export function seasonAt(day, dayFrac, year = { wet: 3, dry: 3 }) {
   const frac = (d - year.wet) / year.dry;
   return { season: 'dry', frac, wet: 1 - smoothstep(0, 0.25, frac), dryK: smoothstep(0.05, 0.6, frac), yearPos: d / Y, dayOfSeason: Math.floor(d - year.wet) };
 }
+
+// 2.11 (Avi: "in the drought mission it rains"): a drought holds the rains back. When the rainy season begins during a
+// drought, its first shower waits (st.late) and comes only once the drought is over. Returns what to do this frame:
+// 'rain' (the rains begin now), 'held' (the season turned but the drought keeps the sky clear) or null.
+//   rainsGate(st, season, droughtOn)   st keeps { season, late } between frames
+export function rainsGate(st, season, droughtOn) {
+  const turned = st.season != null && st.season !== season;
+  if (turned && season === 'dry') st.late = false;
+  if (turned && season === 'wet') { if (droughtOn) { st.late = true; return 'held'; } return 'rain'; }
+  if (st.late && season === 'wet' && !droughtOn) { st.late = false; return 'rain'; }
+  return null;
+}
+// how much the grass may grow and green: the season's wetness, less while a drought lasts
+export const grassWet = (svWet, drought) => (svWet ?? 1) * (1 - 0.85 * Math.min(1, drought || 0));

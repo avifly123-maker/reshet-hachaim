@@ -1,0 +1,45 @@
+[
+{
+"wait": 3
+},
+{
+"js": "window.__guide && window.__guide.close(); window.__journey.unlockAll('2580'); window.__journey.markTrained(); window.__journey.markIntro('g:svfilm'); 1"
+},
+{
+"wait": 1
+},
+{
+"js": "window.__app.bus.emit('start:biome', { id: 'savanna' }); 1"
+},
+{
+"until": "window.__game && window.__game.savanna && window.__game.debug",
+"timeout": 300
+},
+{
+"js": "window.__app.bus.emit('quality',{q:'medium'}); 1"
+},
+{
+"wait": 14
+},
+{
+"js": "const b=[...document.querySelectorAll('button')].find(x=>/דלג/.test(x.textContent)); if (b) b.click(); window.__guide && window.__guide.close(); 1"
+},
+{
+"wait": 2
+},
+{
+"js": "const W=window.__game; W.day=6; W.dayFrac=0.02; W.debug.ff(2); window.__ev=W.runEvent({id:'sv_drought_t',title:'t',text:'t',trigger:{type:'day',day:6},start:[{type:'drought',strength:0.6,seconds:260}],choices:[{id:'wait',label:'x',outcome:'x',effects:[{type:'points',amount:5}]}]}); 'eval season '+W.season+' droughtT '+W.droughtT"
+},
+{
+"wait": 2
+},
+{
+"js": "window.__game.debug.auto(); 1"
+},
+{
+"js": "const W=window.__game; let maxRain=0, turned=false, i=0, r=''; for (; i<300 && W.droughtT>0; i++){ r=W.debug.ff(2); if(/modal/.test(r)) W.debug.auto(); if (W.droughtT<=0) break; if (W.season==='wet') turned=true; maxRain=Math.max(maxRain,W.rain, W.rainTarget);} 'CHECK drought-no-rain ' + (turned && maxRain<0.05 ? 'ok' : 'FAIL')+' turned '+turned+' rain '+maxRain.toFixed(2)+' day '+W.day+' frac '+W.dayFrac.toFixed(2)+' i '+i"
+},
+{
+"js": "const W=window.__game; const r=W.debug.ff(3); 'CHECK rain-after-drought ' + (W.rainTarget>0.5 ? 'ok' : 'FAIL '+W.rainTarget+' '+W.season+' '+r+' dT '+W.droughtT)"
+}
+]

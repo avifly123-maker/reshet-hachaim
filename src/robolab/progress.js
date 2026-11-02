@@ -2,7 +2,7 @@
 // { done: { <levelId>: { stars, blocks, t } }, seen: { intro: 1, ... }, fun: n (funny blocks pressed, for a badge),
 //   look: { robot|drone|sub: { parts: { socket: partId }, paint: { body, trim, accent } } } (the garage) }
 // Writes fire 'wol-progress' { kind: 'robolab' } so מסע החוקר and the badges can count.
-import { K, readPlayer, writePlayer } from '../core/storage.js';
+import { K, readPlayer, writePlayer, removePlayer } from '../core/storage.js';
 
 const EMPTY = () => ({ done: {}, seen: {}, fun: 0, look: {}, isl: 0 });
 export function roboProgress() {
@@ -32,20 +32,7 @@ export function setToolLook(tool, look) { const o = roboProgress(); o.look[tool]
 // a mission done on the player's own island (they are made anew each time, so only the count is kept)
 export function addIsland() { const o = roboProgress(); o.isl += 1; save(o, { island: true }); return o.isl; }
 
-// the program a child is building in a lesson, kept as it changes (Avi, 29.10: coming back to the menu or closing the
-// game must not lose it). Its own key, so writing it does not wake the journey and the badges. Kept for the last 60
-// lessons touched; a solved lesson keeps its draft too (the child may want to improve it).
-const DRAFT_MAX = 60;
-export function draftOf(id) {
-  const o = readPlayer(K.robolabDraft, null);
-  const d = o && typeof o === 'object' ? o[id] : null;
-  return d && d.p && typeof d.p === 'object' ? d.p : null;
-}
-export function saveDraft(id, program) {
-  let o = readPlayer(K.robolabDraft, null); if (!o || typeof o !== 'object') o = {};
-  const empty = !program || !['robot', 'drone', 'sub'].some((k) => (program[k] || []).length) && !(program.on || []).length && !Object.values(program.defs || {}).some((l) => (l || []).length);
-  if (empty) delete o[id]; else o[id] = { p: program, t: Date.now() };
-  const ids = Object.keys(o).sort((a, b) => o[b].t - o[a].t);
-  for (const k of ids.slice(DRAFT_MAX)) delete o[k];
-  writePlayer(K.robolabDraft, o);
-}
+// 2.11 (Avi): a lesson opens empty every time, and its stars and rank stay. The program lives only in the open editor
+// while the child is in the lesson (run, fail, fix); leaving the lesson drops it. 1.4.1 and 1.4.2 kept drafts under
+// K.robolabDraft (29.10): they are removed for the player when the lab opens.
+export function dropDrafts() { if (readPlayer(K.robolabDraft, null) != null) removePlayer(K.robolabDraft); }

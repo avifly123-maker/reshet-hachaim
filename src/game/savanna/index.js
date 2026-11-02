@@ -15,7 +15,7 @@
 // Takes from ctx (at call time): W, env, biome, ui, amb, robo, reg, alive, spawnPlant, findSpotNear, rig, audio.
 import * as THREE from 'three';
 import { clamp } from '../../core/util.js';
-import { seasonAt } from './seasons.js';
+import { seasonAt, rainsGate, grassWet } from './seasons.js';
 import { createGrass } from './grass.js';
 import { createHerds, HERD_KIND } from './herds.js';
 import { createStability } from './stability.js';
@@ -36,7 +36,7 @@ export function createSavanna(ctx) {
   const stability = createStability();
   const crowd = createHerdCrowd(env.root, env);
   const map = new Uint8Array(32 * 32 * 4);
-  const st = { season: null, year: -1, migOn: false, arrived: -1, wildeArrived: -1, left: -1, fireYear: 0, lastFireYear: -1, notes: {} };
+  const st = { late: false, season: null, year: -1, migOn: false, arrived: -1, wildeArrived: -1, left: -1, fireYear: 0, lastFireYear: -1, notes: {} };
   const amb = (t, k) => ctx.amb && ctx.amb(t, k);
   const once = (key, t, k = 'info') => { if (st.notes[key]) return; st.notes[key] = 1; amb(t, k); };
   let mapT = 0, stabT = 0, grazeT = 0, eleT = 20, fireT = 0;
@@ -64,11 +64,15 @@ export function createSavanna(ctx) {
   function seasonTick() {
     const s = seasonAt(W.day, W.dayFrac, year), Y = year.wet + year.dry, yi = Math.floor((W.day - 1) / Y);
     W.season = s.season; W.seasonFrac = s.frac; W.dryK = s.dryK; W.svWet = s.wet;
+    // a drought holds the first shower back until it is over (rainsGate, seasons.js)
+    const gate = rainsGate(st, s.season, (W.droughtT || 0) > 0);
+    if (gate === 'rain') {
+      W.rainTarget = 0.85; W.rainT = Math.max(W.rainT || 0, 35);   // the rains begin with a real shower
+      amb('הגשמים הגיעו! העשב מוריק, ובורות המים מתמלאים.', 'good');
+    } else if (gate === 'held') amb('עונת הגשמים הגיעה, אבל השמיים עדיין בהירים. הגשמים מתעכבים.', 'warn');
     if (st.season && st.season !== s.season) {
       if (!W.xp && !W.viewMode) ctx.ui?.toast?.(`הגיעה עונת ה${SEASON_NAMES[s.season]}`, 'info');
       if (s.season === 'wet') {
-        W.rainTarget = 0.85; W.rainT = Math.max(W.rainT || 0, 35);   // the rains begin with a real shower
-        amb('הגשמים הגיעו! העשב מוריק, ובורות המים מתמלאים.', 'good');
         // a whole dry season passed: was the island stable through it? (missions: goal 'stable')
         if (stability.value >= 0.5) W.stats.stableSeasons = (W.stats.stableSeasons || 0) + 1;
         // a year with no fire and no elephants: the thorn shrubs spread over the grass
@@ -155,7 +159,7 @@ export function createSavanna(ctx) {
   function tick(dt, rdt) {
     seasonTick();
     if (dt <= 0) { crowd.update(herds.list, rdt, W.simT, { spreadOf: (k) => HERD_KIND[k].spread }); return; }
-    grass.step(dt, { wet: W.svWet ?? 1, rain: W.rain || 0 });
+    grass.step(dt, { wet: grassWet(W.svWet, W.droughtT > 0 ? W.drought : 0), rain: W.rain || 0 });
     // the player's own grazers eat their band too (lightly), so the grazing order shows on the plain
     grazeT += dt;
     if (grazeT >= 1) {
