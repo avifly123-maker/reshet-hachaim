@@ -3408,5 +3408,65 @@
   "h": "4c0d81c84430",
   "text": "כָּל הַכָּבוֹד! בַּסַּוָּנָה לֹא עוֹצְרִים אֶת הַשִּׁנּוּי. עוֹזְרִים לָהּ לַחֲזֹר לְאִזּוּן.",
   "ipa": "kˈol hakavˈod! basavanˈa lˈo ʔotsʁˈim ʔˈet haʃinˈuj. ʔozʁˈim lˈah laχazˈoʁ leʔizˈun."
+ },
+ "rt.loop.1": {
+  "h": "0bd7f381c624",
+  "text": "זֶה בְּלוֹק \"חֲזוֹר\". הוּא עוֹשֶׂה אֶת מָה שֶׁבְּתוֹכוֹ כַּמָּה פְּעָמִים. לָחֲצוּ עָלָיו.",
+  "ipa": "zˈe belˈok χazˈoʁ. hˈu ʔosˈe ʔˈet mˈa ʃebetoχˈo kamˈa peʔamˈim. laχatsˈu ʔalˈav."
+ },
+ "rt.loop.1.k": {
+  "h": "b7baa4ed5ce3",
+  "text": "זֶה בְּלוֹק \"חֲזֹר\". הוּא עוֹשֶׂה אֶת מָה שֶׁבְּתוֹכוֹ כַּמָּה פְּעָמִים. לַחֲצוּ עָלָיו.",
+  "ipa": "zˈe belˈok χazˈoʁ. hˈu ʔosˈe ʔˈet mˈa ʃebetoχˈo kamˈa peʔamˈim. laχatsˈu ʔalˈav."
+ },
+ "rt.in.1": {
+  "h": "050fabe89c92",
+  "text": "רְאוּ אֶת הַמָּקוֹם שֶׁזּוֹהֵר בְּתוֹךְ \"חֲזוֹר\"? הַבְּלוֹק הַבָּא שֶׁתִּלְחֲצוּ עָלָיו יִיכָּנֵס לְשָׁם.",
+  "ipa": "ʁeʔˈu ʔˈet hamakˈom ʃezohˈeʁ betˈoχ χazˈoʁ? habelˈok habˈa ʃetilχatsˈu ʔalˈav jikanˈes leʃˈam."
+ },
+ "rt.in.1.k": {
+  "h": "9753d7d0e259",
+  "text": "רְאוּ אֶת הַמָּקוֹם שֶׁזּוֹהֵר בְּתוֹךְ \"חֲזֹר\"? הַבְּלוֹק הַבָּא שֶׁתִּלְחֲצוּ עָלָיו יִכָּנֵס לְשָׁם.",
+  "ipa": "ʁeʔˈu ʔˈet hamakˈom ʃezohˈeʁ betˈoχ χazˈoʁ? habelˈok habˈa ʃetilχatsˈu ʔalˈav jikanˈes leʃˈam."
+ },
+ "rt.in.2": {
+  "h": "4dfe2c070938",
+  "text": "עַכְשָׁיו לָחֲצוּ עַל בְּלוֹק, וְהוּא יִיכָּנֵס לְתוֹךְ הַלּוּלָאָה.",
+  "ipa": "aχʃˈav laχatsˈu ʔˈal belˈok, vehˈu jikanˈes letˈoχ halulaʔˈa."
+ },
+ "rt.in.2.k": {
+  "h": "889bff9766b8",
+  "text": "עַכְשָׁו לַחֲצוּ עַל בְּלוֹק, וְהוּא יִכָּנֵס לְתוֹךְ הַלּוּלָאָה.",
+  "ipa": "aχʃˈav laχatsˈu ʔˈal belˈok, vehˈu jikanˈes letˈoχ halulaʔˈa."
+ },
+ "rt.cnt.1": {
+  "h": "90b88d76f813",
+  "text": "יָפָה! בַּחִצִּים הָאֵלֶּה בּוֹחֲרִים כַּמָּה פְּעָמִים לַחֲזוֹר.",
+  "ipa": "jafˈe! baχitsˈim haʔelˈe boχaʁˈim kamˈa peʔamˈim laχazˈoʁ."
+ },
+ "rt.cnt.1.k": {
+  "h": "bf000212a1e9",
+  "text": "יָפֶה! בַּחִצִּים הָאֵלֶּה בּוֹחֲרִים כַּמָּה פְּעָמִים לַחֲזֹר.",
+  "ipa": "jafˈe! baχitsˈim haʔelˈe boχaʁˈim kamˈa peʔamˈim laχazˈoʁ."
+ },
+ "rt.aft.1": {
+  "h": "9cce4a5106e6",
+  "text": "רוֹצִים בְּלוֹק אַחֲרֵי הַלּוּלָאָה וְלֹא בְּתוֹכָהּ? לָחֲצוּ עַל הַמָּקוֹם הָרֵיק שֶׁמִּתַּחְתֶּיהָ. הוּא יִזְהַר, וְהַבְּלוֹק יִיכָּנֵס לְשָׁם.",
+  "ipa": "ʁotsˈim belˈok ʔaχaʁˈej halulaʔˈa velˈo betoχˈah? laχatsˈu ʔˈal hamakˈom haʁˈejk ʃemitaχtejˈa. hˈu jizhˈaʁ, vehabelˈok jikanˈes leʃˈam."
+ },
+ "rt.aft.1.k": {
+  "h": "2c761b25b89f",
+  "text": "רוֹצִים בְּלוֹק אַחֲרֵי הַלּוּלָאָה וְלֹא בְּתוֹכָהּ? לַחֲצוּ עַל הַמָּקוֹם הָרֵיק שֶׁמִּתַּחְתֶּיהָ. הוּא יִזְהַר, וְהַבְּלוֹק יִכָּנֵס לְשָׁם.",
+  "ipa": "ʁotsˈim belˈok ʔaχaʁˈej halulaʔˈa velˈo betoχˈah? laχatsˈu ʔˈal hamakˈom haʁˈejk ʃemitaχtejˈa. hˈu jizhˈaʁ, vehabelˈok jikanˈes leʃˈam."
+ },
+ "rt.aft.2": {
+  "h": "ff9baf6956bc",
+  "text": "וּלְכָל בְּלוֹק יֵשׁ חִצִּים קְטַנִּים: לְמַעְלָה וּלְמַטָּה מְזִיזִים אוֹתוֹ, וְהָעִיגּוּל עִם הַקַּו מוֹחֵק אוֹתוֹ.",
+  "ipa": "ulχˈol belˈok jˈeʃ χitsˈim ktanˈim, lemalˈa ulmatˈa mezizˈim ʔotˈo, vehaʔiɡˈul ʔˈim hakˈav moχˈek ʔotˈo."
+ },
+ "rt.aft.2.k": {
+  "h": "ecc7d9c3557d",
+  "text": "וּלְכָל בְּלוֹק יֵשׁ חִצִּים קְטַנִּים: לְמַעְלָה וּלְמַטָּה מְזִיזִים אוֹתוֹ, וְהָעִגּוּל עִם הַקַּו מוֹחֵק אוֹתוֹ.",
+  "ipa": "ulχˈol belˈok jˈeʃ χitsˈim ktanˈim, lemalˈa ulmatˈa mezizˈim ʔotˈo, vehaʔiɡˈul ʔˈim hakˈav moχˈek ʔotˈo."
  }
 }
