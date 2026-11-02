@@ -3408,5 +3408,45 @@
   "h": "4c0d81c84430",
   "text": "כָּל הַכָּבוֹד! בַּסַּוָּנָה לֹא עוֹצְרִים אֶת הַשִּׁנּוּי. עוֹזְרִים לָהּ לַחֲזֹר לְאִזּוּן.",
   "ipa": "kˈol hakavˈod! basavanˈa lˈo ʔotsʁˈim ʔˈet haʃinˈuj. ʔozʁˈim lˈah laχazˈoʁ leʔizˈun."
+ },
+ "zone.sv.over.1": {
+  "h": "aadd12ff58e0",
+  "text": "הָעֵדֶר גָּדוֹל, וְהָעֵשֶׂב כָּאן נֶאֱכַל עַד הָאֲדָמָה. אֵין מַסְפִּיק עֵשֶׂב לְכוּלָּם.",
+  "ipa": "haʔˈedeʁ ɡadˈol, vehaʔˈesev kˈan neʔeχˈal ʔˈad haʔadamˈa. ʔˈejn maspˈik ʔˈesev leχulˈam."
+ },
+ "zone.sv.over.1.k": {
+  "h": "87a8d71533bb",
+  "text": "הָעֵדֶר גָּדוֹל, וְהָעֵשֶׂב כָּאן נֶאֱכַל עַד הָאֲדָמָה. אֵין מַסְפִּיק עֵשֶׂב לְכֻלָּם.",
+  "ipa": "haʔˈedeʁ ɡadˈol, vehaʔˈesev kˈan neʔeχˈal ʔˈad haʔadamˈa. ʔˈejn maspˈik ʔˈesev leχulˈam."
+ },
+ "zone.sv.over.2": {
+  "h": "5a67c312b699",
+  "text": "טוֹרְפִים שׁוֹמְרִים שֶׁהָעֲדָרִים לֹא יִגְדְּלוּ יוֹתֵר מִדַּי. גַּם אֵשׁ וְגֶשֶׁם מְחַדְּשִׁים אֶת הָעֵשֶׂב.",
+  "ipa": "toʁfˈim ʃomʁˈim ʃehaʔadaʁˈim lˈo jiɡdelˈu jotˈeʁ midˈaj. ɡˈam ʔˈeʃ veɡˈeʃem meχadeʃˈim ʔˈet haʔˈesev."
+ },
+ "zone.sv.hunt.1": {
+  "h": "b7e00ed0226b",
+  "text": "טוֹרֵף לָקַח חַיָּה אַחַת מֵהָעֵדֶר. כָּךְ הַטּוֹרְפִים שְׂבֵעִים, וְהָעֵדֶר לֹא גָּדֵל יוֹתֵר מִדַּי.",
+  "ipa": "toʁˈef lakˈaχ χajˈa ʔˈaχat mehaʔˈedeʁ. kˈaχ hatoʁfˈim sveʔˈim, vehaʔˈedeʁ lˈo ɡadˈel jotˈeʁ midˈaj."
+ },
+ "zone.sv.hunt.2": {
+  "h": "eb92d1e81dfe",
+  "text": "כְּשֶׁאֵין מַסְפִּיק טֶרֶף, גַּם הַטּוֹרְפִים רְעֵבִים וְעוֹזְבִים. הַכּוֹל קָשׁוּר.",
+  "ipa": "keʃeʔˈejn maspˈik tˈeʁef, ɡˈam hatoʁfˈim ʁeʔevˈim veʔozvˈim. hakˈol kaʃˈuʁ."
+ },
+ "zone.sv.hunt.2.k": {
+  "h": "9b204e624f68",
+  "text": "כְּשֶׁאֵין מַסְפִּיק טֶרֶף, גַּם הַטּוֹרְפִים רְעֵבִים וְעוֹזְבִים. הַכֹּל קָשׁוּר.",
+  "ipa": "keʃeʔˈejn maspˈik tˈeʁef, ɡˈam hatoʁfˈim ʁeʔevˈim veʔozvˈim. hakˈol kaʃˈuʁ."
+ },
+ "zone.sv.left": {
+  "h": "2f168a772be8",
+  "text": "חֵלֶק מֵהָעֵדֶר עָזַב, כִּי לֹא הָיָה מַסְפִּיק עֵשֶׂב אוֹ מַיִם. הָעֵדֶר הוֹלֵךְ אַחֲרֵי הָאוֹכֶל.",
+  "ipa": "χˈelek mehaʔˈedeʁ ʔazˈav, kˈi lˈo hajˈa maspˈik ʔˈesev ʔˈo mˈajim. haʔˈedeʁ holˈeχ ʔaχaʁˈej haʔˈoχel."
+ },
+ "zone.sv.left.k": {
+  "h": "4e33a84bab82",
+  "text": "חֵלֶק מֵהָעֵדֶר עָזַב, כִּי לֹא הָיָה מַסְפִּיק עֵשֶׂב אוֹ מַיִם. הָעֵדֶר הוֹלֵךְ אַחֲרֵי הָאֹכֶל.",
+  "ipa": "χˈelek mehaʔˈedeʁ ʔazˈav, kˈi lˈo hajˈa maspˈik ʔˈesev ʔˈo mˈajim. haʔˈedeʁ holˈeχ ʔaχaʁˈej haʔˈoχel."
  }
 }

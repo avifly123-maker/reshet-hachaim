@@ -105,7 +105,7 @@ echo "$out" | grep "CHECK .* FAIL" && fail "savanna drought: a check failed"
 echo "$out" | grep "\[pageerror\]\|JS ERROR\|UNTIL TIMEOUT\|NO ELEMENT" && fail "savanna drought: errors"
 [ "$n" = 2 ] || fail "savanna drought: $n of 2 checks"
 # the savanna's resident herds (1.4.3, pop.js and the Blender crowds): made from the child's animals, grow in the rains,
-# their animals follow the herd, drawn as crowds, saved, counted alive; the herd list opens with a real click and closes
+# their animals follow the herd, drawn as crowds, saved, counted alive; the herd list opens with a real click and closes; back to the savanna from another zone, the crowds come back
 out=$(timeout 1200 python3 tools/play.py dist/index.html tests/play/savanna-herds.json 800 460 2>&1)
 n=$(echo "$out" | grep -c "CHECK .* ok")
 echo "$out" | grep "CHECK .* FAIL" && fail "savanna herds: a check failed"

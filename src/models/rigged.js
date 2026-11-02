@@ -244,7 +244,8 @@ export function crowdSource(id, data) {
   const P = prepare(id, data);
   if (!P.tex) return null;
   const mat = cachedMaterial('rigged:crowd:' + id, () => roughPatch(new THREE.MeshStandardMaterial({ map: P.tex.map, normalMap: P.tex.normalMap, roughness: 0.82, metalness: 0 })));
-  return { geo: P.lod || P.geo, mat, bones: P.bones, clips: P.clips, meta: P.meta };
+  if (!P.crowdGeo) P.crowdGeo = (P.lod || P.geo).clone();   // its own copy: the library adds an instance attribute to the geometry it draws
+  return { geo: P.crowdGeo, mat, bones: P.bones, clips: P.clips, meta: P.meta };
 }
 
 export function withRigged(animals, data) {
@@ -258,6 +259,6 @@ export function withRigged(animals, data) {
 }
 
 export function releaseRigged() {
-  for (const c of cache.values()) { c.geo.dispose(); if (c.lod) c.lod.dispose(); if (c.tex) { c.tex.map.dispose(); c.tex.normalMap.dispose(); } }
+  for (const c of cache.values()) { c.geo.dispose(); if (c.lod) c.lod.dispose(); if (c.crowdGeo) c.crowdGeo.dispose(); if (c.tex) { c.tex.map.dispose(); c.tex.normalMap.dispose(); } }
   cache.clear(); releaseMaterials('rigged:');
 }

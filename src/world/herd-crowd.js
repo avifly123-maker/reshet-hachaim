@@ -88,7 +88,6 @@ function riggedKind(scene, kind, src, cap, renderer) {
   const gaits = { move: clip('walk', 'idle'), graze: clip('eat', 'idle') };
   const acts = { move: mixer.clipAction(gaits.move), graze: mixer.clipAction(gaits.graze) };
   for (const a of Object.values(acts)) { a.play(); a.setEffectiveWeight(0); }
-  const speed = (src.meta.speeds && src.meta.speeds.walk) || 1.2;
   // pose the skeleton for one gait at one phase (the clip's time), then hand that pose to the instances that use it
   function pose(gait, phase, t, ts) {
     for (const k in acts) acts[k].setEffectiveWeight(k === gait ? 1 : 0);
@@ -96,7 +95,7 @@ function riggedKind(scene, kind, src, cap, renderer) {
     a.time = ((t * ts + phase * d / PHASES) % d + d) % d;
     mixer.update(0);
   }
-  return { im, pose, cap, speed, dispose() { mixer.stopAllAction(); mixer.uncacheRoot(holder); im.removeFromParent(); im.dispose(); skel.dispose(); } };
+  return { im, pose, cap, dispose() { mixer.stopAllAction(); mixer.uncacheRoot(holder); im.removeFromParent(); im.dispose(); skel.dispose(); src.geo.deleteAttribute('instanceIndex'); } };   // the cached geometry is clean for the next island
 }
 
 export function createHerdCrowd(scene, env, { builders = {}, quality = () => 'medium', renderer = null } = {}) {

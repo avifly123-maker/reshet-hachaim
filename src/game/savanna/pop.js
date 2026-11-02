@@ -82,7 +82,6 @@ export function createPop({ grass, nearWater = () => ({ x: 0, z: 0, d: 0 }), edg
       h.moveT -= dt;
       if (fedNow < 0.35 && h.moveT <= 0) { const s = bestSpot(h); if (s) { h.tx = s.x; h.tz = s.z; } h.moveT = 25; }
       // births in the rains when the herd is well fed; the herd's own room on the plain is its cap
-      h.acc = h.acc || 0;
       if (wet > 0.5 && ok > 0.6 && P < K.cap) h.acc += P * K.birth * dt * (1 - P / K.cap) * (ok - 0.4) / 0.6;
       // hunger and thirst: a part of the herd leaves to look for grass and water elsewhere
       h.hungryT = ok < 0.3 ? h.hungryT + dt : Math.max(0, h.hungryT - dt);

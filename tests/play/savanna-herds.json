@@ -1,5 +1,8 @@
 [
 {
+"js": "window.__warns=[]; const w=console.warn; console.warn=(...a)=>{window.__warns.push(a.join(' ').slice(0,120)); w(...a);}; 1"
+},
+{
 "wait": 3
 },
 {
@@ -74,5 +77,34 @@
 },
 {
 "shot": "shots/sv-herds-near.png"
+},
+{
+"js": "window.__app.bus.emit('start:biome', { id: 'grove' }); 1"
+},
+{
+"until": "window.__game && window.__game.W && window.__game.W.biomeId==='grove' || (window.__game && window.__game.biomeId==='grove')",
+"timeout": 300
+},
+{
+"wait": 3
+},
+{
+"js": "window.__app.bus.emit('start:biome', { id: 'savanna' }); 1"
+},
+{
+"wait": 4
+},
+{
+"js": "const b=[...document.querySelectorAll('button')].find(x=>/להמשיך/.test(x.textContent)); if (b) b.click(); 'eval continue '+!!b"
+},
+{
+"until": "window.__game && window.__game.savanna && window.__game.savanna.crowd",
+"timeout": 300
+},
+{
+"wait": 3
+},
+{
+"js": "const W=window.__game; W.debug.ff(3); const n=W.savanna.crowd.drawn(); const cl=window.__warns.filter(t=>/cloned|already used/.test(t)); 'CHECK reopen-crowd ' + (n>0 && !cl.length ? 'ok '+n : 'FAIL drawn '+n+' warns '+cl.join(' | '))"
 }
 ]
