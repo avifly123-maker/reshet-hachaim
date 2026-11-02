@@ -1,5 +1,8 @@
 # 1.4.2: art still to make (Avi, 1.11 evening)
 
+**2.11: done.** All four desert paintings, Kubi kl_ls*, Robo-Da rt.* loop lines are in the game; 1.4.2 installers rebuilt.
+
+
 Prepared in the container on 1.11; the Gemini part runs in Avi's Chrome when his PC is on (the method is in CLAUDE.md,
 "Card paintings": square children's-book style, then "Create another square image in exactly the same style", shown
 in a full-screen overlay and taken with the Chrome tool's zoom, scale 1, trimmed and saved as 512 webp).
