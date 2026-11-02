@@ -3,6 +3,7 @@
 import { createGrass, BANDS } from '../../src/game/savanna/grass.js';
 import { createHerds } from '../../src/game/savanna/herds.js';
 import { createStability } from '../../src/game/savanna/stability.js';
+import { createPop } from '../../src/game/savanna/pop.js';
 import { seasonAt, rainsGate, grassWet } from '../../src/game/savanna/seasons.js';
 
 const fails = [];
@@ -101,6 +102,44 @@ const land = (x, z) => Math.hypot(x, z) < 54;
   ok(rainsGate(st, 'wet', false) === 'rain' && !st.late, 'the shower comes when the drought ends, once');
   ok(rainsGate(st, 'wet', false) === null, 'and only once');
   ok(grassWet(1, 0.6) < 0.55 && grassWet(1, 0) === 1, 'the grass hardly grows in a drought');
+}
+// 1.4.3: the resident herds as numbers (Avi, 2.11: grass, grazers and predators in balance)
+{
+  // a few years of the savanna: the grass grows in the rains and dries in the dry season, the herd lives on it
+  function years(nYears, { kind = 'zebra', start = 3, members = 3, rain = true, lion = false, water = true, seed = 11 } = {}) {
+    let r = seed; const rr = () => { r = (r * 16807) % 2147483647; return r / 2147483647; };
+    const g = createGrass({ S: 60, N: 32, land, seed: 5 });
+    const pop = createPop({ grass: g, nearWater: water ? (x, z) => ({ x: 0, z: 0, d: Math.hypot(x, z) * 0.2 }) : (x, z) => ({ x: 40, z: 40, d: 99 }), edge: 54, rnd: rr });
+    const h = pop.ensure(kind, [{ x: 10, z: 5 }]); h.n = start;
+    const mem = { [kind]: Array.from({ length: members }, () => ({ x: h.x, z: h.z })) };
+    const ev = [], tl = [];
+    for (let day = 1; day <= nYears * 6; day++) for (let s2 = 0; s2 < 270; s2 += 2) {
+      const se = seasonAt(day, s2 / 270);
+      const wet = rain ? se.wet : 0, dryK = rain ? se.dryK : 1;
+      g.step(2, { wet, rain: wet > 0.9 && (s2 % 60) < 25 ? 0.6 : 0 });
+      for (const m of mem[kind]) { m.x += (h.x - m.x) * 0.1; m.z += (h.z - m.z) * 0.1; }
+      const preds = lion ? [{ id: 1, kind: 'lion', x: h.x + 4, z: h.z, hungry: true }] : [];
+      ev.push(...pop.step(2, { members: mem, wet, dryK, night: (s2 / 270) > 0.75 ? 1 : 0, preds }));
+      if (s2 === 0) tl.push(pop.total(kind, members));
+    }
+    return { pop, g, ev, tl, n: pop.total(kind, members) };
+  }
+  const good = years(2);
+  ok(good.n > 12, `a small herd on good grass grows in the rains (3+3 → ${good.n})`);
+  ok(good.ev.some((e) => e.type === 'born'), 'calves are born in the rains');
+  const big = years(1, { kind: 'wildebeest', start: 64, members: 4 });
+  ok(big.n < 60 && big.ev.some((e) => e.type === 'left' || e.type === 'thirst'), `too big a herd eats out its grass and part of it leaves (68 → ${big.n})`);
+  ok(big.ev.some((e) => e.type === 'overgrazed'), 'a big herd grazes its place down to the ground (a note for the child)');
+  const free = years(2, { start: 10 }), hunted = years(2, { start: 10, lion: true });
+  ok(hunted.ev.some((e) => e.type === 'kill' && e.by === 'lion'), 'a hungry lion takes animals from the herd (at night)');
+  ok(hunted.n < free.n, `predators keep the herd smaller (${hunted.n} with a lion, ${free.n} without)`);
+  const drought = years(1, { start: 20, rain: false, water: false });
+  ok(drought.n < 23 && !drought.ev.some((e) => e.type === 'born'), `with no rain and no water the herd shrinks and has no calves (23 → ${drought.n})`);
+  ok(Math.max(...good.tl) <= 50, 'a herd never passes its cap');
+  if (process.env.SV_POP) console.log('pop', { good: good.n, big: big.n, free: free.n, hunted: hunted.n, drought: drought.n, tl: good.tl.join(',') });
+  // the save: what is saved comes back
+  const p2 = createPop({ grass: createGrass({ S: 60, N: 32, land }) }); p2.load(good.pop.save());
+  ok(p2.total('zebra', 3) === good.n, 'the herd comes back from the save');
 }
 if (fails.length) { console.log('savanna systems:\n  ' + fails.join('\n  ')); process.exit(1); }
 console.log('savanna systems: all rules hold');

@@ -13,6 +13,7 @@
   "author": "Avi Fleischman",
   "license": "UNLICENSED",
   "dependencies": {
+    "@three.ez/instanced-mesh": "0.3.16",
     "esbuild": "^0.28.2",
     "three": "^0.186.1"
   },

@@ -7,6 +7,8 @@
 //   zone:event:<id>       the first time an event happens (one more sentence next to the short event card)
 //   zone:hurt / zone:hurtlate   an injured animal: the first time, and once more before it leaves
 //   zone:hungry           the first animal that left from hunger (חוויה)
+//   zone:sv:over / zone:sv:hunt / zone:sv:left   1.4.3, the savanna's herds (savanna/pop.js): the first time a herd eats its
+//                         grass to the ground, a predator takes from a herd, a part of a herd leaves for grass or water
 //   zone:dayend           one line at the end of a day instead of the daily report (חוויה; one of the list each day)
 //   zone:season:<s>       the grove's new season (חוויה)
 //   zone:alldone          "מה עושים עכשיו?" when every mission is done
@@ -60,6 +62,17 @@ export const ZONE_GUIDE = {
   ],
   ...one('zone:hurtlate', 'מהרו! בעל החיים הפגוע עוד מחכה לעזרה.', 'מַהֲרוּ! בַּעַל הַחַיִּים הַפָּגוּעַ עוֹד מְחַכֶּה לְעֶזְרָה.', { at: '#ui .hurtbar', expr: 'oops' }),
   ...one('zone:hungry', 'בעל חיים עזב כי לא מצא אוכל. לפני שמביאים חיה, דואגים לה לאוכל.', 'בַּעַל חַיִּים עָזַב כִּי לֹא מָצָא אֹכֶל. לִפְנֵי שֶׁמְּבִיאִים חַיָּה, דּוֹאֲגִים לָהּ לְאֹכֶל.', { expr: 'curious' }),
+
+  // ───────────── 1.4.3: the savanna's herds (src/game/savanna/pop.js), the first time each happens
+  'zone:sv:over': [
+    { id: 'zone.sv.over.1', f: 'העדר גדול, והעשב כאן נאכל עד האדמה. אין מספיק עשב לכולם.', k: 'הָעֵדֶר גָּדוֹל, וְהָעֵשֶׂב כָּאן נֶאֱכַל עַד הָאֲדָמָה. אֵין מַסְפִּיק עֵשֶׂב לְכֻלָּם.', expr: 'curious' },
+    { id: 'zone.sv.over.2', f: 'טורפים שומרים שהעדרים לא יגדלו יותר מדי. גם אש וגשם מחדשים את העשב.', k: 'טוֹרְפִים שׁוֹמְרִים שֶׁהָעֲדָרִים לֹא יִגְדְּלוּ יוֹתֵר מִדַּי. גַּם אֵשׁ וְגֶשֶׁם מְחַדְּשִׁים אֶת הָעֵשֶׂב.' },
+  ],
+  'zone:sv:hunt': [
+    { id: 'zone.sv.hunt.1', f: 'טורף לקח חיה אחת מהעדר. כך הטורפים שבעים, והעדר לא גדל יותר מדי.', k: 'טוֹרֵף לָקַח חַיָּה אַחַת מֵהָעֵדֶר. כָּךְ הַטּוֹרְפִים שְׂבֵעִים, וְהָעֵדֶר לֹא גָּדֵל יוֹתֵר מִדַּי.' },
+    { id: 'zone.sv.hunt.2', f: 'כשאין מספיק טרף, גם הטורפים רעבים ועוזבים. הכול קשור.', k: 'כְּשֶׁאֵין מַסְפִּיק טֶרֶף, גַּם הַטּוֹרְפִים רְעֵבִים וְעוֹזְבִים. הַכֹּל קָשׁוּר.', expr: 'happy' },
+  ],
+  ...one('zone:sv:left', 'חלק מהעדר עזב, כי לא היה מספיק עשב או מים. העדר הולך אחרי האוכל.', 'חֵלֶק מֵהָעֵדֶר עָזַב, כִּי לֹא הָיָה מַסְפִּיק עֵשֶׂב אוֹ מַיִם. הָעֵדֶר הוֹלֵךְ אַחֲרֵי הָאֹכֶל.', { expr: 'curious' }),
 
   // ───────────── the end of a day (חוויה: instead of the daily report; one of these each day)
   'zone:dayend': [

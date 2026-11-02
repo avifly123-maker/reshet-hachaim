@@ -1,0 +1,78 @@
+[
+{
+"wait": 3
+},
+{
+"js": "window.__guide && window.__guide.close(); window.__journey.unlockAll('2580'); window.__journey.markTrained(); window.__journey.markIntro('g:svfilm'); 1"
+},
+{
+"wait": 1
+},
+{
+"js": "window.__app.bus.emit('start:biome', { id: 'savanna' }); 1"
+},
+{
+"until": "window.__game && window.__game.savanna && window.__game.debug",
+"timeout": 300
+},
+{
+"js": "window.__app.bus.emit('quality',{q:'medium'}); 1"
+},
+{
+"wait": 14
+},
+{
+"js": "const b=[...document.querySelectorAll('button')].find(x=>/דלג/.test(x.textContent)); if (b) b.click(); window.__guide && window.__guide.close(); 1"
+},
+{
+"wait": 2
+},
+{
+"js": "const W=window.__game; W.debug.unlockAll(); W.points=9999; for (const [id,x,z] of [['zebra',8,12],['wildebeest',-10,4],['impala',4,-14],['buffalo',-14,-4],['lion',2,2]]) W.debug.place(id,x,z); W.debug.ff(3); const p=W.savanna.pop; 'CHECK herds-made ' + (p.list().length===4 ? 'ok' : 'FAIL ' + p.list().map(h=>h.kind).join(','))"
+},
+{
+"js": "const W=window.__game; const p=W.savanna.pop; window.__n0={}; for (const h of p.list()) window.__n0[h.kind]=h.n; W.debug.ff(240); W.debug.auto(); W.debug.ff(240); W.debug.auto(); const grew=p.list().filter(h=>h.n>window.__n0[h.kind]).length; 'CHECK herds-grow-in-rains ' + (grew>=2 ? 'ok' : 'FAIL')+' '+p.list().map(h=>h.kind+':'+window.__n0[h.kind]+'→'+h.n).join(' ')+' day '+W.day"
+},
+{
+"js": "const W=window.__game; const z=W.animals.filter(a=>a.sp.id==='zebra'&&!a.leaving); const h=W.savanna.pop.herd('zebra'); const d=z.map(a=>Math.hypot(a.home.x-h.x,a.home.z-h.z)); 'CHECK members-follow-herd ' + (z.length && d.every(v=>v<12) ? 'ok' : 'FAIL '+d.map(v=>v.toFixed(0)).join(','))"
+},
+{
+"js": "const W=window.__game; W.savanna.crowd.update && 1; const n=W.savanna.crowd.drawn(); 'CHECK crowd-drawn ' + (n>=8 ? 'ok '+n : 'FAIL '+n)"
+},
+{
+"js": "const W=window.__game; const c=W.savanna.crowd; const t0=performance.now(); for (let i=0;i<20;i++) W.debug.ff(0.1); const ms=(performance.now()-t0)/20; 'eval frame cost with crowds '+ms.toFixed(1)+' ms (headless, software GL)'"
+},
+{
+"js": "const W=window.__game; const o=W.savanna.serialize(); 'CHECK saved ' + (o.p && Object.keys(o.p).length===4 ? 'ok' : 'FAIL')"
+},
+{
+"js": "const W=window.__game; 'CHECK alive-includes-herds ' + (W.aliveSpecies().includes('impala') ? 'ok' : 'FAIL')"
+},
+{
+"js": "window.__guide && window.__guide.close(); 1"
+},
+{
+"clickSel": "#ui .sv-stab"
+},
+{
+"wait": 0.5
+},
+{
+"js": "const l=document.querySelector('#ui .sv-herds'); 'CHECK herd-list-opens ' + (l && !l.hidden && /זברות/.test(l.textContent) ? 'ok' : 'FAIL '+(l&&l.textContent))"
+},
+{
+"shot": "shots/sv-herdlist.png"
+},
+{
+"js": "const W=window.__game; W.debug.ff(30); const l=document.querySelector('#ui .sv-herds'); 'CHECK herd-list-closes ' + (l.hidden ? 'ok' : 'FAIL')"
+},
+{
+"js": "const W=window.__game; const a=W.animals.find(a=>a.sp.id==='zebra'); W.debug.rig.focusOn(a.pos.clone(), 16); 1"
+},
+{
+"wait": 5
+},
+{
+"shot": "shots/sv-herds-near.png"
+}
+]

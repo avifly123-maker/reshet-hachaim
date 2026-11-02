@@ -164,6 +164,7 @@ export function createEvents(ctx) {
       let base = null;
       if (sp.needs?.water && env.water) { const pts = env.water.path || env.water.pools || []; const p = pts[(Math.random() * pts.length) | 0]; if (p) base = { x: p.x + 4, z: p.z + 4 }; }
       if (!base) base = randomPlaceSpot({ kind: 'herb', needs: sp.needs }) || { x: 0, z: 0 };
+      if (sp.maxCount) count = Math.min(count, Math.max(0, sp.maxCount - W.countAlive(sp.id)));   // 1.4.3: an arrival keeps the species' cap (it brought a fourth lion)
       for (let i = 0; i < count; i++) {
         const a = Math.random() * Math.PI * 2; let x = base.x + Math.cos(a) * 2, z = base.z + Math.sin(a) * 2;
         if (!env.isPlaceable(x, z)) { x = base.x; z = base.z; }

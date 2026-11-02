@@ -104,7 +104,14 @@ n=$(echo "$out" | grep -c "CHECK .* ok")
 echo "$out" | grep "CHECK .* FAIL" && fail "savanna drought: a check failed"
 echo "$out" | grep "\[pageerror\]\|JS ERROR\|UNTIL TIMEOUT\|NO ELEMENT" && fail "savanna drought: errors"
 [ "$n" = 2 ] || fail "savanna drought: $n of 2 checks"
-echo "training field and tutorials OK (robot lab tutorial 8/8, desert tutorial 6/6, savanna tutorial 8/8, savanna devices 4/4, savanna film 7/7, savanna drought 2/2)"
+# the savanna's resident herds (1.4.3, pop.js and the Blender crowds): made from the child's animals, grow in the rains,
+# their animals follow the herd, drawn as crowds, saved, counted alive; the herd list opens with a real click and closes
+out=$(timeout 1200 python3 tools/play.py dist/index.html tests/play/savanna-herds.json 800 460 2>&1)
+n=$(echo "$out" | grep -c "CHECK .* ok")
+echo "$out" | grep "CHECK .* FAIL" && fail "savanna herds: a check failed"
+echo "$out" | grep "\[pageerror\]\|JS ERROR\|UNTIL TIMEOUT\|NO ELEMENT" && fail "savanna herds: errors"
+[ "$n" = 9 ] || fail "savanna herds: $n of 9 checks"
+echo "training field and tutorials OK (robot lab tutorial 8/8, desert tutorial 6/6, savanna tutorial 8/8, savanna devices 4/4, savanna film 7/7, savanna drought 2/2, savanna herds 9/9)"
 
 step "parents' play time"
 out=$(timeout 1200 python3 tools/check-playtime.py dist/index-torah.html shots/playtime 2>&1)

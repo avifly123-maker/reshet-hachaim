@@ -237,11 +237,22 @@ export function makeRigged(id, data, opts = {}) {
 }
 
 // zone packs: species that have a Blender model use it, the others keep their procedural model
+// 1.4.3: what the savanna's crowds draw many times over (src/world/herd-crowd.js): the light far version of the model, its
+// bones and clips, and a material of its own (the instancing library patches its material, so it is never shared with
+// the animals the child placed). A model without textures (v1) is not used for crowds.
+export function crowdSource(id, data) {
+  const P = prepare(id, data);
+  if (!P.tex) return null;
+  const mat = cachedMaterial('rigged:crowd:' + id, () => roughPatch(new THREE.MeshStandardMaterial({ map: P.tex.map, normalMap: P.tex.normalMap, roughness: 0.82, metalness: 0 })));
+  return { geo: P.lod || P.geo, mat, bones: P.bones, clips: P.clips, meta: P.meta };
+}
+
 export function withRigged(animals, data) {
   const out = { ...animals };
   for (const [id, d] of Object.entries(data || {})) {
     const old = animals[id];
     out[id] = (o) => { try { return makeRigged(id, d, o); } catch (e) { console.warn('rigged', id, e); return old ? old(o) : null; } };
+    out[id].rigged = d;   // 1.4.3: the crowd (src/world/herd-crowd.js) draws many of the same model from its data
   }
   return out;
 }

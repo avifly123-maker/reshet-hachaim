@@ -10,8 +10,11 @@
 //                 grass, a river or a bare patch (W.fires, the shared fire visuals and plants.js burnFire)
 //   elephants     the elephant as an engineer: it pushes over young trees and shrubs and opens room for grass; with no
 //                 elephants and no fire for a whole year, the thorn shrubs spread over the grass
+//   pop.js        1.4.3: the resident herds as numbers (zebra, wildebeest, impala, buffalo): the child's animals are
+//                 each herd's heart, the rest of the herd is a number that grows with grass and rain, leaves in hunger
+//                 and thirst, and feeds the lions, hyenas and crocodiles; drawn as crowds around them
 //   stability.js  the meter (W.stability 0..1, the bar beside the HUD): does the island come back to balance
-// Gives ctx: savanna (null in every other zone): { tick, effect, serialize, restore, dispose, grass, herds, stability }.
+// Gives ctx: savanna (null in every other zone): { tick, effect, serialize, restore, dispose, grass, herds, pop, stability }.
 // Takes from ctx (at call time): W, env, biome, ui, amb, robo, reg, alive, spawnPlant, findSpotNear, rig, audio.
 import * as THREE from 'three';
 import { clamp } from '../../core/util.js';
@@ -19,10 +22,12 @@ import { seasonAt, rainsGate, grassWet } from './seasons.js';
 import { createGrass } from './grass.js';
 import { createHerds, HERD_KIND } from './herds.js';
 import { createStability } from './stability.js';
+import { createPop, POP_KIND } from './pop.js';
 import { createHerdCrowd } from '../../world/herd-crowd.js';
 import { SEASON_NAMES } from '../../data/common.js';
 
-const GRAZERS = new Set(['zebra', 'wildebeest', 'impala', 'buffalo']);
+const GRAZERS = new Set(Object.keys(POP_KIND));   // the herd species (pop.js)
+const HUNTER_IDS = new Set(['lion', 'hyena', 'crocodile']);
 const BROWSE_TREES = new Set(['umbrella', 'whistling', 'marula', 'kigelia']);   // what an elephant pushes over (never the baobab or the fig)
 
 export function createSavanna(ctx) {
@@ -34,12 +39,22 @@ export function createSavanna(ctx) {
   const grass = createGrass({ S, N: 32, land: (x, z) => Math.hypot(x, z) < edge - 1.5 && !env.isWater(x, z), seed: 7 });
   const herds = createHerds({ grass, edge, isWater: (x, z) => env.isWater(x, z) });
   const stability = createStability();
-  const crowd = createHerdCrowd(env.root, env);
+  // the water the herds walk to: the river and the waterholes, sampled once on a coarse grid (pop.js asks for the nearest)
+  const WATER = [];
+  for (let x = -edge; x <= edge; x += 3) for (let z = -edge; z <= edge; z += 3) if (Math.hypot(x, z) < edge && env.isWater(x, z)) WATER.push(x, z);
+  function nearWater(x, z) {
+    let b = 1e9, bx = 0, bz = 0;
+    for (let i = 0; i < WATER.length; i += 2) { const d = (WATER[i] - x) ** 2 + (WATER[i + 1] - z) ** 2; if (d < b) { b = d; bx = WATER[i]; bz = WATER[i + 1]; } }
+    return { x: bx, z: bz, d: Math.sqrt(b) };
+  }
+  const pop = createPop({ grass, nearWater, edge });
+  const live = !W.research && !W.training;   // a mystery, a robot lesson or the training field has its own rules
+  const crowd = createHerdCrowd(env.root, env, { builders: ctx.animalBuilders || {}, quality: () => (ctx.pipe && ctx.pipe.quality) || 'medium', renderer: ctx.pipe && ctx.pipe.renderer });
   const map = new Uint8Array(32 * 32 * 4);
   const st = { late: false, season: null, year: -1, migOn: false, arrived: -1, wildeArrived: -1, left: -1, fireYear: 0, lastFireYear: -1, notes: {} };
   const amb = (t, k) => ctx.amb && ctx.amb(t, k);
   const once = (key, t, k = 'info') => { if (st.notes[key]) return; st.notes[key] = 1; amb(t, k); };
-  let mapT = 0, stabT = 0, grazeT = 0, eleT = 20, fireT = 0;
+  let mapT = 0, stabT = 0, grazeT = 0, eleT = 20, fireT = 0, popT = 0;
   W.stability = stability.value;
 
   // ─────────────────────────────────── the stability bar (beside the HUD; RTL)
@@ -52,9 +67,31 @@ export function createSavanna(ctx) {
     padding:4px 10px;border-radius:12px;background:rgba(40,30,18,.62);color:#f6ead2;font:600 calc(13px*var(--ts,1)) system-ui,sans-serif;pointer-events:auto;z-index:3}
     #ui .sv-stab .sv-st-bar{width:96px;height:9px;border-radius:5px;background:rgba(255,255,255,.18);overflow:hidden;display:block}
     #ui .sv-stab .sv-st-bar i{display:block;height:100%;width:50%;border-radius:5px;background:linear-gradient(90deg,#d8a040,#8ac04a);transition:width .8s}
-    #ui .sv-stab.low .sv-st-bar i{background:linear-gradient(90deg,#c8502a,#e0a040)}`;
+    #ui .sv-stab.low .sv-st-bar i{background:linear-gradient(90deg,#c8502a,#e0a040)}
+    #ui .sv-stab{cursor:pointer}
+    #ui .sv-herds{position:absolute;top:-6px;right:calc(100% + 10px);min-width:150px;padding:6px 10px;border-radius:10px;background:rgba(40,30,18,.9);
+      direction:rtl;display:grid;grid-template-columns:auto auto auto;gap:2px 10px;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+    #ui .sv-herds[hidden]{display:none}
+    #ui .sv-herds b{grid-column:1/-1;font-size:.92em;opacity:.85;margin-bottom:2px}
+    #ui .sv-herds .n{text-align:left;font-variant-numeric:tabular-nums}
+    #ui .sv-herds .up{color:#9ad46a}#ui .sv-herds .down{color:#f0a060}#ui .sv-herds .same{opacity:.5}`;
   const uiRoot = document.getElementById('ui');
   if (uiRoot && !W.research && !W.training) { uiRoot.appendChild(style); uiRoot.appendChild(bar); }
+  // 1.4.3 (Avi: "manage the numbers of the animals"): a press on the bar shows the herds and the hunters, how many and
+  // which way each is going. It never opens by itself and closes after a few seconds, so it covers nothing for long.
+  const list = document.createElement('div'); list.className = 'sv-herds'; list.hidden = true; bar.appendChild(list);
+  const HERD_NAMES = { zebra: 'זברות', wildebeest: 'גנו', impala: 'אימפלות', buffalo: 'תאואים' };
+  const HUNTER_NAMES = { lion: 'אריות', hyena: 'צבועים', crocodile: 'תנינים' };
+  const lastN = {}; let listT = 0;
+  function paintList() {
+    const cnt = {}; for (const a of W.animals) if (ctx.alive(a) && !a.leaving && !a.visitor) cnt[a.sp.id] = (cnt[a.sp.id] || 0) + 1;
+    const row = (name, n, k) => { const d = n - (lastN[k] ?? n); lastN[k] = n; const c = d > 0 ? 'up' : d < 0 ? 'down' : 'same', ar = d > 0 ? '▲' : d < 0 ? '▼' : '•'; return `<span>${name}</span><span class="n">${n}</span><span class="${c}">${ar}</span>`; };
+    let html = '<b>העדרים</b>';
+    for (const k in HERD_NAMES) { const n = pop.total(k, cnt[k] || 0); if (n) html += row(HERD_NAMES[k], n, k); }
+    for (const k in HUNTER_NAMES) if (cnt[k]) html += row(HUNTER_NAMES[k], cnt[k], k);
+    list.innerHTML = html.length > 20 ? html : '<b>עוד אין כאן עדרים</b>';
+  }
+  bar.addEventListener('click', (e) => { e.stopPropagation(); list.hidden = !list.hidden; if (!list.hidden) { paintList(); listT = 8; } });
   function paintBar() {
     const i = bar.querySelector('i'); if (i) i.style.width = Math.round(stability.value * 100) + '%';
     bar.classList.toggle('low', stability.value < 0.35);
@@ -155,15 +192,62 @@ export function createSavanna(ctx) {
     if (n) amb('שנה שלמה בלי אש ובלי פילים: השיחים הקוצניים מתפשטים ותופסים את מקום העשב.', 'warn');
   }
 
+  // ─────────────────────────────────── the resident herds (pop.js)
+  const HERD_WORDS = { zebra: 'הזברות', wildebeest: 'הגנו', impala: 'האימפלות', buffalo: 'התאואים' };
+  const HUNT_WORDS = { lion: 'האריות לקחו', hyena: 'הצבועים לקחו', crocodile: 'התנין לקח' };
+  const noteT = {};
+  const note = (key, text, kind = 'info', gap = 150) => { if (W.simT - (noteT[key] ?? -1e9) < gap) return; noteT[key] = W.simT; amb(text, kind); };
+  const firstRobo = (key) => { if (st.notes['robo:' + key]) return; st.notes['robo:' + key] = 1; if (ctx.robo) ctx.robo(key); };
+  const _home = { x: 0, z: 0 };
+  function popTick(dt) {
+    const members = {}, preds = [];
+    for (const a of W.animals) {
+      if (!ctx.alive(a) || a.leaving || a.visitor) continue;
+      if (GRAZERS.has(a.sp.id)) (members[a.sp.id] = members[a.sp.id] || []).push(a.pos);
+      else if (HUNTER_IDS.has(a.sp.id)) preds.push({ id: a.uid, kind: a.sp.id, x: a.pos.x, z: a.pos.z, hungry: a.energy < 0.75 && !a.injured, a });
+    }
+    for (const k in members) pop.ensure(k, members[k]);   // a herd is made the first time its animals are on the island
+    const ev = pop.step(dt, { members, wet: W.svWet ?? 1, dryK: W.dryK || 0, night: W.nightGlow || 0, preds });
+    for (const e of ev) {
+      const H = HERD_WORDS[e.kind];
+      if (e.type === 'born') note('born:' + e.kind, `עדר ${H} גדל, כי יש הרבה עשב ירוק.`, 'good', 200);
+      else if (e.type === 'left') { note('left:' + e.kind, `חלק מעדר ${H} עזב לחפש עשב במקום אחר.`, 'warn'); firstRobo('zone:sv:left'); }
+      else if (e.type === 'thirst') { note('thirst:' + e.kind, `חלק מעדר ${H} עזב לחפש מים.`, 'warn'); firstRobo('zone:sv:left'); }
+      else if (e.type === 'overgrazed') { note('over:' + e.kind, `עדר ${H} אכל את העשב עד האדמה. העדר יעבור למקום אחר, והעשב יצמח שוב בגשם.`, 'warn', 240); firstRobo('zone:sv:over'); }
+      else if (e.type === 'kill') {
+        const p = preds.find((q) => q.id === e.pred); if (p) { p.a.energy = 1; p.a.eatCD = 25; }   // the hunter is fed (and so it may raise young: update.js births)
+        note('kill:' + e.by, `${HUNT_WORDS[e.by]} חיה אחת מעדר ${H}. עכשיו הם שבעים, והעדר קטן קצת.`, 'info', 200); firstRobo('zone:sv:hunt');
+      }
+    }
+    // the herd's animals live where their herd grazes: their home walks after its centre
+    for (const a of W.animals) {
+      if (!GRAZERS.has(a.sp.id) || !ctx.alive(a) || a.leaving || !a.home) continue;
+      const h = pop.herd(a.sp.id); if (!h) continue;
+      _home.x = h.x + (((a.uid * 37) % 9) - 4); _home.z = h.z + (((a.uid * 53) % 9) - 4);
+      if (Math.hypot(a.home.x - _home.x, a.home.z - _home.z) > 5) { a.home.x += (_home.x - a.home.x) * 0.25; a.home.z += (_home.z - a.home.z) * 0.25; a.home.y = env.heightAt(a.home.x, a.home.z); }
+    }
+  }
+  // what the crowd draws: the migrating herds (herds.js) and the rest of each resident herd around its animals
+  const _rows = [];
+  function crowdGroups() {
+    _rows.length = 0;
+    for (const h of herds.list) _rows.push(h);
+    if (live) for (const h of pop.list()) if (h.n > 0) _rows.push({ id: 100 + Object.keys(POP_KIND).indexOf(h.kind), kind: h.kind, n: h.n, x: h.x, z: h.z, hx: h.tx - h.x || 0.01, hz: h.tz - h.z || 0.01, state: Math.hypot(h.tx - h.x, h.tz - h.z) > 1 ? 'move' : 'graze', scatter: 0, spread: pop.spreadOf(h, 0), resident: true });
+    return _rows;
+  }
+  W.herdCount = (id) => { const h = live && pop.herd(id); return h ? h.n : 0; };   // the rest of a herd beyond the animals the child placed
+  W.herdAlive = () => (live ? pop.list().filter((h) => h.n > 0).map((h) => h.kind) : []);   // ecology.js aliveSpecies
+
   // ─────────────────────────────────── each frame
   function tick(dt, rdt) {
     seasonTick();
-    if (dt <= 0) { crowd.update(herds.list, rdt, W.simT, { spreadOf: (k) => HERD_KIND[k].spread }); return; }
+    if (dt <= 0) { crowd.update(crowdGroups(), rdt, W.simT, { spreadOf: (k) => (HERD_KIND[k] ? HERD_KIND[k].spread : 6) }); return; }
     grass.step(dt, { wet: grassWet(W.svWet, W.droughtT > 0 ? W.drought : 0), rain: W.rain || 0 });
     // the player's own grazers eat their band too (lightly), so the grazing order shows on the plain
     grazeT += dt;
     if (grazeT >= 1) {
-      for (const a of W.animals) if (GRAZERS.has(a.sp.id) && ctx.alive(a) && !a.leaving) grass.eat(a.pos.x, a.pos.z, a.sp.graze || 'mid', 0.01 * grazeT, 3);
+      // (the herd species eat as whole herds in pop.js; in a mystery or a lesson their animals still graze lightly here)
+      if (!live) for (const a of W.animals) if (GRAZERS.has(a.sp.id) && ctx.alive(a) && !a.leaving) grass.eat(a.pos.x, a.pos.z, a.sp.graze || 'mid', 0.01 * grazeT, 3);
       // thorn shrubs shade the grass around them
       for (const p of W.plants) if (p.sp.id === 'whistling' && ctx.alive(p) && p.growth > 0.4) grass.eat(p.x, p.z, 'mid', 0.006 * grazeT, 2.5);
       grazeT = 0;
@@ -176,7 +260,8 @@ export function createSavanna(ctx) {
       else if (ev.type === 'chase') once('chase-' + ev.by, ev.by === 'lion' ? 'אריות התקרבו בחושך, והעדר התפזר בריצה. הם יתאספו שוב בבוקר.' : 'תנין חיכה במים, והעדר מיהר לצאת לגדה השנייה.', 'info');
       else if (ev.type === 'move') once('move', 'העדר אכל את העשב כאן, וממשיך למקום אחר במישור.', 'info');
     }
-    crowd.update(herds.list, rdt, W.simT, { spreadOf: (k) => HERD_KIND[k].spread });
+    if (live) { popT += dt; if (popT >= 1) { popTick(popT); popT = 0; } }
+    crowd.update(crowdGroups(), rdt, W.simT, { spreadOf: (k) => (HERD_KIND[k] ? HERD_KIND[k].spread : 6) });
     // fire
     fireTick(dt);
     if (W.season === 'dry' && W.seasonFrac > 0.5) {   // a dry thunderstorm: a lightning fire now and then (once a year at most)
@@ -191,11 +276,13 @@ export function createSavanna(ctx) {
     if (stabT <= 0) {
       stabT = 3;
       let grazers = herds.count() * 0.3, preds = 0, trees = 0;
-      for (const a of W.animals) { if (!ctx.alive(a) || a.leaving) continue; if (GRAZERS.has(a.sp.id)) grazers++; if (a.sp.id === 'lion' || a.sp.id === 'crocodile') preds++; }
+      for (const a of W.animals) { if (!ctx.alive(a) || a.leaving) continue; if (GRAZERS.has(a.sp.id)) grazers++; if (HUNTER_IDS.has(a.sp.id)) preds++; }
+      for (const h of pop.list()) grazers += h.n;   // the resident herds (pop.js)
       for (const p of W.plants) if (ctx.alive(p) && p.isTree && p.growth > 0.4) trees++;
       const g = grass.stats();
       W.stability = stability.sample({ grass: g.h * (0.5 + 0.5 * Math.max(g.g, 0.4)), grazers, trees, predators: preds, kinds: W.aliveSpecies().length });
       paintBar();
+      if (!list.hidden) { listT -= 3; if (listT <= 0) list.hidden = true; else paintList(); }
     }
     // the grass map to the environment
     mapT -= rdt;
@@ -207,16 +294,16 @@ export function createSavanna(ctx) {
     if (fx.type === 'grassfire') { if (fx.size > 0) startFire(fx.size); else stopFires(); return true; }
     return false;
   }
-  function serialize() { return { g: grass.save(), h: herds.save(), s: stability.save(), m: st.migOn ? 1 : 0, a: st.arrived, w: st.wildeArrived, l: st.left, f: st.lastFireYear }; }
+  function serialize() { return { g: grass.save(), h: herds.save(), p: pop.save(), s: stability.save(), m: st.migOn ? 1 : 0, a: st.arrived, w: st.wildeArrived, l: st.left, f: st.lastFireYear }; }
   function restore(o) {
     if (!o) return;
-    grass.load(o.g); herds.load(o.h); stability.load(o.s);
+    grass.load(o.g); herds.load(o.h); pop.load(o.p); stability.load(o.s);   // a save from before 1.4.3 has no p: the herds are made from the animals on the island
     st.migOn = !!o.m; st.arrived = o.a ?? -1; st.wildeArrived = o.w ?? -1; st.left = o.l ?? -1; st.lastFireYear = o.f ?? -1;
     W.stability = stability.value; paintBar();
   }
   function dispose() { crowd.dispose(); bar.remove(); style.remove(); }
   paintBar();
-  const api = { tick, effect, serialize, restore, dispose, grass, herds, stability, startFire, debug: { st, arrive, encroach, elephantTick } };
+  const api = { tick, effect, serialize, restore, dispose, grass, herds, pop, crowd, stability, startFire, debug: { st, arrive, encroach, elephantTick } };
   W.savanna = api;   // the tests (tests/play/savanna.json) read it through window.__game.savanna
   return { savanna: api };
 }
