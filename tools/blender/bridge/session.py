@@ -14,8 +14,10 @@
 # Be gentle with the owner's computer: one job at a time, the bake uses all cores but two, no calls while a job runs.
 import bpy, os, json, base64, time, traceback, tempfile, ctypes
 
-D = os.path.dirname(os.path.abspath(__file__)) if '__file__' in dir() else r'C:\Users\avifl\Documents\reshet-hachaim-blender\animals'
-if not os.path.exists(os.path.join(D, 'animal_kit.py')): D = r'C:\Users\avifl\Documents\reshet-hachaim-blender\animals'
+# the 1.4 folder first (its own animals, never the 1.3 folder's), else the 1.3 folder
+D = os.path.dirname(os.path.abspath(__file__)) if '__file__' in dir() else ''
+for _d in (D, r'C:\Users\avifl\Documents\reshet-hachaim-1.4\animals', r'C:\Users\avifl\Documents\reshet-hachaim-blender\animals'):
+    if _d and os.path.exists(os.path.join(_d, 'animal_kit.py')): D = _d; break
 TMP = os.path.join(D, 'pv'); os.makedirs(TMP, exist_ok=True)
 os.makedirs(os.path.join(D, 'out'), exist_ok=True)
 
@@ -95,6 +97,29 @@ def walk_job(sid, frames=(1, 5, 9, 13), act='walk', yaw=90, pitch=4, pct=35):
     sc.render.resolution_percentage = 100
     return out
 
+# one improvement round of an animal (1.4.2 defined it at run time; kept here since 2.11): a side view, a close look at the
+# head and a three-quarter view from behind into pv\rd_<sid>_{s,h,b}.jpg, then the export into out\<sid>.json. Compare the
+# side view with its photo (tools/blender/refs/compare.py) before the next round.
+def round_job(sid, pct=45, export=True):
+    try:
+        sc = ns['scene'](); sc.render.resolution_percentage = pct
+        ns['build_hd'](load(sid)); spec = ns['REG'][sid]['spec']; meta = spec.get('meta', {})
+        acts = spec.get('actions', {}); a = 'perch' if 'perch' in acts else 'idle'
+        if a not in acts: a = meta.get('map', {}).get(a) or next(iter(acts))
+        ns['shot'](sid, os.path.join(TMP, 'rd_%s_s.jpg' % sid), a, 30, 90, 4)
+        hb = next((b for b in spec['bones'] if b[0] == 'head'), None)
+        tgt = tuple((hb[2][k] + hb[3][k]) / 2 for k in range(3)) if hb else (0, meta.get('height', 0.5) * 0.7, 0)
+        ns['shot'](sid, os.path.join(TMP, 'rd_%s_h.jpg' % sid), a, 30, 35, 6, meta.get('length', 0.5) * 0.85, tgt)
+        ns['shot'](sid, os.path.join(TMP, 'rd_%s_b.jpg' % sid), a, 30, 150, 14)
+        out = {'round_' + sid: 'ok'}
+        if export:
+            js = ns['export_hd'](sid)
+            with open(os.path.join(D, 'out', sid + '.json'), 'w', encoding='utf-8') as fh: fh.write(js)
+            out['len_' + sid] = len(js)
+        return out
+    finally:
+        ns['scene']().render.resolution_percentage = 100; cleanup(sid)
+
 ns.setdefault('Q', []); ns.setdefault('RES', {}); ns['BUSY'] = False
 def _job_fn():
     Q = ns['Q']
@@ -127,7 +152,7 @@ def _keep_awake():
     except Exception: pass
     return 60.0
 
-ns.update(load=load, run=run, cleanup=cleanup, clear=clear, head_job=head_job, walk_job=walk_job, HEADS=HEADS, enqueue=enqueue, take=take, _job_fn=_job_fn)
+ns.update(load=load, run=run, round_job=round_job, cleanup=cleanup, clear=clear, head_job=head_job, walk_job=walk_job, HEADS=HEADS, enqueue=enqueue, take=take, _job_fn=_job_fn)
 for fn in (_job_fn, _keep_awake):
     if not bpy.app.timers.is_registered(fn): bpy.app.timers.register(fn, first_interval=1.0, persistent=True)
 bpy.app.driver_namespace['wol_keep_awake'] = _keep_awake

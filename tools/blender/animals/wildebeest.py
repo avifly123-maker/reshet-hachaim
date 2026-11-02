@@ -20,21 +20,21 @@ blobs += [
     dict(t='cap', a=(0, 0.88, 0.8), b2=(0, 0.92, 1.06), r=(0.12, 0.09), bone='neck'),              # its throat
     dict(t='cap', a=(0, 1.3, 0.62), b2=(0, 1.2, 1.06), r=(0.035, 0.03), bone='neck'),              # the upright mane
     dict(t='ell', c=(0, 1.08, 1.12), r=(0.1, 0.11, 0.11), bone='head'),                            # the skull
-    dict(t='cap', a=(0, 1.0, 1.17), b2=(0, 0.69, 1.36), r=(0.085, 0.072), bone='head'),            # the long heavy face
-    dict(t='ell', c=(0, 0.68, 1.38), r=(0.088, 0.075, 0.072), bone='head'),                        # the broad flat muzzle
+    dict(t='cap', a=(0, 1.0, 1.17), b2=(0, 0.75, 1.31), r=(0.092, 0.078), bone='head'),            # the face (2.11, Avi: too long: about 20% shorter, broader)
+    dict(t='ell', c=(0, 0.74, 1.33), r=(0.095, 0.078, 0.072), bone='head'),                        # the broad flat muzzle
     dict(t='ell', c=(0, 0.9, 1.15), r=(0.075, 0.09, 0.09), bone='head'),                           # the jaw
     dict(t='cap', a=(0, 1.0, -0.55), b2=(0, 0.55, -0.62), r=(0.035, 0.025), bone='hips'),          # the tail
     dict(t='ell', c=(0, 0.45, -0.63), r=(0.05, 0.14, 0.05), bone='hips'),                          # its long black hair
 ]
 bones = [('hips', None, (0, 1.05, -0.55), (0, 1.2, 0.0)), ('chest', 'hips', (0, 1.2, 0.0), (0, 1.25, 0.6)),
-         ('neck', 'chest', (0, 1.07, 0.7), (0, 1.06, 1.05)), ('head', 'neck', (0, 1.12, 1.08), (0, 0.66, 1.38))]
+         ('neck', 'chest', (0, 1.07, 0.7), (0, 1.06, 1.05)), ('head', 'neck', (0, 1.12, 1.08), (0, 0.72, 1.33))]
 for sx, L in ((1, 'l'), (-1, 'r')):
     bones += [('f' + L, 'chest', (sx * 0.13, 1.0, 0.55), (sx * 0.13, 0.38, 0.6)), ('f' + L + '2', 'f' + L, (sx * 0.13, 0.38, 0.6), (sx * 0.13, 0.0, 0.62)),
               ('h' + L, 'hips', (sx * 0.12, 1.05, -0.45), (sx * 0.12, 0.42, -0.6)), ('h' + L + '2', 'h' + L, (sx * 0.12, 0.42, -0.6), (sx * 0.12, 0.0, -0.48))]
 cat_muscles(blobs, bones, sh=(0.1, 0.16, 0.11), th=(0.1, 0.18, 0.13), sh_t=0.3, th_t=0.4)
 E = blob_ears(blobs, bones, base=(0.08, 1.15, 1.06), d=(1.0, 0.25, -0.35), H=0.11, w=0.035, t=0.01, tip=0.6, turn=15)
 
-COAT, COAT2, BAND, BLACK, HORN = srgb('#5c5650'), srgb('#4a4440'), srgb('#36302c'), srgb('#1a1614'), srgb('#3a3632')
+COAT, COAT2, BAND, BLACK, HORN = srgb('#706b66'), srgb('#5f5a55'), srgb('#3e3935'), srgb('#1e1a18'), srgb('#3a3632')   # 2.11 (Avi: too dark): the blue wildebeest's slate grey
 def paint(P, N, tag):
     x, y, z = P
     e = ear_paint(P, N, E)
@@ -45,10 +45,10 @@ def paint(P, N, tag):
     c = mix(c, BAND, band * smooth(0.0, 0.5, math.sin(z * 26 + n * 2)) * 0.6)
     if 0.62 < z < 1.08 and abs(x) < 0.05 and y > 1.15: c = mix(c, BLACK, 0.85)                   # the black mane
     if 0.78 < z < 1.12 and y < 0.95 and abs(x) < 0.09 and N.y < 0.2: c = mix(c, BLACK, 0.7)      # the black beard under the throat
-    if z > 1.1: c = mix(c, BLACK, 0.75 * smooth(1.1, 1.2, z))                                     # the black face
+    if z > 1.12: c = mix(c, BLACK, 0.6 * smooth(1.12, 1.24, z))                                   # the dark face
     if y < 0.5 and abs(x) > 0.06: c = mix(c, mix(COAT2, BLACK, 0.4), smooth(0.5, 0.3, y))         # darker lower legs
     if y < 0.05 and abs(x) > 0.06: c = mix(c, BLACK, 0.9)                                         # the hooves
-    if z < -0.55: c = mix(c, BLACK, 0.85)                                                         # the tail
+    if z < -0.56 and abs(x) < 0.07 and y < 1.02: c = mix(c, BLACK, 0.85)                          # the tail (round 2: only the tail, not the rump)
     return c
 
 parts = []
@@ -58,7 +58,7 @@ for sx in (1, -1):
     hv, hf = tube(hp, [0.04 * (1 - i / 9) ** 0.6 + 0.008 for i in range(10)], 8)
     parts.append(Part('horn', bone='head', color=HORN).add(hv, hf))
 nose = Part('nose', bone='head', color=srgb('#121010'))
-for sx in (1, -1): nose.add(*ellipsoid((sx * 0.045, 0.67, 1.44), (0.016, 0.012, 0.012), 8, 5))
+for sx in (1, -1): nose.add(*ellipsoid((sx * 0.047, 0.73, 1.39), (0.016, 0.012, 0.012), 8, 5))
 parts.append(nose)
 
 names = [b[0] for b in bones]

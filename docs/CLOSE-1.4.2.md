@@ -6,7 +6,8 @@ prints what the zone still lacks (31 items on 1.11 02:30); remove `wip` from `sr
 ## A. Animals (Blender, Avi's PC; method in tools/blender/refs/README.md, overlay before every run)
 - [x] giraffe, zebra, elephant, lion, wildebeest, impala, crocodile, weaver: Blender models in the game
 - [x] weaver: the 1.11 run is packed (the wing plate still needs a softer shape in a later round)
-- [ ] lion face round 2 (pale area smaller, ears out of the mane); wildebeest coat (dark bands, beard, black face)
+- [ ] lion face round 2 (pale area smaller, ears out of the mane)
+- [x] (2.11, 1.4.3 set 0) wildebeest: lighter slate coat, shorter face; weaver rebuilt with folded wings (it was missing from the kit's BIRDS); buffalo round 3
 - [ ] rounds 2–5 for all (legs and hooves/paws, coat, ears/tail, motion in the game: walk/eat/sleep clips)
 - [x] new species: buffalo, hyena, baboon: data, missions, lab; Blender models packed (1.11 05:00). Hyena round 7 (Avi: "the belly
       and the hind part"): the chest is the deepest and the belly rises evenly. Still rough for all three: head, legs, ears (later rounds)
