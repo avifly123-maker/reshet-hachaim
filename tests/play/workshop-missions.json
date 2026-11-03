@@ -27,6 +27,7 @@
 {"js": "'CHECK mission-in-3d ' + (window.__rlDebug.cur()==='wm-am-6' && /רובוט 1/.test(document.querySelector('.rl-level .rl-title').textContent) && window.__journey.introSeen('g:wmtut') ? 'ok' : 'FAIL '+window.__rlDebug.cur())"},
 {"wait": 3},
 {"js": "'CHECK run-tutorial ' + (window.__rlDebug.tut()==='robot' ? 'ok' : 'FAIL '+window.__rlDebug.tut())"},
+{"js": "const f=window.__rlDebug.field(); 'CHECK built-robot-and-mud ' + (f && f.built && f.cells===2 ? 'ok' : 'FAIL '+JSON.stringify(f))"},
 {"shot": "shots/wkm/03-field.png"},
 {"clickSel": "#rguide .rg-next"},
 {"wait": 0.6},

@@ -17,7 +17,15 @@ export function createScatter(ctx) {
   } = ctx;
   // ───────────────────────────── ground scatter (instanced)
   const scatterMeshes = [];
-  const SU = { ...U, uScale: { value: 1 }, uBloom: { value: new THREE.Vector4(0, 0, 0, 0) }, uSwayK: { value: 1 } };
+  // 1.4.3 set 4: squares of the ground where no scatter grows (a robot field's mud, shallow water, a narrow ditch):
+  // up to CLEAR_N, each (x, z, half-width, half-depth); written through env.clearScatter, cleared when the field goes
+  const CLEAR_N = 24;
+  const CU = { uClear: { value: Array.from({ length: CLEAR_N }, () => new THREE.Vector4(0, 0, -1, -1)) } };
+  function clearScatter(list = []) {
+    const a = CU.uClear.value;
+    for (let i = 0; i < CLEAR_N; i++) { const q = list[i]; if (q) a[i].set(q.x, q.z, q.hw, q.hd); else a[i].set(0, 0, -1, -1); }
+  }
+  const SU = { ...U, ...CU, uScale: { value: 1 }, uBloom: { value: new THREE.Vector4(0, 0, 0, 0) }, uSwayK: { value: 1 } };
 
   // 1.4.2, the savanna: one small texture holds the grass of the whole island, cell by cell (r = height, g = green,
   // b = burnt), written by the game (src/game/savanna/grass.js through env.setGrassMap). The tall grass reads it per tuft.
@@ -31,16 +39,17 @@ export function createScatter(ctx) {
   }
 
   function scatterMaterial(key, { sway = 1, extra = {}, flat = false, rough = 0.9, side = THREE.FrontSide, kinds = false, cards = false, grass = false } = {}) {
-    const uniforms = { ...U, uSway: { value: sway }, uScale: { value: 1 }, ...extra, ...(grass ? GU : {}) };
+    const uniforms = { ...U, ...CU, uSway: { value: sway }, uScale: { value: 1 }, ...extra, ...(grass ? GU : {}) };
     // cards: thin double-sided foliage whose (up-bent) normals must NOT be flipped on back faces
     const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: rough, metalness: 0, flatShading: flat, side: cards ? THREE.DoubleSide : side });
     patchMaterial(mat, 'scatter-' + key, uniforms, {
       instanced: true,
-      vertexPre: 'uniform float uSway; uniform float uScale;' + (kinds ? ' attribute float aKind; uniform vec4 uBloom;' : '') + (grass ? ' uniform sampler2D uGrassMap; uniform float uGrassR; varying vec3 vGm;' : ''),
+      vertexPre: 'uniform float uSway; uniform float uScale; uniform vec4 uClear[' + CLEAR_N + '];' + (kinds ? ' attribute float aKind; uniform vec4 uBloom;' : '') + (grass ? ' uniform sampler2D uGrassMap; uniform float uGrassR; varying vec3 vGm;' : ''),
       vertexBegin: /* glsl */`
         float _s = uScale ${kinds ? '* (aKind < 0.5 ? uBloom.x : aKind < 1.5 ? uBloom.y : aKind < 2.5 ? uBloom.z : uBloom.w)' : ''};
         transformed *= _s;
         vec3 _ip = vec3(instanceMatrix[3][0], instanceMatrix[3][1], instanceMatrix[3][2]);
+        for (int _c = 0; _c < ${CLEAR_N}; _c++) { vec4 _q = uClear[_c]; if (_q.z > 0.0 && abs(_ip.x - _q.x) < _q.z && abs(_ip.z - _q.y) < _q.w) transformed *= 0.0; }
         ${grass ? `vec4 _gm = texture2D(uGrassMap, _ip.xz / (2.0 * uGrassR) + 0.5); vGm = _gm.rgb;
         transformed.y *= 0.1 + 1.25 * _gm.r; transformed.xz *= 0.55 + 0.6 * _gm.r;` : ''}
         float _ph = _ip.x * 0.37 + _ip.z * 0.29;
@@ -328,5 +337,5 @@ export function createScatter(ctx) {
       scatterRefs.bush = addScatter('bush', blobGeom(makeRng(21), 5, 0.65), scatterMaterial('bush', { sway: 0.06, flat: true, rough: 0.85 }), items, { castShadow: true });
     }
   }
-  return { scatterMeshes, scatterMaterial, slopeQuat, samplePoints, onRock, dryLand, rrS, scatterRefs, setGrassMap, GM_N, grassLOD };
+  return { scatterMeshes, scatterMaterial, slopeQuat, samplePoints, onRock, dryLand, rrS, scatterRefs, setGrassMap, clearScatter, GM_N, grassLOD };
 }

@@ -129,7 +129,8 @@ export function createEnvironment(pipeline, biomeId = 'amazon', { quality = 'med
     heightAt, isWater, isPlaceable, waterLevel: WL, water,
     waterDist, nearWadi: isDesert ? nearWadi : null,   // 1.4: the desert's water (src/game/game/water.js)
     holes: (ctx.holes || []).map((p) => ({ x: p.x, z: p.z, r: p.r })),   // 1.4.2: the savanna's waterholes
-    setGrassMap: ctx.setGrassMap || null,   // 1.4.2: the savanna's grass (height, green, burnt) from the game, scatter.js
+    setGrassMap: ctx.setGrassMap || null,
+    clearScatter: ctx.clearScatter || null,   // 1.4.3: no grass on a robot field's mud, water and ditch (scatter.js)   // 1.4.2: the savanna's grass (height, green, burnt) from the game, scatter.js
     bridges: bridges.map(b => ({ ax: b.ax, az: b.az, bx: b.bx, bz: b.bz })), bridgeAt, walkRoute,
     rocks: rocks.map(r => ({ x: r.x, z: r.z, r: r.r, top: r.top })),
     groundMeshes: [groundMesh],

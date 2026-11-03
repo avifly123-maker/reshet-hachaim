@@ -13,6 +13,10 @@ import { levelsOf } from '../engine/level.js';
 import { lookFor } from '../../data/robolab/parts.js';
 import { toolLook } from '../progress.js';
 import { makeTool, makeHome, makeSpot, makeFruit, makeNet, makeTrash, makeRock, makeEdge, makeFireBase } from './models.js';
+import { fieldCells, makeBoulder, makeLog } from './field-cells.js';   // 1.4.3 set 4: mud, hills, narrow logs, shallow water
+import { buildTool, hasBlenderTools } from './parts3d.js';
+import { wkLook } from '../../data/robolab/workshop-look.js';
+import { DIRS } from '../engine/world.js';
 
 // the zone's living things used on a field: trees on 'T' cells, what grows from a planted seed, the thirsty plant
 const LIFE = {
@@ -21,7 +25,7 @@ const LIFE = {
   desert: { tree: ['acacia', 'barrelcactus'], sapling: 'acacia', thirsty: 'saltbush', treeG: 0.9 },
   reef:   { tree: ['brain', 'table', 'branching'], sapling: 'branching', thirsty: 'seagrass', treeG: 0.55 },
 };
-const TILE = { '.': '#f3ecd2', s: '#f0d9a0', '~': '#4fb4d8', T: '#d8e8c0', R: '#d8d2c4', m: '#b89870', h: '#e6d2a6', n: '#c89a6a', w: '#9fd6e6' };   // 1.4.3: mud, slope, a narrow log, shallow water (their 3D look comes with the set 4 missions)
+const TILE = { '.': '#f3ecd2', s: '#f0d9a0', '~': '#4fb4d8', T: '#d8e8c0', R: '#d8d2c4', m: '#b89870', h: '#e6d2a6', n: '#c89a6a', w: '#9fd6e6' };   // 1.4.3: mud, slope, a narrow log, shallow water (their look: field-cells.js)
 const DUR = { slow: 0.85, normal: 0.42, fast: 0.12 };   // seconds per step of the trace
 const FLY = 3.4;          // the drone's height over the ground while flying
 const ON_ROBOT = 1.75;    // ... while parked on the robot's back
@@ -39,7 +43,7 @@ export function createCourse(ctx, L) {
   const root = new THREE.Group(); root.name = 'robolab-course'; scene.add(root);
   const sea = !!env.underwater;
   const cell = (r, c) => (rows[r] || '')[c] || '#';
-  const ground = (x, z) => env.heightAt(x, z);
+  let ground = (x, z) => env.heightAt(x, z);   // after the place is chosen: the island plus a hill's or a log's height
   // where the field lies: a dry, flat, open part of the island (the Amazon's river, the grove's rocks and pools stay out);
   // cells shrink a little when no such place is big enough
   const { CS, OX, OZ } = L.place ? L.place : (() => {
@@ -67,14 +71,21 @@ export function createCourse(ctx, L) {
   const wx = (x) => OX + (x - (Wd - 1) / 2) * CS, wz = (y) => OZ + (y - (H - 1) / 2) * CS;
   const rng = (() => { let s = 7; return () => { s = (s * 16807) % 2147483647; return s / 2147483647; }; })();
   const spOf = (id) => (reg && reg.byId ? reg.byId.get(id) : null);
+  // 1.4.3 set 4: the workshop's ground (mud, a hill, a narrow log over a stream, shallow water); a robot rides over the
+  // hill and the log, so the mat, the items and the tools follow their height
+  const FC = fieldCells({ rows, CS, wx, wz, ground: (x, z) => env.heightAt(x, z), sea });
+  root.add(FC.group);
+  if (env.clearScatter) env.clearScatter(FC.clears);   // no grass through the mud and the water
+  ground = (x, z) => env.heightAt(x, z) + FC.lift(x, z);
   const keep = [];   // entities that belong to the field (removed on dispose)
 
   // ── the mat: one tinted tile per cell, following the ground, and a white grid over it
   {
-    const pos = [], col = [], idx = [], lines = [], N = 4, lift = 0.07;
+    const pos = [], col = [], idx = [], lines = [], lift = 0.07;
     const c3 = new THREE.Color();
     for (let y = 0; y < H; y++) for (let x = 0; x < Wd; x++) {
       const ch = cell(y, x); if (ch === '#') continue;
+      const N = ch === 'h' ? 12 : 4;   // a hill's tile bends with it
       c3.set(TILE[ch] || TILE['.']);
       const x0 = wx(x) - CS / 2, z0 = wz(y) - CS / 2, base = pos.length / 3;
       for (let j = 0; j <= N; j++) for (let i = 0; i <= N; i++) {
@@ -132,10 +143,11 @@ export function createCourse(ctx, L) {
   }
 
   // ── the items and the tools (made again on every reset)
-  let items = [], tools = {}, spawned = [], fires = [], fireT = 0;
+  let items = [], tools = {}, spawned = [], fires = [], fireT = 0, tweens = [];
   const itemRoot = new THREE.Group(); root.add(itemRoot);
   const at = (o, x, y, up = 0) => { const X = wx(x), Z = wz(y); o.position.set(X, ground(X, Z) + up, Z); return o; };
   function clearItems() {
+    tweens = [];
     for (const o of [...itemRoot.children]) itemRoot.remove(o);
     for (const p of spawned) { try { W.removeEntity(p); } catch (e) { } }
     spawned = []; fires = [];
@@ -153,6 +165,8 @@ export function createCourse(ctx, L) {
       else if (it.t === 'net') S.obj = at(makeNet(), it.x, it.y);
       else if (it.t === 'trash') S.obj = at(makeTrash(), it.x, it.y);
       else if (it.t === 'fire') { S.obj = at(makeFireBase(), it.x, it.y); fires.push(S); }
+      else if (it.t === 'rock') S.obj = at(makeBoulder(rng), it.x, it.y);
+      else if (it.t === 'log') { S.obj = at(makeLog(), it.x, it.y); S.obj.rotation.y = (it.x * 3 + it.y) % 2 ? 0.4 : -0.5; }
       else if (it.t === 'thirsty') {
         const sp = spOf(life.thirsty), X = wx(it.x), Z = wz(it.y);
         const p = sp && spawnPlant(sp, X, Z, { growth: 0.55, seed: it.x * 31 + it.y });
@@ -163,7 +177,7 @@ export function createCourse(ctx, L) {
     });
     tools = {};
     for (const [k, T] of Object.entries(w0.tools)) {
-      let o = toolObjs[k]; if (!o) { o = toolObjs[k] = makeTool(k, toolLook(k).paint, lookFor(k, L.blocks || [], toolLook(k).parts)); o.scale.multiplyScalar(CS / 3.4); root.add(o); }
+      let o = toolObjs[k]; if (!o) { o = toolObjs[k] = (k === 'robot' && L.build && L.build.robot && builtRobot(L.build.robot)) || makeTool(k, toolLook(k).paint, lookFor(k, L.blocks || [], toolLook(k).parts)); o.scale.multiplyScalar(CS / 3.4); root.add(o); }
       tools[k] = { x: T.x, y: T.y, a: T.dir * Math.PI / 2, lift: k === 'drone' ? (T.parked ? 0 : 1) : 0, show: k !== 'drone' || !T.parked, obj: o, wob: 0, spin: 0, dance: 0 };
       o.visible = tools[k].show;
     }
@@ -171,6 +185,17 @@ export function createCourse(ctx, L) {
     placeTools();
   }
   const toolObjs = {};
+  // a workshop mission: the child's own robot, from its build (the same Blender chassis and parts as in the workshop),
+  // its wheels on the ground and its size like the lessons' robot
+  function builtRobot(b) {
+    if (!hasBlenderTools()) return null;
+    const inner = buildTool(wkLook(b)); if (!inner) return null;
+    const bb = new THREE.Box3().setFromObject(inner), sz = bb.getSize(new THREE.Vector3());
+    inner.position.y = -bb.min.y; inner.scale.setScalar(1);
+    const g = new THREE.Group(); g.add(inner); g.scale.setScalar(1.25 * Math.min(1.3, 1.05 / Math.max(0.5, sz.x, sz.z)));
+    g.userData = { ...inner.userData, built: true };
+    return g;
+  }
   function toolY(k, T) {
     const X = wx(T.x), Z = wz(T.y), g = ground(X, Z);
     if (k === 'sub') return Math.min(g + SWIM, env.surfaceY != null ? env.surfaceY - 1 : g + SWIM);
@@ -181,14 +206,26 @@ export function createCourse(ctx, L) {
     for (const [k, T] of Object.entries(tools)) {
       const o = T.obj; o.visible = T.show;
       o.position.set(wx(T.x), toolY(k, T), wz(T.y));
-      o.rotation.set(T.wob * 0.25 * Math.sin(T.spin * 30), Math.PI - T.a + Math.sin(T.dance * Math.PI * 4) * 0.5, 0);
+      const yaw = Math.PI - T.a + Math.sin(T.dance * Math.PI * 4) * 0.5;
+      let pitch = 0;   // on a hill or a log the robot leans with the ground under it (nose up going up)
+      if (k === 'robot') { const d = CS * 0.3, X = o.position.x, Z = o.position.z, fx = Math.sin(yaw) * d, fz = Math.cos(yaw) * d; pitch = -Math.atan2(ground(X + fx, Z + fz) - ground(X - fx, Z - fz), 2 * d); }
+      o.rotation.order = 'YXZ'; o.rotation.set(pitch + T.wob * 0.25 * Math.sin(T.spin * 30), yaw, 0);
     }
   }
 
   // ── what a step does to the place
+  // 1.4.3: a rock pushed one cell on, a log lifted up and away (they glide over the step's time; tweens, above)
+  function pushTo(S, to) {
+    if (!S.obj || !to) return;
+    const from = S.obj.position.clone(), X = wx(to[0]), Z = wz(to[1]);
+    tweens.push({ obj: S.obj, from, to: new THREE.Vector3(X, ground(X, Z), Z), t: 0, dur: play ? play.dur : 0.4, roll: true });
+    S.x = to[0]; S.y = to[1];
+    markers.burst(_v.copy(from).setY(from.y + 0.3), '#b8a07a', 14, { speed: 1, size: 0.45, life: 0.8, up: 0.6 });
+  }
   function itemDone(S, how) {
     if (S.done) return; S.done = true;
     const X = wx(S.x), Z = wz(S.y); _v.set(X, ground(X, Z) + 0.6, Z);
+    if (S.t === 'log' && S.obj) { const from = S.obj.position.clone(); tweens.push({ obj: S.obj, from, to: from.clone().setY(from.y + CS * 0.55), t: 0, dur: (play ? play.dur : 0.4) * 1.6, hide: true }); markers.burst(_v, '#c9a46a', 12, { speed: 1, size: 0.4, life: 0.8, up: 1 }); return; }
     if (S.t === 'seed' || S.t === 'coral') {
       if (S.obj) S.obj.visible = false;
       const sp = spOf(life.sapling), p = sp && spawnPlant(sp, X, Z, { growth: S.t === 'coral' ? 0.3 : 0.1, seed: S.x * 7 + S.y * 13 });
@@ -214,20 +251,28 @@ export function createCourse(ctx, L) {
   let play = null;
   function start(trace, { speed = 'normal', onStep, onEnd, variant: vi = 0 } = {}) {
     stop(); variant = vi || 0; W._rlSunset = false; buildItems();
-    play = { evs: trace.slice(), i: 0, t: 0, dur: DUR[speed] || DUR.normal, from: null, onStep, onEnd };
+    // a slow built robot: its 'slow' steps after a move are part of that move (it drives the cell in all their time)
+    const evs = [];
+    for (const e of trace) { if (e.a === 'slow' && evs.length) { evs[evs.length - 1].m = (evs[evs.length - 1].m || 1) + 1; continue; } evs.push({ ...e }); }
+    play = { evs, i: 0, t: 0, dur: DUR[speed] || DUR.normal, from: null, onStep, onEnd };
   }
   function begin(e) {
     const T = tools[e.tool];
     play.from = T ? { x: T.x, y: T.y, a: T.a, lift: T.lift } : {};
     if (e.a === 'launch' && tools.drone) { const D = tools.drone; D.show = true; D.x = e.x; D.y = e.y; D.a = (e.dir || 0) * Math.PI / 2; D.lift = 0; }
-    if (e.item != null) { const S = items.find((q) => q.i === e.item); if (S) itemDone(S, e.a); }
+    if (e.item != null) { const S = items.find((q) => q.i === e.item); if (S && e.a === 'push') pushTo(S, e.to); else if (S) itemDone(S, e.a); }
     if (T && /^(fireworks|lights|beep|sneeze)$/.test(e.a)) fun(e.tool, T, e.a);
     if (T && e.a === 'send') { const S = SIGNALS[e.m] || SIGNALS.a; T.obj.getWorldPosition(_v); _v.y += 1.6; markers.burst(_v, S.color, 26, { speed: 3.2, size: 0.45, life: 0.9, up: 0.6 }); }
     if (e.a === 'event' && e.ev === 'msg' && tools[e.tool]) { const S = SIGNALS[e.m] || SIGNALS.a; tools[e.tool].obj.getWorldPosition(_v); _v.y += 1.4; markers.burst(_v, S.color, 14, { speed: 1, size: 0.5, life: 0.8, up: 1.2 }); }
     if (T && (e.a === 'add' || e.a === 'report')) { T.obj.getWorldPosition(_v); _v.y += 2; markers.burst(_v, e.a === 'add' ? '#ffd25a' : '#7fe3ff', e.a === 'add' ? 8 : 24, { speed: e.a === 'add' ? 0.8 : 2.4, size: 0.4, life: 0.8, up: 1.4 }); }
     if (e.a === 'event' && e.ev === 'sunset') W._rlSunset = true;   // the island's sky goes to evening (session.js)
     if (T && e.a === 'oops') markers.burst(_v.copy(T.obj.position).setY(T.obj.position.y + 1.5), '#d66aa8', 10, { speed: 1, size: 0.35, life: 0.7, up: 1 });
-    if (T && e.a === 'fail') { T.wob = 1; markers.burst(_v.copy(T.obj.position).setY(T.obj.position.y + 1.2), '#e8562a', 22, { speed: 2, size: 0.45, life: 0.9, up: 1.2 }); }
+    if (T && e.a === 'fail') {
+      T.wob = 1; markers.burst(_v.copy(T.obj.position).setY(T.obj.position.y + 1.2), '#e8562a', 22, { speed: 2, size: 0.45, life: 0.9, up: 1.2 });
+      // a built robot that could not go on (1.4.3): it tries the cell ahead, and mud splashes, water rises, sand flies
+      const G = { stuck: '#6e5034', sink: '#7ccbe6', slip: '#b89870', weak: '#b8a07a' }[e.code];
+      if (G) { const d = DIRS[e.dir != null ? e.dir : 0], X = wx(e.x + d[0] * 0.4), Z = wz(e.y + d[1] * 0.4); play.into = { dx: d[0], dy: d[1], k: e.code === 'sink' ? 0.45 : 0.3 }; markers.burst(_v.set(X, ground(X, Z) + 0.3, Z), G, 26, { speed: 1.8, size: 0.5, life: 1, up: 1.2 }); }
+    }
     if (play.onStep) play.onStep(e, play.i);
   }
   function tick(rdt) {
@@ -236,7 +281,7 @@ export function createCourse(ctx, L) {
     if (!e) { const cb = play.onEnd; play = null; if (cb) cb(); return; }
     if (!play.from) begin(e);
     if (!play) return;   // onStep may have stopped the run
-    play.t += rdt; const k = Math.min(1, play.t / play.dur), q = ease(k), T = tools[e.tool], F = play.from;
+    play.t += rdt; const k = Math.min(1, play.t / (play.dur * (e.m || 1))), q = ease(k), T = tools[e.tool], F = play.from;
     if (T && F.x != null) {
       if (e.a === 'fwd' || e.a === 'back') { T.x = F.x + (e.x - F.x) * q; T.y = F.y + (e.y - F.y) * q; }
       if (e.a === 'right' || e.a === 'left') T.a = F.a + (e.a === 'right' ? 1 : -1) * Math.PI / 2 * q;
@@ -244,17 +289,27 @@ export function createCourse(ctx, L) {
       if (e.a === 'launch') T.lift = q;
       if (e.a === 'land') T.lift = 1 - q;
       if (e.a === 'fail' && e.code === 'battery') T.lift = F.lift * (1 - q);
+      if (e.a === 'fail' && play.into) { const s = Math.sin(Math.min(1, k * 1.4) * Math.PI * 0.5) * play.into.k; T.x = F.x + play.into.dx * s; T.y = F.y + play.into.dy * s; }
     }
     if (e.a === 'launch' && tools.drone) tools.drone.lift = q;
     if (k >= 1) {
       if (T && F.x != null) { if (e.a !== 'fail') { T.x = e.x; T.y = e.y; } if (e.a === 'right' || e.a === 'left') T.a = F.a + (e.a === 'right' ? 1 : -1) * Math.PI / 2; T.dance = 0; }
-      play.i++; play.t = 0; play.from = null;
+      if (e.a === 'fail' && play.into) { T.x = F.x + play.into.dx * play.into.k; T.y = F.y + play.into.dy * play.into.k; }   // it stays where it got stuck
+      play.i++; play.t = 0; play.from = null; play.into = null;
     }
   }
   function stop() { play = null; for (const T of Object.values(tools)) { T.wob = 0; T.dance = 0; } }
 
   function update(rdt) {
     tick(rdt);
+    FC.update(rdt);
+    for (const tw of tweens) {
+      tw.t = Math.min(1, tw.t + rdt / Math.max(0.05, tw.dur)); const q = ease(tw.t);
+      tw.obj.position.lerpVectors(tw.from, tw.to, q);
+      if (tw.roll) tw.obj.rotation.x = q * 1.6;
+      if (tw.hide && tw.t >= 1) tw.obj.visible = false;
+    }
+    tweens = tweens.filter((tw) => tw.t < 1);
     for (const T of Object.values(tools)) { if (T.wob > 0) { T.wob = Math.max(0, T.wob - rdt * 1.2); T.spin += rdt; } }
     placeTools();
     // spinning rotors and propeller, a bob for the flying drone
@@ -281,6 +336,7 @@ export function createCourse(ctx, L) {
     kubiSpot,
     reset: () => { stop(); variant = 0; W._rlSunset = false; buildItems(); }, play: start, stop, isPlaying: () => !!play, update, view, redraw: () => { },
     cellPos: (x, y) => new THREE.Vector3(wx(x), ground(wx(x), wz(y)), wz(y)), CS,
-    dispose: () => { gone = true; stop(); clearItems(); for (const e of keep) { try { W.removeEntity(e); } catch (err) { } } scene.remove(root); root.traverse((o) => { if (o.geometry) o.geometry.dispose(); }); },
+    info: () => ({ built: !!(toolObjs.robot && toolObjs.robot.userData.built), cells: FC.clears.length }),   // tests
+    dispose: () => { gone = true; stop(); clearItems(); FC.dispose(); if (env.clearScatter) env.clearScatter([]); for (const e of keep) { try { W.removeEntity(e); } catch (err) { } } scene.remove(root); root.traverse((o) => { if (o.geometry) o.geometry.dispose(); }); },
   };
 }
