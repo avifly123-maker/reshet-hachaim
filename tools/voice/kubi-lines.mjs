@@ -25,7 +25,9 @@ for (const [k, list] of Object.entries(FAIL_LINES)) list.forEach((o, i) => add('
 for (const [k, list] of Object.entries(GOAL_LINES)) list.forEach((o, i) => add('kg_' + k.replace(':', '_') + '_' + i, o));
 for (const [k, list] of Object.entries(OOPS_LINES)) list.forEach((o, i) => add('ko_' + k + '_' + i, o));
 // 1.4.3: he leads the robot lab's hands-on tutorials and the workshop's (their own ids, as in the guide's bubble)
-for (const [part, list] of Object.entries(TUTORIALS)) if (/^(rltut|wktut)/.test(part)) list.forEach((o) => add(o.id, o));
+for (const [part, list] of Object.entries(TUTORIALS)) if (/^(rltut|wktut|wmtut|gartut|sbtut)/.test(part)) list.forEach((o) => add(o.id, o));
+// --tutorials: only the workshop's, the missions', the design garage's and the sandbox's (Avi, 4.11: record these 20)
+if (process.argv.includes('--tutorials')) for (let i = out.length - 1; i >= 0; i--) if (!/^(wk|wm|gar|sb)\./.test(out[i].id)) out.splice(i, 1);
 // --missing: only the lines his voice does not have yet
 if (process.argv.includes('--missing')) { const { KUBI_VOICE } = await import('../../src/data/kubi-voice.js'); const have = new Set(Object.keys(KUBI_VOICE || {})); for (let i = out.length - 1; i >= 0; i--) if (have.has(out[i].id)) out.splice(i, 1); }
 writeFileSync(process.argv[2], JSON.stringify(out, null, 0));

@@ -3506,5 +3506,70 @@
   "h": "4a6e5eaf280b",
   "text": "מִדֵּי פַּעַם נִפְתָּחִים חֲלָקִים חֲדָשִׁים. בּוֹנִים, מְנַסִּים וּמְשַׁפְּרִים!",
   "ipa": "midˈej pˈaʔam niftaχˈim χalakˈim χadaʃˈim. bonˈim, menasˈim umʃapeʁˈim!"
+ },
+ "st7.1": {
+  "h": "be8b6512b5fb",
+  "text": "אַתֶּם מְתַכְנְתִים!",
+  "ipa": "atˈem metaχnetˈim!"
+ },
+ "st7.2": {
+  "h": "24604a60bcf3",
+  "text": "נִפְתְּחָה הַסְּוָואנָה: עֵשֶׂב, עֲדָרִים וּבוֹרוֹת מַיִם, וְעוֹנָה גְּשׁוּמָה וְעוֹנָה יְבֵשָׁה.",
+  "ipa": "nifteχˈa hasavˈana, ʔˈesev, ʔadaʁˈim uvoʁˈot mˈajim, veʔonˈa ɡʃumˈa veʔonˈa jeveʃˈa."
+ },
+ "st7.2.k": {
+  "h": "72579471ff20",
+  "text": "נִפְתְּחָה הַסָּוַאנָה: עֵשֶׂב, עֲדָרִים וּבוֹרוֹת מַיִם, וְעוֹנָה גְּשׁוּמָה וְעוֹנָה יְבֵשָׁה.",
+  "ipa": "nifteχˈa hasavanˈa, ʔˈesev, ʔadaʁˈim uvoʁˈot mˈajim, veʔonˈa ɡʃumˈa veʔonˈa jeveʃˈa."
+ },
+ "st7.3": {
+  "h": "a816b45d8388",
+  "text": "וְנִפְתְּחָה מַעְבֶּדֶת הָרוֹבּוֹטִים. שָׁם קוּבִּי מְלַמֵּד לְתַכְנֵת רוֹבּוֹט, רַחְפָן וְצוֹלְלָן.",
+  "ipa": "venifteχˈa mabˈedet haʁobotˈim. ʃˈam kubˈi melamˈed letaχnˈet ʁobˈot, ʁaχfˈan vetsollˈan."
+ },
+ "st8.1": {
+  "h": "efcce5c2fdac",
+  "text": "אַתֶּם יַזָּמִים!",
+  "ipa": "atˈem jazamˈim!"
+ },
+ "st8.2": {
+  "h": "27cf81f98fa6",
+  "text": "בְּמַעְבֶּדֶת הָרוֹבּוֹטִים נִפְתְּחוּ כָּל הַפְּרָקִים וְהַחִידוֹת.",
+  "ipa": "bemabˈedet haʁobotˈim nifteχˈu kˈol hapʁakˈim vehaχidˈot."
+ },
+ "st8.3": {
+  "h": "4756fc9366df",
+  "text": "יֵשׁ שָׁם חַיְישָׁנִים, אֵירוּעִים וַעֲבוֹדַת צֶוֶות. נִסוּ לִפְתּוֹר בְּכַמָּה שֶׁפָּחוֹת בְּלוֹקִים.",
+  "ipa": "jˈeʃ ʃˈam χajjʃanˈim, ʔejʁuʔˈim vaʔavodˈat tsevˈevt. nasˈu liftˈoʁ beχamˈa ʃepaχˈot belokˈim."
+ },
+ "st8.3.k": {
+  "h": "5911d568ecea",
+  "text": "יֵשׁ שָׁם חַיְשָׁנִים, אֵרוּעִים וַעֲבוֹדַת צֶוֶת. נַסּוּ לִפְתֹּר בְּכַמָּה שֶׁפָּחוֹת בְּלוֹקִים.",
+  "ipa": "jˈeʃ ʃˈam χajʃanˈim, ʔeʁuʔˈim vaʔavodˈat tsˈevet. nasˈu liftˈoʁ beχamˈa ʃepaχˈot belokˈim."
+ },
+ "st9.1": {
+  "h": "c8d7a8e12d73",
+  "text": "אַתֶּם מְהַנְדְּסִים!",
+  "ipa": "atˈem mehandesˈim!"
+ },
+ "st9.2": {
+  "h": "15d1240010ea",
+  "text": "נִפְתְּחָה סַדְנַת הָרוֹבּוֹט. בּוֹנִים בָּהּ רוֹבּוֹט מֵחֲלָקִים, וְשׁוֹלְחִים אוֹתוֹ לַמְּשִׂימוֹת בְּכָל הַסְּבִיבוֹת.",
+  "ipa": "nifteχˈa sadnˈat haʁobˈot. bonˈim bˈah ʁobˈot meχalakˈim, veʃolχˈim ʔotˈo lamesimˈot beχˈol hasvivˈot."
+ },
+ "st9.3": {
+  "h": "c0e7fa38b6db",
+  "text": "נִפְתְּחוּ גַּם מְשִׂימוֹת בָּאִי שֶׁלָּכֶם, בֵּין הָעֵצִים שֶׁגִּידַּלְתֶּם.",
+  "ipa": "nifteχˈu ɡˈam mesimˈot baʔˈi ʃelaχˈem, bˈejn haʔetsˈim ʃeɡidˈaltem."
+ },
+ "st9.3.k": {
+  "h": "999e5d42b41b",
+  "text": "נִפְתְּחוּ גַּם מְשִׂימוֹת בָּאִי שֶׁלָּכֶם, בֵּין הָעֵצִים שֶׁגִּדַּלְתֶּם.",
+  "ipa": "nifteχˈu ɡˈam mesimˈot baʔˈi ʃelaχˈem, bˈejn haʔetsˈim ʃeɡidˈaltem."
+ },
+ "st9.4": {
+  "h": "6b83bcd82733",
+  "text": "וּבְאַרְגַּז הַחוֹל אֵין מְשִׂימָה בִּכְלָל: בּוֹנִים, מְתַכְנְתִים וּמְשַׁחְרְרִים אֶת הָרוֹבּוֹט לְשַׂחֵק.",
+  "ipa": "uvʔaʁɡˈaz haχˈol ʔˈejn mesimˈa biχlˈal, bonˈim, metaχnetˈim umʃaχʁeʁˈim ʔˈet haʁobˈot lesaχˈek."
  }
 }
