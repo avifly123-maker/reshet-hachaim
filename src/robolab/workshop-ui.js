@@ -24,6 +24,9 @@ import { icon } from './ui/icons.js';
 import { workshopTutorial, wkMissionsTutorial } from '../ui/tutorials.js';
 import { introSeen } from '../core/journey.js';
 import { missionsOf, missionOpen } from './missions.js';   // set 4: the missions tab
+import { templateInfo } from './island-missions.js';
+import { TPL_BLURB, SHAPE_WORDS } from '../data/robolab/mission-words.js';
+const titleOf = (M) => (M.template ? templateInfo(M.tpl).title : M.title);
 import { roboProgress } from './progress.js';
 import { ZONE_LOOK } from '../data/zones.js';
 const MISSION_ZONES = ['amazon', 'grove', 'reef', 'desert', 'savanna'];
@@ -43,7 +46,7 @@ const STAT_MAX = { speed: 1.4, force: 1.6, precision: 1, battery: 100, lift: 3 }
 const blank = () => JSON.parse(JSON.stringify(PRESETS.gardener.build));
 let uid = Date.now() % 100000;
 
-export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, guide = null, voice = null, onMission = null, onIsland = null, islands = [], newStep = 0, tab: tab0 = null, note = null } = {}) {
+export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, guide = null, voice = null, onMission = null, islands = [], newStep = 0, tab: tab0 = null, note = null } = {}) {
   const T = (o) => (o ? (kids && o.k ? o.k : o.f) : '');
   const w = (f, k) => (kids ? k : f);
   let ES = earnState(), step = wkStepOf();
@@ -205,18 +208,12 @@ export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, gui
   function renderMissions() {
     const P = roboProgress();
     let h = `<p class="wk-note">${esc(w('בוחרים משימה, והרובוט שעל השולחן יוצא אליה. אפשר לחזור לסדנה ולשפר אותו.', 'בּוֹחֲרִים מְשִׂימָה, וְהָרוֹבּוֹט שֶׁעַל הַשֻּׁלְחָן יוֹצֵא אֵלֶיהָ.'))}</p>`;
-    // the child's own islands: a mission made from what grows there now (island-missions.js)
-    if (onIsland && islands.length) {
-      h += `<div class="wk-mz wk-isl"><b class="wk-h">${icon('home')}${esc(w('משימות מהאי שלי', 'מְשִׂימוֹת מֵהָאִי שֶׁלִּי'))}</b>`;
-      if (note) h += `<p class="wk-bad">${esc(T(note))}</p>`;
-      h += `<div class="wk-ml">${islands.map((z) => `<button type="button" class="wk-mis wk-misl" data-wisl="${z}" ${checkBuild(B()).ok ? '' : 'disabled'}><span class="rl-z z-${z}"></span><span>${esc(kids ? ZONE_LOOK[z].shortK : ZONE_LOOK[z].short)}</span><small>${esc(w('הרובוט יוצא לאי שבניתם', 'הָרוֹבּוֹט יוֹצֵא לָאִי שֶׁלָּכֶם'))}</small></button>`).join('')}</div></div>`;
-    }
     for (const z of MISSION_ZONES) {
       const list = missionsOf(z); if (!list.length) continue;
       h += `<div class="wk-mz"><b class="wk-h"><span class="rl-z z-${z}"></span>${esc(kids ? ZONE_LOOK[z].shortK : ZONE_LOOK[z].short)}</b><div class="wk-ml">`;
       for (const M of list) {
         const ok = missionOpen(M, P), d = P.wk.done[M.id];
-        h += `<button type="button" class="wk-mis${d ? ' done' : ''}${mpick === M.id ? ' pick' : ''}" data-wmis="${M.id}" ${ok ? '' : 'disabled'}>${ok ? '' : icon('lock')}<span>${esc(T(M.title))}</span>`
+        h += `<button type="button" class="wk-mis${d ? ' done' : ''}${mpick === M.id ? ' pick' : ''}" data-wmis="${M.id}" ${ok ? '' : 'disabled'}>${ok ? '' : icon('lock')}<span>${esc(T(titleOf(M)))}</span>${M.template && islands.includes(z) && ok ? `<em class="wk-own" title="${esc(w('אפשר גם באי שלכם', 'אֶפְשָׁר גַּם בָּאִי שֶׁלָּכֶם'))}">${icon('home')}</em>` : ''}`
           + (ok ? `<i class="wk-mst">${[0, 1, 2].map((k) => `<u class="${d && k < d.stars ? 'on' : ''}">${icon('star')}</u>`).join('')}</i>` : `<small>${esc(step < M.step ? earnWords('wk:' + M.step, kids) : w('אחרי המשימה הקודמת', 'אַחֲרֵי הַקּוֹדֶמֶת'))}</small>`) + `</button>`;
       }
       h += `</div></div>`;
@@ -228,10 +225,12 @@ export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, gui
     const Mi = mpick ? MISSION_ZONES.flatMap(missionsOf).find((q) => q.id === mpick) : null;
     if (!Mi) { c.hidden = true; return; }
     const ok = checkBuild(B()).ok;
-    let h = `<button type="button" class="wk-x" data-wcard="close" aria-label="${esc(w('לסגור', 'לִסְגֹּר'))}">${icon('back')}</button><h3>${esc(T(Mi.title))}</h3>`;
-    h += (Mi.say || []).map((q) => `<p>${esc(T(q))}</p>`).join('');
-    h += `<p class="wk-good"><b>${esc(w('מה כדאי לרובוט: ', 'מָה כְּדַאי: '))}</b>${esc(T(Mi.need))}</p>`;
-    h += ok ? `<div class="wk-btns"><button type="button" class="wk-go" data-wgo>${icon('play')}${esc(w(`יוצאים עם ${cur.name}`, `יוֹצְאִים עִם ${cur.name}`))}</button></div>`
+    const info = Mi.template ? templateInfo(Mi.tpl) : Mi, own = Mi.template && islands.includes(Mi.zone);
+    let h = `<button type="button" class="wk-x" data-wcard="close" aria-label="${esc(w('לסגור', 'לִסְגֹּר'))}">${icon('back')}</button><h3>${esc(T(info.title))}</h3>`;
+    h += Mi.template ? `<p>${esc(T(TPL_BLURB[Mi.tpl] || TPL_BLURB.any))}</p>${SHAPE_WORDS[Mi.shape] ? `<p>${esc(T(SHAPE_WORDS[Mi.shape]))}</p>` : ''}` : (Mi.say || []).map((q) => `<p>${esc(T(q))}</p>`).join('');
+    h += `<p class="wk-good"><b>${esc(w('מה כדאי לרובוט: ', 'מָה כְּדַאי: '))}</b>${esc(T(info.need))}</p>`;
+    if (own) h += `<p class="wk-note">${esc(w('המשימה הזאת יכולה לצמוח גם מהאי שבניתם: מהעצים, מהצמחים ומבעלי החיים שגידלתם שם.', 'הַמְּשִׂימָה יְכוֹלָה לִצְמֹחַ גַּם מֵהָאִי שֶׁלָּכֶם.'))}</p>`;
+    h += ok ? `<div class="wk-btns">${own ? `<button type="button" class="wk-go" data-wgo="island">${icon('home')}${esc(w('באי שלי', 'בָּאִי שֶׁלִּי'))}</button>` : ''}<button type="button" class="wk-go" data-wgo>${icon('play')}${esc(own ? w('בשטח המוכן', 'בַּשֶּׁטַח הַמּוּכָן') : w(`יוצאים עם ${cur.name}`, `יוֹצְאִים עִם ${cur.name}`))}</button></div>`
       : `<p class="wk-bad">${esc(w('הרובוט שעל השולחן עוד לא בנוי כמו שצריך. תקנו אותו בלשונית החלקים.', 'הָרוֹבּוֹט עוֹד לֹא בָּנוּי כְּמוֹ שֶׁצָּרִיךְ.'))}</p>`;
     c.innerHTML = h; c.hidden = false;
   }
@@ -321,14 +320,10 @@ export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, gui
     if (d.wfam) { fam = d.wfam; picked = null; sfx('click'); renderSide(); return; }
     if (d.wpart) { picked = picked === d.wpart ? null : d.wpart; sfx('click'); renderSide(); return; }
     if (d.wcard === 'close') { picked = null; mpick = null; renderSide(); return; }
-    if (d.wisl && onIsland) {
-      if (!myRobots().some((r) => r.id === cur.id)) saveRobot(cur);
-      sfx('click'); gone = true; onIsland(d.wisl, JSON.parse(JSON.stringify(cur))); return;
-    }
     if (d.wmis) { mpick = mpick === d.wmis ? null : d.wmis; sfx('click'); renderSide(); return; }
     if (d.wgo != null && mpick && onMission) {
       if (!myRobots().some((r) => r.id === cur.id)) saveRobot(cur);   // the robot that goes out is kept in the garage
-      sfx('click'); gone = true; const id = mpick, rob = JSON.parse(JSON.stringify(cur)); onMission(id, rob); return;
+      sfx('click'); gone = true; const id = mpick, rob = JSON.parse(JSON.stringify(cur)); onMission(id, rob, d.wgo === 'island'); return;
     }
     if (d.wdo) { if (d.wdo === 'set' || d.wdo === 'toggle') toggle(picked); else toggle(picked, d.wdo); return; }
     if (d.wtrack) { trial(d.wtrack); return; }

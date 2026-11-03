@@ -191,3 +191,26 @@ export function makeFlowerMark(src = false) {
   }
   return g;
 }
+// a feeding tray (set 4, "ארוחה מהעץ"): a low wooden trough on short legs; the fruit the robot brings shows in it
+export function makeFeeder() {
+  const g = new THREE.Group();
+  const wood = new THREE.MeshStandardMaterial({ map: barkTex(), color: '#c9a070', roughness: 0.85 });
+  const box = (w, h, d, x, y, z) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), wood); m.position.set(x, y, z); m.castShadow = true; g.add(m); return m; };
+  box(1.2, 0.08, 0.7, 0, 0.3, 0);
+  for (const s of [-1, 1]) { box(1.2, 0.22, 0.06, 0, 0.42, s * 0.32); box(0.06, 0.22, 0.7, s * 0.57, 0.42, 0); }
+  for (const [x, z] of [[-0.5, -0.27], [0.5, -0.27], [-0.5, 0.27], [0.5, 0.27]]) box(0.08, 0.3, 0.08, x, 0.13, z);
+  const fruit = new THREE.Group(); fruit.visible = false; g.add(fruit);
+  const fm = new THREE.MeshStandardMaterial({ color: '#e0563a', roughness: 0.45 });
+  for (let i = 0; i < 4; i++) { const f = new THREE.Mesh(new THREE.SphereGeometry(0.13, 14, 10), fm); f.position.set(-0.3 + i * 0.2, 0.48, (i % 2) * 0.12 - 0.06); fruit.add(f); }
+  g.userData.fruit = fruit;
+  const ring = new THREE.Mesh(new THREE.RingGeometry(0.85, 1.0, 40), new THREE.MeshBasicMaterial({ color: '#8fe36a', transparent: true, opacity: 0.8, depthWrite: false }));
+  ring.rotation.x = -Math.PI / 2; ring.position.y = 0.05; g.add(ring);
+  return g;
+}
+// a ring that marks a job on a plant of the child's own island (a thirsty seedling): his plant is there already
+export function makeMark(color) {
+  const g = new THREE.Group();
+  const ring = new THREE.Mesh(new THREE.RingGeometry(0.8, 0.96, 40), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.85, depthWrite: false }));
+  ring.rotation.x = -Math.PI / 2; ring.position.y = 0.05; g.add(ring);
+  return g;
+}

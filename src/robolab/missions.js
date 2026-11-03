@@ -4,7 +4,7 @@
 //   missionLevel(M, build)    the mission as a lab level that runs with this robot (L.build = { robot })
 //   missionOpen(M, P)         can this player start it: the workshop reached its step, and the one before it in the zone is done
 //   beginnerBuild(spec)       true when a beginner can build it (a ready robot with other wheels, tools, sensors)
-import { MISSIONS } from '../data/robolab/missions.js';
+import { MISSIONS, TEMPLATE_MISSIONS } from '../data/robolab/missions.js';
 import { PRESETS, PARTS } from '../data/robolab/workshop.js';
 import { wkStepOf } from './earn.js';
 
@@ -31,8 +31,11 @@ export function missionLevel(M, build) {
   return { ...M, build: { robot: build } };
 }
 
-export const MISSION_BY = Object.fromEntries(MISSIONS.map((M) => [M.id, M]));
-export const missionsOf = (zone) => MISSIONS.filter((M) => M.zone === zone).sort((a, b) => a.step - b.step || a.slot - b.slot);
+// every mission of the workshop: the hand-made ones and the template ones (their field and story are made when they
+// open: from the child's own island, or from the zone's practice island; src/robolab/island-missions.js)
+export const ALL_MISSIONS = [...MISSIONS, ...TEMPLATE_MISSIONS.map((M) => ({ ...M, mission: true, template: true }))];
+export const MISSION_BY = Object.fromEntries(ALL_MISSIONS.map((M) => [M.id, M]));
+export const missionsOf = (zone) => ALL_MISSIONS.filter((M) => M.zone === zone).sort((a, b) => a.step - b.step || a.slot - b.slot);
 
 // P = roboProgress(): P.wk.done holds the missions done ({ <id>: { stars, t } })
 export function missionOpen(M, P) {

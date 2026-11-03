@@ -13,7 +13,7 @@ import { levelsOf } from '../engine/level.js';
 import { lookFor } from '../../data/robolab/parts.js';
 import { toolLook } from '../progress.js';
 import { makeTool, makeHome, makeSpot, makeFruit, makeNet, makeTrash, makeRock, makeEdge, makeFireBase } from './models.js';
-import { fieldCells, makeBoulder, makeLog, makeFlowerMark } from './field-cells.js';   // 1.4.3 set 4: mud, hills, narrow logs, shallow water
+import { fieldCells, makeBoulder, makeLog, makeFlowerMark, makeFeeder, makeMark } from './field-cells.js';   // 1.4.3 set 4: mud, hills, narrow logs, shallow water
 import { buildTool, hasBlenderTools } from './parts3d.js';
 import { wkLook } from '../../data/robolab/workshop-look.js';
 import { DIRS } from '../engine/world.js';
@@ -124,12 +124,14 @@ export function createCourse(ctx, L) {
     else if (L.ownIsland && (ch === 'T' || ch === 'R')) { /* the player's own trees and rocks are already there */ }
     else if (ch === 'R') { const r = makeRock(rng); r.scale.setScalar(CS / 2.6); r.position.set(X, ground(X, Z), Z); root.add(r); }
     else if (ch === 'T') {
-      const id = life.tree[(x * 7 + y * 3) % life.tree.length], sp = spOf(id);
+      const id = (L.cells && L.cells[x + ',' + y]) || life.tree[(x * 7 + y * 3) % life.tree.length], sp = spOf(id) || spOf(life.tree[0]);   // a practice island names its trees
       const p = sp && spawnPlant(sp, X, Z, { growth: life.treeG, seed: x * 131 + y * 17 + 5 });
       if (p) keep.push(p);
       else { const r = makeRock(rng); r.scale.setScalar(CS / 3); r.position.set(X, ground(X, Z), Z); root.add(r); }
     }
   }
+  // a practice island's smaller plants (shrubs, herbs, young ones): drawn as they grow there (island-missions.js)
+  for (const q of L.flora || []) { const sp = spOf(q.id), X = wx(q.x), Z = wz(q.y); const p = sp && spawnPlant(sp, X + (rng() - 0.5) * CS * 0.3, Z + (rng() - 0.5) * CS * 0.3, { growth: Math.max(0.3, q.g || 0.8), seed: q.x * 53 + q.y * 7 }); if (p) keep.push(p); }
   if (L.home) { const h = makeHome(); h.scale.setScalar(CS / 3.2); const X = wx(L.home.x), Z = wz(L.home.y); h.position.set(X, ground(X, Z) + 0.02, Z); root.add(h); }
   // animals to photograph: the zone's real animal, kept near its cell
   const animals = new Map();
@@ -166,14 +168,24 @@ export function createCourse(ctx, L) {
       else if (it.t === 'trash') S.obj = at(makeTrash(), it.x, it.y);
       else if (it.t === 'fire') { S.obj = at(makeFireBase(), it.x, it.y); fires.push(S); }
       else if (it.t === 'rock') S.obj = at(makeBoulder(rng), it.x, it.y);
-      else if (it.t === 'flower') S.obj = at(makeFlowerMark(!!it.src), it.x, it.y);
+      else if (it.t === 'flower') {   // on the practice island the flower's plant grows here; on his island it is his own
+        S.obj = at(makeFlowerMark(!!it.src), it.x, it.y);
+        if (!L.ownIsland) { const sp = spOf(it.plant), X = wx(it.x), Z = wz(it.y), p = sp && spawnPlant(sp, X, Z, { growth: 0.85, seed: it.x * 17 + it.y }); if (p) spawned.push(p); }
+      }
+      else if (it.t === 'feeder') {   // a feeding tray, and (on the practice island) the animal it is for, near it
+        S.obj = at(makeFeeder(), it.x, it.y);
+        const sp = !L.ownIsland && spOf(it.animal), X = wx(it.x), Z = wz(it.y), a = sp && spawnAnimal(sp, new THREE.Vector3(X + CS * 0.3, ground(X, Z), Z + CS * 0.3));
+        if (a) { a.home.set(X, a.home.y, Z); a.range = CS * 0.6; a.grow = 1; spawned.push(a); }
+      }
       else if (it.t === 'log') { S.obj = at(makeLog(), it.x, it.y); S.obj.rotation.y = (it.x * 3 + it.y) % 2 ? 0.4 : -0.5; }
+      else if (it.t === 'thirsty' && L.ownIsland) S.obj = at(makeMark('#6fc3e8'), it.x, it.y);   // his own young plant is there
       else if (it.t === 'thirsty') {
-        const sp = spOf(life.thirsty), X = wx(it.x), Z = wz(it.y);
+        const sp = spOf(it.plant) || spOf(life.thirsty), X = wx(it.x), Z = wz(it.y);
         const p = sp && spawnPlant(sp, X, Z, { growth: 0.55, seed: it.x * 31 + it.y });
         if (p) { p.vis.setHealth(0.2); S.plant = p; spawned.push(p); }
       }
       if (S.obj) { S.obj.scale.multiplyScalar(sc * 1.3); itemRoot.add(S.obj); }
+      if (it.appear) { if (S.obj) S.obj.visible = false; if (S.plant) S.plant.obj.visible = false; S.hidden = true; }   // it comes in the middle of the run
       return S;
     });
     tools = {};
@@ -193,7 +205,7 @@ export function createCourse(ctx, L) {
     const inner = buildTool(wkLook(b)); if (!inner) return null;
     const bb = new THREE.Box3().setFromObject(inner), sz = bb.getSize(new THREE.Vector3());
     inner.position.y = -bb.min.y; inner.scale.setScalar(1);
-    const g = new THREE.Group(); g.add(inner); g.scale.setScalar(1.25 * Math.min(1.3, 1.05 / Math.max(0.5, sz.x, sz.z)));
+    const g = new THREE.Group(); g.add(inner); g.scale.setScalar(1.6 * Math.min(1.3, 1.05 / Math.max(0.5, sz.x, sz.z)));   // a little bigger than the lessons' robot: its parts must show
     g.userData = { ...inner.userData, built: true };
     return g;
   }
@@ -226,6 +238,8 @@ export function createCourse(ctx, L) {
   function itemDone(S, how) {
     if (S.done) return; S.done = true;
     const X = wx(S.x), Z = wz(S.y); _v.set(X, ground(X, Z) + 0.6, Z);
+    if (S.t === 'feeder') { if (S.obj && S.obj.userData.fruit) S.obj.userData.fruit.visible = true; markers.burst(_v, '#8fe36a', 16, { speed: 1, size: 0.4, life: 0.9, up: 1 }); return; }
+    if (S.t === 'thirsty' && !S.plant) { markers.burst(_v, '#6fc3e8', 24, { speed: 1.2, size: 0.35, life: 1, up: 0.6 }); return; }
     if (S.t === 'flower') {   // pollen taken (the grains go with the robot) or brought (a puff of gold on the flower)
       if (S.obj && S.obj.userData.grains) S.obj.userData.grains.visible = false;
       markers.burst(_v.setY(_v.y + 0.6), '#ffd84a', 26, { speed: 1.2, size: 0.35, life: 1.1, up: 1 }); return;
@@ -233,7 +247,7 @@ export function createCourse(ctx, L) {
     if (S.t === 'log' && S.obj) { const from = S.obj.position.clone(); tweens.push({ obj: S.obj, from, to: from.clone().setY(from.y + CS * 0.55), t: 0, dur: (play ? play.dur : 0.4) * 1.6, hide: true }); markers.burst(_v, '#c9a46a', 12, { speed: 1, size: 0.4, life: 0.8, up: 1 }); return; }
     if (S.t === 'seed' || S.t === 'coral') {
       if (S.obj) S.obj.visible = false;
-      const sp = spOf(life.sapling), p = sp && spawnPlant(sp, X, Z, { growth: S.t === 'coral' ? 0.3 : 0.1, seed: S.x * 7 + S.y * 13 });
+      const sp = spOf(S.plant) || spOf(life.sapling), p = sp && spawnPlant(sp, X, Z, { growth: S.t === 'coral' ? 0.3 : 0.1, seed: S.x * 7 + S.y * 13 });
       if (p) spawned.push(p);
       markers.burst(_v, '#8fe36a', 18, { speed: 1.4, size: 0.4, life: 1, up: 1.4 });
     } else if (S.t === 'fruit') { if (S.obj && S.obj.userData.fruit) S.obj.userData.fruit.visible = false; markers.burst(_v, '#f5a623', 14, { speed: 1.6, size: 0.4, life: 0.9, up: 1.6 }); }
@@ -265,6 +279,7 @@ export function createCourse(ctx, L) {
     const T = tools[e.tool];
     play.from = T ? { x: T.x, y: T.y, a: T.a, lift: T.lift } : {};
     if (e.a === 'launch' && tools.drone) { const D = tools.drone; D.show = true; D.x = e.x; D.y = e.y; D.a = (e.dir || 0) * Math.PI / 2; D.lift = 0; }
+    if (e.a === 'appear') { const S = items.find((q) => q.i === e.item); if (S && S.hidden) { S.hidden = false; if (S.obj) S.obj.visible = true; if (S.plant) S.plant.obj.visible = true; const X = wx(S.x), Z = wz(S.y); markers.burst(_v.set(X, ground(X, Z) + 0.8, Z), '#ffd25a', 22, { speed: 1.6, size: 0.45, life: 1, up: 1.4 }); } if (play.onStep) play.onStep(e, play.i); return; }
     if (e.item != null) { const S = items.find((q) => q.i === e.item); if (S && e.a === 'push') pushTo(S, e.to); else if (S) itemDone(S, e.a); }
     if (T && /^(fireworks|lights|beep|sneeze)$/.test(e.a)) fun(e.tool, T, e.a);
     if (T && e.a === 'send') { const S = SIGNALS[e.m] || SIGNALS.a; T.obj.getWorldPosition(_v); _v.y += 1.6; markers.burst(_v, S.color, 26, { speed: 3.2, size: 0.45, life: 0.9, up: 0.6 }); }
@@ -286,6 +301,7 @@ export function createCourse(ctx, L) {
     if (!e) { const cb = play.onEnd; play = null; if (cb) cb(); return; }
     if (!play.from) begin(e);
     if (!play) return;   // onStep may have stopped the run
+    if (e.a === 'appear') { play.i++; play.t = 0; play.from = null; return; }   // a thing that shows up takes no time of its own
     play.t += rdt; const k = Math.min(1, play.t / (play.dur * (e.m || 1))), q = ease(k), T = tools[e.tool], F = play.from;
     if (T && F.x != null) {
       if (e.a === 'fwd' || e.a === 'back') { T.x = F.x + (e.x - F.x) * q; T.y = F.y + (e.y - F.y) * q; }
@@ -342,6 +358,8 @@ export function createCourse(ctx, L) {
     kubiSpot,
     reset: () => { stop(); variant = 0; W._rlSunset = false; buildItems(); }, play: start, stop, isPlaying: () => !!play, update, view, redraw: () => { },
     cellPos: (x, y) => new THREE.Vector3(wx(x), ground(wx(x), wz(y)), wz(y)), CS,
+    // where the robot is now, and how big the field is (session.js follows a robot on a big field while it runs)
+    robotAt: () => (tools.robot ? new THREE.Vector3(wx(tools.robot.x), ground(wx(tools.robot.x), wz(tools.robot.y)), wz(tools.robot.y)) : null), span: Math.max(Wd, H) * CS,
     info: () => ({ built: !!(toolObjs.robot && toolObjs.robot.userData.built), cells: FC.clears.length }),   // tests
     dispose: () => { gone = true; stop(); clearItems(); FC.dispose(); if (env.clearScatter) env.clearScatter([]); for (const e of keep) { try { W.removeEntity(e); } catch (err) { } } scene.remove(root); root.traverse((o) => { if (o.geometry) o.geometry.dispose(); }); },
   };

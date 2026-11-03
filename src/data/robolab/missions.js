@@ -96,3 +96,37 @@ export const MISSIONS = [
     ],
   },
 ];
+
+// The other slots of each zone are template missions (src/robolab/island-missions.js): the field and the story grow
+// from the child's own island when it can give them, and from the zone's practice island otherwise (practice-islands.js).
+// { id, zone, slot, tpl, shape, step }: step is the workshop step it opens at (at least its template's tools' step).
+// tools/validate-robot-missions.mjs makes each one on its practice island at every step from its own to the last.
+export const TEMPLATE_MISSIONS = [
+  { id: 'wm-am-1', zone: 'amazon', slot: 0, tpl: 'pollinate', shape: 'chain', step: 3 },
+  { id: 'wm-am-2', zone: 'amazon', slot: 1, tpl: 'clear', shape: 'rescue', step: 3 },
+  { id: 'wm-am-3', zone: 'amazon', slot: 2, tpl: 'count', shape: 'count', step: 2 },
+  { id: 'wm-am-4', zone: 'amazon', slot: 3, tpl: 'feed', shape: 'reverse', step: 1 },
+  { id: 'wm-am-5', zone: 'amazon', slot: 4, tpl: 'water', shape: 'change', step: 2 },
+  { id: 'wm-gr-1', zone: 'grove', slot: 0, tpl: 'water', shape: 'change', step: 2 },
+  { id: 'wm-gr-3', zone: 'grove', slot: 2, tpl: 'disperse', shape: 'chain', step: 1 },
+  { id: 'wm-gr-4', zone: 'grove', slot: 3, tpl: 'count', shape: 'count', step: 2 },
+  { id: 'wm-gr-5', zone: 'grove', slot: 4, tpl: 'pollinate', shape: 'reverse', step: 3 },
+  { id: 'wm-gr-6', zone: 'grove', slot: 5, tpl: 'feed', shape: 'chain', step: 1 },
+  { id: 'wm-rf-1', zone: 'reef', slot: 0, tpl: 'seagrass', shape: 'chain', step: 1 },
+  { id: 'wm-rf-2', zone: 'reef', slot: 1, tpl: 'nets', shape: 'rescue', step: 1 },
+  { id: 'wm-rf-4', zone: 'reef', slot: 3, tpl: 'nets', shape: 'change', step: 2 },
+  { id: 'wm-rf-5', zone: 'reef', slot: 4, tpl: 'count', shape: 'reverse', step: 2 },
+  { id: 'wm-rf-6', zone: 'reef', slot: 5, tpl: 'seagrass', shape: 'rescue', step: 3 },
+  { id: 'wm-dt-1', zone: 'desert', slot: 0, tpl: 'water', shape: 'chain', step: 2 },
+  { id: 'wm-dt-2', zone: 'desert', slot: 1, tpl: 'clear', shape: 'rescue', step: 3 },
+  { id: 'wm-dt-3', zone: 'desert', slot: 2, tpl: 'feed', shape: 'reverse', step: 1 },
+  { id: 'wm-dt-4', zone: 'desert', slot: 3, tpl: 'pollinate', shape: 'change', step: 3 },
+  { id: 'wm-dt-5', zone: 'desert', slot: 4, tpl: 'count', shape: 'count', step: 2 },
+  { id: 'wm-dt-6', zone: 'desert', slot: 5, tpl: 'disperse', shape: 'chain', step: 1 },
+  { id: 'wm-sv-1', zone: 'savanna', slot: 0, tpl: 'disperse', shape: 'chain', step: 1 },
+  { id: 'wm-sv-2', zone: 'savanna', slot: 1, tpl: 'water', shape: 'change', step: 2 },
+  { id: 'wm-sv-3', zone: 'savanna', slot: 2, tpl: 'feed', shape: 'chain', step: 1 },
+  { id: 'wm-sv-4', zone: 'savanna', slot: 3, tpl: 'fire', shape: 'rescue', step: 2 },
+  { id: 'wm-sv-5', zone: 'savanna', slot: 4, tpl: 'count', shape: 'count', step: 2 },
+  { id: 'wm-sv-6', zone: 'savanna', slot: 5, tpl: 'clear', shape: 'reverse', step: 3 },
+];

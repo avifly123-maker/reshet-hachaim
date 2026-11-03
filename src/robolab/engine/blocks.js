@@ -35,6 +35,7 @@ export const BLOCKS = {
   lift:      { kind: 'act', fam: 'act', icon: 'lift', emo: '⬆️', f: 'הרם', k: 'הָרֵם', tools: ['robot'] },
   // 1.4.3 set 4 (missions from the child's island): artificial pollination. At a flower that gives pollen the brush takes
   // some; at another flower of the same kind it leaves it there. Here or one step ahead (a tree's flowers are up beside it)
+  drop:      { kind: 'act', fam: 'act', icon: 'collect', emo: '🍽️', f: 'הגש אוכל', k: 'הַגֵּשׁ אֹכֶל', tools: ['robot'] },
   pollen:    { kind: 'act', fam: 'act', icon: 'plant', emo: '🌸', f: 'העבר אבקה', k: 'הַעֲבֵר אַבְקָה', tools: ['robot', 'drone'] },
   repeat:    { kind: 'repeat', fam: 'control', icon: 'repeat', emo: '🔁', f: 'חזור', k: 'חֲזֹר', param: 'n', tools: ALL },
   until:     { kind: 'until', fam: 'control', icon: 'until', emo: '⏳', f: 'חזור עד ש', k: 'חֲזֹר עַד שֶׁ', param: 'c', tools: ALL },

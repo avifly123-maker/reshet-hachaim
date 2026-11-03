@@ -54,9 +54,9 @@ export const PARTS = {
   // ── tools on the tool points. gives: the blocks it lets the robot do; lift / push / carry: how much; motor: needs one
   pusher: { fam: 'tool', f: 'דחפן', k: 'דַּחְפָּן', mass: 60, size: 1, push: 2, gives: ['push'], earn: 'wk:3' },
   fork: { fam: 'tool', f: 'מזלג הרמה', k: 'מַזְלֵג הֲרָמָה', mass: 90, size: 2, lift: 2, carry: 1, motor: true, gives: ['lift', 'collect'], earn: 'wk:4' },
-  scoop: { fam: 'tool', f: 'כף', k: 'כַּף', mass: 70, size: 1, carry: 3, gives: ['collect'], earn: 'wk:1', mesh: 'bin' },
+  scoop: { fam: 'tool', f: 'כף', k: 'כַּף', mass: 70, size: 1, carry: 3, gives: ['collect', 'drop'], earn: 'wk:1', mesh: 'bin' },
   hook: { fam: 'tool', f: 'וו', k: 'וָו', mass: 30, size: 1, lift: 1, gives: ['collect', 'lift'], earn: 'wk:3' },
-  claw: { fam: 'tool', f: 'מלקחיים', k: 'מֶלְקָחַיִם', mass: 70, size: 1, lift: 1, gentle: true, motor: true, gives: ['pick', 'collect'], earn: 'wk:1', mesh: 'grabber' },
+  claw: { fam: 'tool', f: 'מלקחיים', k: 'מֶלְקָחַיִם', mass: 70, size: 1, lift: 1, gentle: true, motor: true, gives: ['pick', 'collect', 'drop'], earn: 'wk:1', mesh: 'grabber' },
   arm_short: { fam: 'tool', f: 'זרוע קצרה', k: 'זְרוֹעַ קְצָרָה', mass: 60, size: 1, lift: 1, motor: true, gives: ['pick'], earn: 'wk:4' },
   arm_long: { fam: 'tool', f: 'זרוע ארוכה', k: 'זְרוֹעַ אֲרֻכָּה', mass: 120, size: 2, lift: 1, reach: 1, motor: true, gives: ['pick'], earn: 'wk:4' },
   arm_fold: { fam: 'tool', f: 'זרוע מתקפלת', k: 'זְרוֹעַ מִתְקַפֶּלֶת', mass: 100, size: 1, lift: 1, reach: 1, motor: true, gives: ['pick'], earn: 'wk:5' },

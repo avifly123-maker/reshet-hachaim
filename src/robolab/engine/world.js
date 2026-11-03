@@ -10,7 +10,8 @@
 //   build they are plain ground for the robot ('w' blocks it, like water); a built robot needs the grip, the force and
 //   the precision for them (engine/build.js), and a float to cross shallow water ('~' too, with a propeller).
 // level.items = [{ t: 'seed'|'fruit'|'thirsty'|'fire'|'net'|'trash'|'coral'|'animal'|'rock'|'log'|'flower', x, y, kind?, w?, src? }]
-//   (set 4: a flower with src gives pollen, the others of its kind take it: "העבר אבקה")
+//   (set 4: a flower with src gives pollen, the others of its kind take it: "העבר אבקה"; a feeder takes a picked fruit:
+//   "הנח"; appear: the step an item shows up)
 //   (1.4.3: a rock is pushed one cell with "דחוף" when the robot's push is at least w; a log is lifted with "הרם")
 // level.home  = { x, y }   the robot's base (for "go home" goals and the drone landing)
 // level.tools = { robot: { x, y, dir }, drone: { x, y, dir, battery, parked }, sub: { x, y, dir } }
@@ -62,8 +63,9 @@ export function makeWorld(level) {
   };
   const log = (tool, a, extra) => { const T = tools[tool] || {}; W.trace.push({ t: W.ticks, tool, a, x: T.x, y: T.y, dir: T.dir, nid: W.cur || null, ...extra }); };
   W.fail = (code, tool, extra) => { if (W.done) return; W.error = { code, tool, ...(tool && tools[tool] ? { x: tools[tool].x, y: tools[tool].y } : {}), ...extra }; W.done = true; log(tool, 'fail', { code }); };
-  W.itemAt = (x, y, t) => items.find((it) => !it.done && it.x === x && it.y === y && (!t || it.t === t));
-  W.tick = () => { W.ticks++; };
+  W.itemAt = (x, y, t) => items.find((it) => !it.done && !(it.appear > W.ticks) && it.x === x && it.y === y && (!t || it.t === t));
+  // 1.4.3 set 4: an item may come in the middle of a run (it.appear = the step it shows up: a fire starts, a fruit falls)
+  W.tick = () => { W.ticks++; for (const it of items) if (it.appear === W.ticks) W.trace.push({ t: W.ticks, tool: null, a: 'appear', item: it.i }); };
   W.eventNow = (ev, tool) => {
     const T = tools[tool]; if (!T) return false;
     if (ev === 'sunset') return W.events.sunset != null && W.ticks >= W.events.sunset;
@@ -124,7 +126,7 @@ export function makeWorld(level) {
       if (b === 'collect') it = reachItem(T, 'net') || reachItem(T, 'trash');
       const tank = T.st && (b === 'plant' ? 'seeds' : b === 'water' ? 'water' : null);   // a built robot's seed box and water tank run out
       if (it && tank && T[tank] <= 0) { W.oops++; log(tool, 'oops', { want: tank === 'seeds' ? 'noseeds' : 'nowater' }); }
-      else if (it) { it.done = true; if (tank) T[tank]--; log(tool, b, { item: it.i }); } else { W.oops++; log(tool, 'oops', { want: b }); }
+      else if (it) { it.done = true; if (tank) T[tank]--; if (b === 'pick') T.load = (T.load || 0) + 1; log(tool, b, { item: it.i }); } else { W.oops++; log(tool, 'oops', { want: b }); }
       useBattery(tool, T.st ? T.st.actDrain : 1);
     } else if (b === 'spray') {   // water on a fire here or one step ahead
       const [ax, ay] = ahead(W, T);
@@ -148,6 +150,11 @@ export function makeWorld(level) {
       else if (T.st && T.st.lift < (it.w || 1)) { W.fail('heavy', tool, { item: it.i, need: partsFor('lift').concat(['crane', 'rack', 'worm']) }); return; }
       else { it.done = true; log(tool, 'lift', { item: it.i }); }
       useBattery(tool, T.st ? T.st.actDrain + 1 : 1);
+    } else if (b === 'drop') {   // 1.4.3: a picked fruit is put on a feeder (here or one step ahead), for the animal that eats it
+      const [ax, ay] = ahead(W, T), it = W.itemAt(T.x, T.y, 'feeder') || W.itemAt(ax, ay, 'feeder');
+      if (it && (T.load || 0) > 0) { it.done = true; T.load--; log(tool, 'drop', { item: it.i }); }
+      else { W.oops++; log(tool, 'oops', { want: it ? 'empty' : 'drop' }); }
+      useBattery(tool);
     } else if (b === 'pollen') {   // 1.4.3: take pollen at a flower that gives it, leave it at another of the same kind
       const [ax, ay] = ahead(W, T), fl = (f) => W.itemAt(T.x, T.y, 'flower') && f(W.itemAt(T.x, T.y, 'flower')) ? W.itemAt(T.x, T.y, 'flower') : (W.itemAt(ax, ay, 'flower') && f(W.itemAt(ax, ay, 'flower')) ? W.itemAt(ax, ay, 'flower') : null);
       const give = T.pollen ? fl((it) => !it.src && it.kind === T.pollen) : null, take = fl((it) => it.src);
