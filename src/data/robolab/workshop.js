@@ -22,6 +22,10 @@ export const CHASSIS = {
   ch_s: { fam: 'chassis', f: 'שלדה קטנה', k: 'שִׁלְדָּה קְטַנָּה', mass: 320, room: 6, toolPoints: 2, battery: 60, earn: 'wk:3' },
   ch_m: { fam: 'chassis', f: 'שלדה בינונית', k: 'שִׁלְדָּה בֵּינוֹנִית', mass: 460, room: 9, toolPoints: 2, battery: 80, earn: 'wk:1' },
   ch_l: { fam: 'chassis', f: 'שלדה גדולה', k: 'שִׁלְדָּה גְּדוֹלָה', mass: 650, room: 12, toolPoints: 3, battery: 100, earn: 'wk:4' },
+  // 1.4.3 set 4: the tall robot (Blender wk_t): a body on tracks with two long arms that grip (built in: they pick, lift
+  // and reach one cell ahead), a steel head with compound eyes; only tracks carry it, and it is heavy
+  ch_t: { fam: 'chassis', f: 'רובוט גבוה', k: 'רוֹבּוֹט גָּבוֹהַּ', mass: 780, room: 10, toolPoints: 2, battery: 110, earn: 'wk:5',
+    onlyWheels: ['tracks'], gives: ['pick', 'lift', 'collect', 'drop'], lift: 1.5, reach: 1, precision: 0.15, gentle: true },
 };
 
 export const PARTS = {
@@ -98,6 +102,7 @@ export const PRESETS = {
   gardener: { step: 1, f: 'הגנן', k: 'הַגַּנָּן', build: { chassis: 'ch_m', wheels: 'wheel_m', drive: 'motor_med', motors: ['motor_med'], tools: ['seedbox', 'claw'], mechs: [], sensors: ['color', 'distance'], extras: ['caster'] } },
   picker: { step: 2, f: 'הקוטף', k: 'הַקּוֹטֵף', build: { chassis: 'ch_m', wheels: 'wheel_m', drive: 'motor_med', motors: ['motor_med'], tools: ['claw', 'scoop'], mechs: ['lever'], sensors: ['color', 'distance'], extras: [] } },
   digger: { step: 4, f: 'החזק', k: 'הֶחָזָק', build: { chassis: 'ch_l', wheels: 'tracks', drive: 'motor_big', gear: 'gear_strong', motors: ['motor_big'], tools: ['fork', 'pusher'], mechs: ['rack'], sensors: ['distance', 'touch'], extras: ['ballast'] } },
+  tall: { step: 5, f: 'הגבוה', k: 'הַגָּבוֹהַּ', build: { chassis: 'ch_t', wheels: 'tracks', drive: 'motor_big', motors: [], tools: ['seedbox', 'beacon'], mechs: [], sensors: ['camera', 'distance', 'color'], extras: [] } },
 };
 // the three choices a beginner makes on a ready robot
 export const BEGINNER_CHOICES = ['wheels', 'tools', 'sensors'];

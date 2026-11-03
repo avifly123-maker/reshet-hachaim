@@ -2,7 +2,10 @@
 // (tools/blender/robolab_wk.py → src/data/robolab-parts.js). A catalogue part with no entry has no picture of its own
 // (motors, gears, levers: they are inside the body). Each entry: [mesh, ...sockets in order of preference]; a part
 // takes the first free socket, so two front tools never sit in one place (the second one is simply not drawn).
-export const WK_BASE = { ch_s: 'wk_s', ch_m: 'wk_m', ch_l: 'wk_l' };
+export const WK_BASE = { ch_s: 'wk_s', ch_m: 'wk_m', ch_l: 'wk_l', ch_t: 'wk_t' };
+// the tall robot: its arms and head are its own (on its sockets always); its tools go on the back and the chest,
+// its sensors on the chest, a mast on a shoulder
+const TALL = { parts: { head: 'head_d', arm_l: 'tall_arm_l', arm_r: 'tall_arm_r' }, tool: ['back', 'chest'], sensor: ['chest', 'shl', 'shr'], top: ['shl', 'shr', 'back'] };
 // the wheel set goes on all four wheel sockets; tracks and floats on both sides, the right one a mirror of the left
 // (a turned part would put the raised sprocket of the tracks in front: Avi, 3.11)
 export const WK_WHEELS = { wheel_s: 'wh_s', wheel_m: 'wh_m', wheel_l: 'wh_l', wheel_wide: 'wh_wide', omni: 'omni' };
@@ -24,9 +27,17 @@ export function wkLook(b) {
   const parts = {};
   if (WK_SIDES[b.wheels]) { [parts.tl, parts.tr] = WK_SIDES[b.wheels]; }
   else if (WK_WHEELS[b.wheels]) for (const s of ['wfl', 'wfr', 'wbl', 'wbr']) parts[s] = WK_WHEELS[b.wheels];
+  const tall = b.chassis === 'ch_t';
+  if (tall) Object.assign(parts, TALL.parts);
   for (const id of [...(b.tools || []), ...(b.mechs || []), ...(b.sensors || []), ...(b.extras || [])]) {
     if (id === 'float' && !parts.tl) { [parts.tl, parts.tr] = WK_SIDES.float; continue; }
     const L = WK_LOOK[id]; if (!L) continue;
+    if (tall) {   // the tall robot has other sockets: a tool on its back or chest, a sensor on the chest, a mast up high
+      if (['claw2', 'arm_long', 'arm_fold', 'crane', 'hook', 'net', 'pusher', 'fork', 'scoop', 'brush'].includes(L[0])) continue;   // its own arms do that
+      const where = ['cammount', 'color', 'touch', 'distance', 'gyro', 'humidity'].includes(L[0]) ? TALL.sensor : ['beacon', 'antenna', 'light'].includes(L[0]) ? TALL.top : TALL.tool;
+      const s = where.find((q) => !parts[q]); if (s) parts[s] = L[0];
+      continue;
+    }
     const s = L.slice(1).find((q) => !parts[q]); if (s) parts[s] = L[0];
   }
   return { base: WK_BASE[b.chassis] || 'wk_m', parts };

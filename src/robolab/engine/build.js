@@ -28,6 +28,7 @@ export function checkBuild(b) {
   const all = [b.wheels, b.drive, b.gear, ...list(b.motors), ...list(b.tools), ...list(b.mechs), ...list(b.sensors), ...list(b.extras)].filter(Boolean);
   for (const id of all) if (!P(id)) add('unknown', { part: id });
   if (!P(b.wheels) || P(b.wheels).set !== 'wheels') add('wheels');
+  else if (ch.onlyWheels && !ch.onlyWheels.includes(b.wheels)) add('chwheels', { part: b.wheels });   // the tall robot stands on tracks only
   const isMotor = (id) => !!(P(id) && P(id).fam === 'motor' && P(id).rpm);
   if (!isMotor(b.drive)) add('drive');
   if (b.gear && !(P(b.gear) && P(b.gear).gear)) add('gear', { part: b.gear });
@@ -59,14 +60,15 @@ export function statsOf(b) {
   const steady = parts.some((p) => p.steady);
   const grip = {};
   for (const k of ['ground', 'sand', 'mud', 'slope', 'narrow']) grip[k] = +Math.min(1, W.grip[k] + (steady && (k === 'slope' || k === 'mud') ? 0.15 : 0)).toFixed(2);
-  const precision = +Math.min(1, W.turn + parts.reduce((s, p) => s + (p.precision || 0), 0)).toFixed(2);
+  const precision = +Math.min(1, W.turn + (ch.precision || 0) + parts.reduce((s, p) => s + (p.precision || 0), 0)).toFixed(2);
   const liftK = Math.max(1, ...list(b.mechs).map((id) => P(id).liftK || 1));
   const tools = list(b.tools).map(P);
-  const lift = +(Math.max(0, ...tools.map((t) => t.lift || 0)) * liftK).toFixed(2);
+  const lift = +(Math.max(ch.lift || 0, ...tools.map((t) => t.lift || 0)) * liftK).toFixed(2);   // a chassis with arms (the tall robot) lifts by itself
   const push = Math.max(0, ...tools.map((t) => t.push || 0)) * (force >= 1 ? 1 : 0.5);
   const carry = tools.reduce((s, t) => s + (t.carry || 0), 0);
-  const reach = Math.max(0, ...tools.map((t) => t.reach || 0), ...list(b.mechs).map((id) => P(id).reach || 0));
+  const reach = Math.max(ch.reach || 0, ...tools.map((t) => t.reach || 0), ...list(b.mechs).map((id) => P(id).reach || 0));
   const blocks = new Set(BASE_BLOCKS), sees = new Set(BASE_SEES), hears = new Set(BASE_HEARS);
+  for (const x of ch.gives || []) blocks.add(x);
   for (const p of parts) { for (const x of p.gives || []) blocks.add(x); for (const x of p.sees || []) sees.add(x); for (const x of p.hears || []) hears.add(x); }
   const moveDrain = 1 + (mass > 900 ? 1 : 0) + (W.drain || 0);
   return {
@@ -74,7 +76,7 @@ export function statsOf(b) {
     stepsPerMove: speed >= 0.6 ? 1 : speed >= 0.3 ? 2 : 3,
     battery: ch.battery, moveDrain, actDrain: 1, recharge: parts.some((p) => p.recharge) ? 1 : 0,
     seeds: tools.reduce((s, t) => s + (t.seeds || 0), 0), water: tools.reduce((s, t) => s + (t.water || 0), 0),
-    gentle: tools.some((t) => t.gentle), floats: parts.some((p) => p.floats), swims: parts.some((p) => p.floats) && parts.some((p) => p.swims),
+    gentle: !!ch.gentle || tools.some((t) => t.gentle), floats: parts.some((p) => p.floats), swims: parts.some((p) => p.floats) && parts.some((p) => p.swims),
     blocks, sees, hears,
   };
 }

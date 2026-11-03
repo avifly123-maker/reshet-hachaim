@@ -433,6 +433,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     field: () => (in3d && in3d.api && in3d.api.course && in3d.api.course.info ? in3d.api.course.info() : null),
     look: (x, y, d = 9) => { const C = in3d && in3d.api && in3d.api.course, rig = window.__game && window.__game.debug && window.__game.debug.rig; if (!C || !rig) return false; const t = C.cellPos(x, y); rig.goTo(t, t.clone().add({ x: d * 0.15, y: d * 0.7, z: d * 0.7 }), 0.05); return true; },
     workshop: () => openWs(),
+    wkSnap: (px, ry) => (workshop && workshop.snap ? workshop.snap(px, ry) : null),
     garage: () => { if (garage) garage.close(); garage = openGarage(el, { kids, sfx, onClose: () => { garage = null; } }); return true; },
     solve: (id, i = 0) => { const L = ALL_LEVELS.find((q) => q.id === id); if (!L) return null; if (!(in3d && in3d.api && cur && cur.id === id)) openLevel(id, { flat: true }); ed.set({ ...L.solutions[i], defs: { ...(L.defs0 || {}), ...(L.solutions[i].defs || {}) } }); run('fast'); return lastRun && { ok: lastRun.ok, stars: lastRun.stars }; },
     run: (speed = 'fast') => run(speed), last: () => lastRun && { ok: lastRun.ok, stars: lastRun.stars, why: lastRun.why, error: lastRun.error },

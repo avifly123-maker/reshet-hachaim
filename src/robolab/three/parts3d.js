@@ -104,3 +104,26 @@ export function paintTool(g, paint) {
   const M = g.userData.mats;
   for (const k of ['body', 'trim', 'accent']) if (paint && paint[k]) M[k].color.set(paint[k]);
 }
+
+// 1.4.3 set 4: the tall robot's compound eyes are thousands of small facets; seen from afar (a mission field) a few
+// soft lights look the same and cost a fraction. farEyes(g) finds the head's light slot, puts one smooth eye over
+// each cluster of facets, and returns set(far) to switch between them (session.js decides by the camera's distance).
+export function farEyes(g) {
+  const head = g.getObjectByName('part:head_d'); if (!head) return null;
+  const glow = head.children.find((m) => m.name === 'glow'); if (!glow || !glow.geometry) return null;
+  const p = glow.geometry.attributes.position, sides = [[], []];
+  for (let i = 0; i < p.count; i++) sides[p.getX(i) < 0 ? 0 : 1].push(i);
+  const simple = new THREE.Group(); simple.name = 'far-eyes'; simple.visible = false;
+  for (const ids of sides) {
+    if (!ids.length) continue;
+    const bb = new THREE.Box3(), v = new THREE.Vector3();
+    for (const i of ids) bb.expandByPoint(v.fromBufferAttribute(p, i));
+    const c = bb.getCenter(new THREE.Vector3()), s = bb.getSize(new THREE.Vector3());
+    const eye = new THREE.Mesh(new THREE.IcosahedronGeometry(0.5, 2), glow.material);
+    eye.position.copy(c); eye.scale.set(Math.max(0.01, s.x), Math.max(0.01, s.y), Math.max(0.01, s.z));
+    simple.add(eye);
+  }
+  head.add(simple);
+  let far = false;
+  return { set(f) { if (f === far) return; far = f; glow.visible = !f; simple.visible = f; }, get far() { return far; } };
+}

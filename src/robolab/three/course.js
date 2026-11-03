@@ -14,7 +14,7 @@ import { lookFor } from '../../data/robolab/parts.js';
 import { toolLook } from '../progress.js';
 import { makeTool, makeHome, makeSpot, makeFruit, makeNet, makeTrash, makeRock, makeEdge, makeFireBase } from './models.js';
 import { fieldCells, makeBoulder, makeLog, makeFlowerMark, makeFeeder, makeMark } from './field-cells.js';   // 1.4.3 set 4: mud, hills, narrow logs, shallow water
-import { buildTool, hasBlenderTools } from './parts3d.js';
+import { buildTool, hasBlenderTools, farEyes } from './parts3d.js';
 import { wkLook } from '../../data/robolab/workshop-look.js';
 import { DIRS } from '../engine/world.js';
 
@@ -206,7 +206,7 @@ export function createCourse(ctx, L) {
     const bb = new THREE.Box3().setFromObject(inner), sz = bb.getSize(new THREE.Vector3());
     inner.position.y = -bb.min.y; inner.scale.setScalar(1);
     const g = new THREE.Group(); g.add(inner); g.scale.setScalar(1.6 * Math.min(1.3, 1.05 / Math.max(0.5, sz.x, sz.z)));   // a little bigger than the lessons' robot: its parts must show
-    g.userData = { ...inner.userData, built: true };
+    g.userData = { ...inner.userData, built: true, eyes: farEyes(inner) };   // the tall robot's eyes: a light far version
     return g;
   }
   function toolY(k, T) {
@@ -359,6 +359,7 @@ export function createCourse(ctx, L) {
     reset: () => { stop(); variant = 0; W._rlSunset = false; buildItems(); }, play: start, stop, isPlaying: () => !!play, update, view, redraw: () => { },
     cellPos: (x, y) => new THREE.Vector3(wx(x), ground(wx(x), wz(y)), wz(y)), CS,
     // where the robot is now, and how big the field is (session.js follows a robot on a big field while it runs)
+    setFar: (f) => { const o = toolObjs.robot; if (o && o.userData.eyes) o.userData.eyes.set(f); },
     robotAt: () => (tools.robot ? new THREE.Vector3(wx(tools.robot.x), ground(wx(tools.robot.x), wz(tools.robot.y)), wz(tools.robot.y)) : null), span: Math.max(Wd, H) * CS,
     info: () => ({ built: !!(toolObjs.robot && toolObjs.robot.userData.built), cells: FC.clears.length }),   // tests
     dispose: () => { gone = true; stop(); clearItems(); FC.dispose(); if (env.clearScatter) env.clearScatter([]); for (const e of keep) { try { W.removeEntity(e); } catch (err) { } } scene.remove(root); root.traverse((o) => { if (o.geometry) o.geometry.dispose(); }); },

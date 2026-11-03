@@ -65,10 +65,11 @@ export function createRoboSession(ctx, R) {
       // a training field is in good daylight; the "sunset" event of a run turns it to evening, slowly
       { const want = W._rlSunset ? 0.735 : 0.42; W.dayFrac += (want - W.dayFrac) * Math.min(1, (rdt || 0) * (W._rlSunset ? 0.8 : 4)); }
       course.update(rdt || dt || 0);
+      if (course.setFar && camera && course.robotAt) { const p = course.robotAt(); if (p) course.setFar(camera.position.distanceTo(p) > 16); }   // far from the camera: the light eyes
       // a big field (a mission on an island): while the robot runs the camera goes with it, nearer; then back to all of it
       if (course.span > 26 && course.robotAt) {
         const playing = course.isPlaying();
-        if (playing) { const p = course.robotAt(); if (p && (!follow || follow.distanceTo(p) > course.span * 0.06)) { follow = p.clone(); rig.goTo(p.clone().setY(p.y + 0.5), p.clone().add({ x: 0, y: 11, z: 10 }), follow0 ? 0.9 : 1.2); follow0 = true; } wasPlaying = true; }
+        if (playing) { const p = course.robotAt(); if (p && (!follow || follow.distanceTo(p) > course.span * 0.06)) { follow = p.clone(); rig.goTo(p.clone().setY(p.y + 0.5), p.clone().add({ x: 0, y: 7.5, z: 7 }), follow0 ? 0.9 : 1.2); follow0 = true; } wasPlaying = true; }
         else if (wasPlaying) { wasPlaying = false; follow = null; follow0 = false; setTimeout(() => { if (!disposed && course && !course.isPlaying()) frame(1.2); }, 1400); }
       }
       fitPanel();

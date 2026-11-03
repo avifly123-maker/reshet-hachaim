@@ -151,7 +151,7 @@ export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, gui
   };
   function toggle(id, how) {
     const b = B(), p = ALL[id], L = listOf(id);
-    if (CHASSIS[id]) b.chassis = id;
+    if (CHASSIS[id]) { b.chassis = id; const only = CHASSIS[id].onlyWheels; if (only && !only.includes(b.wheels)) b.wheels = only[0]; }   // the tall robot: on tracks
     else if (p.set === 'wheels') b.wheels = id;
     else if (p.gear) b.gear = b.gear === id ? null : id;
     else if (p.rpm) { if (how === 'drive') b.drive = id; else if (how === 'remove') { const i = b.motors.indexOf(id); if (i >= 0) b.motors.splice(i, 1); } else b.motors.push(id); }
@@ -342,7 +342,16 @@ export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, gui
   renderAll(); rebuild();
   // the first visit: the first step's card presents the first parts, then the hands-on tutorial (the standing rule of 29.10)
   let tut = null, held = 0;
-  const api = { close, el, trial, show: (t) => { if (tab !== t) { tab = t; picked = null; renderAll(); } },
+  // a picture of the robot alone on a clear background (the tools make part icons with it when Blender is away)
+  function snap(px = 256, ry = 0.5) {
+    const W0 = canvas.width, H0 = canvas.height, ay = cam.aspect, y0 = turn.rotation.y; turn.rotation.y = ry;
+    floor.visible = false; renderer.setSize(px, px, false); cam.aspect = 1; cam.updateProjectionMatrix();
+    renderer.setClearColor(0x000000, 0); renderer.render(scene, cam);
+    const url = renderer.domElement.toDataURL('image/png');
+    floor.visible = true; turn.rotation.y = y0; renderer.setSize(W0, H0, false); cam.aspect = ay; cam.updateProjectionMatrix();
+    return url;
+  }
+  const api = { close, el, trial, snap, show: (t) => { if (tab !== t) { tab = t; picked = null; renderAll(); } },
     state: () => ({ cur, step, tab, fam, picked, mpick, gone, robots: myRobots().length, tests: wkState().tests, passed: wkState().passed, stats: statsOf(B()), problems: checkBuild(B()).problems, tut: tut && tut.step, held, card: !el.querySelector('.wk-steps').hidden }) };
   // the first visit's tutorial; (set 4) the missions' one on a later visit, so the first visit stays with building and
   // the test track (a waiting bubble beside the panel would cover the parts the child is trying)
