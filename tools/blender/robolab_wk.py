@@ -330,21 +330,77 @@ def part_omni():
     _bracket(P, 'om', r)
     return P
 
+def _hull2(pts):
+    """the convex hull of 2D points, counter-clockwise (monotone chain)"""
+    pts = sorted(set(pts))
+    def half(seq):
+        h = []
+        for p in seq:
+            while len(h) >= 2 and (h[-1][0] - h[-2][0]) * (p[1] - h[-2][1]) - (h[-1][1] - h[-2][1]) * (p[0] - h[-2][0]) <= 0: h.pop()
+            h.append(p)
+        return h
+    lo, up = half(pts), half(reversed(pts))
+    return lo[:-1] + up[:-1]
+
+def _resample(loop, n):
+    """n points evenly along a closed polyline"""
+    seg = [(loop[i], loop[(i + 1) % len(loop)]) for i in range(len(loop))]
+    lens = [math.dist(a, b) for a, b in seg]; tot = sum(lens); out = []; k = 0; acc = 0.0
+    for m in range(n):
+        d = tot * m / n
+        while acc + lens[k] < d: acc += lens[k]; k += 1
+        a, b = seg[k]; t = (d - acc) / max(1e-9, lens[k]); out.append((a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t))
+    return out, tot
+
+def belt(name, wheels, w, t, slot, parent, x=0.0, n=120):
+    """a track belt round wheels [(y, z, r)]: the hull of the wheels plus the belt's thickness, as a closed band of
+    width w (across X) and thickness t; returns the path (for the cleats)"""
+    pts = [(y + math.cos(a) * (r + t), z + math.sin(a) * (r + t)) for (y, z, r) in wheels for a in [2 * math.pi * i / 48 for i in range(48)]]
+    path, tot = _resample(_hull2(pts), n)
+    bm = bmesh.new(); rings = []
+    for (y, z) in path:   # each point: the outer and inner edge on both sides (inner = toward the hull's centre)
+        cy = sum(p[0] for p in path) / n; cz = sum(p[1] for p in path) / n
+        d = Vector((0, y - cy, z - cz)).normalized()
+        o = Vector((0, y, z)); ii = o - d * t
+        rings.append([bm.verts.new((x - w / 2, o.y, o.z)), bm.verts.new((x + w / 2, o.y, o.z)), bm.verts.new((x + w / 2, ii.y, ii.z)), bm.verts.new((x - w / 2, ii.y, ii.z))])
+    for i in range(n):
+        A, B = rings[i], rings[(i + 1) % n]
+        for q in range(4): bm.faces.new((A[q], A[(q + 1) % 4], B[(q + 1) % 4], B[q]))
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    o = _mk(name, bm, slot, parent=parent)
+    try: o.data.set_sharp_from_angle(angle=math.radians(40))
+    except Exception: pass
+    return path, tot
+
 def part_tracks():
-    P = group('part_tracks'); r = 0.15; L = 0.95
-    belt = box('tk_belt', 0.17, L, 2 * r, 'rubber', r=0.06, parent=P, loc=(-0.1, 0, r))   # a bevel under half the width, or the belt folds in
-    for k in range(13):   # cleats along the top and the ends of the belt
-        box('tk_cleat%d' % k, 0.18, 0.022, 0.018, 'dark', r=0.005, parent=P, loc=(-0.1, -L / 2 + 0.1 + k * (L - 0.2) / 12, 2 * r + 0.004))
-    # the drive sprocket at the back: a toothed wheel (five teeth, never a cross), the idler in front
-    revolve('tk_sprocket', [(-0.21, 0.001), (-0.21, r * 0.8), (-0.19, r * 0.8), (-0.19, 0.001)], 'accent', seg=40,
-            mod=lambda a, j, x, rr: (0, (r * 0.12 if (a / (2 * math.pi) * 10) % 1 < 0.5 else 0) if j in (1, 2) else 0), parent=P, loc=(0, L / 2 - r, r))
-    cyl('tk_idler', r * 0.72, 0.03, 'metal', seg=28, axis='X', bev=0.006, parent=P, loc=(-0.2, -L / 2 + r, r))
-    for y in (-0.16, 0.0, 0.16):
-        cyl('tk_road_%d' % int(y * 100), r * 0.5, 0.03, 'metal', seg=24, axis='X', bev=0.006, parent=P, loc=(-0.2, y, r * 0.75))
-        bolts('tk_rb_%d' % int(y * 100), [(-0.217, y, r * 0.75)], 0.012, P, axis='X')
-    hs_block('tk_guard', 0.22, L * 0.86, 0.025, 'trim', ch=0.008, parent=P, loc=(-0.1, 0, 2 * r + 0.05))
-    bolt_row('tk_gb', (-0.1, -L * 0.38, 2 * r + 0.064), (-0.1, L * 0.38, 2 * r + 0.064), 6, 0.008, P)
-    _bracket(P, 'tk', r, x=-0.02)
+    """3.11 (Avi: "like a tank"): a raised drive sprocket at the back, so the track slopes up behind; an idler in front,
+    four road wheels on the ground, return rollers on top, cleats all round the belt, a guard with bolts"""
+    P = group('part_tracks'); X = -0.1; W = 0.17
+    wheels = [(-0.42, 0.13, 0.11),   # the idler in front
+              (-0.24, 0.09, 0.08), (-0.08, 0.09, 0.08), (0.08, 0.09, 0.08), (0.24, 0.09, 0.08),   # road wheels
+              (0.44, 0.27, 0.12)]   # the drive sprocket, high at the back
+    path, tot = belt('tk_belt', wheels, W, 0.03, 'rubber', P, x=X)
+    n = len(path); cy = sum(p[0] for p in path) / n; cz = sum(p[1] for p in path) / n
+    for k in range(0, n, 3):   # a cleat every few points, standing out of the belt, across it
+        y, z = path[k]; d = Vector((0, y - cy, z - cz)).normalized(); a = math.atan2(d.z, d.y)
+        hs_block('tk_cleat%d' % k, W + 0.01, 0.022, 0.016, 'dark', ch=0.004, parent=P, loc=(X, y + d.y * 0.006, z + d.z * 0.006), rot=(a - math.pi / 2, 0, 0))
+    for i, (y, z, r) in enumerate(wheels):
+        if i == len(wheels) - 1:   # the sprocket: teeth (ten), a hub with bolts
+            revolve('tk_sprocket', [(X - W / 2 - 0.012, 0.001), (X - W / 2 - 0.012, r * 0.9), (X - W / 2 + 0.02, r * 0.9), (X - W / 2 + 0.02, 0.001)], 'accent', seg=60,
+                    mod=lambda a, j, xx, rr, r=r: (0, (r * 0.14 if (a / (2 * math.pi) * 10) % 1 < 0.5 else 0) if j in (1, 2) else 0), parent=P, loc=(0, y, z))
+            bolts('tk_sb', [(X - W / 2 - 0.016, y + math.cos(2 * math.pi * q / 5) * r * 0.4, z + math.sin(2 * math.pi * q / 5) * r * 0.4) for q in range(5)], 0.01, P, axis='X')
+        else:
+            cyl('tk_wheel%d' % i, r * 0.92, 0.03, 'metal', seg=24, axis='X', bev=0.006, parent=P, loc=(X - W / 2 - 0.004, y, z))
+            bolts('tk_wb%d' % i, [(X - W / 2 - 0.02, y, z)], 0.012, P, axis='X')
+    for y in (-0.16, 0.12):   # return rollers carrying the top of the belt
+        cyl('tk_ret_%d' % int(y * 100), 0.035, 0.03, 'dark', seg=16, axis='X', parent=P, loc=(X - W / 2 - 0.004, y, 0.27 + (y + 0.16) * 0.35))
+    # the side plate that holds the wheels, and the guard above the belt
+    hs_block('tk_plate', 0.02, 0.78, 0.08, 'dark', ch=0.008, parent=P, loc=(X + W / 2 + 0.012, 0.0, 0.14))
+    # the guard follows the top of the belt, from the idler up to the sprocket
+    gy0, gz0, gy1, gz1 = -0.42, 0.31, 0.44, 0.46; ga = math.atan2(gz1 - gz0, gy1 - gy0)
+    hs_block('tk_guard', 0.22, math.dist((gy0, gz0), (gy1, gz1)) * 0.92, 0.022, 'trim', ch=0.008, parent=P, loc=(X, (gy0 + gy1) / 2, (gz0 + gz1) / 2), rot=(ga, 0, 0))
+    bolt_row('tk_gb', (X, gy0 + 0.06, gz0 + 0.06 * math.tan(ga) + 0.014), (X, gy1 - 0.08, gz1 - 0.08 * math.tan(ga) + 0.014), 6, 0.008, P)
+    _bracket(P, 'tk', 0.13, x=-0.02)
     return P
 
 def part_float():
@@ -1051,21 +1107,35 @@ def part_head_c():
         sphere('hc_earled_%d' % k, 0.015, 'glow', parent=P, loc=(k * 0.19, 0, 0.16))
     return P
 
-def compound_eye(name, r, parent, loc, n=37):
-    """a lamp of many small lights on a dome, like a dragonfly's eye: a steel housing ring, a dark dome, and on it
-    hexagonal lenses (six-sided cells, spread evenly over the front of the dome), each lit"""
+def compound_eye(name, r, parent, loc, sub=4, front=0.12, depth=0.82):
+    """3.11 (Avi: "like a dragonfly's eye, of very many polygons"): a dome covered all over with polygon facets (the
+    dual of a geodesic sphere: hexagons and a few pentagons), each facet slightly shrunk so dark seams show between
+    them and each tilted to its own place, so the light breaks on every one; in a steel housing"""
     x0, y0, z0 = loc
-    cyl(name + '_house', r * 1.12, r * 0.7, 'metal', seg=12, axis='Y', bev=r * 0.12, parent=parent, loc=(x0, y0 + r * 0.25, z0))
-    torus(name + '_bezel', r * 1.04, r * 0.1, 'dark', seg=24, rseg=6, axis='Y', parent=parent, loc=(x0, y0 - r * 0.08, z0))
-    d = sphere(name + '_dome', r * 0.95, 'dark', seg=24, ring=12, parent=parent, loc=(x0, y0, z0)); d.scale = (1, 0.55, 1)
-    golden = math.pi * (3 - math.sqrt(5))
-    for i in range(n):   # points on the front cap of the dome (a spiral: evenly spaced, no rows or crossing lines)
-        t = (i + 0.5) / n; th = math.acos(1 - t * 0.62); ph = i * golden
-        nx, nz, ny = math.sin(th) * math.cos(ph), math.sin(th) * math.sin(ph), -math.cos(th)
-        nvec = Vector((nx, ny * 0.55, nz)).normalized()
-        c = cyl('%s_cell%d' % (name, i), r * 0.13, r * 0.06, 'glow', seg=6, axis='Z', parent=parent, loc=(x0 + nx * r * 0.95, y0 + ny * r * 0.95 * 0.55, z0 + nz * r * 0.95))
-        c.rotation_mode = 'QUATERNION'; c.rotation_quaternion = Vector((0, 0, 1)).rotation_difference(nvec)
-    return d
+    cyl(name + '_house', r * 1.12, r * 0.7, 'metal', seg=12, axis='Y', bev=r * 0.12, parent=parent, loc=(x0, y0 + r * 0.3, z0))
+    torus(name + '_bezel', r * 1.05, r * 0.09, 'dark', seg=24, rseg=6, axis='Y', parent=parent, loc=(x0, y0 - r * 0.05, z0))
+    d = sphere(name + '_under', r * 0.96, 'dark', seg=24, ring=12, parent=parent, loc=(x0, y0, z0)); d.scale = (1, depth, 1)
+    ico = bmesh.new(); bmesh.ops.create_icosphere(ico, subdivisions=sub, radius=1.0)
+    ico.faces.ensure_lookup_table()
+    cent = {f.index: f.calc_center_median().normalized() for f in ico.faces}
+    out = bmesh.new()
+    for v in ico.verts:
+        n = v.co.normalized()
+        if n.y > -front: continue   # only the front of the dome (the eye looks forward, -Y)
+        fs = list(v.link_faces)
+        # order the faces round the vertex
+        a0 = (cent[fs[0].index] - n * cent[fs[0].index].dot(n)).normalized(); b0 = n.cross(a0)
+        fs.sort(key=lambda f: math.atan2((cent[f.index] - n).dot(b0), (cent[f.index] - n).dot(a0)))
+        ring = [n.lerp(cent[f.index], 0.86).normalized() for f in fs]   # shrunk toward its centre: a seam
+        bulge = 1.0 + 0.035 * ((hash(v.index) % 7) / 6.0)   # a little unevenness, like real lenses
+        vs = [out.verts.new(Vector((p.x * r * bulge, p.y * r * depth * bulge, p.z * r * bulge))) for p in ring]
+        c = out.verts.new(Vector((n.x * r * 1.03, n.y * r * depth * 1.03, n.z * r * 1.03)))   # its middle stands out a little (a convex lens)
+        for k in range(len(vs)):
+            f = out.faces.new((vs[k], vs[(k + 1) % len(vs)], c)); f.normal_update()
+            if f.normal.dot(Vector((n.x, n.y * depth, n.z))) < 0: f.normal_flip()   # every facet faces out
+    ico.free()
+    o = _mk(name + '_facets', out, 'glow', parent=parent, loc=loc, smooth=False)
+    return o
 
 def part_head_d():
     """head D (round 2, Avi: a metal head, big eyes, almost no mouth or nose): a chamfered steel head of plates over a
@@ -1078,13 +1148,17 @@ def part_head_d():
     bolt_row('hd_bb', (-0.13, -0.165, 0.28), (0.13, -0.165, 0.28), 4, 0.008, P, axis='Y')
     hs_block('hd_face', 0.32, 0.03, 0.14, 'dark', ch=0.014, panels=0.01, parent=P, loc=(0, -0.135, 0.17))
     for k in (-1, 1):   # 3.11 (Avi): eyes as lamps of many small lights, faceted like a dragonfly's eye
-        compound_eye('hd_eye_%d' % k, 0.058, P, (k * 0.078, -0.152, 0.172))
+        compound_eye('hd_eye_%d' % k, 0.054, P, (k * 0.078, -0.152, 0.172))
         cyl('hd_ear_%d' % k, 0.05, 0.05, 'trim', seg=10, axis='X', bev=0.01, parent=P, loc=(k * 0.205, 0.0, 0.17))
         lamp('hd_earlamp_%d' % k, 0.025, P, (k * 0.232, 0.0, 0.17), axis='X')
         for i in range(3): hs_block('hd_cheek_%d_%d' % (k, i), 0.05, 0.01, 0.008, 'dark', ch=0.002, parent=P, loc=(k * 0.12, -0.137, 0.075 + i * 0.016))
     hs_block('hd_chin', 0.2, 0.05, 0.03, 'trim', ch=0.01, parent=P, loc=(0, -0.11, 0.045))
     capsule('hd_ant', (0.13, 0.07, 0.29), (0.16, 0.09, 0.42), 0.008, 'metal', seg=8, parent=P)
     sphere('hd_ant_tip', 0.018, 'accent', parent=P, loc=(0.16, 0.09, 0.43))
+    # 3.11 (Avi): the same width and depth, less tall: every block of the head is pressed down; the eyes stay round
+    for o in P.children:
+        if '_eye_' in o.name: o.location.z = 0.172 * 0.78 + 0.004; continue
+        o.location.z *= 0.78; o.scale.z *= 0.78
     return P
 
 BASES['wk_t'] = build_tall
