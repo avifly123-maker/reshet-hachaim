@@ -215,7 +215,7 @@ def build_wk(size):
     wx, wy = sx * 0.45 + 0.005, sy * 0.31
     socket(R, 'wfl', (-wx, -wy, 0)); socket(R, 'wbl', (-wx, wy, 0))
     socket(R, 'wfr', (wx, -wy, 0), (0, 0, math.pi)); socket(R, 'wbr', (wx, wy, 0), (0, 0, math.pi))
-    socket(R, 'tl', (-wx - 0.01, 0, 0)); socket(R, 'tr', (wx + 0.01, 0, 0), (0, 0, math.pi))
+    socket(R, 'tl', (-wx - 0.01, 0, 0)); socket(R, 'tr', (wx + 0.01, 0, 0))   # tr takes the mirrored part (tracks_r, float_r)
     socket(R, 'front', (0, -sy / 2, WK_BOTTOM + 0.04))
     socket(R, 'nose', (-sx * 0.22, -sy / 2, WK_BOTTOM + 0.02))
     socket(R, 'eyes', (0, -sy * 0.47, WK_BOTTOM + sz * 0.62))
@@ -378,7 +378,7 @@ def part_tracks():
     P = group('part_tracks'); X = -0.1; W = 0.17
     wheels = [(-0.42, 0.13, 0.11),   # the idler in front
               (-0.24, 0.09, 0.08), (-0.08, 0.09, 0.08), (0.08, 0.09, 0.08), (0.24, 0.09, 0.08),   # road wheels
-              (0.44, 0.27, 0.12)]   # the drive sprocket, high at the back
+              (0.44, 0.38, 0.12)]   # the drive sprocket, high at the back (Avi, 3.11: higher, nicer proportions)
     path, tot = belt('tk_belt', wheels, W, 0.03, 'rubber', P, x=X)
     n = len(path); cy = sum(p[0] for p in path) / n; cz = sum(p[1] for p in path) / n
     for k in range(0, n, 3):   # a cleat every few points, standing out of the belt, across it
@@ -392,12 +392,13 @@ def part_tracks():
         else:
             cyl('tk_wheel%d' % i, r * 0.92, 0.03, 'metal', seg=24, axis='X', bev=0.006, parent=P, loc=(X - W / 2 - 0.004, y, z))
             bolts('tk_wb%d' % i, [(X - W / 2 - 0.02, y, z)], 0.012, P, axis='X')
+    top = lambda y: 0.27 + (y + 0.42) / 0.86 * (0.53 - 0.27)   # the line of the belt's top, idler to sprocket
     for y in (-0.16, 0.12):   # return rollers carrying the top of the belt
-        cyl('tk_ret_%d' % int(y * 100), 0.035, 0.03, 'dark', seg=16, axis='X', parent=P, loc=(X - W / 2 - 0.004, y, 0.27 + (y + 0.16) * 0.35))
+        cyl('tk_ret_%d' % int(y * 100), 0.035, 0.03, 'dark', seg=16, axis='X', parent=P, loc=(X - W / 2 - 0.004, y, top(y) - 0.065))
     # the side plate that holds the wheels, and the guard above the belt
     hs_block('tk_plate', 0.02, 0.78, 0.08, 'dark', ch=0.008, parent=P, loc=(X + W / 2 + 0.012, 0.0, 0.14))
     # the guard follows the top of the belt, from the idler up to the sprocket
-    gy0, gz0, gy1, gz1 = -0.42, 0.31, 0.44, 0.46; ga = math.atan2(gz1 - gz0, gy1 - gy0)
+    gy0, gz0, gy1, gz1 = -0.42, 0.31, 0.44, 0.57; ga = math.atan2(gz1 - gz0, gy1 - gy0)
     hs_block('tk_guard', 0.22, math.dist((gy0, gz0), (gy1, gz1)) * 0.92, 0.022, 'trim', ch=0.008, parent=P, loc=(X, (gy0 + gy1) / 2, (gz0 + gz1) / 2), rot=(ga, 0, 0))
     bolt_row('tk_gb', (X, gy0 + 0.06, gz0 + 0.06 * math.tan(ga) + 0.014), (X, gy1 - 0.08, gz1 - 0.08 * math.tan(ga) + 0.014), 6, 0.008, P)
     _bracket(P, 'tk', 0.13, x=-0.02)
@@ -740,10 +741,33 @@ def part_spring_launch():
     hs_block('sl_cap', 0.12, 0.12, 0.03, 'trim', ch=0.01, parent=P, loc=(0, 0, 0.26))
     return P
 
+# ── a part for the right side made as the mirror of the left one (3.11, Avi: the tracks were reversed on the right;
+# a turned part puts its back in front). The copy hangs under an empty scaled -1 in X; the export turns its triangles
+# back round (a mirror reverses them).
+def mirrored(src_fn, name):
+    def build():
+        src = src_fn()
+        P = group('part_' + name); m = group(name + '_mirror', parent=P); m.scale = (-1, 1, 1)
+        for ch in list(src.children): ch.parent = m
+        bpy.data.objects.remove(src, do_unlink=True)
+        return P
+    return build
+
+if '_mesh_slots0' not in globals(): _mesh_slots0 = _mesh_slots
+def _mesh_slots(o, rel):
+    out = _mesh_slots0(o, rel)
+    if (rel @ mw(o)).determinant() < 0:   # mirrored: each triangle's corners in the other order (positions and normals)
+        for S in out.values():
+            p, n = S['p'], S['n']
+            for t in range(0, len(p), 9):
+                p[t + 3:t + 6], p[t + 6:t + 9] = p[t + 6:t + 9], p[t + 3:t + 6]
+                n[t + 3:t + 6], n[t + 6:t + 9] = n[t + 6:t + 9], n[t + 3:t + 6]
+    return out
+
 WK_BASES = {'wk_s': lambda: build_wk('s'), 'wk_m': lambda: build_wk('m'), 'wk_l': lambda: build_wk('l')}
 WK_PARTS = {
     'wh_s': part_wh_s, 'wh_m': part_wh_m, 'wh_l': part_wh_l, 'wh_wide': part_wh_wide, 'omni': part_omni,
-    'tracks': part_tracks, 'float': part_float, 'propeller': part_propeller,
+    'tracks': part_tracks, 'float': part_float, 'tracks_r': mirrored(part_tracks, 'tracks_r'), 'float_r': mirrored(part_float, 'float_r'), 'propeller': part_propeller,
     'pusher': part_pusher, 'fork': part_fork, 'scoop': part_scoop, 'brush': part_brush,
     'claw2': part_claw2, 'sprayer': part_sprayer, 'hook': part_hook, 'net': part_net, 'crane': part_crane, 'arm_long': part_arm_long, 'arm_fold': part_arm_fold,
     'seedbox': part_seedbox, 'cammount': part_cammount, 'gyro': part_gyro, 'light': part_light,
@@ -758,8 +782,8 @@ BASES.update(WK_BASES); PARTS.update(WK_PARTS)
 WK_LOOKS = [
     ('wk_s', {'wfl': 'wh_s', 'wfr': 'wh_s', 'wbl': 'wh_s', 'wbr': 'wh_s', 'nose': 'color', 'eyes': 'distance', 'arm': 'claw2', 'back': 'seedbox', 'under': 'caster'}),
     ('wk_m', {'wfl': 'wh_wide', 'wfr': 'wh_wide', 'wbl': 'wh_wide', 'wbr': 'wh_wide', 'front': 'scoop', 'head': 'cammount', 'deck': 'gyro', 'back': 'sprayer', 'top': 'light', 'probe': 'humidity'}),
-    ('wk_l', {'tl': 'tracks', 'tr': 'tracks', 'front': 'pusher', 'arm': 'crane', 'back': 'solar', 'top': 'beacon', 'belly': 'ballast', 'eyes': 'distance', 'nose': 'touch'}),
-    ('wk_m', {'tl': 'float', 'tr': 'float', 'rear': 'propeller', 'arm': 'net', 'deck': 'gyro', 'head': 'cammount', 'back': 'drone_pad'}),
+    ('wk_l', {'tl': 'tracks', 'tr': 'tracks_r', 'front': 'pusher', 'arm': 'crane', 'back': 'solar', 'top': 'beacon', 'belly': 'ballast', 'eyes': 'distance', 'nose': 'touch'}),
+    ('wk_m', {'tl': 'float', 'tr': 'float_r', 'rear': 'propeller', 'arm': 'net', 'deck': 'gyro', 'head': 'cammount', 'back': 'drone_pad'}),
     ('wk_s', {'wfl': 'omni', 'wfr': 'omni', 'wbl': 'omni', 'wbr': 'omni', 'front': 'fork', 'arm': 'arm_fold', 'top': 'antenna'}),
     ('wk_l', {'wfl': 'wh_l', 'wfr': 'wh_l', 'wbl': 'wh_l', 'wbr': 'wh_l', 'front': 'brush', 'arm': 'hook', 'back': 'bin', 'head': 'cammount'}),
     ('wk_m', {'wfl': 'wh_m', 'wfr': 'wh_m', 'wbl': 'wh_m', 'wbr': 'wh_m', 'arm': 'arm_long', 'eyes': 'distance', 'back': 'seedbox'}),
@@ -1039,7 +1063,7 @@ def build_tall():
     cyl('wt_collar', 0.1, 0.05, 'dark', seg=10, bev=0.01, parent=R, loc=(0, 0, 1.275))
     cyl('wt_neck', 0.04, 0.12, 'metal', seg=16, parent=R, loc=(0, 0, 1.34))
     for k in (-1, 1): _piston('wt_np_%d' % k, (k * 0.07, 0.02, 1.29), (k * 0.05, 0.0, 1.4), 0.01, R)
-    socket(R, 'tl', (-0.32, 0, 0)); socket(R, 'tr', (0.32, 0, 0), (0, 0, math.pi))
+    socket(R, 'tl', (-0.32, 0, 0)); socket(R, 'tr', (0.32, 0, 0))
     socket(R, 'shl', (-0.35, 0, 1.352)); socket(R, 'shr', (0.35, 0, 1.352))
     socket(R, 'arm_l', (-0.4, 0, 1.2)); socket(R, 'arm_r', (0.4, 0, 1.2))
     socket(R, 'head', (0, 0, 1.4)); socket(R, 'back', (0, 0.28, 1.06)); socket(R, 'chest', (0, -0.2, 0.98))
@@ -1165,7 +1189,7 @@ BASES['wk_t'] = build_tall
 PARTS.update({'tall_arm_l': part_tall_arm_l, 'tall_arm_r': part_tall_arm_r, 'head_d': part_head_d, 'head_a': part_head_a, 'head_b': part_head_b, 'head_c': part_head_c})
 
 def rl_tall_review(outdir, samples=48):
-    looks = {h: {'tl': 'tracks', 'tr': 'tracks', 'arm_l': 'tall_arm_l', 'arm_r': 'tall_arm_r', 'head': h, 'shl': 'light', 'shr': 'cammount', 'back': 'seedbox'} for h in ('head_d',)}
+    looks = {h: {'tl': 'tracks', 'tr': 'tracks_r', 'arm_l': 'tall_arm_l', 'arm_r': 'tall_arm_r', 'head': h, 'shl': 'light', 'shr': 'cammount', 'back': 'seedbox'} for h in ('head_d',)}
     paths = []
     for h, look in looks.items():
         p = outdir + '\\tall_' + h + '.png'

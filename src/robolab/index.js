@@ -195,7 +195,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
       if ((tut && tut.step) || intro || cur !== L) return;
       const g = svcGuide(); if (!g) return;
       const rl = { state: tutState };
-      tut = robolabTutorial({ guide: g, rl, voice: kvoice }) || (hasHat ? robolabEventTutorial({ guide: g, rl, voice: kvoice }) : null);
+      tut = robolabTutorial({ guide: g, rl }) || (hasHat ? robolabEventTutorial({ guide: g, rl }) : null);
     }, 2600);
   }
   function maxbUpdate() { const m = el.querySelector('.rl-maxb b'); if (!m || !ed || !cur) return; const n = countBlocks(ed.program()); m.textContent = n; m.parentNode.classList.toggle('full', !!cur.maxBlocks && n >= cur.maxBlocks); }

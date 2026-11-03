@@ -113,7 +113,7 @@ ok(Object.keys(LEVELS).length === 3, 'three levels');
 
 // ── the look (set 3e): every chassis, wheel set and pictured part has its Blender mesh and its sockets
 for (const [c, b] of Object.entries(WK_BASE)) ok(CHASSIS[c] && RL_PARTS.bases[b], `chassis ${c}: base ${b}`);
-for (const [w, m] of Object.entries({ ...WK_WHEELS, ...WK_SIDES })) ok(PARTS[w] && RL_PARTS.parts[m], `wheels ${w}: mesh ${m}`);
+for (const [w, m] of Object.entries({ ...WK_WHEELS, ...WK_SIDES })) for (const q of [].concat(m)) ok(PARTS[w] && RL_PARTS.parts[q], `wheels ${w}: mesh ${q}`);
 for (const [id, [m, ...socks]] of Object.entries(WK_LOOK)) {
   ok(PARTS[id], `look ${id}: a catalogue part`); ok(RL_PARTS.parts[m], `look ${id}: mesh ${m}`);
   for (const s of socks) ok(['wk_s', 'wk_m', 'wk_l'].every((b) => RL_PARTS.bases[b].sockets[s]), `look ${id}: socket ${s} on every chassis`);

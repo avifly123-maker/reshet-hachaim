@@ -42,8 +42,8 @@ export function hubTutorial({ guide, hub, force = false }) {
 
 // מעבדת הרובוטים (1.4.1): the first lesson teaches the editor and the run; the first lesson with an event block teaches
 // the event (a hat that waits for its moment). rl.state() → { level, blocks, runs, hats } (src/robolab/index.js).
-// 1.4.3: קוּבִּי leads the robot lab's tutorials (his lab); his voice object is shared with his lesson lines, so his
-// tutorial line and a lesson line never play together
+// The lessons' tutorials stay with רובו־דע, in his recorded voice, until קוּבִּי's lines for them are recorded (Avi, 3.11:
+// recording can wait). Given `voice` (קוּבִּי's), קוּבִּי says them, and his tutorial line and a lesson line never play together.
 export function robolabTutorial({ guide, rl, force = false, voice = null }) {
   const KEY = 'g:rltut';
   if (!guide || !rl || !rl.state || (!force && introSeen(KEY))) return null;
@@ -56,7 +56,7 @@ export function robolabTutorial({ guide, rl, force = false, voice = null }) {
     { id: 'run', lines: L('rltut:run'), before: () => { runs0 = st().runs; }, wait: () => st().runs > runs0 },
     { id: 'end', lines: L('rltut:end') },
   ];
-  return runGuided({ guide, steps, sayOpts: { speaker: 'kubi', voice }, onEnd: (r) => { if (r !== 'abort') markIntro(KEY); } });
+  return runGuided({ guide, steps, sayOpts: voice ? { speaker: 'kubi', voice } : null, onEnd: (r) => { if (r !== 'abort') markIntro(KEY); } });
 }
 export function robolabEventTutorial({ guide, rl, force = false, voice = null }) {
   const KEY = 'g:rltut:ev';
@@ -67,7 +67,7 @@ export function robolabEventTutorial({ guide, rl, force = false, voice = null })
       before: () => { const b = document.querySelector('#ui .rl-pal .rl-blk.f-event'); if (b) b.scrollIntoView({ block: 'center' }); } },
     { id: 'evbody', lines: L('rltut:evbody') },
   ];
-  return runGuided({ guide, steps, sayOpts: { speaker: 'kubi', voice }, onEnd: (r) => { if (r !== 'abort') markIntro(KEY); } });
+  return runGuided({ guide, steps, sayOpts: voice ? { speaker: 'kubi', voice } : null, onEnd: (r) => { if (r !== 'abort') markIntro(KEY); } });
 }
 
 // 1.4.3: סדנת הרובוט, the first visit: a ready robot, a part's card and the numbers, a run on the test track.
