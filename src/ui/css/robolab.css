@@ -171,6 +171,25 @@
 #ui.wol .wk-lipic { width: 34px; height: 34px; object-fit: contain; flex: none; }
 #ui.wol .rl-gchip.locked svg { width: .9em; height: .9em; }
 #ui.wol .rl-gchip small { font-weight: 400; font-size: .78em; }
+/* 1.4.3 set 4: the design garage's part tiles (each part drawn from its own mesh), the info strip, surprise / reset */
+#ui.wol .rl-gchip.rl-gtile { position: relative; flex-direction: column; justify-content: flex-start; width: 88px; min-height: 96px; padding: 4px 4px 6px; gap: 2px; text-align: center; line-height: 1.15; font-size: .8em; background: linear-gradient(180deg, #f1ebdc, #ddd4c0); transition: transform .12s; }
+#ui.wol .rl-gchip.rl-gtile:not([disabled]):hover { transform: translateY(-2px); }
+#ui.wol .rl-gtile .rl-gpic { width: 64px; height: 64px; object-fit: contain; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .25)); }
+#ui.wol .rl-gtile span.rl-gpic svg { width: 30px; height: 30px; opacity: .5; }
+#ui.wol .rl-gchip.rl-gtile.on { background: linear-gradient(180deg, #f2a35f, #e8873a); }
+#ui.wol .rl-gchip.rl-gtile.pick { box-shadow: 0 0 0 3px #2fb3c0; }
+#ui.wol .rl-gchip.rl-gtile.locked { align-items: center; }
+#ui.wol .rl-gtile.locked .rl-gpic { filter: grayscale(1) brightness(.85); opacity: .55; }
+#ui.wol .rl-gtile .rl-glock { position: absolute; top: 4px; inset-inline-start: 4px; display: flex; padding: 3px; border-radius: 50%; background: #5c6f7c; color: #fff; }
+#ui.wol .rl-gtile .rl-glock svg { width: 12px; height: 12px; }
+#ui.wol .rl-gcount { flex: 1; font-size: .8em; color: #d6e6f2; }
+#ui.wol .rl-ginfo { position: absolute; top: 10px; inset-inline: 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; padding: 7px 11px; border-radius: 12px; background: rgba(245, 241, 232, .94); color: #1d2c38; font-size: .86em; pointer-events: none; animation: rlGinfo .25s ease-out; }
+#ui.wol .rl-ginfo i { font-style: normal; font-weight: 700; padding: 1px 8px; border-radius: 8px; background: #2fa39a; color: #fff; }
+@keyframes rlGinfo { from { opacity: 0; transform: translateY(-6px); } }
+#ui.wol .rl-gact { display: flex; align-items: center; gap: 6px; }
+#ui.wol .rl-gact button { display: flex; align-items: center; gap: 5px; padding: 5px 10px; border: 0; border-radius: 11px; background: rgba(245, 241, 232, .9); color: #1d2c38 !important; font-weight: 700; font-size: .85em; box-shadow: 0 2px 0 rgba(0, 0, 0, .25); }
+#ui.wol .rl-gact button[data-gsurp] { background: #ffc72e; }
+#ui.wol .rl-gact svg { width: 1em; height: 1em; }
 #ui.wol .rl-gsw { display: flex; flex-wrap: wrap; gap: 6px; }
 #ui.wol .rl-sw { width: 30px; height: 30px; padding: 0; border: 3px solid #fff; border-radius: 50%; background: var(--sw); box-shadow: 0 1px 3px rgba(0, 0, 0, .35); }
 #ui.wol .rl-sw.on { outline: 3px solid #e8873a; outline-offset: 1px; }
@@ -328,3 +347,5 @@
 #ui.wol .rl-wsfix svg { width: 1.1em; height: 1.1em; }
 /* one קוּבִּי at a time: while he speaks in the guide's bubble, his window in the lesson strip steps aside */
 body:has(#rguide .rg-wrap.kubi) .rl-say .rl-kubi { visibility: hidden; }
+/* סדנת העיצוב: קוּבִּי's bubble sits over the preview, so the part tiles and the colours stay free to press */
+#ui:has(.rl-garage) #rguide:not(.center) .rg-wrap { right: auto; left: 12px; max-width: calc(52vw - 24px); }

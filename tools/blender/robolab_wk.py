@@ -1369,3 +1369,134 @@ def part_cam_hs():
     return P
 
 PARTS.update({'head_screen': part_head_screen_hs, 'grabber': part_grabber_hs, 'bin': part_bin_hs, 'antenna': part_antenna_hs, 'cam': part_cam_hs})
+
+# round 13 (Avi, 4.11: "improve the design garage"): the rest of the design garage's parts in the same hard-surface
+# look, each on the same socket, about the same size and pointing the same way as before
+def part_head_dome_hs():
+    P = group('part_head_dome')
+    cyl('hd_base', 0.21, 0.07, 'trim', seg=8, bev=0.012, parent=P, loc=(0, 0, 0.035))
+    bolts('hd_bb', [(math.cos(t * 2 * math.pi / 8) * 0.17, math.sin(t * 2 * math.pi / 8) * 0.17, 0.072) for t in range(8)], 0.008, P)
+    torus('hd_ring', 0.19, 0.016, 'metal', seg=40, rseg=8, parent=P, loc=(0, 0, 0.08))
+    sphere('hd_glass', 0.18, 'glass', cut=0.0, parent=P, loc=(0, 0, 0.08))
+    hs_block('hd_core', 0.1, 0.08, 0.07, 'dark', ch=0.012, parent=P, loc=(0, 0, 0.12))
+    for ex in (-0.025, 0.025):
+        o = sphere('hd_eye_%d' % int(ex * 1000), 0.018, 'glow', parent=P, loc=(ex, -0.04, 0.13)); o.scale = (1, 0.4, 1)
+    return P
+
+def part_drone_pad_hs():
+    P = group('part_drone_pad')
+    for k in (-1, 1): _piston('pad_leg_%d' % k, (k * 0.12, 0, 0), (k * 0.12, 0, 0.1), 0.02, P)
+    cyl('pad_disc', 0.3, 0.035, 'dark', seg=8, bev=0.01, parent=P, loc=(0, 0, 0.12))
+    cyl('pad_top', 0.27, 0.01, 'metal', seg=8, parent=P, loc=(0, 0, 0.142))
+    torus('pad_ring', 0.22, 0.014, 'glow', seg=40, rseg=6, parent=P, loc=(0, 0, 0.15))
+    for t in range(5):   # five landing lights round the pad (a ring, never a cross)
+        a = t * 2 * math.pi / 5
+        cyl('pad_led%d' % t, 0.02, 0.012, 'accent', seg=8, parent=P, loc=(math.cos(a) * 0.12, math.sin(a) * 0.12, 0.152))
+    bolts('pad_b', [(math.cos(t * 2 * math.pi / 8 + 0.2) * 0.28, math.sin(t * 2 * math.pi / 8 + 0.2) * 0.28, 0.14) for t in range(8)], 0.008, P)
+    return P
+
+def part_water_tank_hs():
+    P = group('part_water_tank')
+    prof = [(-0.22, 0.001), (-0.215, 0.09), (-0.2, 0.15), (-0.17, 0.17), (0.17, 0.17), (0.2, 0.15), (0.215, 0.09), (0.22, 0.001)]
+    t = revolve('tank_body', prof, 'trim', seg=24, parent=P, loc=(0, 0, 0.18)); t.rotation_euler = (0, 0, math.pi / 2)
+    for i, by in enumerate((-0.11, 0.11)):
+        torus('tank_band%d' % i, 0.172, 0.012, 'metal', seg=32, rseg=6, axis='Y', parent=P, loc=(0, by, 0.18))
+    hs_block('tank_window', 0.04, 0.2, 0.08, 'glass', ch=0.01, parent=P, loc=(0.165, 0, 0.18))
+    for k in (-1, 1): hs_block('tank_saddle_%d' % k, 0.3, 0.05, 0.06, 'dark', ch=0.012, parent=P, loc=(0, k * 0.12, 0.03))
+    cyl('tank_cap', 0.05, 0.04, 'accent', seg=8, bev=0.006, parent=P, loc=(0, 0.08, 0.36))
+    sweep('tank_hose', [(0.12, -0.2, 0.12), (0.2, -0.3, 0.1), (0.18, -0.4, 0.08)], 0.02, 'dark', ring=8, parent=P)
+    return P
+
+def part_planter_hs():
+    P = group('part_planter')
+    cyl('pl_turn', 0.07, 0.04, 'dark', seg=8, bev=0.008, parent=P, loc=(0, 0, 0.02))
+    hs_block('pl_hopper', 0.18, 0.16, 0.14, 'cream', ch=0.025, top=(1.2, 1.2), panels=0.014, pdepth=0.005, parent=P, loc=(0, 0.02, 0.12))
+    hs_block('pl_lid', 0.22, 0.2, 0.02, 'trim', ch=0.006, parent=P, loc=(0, 0.02, 0.2))
+    _beam('pl_tube', (0, -0.04, 0.06), (0, -0.4, 0.02), 0.05, 0.05, 'trim', P)
+    cyl('pl_nozzle', 0.03, 0.06, 'metal', seg=8, axis='Z', parent=P, loc=(0, -0.42, 0.0))
+    sphere('pl_seed', 0.03, 'accent', parent=P, loc=(0, -0.42, -0.05), sz=1.3)
+    return P
+
+def part_beacon_hs():
+    P = group('part_beacon')
+    hs_block('bc_base', 0.14, 0.14, 0.04, 'dark', ch=0.012, parent=P, loc=(0, 0, 0.02))
+    cyl('bc_cage0', 0.075, 0.012, 'metal', seg=8, parent=P, loc=(0, 0, 0.05))
+    sphere('bc_dome', 0.07, 'glow', cut=0.0, parent=P, loc=(0, 0, 0.05))
+    for t in range(5):   # a cage of five bars over the light
+        a = t * 2 * math.pi / 5
+        sweep('bc_bar%d' % t, [(math.cos(a) * 0.075, math.sin(a) * 0.075, 0.05), (math.cos(a) * 0.072, math.sin(a) * 0.072, 0.1), (math.cos(a) * 0.03, math.sin(a) * 0.03, 0.13)], 0.006, 'metal', ring=5, parent=P)
+    return P
+
+def part_solar_hs():
+    P = group('part_solar')
+    _piston('so_post', (0, 0, 0), (0, 0, 0.17), 0.02, P)
+    o = hs_block('so_frame', 0.48, 0.34, 0.025, 'trim', ch=0.008, parent=P, loc=(0, 0, 0.19), rot=(0.35, 0, 0))
+    for i in range(3):
+        for j in range(2):   # cells in rows (a grid of separate cells, never crossed lines)
+            hs_block('so_cell%d%d' % (i, j), 0.14, 0.14, 0.008, 'glass', ch=0.003, parent=P, loc=(-0.15 + i * 0.15, -0.075 * math.cos(0.35) + j * 0.15 * math.cos(0.35), 0.205 + (j - 0.5) * 0.15 * math.sin(0.35)), rot=(0.35, 0, 0))
+    return P
+
+def part_fins_hs():
+    P = group('part_fin')
+    hs_block('fin_root', 0.04, 0.14, 0.06, 'dark', ch=0.01, parent=P, loc=(0, 0, 0.03))
+    hs_block('fin_body', 0.03, 0.32, 0.16, 'accent', ch=0.012, top=(1, 0.6), nose=0.05, panels=0.01, parent=P, loc=(0, 0.06, 0.1), rot=(0.4, 0, 0))
+    bolt_row('fin_b', (0.018, -0.05, 0.03), (0.018, 0.05, 0.03), 3, 0.007, P, axis='X')
+    return P
+
+def part_spray_hs():
+    P = group('part_spray')
+    hs_block('sp_mount', 0.1, 0.1, 0.04, 'dark', ch=0.01, parent=P, loc=(0, 0, -0.02))
+    prof = [(-0.1, 0.001), (-0.095, 0.08), (-0.07, 0.11), (0.07, 0.11), (0.095, 0.08), (0.1, 0.001)]
+    t = revolve('sp_tank', prof, 'trim', seg=24, parent=P, loc=(0, 0, -0.13)); t.rotation_euler = (0, math.pi / 2, 0)
+    torus('sp_band', 0.112, 0.01, 'metal', seg=28, rseg=6, parent=P, loc=(0, 0, -0.13))
+    _beam('sp_nozzle', (0, -0.08, -0.17), (0, -0.2, -0.19), 0.03, 0.03, 'metal', P)
+    sphere('sp_drop', 0.025, 'glow', parent=P, loc=(0, -0.23, -0.19), sz=1.3)
+    return P
+
+def part_claw_hs():
+    P = group('part_claw')
+    hs_block('cl_winch', 0.12, 0.1, 0.07, 'dark', ch=0.014, panels=0.01, parent=P, loc=(0, 0, -0.035))
+    cyl('cl_drum', 0.03, 0.08, 'metal', seg=12, axis='X', parent=P, loc=(0, 0, -0.07))
+    capsule('cl_line', (0, 0, -0.08), (0, 0, -0.25), 0.006, 'metal', seg=6, parent=P)
+    hs_block('cl_hub', 0.07, 0.07, 0.04, 'trim', ch=0.01, parent=P, loc=(0, 0, -0.27))
+    for i in range(3):   # three hooked fingers in a ring
+        a = i * 2 * math.pi / 3
+        hs_block('cl_f%d' % i, 0.025, 0.025, 0.12, 'trim', ch=0.006, parent=P, loc=(math.cos(a) * 0.045, math.sin(a) * 0.045, -0.33), rot=(math.sin(a) * 0.4, -math.cos(a) * 0.4, 0))
+    return P
+
+def part_sub_fin_hs():
+    P = group('part_sub_fin')
+    hs_block('sf_root', 0.08, 0.3, 0.04, 'dark', ch=0.012, parent=P, loc=(0, 0.06, 0.02))
+    hs_block('sf_fin', 0.05, 0.4, 0.26, 'accent', ch=0.015, top=(0.8, 0.45), nose=-0.08, panels=0.014, pdepth=0.004, parent=P, loc=(0, 0.08, 0.16))
+    bolt_row('sf_b', (0.042, -0.05, 0.02), (0.042, 0.17, 0.02), 4, 0.007, P, axis='X')
+    return P
+
+def part_thruster_hs():
+    P = group('part_thruster')
+    hs_block('th_mount', 0.06, 0.12, 0.08, 'dark', ch=0.012, parent=P, loc=(0, 0, 0))
+    prof = [(-0.2, 0.001), (-0.18, 0.07), (-0.12, 0.1), (0.14, 0.1), (0.2, 0.08), (0.22, 0.001)]
+    t = revolve('th_pod', prof, 'trim', seg=20, parent=P, loc=(-0.1, 0, 0)); t.rotation_euler = (0, 0, math.pi / 2)
+    torus('th_ring', 0.1, 0.018, 'accent', seg=28, rseg=8, axis='Y', parent=P, loc=(-0.1, 0.19, 0))
+    blade3('th_blades', 0.08, 'metal', parent=P, loc=(-0.1, 0.2, 0), rot=(math.pi / 2, 0, 0))
+    return P
+
+def part_sub_claw_hs():
+    P = group('part_sub_claw')
+    cyl('sc_base', 0.06, 0.06, 'dark', seg=8, bev=0.008, axis='Y', parent=P)
+    _piston('sc_pis', (0, 0, 0), (0, -0.1, 0), 0.025, P)
+    _gripper_hs('sc_g', (0, -0.1, 0), P, s=0.9)
+    return P
+
+def part_sub_lamp_hs():
+    P = group('part_sub_lamp')
+    hs_block('sl_body', 0.14, 0.14, 0.12, 'dark', ch=0.02, panels=0.012, parent=P, loc=(0, -0.05, 0))
+    hs_block('sl_hood', 0.16, 0.04, 0.05, 'trim', ch=0.008, parent=P, loc=(0, -0.11, 0.06))
+    cyl('sl_light', 0.05, 0.02, 'glow', seg=24, axis='Y', parent=P, loc=(0, -0.125, 0))
+    bolts('sl_b', [(a_ * 0.05, -0.122, b_ * 0.045) for a_ in (-1, 1) for b_ in (-1, 1)], 0.006, P, axis='Y')
+    return P
+
+PARTS.update({'head_dome': part_head_dome_hs, 'drone_pad': part_drone_pad_hs, 'water_tank': part_water_tank_hs, 'planter': part_planter_hs,
+    'beacon': part_beacon_hs, 'solar': part_solar_hs, 'fin': part_fins_hs, 'spray': part_spray_hs, 'claw': part_claw_hs,
+    'sub_fin': part_sub_fin_hs, 'thruster': part_thruster_hs, 'sub_claw': part_sub_claw_hs, 'sub_lamp': part_sub_lamp_hs})
+GARAGE_PARTS = ['head_screen', 'head_dome', 'bin', 'drone_pad', 'water_tank', 'grabber', 'planter', 'antenna', 'beacon', 'solar', 'fin',
+    'cam', 'spray', 'claw', 'sub_fin', 'sub_claw', 'sub_lamp', 'thruster']

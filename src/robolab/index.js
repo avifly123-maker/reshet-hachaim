@@ -364,7 +364,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     if (b.dataset.home != null) { sfx('click'); home(); return; }
     if (b.dataset.intro != null) { sfx('click'); showIntro(); return; }
     if (b.dataset.workshop != null) { sfx('click'); openWs(); return; }
-    if (b.dataset.garage != null) { sfx('click'); if (garage) garage.close(); garage = openGarage(el, { kids, sfx, toolSound, onClose: () => { garage = null; checkRoboBadges(); } }); return; }
+    if (b.dataset.garage != null) { sfx('click'); if (garage) garage.close(); garage = openGarage(el, { kids, sfx, toolSound, guide: svcGuide(), voice: kvoice, onClose: () => { garage = null; checkRoboBadges(); } }); return; }
     if (b.dataset.level) { sfx('click'); openLevel(b.dataset.level); return; }
     if (b.dataset.run) { run(b.dataset.run); return; }
     if (b.dataset.again != null) { stopRun(); hideMsg(); map.reset(); return; }
@@ -434,7 +434,8 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     look: (x, y, d = 9) => { const C = in3d && in3d.api && in3d.api.course, rig = window.__game && window.__game.debug && window.__game.debug.rig; if (!C || !rig) return false; const t = C.cellPos(x, y); rig.goTo(t, t.clone().add({ x: d * 0.15, y: d * 0.7, z: d * 0.7 }), 0.05); return true; },
     workshop: () => openWs(),
     wkSnap: (px, ry) => (workshop && workshop.snap ? workshop.snap(px, ry) : null),
-    garage: () => { if (garage) garage.close(); garage = openGarage(el, { kids, sfx, onClose: () => { garage = null; } }); return true; },
+    garage: (tut = false) => { if (garage) garage.close(); garage = openGarage(el, { kids, sfx, guide: tut ? svcGuide() : null, voice: kvoice, onClose: () => { garage = null; } }); return true; },
+    gar: () => (garage ? garage.state() : null),
     solve: (id, i = 0) => { const L = ALL_LEVELS.find((q) => q.id === id); if (!L) return null; if (!(in3d && in3d.api && cur && cur.id === id)) openLevel(id, { flat: true }); ed.set({ ...L.solutions[i], defs: { ...(L.defs0 || {}), ...(L.solutions[i].defs || {}) } }); run('fast'); return lastRun && { ok: lastRun.ok, stars: lastRun.stars }; },
     run: (speed = 'fast') => run(speed), last: () => lastRun && { ok: lastRun.ok, stars: lastRun.stars, why: lastRun.why, error: lastRun.error },
     levels: () => ALL_LEVELS.map((q) => q.id),

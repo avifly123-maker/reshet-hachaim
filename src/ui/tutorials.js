@@ -103,6 +103,20 @@ export function wkMissionsTutorial({ guide, ws, force = false, voice = null }) {
   ];
   return runGuided({ guide, steps, sayOpts: { speaker: 'kubi', voice }, onEnd: (r) => { if (r !== 'abort' || st().gone) markIntro(KEY); } });
 }
+// סדנת העיצוב (1.4.3 set 4): one part, one colour, then the surprise and the way back
+export function garageTutorial({ guide, gar, force = false, voice = null }) {
+  const KEY = 'g:gartut';
+  if (!guide || !gar || !gar.state || (!force && introSeen(KEY))) return null;
+  const st = () => gar.state();
+  const see = (sel) => { const t = document.querySelector(sel); if (t) t.scrollIntoView({ block: 'nearest' }); };   // the ring needs it on screen
+  let c0 = 0;
+  const steps = [
+    { id: 'part', lines: L('gartut:part'), before: () => { c0 = st().changes; see('.rl-garage .rl-gtile:not([disabled]):not(.on):not(.none)'); }, wait: () => !!st().picked },
+    { id: 'paint', lines: L('gartut:paint'), before: () => { c0 = st().changes; see('.rl-garage .rl-gsw'); }, wait: () => st().changes > c0 },
+    { id: 'end', lines: L('gartut:end') },
+  ];
+  return runGuided({ guide, steps, sayOpts: { speaker: 'kubi', voice }, onEnd: (r) => { if (r !== 'abort' || st().changes) markIntro(KEY); } });
+}
 export function missionRunTutorial({ guide, rl, force = false, voice = null }) {
   const KEY = 'g:wmtut:run';
   if (!guide || !rl || !rl.state || (!force && introSeen(KEY))) return null;

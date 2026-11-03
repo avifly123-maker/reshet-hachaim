@@ -84,7 +84,7 @@ echo "$out" | grep "\[pageerror\]\|JS ERROR\|UNTIL TIMEOUT\|NO ELEMENT" && fail 
 # track (stuck on sand with a hint, a step card only after the tutorial), wide wheels cross the sand, the garage; beginners;
 # and the technology cards (a drop-in after the step card, the album's tech tab, the zoom); set 4: the missions (the
 # missions tutorial, the robot on the bench goes to a mission in 3D, the count, a missing part's help, back to the workshop)
-for t in workshop:14 workshop-kids:5 techcards:7 workshop-missions:13 workshop-island:8; do
+for t in workshop:14 workshop-kids:5 techcards:7 workshop-missions:13 workshop-island:8 garage:10; do
   f=${t%%:*}; want=${t##*:}
   out=$(timeout 1200 python3 tools/play.py dist/index.html tests/play/$f.json 800 460 2>&1)
   n=$(echo "$out" | grep -c "CHECK .* ok")

@@ -5,6 +5,7 @@
 import { BLOCK_ICONS } from '../robolab/ui/icons.js';
 import { TECH_GROUPS } from '../data/robolab/tech-cards.js';
 import { earnWords } from '../robolab/earn-words.js';
+import { TECH_ART } from '../data/tech-card-art.js';   // 1.4.3 set 4: a painting per card (tools/build-tech-art.py)
 
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
 const T = (o, kids) => (o ? (kids && o.k ? o.k : o.f) : '');
@@ -36,9 +37,10 @@ const groupName = (c, kids) => T(TECH_GROUPS.find((g) => g.id === c.group), kids
 
 export function techCardHTML(c, { own = true, kids = false, cls = '', attrs = '' } = {}) {
   const ic = own ? (TECH_ICONS[c.id] || BLOCK_ICONS[c.icon] || BLOCK_ICONS.robot) : LOCK;
-  return `<button type="button" class="tc-card${own ? '' : ' locked'}${cls ? ' ' + cls : ''}" style="--tc:${c.col}" ${attrs}>
+  const art = own && TECH_ART[c.id];   // the painting, with the card's sign in a small ring on its corner
+  return `<button type="button" class="tc-card${own ? '' : ' locked'}${art ? ' art' : ''}${cls ? ' ' + cls : ''}" style="--tc:${c.col}" ${attrs}>
     <span class="tc-band">${esc(kids ? 'קְלַף טֶכְנוֹלוֹגְיָה' : 'קלף טכנולוגיה')}</span>
-    <span class="tc-ic">${ic}</span>
+    ${art ? `<span class="tc-pic"><img src="${art}" alt="" draggable="false"><span class="tc-ic">${ic}</span></span>` : `<span class="tc-ic">${ic}</span>`}
     <b>${own ? esc(T(c.title, kids)) : esc(kids ? 'עוֹד לֹא נִפְתַּח' : 'עוד לא נפתח')}</b>
     <small>${own ? esc(groupName(c, kids)) : esc(earnWords(c.earn, kids))}</small></button>`;
 }
@@ -66,6 +68,13 @@ export function ensureTechCSS() {
 .tc-card b{font-size:1em;line-height:1.2}
 .tc-card small{font-size:.74em;color:#b9cde6;line-height:1.3}
 .tc-card.locked{filter:saturate(.25);opacity:.7}
+.tc-pic{position:relative;display:block;align-self:stretch;margin-top:.45em;aspect-ratio:1;border-radius:.6em;overflow:visible;box-shadow:0 0 0 2px var(--tc)}
+.tc-pic img{display:block;width:100%;height:100%;object-fit:cover;border-radius:.6em}
+.tc-pic .tc-ic{position:absolute;bottom:-.7em;inset-inline-end:-.3em;width:2.3em;height:2.3em;margin:0;background:#14293f}
+.tc-pic .tc-ic svg{width:1.35em;height:1.35em}
+.tc-card.art b{margin-top:.35em}
+.tc-card.big .tc-pic .tc-ic{width:2.6em;height:2.6em;margin:0}.tc-card.big .tc-pic .tc-ic svg{width:1.5em;height:1.5em}
+#wol-learn .wl-grid .tc-card .tc-pic .tc-ic{width:2.3em;height:2.3em;margin:0}#wol-learn .wl-grid .tc-card .tc-pic .tc-ic svg{width:1.35em;height:1.35em}
 .tc-card.locked .tc-ic svg{width:1.8em;height:1.8em;opacity:.8}
 .tc-card.big{flex:none;width:10em;min-height:13.4em;cursor:default}
 .tc-card.big .tc-ic{width:5.4em;height:5.4em;margin-top:.8em}.tc-card.big .tc-ic svg{width:3.2em;height:3.2em}

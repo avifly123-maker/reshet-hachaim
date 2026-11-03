@@ -100,6 +100,12 @@ export function attachPart(g, socket, pid) {
   s.add(obj); U.parts[socket] = { id: pid, obj };
   return obj;
 }
+// one part alone (the design garage's tiles draw each part with the player's colours)
+export function buildPart(pid, paint) {
+  const P = RL_PARTS && RL_PARTS.parts && RL_PARTS.parts[pid]; if (!P) return null;
+  const g = meshGroup('p:' + pid, P.slots, mats(paint)); g.name = 'part:' + pid;
+  return g;
+}
 export function paintTool(g, paint) {
   const M = g.userData.mats;
   for (const k of ['body', 'trim', 'accent']) if (paint && paint[k]) M[k].color.set(paint[k]);
