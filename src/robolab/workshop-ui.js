@@ -16,7 +16,7 @@ import { checkBuild, statsOf, fitOf } from './engine/build.js';
 import { runProgram } from './engine/run.js';
 import { buildTool, hasBlenderTools } from './three/parts3d.js';
 import { makeTool } from './three/models.js';
-import { wkLook } from '../data/robolab/workshop-look.js';
+import { wkLook, socketsOf } from '../data/robolab/workshop-look.js';
 import { myRobots, saveRobot, deleteRobot, addTrial, wkState, MAX_ROBOTS } from './progress.js';
 import { earned, earnState, earnWords, wkStepOf } from './earn.js';
 import { icon } from './ui/icons.js';
@@ -69,23 +69,50 @@ export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, gui
   floor.position.y = -0.04; scene.add(floor);
   const turn = new THREE.Group(); scene.add(turn);
   let model = null, yaw = -0.6, drag = null, raf = 0, last = performance.now(), closed = false;
+  // the garage's feel (Avi, 3.11): a new part drops onto its place with a click, the places a picked part can go glow
+  let shownLook = null, drops = [], marks = [], markT = 0;
+  const glowMat = new THREE.MeshBasicMaterial({ color: '#7fe3ff', transparent: true, opacity: 0.85, depthTest: false });
+  const glowGeo = new THREE.SphereGeometry(0.035, 16, 10);
   function rebuild() {
     if (model) turn.remove(model);
     // the build as it is: its chassis, wheels and the parts that have a picture (src/data/robolab/workshop-look.js)
-    const L = wkLook(cur.build);
+    const L = wkLook(cur.build), before = shownLook && shownLook.base === L.base ? shownLook.parts : null;
     model = hasBlenderTools() ? (buildTool(L) || buildTool({ base: 'robot' })) : makeTool('robot');
     if (model) turn.add(model);
+    drops = [];
+    if (before && model && model.userData.parts) for (const [sock, P] of Object.entries(model.userData.parts)) {
+      if (P && before[sock] !== P.id) { P.obj.position.y = 0.38; drops.push({ obj: P.obj, t: 0 }); }
+    }
+    shownLook = L; marks = []; showSockets(picked);
     // frame the robot: a three-quarter view from the front, as far as its size needs
     let r = 0.9, cy = 0.35;
     if (model) { const bb = new THREE.Box3().setFromObject(model), sz = bb.getSize(new THREE.Vector3()); r = Math.max(0.5, sz.length() / 2); cy = (bb.min.y + bb.max.y) / 2; }
-    const d = r / Math.sin((cam.fov * Math.PI / 180) / 2) * 0.58;
+    const d = r / Math.sin((cam.fov * Math.PI / 180) / 2) * 0.66;
     cam.position.set(d * 0.42, cy + d * 0.38, d * 0.82); cam.lookAt(0, cy, 0);
+  }
+  // the places on the robot where the picked part would go, glowing
+  function showSockets(id) {
+    for (const m of marks) m.parent && m.parent.remove(m);
+    marks = [];
+    if (!id || !model || !model.userData.sockets) return;
+    for (const s of socketsOf(id, B())) {
+      const o = model.userData.sockets[s]; if (!o) continue;
+      const m = new THREE.Mesh(glowGeo, glowMat); m.renderOrder = 10; m.position.y = 0.06; o.add(m); marks.push(m);
+    }
   }
   function size() { const r = canvas.getBoundingClientRect(); const ww = Math.max(100, r.width), hh = Math.max(80, r.height); renderer.setSize(ww, hh, false); cam.aspect = ww / hh; cam.updateProjectionMatrix(); }
   function frame(now) {
     if (closed) return; raf = requestAnimationFrame(frame);
     const dt = Math.min(0.05, (now - last) / 1000); last = now;
-    if (!drag) yaw += dt * 0.35; turn.rotation.y = yaw; renderer.render(scene, cam);
+    if (!drag) yaw += dt * 0.35; turn.rotation.y = yaw;
+    for (const D of drops) {   // a part dropping in: down with a little bounce, a click when it lands
+      if (D.t >= 1) continue;
+      D.t = Math.min(1, D.t + dt / 0.38); const e = 1 - Math.pow(1 - D.t, 3);
+      D.obj.position.y = 0.38 * (1 - e) + (D.t > 0.8 ? Math.sin((D.t - 0.8) / 0.2 * Math.PI) * 0.015 : 0);
+      if (D.t >= 1) { D.obj.position.y = 0; sfx('click'); }
+    }
+    markT += dt; for (const m of marks) m.scale.setScalar(1 + Math.sin(markT * 5) * 0.3);
+    renderer.render(scene, cam);
   }
   canvas.addEventListener('pointerdown', (e) => { drag = { x: e.clientX, y0: yaw }; canvas.setPointerCapture(e.pointerId); });
   canvas.addEventListener('pointermove', (e) => { if (drag) yaw = drag.y0 + (e.clientX - drag.x) * 0.012; });
@@ -167,6 +194,7 @@ export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, gui
   function renderSide() {
     el.querySelector('.wk-side').innerHTML = tab === 'garage' ? renderGarage() : renderParts();
     renderCard();
+    showSockets(picked);
   }
   // the card of one part: what it does, what to watch for, where it fits, its numbers, and the buttons
   function renderCard() {
@@ -190,13 +218,18 @@ export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, gui
   }
 
   // ── the robot: its numbers, the rules it breaks, the test track
+  let prevStats = null;
   function renderMain() {
     el.querySelector('.wk-name').value = cur.name;
     el.querySelector('.wk-step b').textContent = String(step);
     const chk = checkBuild(B()), st = statsOf(B());
-    const bar = (k, v, txt) => `<div class="wk-stat"><span>${esc(T(STAT_WORDS[k]))}</span><i><u style="width:${Math.round(Math.max(0.04, Math.min(1, v / STAT_MAX[k])) * 100)}%"></u></i>${txt ? `<small>${esc(txt)}</small>` : ''}</div>`;
+    const pct = (k, v) => Math.round(Math.max(0.04, Math.min(1, v / STAT_MAX[k])) * 100);
+    const bar = (k, v, txt) => { const was = prevStats && prevStats[k] != null ? pct(k, prevStats[k]) : pct(k, v), now = pct(k, v);
+      return `<div class="wk-stat${now > was ? ' up' : now < was ? ' down' : ''}"><span>${esc(T(STAT_WORDS[k]))}</span><i><u style="width:${was}%" data-to="${now}"></u></i>${txt ? `<small>${esc(txt)}</small>` : ''}</div>`; };
     el.querySelector('.wk-stats').innerHTML = st ? bar('speed', st.speed, st.stepsPerMove > 1 ? w(`${st.stepsPerMove} צעדים למשבצת`, 'אִטִּי') : '') + bar('force', st.force) + bar('precision', st.precision) + bar('battery', st.battery, w(`${st.moveDrain} לכל צעד`, '')) + bar('lift', st.lift)
       + `<p class="wk-mass">${esc(w(`משקל: ${st.mass} גרם`, `מִשְׁקָל: ${st.mass} גְּרַם`))}</p>` : '';
+    prevStats = st;
+    requestAnimationFrame(() => el.querySelectorAll('.wk-stat u[data-to]').forEach((u) => { u.style.width = u.dataset.to + '%'; }));
     el.querySelector('.wk-probs').innerHTML = chk.ok ? '' : chk.problems.map((q) => `<p>${icon('lock')} ${esc(T(PROBLEM_WORDS[q.code] || PROBLEM_WORDS.any))}</p>`).join('');
     const mine = myRobots().some((r) => r.id === cur.id);
     let h = `<div class="wk-tbar"><b>${esc(w('מסלול ניסוי', 'מַסְלוּל נִסּוּי'))}</b>${TRACKS.map((t) => `<button type="button" data-wtrack="${t.id}" ${st ? '' : 'disabled'}>${esc(T(GROUND_WORDS[t.id]))}</button>`).join('')}`
@@ -263,7 +296,8 @@ export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, gui
   const api = { close, el, trial, show: (t) => { if (tab !== t) { tab = t; picked = null; renderAll(); } },
     state: () => ({ cur, step, tab, fam, picked, robots: myRobots().length, tests: wkState().tests, passed: wkState().passed, stats: statsOf(B()), problems: checkBuild(B()).problems, tut: tut && tut.step, held, card: !el.querySelector('.wk-steps').hidden }) };
   function startTut() {
-    if (!tut && guide) tut = workshopTutorial({ guide, ws: api, onDone: (r) => { if (r !== 'abort' && held && !closed) { const n = held; held = 0; showStep(n); } } });
+    if (!tut && guide) tut = workshopTutorial({ guide, ws: api, onDone: (r) => { el.removeAttribute('data-hold-toasts'); if (r !== 'abort' && held && !closed) { const n = held; held = 0; showStep(n); } } });
+    if (tut) el.setAttribute('data-hold-toasts', '');   // new cards and badges wait for its end
   }
   if (!wkState().tests && !myRobots().length) showStep(1); else startTut();
   requestAnimationFrame(() => { size(); raf = requestAnimationFrame(frame); });

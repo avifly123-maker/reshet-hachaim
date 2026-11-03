@@ -100,7 +100,7 @@ def hs_block(name, sx, sy, sz, slot, ch=0.018, top=(1.0, 1.0), nose=0.0, panels=
 def bolts(pre, pts, r, parent, axis='Z', slot='metal'):
     """hex bolts with a washer under each"""
     for i, p in enumerate(pts):
-        cyl('%s_w%d' % (pre, i), r * 1.45, r * 0.3, 'dark', seg=12, axis=axis, parent=parent, loc=p)
+        cyl('%s_w%d' % (pre, i), r * 1.45, r * 0.3, 'dark', seg=8, axis=axis, parent=parent, loc=p)
         o = cyl('%s_b%d' % (pre, i), r, r * 0.9, slot, seg=6, axis=axis, bev=r * 0.15, parent=parent, loc=p)
         try: o.data.set_sharp_from_angle(angle=math.radians(20))
         except Exception: pass
@@ -126,9 +126,9 @@ def sweep(name, pts, r, slot, ring=8, **k):
     return _mk(name, bm, slot, **k)
 
 def coil(name, at, r, h, turns, wire, slot, parent):
-    n = int(turns * 14)
+    n = int(turns * 10)
     pts = [(at[0] + math.cos(2 * math.pi * turns * i / n) * r, at[1] + math.sin(2 * math.pi * turns * i / n) * r, at[2] + h * i / n) for i in range(n + 1)]
-    return sweep(name, pts, wire, slot, ring=6, parent=parent)
+    return sweep(name, pts, wire, slot, ring=5, parent=parent)
 
 def armor(name, sx, sy, sz, slot, parent, loc, axis='X', rot=(0, 0, 0)):
     """a plate on the hull: chamfered, a panel line, a bolt in each corner"""
@@ -259,7 +259,7 @@ def tyre(name, R, w, parent, loc, blocks=24, deep=0.022, balloon=False):
         block = _smooth((0.42 - abs(u - 0.5)) / 0.08)
         groove = 1 - _smooth((abs(x) - 0.03 * w) / (0.05 * w))   # a groove round the middle
         return (0, -deep * (1 - block) - deep * 0.8 * groove)
-    return revolve(name, prof, 'rubber', seg=max(40, blocks * 3), mod=mod, parent=parent, loc=loc)
+    return revolve(name, prof, 'rubber', seg=max(36, blocks * 2), mod=mod, parent=parent, loc=loc)
 
 def rim(name, R, w, parent, loc, spokes=5, slot='accent'):
     """the rim's outer face: a dish to the hub, five rounded spokes (pockets between them), a hub cap"""
@@ -271,7 +271,7 @@ def rim(name, R, w, parent, loc, spokes=5, slot='accent'):
         u = (a / (2 * math.pi) * spokes) % 1.0
         pocket = _smooth((0.3 - abs(u - 0.5)) / 0.12)   # between the spokes
         return (hw * 1.1 * pocket * (1 if j in (4, 5) else 0.55), 0)
-    o = revolve(name, prof, slot, seg=spokes * 14, mod=mod, parent=parent, loc=loc)
+    o = revolve(name, prof, slot, seg=spokes * 10, mod=mod, parent=parent, loc=loc)
     # the inner side, plain (seen only through the pockets)
     revolve(name + '_in', [(hw * 0.2, R * 0.96), (-hw * 0.1, R * 0.62), (-hw * 0.1, 0.001)], 'dark', seg=30, parent=parent, loc=loc)
     sphere(name + '_cap', R * 0.22, 'metal', sx=0.5, seg=24, ring=12, parent=parent, loc=(loc[0] - hw * 0.93, loc[1], loc[2]))

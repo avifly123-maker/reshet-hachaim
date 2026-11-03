@@ -266,6 +266,9 @@
 #ui.wol .wk-stat { display: grid; grid-template-columns: 4.6em 1fr; align-items: center; gap: 6px; }
 #ui.wol .wk-stat i { height: 8px; border-radius: 4px; background: rgba(255, 255, 255, .18); overflow: hidden; }
 #ui.wol .wk-stat u { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, #e8873a, #ffc72e); text-decoration: none; transition: width .4s; }
+#ui.wol .wk-stat.up u { background: linear-gradient(90deg, #3fae5a, #9be37a); animation: wk-flash 1.2s ease-out; }
+#ui.wol .wk-stat.down u { background: linear-gradient(90deg, #c9483a, #f08a5a); animation: wk-flash 1.2s ease-out; }
+@keyframes wk-flash { 0% { filter: brightness(1.8); } 100% { filter: none; } }
 #ui.wol .wk-stat small { grid-column: 2; font-size: .82em; opacity: .85; }
 #ui.wol .wk-mass { grid-column: 1 / -1; margin: 0; opacity: .85; }
 #ui.wol .wk-probs p { margin: 0; padding: 4px 10px; border-radius: 9px; background: #f6d9c8; color: #8a3a20; font-size: .86em; display: flex; align-items: center; gap: 5px; }

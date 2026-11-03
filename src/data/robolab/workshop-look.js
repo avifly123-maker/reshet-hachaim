@@ -30,3 +30,12 @@ export function wkLook(b) {
   }
   return { base: WK_BASE[b.chassis] || 'wk_m', parts };
 }
+// the sockets a part would take on this build (the glow when a part is picked in the workshop)
+export function socketsOf(id, b) {
+  if (WK_WHEELS[id]) return ['wfl', 'wfr', 'wbl', 'wbr'];
+  if (WK_SIDES[id]) return ['tl', 'tr'];
+  const L = WK_LOOK[id]; if (!L) return [];
+  const used = wkLook(b).parts;
+  const mine = Object.keys(used).filter((s) => used[s] === L[0]);
+  return mine.length ? mine : L.slice(1, 2);
+}

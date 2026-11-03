@@ -41,8 +41,9 @@ export function startBadgeToasts(root, audio) {
   function next() {
     if (busy || !queue.length) return;
     // a mission banner ("משימה הושלמה!") is showing: the badge waits until it is gone, so they never cover each other
-    // 1.4.3: also the robot workshop's step card and the robot lab's opening film
-    if (root.querySelector('.mission-banner') || document.querySelector('.ss') || document.querySelector('.wk-steps:not([hidden]), .rl-intro') || (queue[0] && queue[0].tech && guideTalks())) { if (!waitT) waitT = setTimeout(() => { waitT = 0; next(); }, 300); return; }
+    // 1.4.3: also the robot workshop's step card, the robot lab's opening film, and any screen that holds them for a
+    // while ([data-hold-toasts]: the workshop during its tutorial, whose bubbles have short gaps between steps)
+    if (root.querySelector('.mission-banner') || document.querySelector('.ss') || document.querySelector('.wk-steps:not([hidden]), .rl-intro, [data-hold-toasts]') || (queue[0] && queue[0].tech && guideTalks())) { if (!waitT) waitT = setTimeout(() => { waitT = 0; next(); }, 300); return; }
     const item = queue.shift();
     let html = '', tech = false;
     if (item && item.tech) {
