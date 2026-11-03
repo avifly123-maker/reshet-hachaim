@@ -22,7 +22,7 @@ _mat0 = mat
 def mat(slot):
     m = _mat0(slot); b = _bsdf(m)
     if slot in ('body', 'trim', 'accent', 'cream'):
-        try: b.inputs['Coat Weight'].default_value = 0.35; b.inputs['Coat Roughness'].default_value = 0.12
+        try: b.inputs['Coat Weight'].default_value = 0.18; b.inputs['Coat Roughness'].default_value = 0.1
         except Exception: pass
     if slot == 'dark': b.inputs['Metallic'].default_value = 0.55
     if slot == 'metal': b.inputs['Metallic'].default_value = 1.0
@@ -175,6 +175,12 @@ def build_wk(size):
         bolt_row('wk%s_gb_%d' % (size, k_), (k_ * sx * 0.43 + k_ * 0.02, -sy * 0.47 - 0.02, WK_BOTTOM + sz * 0.15), (k_ * sx * 0.43 + k_ * 0.02, -sy * 0.47 - 0.02, WK_BOTTOM + sz * 0.57), 3, 0.009, R, axis='Y')
         bolt_row('wk%s_tb_%d' % (size, k_), (k_ * sx * 0.37, -sy * 0.3, WK_BOTTOM + sz * 0.725), (k_ * sx * 0.37, sy * 0.38, WK_BOTTOM + sz * 0.725), 5, 0.009, R)
     bolt_row('wk%s_bayb' % size, (-sx * 0.24, -sy * 0.19, WK_BOTTOM + sz * 1.0), (sx * 0.24, -sy * 0.19, WK_BOTTOM + sz * 1.0), 4, 0.008, R)
+    # intake vents on the hull's sides (slats), a hatch on the bay with its handle bar
+    for k_ in (-1, 1):
+        hs_block('wk%s_vent_%d' % (size, k_), 0.02, sy * 0.16, sz * 0.24, 'dark', ch=0.006, parent=R, loc=(k_ * sx * 0.405, sy * 0.33, WK_BOTTOM + sz * 0.5))
+        for i in range(4): hs_block('wk%s_slat_%d_%d' % (size, k_, i), 0.012, sy * 0.15, 0.012, 'metal', ch=0.003, parent=R, loc=(k_ * (sx * 0.405 + 0.012), sy * 0.33, WK_BOTTOM + sz * (0.41 + i * 0.06)))
+    hs_block('wk%s_hatch' % size, sx * 0.4, sy * 0.26, 0.012, 'trim', ch=0.004, parent=R, loc=(0, sy * 0.24, WK_BOTTOM + sz * 1.012))
+    sweep('wk%s_handle' % size, [(-sx * 0.1, sy * 0.4, WK_BOTTOM + sz * 1.0), (-sx * 0.1, sy * 0.43, WK_BOTTOM + sz * 1.06), (sx * 0.1, sy * 0.43, WK_BOTTOM + sz * 1.06), (sx * 0.1, sy * 0.4, WK_BOTTOM + sz * 1.0)], 0.009, 'metal', ring=8, parent=R)
     # side armour, fenders over the wheels, a grille and two lamps in front
     for k_ in (-1, 1):
         armor('wk%s_side_%d' % (size, k_), 0.025, sy * 0.42, sz * 0.4, 'accent', R, (k_ * sx * 0.455, -sy * 0.02, WK_BOTTOM + sz * 0.38))
@@ -275,6 +281,7 @@ def rim(name, R, w, parent, loc, spokes=5, slot='accent'):
     # the inner side, plain (seen only through the pockets)
     revolve(name + '_in', [(hw * 0.2, R * 0.96), (-hw * 0.1, R * 0.62), (-hw * 0.1, 0.001)], 'dark', seg=30, parent=parent, loc=loc)
     sphere(name + '_cap', R * 0.22, 'metal', sx=0.5, seg=24, ring=12, parent=parent, loc=(loc[0] - hw * 0.93, loc[1], loc[2]))
+    bolts(name + '_lug', [(loc[0] - hw * 0.9, loc[1] + math.cos(2 * math.pi * k / 5 + 0.3) * R * 0.34, loc[2] + math.sin(2 * math.pi * k / 5 + 0.3) * R * 0.34) for k in range(5)], R * 0.06, parent, axis='X')
     return o
 
 def _wheel(name, r, w, hub=0.55, slot_hub='accent', balloon=False, blocks=24):
@@ -285,6 +292,7 @@ def _wheel(name, r, w, hub=0.55, slot_hub='accent', balloon=False, blocks=24):
     _bracket(P, name, r)
     # a mudguard over the wheel: a chamfered arc plate, sized to this wheel, with its stay to the body
     curved_plate(name + '_guard', w + 0.04, r + 0.045, math.radians(25), math.radians(155), 0.018, 'trim', parent=P, loc=(out, 0, r), rot=(0, 0, 0))
+    curved_plate(name + '_bead', 0.014, r + 0.05, math.radians(25), math.radians(155), 0.03, 'metal', seg=16, parent=P, loc=(out - (w + 0.04) / 2, 0, r))   # a steel edge on the guard
     hs_block(name + '_stay', 0.03, 0.04, 0.05, 'dark', ch=0.008, parent=P, loc=(0.0, 0, r + r * 0.7))
     return P
 
@@ -306,20 +314,28 @@ def part_omni():
 def part_tracks():
     P = group('part_tracks'); r = 0.15; L = 0.95
     belt = box('tk_belt', 0.17, L, 2 * r, 'rubber', r=0.06, parent=P, loc=(-0.1, 0, r))   # a bevel under half the width, or the belt folds in
-    for k in range(9):   # grooves on top of the belt
-        box('tk_cleat%d' % k, 0.18, 0.025, 0.02, 'dark', r=0.006, parent=P, loc=(-0.1, -L / 2 + 0.14 + k * (L - 0.28) / 8, 2 * r + 0.004))
-    for y in (-L / 2 + r, -0.12, 0.12, L / 2 - r):
-        rr = r * (0.75 if abs(y) > 0.2 else 0.55)
-        cyl('tk_wheel_%d' % int(y * 100), rr, 0.025, 'accent', seg=24, axis='X', bev=0.006, parent=P, loc=(-0.195, y, r))
+    for k in range(13):   # cleats along the top and the ends of the belt
+        box('tk_cleat%d' % k, 0.18, 0.022, 0.018, 'dark', r=0.005, parent=P, loc=(-0.1, -L / 2 + 0.1 + k * (L - 0.2) / 12, 2 * r + 0.004))
+    # the drive sprocket at the back: a toothed wheel (five teeth, never a cross), the idler in front
+    revolve('tk_sprocket', [(-0.21, 0.001), (-0.21, r * 0.8), (-0.19, r * 0.8), (-0.19, 0.001)], 'accent', seg=40,
+            mod=lambda a, j, x, rr: (0, (r * 0.12 if (a / (2 * math.pi) * 10) % 1 < 0.5 else 0) if j in (1, 2) else 0), parent=P, loc=(0, L / 2 - r, r))
+    cyl('tk_idler', r * 0.72, 0.03, 'metal', seg=28, axis='X', bev=0.006, parent=P, loc=(-0.2, -L / 2 + r, r))
+    for y in (-0.16, 0.0, 0.16):
+        cyl('tk_road_%d' % int(y * 100), r * 0.5, 0.03, 'metal', seg=24, axis='X', bev=0.006, parent=P, loc=(-0.2, y, r * 0.75))
+        bolts('tk_rb_%d' % int(y * 100), [(-0.217, y, r * 0.75)], 0.012, P, axis='X')
+    hs_block('tk_guard', 0.22, L * 0.86, 0.025, 'trim', ch=0.008, parent=P, loc=(-0.1, 0, 2 * r + 0.05))
+    bolt_row('tk_gb', (-0.1, -L * 0.38, 2 * r + 0.064), (-0.1, L * 0.38, 2 * r + 0.064), 6, 0.008, P)
     _bracket(P, 'tk', r, x=-0.02)
     return P
 
 def part_float():
+    # a pontoon beside the body: a long chamfered hull with a pointed nose, two struts up to the body, a bolt row
     P = group('part_float')
-    sphere('fl_body', 0.13, 'cream', sy=3.4, sz=0.8, seg=28, ring=14, parent=P, loc=(-0.13, 0, 0.12))
-    for k, y in enumerate((-0.22, 0.22)):
-        o = torus('fl_band%d' % k, 0.124, 0.016, 'trim', seg=24, rseg=6, axis='Y', parent=P, loc=(-0.13, y, 0.12)); o.scale = (1, 1, 0.8)
-    _bracket(P, 'fl', 0.25, x=-0.07)
+    hs_block('fl_body', 0.16, 0.86, 0.14, 'cream', ch=0.035, top=(0.8, 0.94), nose=0.08, panels=0.02, pdepth=0.006, parent=P, loc=(-0.07, 0, 0.1))
+    hs_block('fl_stripe', 0.165, 0.5, 0.03, 'trim', ch=0.008, parent=P, loc=(-0.07, 0, 0.12))
+    for y in (-0.22, 0.22):
+        hs_block('fl_strut_%d' % int(y * 100), 0.03, 0.05, 0.14, 'dark', ch=0.008, parent=P, loc=(-0.025, y, 0.215), rot=(0, 0.6, 0))
+    bolt_row('fl_b', (-0.07, -0.3, 0.172), (-0.07, 0.3, 0.172), 5, 0.008, P)
     return P
 
 def part_propeller():
