@@ -88,3 +88,29 @@ export function workshopTutorial({ guide, ws, force = false, onDone, voice = nul
   ];
   return runGuided({ guide, steps, sayOpts: { speaker: 'kubi', voice }, onEnd: (r) => { if (r !== 'abort') markIntro(KEY); if (onDone) onDone(r); } });
 }
+
+// 1.4.3 set 4: the workshop's missions, in two parts. In the workshop: the missions tab, a mission, its card, going
+// out (ws = workshop-ui.js; it closes when the robot goes, which ends this part). In the mission: the robot is the
+// child's own, a program and a run, and the way back to improve it (rl = the lab's tutState). קוּבִּי leads both.
+export function wkMissionsTutorial({ guide, ws, force = false, voice = null }) {
+  const KEY = 'g:wmtut';
+  if (!guide || !ws || !ws.state || (!force && introSeen(KEY))) return null;
+  const st = () => ws.state();
+  const steps = [
+    { id: 'tab', lines: L('wmtut:tab'), wait: () => st().tab === 'missions' },
+    { id: 'pick', lines: L('wmtut:pick'), wait: () => !!st().mpick },
+    { id: 'go', lines: L('wmtut:go'), wait: () => !!st().gone },
+  ];
+  return runGuided({ guide, steps, sayOpts: { speaker: 'kubi', voice }, onEnd: (r) => { if (r !== 'abort' || st().gone) markIntro(KEY); } });
+}
+export function missionRunTutorial({ guide, rl, force = false, voice = null }) {
+  const KEY = 'g:wmtut:run';
+  if (!guide || !rl || !rl.state || (!force && introSeen(KEY))) return null;
+  const st = () => rl.state();
+  let runs0 = 0;
+  const steps = [
+    { id: 'robot', lines: L('wmtut:robot'), before: () => { runs0 = st().runs; }, wait: () => st().runs > runs0 },
+    { id: 'end', lines: L('wmtut:end') },
+  ];
+  return runGuided({ guide, steps, sayOpts: { speaker: 'kubi', voice }, onEnd: (r) => { if (r !== 'abort') markIntro(KEY); } });
+}

@@ -1,18 +1,18 @@
 // מעבדת הרובוטים – what each player solved (per player, src/core/storage.js K.robolab).
 // { done: { <levelId>: { stars, blocks, t } }, seen: { intro: 1, ... }, fun: n (funny blocks pressed, for a badge),
 //   look: { robot|drone|sub: { parts: { socket: partId }, paint: { body, trim, accent } } } (the garage),
-//   robots: [{ id, name, build }] (1.4.3: the robot workshop's garage, up to 8), wk: { tests, passed, missions, step, trials },
+//   robots: [{ id, name, build }] (1.4.3: the robot workshop's garage, up to 8), wk: { tests, passed, missions, step, trials, done },
 //   tc: { <techCardId>: time } (1.4.3: the technology cards, src/robolab/tech.js) }
 // Writes fire 'wol-progress' { kind: 'robolab' } so מסע החוקר and the badges can count.
 import { K, readPlayer, writePlayer, removePlayer } from '../core/storage.js';
 
-const EMPTY = () => ({ done: {}, seen: {}, fun: 0, look: {}, isl: 0, robots: [], wk: { tests: 0, passed: 0, missions: 0, step: 0, trials: {} }, tc: {} });
+const EMPTY = () => ({ done: {}, seen: {}, fun: 0, look: {}, isl: 0, robots: [], wk: { tests: 0, passed: 0, missions: 0, step: 0, trials: {}, done: {} }, tc: {} });
 export const MAX_ROBOTS = 8;
-const WK0 = () => ({ tests: 0, passed: 0, missions: 0, step: 0, trials: {} });
+const WK0 = () => ({ tests: 0, passed: 0, missions: 0, step: 0, trials: {}, done: {} });
 export function roboProgress() {
   const o = readPlayer(K.robolab, null);
   if (!o || typeof o !== 'object') return EMPTY();
-  const wk = o.wk && typeof o.wk === 'object' ? { ...WK0(), ...o.wk, trials: { ...(o.wk.trials || {}) } } : WK0();
+  const wk = o.wk && typeof o.wk === 'object' ? { ...WK0(), ...o.wk, trials: { ...(o.wk.trials || {}) }, done: { ...(o.wk.done || {}) } } : WK0();
   return { done: o.done && typeof o.done === 'object' ? o.done : {}, seen: o.seen && typeof o.seen === 'object' ? o.seen : {}, fun: o.fun | 0, look: o.look && typeof o.look === 'object' ? o.look : {}, isl: o.isl | 0,
     robots: Array.isArray(o.robots) ? o.robots.filter((r) => r && r.id && r.build).slice(0, MAX_ROBOTS) : [], wk,
     tc: o.tc && typeof o.tc === 'object' ? o.tc : {} };
@@ -55,9 +55,19 @@ export function saveRobot(r) {
 export function deleteRobot(id) { const o = roboProgress(); o.robots = o.robots.filter((q) => q.id !== id); save(o, null, true); }
 // a run on the test track: counted, and the ground it passed is kept; returns the workshop step reached (it never goes back)
 export function addTrial(ground, passed, stepOf) {
-  const o = roboProgress(); o.wk.tests++; if (passed) { o.wk.passed++; o.wk.trials[ground] = 1; }
-  const was = o.wk.step, now = Math.max(was, stepOf(o.wk)); o.wk.step = now;
+  const o = roboProgress(), was = Math.max(o.wk.step, stepOf(o.wk));   // the step before this run (a step needs no run to be had)
+  o.wk.tests++; if (passed) { o.wk.passed++; o.wk.trials[ground] = 1; }
+  const now = Math.max(was, stepOf(o.wk)); o.wk.step = now;
   save(o, { workshop: true }); return { was, now };
+}
+// a workshop mission done (set 4): the best stars are kept; a first time counts in wk.missions, which opens the
+// workshop's steps 4 and 5. Returns { first, was, now } (the workshop step before and after)
+export function addMission(id, stars, robot, stepOf) {
+  const o = roboProgress(), d = o.wk.done[id], first = !d, was = Math.max(o.wk.step, stepOf(o.wk));
+  o.wk.done[id] = { stars: Math.max(stars | 0, d ? d.stars : 0), t: Date.now(), robot: String(robot || (d && d.robot) || '').slice(0, 18) };
+  if (first) o.wk.missions++;
+  const now = Math.max(was, stepOf(o.wk)); o.wk.step = now;
+  save(o, { workshop: true, mission: id, first }); return { first, was, now };
 }
 export function wkState() { return roboProgress().wk; }
 

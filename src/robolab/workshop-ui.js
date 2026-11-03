@@ -21,7 +21,12 @@ import { WK_ICONS } from '../data/robolab/wk-icons.js';
 import { myRobots, saveRobot, deleteRobot, addTrial, wkState, MAX_ROBOTS } from './progress.js';
 import { earned, earnState, earnWords, wkStepOf } from './earn.js';
 import { icon } from './ui/icons.js';
-import { workshopTutorial } from '../ui/tutorials.js';
+import { workshopTutorial, wkMissionsTutorial } from '../ui/tutorials.js';
+import { introSeen } from '../core/journey.js';
+import { missionsOf, missionOpen } from './missions.js';   // set 4: the missions tab
+import { roboProgress } from './progress.js';
+import { ZONE_LOOK } from '../data/zones.js';
+const MISSION_ZONES = ['amazon', 'grove', 'reef', 'desert', 'savanna'];
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const ALL = { ...CHASSIS, ...PARTS };
@@ -38,7 +43,7 @@ const STAT_MAX = { speed: 1.4, force: 1.6, precision: 1, battery: 100, lift: 3 }
 const blank = () => JSON.parse(JSON.stringify(PRESETS.gardener.build));
 let uid = Date.now() % 100000;
 
-export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, guide = null, voice = null } = {}) {
+export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, guide = null, voice = null, onMission = null, newStep = 0, tab: tab0 = null } = {}) {
   const T = (o) => (o ? (kids && o.k ? o.k : o.f) : '');
   const w = (f, k) => (kids ? k : f);
   let ES = earnState(), step = wkStepOf();
@@ -46,7 +51,7 @@ export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, gui
   // the robot on the bench: one of the garage's, or a new one from a ready robot
   let robots = myRobots();
   let cur = robots[0] ? JSON.parse(JSON.stringify(robots[0])) : { id: 'r' + (++uid), name: w('רובוט 1', 'רוֹבּוֹט 1'), build: blank() };
-  let tab = robots.length ? 'parts' : 'garage', fam = kids ? 'move' : 'chassis', picked = null, delAsk = null, lastRun = null;
+  let tab = tab0 && (tab0 !== 'missions' || onMission) ? tab0 : robots.length ? 'parts' : 'garage', fam = kids ? 'move' : 'chassis', picked = null, delAsk = null, lastRun = null, mpick = null, gone = false;
   const el = document.createElement('div'); el.className = 'rl-garage rl-wk';
   host.appendChild(el);
   el.innerHTML = `<header class="rl-top"><button type="button" class="rl-back" data-wclose>${icon('home')}<span>${w('למעבדה', 'לַמַּעְבָּדָה')}</span></button>
@@ -160,7 +165,7 @@ export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, gui
 
   // ── the side panel
   function renderTabs() {
-    el.querySelector('.rl-gtabs').innerHTML = [['garage', w('המוסך', 'הַמּוּסָךְ'), 'robot'], ['parts', w('החלקים', 'הַחֲלָקִים'), 'paint']]
+    el.querySelector('.rl-gtabs').innerHTML = [['garage', w('המוסך', 'הַמּוּסָךְ'), 'robot'], ['parts', w('החלקים', 'הַחֲלָקִים'), 'paint'], ...(onMission ? [['missions', w('משימות', 'מְשִׂימוֹת'), 'star']] : [])]
       .map(([k, n, ic]) => `<button type="button" role="tab" data-wtab="${k}" aria-selected="${tab === k}">${icon(ic)}<span>${esc(n)}</span></button>`).join('');
   }
   function renderGarage() {
@@ -195,8 +200,38 @@ export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, gui
     if (hidden) h += `<p class="wk-more">${icon('lock')} ${esc(w(`עוד ${hidden} חלקים ייפתחו בהמשך`, `עוֹד ${hidden} חֲלָקִים יִפָּתְחוּ בְּהֶמְשֵׁךְ`))}</p>`;
     return h;
   }
+  // ── set 4: the missions, by zone. A mission opens when the workshop reached its step and the one before it in the
+  // zone is done; the robot on the bench goes to it (src/robolab/missions.js, index.js openMission)
+  function renderMissions() {
+    const P = roboProgress();
+    let h = `<p class="wk-note">${esc(w('בוחרים משימה, והרובוט שעל השולחן יוצא אליה. אפשר לחזור לסדנה ולשפר אותו.', 'בּוֹחֲרִים מְשִׂימָה, וְהָרוֹבּוֹט שֶׁעַל הַשֻּׁלְחָן יוֹצֵא אֵלֶיהָ.'))}</p>`;
+    for (const z of MISSION_ZONES) {
+      const list = missionsOf(z); if (!list.length) continue;
+      h += `<div class="wk-mz"><b class="wk-h"><span class="rl-z z-${z}"></span>${esc(kids ? ZONE_LOOK[z].shortK : ZONE_LOOK[z].short)}</b><div class="wk-ml">`;
+      for (const M of list) {
+        const ok = missionOpen(M, P), d = P.wk.done[M.id];
+        h += `<button type="button" class="wk-mis${d ? ' done' : ''}${mpick === M.id ? ' pick' : ''}" data-wmis="${M.id}" ${ok ? '' : 'disabled'}>${ok ? '' : icon('lock')}<span>${esc(T(M.title))}</span>`
+          + (ok ? `<i class="wk-mst">${[0, 1, 2].map((k) => `<u class="${d && k < d.stars ? 'on' : ''}">${icon('star')}</u>`).join('')}</i>` : `<small>${esc(step < M.step ? earnWords('wk:' + M.step, kids) : w('אחרי המשימה הקודמת', 'אַחֲרֵי הַקּוֹדֶמֶת'))}</small>`) + `</button>`;
+      }
+      h += `</div></div>`;
+    }
+    return h;
+  }
+  function renderMissionCard() {
+    const c = el.querySelector('.wk-card');
+    const Mi = mpick ? MISSION_ZONES.flatMap(missionsOf).find((q) => q.id === mpick) : null;
+    if (!Mi) { c.hidden = true; return; }
+    const ok = checkBuild(B()).ok;
+    let h = `<button type="button" class="wk-x" data-wcard="close" aria-label="${esc(w('לסגור', 'לִסְגֹּר'))}">${icon('back')}</button><h3>${esc(T(Mi.title))}</h3>`;
+    h += (Mi.say || []).map((q) => `<p>${esc(T(q))}</p>`).join('');
+    h += `<p class="wk-good"><b>${esc(w('מה כדאי לרובוט: ', 'מָה כְּדַאי: '))}</b>${esc(T(Mi.need))}</p>`;
+    h += ok ? `<div class="wk-btns"><button type="button" class="wk-go" data-wgo>${icon('play')}${esc(w(`יוצאים עם ${cur.name}`, `יוֹצְאִים עִם ${cur.name}`))}</button></div>`
+      : `<p class="wk-bad">${esc(w('הרובוט שעל השולחן עוד לא בנוי כמו שצריך. תקנו אותו בלשונית החלקים.', 'הָרוֹבּוֹט עוֹד לֹא בָּנוּי כְּמוֹ שֶׁצָּרִיךְ.'))}</p>`;
+    c.innerHTML = h; c.hidden = false;
+  }
   function renderSide() {
-    el.querySelector('.wk-side').innerHTML = tab === 'garage' ? renderGarage() : renderParts();
+    el.querySelector('.wk-side').innerHTML = tab === 'garage' ? renderGarage() : tab === 'missions' ? renderMissions() : renderParts();
+    if (tab === 'missions') { renderMissionCard(); showSockets(null); return; }
     renderCard();
     showSockets(picked);
   }
@@ -276,10 +311,15 @@ export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, gui
     const d = b.dataset;
     if (d.wclose != null) { close(); if (onClose) onClose(); return; }
     if (d.wstepok != null) { el.querySelector('.wk-steps').hidden = true; startTut(); return; }
-    if (d.wtab) { tab = d.wtab; picked = null; sfx('click'); renderAll(); return; }
+    if (d.wtab) { tab = d.wtab; picked = null; mpick = null; sfx('click'); renderAll(); return; }
     if (d.wfam) { fam = d.wfam; picked = null; sfx('click'); renderSide(); return; }
     if (d.wpart) { picked = picked === d.wpart ? null : d.wpart; sfx('click'); renderSide(); return; }
-    if (d.wcard === 'close') { picked = null; renderSide(); return; }
+    if (d.wcard === 'close') { picked = null; mpick = null; renderSide(); return; }
+    if (d.wmis) { mpick = mpick === d.wmis ? null : d.wmis; sfx('click'); renderSide(); return; }
+    if (d.wgo != null && mpick && onMission) {
+      if (!myRobots().some((r) => r.id === cur.id)) saveRobot(cur);   // the robot that goes out is kept in the garage
+      sfx('click'); gone = true; const id = mpick, rob = JSON.parse(JSON.stringify(cur)); onMission(id, rob); return;
+    }
     if (d.wdo) { if (d.wdo === 'set' || d.wdo === 'toggle') toggle(picked); else toggle(picked, d.wdo); return; }
     if (d.wtrack) { trial(d.wtrack); return; }
     if (d.wsave != null) { if (saveRobot(cur)) { sfx('good'); renderAll(); } return; }
@@ -298,12 +338,17 @@ export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, gui
   // the first visit: the first step's card presents the first parts, then the hands-on tutorial (the standing rule of 29.10)
   let tut = null, held = 0;
   const api = { close, el, trial, show: (t) => { if (tab !== t) { tab = t; picked = null; renderAll(); } },
-    state: () => ({ cur, step, tab, fam, picked, robots: myRobots().length, tests: wkState().tests, passed: wkState().passed, stats: statsOf(B()), problems: checkBuild(B()).problems, tut: tut && tut.step, held, card: !el.querySelector('.wk-steps').hidden }) };
+    state: () => ({ cur, step, tab, fam, picked, mpick, gone, robots: myRobots().length, tests: wkState().tests, passed: wkState().passed, stats: statsOf(B()), problems: checkBuild(B()).problems, tut: tut && tut.step, held, card: !el.querySelector('.wk-steps').hidden }) };
+  // the first visit's tutorial; (set 4) the missions' one on a later visit, so the first visit stays with building and
+  // the test track (a waiting bubble beside the panel would cover the parts the child is trying)
+  const laterVisit = introSeen('g:wktut');
   function startTut() {
-    if (!tut && guide) tut = workshopTutorial({ guide, ws: api, voice, onDone: (r) => { el.removeAttribute('data-hold-toasts'); if (r !== 'abort' && held && !closed) { const n = held; held = 0; showStep(n); } } });
+    if ((tut && tut.step) || !guide || closed) return;
+    tut = workshopTutorial({ guide, ws: api, voice, onDone: (r) => { el.removeAttribute('data-hold-toasts'); if (r !== 'abort' && held && !closed) { const n = held; held = 0; showStep(n); } } })
+      || (onMission && laterVisit ? wkMissionsTutorial({ guide, ws: api, voice }) : null);
     if (tut) el.setAttribute('data-hold-toasts', '');   // new cards and badges wait for its end
   }
-  if (!wkState().tests && !myRobots().length) showStep(1); else startTut();
+  if (!wkState().tests && !myRobots().length) showStep(1); else if (newStep > 0) showStep(newStep); else startTut();   // a mission that opened a step
   requestAnimationFrame(() => { size(); raf = requestAnimationFrame(frame); });
   // the preview's box changes with the panel under it (the stat bars, a problem line): the picture follows it
   let ro = null; try { ro = new ResizeObserver(() => size()); ro.observe(canvas); } catch (e) { }

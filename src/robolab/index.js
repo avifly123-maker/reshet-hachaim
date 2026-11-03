@@ -16,7 +16,7 @@ import { checkRoboBadges } from './badges.js';
 import { ZONE_IDS, ZONE_LOOK } from '../data/zones.js';
 import { BLOCK_INTRO, CHAPTER_INTRO } from '../data/robolab/kubi-lines.js';
 import { playIntro } from './intro.js';
-import { robolabTutorial, robolabEventTutorial } from '../ui/tutorials.js';   // hands-on: the editor and the run, then events
+import { robolabTutorial, robolabEventTutorial, missionRunTutorial } from '../ui/tutorials.js';   // hands-on: the editor and the run, then events
 import { svcGuide } from '../core/services.js';
 import { BLOCKS } from './engine/blocks.js';
 import { createVoice } from '../audio/voice.js';
@@ -25,12 +25,16 @@ import { icon } from './ui/icons.js';
 import { isOpen as journeyOpen, lockWords, introSeen } from '../core/journey.js';
 import { roboProgress, markSolved, addFun, markSeen, addIsland, dropDrafts } from './progress.js';
 import { grantTechCards } from './tech.js';
+import { MISSION_BY, missionLevel, missionBuild } from './missions.js';   // 1.4.3 set 4: the workshop's missions
+import { addMission } from './progress.js';
+import { wkStepOf } from './earn.js';
+import { CHASSIS as WK_CHASSIS, PARTS as WK_PARTS } from '../data/robolab/workshop.js';
 import { WK_HERO } from '../data/robolab/wk-hero.js';
 import { FAIL_LINES, GOAL_LINES, WIN_LINES, OOPS_LINES, FUN_LINES } from '../data/robolab/lines.js';
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const pick = (arr, seed) => arr[Math.abs(seed | 0) % arr.length];
-const ZONE_WORD = { grove: { f: 'חורש', k: 'חֹרֶשׁ' }, amazon: { f: 'אמזונס', k: 'אָמָזוֹנַס' }, reef: { f: 'שונית', k: 'שׁוּנִית' }, desert: { f: 'מדבר', k: 'מִדְבָּר' } };
+const ZONE_WORD = { grove: { f: 'חורש', k: 'חֹרֶשׁ' }, amazon: { f: 'אמזונס', k: 'אָמָזוֹנַס' }, reef: { f: 'שונית', k: 'שׁוּנִית' }, desert: { f: 'מדבר', k: 'מִדְבָּר' }, savanna: { f: 'סוואנה', k: 'סָוַאנָה' } };
 
 export function createRoboLab({ root, audio, kids = false, onExit, enter3d = null, leave3d = null, hasIsland = null }) {
   const T = (o) => (o ? (kids && o.k ? o.k : o.f) : '');
@@ -127,7 +131,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     if (kcam) { if (any) kcam.talk(false); else if (fallbackSec > 0) kcam.talk(true, fallbackSec); }
   }
   function openLevel(id, { flat = false } = {}) {
-    const L = ALL_LEVELS.find((q) => q.id === id); if (!L) return;
+    const L = id && typeof id === 'object' ? id : ALL_LEVELS.find((q) => q.id === id); if (!L) return;   // a workshop mission comes as a level
     stopTut();
     if (enter3d && !flat) {
       if (in3d && in3d.zone === L.zone && !in3d.own && in3d.api) { stopRun(); in3d.api.rebuild(L, { quick: true }); mountLevel(L, in3d.api); return; }
@@ -195,7 +199,8 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
       if ((tut && tut.step) || intro || cur !== L) return;
       const g = svcGuide(); if (!g) return;
       const rl = { state: tutState };
-      tut = robolabTutorial({ guide: g, rl }) || (hasHat ? robolabEventTutorial({ guide: g, rl }) : null);
+      tut = L.mission ? missionRunTutorial({ guide: g, rl, voice: kvoice })   // a workshop mission: קוּבִּי on the robot that went out
+        : robolabTutorial({ guide: g, rl }) || (hasHat ? robolabEventTutorial({ guide: g, rl }) : null);
     }, 2600);
   }
   function maxbUpdate() { const m = el.querySelector('.rl-maxb b'); if (!m || !ed || !cur) return; const n = countBlocks(ed.program()); m.textContent = n; m.parentNode.classList.toggle('full', !!cur.maxBlocks && n >= cur.maxBlocks); }
@@ -208,8 +213,8 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     if (api) { try { audio && audio.setBiome && audio.setBiome(L.zone); } catch (e) { } }
     const zw = ZONE_WORD[L.zone] || ZONE_WORD.grove;
     el.innerHTML = `<div class="rl-level z-${L.zone}">
-      <header class="rl-top"><button type="button" class="rl-back" data-home>${icon('home')}<span>${kids ? 'לַמַּעְבָּדָה' : 'למעבדה'}</span></button>
-        <div class="rl-title"><h1>${esc(T(L.title))}</h1><p>${esc(T(zw))}${L.concept && conceptWord(L.concept).f ? ' · ' + esc(T(conceptWord(L.concept))) : ''}</p></div>
+      <header class="rl-top">${L.mission ? `<button type="button" class="rl-back" data-wsback>${icon('robot')}<span>${kids ? 'לַסַּדְנָה' : 'לסדנה'}</span></button>` : `<button type="button" class="rl-back" data-home>${icon('home')}<span>${kids ? 'לַמַּעְבָּדָה' : 'למעבדה'}</span></button>`}
+        <div class="rl-title"><h1>${esc(T(L.title))}</h1><p>${esc(T(zw))}${L.concept && conceptWord(L.concept).f ? ' · ' + esc(T(conceptWord(L.concept))) : ''}${L.robotName ? ' · ' + icon('robot') + ' ' + esc(L.robotName) : ''}</p></div>
         <div class="rl-goalbar">${L.maxBlocks ? `<span class="rl-maxb" title="${kids ? 'מֻתָּר עַד' : 'מותר עד'} ${L.maxBlocks}">🧱 <b>0</b> / ${L.maxBlocks}</span>` : ''}${L.par ? `<span class="rl-par">${icon('star')}${icon('star')}${icon('star')} ${kids ? 'עַד' : 'עד'} <b>${L.par}</b> ${kids ? 'בְּלוֹקִים' : 'בלוקים'}</span>` : ''}</div></header>
       <div class="rl-say"><canvas class="rl-kubi" aria-hidden="true"></canvas><p>${news.chapter ? `<span class="rl-chi">${esc(T(news.chapter))}</span> ` : ''}${(L.say || []).map((s) => esc(T(s))).join(' ')}${news.blocks.map((b) => `<span class="rl-newb"><i>${BLOCKS[b].emo || icon(BLOCKS[b].icon)}</i><b>${kids ? 'חָדָשׁ' : 'חדש'}</b> ${esc(T(BLOCK_INTRO[b]))}</span>`).join('')}</p></div>
       <div class="rl-body">
@@ -240,7 +245,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   const CONCEPT = {
     step: { f: 'סדר פעולות', k: 'סֵדֶר פְּעֻלּוֹת' }, turn: { f: 'פניות', k: 'פְּנִיּוֹת' }, path: { f: 'מסלול', k: 'מַסְלוּל' }, order: { f: 'קודם ואחר כך', k: 'קֹדֶם וְאַחַר כָּךְ' },
     sub: { f: 'רובוט צוללן', k: 'רוֹבּוֹט צוֹלְלָן' }, drone: { f: 'רחפן', k: 'רַחְפָן' }, loop: { f: 'לולאה', k: 'לוּלָאָה' }, nested: { f: 'לולאה בתוך לולאה', k: 'לוּלָאָה בְּתוֹךְ לוּלָאָה' },
-    function: { f: 'בלוק משלי', k: 'בְּלוֹק מִשֶּׁלִּי' }, cond: { f: 'תנאי', k: 'תְּנַאי' }, event: { f: 'אירוע', k: 'אֵרוּעַ' }, counter: { f: 'מונה', k: 'מוֹנֶה' }, team: { f: 'עבודת צוות', k: 'עֲבוֹדַת צֶוֶת' }, puzzle: { f: 'חידה', k: 'חִידָה' },
+    function: { f: 'בלוק משלי', k: 'בְּלוֹק מִשֶּׁלִּי' }, cond: { f: 'תנאי', k: 'תְּנַאי' }, event: { f: 'אירוע', k: 'אֵרוּעַ' }, counter: { f: 'מונה', k: 'מוֹנֶה' }, team: { f: 'עבודת צוות', k: 'עֲבוֹדַת צֶוֶת' }, puzzle: { f: 'חידה', k: 'חִידָה' }, mission: { f: 'משימה בסדנה', k: 'מְשִׂימָה בַּסַּדְנָה' },
   };
   const conceptWord = (c) => CONCEPT[c] || { f: '', k: '' };
 
@@ -271,6 +276,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
       ed.light(null);
       el.querySelector('[data-why]').disabled = false;
       if (r.ok) {
+        if (cur.mission) { winMission(r); return; }
         const { first } = cur.ownIsland ? { first: !!addIsland() } : markSolved(cur.id, r.stars, r.blocks);
         setTimeout(checkRoboBadges, 1200);   // after the win message (the badge toast comes on its own)
         kubiDo('cheer'); speak(['kw_' + (Math.abs(seedN) % WIN_LINES.length)], 2);
@@ -283,7 +289,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
         const vtxt = r.variants > 1 ? `<p class="rl-var">${kids ? `בָּדַקְנוּ אֶת הַתָּכְנִית בְּ־${r.variants} גִּרְסָאוֹת שֶׁל הַמָּקוֹם. בַּגִּרְסָה ${r.variant + 1} הִיא לֹא הִצְלִיחָה.` : `בדקנו את התוכנית ב־${r.variants} גרסאות של המקום. בגרסה ${r.variant + 1} היא לא הצליחה.`}</p>` : '';
         if (!r.error) kubiDo('think');
         { const key = r.error ? (FAIL_LINES[r.error.code] ? r.error.code : 'any') : (GOAL_LINES[r.why] ? r.why : 'any'); speak([(r.error ? 'kf_' : 'kg_') + key.replace(':', '_') + '_' + (Math.abs(seedN) % why.length)], 2.5); }
-        msg(esc(T(pick(why, seedN))) + vtxt, 'fail');
+        msg(esc(T(pick(why, seedN))) + vtxt + (cur.mission ? missionHelp(r) : ''), 'fail');
       }
     } });
   }
@@ -301,8 +307,33 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     const last = [...r.trace].reverse().find((e) => e.nid); if (last) ed.light(last.nid);
   }
 
+  // ── 1.4.3 set 4: the workshop's missions. The child takes a robot from the workshop (the one on the bench) to a
+  // mission on its zone's island; the run uses its parts (src/robolab/missions.js). Back to the workshop after it.
+  let wkNewStep = 0;
+  function openMission(id, robot) {
+    const M = MISSION_BY[id]; if (!M || !robot || !robot.build) return;
+    if (workshop) { workshop.close(); workshop = null; }
+    openLevel({ ...missionLevel(M, JSON.parse(JSON.stringify(robot.build))), robotName: robot.name || '' });
+  }
+  function winMission(r) {
+    const { first, was, now } = addMission(cur.id, r.stars, cur.robotName, wkStepOf);
+    if (now > was) wkNewStep = now;
+    setTimeout(checkRoboBadges, 1200);
+    kubiDo('cheer'); speak(['kw_' + (Math.abs(seedN) % WIN_LINES.length)], 2);
+    msg(`<div class="rl-win"><span class="rl-st big">${stars(r.stars)}</span><b>${esc(T(cur.end || pick(WIN_LINES, seedN)))}</b><small>${r.variants > 1 ? (kids ? `עָבַד בְּכָל ${r.variants} הַגִּרְסָאוֹת · ` : `עבד בכל ${r.variants} הגרסאות · `) : ''}${r.blocks} ${kids ? 'בְּלוֹקִים' : 'בלוקים'}${now > was ? ' · ' + (kids ? `שָׁלָב ${now} נִפְתַּח בַּסַּדְנָה!` : `שלב ${now} נפתח בסדנה!`) : ''}</small>
+      <span class="rl-winb"><button type="button" data-wsback>${kids ? 'לַסַּדְנָה' : 'לסדנה'}</button><button type="button" data-stay>${kids ? 'לְנַסּוֹת שׁוּב' : 'לנסות שוב'}</button></span></div>`, 'win');
+    sfx(first ? 'mission' : 'pop');
+  }
+  // after a failed mission run: the parts that would have helped (as on the test track), and the way back to the workshop
+  function missionHelp(r) {
+    const ALLP = { ...WK_CHASSIS, ...WK_PARTS }, need = ((r.error && r.error.need) || []).filter((p) => ALLP[p]).slice(0, 5);
+    return (need.length ? `<p class="rl-var">${kids ? 'מָה יָכוֹל לַעֲזֹר: ' : 'מה יכול לעזור: '}${need.map((p) => esc(T(ALLP[p]))).join(', ')}</p>` : '')
+      + (r.error && r.error.need ? `<p><button type="button" class="rl-wsfix" data-wsback>${icon('robot')}${kids ? 'לְשַׁפֵּר אֶת הָרוֹבּוֹט בַּסַּדְנָה' : 'לשפר את הרובוט בסדנה'}</button></p>` : '');
+  }
+
   el.addEventListener('click', (e) => {
     const b = e.target.closest('button'); if (!b || !el.contains(b) || b.disabled) return;
+    if (b.dataset.wsback != null) { sfx('click'); home(); openWs('missions'); return; }
     if (b.dataset.exit != null) { close(); if (onExit) onExit(); return; }
     if (b.dataset.home != null) { sfx('click'); home(); return; }
     if (b.dataset.intro != null) { sfx('click'); showIntro(); return; }
@@ -328,15 +359,17 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     if (workshop) { workshop.close(); workshop = null; return; }  // סדנת הרובוט closes first
     if (garage) { garage.close(); garage = null; return; }      // סדנת העיצוב closes first
     if (intro) { intro.close(); return; }                       // the film
+    if (cur && cur.mission) { home(); openWs('missions'); return; }      // a workshop mission goes back to the workshop
     if (cur) home(); else { close(); if (onExit) onExit(); }
   };
   window.addEventListener('keydown', onKey);
 
   // the robot workshop (1.4.3): its first visit also gives the workshop's first technology cards (shown after its step card)
-  function openWs() {
+  function openWs(tab = null) {
     if (workshop) workshop.close();
     markSeen('workshop');
-    workshop = openWorkshop(el, { kids, sfx, guide: svcGuide(), voice: kvoice, onClose: () => { workshop = null; } });
+    const st = wkNewStep; wkNewStep = 0;
+    workshop = openWorkshop(el, { kids, sfx, guide: svcGuide(), voice: kvoice, newStep: st, tab, onMission: (id, robot) => openMission(id, robot), onClose: () => { workshop = null; } });
     grantTechCards();
     return workshop;
   }
@@ -364,6 +397,9 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     in3d: () => !!(in3d && in3d.api),
     island: (z) => openIsland(z), prog: () => ed && ed.program(), cur: () => cur && cur.id, playing: () => !!(map && map.isPlaying()), level: () => cur && { id: cur.id, rows: cur.map.rows, items: cur.items, kind: cur.kind },
     workshopState: () => (workshop ? workshop.state() : null),
+    mission: (id, spec, flat) => { const M = MISSION_BY[id]; if (!M) return false; const b = missionBuild(spec || M.ways[0].robot); if (flat) { if (workshop) { workshop.close(); workshop = null; } openLevel({ ...missionLevel(M, b), robotName: 'test' }, { flat: true }); } else openMission(id, { name: 'test', build: b }); return true; },
+    solveMission: (i = 0) => { if (!cur || !cur.mission || !ed) return null; ed.set(MISSION_BY[cur.id].ways[i].prog); run('fast'); return lastRun && { ok: lastRun.ok, stars: lastRun.stars }; },
+    wk: () => roboProgress().wk,
     workshop: () => openWs(),
     garage: () => { if (garage) garage.close(); garage = openGarage(el, { kids, sfx, onClose: () => { garage = null; } }); return true; },
     solve: (id, i = 0) => { const L = ALL_LEVELS.find((q) => q.id === id); if (!L) return null; if (!(in3d && in3d.api && cur && cur.id === id)) openLevel(id, { flat: true }); ed.set({ ...L.solutions[i], defs: { ...(L.defs0 || {}), ...(L.solutions[i].defs || {}) } }); run('fast'); return lastRun && { ok: lastRun.ok, stars: lastRun.stars }; },

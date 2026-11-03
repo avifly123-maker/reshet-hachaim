@@ -309,3 +309,22 @@
 #ui.wol .rl-wkhero b svg { width: 1em; height: 1em; }
 #ui.wol .rl-wkhero small { font-size: .85em; opacity: .9; }
 #ui.wol .rl-wkhero.locked { cursor: default; aspect-ratio: 1600 / 380; margin-top: 8px; } #ui.wol .rl-wkhero.locked img { filter: grayscale(.7) brightness(.7); }
+/* 1.4.3 set 4: the workshop's missions tab (workshop-ui.js renderMissions) and the way back to it from a mission */
+#ui.wol .rl-z.z-savanna { background: #c0782a; }
+#ui.wol .wk-mz .wk-h { display: flex; align-items: center; gap: 6px; }
+#ui.wol .wk-mz .wk-h .rl-z { position: static; width: 11px; height: 11px; }
+#ui.wol .wk-ml { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 5px; }
+#ui.wol .wk-mis { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-height: 44px; padding: 6px 9px; border: 0; border-radius: 10px; background: #e3dccb; color: #1d2c38; font-weight: 700; text-align: start; }
+#ui.wol .wk-mis.done { background: #d6ecd2; }
+#ui.wol .wk-mis.pick { outline: 3px solid #2fa39a; outline-offset: 1px; }
+#ui.wol .wk-mis:disabled { opacity: .6; }
+#ui.wol .wk-mis svg { width: 1em; height: 1em; }
+#ui.wol .wk-mis small { font-weight: 400; font-size: .76em; color: #6a5a40; }
+#ui.wol .wk-mst { display: flex; gap: 1px; font-style: normal; }
+#ui.wol .wk-mst u { color: #c9bfa8; } #ui.wol .wk-mst u.on { color: #e8a83a; }
+#ui.wol .wk-go { display: inline-flex; align-items: center; gap: 6px; }
+#ui.wol .wk-go svg { width: 1.1em; height: 1.1em; }
+#ui.wol .rl-wsfix { display: inline-flex; align-items: center; gap: 6px; margin-top: 4px; padding: 6px 12px; border: 0; border-radius: 10px; background: #2fa39a; color: #fff; font-weight: 700; }
+#ui.wol .rl-wsfix svg { width: 1.1em; height: 1.1em; }
+/* one קוּבִּי at a time: while he speaks in the guide's bubble, his window in the lesson strip steps aside */
+body:has(#rguide .rg-wrap.kubi) .rl-say .rl-kubi { visibility: hidden; }

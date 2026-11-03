@@ -13,7 +13,7 @@ fail() { echo; echo "FAILED: $1"; exit 1; }
 step() { echo; echo "== $1"; }
 
 step "validators"
-for v in validate-content validate-kids validate-guide validate-threads validate-lab validate-quiz validate-verse validate-storage validate-zones validate-robolab; do
+for v in validate-content validate-kids validate-guide validate-threads validate-lab validate-quiz validate-verse validate-storage validate-zones validate-robolab validate-robot-missions; do
   raw=$(node tools/$v.mjs 2>&1); code=$?
   out=$(echo "$raw" | grep -v -i "warning\|Reparsing\|trace-warnings"); echo "$v: $(echo "$out" | tail -1)"
   [ $code -ne 0 ] && { echo "$out" | tail -20; fail "$v (exit code $code)"; }
@@ -79,8 +79,9 @@ echo "$out" | grep "\[pageerror\]\|JS ERROR\|UNTIL TIMEOUT\|NO ELEMENT" && fail 
 [ "$n" = 8 ] || fail "robot lab tutorial: $n of 8 checks"
 # the robot workshop (1.4.3 set 3): the first step's card, the hands-on tutorial, a ready robot, a part's card, the test
 # track (stuck on sand with a hint, a step card only after the tutorial), wide wheels cross the sand, the garage; beginners;
-# and the technology cards (a drop-in after the step card, the album's tech tab, the zoom)
-for t in workshop:14 workshop-kids:5 techcards:7; do
+# and the technology cards (a drop-in after the step card, the album's tech tab, the zoom); set 4: the missions (the
+# missions tutorial, the robot on the bench goes to a mission in 3D, the count, a missing part's help, back to the workshop)
+for t in workshop:14 workshop-kids:5 techcards:7 workshop-missions:12; do
   f=${t%%:*}; want=${t##*:}
   out=$(timeout 1200 python3 tools/play.py dist/index.html tests/play/$f.json 800 460 2>&1)
   n=$(echo "$out" | grep -c "CHECK .* ok")
