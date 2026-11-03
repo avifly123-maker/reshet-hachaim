@@ -1196,3 +1196,176 @@ def rl_tall_review(outdir, samples=48):
         rl_wk_one(0, p, pct=60, samples=samples, look=('wk_t', look))
         paths.append(p)
     return paths
+
+# ───────────────────────────────────────── round 12 (1.4.3 set 4): the lessons' three tools in the workshop's look
+# The robot, the drone and the diving robot of the lessons, rebuilt hard-surface like the workshop's chassis (Avi, 3.11:
+# "the lessons' robots more beautiful too"): chamfered blocks with panel lines, armour plates with bolts, a frame and
+# mechanics in view, lamps in housings, real tyres and rims. The sockets keep their names and places, so every part of
+# the design garage (garage.js) still sits where it did; the drone keeps three ducted three-blade rotors (rotor0..2)
+# and the sub its three-blade propeller (prop).
+def _rover_wheel(R, name, x, y, r=0.2, w=0.16, right=False):
+    g = group(name, parent=R, loc=(x, y, r)); g.rotation_euler = (0, 0, math.pi if right else 0)
+    tyre(name + '_tyre', r, w, g, (0, 0, 0), blocks=16, deep=r * 0.1)   # six wheels: a lighter tread than the workshop's four
+    rim(name + '_rim', r * 0.6, w, g, (0, 0, 0))
+    cyl(name + '_hubmotor', 0.07, 0.06, 'dark', seg=8, bev=0.006, axis='X', parent=g, loc=(w * 0.5 + 0.03, 0, 0))
+    for f in range(3): cyl(name + '_fin%d' % f, 0.078, 0.008, 'metal', seg=8, axis='X', parent=g, loc=(w * 0.5 + 0.012 + f * 0.018, 0, 0))
+    return g
+
+def build_robot_hs():
+    R = group('base_robot')
+    z0 = 0.36   # the hull's underside
+    # the frame under the hull (two rails and the ends: an H seen from below, never a cross)
+    for k in (-1, 1): hs_block('rb_rail_%d' % k, 0.05, 1.06, 0.06, 'dark', ch=0.01, parent=R, loc=(k * 0.27, 0, z0 - 0.02))
+    for e in (-1, 1): hs_block('rb_xm_%d' % e, 0.6, 0.05, 0.05, 'dark', ch=0.01, parent=R, loc=(0, e * 0.48, z0 - 0.02))
+    hs_block('rb_gearbox', 0.26, 0.24, 0.08, 'dark', ch=0.014, panels=0.012, parent=R, loc=(0, 0.02, z0 - 0.05))
+    # the hull: a wedge nose, a faceted top with panel lines, the cream deck on it
+    hs_block('rb_hull', 0.84, 1.1, 0.3, 'body', ch=0.05, top=(0.86, 0.9), nose=0.08, panels=0.03, pdepth=0.012, parent=R, loc=(0, 0, z0 + 0.15))
+    hs_block('rb_deck', 0.64, 0.78, 0.09, 'cream', ch=0.03, top=(0.92, 0.94), panels=0.022, pdepth=0.008, parent=R, loc=(0, 0.04, z0 + 0.345))
+    hs_block('rb_hatch', 0.3, 0.24, 0.012, 'trim', ch=0.004, parent=R, loc=(0, 0.28, z0 + 0.396))
+    for k in (-1, 1):
+        armor('rb_side_%d' % k, 0.025, 0.62, 0.15, 'trim', R, (k * 0.425, -0.02, z0 + 0.15))
+        hs_block('rb_stripe_%d' % k, 0.012, 0.36, 0.035, 'accent', ch=0.004, parent=R, loc=(k * 0.44, -0.08, z0 + 0.2))
+        bolt_row('rb_tb_%d' % k, (k * 0.34, -0.36, z0 + 0.305), (k * 0.34, 0.42, z0 + 0.305), 6, 0.009, R)
+        # the rocker bogie: a beam from front to back wheel, a pivot to the hull, a shock to the middle wheel
+        hs_block('rb_rocker_%d' % k, 0.05, 0.94, 0.07, 'metal', ch=0.014, panels=0.01, parent=R, loc=(k * 0.52, 0, 0.3))
+        cyl('rb_pivot_%d' % k, 0.05, 0.1, 'dark', seg=12, axis='X', bev=0.006, parent=R, loc=(k * 0.47, 0.06, 0.34))
+        _piston('rb_shock_%d' % k, (k * 0.5, -0.1, 0.27), (k * 0.47, -0.05, z0 + 0.06), 0.016, R)
+        for wy in (-0.42, 0, 0.42): _rover_wheel(R, 'rb_wheel_%d_%d' % (k, int(wy * 100)), k * 0.62, wy, right=k > 0)
+        for wy in (-0.42, 0.42):   # mudguards over the front and back wheels, with a steel edge
+            curved_plate('rb_guard_%d_%d' % (k, int(wy * 100)), 0.2, 0.25, math.radians(30), math.radians(150), 0.016, 'trim', parent=R, loc=(k * 0.62, wy, 0.2))
+        # intake vents with slats on the hull's sides
+        hs_block('rb_vent_%d' % k, 0.02, 0.16, 0.08, 'dark', ch=0.006, parent=R, loc=(k * 0.415, 0.36, z0 + 0.15))
+        for i in range(3): hs_block('rb_slat_%d_%d' % (k, i), 0.012, 0.15, 0.012, 'metal', ch=0.003, parent=R, loc=(k * 0.427, 0.36, z0 + 0.12 + i * 0.03))
+        # metal guards on the front corners, bolted
+        hs_block('rb_cg_%d' % k, 0.05, 0.05, 0.2, 'metal', ch=0.012, parent=R, loc=(k * 0.4, -0.52, z0 + 0.14), rot=(0, 0, math.pi / 4))
+    # the front: a bumper with tow hooks, a grille, two lamps in housings
+    hs_block('rb_bumper', 0.78, 0.08, 0.09, 'dark', ch=0.02, top=(0.94, 0.8), parent=R, loc=(0, -0.6, z0 + 0.03))
+    for k in (-1, 1): torus('rb_tow_%d' % k, 0.024, 0.009, 'metal', seg=16, rseg=6, axis='X', parent=R, loc=(k * 0.28, -0.645, z0 + 0.02))
+    hs_block('rb_grille', 0.3, 0.03, 0.1, 'dark', ch=0.008, parent=R, loc=(0, -0.545, z0 + 0.14))
+    for i in range(3): hs_block('rb_gslot%d' % i, 0.25, 0.01, 0.012, 'metal', ch=0.003, parent=R, loc=(0, -0.562, z0 + 0.11 + i * 0.03))
+    for lx in (-0.26, 0.26): lamp_housing('rb_lamp_%d' % int(lx * 100), R, (lx, -0.53, z0 + 0.2), w=0.1, h=0.065)
+    # the back: a battery pack with ribs, hinges of the hatch
+    hs_block('rb_batt', 0.44, 0.08, 0.16, 'dark', ch=0.012, parent=R, loc=(0, 0.56, z0 + 0.14))
+    for i in range(3): hs_block('rb_rib%d' % i, 0.4, 0.012, 0.016, 'metal', ch=0.003, parent=R, loc=(0, 0.605, z0 + 0.09 + i * 0.05))
+    for k in (-1, 1): cyl('rb_hinge_%d' % k, 0.012, 0.08, 'metal', seg=12, axis='X', parent=R, loc=(k * 0.1, 0.405, z0 + 0.396))
+    socket(R, 'head', (0, -0.22, 0.79))
+    socket(R, 'back', (0, 0.26, 0.79))
+    socket(R, 'arm', (0.36, -0.5, 0.62))
+    socket(R, 'top', (-0.28, 0.42, 0.79))
+    socket(R, 'side_l', (-0.48, 0.2, 0.62), (0, 0, math.pi / 2))
+    socket(R, 'side_r', (0.48, 0.2, 0.62), (0, 0, -math.pi / 2))
+    return R
+
+def build_drone_hs():
+    D = group('base_drone')
+    # the core: a chamfered pod with panel lines, a cream canopy, an equipment bay under it
+    hs_block('dr_core', 0.5, 0.58, 0.16, 'body', ch=0.05, top=(0.8, 0.78), nose=0.04, panels=0.028, pdepth=0.01, parent=D, loc=(0, 0, 0))
+    hs_block('dr_canopy', 0.3, 0.34, 0.06, 'cream', ch=0.025, top=(0.8, 0.8), panels=0.018, pdepth=0.006, parent=D, loc=(0, -0.02, 0.1))
+    hs_block('dr_bay', 0.3, 0.36, 0.05, 'dark', ch=0.012, panels=0.012, parent=D, loc=(0, 0, -0.1))
+    bolt_row('dr_tb', (-0.18, -0.2, 0.082), (0.18, -0.2, 0.082), 4, 0.008, D)
+    bolt_row('dr_bb', (-0.18, 0.2, 0.082), (0.18, 0.2, 0.082), 4, 0.008, D)
+    lamp_housing('dr_lamp', D, (0, -0.3, 0.0), w=0.12, h=0.05)
+    for i in range(3):
+        a = i * 2 * math.pi / 3 + math.pi   # one arm forward (-Y), two behind: a triangle from above
+        x, y = math.sin(a) * 0.8, math.cos(a) * 0.8
+        ax, ay = math.sin(a) * 0.48, math.cos(a) * 0.48
+        hs_block('dr_arm%d' % i, 0.09, 0.5, 0.06, 'trim', ch=0.016, panels=0.012, pdepth=0.003, parent=D, loc=(ax, ay, 0.02), rot=(0, 0, -a))
+        bolts('dr_ab%d' % i, [(math.sin(a) * r_, math.cos(a) * r_, 0.052) for r_ in (0.3, 0.42, 0.56)], 0.008, D)
+        # the motor pod with cooling fins, the duct round the rotor (a band and a lip, three struts to the pod)
+        cyl('dr_motor%d' % i, 0.07, 0.1, 'dark', seg=8, bev=0.008, parent=D, loc=(x, y, 0.05))
+        for f in range(3): cyl('dr_mfin%d_%d' % (i, f), 0.082, 0.008, 'metal', seg=8, parent=D, loc=(x, y, 0.015 + f * 0.022))
+        o = torus('dr_duct%d' % i, 0.34, 0.035, 'cream', seg=48, rseg=10, parent=D, loc=(x, y, 0.06)); o.scale = (1, 1, 1.7)
+        torus('dr_lip%d' % i, 0.355, 0.018, 'accent', seg=48, rseg=8, parent=D, loc=(x, y, 0.115))
+        for s_ in range(3):
+            b_ = a + s_ * 2 * math.pi / 3 + math.pi / 3
+            hs_block('dr_strut%d_%d' % (i, s_), 0.016, 0.27, 0.02, 'dark', ch=0.004, parent=D, loc=(x + math.sin(b_) * 0.2, y + math.cos(b_) * 0.2, 0.04), rot=(0, 0, -b_))
+        blade3('rotor%d' % i, 0.3, 'metal', parent=D, loc=(x, y, 0.12))
+    # landing skids: two bent tubes under the pod
+    for k in (-1, 1):
+        sweep('dr_skid_%d' % k, [(k * 0.16, -0.24, -0.08), (k * 0.2, -0.22, -0.2), (k * 0.2, 0.22, -0.2), (k * 0.16, 0.24, -0.08)], 0.014, 'dark', ring=8, parent=D)
+    socket(D, 'belly', (0, 0, -0.13))
+    socket(D, 'top', (0, 0, 0.14))
+    socket(D, 'front', (0, -0.32, 0.0))
+    return D
+
+def build_sub_hs():
+    S = group('base_sub')
+    # the pressure hull: a bullet turned round its long axis (built along X, turned so the nose looks -Y)
+    prof = [(-0.86, 0.001), (-0.84, 0.12), (-0.79, 0.24), (-0.7, 0.33), (-0.56, 0.4), (-0.36, 0.43), (0.3, 0.43), (0.5, 0.39), (0.66, 0.31), (0.78, 0.2), (0.82, 0.12), (0.83, 0.001)]
+    h = revolve('sb_hull', prof, 'body', seg=40, parent=S); h.rotation_euler = (0, 0, math.pi / 2)
+    try: h.data.set_sharp_from_angle(angle=math.radians(30))
+    except Exception: pass
+    # armour bands round the hull, each bolted; a viewing window in the nose with its rim
+    for i, by in enumerate((-0.42, 0.0, 0.36)):
+        o = torus('sb_band%d' % i, 0.432, 0.022, 'trim', seg=48, rseg=6, axis='Y', parent=S, loc=(0, by, 0))
+        bolts('sb_bb%d' % i, [(math.cos(t * 2 * math.pi / 10) * 0.45, by, math.sin(t * 2 * math.pi / 10) * 0.45) for t in range(10)], 0.008, S, axis='Y')
+    w = sphere('sb_window', 0.27, 'glass', sy=0.5, parent=S, loc=(0, -0.74, 0.06))
+    torus('sb_wrim', 0.27, 0.028, 'metal', seg=40, rseg=8, axis='Y', parent=S, loc=(0, -0.76, 0.06))
+    bolts('sb_wb', [(math.cos(t * 2 * math.pi / 10) * 0.3, -0.75, 0.06 + math.sin(t * 2 * math.pi / 10) * 0.3) for t in range(10)], 0.008, S, axis='Y')
+    # a small tower on top (chamfered, panels), a keel and two skids below, lamps in housings by the window
+    hs_block('sb_tower', 0.2, 0.36, 0.14, 'trim', ch=0.03, top=(0.8, 0.82), nose=0.04, panels=0.018, pdepth=0.006, parent=S, loc=(0, 0.02, 0.47))
+    hs_block('sb_keel', 0.08, 0.7, 0.1, 'dark', ch=0.02, panels=0.012, parent=S, loc=(0, 0.05, -0.45))
+    for k in (-1, 1):
+        hs_block('sb_skid_%d' % k, 0.05, 0.8, 0.04, 'metal', ch=0.012, parent=S, loc=(k * 0.26, 0.04, -0.4))
+        lamp_housing('sb_lamp_%d' % k, S, (k * 0.2, -0.7, -0.2), w=0.08, h=0.06)
+        armor('sb_side_%d' % k, 0.022, 0.4, 0.14, 'accent', S, (k * 0.43, -0.2, 0.0))
+    # the tail: a duct with three struts round the three-blade propeller
+    cyl('sb_tailcone', 0.16, 0.16, 'dark', seg=24, r2=0.08, axis='Y', parent=S, loc=(0, 0.86, 0))
+    o = torus('sb_duct', 0.3, 0.045, 'accent', seg=48, rseg=10, axis='Y', parent=S, loc=(0, 0.95, 0)); o.scale = (1, 1.8, 1)
+    for s_ in range(3):
+        b_ = s_ * 2 * math.pi / 3 + math.pi / 2
+        o = hs_block('sb_strut%d' % s_, 0.02, 0.03, 0.22, 'dark', ch=0.005, parent=S, loc=(math.cos(b_) * 0.19, 0.95, math.sin(b_) * 0.19)); o.rotation_euler = (0, -b_ + math.pi / 2, 0)
+    blade3('prop', 0.26, 'metal', parent=S, loc=(0, 0.97, 0), rot=(math.pi / 2, 0, 0))
+    socket(S, 'top', (0, 0.1, 0.42))
+    socket(S, 'front', (0, -0.8, -0.2))
+    socket(S, 'side_l', (-0.42, 0.15, 0), (0, 0, math.pi / 2))
+    socket(S, 'side_r', (0.42, 0.15, 0), (0, 0, -math.pi / 2))
+    return S
+
+BASES.update({'robot': build_robot_hs, 'drone': build_drone_hs, 'sub': build_sub_hs})
+
+# the lessons' tools' first parts in the same look (the parts every child sees on them: the design garage's defaults)
+def part_head_screen_hs():
+    P = group('part_head_screen')
+    _piston('hs_neck', (0, 0, 0.0), (0, 0, 0.15), 0.035, P)
+    cyl('hs_collar', 0.07, 0.03, 'dark', seg=8, bev=0.006, parent=P, loc=(0, 0, 0.015))
+    hs_block('hs_head', 0.54, 0.38, 0.32, 'cream', ch=0.05, top=(0.92, 0.9), panels=0.026, pdepth=0.008, parent=P, loc=(0, 0, 0.32))
+    hs_block('hs_bezel', 0.46, 0.04, 0.24, 'dark', ch=0.02, parent=P, loc=(0, -0.19, 0.33))
+    hs_block('hs_screen', 0.4, 0.012, 0.19, 'glass', ch=0.012, parent=P, loc=(0, -0.212, 0.33))
+    for ex in (-0.1, 0.1):
+        o = sphere('hs_eye_%d' % int(ex * 100), 0.045, 'glow', parent=P, loc=(ex, -0.222, 0.35)); o.scale = (1, 0.35, 1)
+    for sx in (-1, 1):   # ears: a chamfered pod with a ring of five bolts (never a cross)
+        cyl('hs_ear_%d' % sx, 0.075, 0.05, 'trim', seg=8, axis='X', bev=0.01, parent=P, loc=(sx * 0.29, 0, 0.33))
+        bolts('hs_eb_%d' % sx, [(sx * 0.318, math.cos(t * 2 * math.pi / 5) * 0.045, 0.33 + math.sin(t * 2 * math.pi / 5) * 0.045) for t in range(5)], 0.007, P, axis='X')
+    bolt_row('hs_tb', (-0.2, 0.12, 0.482), (0.2, 0.12, 0.482), 4, 0.008, P)
+    return P
+
+def part_grabber_hs(): return _segarm('grabber', [(0.24, 0.25), (0.18, -0.55)], s=0.95)
+
+def part_bin_hs():
+    P = group('part_bin')
+    hs_block('bin_box', 0.56, 0.4, 0.2, 'cream', ch=0.025, top=(1.04, 1.04), panels=0.02, pdepth=0.006, parent=P, loc=(0, 0, 0.1))
+    hs_block('bin_rim', 0.6, 0.44, 0.03, 'trim', ch=0.01, parent=P, loc=(0, 0, 0.215))
+    bolts('bin_b', [(a_ * 0.27, b_ * 0.19, 0.232) for a_ in (-1, 1) for b_ in (-1, 1)], 0.008, P)
+    for i in range(3): sphere('bin_fruit%d' % i, 0.06, 'accent', parent=P, loc=(-0.12 + i * 0.12, 0.02 * i, 0.2))
+    return P
+
+def part_antenna_hs():
+    P = group('part_antenna')
+    hs_block('an_base', 0.08, 0.08, 0.04, 'dark', ch=0.01, parent=P, loc=(0, 0, 0.02))
+    capsule('an_rod', (0, 0, 0.04), (0, 0, 0.42), 0.012, 'metal', seg=10, parent=P)
+    coil('an_coil', (0, 0, 0.06), 0.022, 0.08, 3, 0.005, 'accent', P)
+    sphere('an_tip', 0.035, 'glow', parent=P, loc=(0, 0, 0.44))
+    return P
+
+def part_cam_hs():
+    P = group('part_cam')
+    hs_block('cam_mount', 0.1, 0.1, 0.05, 'dark', ch=0.012, parent=P, loc=(0, 0, -0.025))
+    for k in (-1, 1): hs_block('cam_yoke_%d' % k, 0.02, 0.06, 0.12, 'metal', ch=0.005, parent=P, loc=(k * 0.1, 0, -0.1))
+    hs_block('cam_body', 0.16, 0.18, 0.12, 'dark', ch=0.025, panels=0.012, parent=P, loc=(0, 0, -0.13))
+    cyl('cam_lens', 0.055, 0.06, 'metal', seg=16, axis='Y', bev=0.006, parent=P, loc=(0, -0.11, -0.13))
+    cyl('cam_glass', 0.042, 0.012, 'glass', seg=24, axis='Y', parent=P, loc=(0, -0.145, -0.13))
+    sphere('cam_glint', 0.012, 'glow', parent=P, loc=(0.02, -0.15, -0.115))
+    return P
+
+PARTS.update({'head_screen': part_head_screen_hs, 'grabber': part_grabber_hs, 'bin': part_bin_hs, 'antenna': part_antenna_hs, 'cam': part_cam_hs})
