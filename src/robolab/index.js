@@ -16,7 +16,7 @@ import { checkRoboBadges } from './badges.js';
 import { ZONE_IDS, ZONE_LOOK } from '../data/zones.js';
 import { BLOCK_INTRO, CHAPTER_INTRO } from '../data/robolab/kubi-lines.js';
 import { playIntro } from './intro.js';
-import { robolabTutorial, robolabEventTutorial, missionRunTutorial } from '../ui/tutorials.js';   // hands-on: the editor and the run, then events
+import { robolabTutorial, robolabEventTutorial, missionRunTutorial, sandboxTutorial } from '../ui/tutorials.js';   // hands-on: the editor and the run, then events
 import { svcGuide } from '../core/services.js';
 import { BLOCKS } from './engine/blocks.js';
 import { createVoice } from '../audio/voice.js';
@@ -59,15 +59,32 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   // משימות באי שלי: the zones where this player has an island; open once chapter 4 (sensors) is well on its way
   function islandsHTML(P) {
     if (!enter3d || !hasIsland) return '';
-    const open = LESSONS.filter((q) => q.ch === 4 && P.done[q.id]).length >= 3;
+    // 1.4.3 set 5: they open at stage 9 (מהנדס). A player who had them open before (three chapter-4 lessons, the 1.4.1
+    // rule) or already went out to his island keeps them (seen.islKeep is set once, the first time this version looks)
+    if (!P.seen.isl9) { if (LESSONS.filter((q) => q.ch === 4 && P.done[q.id]).length >= 3) markSeen('islKeep'); markSeen('isl9'); P.seen.isl9 = 1; P.seen.islKeep = roboProgress().seen.islKeep; }
+    const open = journeyOpen('robolab:island') || !!P.seen.islKeep || P.isl > 0;
     const zones = ZONE_IDS.filter((z) => { try { return hasIsland(z); } catch (e) { return false; } });
     const head = `<h2>${icon('home')}${kids ? 'מְשִׂימוֹת בָּאִי שֶׁלִּי' : 'משימות באי שלי'}</h2>`;
-    if (!open) return `<section class="rl-sec">${head}<p class="rl-isl-note">${kids ? 'נִפְתָּח אַחֲרֵי שְׁלוֹשָׁה שִׁעוּרִים בְּפֶרֶק 4. אָז הָרוֹבּוֹט יֵצֵא לַעֲבֹד בָּאִיִּים שֶׁבְּנִיתֶם!' : 'נפתח אחרי שלושה שיעורים בפרק 4. אז הכלים יצאו לעבוד באיים שבניתם בעצמכם!'}</p></section>`;
+    if (!open) return `<section class="rl-sec">${head}<p class="rl-isl-note">${esc(lockWords('robolab:island'))}. ${kids ? 'אָז הָרוֹבּוֹט יֵצֵא לַעֲבֹד בָּאִיִּים שֶׁבְּנִיתֶם!' : 'אז הכלים יצאו לעבוד באיים שבניתם בעצמכם!'}</p></section>`;
     if (!zones.length) return `<section class="rl-sec">${head}<p class="rl-isl-note">${kids ? 'עוֹד אֵין לָכֶם אִי שָׁמוּר. בְּנוּ אִי בְּאַחַת הַסְּבִיבוֹת, וְהַכֵּלִים יָבוֹאוּ לַעֲבֹד בּוֹ.' : 'עוד אין לכם אי שמור. בנו אי באחת הסביבות, והכלים יבואו לעבוד בו.'}</p></section>`;
     const full = noRoom ? `<p class="rl-isl-note rl-noroom">${kids ? 'לֹא מָצָאנוּ מָקוֹם פָּנוּי לַמִּגְרָשׁ בָּאִי הַזֶּה. נַסּוּ אִי אַחֵר, אוֹ פַּנּוּ קְצָת מָקוֹם בֵּין הָעֵצִים.' : 'לא מצאנו מקום פנוי למגרש באי הזה. נסו אי אחר, או פנו קצת מקום בין העצים.'}</p>` : '';
     noRoom = false;
     return `<section class="rl-sec">${head}${full}<p class="rl-isl-note">${kids ? 'בְּכָל פַּעַם מְשִׂימָה חֲדָשָׁה בֵּין הָעֵצִים שֶׁגִּדַּלְתֶּם.' : 'בכל פעם משימה חדשה בין העצים שגידלתם. מה שהכלים עושים כאן לא משנה את האי השמור.'}</p><div class="rl-pz">${zones.map((z) => `<button type="button" class="rl-pzb rl-islb" data-island="${z}"><span class="rl-z z-${z}"></span><b>${esc(kids ? ZONE_LOOK[z].shortK : ZONE_LOOK[z].short)}</b><small>${kids ? 'הָאִי שֶׁלִּי' : 'האי שלי'}</small></button>`).join('')}</div></section>`;
   }
+  // ארגז החול (1.4.3 set 5, stage 9): a robot of his garage (or the ready gardener) and a place: his island or the
+  // zone's practice island. No mission: he programs, or drives with the arrows, and sees what the robot does there.
+  function sandboxHTML(P) {
+    if (!enter3d) return '';
+    const head = `<h2>${icon('play')}${kids ? 'אַרְגַּז הַחוֹל' : 'ארגז החול'}</h2>`;
+    if (!journeyOpen('robolab:sandbox')) return `<section class="rl-sec rl-sbx">${head}<p class="rl-isl-note">${esc(lockWords('robolab:sandbox'))}. ${kids ? 'שָׁם אֵין מְשִׂימָה: מְשַׂחֲקִים עִם הָרוֹבּוֹט כְּמוֹ שֶׁרוֹצִים.' : 'שם אין משימה: משחקים עם הרובוט כמו שרוצים.'}</p></section>`;
+    const robots = P.robots.length ? P.robots : [];
+    const sel = robots.length ? `<label class="rl-sbr">${kids ? 'הָרוֹבּוֹט:' : 'הרובוט:'} <select data-sbrobot>${robots.map((r, i) => `<option value="${i}"${i === sbRobot ? ' selected' : ''}>${esc(r.name || (kids ? 'רוֹבּוֹט' : 'רובוט') + ' ' + (i + 1))}</option>`).join('')}</select></label>`
+      : `<span class="rl-sbr">${kids ? 'הָרוֹבּוֹט: הַגַּנָּן (רוֹבּוֹט מוּכָן). בַּסַּדְנָה בּוֹנִים רוֹבּוֹט מִשֶּׁלָּכֶם.' : 'הרובוט: הגנן (רובוט מוכן). בסדנה בונים רובוט משלכם.'}</span>`;
+    const own = (z) => { try { return !!hasIsland && hasIsland(z); } catch (e) { return false; } };
+    return `<section class="rl-sec rl-sbx">${head}<p class="rl-isl-note">${kids ? 'אֵין מְשִׂימָה. מְתַכְנְתִים אוֹ נוֹהֲגִים בַּחִצִּים, וְרוֹאִים מָה הָרוֹבּוֹט יוֹדֵעַ לַעֲשׂוֹת.' : 'אין משימה. מתכנתים או נוהגים בחיצים, ורואים מה הרובוט יודע לעשות. מה שקורה כאן לא משנה את האי השמור.'}</p>${sel}
+      <div class="rl-pz">${ZONE_IDS.map((z) => `<button type="button" class="rl-pzb rl-sbb" data-sandbox="${z}" data-sbown="${own(z) ? 1 : 0}"><span class="rl-z z-${z}"></span><b>${esc(kids ? ZONE_LOOK[z].shortK : ZONE_LOOK[z].short)}</b><small>${own(z) ? (kids ? 'הָאִי שֶׁלִּי' : 'האי שלי') : (kids ? 'שֶׁטַח מוּכָן' : 'שטח מוכן')}</small></button>`).join('')}</div></section>`;
+  }
+  let sbRobot = 0;   // the robot chosen for the sandbox (an index into his garage)
   const stars = (n) => [0, 1, 2].map((k) => `<i class="${k < n ? 'on' : ''}">${icon('star')}</i>`).join('');
   function home() {
     stopTut(); clearTimeout(talkT); speakGen++; kvoice.stop();
@@ -93,6 +110,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
               return `<button type="button" class="rl-lvb${d ? ' done' : ''}" data-level="${L.id}" ${ok ? '' : 'disabled'} title="${esc(T(L.title))}"><span class="rl-z z-${L.zone}"></span><b>${i + 1}</b><span class="rl-st">${stars(d ? d.stars : 0)}</span></button>`; }).join('')}</div></div>`; }).join('')}
         </section>
         ${islandsHTML(P)}
+        ${sandboxHTML(P)}
         ${PUZZLES.length ? `<section class="rl-sec"><h2>${icon('puzzle')}${kids ? 'חִידוֹת' : 'חידות'}</h2><div class="rl-pz">${PUZZLES.map((L) => { const ok = levelOpen(L, P), d = P.done[L.id];
           return `<button type="button" class="rl-pzb${d ? ' done' : ''}" data-level="${L.id}" ${ok ? '' : 'disabled'}><span class="rl-z z-${L.zone}"></span><b>${esc(T(L.title))}</b>${ok ? '' : `<small>${kids ? 'נִפְתָּח אַחֲרֵי שִׁעוּר ' : 'נפתח אחרי שיעור '}${L.after.replace('l', '').replace('-', '.')}</small>`}<span class="rl-st">${stars(d ? d.stars : 0)}</span></button>`; }).join('')}</div></section>` : ''}
         ${journeyOpen('robolab:workshop') ? '' : wkHero()}
@@ -182,6 +200,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   // what קוּבִּי says first: the chapter's idea on its first lesson, and the blocks this player has not met yet (two at most)
   function newsFor(L) {
     const P = roboProgress(), out = { chapter: null, blocks: [] };
+    if (L.sandbox) return out;   // ארגז החול: the robot's own blocks, nothing to present
     if (!L.puzzle && !P.seen['ch:' + L.ch] && CHAPTER_INTRO[L.ch]) { out.chapter = CHAPTER_INTRO[L.ch]; markSeen('ch:' + L.ch); }
     for (const b of L.blocks || []) if (BLOCK_INTRO[b] && !P.seen['b:' + b] && out.blocks.length < 2) { out.blocks.push(b); markSeen('b:' + b); }
     return out;
@@ -191,17 +210,18 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   const countHats = (prog) => { let n = 0; const walk = (xs) => (xs || []).forEach((nd) => { if (BLOCKS[nd.b] && BLOCKS[nd.b].kind === 'hat') n++; walk(nd.body); walk(nd.then); walk(nd.else); });
     for (const k of ['robot', 'drone', 'sub']) walk(prog[k]); return n + (prog.on || []).length; };   // handlers live in prog.on
   const countAll = (prog) => { let n = 0; const walk = (xs) => (xs || []).forEach((nd) => { n++; walk(nd.body); walk(nd.then); walk(nd.else); }); for (const k of ['robot', 'drone', 'sub']) walk(prog[k]); return n; };
-  const tutState = () => { const p = ed ? ed.program() : {}; return { level: cur && cur.id, blocks: ed ? countAll(p) : 0, runs, hats: ed ? countHats(p) : 0 }; };
+  const tutState = () => { const p = ed ? ed.program() : {}; return { level: cur && cur.id, blocks: ed ? countAll(p) : 0, runs, hats: ed ? countHats(p) : 0, drives }; };
   function stopTut() { clearTimeout(tutT); if (tut) { const t = tut; tut = null; t.stop(); } }
   function queueTut(L) {
     clearTimeout(tutT);
-    if (L.ownIsland) return;
+    if (L.ownIsland && !L.sandbox) return;
     const hasHat = (L.blocks || []).some((b) => BLOCKS[b] && BLOCKS[b].kind === 'hat');
     tutT = setTimeout(() => {
       if ((tut && tut.step) || intro || cur !== L) return;
       const g = svcGuide(); if (!g) return;
       const rl = { state: tutState };
-      tut = L.mission ? missionRunTutorial({ guide: g, rl, voice: kvoice })   // a workshop mission: קוּבִּי on the robot that went out
+      tut = L.sandbox ? sandboxTutorial({ guide: g, rl, voice: kvoice })   // ארגז החול: drive, then the program it made
+        : L.mission ? missionRunTutorial({ guide: g, rl, voice: kvoice })   // a workshop mission: קוּבִּי on the robot that went out
         : robolabTutorial({ guide: g, rl }) || (hasHat ? robolabEventTutorial({ guide: g, rl }) : null);
     }, 2600);
   }
@@ -210,7 +230,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     stopTut();
     const news = newsFor(L);
     stopRun(); if (map) map.dispose();
-    cur = L; lastRun = null;
+    cur = L; lastRun = null; driveN = 0; drives = 0;
     el.classList.toggle('in3d', !!api); root.classList.toggle('rl3d', !!api);
     if (api) { try { audio && audio.setBiome && audio.setBiome(L.zone); } catch (e) { } }
     const zw = ZONE_WORD[L.zone] || ZONE_WORD.grove;
@@ -229,7 +249,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
             <button type="button" data-why disabled>${icon('why')}<span>${kids ? 'מָה קָרָה?' : 'מה קרה?'}</span></button>
             ${(L.blocks || []).includes('add') ? `<span class="rl-ctr" title="${kids ? 'הַמּוֹנֶה' : 'המונה'}">🔢 <b>0</b></span>` : ''}
             ${api ? `<button type="button" data-view aria-label="${kids ? 'לְהַחֲזִיר אֶת הַמַּבָּט' : 'להחזיר את המבט'}">${icon('eye')}</button>` : ''}
-          </div></div>
+          </div>${L.sandbox ? driveHTML(L) : ''}</div>
       </div></div>`;
     ed = createEditor(el.querySelector('.rl-ed'), { lesson: L, kids, onFull: () => { sfx('invalid'); const m = el.querySelector('.rl-maxb'); if (m) { m.classList.remove('full'); void m.offsetWidth; m.classList.add('full'); } }, onChange: () => { maxbUpdate(); lastRun = null; el.querySelector('[data-why]').disabled = true; if (map && !map.isPlaying()) map.reset(); hideMsg(); } });
     // a lesson always opens fresh (Avi, 2.11): empty, or a puzzle's program to fix; the stars stay in the progress
@@ -277,6 +297,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     }, onEnd: () => {
       ed.light(null);
       el.querySelector('[data-why]').disabled = false;
+      if (cur.sandbox) { driveN = r.trace.length; sandboxEnd(r); return; }
       if (r.ok) {
         if (cur.mission) { winMission(r); return; }
         const { first } = cur.ownIsland ? { first: !!addIsland() } : markSolved(cur.id, r.stars, r.blocks);
@@ -341,6 +362,55 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
         home(); openWs('missions'); } };
     enter3d(desc);
   }
+  function openSandbox(zone, island) {
+    if (!enter3d || !journeyOpen('robolab:sandbox')) return;
+    const P = roboProgress(), R0 = P.robots[sbRobot] || P.robots[0];
+    const robot = R0 && R0.build ? R0 : { name: kids ? 'הַגַּנָּן' : 'הגנן', build: missionBuild('gardener') };
+    if (workshop) { workshop.close(); workshop = null; }
+    stopTut(); if (in3d) end3d();
+    stopRun(); if (map) { map.dispose(); map = null; }
+    cur = null; el.hidden = true;
+    in3d = { zone, api: null, own: !!island };
+    const desc = { robolab: true, ownIsland: !!island, zone, level: null, id: 'robolab:sandbox:' + zone + (island ? ':own' : ''),
+      sandbox: { build: JSON.parse(JSON.stringify(robot.build)), name: robot.name || '', step: Math.max(1, wkStepOf()), seed: 1 + (Date.now() % 997), island: !!island },
+      makeSession: (ctx) => createRoboSession(ctx, desc),
+      attach: (api) => { if (!in3d || !open) { if (leave3d) leave3d(); return; } in3d.api = api; el.hidden = false; root.classList.add('rl3d'); mountLevel(api.level, api); markSeen('sandbox'); if (wkNote) { msg(esc(T(wkNote)), 'why'); wkNote = null; } },
+      detach: () => { root.classList.remove('rl3d'); },
+      onExit: () => { in3d = null; root.classList.remove('rl3d'); el.hidden = false;
+        if (desc.noMission && island) { wkNote = { f: 'לא מצאנו מקום פנוי לשטח באי שלכם. ארגז החול נפתח בשטח המוכן.', k: 'לֹא מָצָאנוּ מָקוֹם בָּאִי שֶׁלָּכֶם. אַרְגַּז הַחוֹל נִפְתָּח בַּשֶּׁטַח הַמּוּכָן.' }; home(); openSandbox(zone, false); return; }
+        home(); } };
+    enter3d(desc);
+  }
+  // the sandbox's end of a run: what the robot did, in a few words (no stars, nothing to win or lose)
+  const SB_DID = [['fwd', 'נסע', 'נָסַע', 'צעדים', 'צְעָדִים'], ['pick', 'קטף', 'קָטַף', 'פירות', 'פֵּרוֹת'], ['plant', 'שתל', 'שָׁתַל', 'זרעים', 'זְרָעִים'], ['water', 'השקה', 'הִשְׁקָה', 'צמחים', 'צְמָחִים'],
+    ['photo', 'צילם', 'צִלֵּם', 'תמונות', 'תְּמוּנוֹת'], ['push', 'דחף', 'דָּחַף', 'סלעים', 'סְלָעִים'], ['lift', 'הרים', 'הֵרִים', 'ענפים', 'עֲנָפִים'], ['pollen', 'האביק', 'הֶאֱבִיק', 'פרחים', 'פְּרָחִים'], ['drop', 'הגיש', 'הִגִּישׁ', 'ארוחות', 'אֲרוּחוֹת']];
+  function sandboxEnd(r) {
+    const n = (a) => r.trace.filter((e) => (a === 'fwd' ? (e.a === 'fwd' || e.a === 'back') : e.a === a && e.item != null)).length;
+    const did = SB_DID.map(([a, v, vk, w, wk]) => [n(a), kids ? vk : v, kids ? wk : w]).filter((q) => q[0] > 0);
+    const name = cur.robotName || (kids ? 'הָרוֹבּוֹט' : 'הרובוט');
+    const line = did.length ? `${esc(name)} ${did.map(([k, v, w]) => `${v} ${k === 1 ? (kids ? 'פַּעַם אַחַת' : 'פעם אחת') : k + ' ' + w}`).join(', ')}.` : (kids ? 'הָרוֹבּוֹט עוֹד לֹא עָשָׂה כְּלוּם. נַסּוּ חֵץ!' : 'הרובוט עוד לא עשה כלום. נסו חץ, או בלוק בתוכנית.');
+    const why = r.error ? `<p class="rl-var">${esc(T(pick(FAIL_LINES[r.error.code] || FAIL_LINES.any, seedN)))}</p>` : '';
+    msg(`<div class="rl-sbend"><b>${line}</b>${why}</div>`, 'why');
+  }
+  // free driving: every arrow or tool button is one more block at the end of the program, and only that step plays
+  let driveN = 0, drives = 0;
+  // the driving buttons on the field: the four moves and what the robot's parts can do
+  function driveHTML(L) {
+    const mv = [['fwd', 'fwd'], ['left', 'left'], ['right', 'right'], ['back', 'back']];
+    const acts = (L.acts || []).filter((b) => BLOCKS[b]);
+    return `<div class="rl-drive" role="group" aria-label="${kids ? 'נְהִיגָה' : 'נהיגה'}"><b>${kids ? 'נְהִיגָה:' : 'נהיגה:'}</b>${mv.map(([b, ic]) => `<button type="button" data-drive="${b}" title="${esc(T(BLOCKS[b]))}" aria-label="${esc(T(BLOCKS[b]))}">${icon(ic)}</button>`).join('')}${acts.length ? '<i></i>' : ''}${acts.map((b) => `<button type="button" class="act" data-drive="${b}" title="${esc(T(BLOCKS[b]))}">${icon(BLOCKS[b].icon || b)}<span>${esc(T(BLOCKS[b]))}</span></button>`).join('')}</div>`;
+  }
+  function drive(b) {
+    if (!cur || !cur.sandbox || !ed || (map && map.isPlaying())) return;
+    const prog = ed.program(); prog.robot = [...(prog.robot || []), { b }];
+    ed.set(prog);
+    const r = runLevel(levelsOf(cur), ed.program()); lastRun = r; drives++;
+    const from = driveN && driveN <= r.trace.length ? driveN : 0;
+    if (r.trace.length === from) { if (r.error) sandboxEnd(r); return; }
+    hideMsg(); toolSound('robot', 0.35);
+    map.play(r.trace, { speed: 'normal', from, onStep: (e) => { ed.light(e.nid); if (e.a === 'fail') { sfx('invalid'); kubiDo('surprised'); } },
+      onEnd: () => { ed.light(null); driveN = r.trace.length; if (r.error) sandboxEnd(r); } });
+  }
   function winMission(r) {
     const { first, was, now } = addMission(cur.id, r.stars, cur.robotName, wkStepOf);
     if (now > was) wkNewStep = now;
@@ -357,6 +427,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
       + (r.error && r.error.need ? `<p><button type="button" class="rl-wsfix" data-wsback>${icon('robot')}${kids ? 'לְשַׁפֵּר אֶת הָרוֹבּוֹט בַּסַּדְנָה' : 'לשפר את הרובוט בסדנה'}</button></p>` : '');
   }
 
+  el.addEventListener('change', (e) => { const q = e.target.closest('[data-sbrobot]'); if (q) sbRobot = +q.value || 0; });
   el.addEventListener('click', (e) => {
     const b = e.target.closest('button'); if (!b || !el.contains(b) || b.disabled) return;
     if (b.dataset.wsback != null) { sfx('click'); home(); openWs('missions'); return; }
@@ -367,7 +438,9 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     if (b.dataset.garage != null) { sfx('click'); if (garage) garage.close(); garage = openGarage(el, { kids, sfx, toolSound, guide: svcGuide(), voice: kvoice, onClose: () => { garage = null; checkRoboBadges(); } }); return; }
     if (b.dataset.level) { sfx('click'); openLevel(b.dataset.level); return; }
     if (b.dataset.run) { run(b.dataset.run); return; }
-    if (b.dataset.again != null) { stopRun(); hideMsg(); map.reset(); return; }
+    if (b.dataset.again != null) { stopRun(); hideMsg(); map.reset(); driveN = 0; return; }
+    if (b.dataset.drive) { drive(b.dataset.drive); return; }
+    if (b.dataset.sandbox) { sfx('click'); openSandbox(b.dataset.sandbox, b.dataset.sbown === '1'); return; }
     if (b.dataset.why != null) { why(); return; }
     if (b.dataset.view != null) { if (in3d && in3d.api) in3d.api.frame(); return; }
     if (b.dataset.stay != null) { hideMsg(); map.reset(); return; }
@@ -431,6 +504,9 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     edset: (prog) => { if (ed) ed.set(prog); return !!ed; },
     autoplan: (speed = 'fast') => { if (!cur || !ed || !cur.build) return null; const r = planLevel(levelOf(cur), cur.build.robot); if (!r) return false; ed.set(r.prog); run(speed); return r.prog.robot.length; },
     field: () => (in3d && in3d.api && in3d.api.course && in3d.api.course.info ? in3d.api.course.info() : null),
+    sandbox: (z, own = false) => openSandbox(z, own), drive: (b) => drive(b),
+    sb: () => ({ on: !!(cur && cur.sandbox), drives, driveN, acts: cur && cur.acts, blocks: cur && cur.blocks, items: cur && cur.items ? cur.items.map((it) => it.t) : [], prog: ed ? (ed.program().robot || []).map((n) => n.b) : [], playing: !!(map && map.isPlaying()), msg: (el.querySelector('.rl-msg:not([hidden])') || {}).textContent || '' }),
+    counter: () => (in3d && in3d.api && in3d.api.course && in3d.api.course.counter ? in3d.api.course.counter() : null),
     look: (x, y, d = 9) => { const C = in3d && in3d.api && in3d.api.course, rig = window.__game && window.__game.debug && window.__game.debug.rig; if (!C || !rig) return false; const t = C.cellPos(x, y); rig.goTo(t, t.clone().add({ x: d * 0.15, y: d * 0.7, z: d * 0.7 }), 0.05); return true; },
     workshop: () => openWs(),
     wkSnap: (px, ry) => (workshop && workshop.snap ? workshop.snap(px, ry) : null),

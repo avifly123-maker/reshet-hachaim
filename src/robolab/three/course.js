@@ -17,6 +17,7 @@ import { fieldCells, makeBoulder, makeLog, makeFlowerMark, makeFeeder, makeMark 
 import { buildTool, hasBlenderTools, farEyes } from './parts3d.js';
 import { wkLook } from '../../data/robolab/workshop-look.js';
 import { DIRS } from '../engine/world.js';
+import { createRunCounter } from './run-counter.js';   // 1.4.3 set 5: steps left, the count, the battery over the tool
 
 // the zone's living things used on a field: trees on 'T' cells, what grows from a planted seed, the thirsty plant
 const LIFE = {
@@ -69,6 +70,7 @@ export function createCourse(ctx, L) {
     return best || { CS: base, OX: 0, OZ: 0 };
   })();
   const wx = (x) => OX + (x - (Wd - 1) / 2) * CS, wz = (y) => OZ + (y - (H - 1) / 2) * CS;
+  const RC = createRunCounter({ root, CS, level: L });
   const rng = (() => { let s = 7; return () => { s = (s * 16807) % 2147483647; return s / 2147483647; }; })();
   const spOf = (id) => (reg && reg.byId ? reg.byId.get(id) : null);
   // 1.4.3 set 4: the workshop's ground (mud, a hill, a narrow log over a stream, shallow water); a robot rides over the
@@ -224,6 +226,7 @@ export function createCourse(ctx, L) {
       if (k === 'robot') { const d = CS * 0.3, X = o.position.x, Z = o.position.z, fx = Math.sin(yaw) * d, fz = Math.cos(yaw) * d; pitch = -Math.atan2(ground(X + fx, Z + fz) - ground(X - fx, Z - fz), 2 * d); }
       o.rotation.order = 'YXZ'; o.rotation.set(pitch + T.wob * 0.25 * Math.sin(T.spin * 30), yaw, 0);
     }
+    RC.place(tools, wx, wz, toolY);
   }
 
   // ── what a step does to the place
@@ -268,14 +271,20 @@ export function createCourse(ctx, L) {
 
   // ── playing a trace
   let play = null;
-  function start(trace, { speed = 'normal', onStep, onEnd, variant: vi = 0 } = {}) {
-    stop(); variant = vi || 0; W._rlSunset = false; buildItems();
+  // from: 1.4.3 set 5, the sandbox's free driving: the field is where the last play left it, and only the trace's
+  // new events (from that index on) are played
+  function start(trace, { speed = 'normal', onStep, onEnd, variant: vi = 0, from = 0 } = {}) {
+    const keep = from > 0;
+    stop(); variant = vi || 0;
+    if (!keep) { W._rlSunset = false; buildItems(); }
     // a slow built robot: its 'slow' steps after a move are part of that move (it drives the cell in all their time)
     const evs = [];
-    for (const e of trace) { if (e.a === 'slow' && evs.length) { evs[evs.length - 1].m = (evs[evs.length - 1].m || 1) + 1; continue; } evs.push({ ...e }); }
+    for (const e of keep ? trace.slice(from) : trace) { if (e.a === 'slow' && evs.length) { evs[evs.length - 1].m = (evs[evs.length - 1].m || 1) + 1; continue; } evs.push({ ...e }); }
     play = { evs, i: 0, t: 0, dur: DUR[speed] || DUR.normal, from: null, onStep, onEnd };
+    if (!keep) RC.reset();
   }
   function begin(e) {
+    RC.event(e);
     const T = tools[e.tool];
     play.from = T ? { x: T.x, y: T.y, a: T.a, lift: T.lift } : {};
     if (e.a === 'launch' && tools.drone) { const D = tools.drone; D.show = true; D.x = e.x; D.y = e.y; D.a = (e.dir || 0) * Math.PI / 2; D.lift = 0; }
@@ -356,12 +365,14 @@ export function createCourse(ctx, L) {
   buildItems();
   return {
     kubiSpot,
-    reset: () => { stop(); variant = 0; W._rlSunset = false; buildItems(); }, play: start, stop, isPlaying: () => !!play, update, view, redraw: () => { },
+    reset: () => { stop(); variant = 0; W._rlSunset = false; RC.reset(); buildItems(); },
+    counter: () => RC.state(),   // (tests)
+    play: start, stop, isPlaying: () => !!play, update, view, redraw: () => { },
     cellPos: (x, y) => new THREE.Vector3(wx(x), ground(wx(x), wz(y)), wz(y)), CS,
     // where the robot is now, and how big the field is (session.js follows a robot on a big field while it runs)
     setFar: (f) => { const o = toolObjs.robot; if (o && o.userData.eyes) o.userData.eyes.set(f); },
     robotAt: () => (tools.robot ? new THREE.Vector3(wx(tools.robot.x), ground(wx(tools.robot.x), wz(tools.robot.y)), wz(tools.robot.y)) : null), span: Math.max(Wd, H) * CS,
     info: () => ({ built: !!(toolObjs.robot && toolObjs.robot.userData.built), cells: FC.clears.length }),   // tests
-    dispose: () => { gone = true; stop(); clearItems(); FC.dispose(); if (env.clearScatter) env.clearScatter([]); for (const e of keep) { try { W.removeEntity(e); } catch (err) { } } scene.remove(root); root.traverse((o) => { if (o.geometry) o.geometry.dispose(); }); },
+    dispose: () => { gone = true; stop(); RC.dispose(); clearItems(); FC.dispose(); if (env.clearScatter) env.clearScatter([]); for (const e of keep) { try { W.removeEntity(e); } catch (err) { } } scene.remove(root); root.traverse((o) => { if (o.geometry) o.geometry.dispose(); }); },
   };
 }

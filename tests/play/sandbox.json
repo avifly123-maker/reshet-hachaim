@@ -1,0 +1,130 @@
+[
+{
+"wait": 4
+},
+{
+"js": "window.__journey.markIntro('stage:1'); ['g:wktut','g:wmtut','g:wmtut:run','g:rltut','g:rltut:ev'].forEach(k=>window.__journey.markIntro(k)); window.__guide && window.__guide.close(); window.__journey.unlockAll('2580'); window.__app.bus.emit('quality',{q:'medium'}); window.__app.bus.emit('ui:robolab'); 1"
+},
+{
+"until": "!!document.querySelector('.rl-home')",
+"timeout": 60
+},
+{
+"wait": 1
+},
+{
+"js": "const i=document.querySelector('.rl-intro [data-iskip]'); if(i) i.click(); 1"
+},
+{
+"wait": 0.6
+},
+{
+"js": "const s=document.querySelector('.rl-sbx'); const b=s&&s.querySelectorAll('[data-sandbox]'); 'CHECK home-section ' + (b && b.length===5 && /הגנן/.test(s.textContent) ? 'ok' : 'FAIL '+(s&&s.textContent.slice(0,80)))"
+},
+{
+"js": "const b=document.querySelector('.rl-sbx [data-sandbox=grove]'); b.scrollIntoView({block:'center'}); b.click(); 1"
+},
+{
+"until": "window.__rlDebug.in3d() && window.__rlDebug.sb().on",
+"timeout": 180
+},
+{
+"wait": 1
+},
+{
+"js": "const s=window.__rlDebug.sb(); 'CHECK sandbox-field ' + (s.on && s.items.length>=3 && s.acts.includes('plant') && s.acts.includes('pick') && document.querySelectorAll('.rl-drive [data-drive]').length>=6 ? 'ok' : 'FAIL '+JSON.stringify(s))"
+},
+{
+"until": "window.__rlDebug.tut()==='drive'",
+"timeout": 20
+},
+{
+"js": "'CHECK tutorial-drive ' + (window.__rlDebug.tut()==='drive' ? 'ok' : 'FAIL '+window.__rlDebug.tut())"
+},
+{
+"shot": "shots/sb/01-field.png"
+},
+{
+"clickSel": ".rl-drive [data-drive=fwd]"
+},
+{
+"until": "!window.__rlDebug.sb().playing",
+"timeout": 20
+},
+{
+"wait": 0.5
+},
+{
+"js": "const s=window.__rlDebug.sb(); 'CHECK drive-step ' + (s.drives===1 && s.prog.join()==='fwd' && s.driveN>0 && window.__rlDebug.tut()==='prog' ? 'ok' : 'FAIL '+JSON.stringify(s)+' '+window.__rlDebug.tut())"
+},
+{
+"clickSel": ".rl-drive [data-drive=right]"
+},
+{
+"until": "!window.__rlDebug.sb().playing",
+"timeout": 20
+},
+{
+"wait": 0.3
+},
+{
+"clickSel": ".rl-drive [data-drive=fwd]"
+},
+{
+"until": "!window.__rlDebug.sb().playing",
+"timeout": 20
+},
+{
+"wait": 0.3
+},
+{
+"js": "const s=window.__rlDebug.sb(); 'CHECK drive-appends ' + (s.prog.join()==='fwd,right,fwd' && s.drives===3 ? 'ok' : 'FAIL '+JSON.stringify(s))"
+},
+{
+"shot": "shots/sb/02-drive.png"
+},
+{
+"clickSel": ".rl-run [data-again]"
+},
+{
+"wait": 0.4
+},
+{
+"clickSel": ".rl-run [data-run=normal]"
+},
+{
+"until": "!window.__rlDebug.sb().playing",
+"timeout": 40
+},
+{
+"wait": 0.6
+},
+{
+"js": "const s=window.__rlDebug.sb(); 'CHECK run-summary ' + (/נסע|נָסַע/.test(s.msg) && !document.querySelector('.rl-msg .rl-win') && window.__rlDebug.tut()==='end' ? 'ok' : 'FAIL '+JSON.stringify(s)+' '+window.__rlDebug.tut())"
+},
+{
+"shot": "shots/sb/03-summary.png"
+},
+{
+"js": "window.__guide && window.__guide.close(); 1"
+},
+{
+"wait": 0.5
+},
+{
+"js": "'CHECK tutorial-seen ' + (window.__journey.introSeen('g:sbtut') ? 'ok' : 'FAIL')"
+},
+{
+"key": "Escape"
+},
+{
+"until": "!!document.querySelector('.rl-home')",
+"timeout": 30
+},
+{
+"js": "'CHECK back-home ' + (document.querySelector('.rl-home .rl-sbx') && !window.__rlDebug.sb().on ? 'ok' : 'FAIL')"
+},
+{
+"js": "'sandbox done'"
+}
+]

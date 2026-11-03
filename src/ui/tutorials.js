@@ -117,6 +117,19 @@ export function garageTutorial({ guide, gar, force = false, voice = null }) {
   ];
   return runGuided({ guide, steps, sayOpts: { speaker: 'kubi', voice }, onEnd: (r) => { if (r !== 'abort' || st().changes) markIntro(KEY); } });
 }
+// ארגז החול (1.4.3 set 5): one press of an arrow, the program that the driving wrote, a run of it
+export function sandboxTutorial({ guide, rl, force = false, voice = null }) {
+  const KEY = 'g:sbtut';
+  if (!guide || !rl || !rl.state || (!force && introSeen(KEY))) return null;
+  const st = () => rl.state();
+  let runs0 = 0;
+  const steps = [
+    { id: 'drive', lines: L('sbtut:drive'), wait: () => st().drives > 0 },
+    { id: 'prog', lines: L('sbtut:prog'), before: () => { runs0 = st().runs; }, wait: () => st().runs > runs0 },
+    { id: 'end', lines: L('sbtut:end') },
+  ];
+  return runGuided({ guide, steps, sayOpts: { speaker: 'kubi', voice }, onEnd: (r) => { if (r !== 'abort' || st().drives) markIntro(KEY); } });
+}
 export function missionRunTutorial({ guide, rl, force = false, voice = null }) {
   const KEY = 'g:wmtut:run';
   if (!guide || !rl || !rl.state || (!force && introSeen(KEY))) return null;

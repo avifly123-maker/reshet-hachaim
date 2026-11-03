@@ -110,11 +110,17 @@
 "clickSel": "#rguide .rg-next"
 },
 {
+"shot": "shots/wkm/03b-counter.png"
+},
+{
 "until": "!window.__rlDebug.playing()",
 "timeout": 60
 },
 {
 "wait": 1
+},
+{
+"js": "const c=window.__rlDebug.counter(); 'CHECK run-counter ' + (c && c.visible && c.rows.some(r=>/סוללה|סוֹלְלָה/.test(r)) && c.t > 3 ? 'ok' : 'FAIL '+JSON.stringify(c))"
 },
 {
 "js": "const w=window.__rlDebug.wk(); const m=document.querySelector('.rl-msg.win'); 'CHECK mission-counts ' + (w.missions===1 && w.done['wm-am-4'] && m && /כלי האוכל/.test(m.textContent) && !window.__rlDebug.tut() ? 'ok' : 'FAIL '+JSON.stringify(w))"

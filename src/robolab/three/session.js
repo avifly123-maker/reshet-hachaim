@@ -5,7 +5,9 @@
 // and hands the field to the robot lab's screen (R.attach), which drives it like the flat map.
 import { createCourse } from './course.js';
 import { makeIslandLevel } from './island-level.js';
-import { makeMission, practiceView, isBig } from '../island-missions.js';   // 1.4.3 set 4: workshop missions from the child's own island
+import { makeMission, makeSandbox, practiceView, isBig } from '../island-missions.js';   // 1.4.3 set 4: workshop missions from the child's own island; set 5: the sandbox
+import { statsOf } from '../engine/build.js';
+import { BASE_BLOCKS } from '../../data/robolab/workshop.js';
 
 export function createRoboSession(ctx, R) {
   const { W, env, scene, reg, markers, rig, spawnPlant, spawnAnimal, ui } = ctx;
@@ -37,18 +39,28 @@ export function createRoboSession(ctx, R) {
       const newIsland = (kind) => makeIslandLevel({ W, env }, R.zone, { kind, seed: Date.now() });
       // a template mission of the workshop (R.templateMission = { id, tpl, shape, build, name, step, seed, island }):
       // made now from what is on this island (his own, when he asked for it), or from the zone's practice island
-      const fromTemplate = () => {
-        const Q = R.templateMission, alive = (p) => p && p.alive && !p.removed && p.sp;
-        const species = reg && reg.byId ? [...reg.byId.values()] : [];
-        const view = Q.island ? { plants: (W.plants || []).filter(alive).map((p) => ({ id: p.sp.id, x: p.x, z: p.z, g: p.growth, tree: isBig(p.sp, !!env.underwater) })),
+      const alive = (p) => p && p.alive && !p.removed && p.sp;
+      const species = reg && reg.byId ? [...reg.byId.values()] : [];
+      const viewOf = (own) => (own ? { plants: (W.plants || []).filter(alive).map((p) => ({ id: p.sp.id, x: p.x, z: p.z, g: p.growth, tree: isBig(p.sp, !!env.underwater) })),
           animals: (W.animals || []).filter((a) => a && a.alive !== false && a.sp).map((a) => ({ id: a.sp.id, x: a.x, z: a.z })),
           isWater: (x, z) => !!(env.isWater && env.isWater(x, z)), isPlaceable: (x, z) => !env.isPlaceable || env.isPlaceable(x, z),
           heightAt: env.heightAt ? (x, z) => env.heightAt(x, z) : null, bridgeAt: env.bridgeAt ? (x, z) => !!env.bridgeAt(x, z) : null,
-          radius: env.radius || 38, sea: !!env.underwater } : practiceView(R.zone, species);
+          radius: env.radius || 38, sea: !!env.underwater } : practiceView(R.zone, species));
+      const fromTemplate = () => {
+        const Q = R.templateMission, view = viewOf(Q.island);
         const M = makeMission(view, { zone: R.zone, species, step: Q.step, seed: Q.seed || 1, tpl: Q.tpl, shape: Q.shape, id: Q.id });
         if (!M) return null;
         return { ...M, build: { robot: Q.build }, robotName: Q.name || '' };
       };
+      // ארגז החול (R.sandbox = { build, name, step, seed, island }): a free field, the robot's own blocks, no goal
+      const fromSandbox = () => {
+        const Q = R.sandbox, M = makeSandbox(viewOf(Q.island), { zone: R.zone, species, step: Q.step, seed: Q.seed || 1 });
+        if (!M) return null;
+        const can = [...statsOf(Q.build).blocks], acts = can.filter((b) => !BASE_BLOCKS.includes(b));
+        const blocks = ['fwd', 'back', 'right', 'left', ...acts, 'wait', 'repeat', 'if', 'until', 'add', 'fireworks', 'dance', 'lights', 'beep'].filter((b, i, a) => a.indexOf(b) === i && (can.includes(b) || ['repeat', 'if', 'until'].includes(b)));
+        return { ...M, blocks, acts, build: { robot: Q.build }, robotName: Q.name || '' };
+      };
+      if (!R.level && R.sandbox) { R.level = fromSandbox(); if (!R.level) R.noMission = true; }
       if (!R.level && R.templateMission) { R.level = fromTemplate(); if (!R.level) R.noMission = true; }
       else if (!R.level && R.ownIsland) R.level = newIsland();
       if (!R.level) { R.noRoom = true; leaveSoon = true; return; }   // no room for a field on his island: closed from the first update, once the game is in place

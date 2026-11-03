@@ -71,7 +71,10 @@ export const PARTS = {
   'zone:savanna': { stage: 7, v14: true, name: 'הסוואנה', kname: 'הַסָּוַאנָה', where: 'start' },
   robolab: { stage: 7, v14: true, name: 'מעבדת הרובוטים', kname: 'מַעְבֶּדֶת הָרוֹבּוֹטִים', where: 'start' },
   'robolab:more': { stage: 8, v14: true, name: 'שאר שיעורי התכנות והחידות', kname: 'שְׁאָר שִׁעוּרֵי הַתִּכְנוּת וְהַחִידוֹת', where: 'robolab' },
-  'robolab:workshop': { stage: 9, v14: true, pending: true, name: 'סדנת הרובוט', kname: 'סַדְנַת הָרוֹבּוֹט', where: 'robolab' },   // 1.4.3 (set 3); pending: stage 9 opens in set 5, until then only the instructors' code opens it
+  // 1.4.3 set 5: stage 9 opens the robot workshop, the missions on the player's own island and the sandbox
+  'robolab:workshop': { stage: 9, v14: true, name: 'סדנת הרובוט', kname: 'סַדְנַת הָרוֹבּוֹט', where: 'robolab' },
+  'robolab:island': { stage: 9, v14: true, name: 'משימות באי שלי', kname: 'מְשִׂימוֹת בָּאִי שֶׁלִּי', where: 'robolab' },
+  'robolab:sandbox': { stage: 9, v14: true, name: 'ארגז החול', kname: 'אַרְגַּז הַחוֹל', where: 'robolab' },
 };
 
 // need: a list of ways (any one is enough). Keys: missions (done in all zones), badges (owned), lab (lab activities).
@@ -98,7 +101,8 @@ export const STAGES = [
   // 8 for the savanna and the programming lessons of stage 7, 9 (soon until 1.4.3) for robot missions and inventions
   { n: 7, id: 'programmer', name: 'מתכנת', kname: 'מְתַכְנֵת', need: [{ desert: 6, invent: 2 }], kneed: [{ desert: 3, invent: 1 }] },
   { n: 8, id: 'entrepreneur', name: 'יזם', kname: 'יַזָּם', need: [{ savanna: 6, code: 6 }], kneed: [{ savanna: 3, code: 4 }] },
-  { n: 9, id: 'engineer', name: 'מהנדס', kname: 'מְהַנְדֵּס', soon: true, need: [{ robot: 10, invent: 3 }], kneed: [{ robot: 5, invent: 2 }] },
+  // 1.4.3 set 5 (docs/PLAN-1.4.3.md "שלב 9"): the savanna's missions, lessons from several chapters, and the lab
+  { n: 9, id: 'engineer', name: 'מהנדס', kname: 'מְהַנְדֵּס', need: [{ savanna: 12, code: 18, codech: 5, lab: 10 }], kneed: [{ savanna: 6, code: 10, codech: 3, lab: 6 }] },
 ];
 // the last stage a child can reach in this version (the soon ones are only shown on the map)
 export const LAST = STAGES.filter((st) => !st.soon).length;
@@ -134,7 +138,9 @@ export function metrics() {
   const used = ((readPlayer(K, null) || {}).used) || {};
   const cardgame = (used.webpuzzle ? 1 : 0) + (used.keepforest ? 1 : 0);
   const RB = readPlayer(KEY.robolab, {}) || {}; const code = n(RB.done);   // robot-lab levels solved (1.4.1)
-  const m = { missions, amazon: per.amazon, grove: per.grove, reef: per.reef, desert: per.desert, savanna: per.savanna, badges, lab, cases, solved, cards, cardgame, invent: n(L.inventions) + n(L.solved), code };
+  // the chapters with a solved lesson (1.4.3 set 5: lesson ids are l<chapter>-<n>; puzzles and missions do not count)
+  const codech = new Set(Object.keys(RB.done || {}).map((id) => (/^l(\d+)-/.exec(id) || [])[1]).filter(Boolean)).size;
+  const m = { missions, amazon: per.amazon, grove: per.grove, reef: per.reef, desert: per.desert, savanna: per.savanna, badges, lab, cases, solved, cards, cardgame, invent: n(L.inventions) + n(L.solved), code, codech };
   // the island rank reads the forests' saves: only when a stage asks for it (check() runs often)
   let rank = null;
   Object.defineProperty(m, 'rank', { enumerable: true, get() {
@@ -206,6 +212,7 @@ function needWord(k, n, have, kids) {
   if (k === 'solved') return left === 1 ? w('תעלומה פתורה אחת', 'תַּעֲלוּמָה פְּתוּרָה אַחַת') : w(`עוד ${left} תעלומות פתורות`, `עוֹד ${left} תַּעֲלוּמוֹת פְּתוּרוֹת`);
   if (k === 'invent') return left === 1 ? w('המצאה אחת', 'הַמְצָאָה אַחַת') : w(`עוד ${left} המצאות`, `עוֹד ${left} הַמְצָאוֹת`);
   if (k === 'code') return left === 1 ? w('עוד שיעור אחד במעבדת הרובוטים', 'עוֹד שִׁעוּר אֶחָד בְּמַעְבֶּדֶת הָרוֹבּוֹטִים') : w(`עוד ${left} שיעורים במעבדת הרובוטים`, `עוֹד ${left} שִׁעוּרִים בְּמַעְבֶּדֶת הָרוֹבּוֹטִים`);
+  if (k === 'codech') return left === 1 ? w('שיעור בעוד פרק אחד של מעבדת הרובוטים', 'שִׁעוּר בְּעוֹד פֶּרֶק אֶחָד שֶׁל מַעְבֶּדֶת הָרוֹבּוֹטִים') : w(`שיעורים בעוד ${left} פרקים של מעבדת הרובוטים`, `שִׁעוּרִים בְּעוֹד ${left} פְּרָקִים שֶׁל מַעְבֶּדֶת הָרוֹבּוֹטִים`);
   if (k === 'rank') return w(...(RANK_WORDS[Math.min(3, n)] || RANK_WORDS[1]));
   return '';
 }
@@ -298,5 +305,5 @@ if (typeof window !== 'undefined') {
   const later = () => setTimeout(() => { try { check(); } catch (e) { console.error(e); } }, CHECK_DELAY_MS);
   window.addEventListener('wol-badge', later);
   window.addEventListener('wol-progress', later);
-  window.__journey = { state, isOpen, trained, markTrained, check, metrics, markUsed, playMode, setPlayMode, unlockAll, lockAgain, reload, markIntro, introSeen, PARTS, STAGES, LAST };
+  window.__journey = { state, isOpen, lockWords, trained, markTrained, check, metrics, markUsed, playMode, setPlayMode, unlockAll, lockAgain, reload, markIntro, introSeen, PARTS, STAGES, LAST };
 }

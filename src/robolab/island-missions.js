@@ -93,11 +93,11 @@ const OPEN = '.mh';
 const openCells = (F) => { const out = []; F.rows.forEach((row, y) => [...row].forEach((c, x) => { if (OPEN.includes(c)) out.push({ x, y }); })); return out; };
 const near = (F, x, y) => [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([dx, dy]) => ({ x: x + dx, y: y + dy })).filter((q) => OPEN.includes(F.ch(q.x, q.y)));
 // the most of `pts` that fit one field together with `first` (nearest first)
-function cluster(view, first, pts, step, max) {
+function cluster(view, first, pts, step, max, size) {
   const rest = pts.filter((p) => p !== first).sort((a, b) => Math.hypot(a.x - first.x, a.z - first.z) - Math.hypot(b.x - first.x, b.z - first.z));
-  let take = [first], F = layField(view, take, step);
+  let take = [first], F = layField(view, take, step, size);
   if (!F) return null;
-  for (const p of rest) { if (take.length >= max) break; const G = layField(view, [...take, p], step); if (G) { take = [...take, p]; F = G; } }
+  for (const p of rest) { if (take.length >= max) break; const G = layField(view, [...take, p], step, size); if (G) { take = [...take, p]; F = G; } }
   return { F, take };
 }
 // a start for the robot: an open cell on the bottom edge of the field first, away from the jobs
@@ -288,6 +288,44 @@ const TEMPLATES = {
   } },
 };
 export const TEMPLATE_IDS = Object.keys(TEMPLATES);
+
+// ── ארגז החול (1.4.3 set 5): a free field among his trees, no mission. A wide field round the most trees that fit,
+// and on it a little of everything a robot can do there: fruit under the trees, seed spots far from them, his young
+// plants to water, his animals to photograph, a rock and a fallen branch (from step 3), fires never (nothing burns in
+// play). What the robot can do comes from its own parts (the caller's blocks); nothing is asked, so every run is fine.
+//   makeSandbox(view, { zone, species, step, seed }) → a level (sandbox: true) | null
+export function makeSandbox(view, { zone, species, step = 1, seed = 1 } = {}) {
+  if (!view) return null;
+  let s = (seed % 2147483646) + 1; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  const by = new Map(species.map((q) => [q.id, q]));
+  const big = view.plants.filter((p) => p.tree && p.g > 0.3), pts = big.length ? big : view.plants;
+  const size = { pad: 2, maxW: 11, maxH: 8 };
+  let C = null;
+  for (const first of shuffled(pts, rnd).slice(0, 12)) { const c = cluster(view, first, pts, step, 7, size); if (c && (!C || c.take.length > C.take.length)) C = c; }
+  const F = C ? C.F : layField(view, [{ x: 0, z: 0 }], step, { pad: 4, maxW: 11, maxH: 8 });   // a bare island: an open field in its middle
+  if (!F) return null;
+  const items = [], taken = (q) => items.some((it) => it.x === q.x && it.y === q.y);
+  const add = (it) => { if (!taken(it) && OPEN.includes(F.ch(it.x, it.y))) items.push(it); };
+  const trees = Object.entries(F.kinds).map(([k, id]) => { const [x, y] = k.split(',').map(Number); return { x, y, id }; });
+  for (const t of shuffled(trees, rnd).slice(0, 3)) { const q = shuffled(near(F, t.x, t.y), rnd)[0]; if (q) add({ t: 'fruit', plant: t.id, ...q }); }
+  if (!view.sea) for (const p of shuffled(F.flora.filter((q) => q.g < 0.6 && by.has(q.id)), rnd).slice(0, 2)) add({ t: 'thirsty', plant: p.id, x: p.x, y: p.y });
+  for (const a of shuffled(view.animals.filter((q) => by.has(q.id)), rnd)) {
+    if (items.filter((it) => it.t === 'animal').length >= 3) break;
+    const q = F.cellOf(a.x, a.z); if (q.x >= 1 && q.y >= 1) add({ t: 'animal', kind: a.id, ...q });
+  }
+  const far = shuffled(openCells(F).filter((q) => F.ch(q.x, q.y) === '.' && !trees.some((t) => Math.abs(t.x - q.x) + Math.abs(t.y - q.y) < 3)), rnd);
+  for (const q of far.slice(0, 3)) add({ t: 'seed', ...(view.sea && by.has('seagrass') ? { plant: 'seagrass' } : {}), ...q });
+  if (step >= 2) { const q = shuffled(openCells(F).filter((o) => F.ch(o.x, o.y) === '.' && near(F, o.x, o.y).length >= 3), rnd).find((o) => !taken(o)); if (q) add({ t: 'rock', ...q }); }
+  if (step >= 3 && !view.sea) { const q = shuffled(openCells(F).filter((o) => F.ch(o.x, o.y) === '.' && trees.some((t) => Math.abs(t.x - o.x) + Math.abs(t.y - o.y) === 1)), rnd).find((o) => !taken(o)); if (q) add({ t: 'log', ...q }); }
+  const home = startCell(F, items); if (!home) return null;
+  return {
+    id: 'sandbox-' + zone, sandbox: true, island: !view.practice, zone, step, concept: 'sandbox',
+    title: T2('ארגז החול', 'אַרְגַּז הַחוֹל'),
+    say: [T2('אין כאן משימה. תכנתו את הרובוט, או נהגו בו בחיצים, ותראו מה הוא יודע לעשות בשטח.', 'אֵין כָּאן מְשִׂימָה. תַּכְנְתוּ אֶת הָרוֹבּוֹט, אוֹ נַהֲגוּ בּוֹ בַּחִצִּים.')],
+    tools: ['robot'], map: { rows: F.rows }, home, tools0: { robot: { x: home.x, y: home.y, dir: 0 } }, items, goal: { all: [] }, par: 0, maxTicks: 400,
+    ...(view.practice ? { cells: F.kinds, flora: F.flora.filter((q) => !items.some((it) => it.plant && it.x === q.x && it.y === q.y && it.t !== 'fruit')) } : { ownIsland: true, place: F.place }),
+  };
+}
 export const templateInfo = (id) => (TEMPLATES[id] ? { title: TEMPLATES[id].title, need: TEMPLATES[id].need, step: TEMPLATES[id].step, tools: TEMPLATES[id].tools } : null);
 export const templateStep = (id) => (TEMPLATES[id] ? TEMPLATES[id].step : 9);
 

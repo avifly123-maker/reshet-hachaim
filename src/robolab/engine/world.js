@@ -61,7 +61,7 @@ export function makeWorld(level) {
     msgs: [],        // every signal sent: { m, from, t } (the tools talk to each other, engine/blocks.js 'send')
     listeners: [],   // other bodies on the field that hear signals: { id, on(m, from, W) } (stations, gates, sensors: later)
   };
-  const log = (tool, a, extra) => { const T = tools[tool] || {}; W.trace.push({ t: W.ticks, tool, a, x: T.x, y: T.y, dir: T.dir, nid: W.cur || null, ...extra }); };
+  const log = (tool, a, extra) => { const T = tools[tool] || {}; W.trace.push({ t: W.ticks, tool, a, x: T.x, y: T.y, dir: T.dir, nid: W.cur || null, ...(T.st || T.battery ? { bat: T.battery } : {}), ...extra }); };   // bat: the run counter (three/run-counter.js)
   W.fail = (code, tool, extra) => { if (W.done) return; W.error = { code, tool, ...(tool && tools[tool] ? { x: tools[tool].x, y: tools[tool].y } : {}), ...extra }; W.done = true; log(tool, 'fail', { code }); };
   W.itemAt = (x, y, t) => items.find((it) => !it.done && !(it.appear > W.ticks) && it.x === x && it.y === y && (!t || it.t === t));
   // 1.4.3 set 4: an item may come in the middle of a run (it.appear = the step it shows up: a fire starts, a fruit falls)
