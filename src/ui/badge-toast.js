@@ -1,7 +1,12 @@
 // A new badge drops in over whatever is open (the forest, the hub, the lab): the medallion, its name and how it was
 // earned. One at a time; a click or 5 seconds closes it. Listens to the 'wol-badge' event (src/core/badges-store.js).
+// 1.4.3: the technology cards come through the same queue ('wol-techcard', src/robolab/tech.js), so a card and a badge
+// never cover each other; several cards earned together are shown as one (the first card and "ועוד N").
 import { badgeHTML, BADGE_CSS } from './badge-art.js';
 import { badgeById } from '../data/badges.js';
+import { TECH_BY } from '../data/robolab/tech-cards.js';
+import { techCardHTML, ensureTechCSS } from './tech-card.js';
+import { playerMode } from '../core/storage.js';
 
 export function startBadgeToasts(root, audio) {
   if (!document.getElementById('wol-badge-css')) {
@@ -13,6 +18,9 @@ export function startBadgeToasts(root, audio) {
 #ui.wol .bdg-pop.out{animation:bdg-out .35s ease-in both}
 #ui.wol .bdg-pop h4{margin:0;font-family:var(--serif);font-size:1.15em;color:#f6cf72;letter-spacing:.02em}
 #ui.wol .bdg-pop .bdg{--bs:8.6em}
+#ui.wol .bdg-pop.tech{background:radial-gradient(ellipse at 50% 30%,rgba(26,54,86,.97),rgba(12,24,40,.97));box-shadow:0 1.2em 2.6em rgba(0,0,0,.55),inset 0 0 0 2px rgba(120,190,255,.45)}
+#ui.wol .bdg-pop.tech h4{color:#9fd3ff}
+#ui.wol .bdg-pop.tech .tc-card{pointer-events:none}
 #ui.wol .bdg-pop .bdg-med{animation:bdg-spin 1.1s .2s ease-out both}
 #ui.wol .bdg-pop p{margin:0;max-width:22em;text-align:center;color:#e6dcbc;font-size:.95em}
 #ui.wol .bdg-pop .rays{position:absolute;left:50%;top:44%;width:22em;height:22em;margin:-11em 0 0 -11em;border-radius:50%;pointer-events:none;z-index:-1;
@@ -22,20 +30,34 @@ export function startBadgeToasts(root, audio) {
 @keyframes bdg-spin{from{transform:rotateY(180deg) scale(.6)}to{transform:none}}
 @keyframes bdg-rays{to{transform:rotate(360deg)}}
 /* low screens: a smaller medallion, high up, so the HUD and the middle of the forest stay free */
-@media (max-height:620px){#ui.wol .bdg-pop{top:10px;padding:.6em 1.3em .75em;gap:.25em}#ui.wol .bdg-pop .bdg{--bs:5.6em}#ui.wol .bdg-pop h4{font-size:1em}#ui.wol .bdg-pop p{font-size:.86em;max-width:19em}
+@media (max-height:620px){#ui.wol .bdg-pop.tech .tc-card{font-size:.78em}#ui.wol .bdg-pop{top:10px;padding:.6em 1.3em .75em;gap:.25em}#ui.wol .bdg-pop .bdg{--bs:5.6em}#ui.wol .bdg-pop h4{font-size:1em}#ui.wol .bdg-pop p{font-size:.86em;max-width:19em}
   #ui.wol .bdg-pop .rays{width:14em;height:14em;margin:-7em 0 0 -7em}}
 @media (prefers-reduced-motion: reduce){#ui.wol .bdg-pop,#ui.wol .bdg-pop .bdg-med,#ui.wol .bdg-pop .rays{animation:none}}`;
     document.head.appendChild(st);
   }
   const queue = []; let busy = false, waitT = 0;
+  // a technology card waits while רובו־דע speaks (the workshop's tutorial): one voice and one picture at a time
+  const guideTalks = () => { try { return !!(window.__guide && window.__guide.isOpen && window.__guide.isOpen()); } catch (e) { return false; } };
   function next() {
     if (busy || !queue.length) return;
     // a mission banner ("משימה הושלמה!") is showing: the badge waits until it is gone, so they never cover each other
-    if (root.querySelector('.mission-banner') || document.querySelector('.ss')) { if (!waitT) waitT = setTimeout(() => { waitT = 0; next(); }, 300); return; }
-    const b = badgeById(queue.shift()); if (!b) { next(); return; }
+    // 1.4.3: also the robot workshop's step card and the robot lab's opening film
+    if (root.querySelector('.mission-banner') || document.querySelector('.ss') || document.querySelector('.wk-steps:not([hidden]), .rl-intro') || (queue[0] && queue[0].tech && guideTalks())) { if (!waitT) waitT = setTimeout(() => { waitT = 0; next(); }, 300); return; }
+    const item = queue.shift();
+    let html = '', tech = false;
+    if (item && item.tech) {
+      const ids = [item.tech]; while (queue.length && queue[0] && queue[0].tech) ids.push(queue.shift().tech);
+      const c = TECH_BY.get(ids[0]); if (!c) { next(); return; }
+      const kids = playerMode() === 'kids'; tech = true; ensureTechCSS();
+      const more = ids.length - 1;
+      html = `<i class="rays"></i><h4>${kids ? 'קְלַף טֶכְנוֹלוֹגְיָה חָדָשׁ!' : 'קלף טכנולוגיה חדש!'}</h4>${techCardHTML(c, { kids })}<p>${more > 0 ? (kids ? `וְעוֹד ${more}. ` : `ועוד ${more}. `) : ''}${kids ? 'מְחַכֶּה לָכֶם בָּאַלְבּוֹם, בַּלַּשּׁוֹנִית "טֶכְנוֹלוֹגְיָה".' : 'מחכה לכם באלבום, בלשונית "טכנולוגיה".'}</p>`;
+    } else {
+      const b = badgeById(item); if (!b) { next(); return; }
+      html = `<i class="rays"></i><h4>תג חדש!</h4>${badgeHTML(b)}<p>${b.how}</p>`;
+    }
     busy = true;
-    const el = document.createElement('div'); el.className = 'bdg-pop'; el.setAttribute('role', 'status');
-    el.innerHTML = `<i class="rays"></i><h4>תג חדש!</h4>${badgeHTML(b)}<p>${b.how}</p>`;
+    const el = document.createElement('div'); el.className = 'bdg-pop' + (tech ? ' tech' : ''); el.setAttribute('role', 'status');
+    el.innerHTML = html;
     root.appendChild(el);
     try { audio && audio.play('mission'); } catch (e) { /* */ }
     try { window.__flourish && window.__flourish.badge(el); } catch (e) { /* */ }   // round sparks round the medallion (src/ui/flourish.js)
@@ -45,4 +67,5 @@ export function startBadgeToasts(root, audio) {
   }
   // a short pause first: the mission that gave the badge puts up its banner right after the grant
   window.addEventListener('wol-badge', (e) => { queue.push(e.detail); setTimeout(next, 80); });
+  window.addEventListener('wol-techcard', (e) => { queue.push({ tech: e.detail }); setTimeout(next, 80); });
 }

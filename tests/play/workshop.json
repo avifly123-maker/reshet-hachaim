@@ -1,0 +1,243 @@
+[
+{
+"wait": 4
+},
+{
+"js": "window.__journey.markIntro('stage:1'); window.__guide && window.__guide.close(); window.__journey.unlockAll('2580'); window.__app.bus.emit('ui:robolab'); 1"
+},
+{
+"until": "!!document.querySelector('.rl-home')",
+"timeout": 60
+},
+{
+"wait": 1
+},
+{
+"js": "const i=document.querySelector('.rl-intro [data-iskip]'); if(i) i.click(); 1"
+},
+{
+"wait": 1
+},
+{
+"clickSel": ".rl-wkbtn"
+},
+{
+"wait": 1.5
+},
+{
+"js": "const c=document.querySelector('.wk-steps:not([hidden]) .wk-stepcard'); const n=c?c.querySelectorAll('li').length:0; 'CHECK first-step-card ' + (c && n>=5 && n<=10 ? 'ok '+n : 'FAIL '+n)"
+},
+{
+"shot": "shots/wk/01-step1.png"
+},
+{
+"clickSel": "[data-wstepok]"
+},
+{
+"wait": 1.2
+},
+{
+"js": "const s=window.__rlDebug.workshopState(); 'CHECK tutorial-starts ' + (s && s.tut==='hello' ? 'ok' : 'FAIL '+(s&&s.tut))"
+},
+{
+"clickSel": "#rguide .rg-next"
+},
+{
+"wait": 1
+},
+{
+"clickSel": ".rl-wk [data-wnew=gardener]"
+},
+{
+"wait": 1.2
+},
+{
+"js": "const s=window.__rlDebug.workshopState(); 'CHECK ready-robot ' + (s.robots===1 && s.tab==='parts' ? 'ok' : 'FAIL '+JSON.stringify([s.robots,s.tab,s.tut]))"
+},
+{
+"clickSel": ".rl-wk .wk-side .rl-gchip"
+},
+{
+"wait": 1
+},
+{
+"js": "const c=document.querySelector('.wk-card:not([hidden])'); 'CHECK part-card ' + (c && /מה הוא עושה/.test(c.textContent) && /שימו לב/.test(c.textContent) ? 'ok' : 'FAIL')"
+},
+{
+"shot": "shots/wk/02-card.png"
+},
+{
+"clickSel": "#rguide .rg-next"
+},
+{
+"wait": 0.8
+},
+{
+"clickSel": "#rguide .rg-next"
+},
+{
+"wait": 1
+},
+{
+"js": "const s=window.__rlDebug.workshopState(); 'eval tut '+s.tut"
+},
+{
+"clickSel": ".rl-wk [data-wtrack=sand]"
+},
+{
+"wait": 1.2
+},
+{
+"js": "const r=document.querySelector('.wk-run'); const s=window.__rlDebug.workshopState(); 'CHECK sand-stuck-and-help ' + (/נתקע|מסתובבים/.test(r.textContent) && /מה יכול לעזור/.test(r.textContent) && s.step===2 ? 'ok' : 'FAIL '+r.textContent.slice(0,120)+' step '+s.step)"
+},
+{
+"js": "const c=document.querySelector('.wk-steps:not([hidden])'); 'CHECK step2-card-waits ' + (!c ? 'ok' : 'FAIL card over the bubble')"
+},
+{
+"shot": "shots/wk/03-sand.png"
+},
+{
+"wait": 0.8
+},
+{
+"js": "const s=window.__rlDebug.workshopState(); 'eval tut '+s.tut"
+},
+{
+"clickSel": "#rguide .rg-next"
+},
+{
+"wait": 0.8
+},
+{
+"clickSel": "#rguide .rg-next"
+},
+{
+"wait": 1
+},
+{
+"js": "const s=window.__rlDebug.workshopState(); 'CHECK tutorial-ends ' + (!s.tut ? 'ok' : 'FAIL '+s.tut)"
+},
+{
+"js": "const c=document.querySelector('.wk-steps:not([hidden])'); 'CHECK step2-card-after ' + (c && /שלב 2/.test(c.textContent) ? 'ok' : 'FAIL')"
+},
+{
+"clickSel": "[data-wstepok]"
+},
+{
+"wait": 0.6
+},
+{
+"clickSel": ".rl-wk [data-wtrack=ground]"
+},
+{
+"wait": 0.6
+},
+{
+"clickSel": ".rl-wk [data-wtrack=ground]"
+},
+{
+"wait": 0.6
+},
+{
+"clickSel": ".rl-wk [data-wtrack=narrow]"
+},
+{
+"wait": 0.8
+},
+{
+"js": "const s=window.__rlDebug.workshopState(); 'CHECK three-passed-step3 ' + (s.step===3 ? 'ok' : 'FAIL '+s.step)"
+},
+{
+"clickSel": "[data-wstepok]"
+},
+{
+"wait": 0.5
+},
+{
+"clickSel": ".rl-wk [data-wfam=move]"
+},
+{
+"wait": 0.5
+},
+{
+"clickSel": ".rl-wk [data-wpart=wheel_wide]"
+},
+{
+"wait": 0.6
+},
+{
+"js": "const c=document.querySelector('.wk-card'); 'CHECK wide-wheels-fit ' + (/המדבר/.test(c.textContent) && /עוזר/.test(c.textContent) ? 'ok' : 'FAIL '+c.textContent.slice(0,160))"
+},
+{
+"clickSel": ".rl-wk .wk-card [data-wdo=set]"
+},
+{
+"wait": 0.6
+},
+{
+"clickSel": ".rl-wk [data-wtrack=sand]"
+},
+{
+"wait": 0.8
+},
+{
+"js": "const r=document.querySelector('.wk-run'); 'CHECK wide-wheels-cross-sand ' + (/עבר/.test(r.textContent) ? 'ok' : 'FAIL '+r.textContent.slice(0,100))"
+},
+{
+"shot": "shots/wk/04-wide.png"
+},
+{
+"js": "const i=document.querySelector('.rl-wk .wk-name'); i.value='שועל החול'; i.dispatchEvent(new Event('change',{bubbles:true})); 1"
+},
+{
+"clickSel": ".rl-wk [data-wtab=garage]"
+},
+{
+"wait": 0.6
+},
+{
+"js": "const b=document.querySelector('.wk-rob.on b'); 'CHECK rename-saved ' + (b && b.textContent==='שועל החול' ? 'ok' : 'FAIL '+(b&&b.textContent))"
+},
+{
+"clickSel": ".rl-wk [data-wnew=gardener]"
+},
+{
+"wait": 0.6
+},
+{
+"clickSel": ".rl-wk [data-wtab=garage]"
+},
+{
+"wait": 0.5
+},
+{
+"clickSel": ".rl-wk .wk-rob:last-child .wk-del"
+},
+{
+"wait": 0.4
+},
+{
+"js": "'eval robots before delete '+window.__rlDebug.workshopState().robots"
+},
+{
+"clickSel": ".rl-wk .wk-rob:last-child .wk-del"
+},
+{
+"wait": 0.5
+},
+{
+"js": "const s=window.__rlDebug.workshopState(); 'CHECK delete-two-steps ' + (s.robots===1 ? 'ok' : 'FAIL '+s.robots)"
+},
+{
+"key": "Escape"
+},
+{
+"wait": 0.6
+},
+{
+"js": "'CHECK escape-closes ' + (!document.querySelector('.rl-wk') && document.querySelector('.rl-home') ? 'ok' : 'FAIL')"
+},
+{
+"js": "'workshop done'"
+}
+]

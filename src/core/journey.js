@@ -71,6 +71,7 @@ export const PARTS = {
   'zone:savanna': { stage: 7, v14: true, name: 'הסוואנה', kname: 'הַסָּוַאנָה', where: 'start' },
   robolab: { stage: 7, v14: true, name: 'מעבדת הרובוטים', kname: 'מַעְבֶּדֶת הָרוֹבּוֹטִים', where: 'start' },
   'robolab:more': { stage: 8, v14: true, name: 'שאר שיעורי התכנות והחידות', kname: 'שְׁאָר שִׁעוּרֵי הַתִּכְנוּת וְהַחִידוֹת', where: 'robolab' },
+  'robolab:workshop': { stage: 9, v14: true, pending: true, name: 'סדנת הרובוט', kname: 'סַדְנַת הָרוֹבּוֹט', where: 'robolab' },   // 1.4.3 (set 3); pending: stage 9 opens in set 5, until then only the instructors' code opens it
 };
 
 // need: a list of ways (any one is enough). Keys: missions (done in all zones), badges (owned), lab (lab activities).

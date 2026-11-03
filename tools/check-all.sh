@@ -77,6 +77,17 @@ n=$(echo "$out" | grep -c "CHECK .* ok")
 echo "$out" | grep "CHECK .* FAIL" && fail "robot lab tutorial: a check failed"
 echo "$out" | grep "\[pageerror\]\|JS ERROR\|UNTIL TIMEOUT\|NO ELEMENT" && fail "robot lab tutorial: errors"
 [ "$n" = 8 ] || fail "robot lab tutorial: $n of 8 checks"
+# the robot workshop (1.4.3 set 3): the first step's card, the hands-on tutorial, a ready robot, a part's card, the test
+# track (stuck on sand with a hint, a step card only after the tutorial), wide wheels cross the sand, the garage; beginners;
+# and the technology cards (a drop-in after the step card, the album's tech tab, the zoom)
+for t in workshop:14 workshop-kids:5 techcards:7; do
+  f=${t%%:*}; want=${t##*:}
+  out=$(timeout 1200 python3 tools/play.py dist/index.html tests/play/$f.json 800 460 2>&1)
+  n=$(echo "$out" | grep -c "CHECK .* ok")
+  echo "$out" | grep "CHECK .* FAIL" && fail "$f: a check failed"
+  echo "$out" | grep "\[pageerror\]\|JS ERROR\|UNTIL TIMEOUT\|NO ELEMENT" && fail "$f: errors"
+  [ "$n" = "$want" ] || fail "$f: $n of $want checks"
+done
 # the desert's first visit (1.4.1): plant a saltbush, bring a sand rat, run time on (tests/play/desert-tutorial.json)
 out=$(timeout 1200 python3 tools/play.py dist/index.html tests/play/desert-tutorial.json 800 460 2>&1)
 n=$(echo "$out" | grep -c "CHECK .* ok")

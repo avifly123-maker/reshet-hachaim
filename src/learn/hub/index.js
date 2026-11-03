@@ -291,7 +291,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   };
   const { renderHome, bzoom, openSettings, renderBadges, renderFrames } = createHomeScreens(ctx);
   const { QS, renderSetup, startQuiz, renderEnd, answer, nextQ, quizNow } = createQuiz(ctx);
-  const { renderAlbum, showSets, onResize, szoom, zoom, cardLegend, closeModal } = createAlbum(ctx);
+  const { renderAlbum, showSets, onResize, szoom, tzoom, zoom, cardLegend, closeModal } = createAlbum(ctx);
   const { renderPack, tearPack, revealCard, revealAll, opensLeft } = createPacks(ctx);
   ctx.opensLeft = opensLeft;
   const { startDuel, playCard, duelNext } = createDuel(ctx);
@@ -308,7 +308,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     set: (t) => { const v = 'set:' + t.dataset.v; const fromZoom = !modal.hidden; closeModal(); ctx.setsOpen = false; ctx.filter = ctx.filter === v && !fromZoom ? 'all' : v; sfx('select'); if (screen === 'album') renderAlbum(); else go('album'); },
     pack: () => { sfx('click'); go('pack'); }, tear: tearPack, reveal: (t) => revealCard(t), revealall: revealAll, legend: () => cardLegend(),
     game: (t) => { sfx('click'); go(t.dataset.g); },
-    szoom: (t) => szoom(t.dataset.s),
+    szoom: (t) => szoom(t.dataset.s), tzoom: (t) => tzoom(t.dataset.t),
     // the switch in the settings: the screen below follows it (a game in play is left alone, the source game closes)
     srctoggle: () => {
       setSourcesOn(!sourcesOn()); sfx('click');

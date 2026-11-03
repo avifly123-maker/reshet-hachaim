@@ -1,0 +1,75 @@
+[
+{
+"wait": 4
+},
+{
+"js": "window.__journey.markIntro('stage:1'); window.__guide && window.__guide.close(); window.__app.bus.emit('start:mode',{mode:'kids'}); window.__journey.unlockAll('2580'); window.__app.bus.emit('ui:robolab'); 1"
+},
+{
+"until": "!!document.querySelector('.rl-home')",
+"timeout": 60
+},
+{
+"wait": 1
+},
+{
+"js": "const i=document.querySelector('.rl-intro [data-iskip]'); if(i) i.click(); 1"
+},
+{
+"wait": 1
+},
+{
+"clickSel": ".rl-wkbtn"
+},
+{
+"wait": 1.5
+},
+{
+"js": "const c=document.querySelector('.wk-stepcard'); const n=c.querySelectorAll('li').length; 'CHECK kids-step-card ' + (/[\\u05B0-\\u05BC]/.test(c.textContent) && n>=3 && n<=7 ? 'ok '+n : 'FAIL '+n)"
+},
+{
+"shot": "shots/wk/k1-step.png"
+},
+{
+"clickSel": "[data-wstepok]"
+},
+{
+"wait": 1.2
+},
+{
+"js": "const b=document.querySelector('#rguide'); 'CHECK kids-tutorial-nikud ' + (b && /[\\u05B0-\\u05BC]/.test(b.textContent) ? 'ok' : 'FAIL')"
+},
+{
+"clickSel": "#rguide .rg-next"
+},
+{
+"wait": 1
+},
+{
+"clickSel": ".rl-wk [data-wnew=gardener]"
+},
+{
+"wait": 1.2
+},
+{
+"js": "const f=[...document.querySelectorAll('.rl-wk [data-wfam]')].map(b=>b.dataset.wfam); 'CHECK kids-three-families ' + (f.length===3 && f.join()==='move,tool,sensor' ? 'ok' : 'FAIL '+f.join())"
+},
+{
+"js": "const s=window.__rlDebug.workshopState(); 'CHECK kids-robot-works ' + (s.problems.length===0 ? 'ok' : 'FAIL '+s.problems.map(p=>p.code).join())"
+},
+{
+"shot": "shots/wk/k2-parts.png"
+},
+{
+"js": "'eval name '+document.querySelector('.wk-name').value"
+},
+{
+"clickSel": ".rl-wk [data-wclose]"
+},
+{
+"wait": 0.6
+},
+{
+"js": "'CHECK kids-back-closes ' + (!document.querySelector('.rl-wk') ? 'ok' : 'FAIL')"
+}
+]

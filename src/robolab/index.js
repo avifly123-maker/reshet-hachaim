@@ -10,6 +10,7 @@ import { levelsOf } from './engine/level.js';
 import { createMap } from './ui/map.js';
 import { createRoboSession } from './three/session.js';
 import { openGarage } from './garage.js';
+import { openWorkshop } from './workshop-ui.js';   // 1.4.3: סדנת הרובוט (building from parts, the test track)
 import { kubiCam } from './ui/kubi-cam.js';
 import { checkRoboBadges } from './badges.js';
 import { ZONE_IDS, ZONE_LOOK } from '../data/zones.js';
@@ -23,6 +24,7 @@ import { createEditor } from './ui/editor.js';
 import { icon } from './ui/icons.js';
 import { isOpen as journeyOpen, lockWords, introSeen } from '../core/journey.js';
 import { roboProgress, markSolved, addFun, markSeen, addIsland, dropDrafts } from './progress.js';
+import { grantTechCards } from './tech.js';
 import { FAIL_LINES, GOAL_LINES, WIN_LINES, OOPS_LINES, FUN_LINES } from '../data/robolab/lines.js';
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -73,6 +75,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
       <header class="rl-top"><button type="button" class="rl-back" data-exit>${icon('home')}<span>${kids ? 'יְצִיאָה' : 'יציאה'}</span></button>
         <div class="rl-title"><h1>${kids ? 'מַעְבֶּדֶת הָרוֹבּוֹטִים' : 'מעבדת הרובוטים'}</h1><p>${kids ? 'מְתַכְנְנִים, בּוֹנִים וּמַפְעִילִים' : 'מתכננים, בונים ומפעילים'}</p></div>
         <button type="button" class="rl-gbtn" data-garage>${icon('paint')}<span>${kids ? 'סַדְנַת הָעִצּוּב' : 'סדנת העיצוב'}</span></button>
+        ${journeyOpen('robolab:workshop') ? `<button type="button" class="rl-gbtn rl-wkbtn" data-workshop>${icon('robot')}<span>${kids ? 'סַדְנַת הָרוֹבּוֹט' : 'סדנת הרובוט'}</span></button>` : `<button type="button" class="rl-gbtn rl-wkbtn locked" disabled title="${esc(lockWords('robolab:workshop'))}">${icon('lock')}<span>${kids ? 'סַדְנַת הָרוֹבּוֹט' : 'סדנת הרובוט'}</span></button>`}
         <div class="rl-count">${icon('star')}<b>${nDone}</b><small>${kids ? 'פְּתוּרִים' : 'פתורים'}</small></div></header>
       <div class="rl-scroll">
         <div class="rl-hello"><canvas class="rl-hkubi" aria-hidden="true"></canvas><button type="button" class="rl-introb" data-intro>${icon('play')}<span>${kids ? 'סִרְטוֹן הַפְּתִיחָה' : 'סרטון הפתיחה'}</span></button><p>${nDone ? (kids ? 'שׁוּב שָׁלוֹם! מַמְשִׁיכִים מֵאֵיפֹה שֶׁעָצַרְנוּ? בְּסַדְנַת הָעִצּוּב אֶפְשָׁר לְעַצֵּב אֶת הַכֵּלִים.' : 'שוב שלום! ממשיכים מאיפה שעצרנו? בסדנת העיצוב אפשר לעצב את הכלים שלכם.') : (kids ? 'שָׁלוֹם! אֲנִי קוּבִּי. כָּאן לוֹמְדִים לְתַכְנֵת רוֹבּוֹטִים, רַחְפָנִים וְצוֹלְלָנִים, שֶׁעוֹזְרִים לַטֶּבַע.' : 'שלום! אני קוּבִּי. כאן לומדים לתכנת רובוטים, רחפנים וצוללנים שעוזרים לטבע. מתחילים בשיעור הראשון.')}</p></div>
@@ -102,6 +105,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   // Without a 3D host (tests of the screen alone, a failed load) the flat map is the fallback.
   let in3d = null;          // { api } while a lesson's island is open
   let garage = null;        // סדנת העיצוב while open (garage.js)
+  let workshop = null;      // 1.4.3: סדנת הרובוט while open (workshop-ui.js)
   let kubiDo = () => { };   // what קוּבִּי does (his window in the lesson's strip)
   let kcam = null;
   // קוּבִּי's voice (recorded lines, src/data/kubi-voice.js; tools/voice/kubi-lines.mjs lists them). Without a file
@@ -300,6 +304,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     if (b.dataset.exit != null) { close(); if (onExit) onExit(); return; }
     if (b.dataset.home != null) { sfx('click'); home(); return; }
     if (b.dataset.intro != null) { sfx('click'); showIntro(); return; }
+    if (b.dataset.workshop != null) { sfx('click'); openWs(); return; }
     if (b.dataset.garage != null) { sfx('click'); if (garage) garage.close(); garage = openGarage(el, { kids, sfx, toolSound, onClose: () => { garage = null; checkRoboBadges(); } }); return; }
     if (b.dataset.level) { sfx('click'); openLevel(b.dataset.level); return; }
     if (b.dataset.run) { run(b.dataset.run); return; }
@@ -318,14 +323,25 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     if (!open || e.key !== 'Escape') return;
     e.preventDefault();
     if (in3d && !in3d.api) return;                              // a lesson's island is still loading
+    if (workshop) { workshop.close(); workshop = null; return; }  // סדנת הרובוט closes first
     if (garage) { garage.close(); garage = null; return; }      // סדנת העיצוב closes first
     if (intro) { intro.close(); return; }                       // the film
     if (cur) home(); else { close(); if (onExit) onExit(); }
   };
   window.addEventListener('keydown', onKey);
 
-  function openLab() { open = true; el.hidden = false; dropDrafts(); markSeen('home'); home(); }
-  function close() { stopTut(); clearTimeout(talkT); open = false; speakGen++; kvoice.stop(); stopRun(); if (kcam) { kcam.dispose(); kcam = null; } if (garage) { garage.close(); garage = null; } if (in3d) end3d(); if (map) { map.dispose(); map = null; } el.hidden = true; el.innerHTML = ''; }
+  // the robot workshop (1.4.3): its first visit also gives the workshop's first technology cards (shown after its step card)
+  function openWs() {
+    if (workshop) workshop.close();
+    markSeen('workshop');
+    workshop = openWorkshop(el, { kids, sfx, guide: svcGuide(), onClose: () => { workshop = null; } });
+    grantTechCards();
+    return workshop;
+  }
+  function openLab() { open = true; el.hidden = false; dropDrafts(); markSeen('home'); home(); grantTechCards(); }
+  // the technology cards follow every step forward in the lab (a lesson, a mission, the workshop)
+  window.addEventListener('wol-progress', (e) => { if (open && e.detail && e.detail.kind === 'robolab') grantTechCards(); });
+  function close() { stopTut(); clearTimeout(talkT); open = false; speakGen++; kvoice.stop(); stopRun(); if (kcam) { kcam.dispose(); kcam = null; } if (garage) { garage.close(); garage = null; } if (workshop) { workshop.close(); workshop = null; } if (in3d) end3d(); if (map) { map.dispose(); map = null; } el.hidden = true; el.innerHTML = ''; }
   const R = {
     open: openLab, close, isOpen: () => open,
     coversGame: () => open && !!in3d && !!in3d.api && !el.classList.contains('in3d'),   // (while it loads, or closes for lack of room, the game runs its own update)   // the home over a kept island (main.js skips it)
@@ -337,6 +353,8 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     open: (id, flat) => (id ? openLevel(id, { flat: !!flat }) : home()),
     in3d: () => !!(in3d && in3d.api),
     island: (z) => openIsland(z), prog: () => ed && ed.program(), cur: () => cur && cur.id, playing: () => !!(map && map.isPlaying()), level: () => cur && { id: cur.id, rows: cur.map.rows, items: cur.items, kind: cur.kind },
+    workshopState: () => (workshop ? workshop.state() : null),
+    workshop: () => openWs(),
     garage: () => { if (garage) garage.close(); garage = openGarage(el, { kids, sfx, onClose: () => { garage = null; } }); return true; },
     solve: (id, i = 0) => { const L = ALL_LEVELS.find((q) => q.id === id); if (!L) return null; if (!(in3d && in3d.api && cur && cur.id === id)) openLevel(id, { flat: true }); ed.set({ ...L.solutions[i], defs: { ...(L.defs0 || {}), ...(L.solutions[i].defs || {}) } }); run('fast'); return lastRun && { ok: lastRun.ok, stars: lastRun.stars }; },
     run: (speed = 'fast') => run(speed), last: () => lastRun && { ok: lastRun.ok, stars: lastRun.stars, why: lastRun.why, error: lastRun.error },

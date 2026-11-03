@@ -67,3 +67,21 @@ export function robolabEventTutorial({ guide, rl, force = false }) {
   ];
   return runGuided({ guide, steps, onEnd: (r) => { if (r !== 'abort') markIntro(KEY); } });
 }
+
+// 1.4.3: סדנת הרובוט, the first visit: a ready robot, a part's card and the numbers, a run on the test track.
+// ws = the workshop (src/robolab/workshop-ui.js): its state() tells what the child did.
+export function workshopTutorial({ guide, ws, force = false, onDone }) {
+  const KEY = 'g:wktut';
+  if (!guide || !ws || !ws.state || (!force && introSeen(KEY))) return null;
+  const st = () => ws.state();
+  let tests0 = 0;
+  const steps = [
+    { id: 'hello', lines: L('wktut:hello') },
+    { id: 'ready', lines: L('wktut:ready'), before: () => ws.show('garage'), wait: () => st().robots > 0 },
+    { id: 'part', lines: L('wktut:part'), before: () => ws.show('parts'), wait: () => !!st().picked },
+    { id: 'card', lines: L('wktut:card') },
+    { id: 'track', lines: L('wktut:track'), before: () => { tests0 = st().tests; }, wait: () => st().tests > tests0 },
+    { id: 'end', lines: L('wktut:end') },
+  ];
+  return runGuided({ guide, steps, onEnd: (r) => { if (r !== 'abort') markIntro(KEY); if (onDone) onDone(r); } });
+}

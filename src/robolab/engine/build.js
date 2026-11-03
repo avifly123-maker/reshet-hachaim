@@ -88,3 +88,27 @@ export function partsFor(what) {
 export function partsForGround(g) { return Object.entries(PARTS).filter(([, p]) => p.set === 'wheels' && p.grip[g] >= 0.5).map(([id]) => id); }
 export const FORCE_PARTS = Object.entries(PARTS).filter(([, p]) => p.forceK > 1 || p.power >= 3).map(([id]) => id);
 export const PRECISION_PARTS = Object.entries(PARTS).filter(([, p]) => p.precision || (p.set === 'wheels' && p.turn >= 0.7)).map(([id]) => id);
+
+// 1.4.3 set 3 (Avi: "fit to the zones: is there shallow water, for example"): where a part helps and where it does not,
+// worked out from its numbers and the ground of each zone (data/robolab/workshop-text.js ZONE_GROUND), never by hand.
+//   helpsOn(id) → the grounds the part helps on ('sand', 'mud', 'slope', 'narrow', 'shallow')
+//   fitOf(id)   → { helps: [{ zone, ground: [...] }], stuck: [{ zone, ground: [...] }] }  (stuck: wheels that do not hold there)
+export function helpsOn(id) {
+  const p = PARTS[id]; if (!p) return [];
+  if (p.set === 'wheels') return ['sand', 'mud', 'slope', 'narrow'].filter((g) => p.grip[g] >= 0.75);   // holds well there (0.5 only just)
+  const out = [];
+  if (p.floats || p.swims) out.push('shallow');
+  if (p.steady) out.push('slope', 'mud');
+  if (FORCE_PARTS.includes(id)) out.push('slope');
+  if (PRECISION_PARTS.includes(id)) out.push('narrow');
+  return [...new Set(out)];
+}
+export function fitOf(id, zoneGround) {
+  const p = PARTS[id], helps = helpsOn(id), out = { helps: [], stuck: [] };
+  for (const [zone, Z] of Object.entries(zoneGround)) {
+    const h = Z.ground.filter((g) => helps.includes(g));
+    if (h.length) out.helps.push({ zone, ground: h });
+    if (p && p.set === 'wheels') { const s = Z.ground.filter((g) => g !== 'shallow' && p.grip[g] < 0.5); if (s.length) out.stuck.push({ zone, ground: s }); }
+  }
+  return out;
+}

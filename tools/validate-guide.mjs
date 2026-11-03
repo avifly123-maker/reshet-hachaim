@@ -39,7 +39,7 @@ for (const k of Object.keys(GUIDE)) if (k.includes(':') && /^(zone|lab):/.test(k
 if (STAGES.length !== 9) err('nine stages expected');
 STAGES.forEach((S, i) => { if (S.n !== i + 1) err(`stage ${S.n} out of order`); if (i && S.soon === false) err(`stage ${S.n}: soon must be true or absent`); });
 const LASTN = STAGES.filter((S) => !S.soon).length;
-for (const [p, P] of Object.entries(PARTS)) { if (!(P.stage >= 1 && P.stage <= LASTN)) err(`part ${p}: stage out of range (or opened by a stage still to come)`); if (P.after && !PARTS[P.after]) err(`part ${p}: after ${P.after} is not a part`); if (!vocalised(P.kname)) err(`part ${p}: kname without nikud`); }
+for (const [p, P] of Object.entries(PARTS)) { if (!(P.stage >= 1 && (P.stage <= LASTN || (P.pending && P.stage <= STAGES.length)))) err(`part ${p}: stage out of range (or opened by a stage still to come; mark it pending if it waits for that stage on purpose)`); if (P.after && !PARTS[P.after]) err(`part ${p}: after ${P.after} is not a part`); if (!vocalised(P.kname)) err(`part ${p}: kname without nikud`); }
 for (const S of STAGES) if (!vocalised(S.kname)) err(`stage ${S.n}: kname without nikud`);
 if (errors.length) { console.log(errors.join('\n')); console.log(`\n${errors.length} error(s)`); process.exit(1); }
 console.log(`guide OK: ${ids.size} lines, ${Object.keys(GUIDE).length} places, ${Object.keys(PARTS).length} parts`);

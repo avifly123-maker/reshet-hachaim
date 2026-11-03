@@ -1259,10 +1259,9 @@
   "heard": "הגיע סתיו, מחכים לגשם הראשון והבעלותים נופלים מהעלונים"
  },
  "zone.tool.drone": {
-  "h": "f9bb7e05eee1",
+  "h": "f145634f7fd2",
   "text": "רַחְפַן הַנִּיטּוֹר טָס מֵעַל הַיַּעַר וּמְגַלֶּה מִי רָעֵב וּמִי בַּצֵּל. נִסוּ אוֹתוֹ!",
-  "ipa": "ʁaχfˈan hanitˈoʁ tˈas meʔˈal hajˈaʔaʁ umɡalˈe mˈi ʁaʔˈev umˈi batsˈel. nisˈu ʔotˈo!",
-  "heard": "רחפן הניטור טס מעל היער ומגלה מי רעב ומי בצל, ניסו אותו"
+  "ipa": "ʁaχfˈan hanitˈoʁ tˈas meʔˈal hajˈaʔaʁ umɡalˈe mˈi ʁaʔˈev umˈi batsˈel. nasˈu ʔotˈo!"
  },
  "zone.tool.drone.k": {
   "h": "15d2e05318ab",
@@ -2032,8 +2031,7 @@
  "zone.tech.reefspeaker.2.k": {
   "h": "abb7ccad3085",
   "text": "חוֹקְרִים בֶּאֱמֶת נִסּוּ אֶת זֶה, וְהַדָּגִים הִגִּיעוּ!",
-  "ipa": "χokʁˈim beʔˈemet nisˈu ʔˈet zˈe, vehadaɡˈim hiɡiʔˈu!",
-  "heard": "חוקרים באמת ניסו את זה והדגים הגיעו"
+  "ipa": "χokʁˈim beʔˈemet nisˈu ʔˈet zˈe, vehadaɡˈim hiɡiʔˈu!"
  },
  "zone.tech.spawnbot.1": {
   "h": "fe5101ea17e5",
@@ -3448,5 +3446,65 @@
   "h": "4e33a84bab82",
   "text": "חֵלֶק מֵהָעֵדֶר עָזַב, כִּי לֹא הָיָה מַסְפִּיק עֵשֶׂב אוֹ מַיִם. הָעֵדֶר הוֹלֵךְ אַחֲרֵי הָאֹכֶל.",
   "ipa": "χˈelek mehaʔˈedeʁ ʔazˈav, kˈi lˈo hajˈa maspˈik ʔˈesev ʔˈo mˈajim. haʔˈedeʁ holˈeχ ʔaχaʁˈej haʔˈoχel."
+ },
+ "wk.hello.1": {
+  "h": "35dda2f30cda",
+  "text": "בְּרוּכִים הַבָּאִים לְסַדְנַת הָרוֹבּוֹט! כָּאן בּוֹנִים רוֹבּוֹט מֵחֲלָקִים, וּבוֹדְקִים אוֹתוֹ לִפְנֵי מְשִׂימָה.",
+  "ipa": "beʁuχˈim habaʔˈim lesadnˈat haʁobˈot! kˈan bonˈim ʁobˈot meχalakˈim, uvodkˈim ʔotˈo lifnˈej mesimˈa."
+ },
+ "wk.ready.1": {
+  "h": "9fe2faa403c5",
+  "text": "מַתְחִילִים מֵרוֹבּוֹט מוּכָן. לַחֲצוּ עַל \"הַגַּנָּן\".",
+  "ipa": "matχilˈim meʁobˈot muχˈan. laχatsˈu ʔˈal haɡanˈan."
+ },
+ "wk.part.1": {
+  "h": "7af18aa4826f",
+  "text": "אֵלֶּה הַחֲלָקִים. לָחֲצוּ עַל חֵלֶק כְּדֵי לִקְרוֹא מָה הוּא עוֹשֶׂה.",
+  "ipa": "ʔelˈe haχalakˈim. laχatsˈu ʔˈal χˈelek kedˈej likʁˈo mˈa hˈu ʔosˈe."
+ },
+ "wk.part.1.k": {
+  "h": "90b7bcb4a822",
+  "text": "אֵלֶּה הַחֲלָקִים. לַחֲצוּ עַל חֵלֶק כְּדֵי לִקְרֹא מָה הוּא עוֹשֶׂה.",
+  "ipa": "ʔelˈe haχalakˈim. laχatsˈu ʔˈal χˈelek kedˈej likʁˈo mˈa hˈu ʔosˈe."
+ },
+ "wk.card.1": {
+  "h": "e87387c03eb1",
+  "text": "בַּכַּרְטִיס כָּתוּב מָה הַחֵלֶק עוֹשֶׂה, לָמָּה לָשִׂים לֵב, וְאֵיפֹה הוּא עוֹזֵר אוֹ נִתְקָע.",
+  "ipa": "bakaʁtˈis katˈuv mˈa haχˈelek ʔosˈe, lamˈa lasˈim lˈev, veʔejfˈo hˈu ʔozˈeʁ ʔˈo nitkˈa."
+ },
+ "wk.card.2": {
+  "h": "e8ca10f4e5ef",
+  "text": "כָּל חֵלֶק מְשַׁנֶּה אֶת הַמִּסְפָּרִים שֶׁל הָרוֹבּוֹט: מְהִירוּת, כּוֹחַ, דִּיּוּק וְסוֹלְלָה.",
+  "ipa": "kˈol χˈelek meʃanˈe ʔˈet hamispaʁˈim ʃˈel haʁobˈot, mehiʁˈut, kˈoaχ, diˈuk vesollˈa."
+ },
+ "wk.card.2.k": {
+  "h": "441bbaff39d5",
+  "text": "כָּל חֵלֶק מְשַׁנֶּה אֶת הַמִּסְפָּרִים שֶׁל הָרוֹבּוֹט: מְהִירוּת, כֹּחַ, דִּיּוּק וְסוֹלְלָה.",
+  "ipa": "kˈol χˈelek meʃanˈe ʔˈet hamispaʁˈim ʃˈel haʁobˈot, mehiʁˈut, kˈoaχ, diˈuk vesollˈa."
+ },
+ "wk.track.1": {
+  "h": "203cdd43a797",
+  "text": "עַכְשָׁיו נִסוּ אֶת הָרוֹבּוֹט בְּמַסְלוּל הַנִּיסּוּי. בַּחֲרוּ קַרְקַע.",
+  "ipa": "aχʃˈav nasˈu ʔˈet haʁobˈot bemaslˈul hanisˈuj. baχaʁˈu kaʁkˈa."
+ },
+ "wk.track.1.k": {
+  "h": "28036823fb16",
+  "text": "עַכְשָׁו נַסּוּ אֶת הָרוֹבּוֹט בְּמַסְלוּל הַנִּסּוּי. בַּחֲרוּ קַרְקַע.",
+  "ipa": "aχʃˈav nasˈu ʔˈet haʁobˈot bemaslˈul hanisˈuj. baχaʁˈu kaʁkˈa."
+ },
+ "wk.end.1": {
+  "h": "2b2cb62811b8",
+  "text": "כָּאן רוֹאִים אֵיפֹה הָרוֹבּוֹט הִגִּיעַ. אִם הוּא נִתְקַע, כָּתוּב מָה יָכוֹל לַעֲזוֹר.",
+  "ipa": "kˈan ʁoʔˈim ʔejfˈo haʁobˈot hiɡˈia. ʔˈim hˈu nitkˈa, katˈuv mˈa jaχˈol laʔazˈoʁ."
+ },
+ "wk.end.1.k": {
+  "h": "3a7e3af684d6",
+  "text": "כָּאן רוֹאִים אֵיפֹה הָרוֹבּוֹט הִגִּיעַ. אִם הוּא נִתְקַע, כָּתוּב מָה יָכוֹל לַעֲזֹר.",
+  "ipa": "kˈan ʁoʔˈim ʔejfˈo haʁobˈot hiɡˈia. ʔˈim hˈu nitkˈa, katˈuv mˈa jaχˈol laʔazˈoʁ."
+ },
+ "wk.end.2": {
+  "h": "4a6e5eaf280b",
+  "text": "מִדֵּי פַּעַם נִפְתָּחִים חֲלָקִים חֲדָשִׁים. בּוֹנִים, מְנַסִּים וּמְשַׁפְּרִים!",
+  "ipa": "midˈej pˈaʔam niftaχˈim χalakˈim χadaʃˈim. bonˈim, menasˈim umʃapeʁˈim!"
  }
 }

@@ -231,3 +231,57 @@
 @keyframes rl-no { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 #ui.wol .rl-maxb { display: inline-flex; gap: 4px; align-items: center; padding: 2px 10px; border-radius: 12px; background: #ffffff1c; font-weight: 700; }
 #ui.wol .rl-maxb.full { background: #e8873a; color: #fff; }
+/* סדנת הרובוט (1.4.3, workshop-ui.js): the garage of robots, the parts by family with their cards, the robot's numbers,
+   the rules it breaks and the test track. RTL; on small screens the side panel and the robot share the width */
+#ui.wol .rl-gbtn.locked { opacity: .55; background: #5c6f7c; box-shadow: none; }
+#ui.wol .rl-wk .rl-gbody { grid-template-columns: minmax(280px, 40%) 1fr; }
+#ui.wol .rl-wk .rl-gside { position: relative; }
+#ui.wol .wk-main { min-height: 0; display: grid; grid-template-rows: minmax(110px, 1fr) auto auto auto; gap: 6px; }
+#ui.wol .wk-name { position: absolute; top: 8px; inset-inline-start: 10px; width: 9em; padding: 4px 8px; border: 0; border-radius: 8px; background: rgba(255, 255, 255, .88); color: #1d2c38; font-weight: 700; font-family: inherit; direction: rtl; }
+#ui.wol .wk-note { margin: 0 0 6px; font-size: .86em; color: #4a5a68; }
+#ui.wol .wk-more { margin: 8px 0 0; font-size: .82em; color: #6a5a40; display: flex; align-items: center; gap: 4px; }
+#ui.wol .wk-more svg { width: 1em; height: 1em; }
+#ui.wol .wk-h { display: block; margin: 8px 0 4px; color: #6a5a40; }
+#ui.wol .wk-fams { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+#ui.wol .wk-fams button { padding: 4px 9px; border: 0; border-radius: 9px; background: #e3dccb; color: #1d2c38; font-weight: 700; font-size: .84em; }
+#ui.wol .wk-fams button.on { background: #2fa39a; color: #fff; }
+#ui.wol .rl-gchip.pick { outline: 3px solid #2fa39a; outline-offset: 1px; }
+#ui.wol .wk-card { position: absolute; inset-inline: 0; bottom: 0; max-height: 62%; overflow: auto; padding: 10px 12px 12px; border-radius: 14px; background: #fffaf0; color: #1d2c38; box-shadow: 0 -4px 14px rgba(0, 0, 0, .25); }
+#ui.wol .wk-card h3 { margin: 0 0 4px; font-size: 1.05em; }
+#ui.wol .wk-card p { margin: 3px 0; font-size: .88em; line-height: 1.35; }
+#ui.wol .wk-x { position: absolute; top: 6px; inset-inline-end: 6px; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%; background: #e3dccb; display: grid; place-items: center; }
+#ui.wol .wk-good { color: #2f7a3a; } #ui.wol .wk-bad { color: #a8452a; } #ui.wol .wk-help { color: #4a5a68; font-size: .86em; }
+#ui.wol .wk-nums { color: #6a5a40; font-size: .8em !important; }
+#ui.wol .wk-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+#ui.wol .wk-btns button, #ui.wol .wk-stepcard button { padding: 6px 12px; border: 0; border-radius: 10px; background: #e8873a; color: #fff; font-weight: 700; box-shadow: 0 2px 0 #9a4f22; }
+#ui.wol .wk-btns button.on { background: #2fa39a; box-shadow: 0 2px 0 #1d6b65; }
+#ui.wol .wk-on { color: #2f7a3a; font-weight: 700; }
+#ui.wol .wk-robots { display: flex; flex-direction: column; gap: 5px; }
+#ui.wol .wk-rob { display: flex; gap: 4px; }
+#ui.wol .wk-rob > button:first-child { flex: 1; display: flex; flex-direction: column; align-items: flex-start; padding: 6px 10px; border: 0; border-radius: 10px; background: #e3dccb; color: #1d2c38; text-align: start; }
+#ui.wol .wk-rob.on > button:first-child { background: #2fa39a; color: #fff; }
+#ui.wol .wk-rob small { font-size: .78em; opacity: .85; }
+#ui.wol .wk-del { min-width: 34px; padding: 0 8px; border: 0; border-radius: 10px; background: #e3dccb; color: #a8452a; font-weight: 700; }
+#ui.wol .wk-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 3px 12px; padding: 6px 10px; border-radius: 12px; background: rgba(8, 20, 32, .45); font-size: .84em; }
+#ui.wol .wk-stat { display: grid; grid-template-columns: 4.6em 1fr; align-items: center; gap: 6px; }
+#ui.wol .wk-stat i { height: 8px; border-radius: 4px; background: rgba(255, 255, 255, .18); overflow: hidden; }
+#ui.wol .wk-stat u { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, #e8873a, #ffc72e); text-decoration: none; transition: width .4s; }
+#ui.wol .wk-stat small { grid-column: 2; font-size: .82em; opacity: .85; }
+#ui.wol .wk-mass { grid-column: 1 / -1; margin: 0; opacity: .85; }
+#ui.wol .wk-probs p { margin: 0; padding: 4px 10px; border-radius: 9px; background: #f6d9c8; color: #8a3a20; font-size: .86em; display: flex; align-items: center; gap: 5px; }
+#ui.wol .wk-probs svg { width: 1em; height: 1em; }
+#ui.wol .wk-track { padding: 6px 10px; padding-inline-end: 58px; border-radius: 12px; background: #f5f1e8; color: #1d2c38; }   /* the music button sits at the bottom left */
+#ui.wol .wk-tbar { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
+#ui.wol .wk-tbar button { padding: 4px 9px; border: 0; border-radius: 9px; background: #e3dccb; color: #1d2c38; font-weight: 700; font-size: .84em; }
+#ui.wol .wk-tbar .wk-save { margin-inline-start: auto; background: #2fa39a; color: #fff; }
+#ui.wol .wk-run { margin-top: 5px; font-size: .86em; }
+#ui.wol .wk-run p { margin: 3px 0 0; }
+#ui.wol .wk-strip { display: flex; gap: 3px; }   /* RTL: the robot starts on the right */
+#ui.wol .wk-c { flex: 1; height: 26px; border-radius: 6px; display: grid; place-items: center; background: #d9cfb6; }
+#ui.wol .wk-c.c-s { background: #f0d9a0; } #ui.wol .wk-c.c-m { background: #9c7a52; } #ui.wol .wk-c.c-h { background: linear-gradient(170deg, #e6d2a6 40%, #c9b48a); }
+#ui.wol .wk-c.c-n { background: linear-gradient(#d9cfb6 30%, #a8784a 30%, #a8784a 70%, #d9cfb6 70%); } #ui.wol .wk-c.c-w { background: #9fd6e6; }
+#ui.wol .wk-c.bot { outline: 2px solid #e8873a; } #ui.wol .wk-c svg { width: 20px; height: 20px; color: #1d2c38; }
+#ui.wol .wk-steps { position: absolute; inset: 0; z-index: 3; display: grid; place-items: center; background: rgba(8, 20, 32, .55); }
+#ui.wol .wk-steps[hidden] { display: none; }
+#ui.wol .wk-stepcard { width: min(520px, 90%); max-height: 86%; overflow: auto; padding: 14px 16px; border-radius: 16px; background: #fffaf0; color: #1d2c38; direction: rtl; }
+#ui.wol .wk-stepcard h3 { margin: 0 0 6px; } #ui.wol .wk-stepcard ul { margin: 6px 0 10px; padding-inline-start: 1.1em; font-size: .9em; } #ui.wol .wk-stepcard li { margin: 3px 0; }

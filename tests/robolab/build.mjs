@@ -3,15 +3,24 @@
 import { CHASSIS, PARTS, PRESETS, FAMILIES } from '../../src/data/robolab/workshop.js';
 import { PARTS as LOOK_PARTS } from '../../src/data/robolab/parts.js';
 import { SHAPES, ZONE_STYLES, LEVELS, SLOTS } from '../../src/data/robolab/mission-kinds.js';
-import { checkBuild, statsOf, partsFor } from '../../src/robolab/engine/build.js';
+import { checkBuild, statsOf, partsFor, fitOf } from '../../src/robolab/engine/build.js';
+import { PART_WORDS, ZONE_GROUND, STEP_WORDS, PROBLEM_WORDS, FAMILY_WORDS } from '../../src/data/robolab/workshop-text.js';
+import { WK_STEPS } from '../../src/data/robolab/workshop.js';
+import { wkStepOf } from '../../src/robolab/earn.js';
 import { runProgram } from '../../src/robolab/engine/run.js';
 import { BLOCKS } from '../../src/robolab/engine/blocks.js';
 import { FAIL_LINES, OOPS_LINES, GOAL_LINES } from '../../src/data/robolab/lines.js';
+import { TECH_CARDS, TECH_GROUPS } from '../../src/data/robolab/tech-cards.js';
+import { BLOCK_ICONS } from '../../src/robolab/ui/icons.js';
+import { earnWords } from '../../src/robolab/earn-words.js';
+import { CHAPTERS } from '../../src/data/robolab/index.js';
+import { WK_BASE, WK_WHEELS, WK_SIDES, WK_LOOK, wkLook } from '../../src/data/robolab/workshop-look.js';
+import { RL_PARTS } from '../../src/data/robolab-parts.js';
 
 const fails = [];
 const ok = (c, msg) => { if (!c) fails.push(msg); };
 const NIKUD = /[ְ-ׇ]/;
-const EARN = /^(start|lesson:l\d-\d+|chapter:\d+|stars:\d+|puzzles:\d+|mission:[\w-]+|badge:[\w:-]+)$/;
+const EARN = /^wk:[1-5]$/;   // 1.4.3 set 3: every workshop part opens with a workshop step
 
 // ── the catalogue
 const ids = Object.keys(PARTS);
@@ -25,6 +34,19 @@ for (const [id, p] of [...Object.entries(PARTS), ...Object.entries(CHASSIS)]) {
   if (p.mesh) ok(LOOK_PARTS[p.mesh], `${id}: its Blender part ${p.mesh} exists`);
   for (const b of p.gives || []) ok(BLOCKS[b], `${id}: gives a real block ${b}`);
 }
+// ── the words (set 3): what each part does and what to watch for, with nikud for beginners; the steps and the rules
+for (const id of [...Object.keys(PARTS), ...Object.keys(CHASSIS)]) {
+  const w = PART_WORDS[id];
+  ok(w && w.what && w.watch && w.what.f && w.watch.f && NIKUD.test(w.what.k) && NIKUD.test(w.watch.k), `${id}: what it does and what to watch for`);
+}
+for (const f of Object.keys(FAMILIES)) ok(FAMILY_WORDS[f] && NIKUD.test(FAMILY_WORDS[f].k), `family ${f}: words`);
+for (let i = 1; i < WK_STEPS.length; i++) ok(STEP_WORDS[i] && NIKUD.test(STEP_WORDS[i].k), `step ${i}: its card's words`);
+for (const c of ['chassis', 'wheels', 'drive', 'motors', 'sensors', 'toolpoints', 'toolmotor', 'room']) ok(PROBLEM_WORDS[c], `rule words for ${c}`);
+ok(Object.values(PARTS).filter((p) => p.earn === 'wk:1').length + Object.values(CHASSIS).filter((p) => p.earn === 'wk:1').length <= 10, 'the first step opens only a handful of parts (Avi: slowly, without confusing)');
+ok(wkStepOf({ tests: 0, passed: 0, missions: 0 }) === 1 && wkStepOf({ tests: 1 }) === 2 && wkStepOf({ tests: 3, passed: 3 }) === 3 && wkStepOf({ step: 3 }) === 3, 'the steps open in order and a step reached is kept');
+{ const f = fitOf('float', ZONE_GROUND); ok(f.helps.some((h) => h.zone === 'reef') && !f.helps.some((h) => h.zone === 'desert'), 'the float fits the zones with shallow water, not the desert'); }
+{ const f = fitOf('wheel_m', ZONE_GROUND); ok(f.stuck.some((h) => h.zone === 'desert' && h.ground.includes('sand')), 'medium wheels: stuck in the desert sand'); }
+for (const [k, pr] of Object.entries(PRESETS)) { const ids2 = Object.values(pr.build).flat().filter(Boolean); ok(ids2.every((id) => (PARTS[id] || CHASSIS[id])), `ready robot ${k}: real parts`); ok(ids2.every((id) => +((PARTS[id] || CHASSIS[id]).earn.split(':')[1]) <= pr.step), `ready robot ${k}: all its parts are open by its step ${pr.step}`); }
 for (const [k, pr] of Object.entries(PRESETS)) ok(checkBuild(pr.build).ok, `the ready robot ${k} keeps the rules (${JSON.stringify(checkBuild(pr.build).problems)})`);
 
 // ── the building rules
@@ -87,6 +109,29 @@ for (const z of Object.keys(ZONE_STYLES)) {
 }
 for (const k of Object.keys(SHAPES)) ok(Object.values(SLOTS).some((s) => s.some((x) => x.shape === k)), `the form ${k} is used`);
 ok(Object.keys(LEVELS).length === 3, 'three levels');
+
+// ── the look (set 3e): every chassis, wheel set and pictured part has its Blender mesh and its sockets
+for (const [c, b] of Object.entries(WK_BASE)) ok(CHASSIS[c] && RL_PARTS.bases[b], `chassis ${c}: base ${b}`);
+for (const [w, m] of Object.entries({ ...WK_WHEELS, ...WK_SIDES })) ok(PARTS[w] && RL_PARTS.parts[m], `wheels ${w}: mesh ${m}`);
+for (const [id, [m, ...socks]] of Object.entries(WK_LOOK)) {
+  ok(PARTS[id], `look ${id}: a catalogue part`); ok(RL_PARTS.parts[m], `look ${id}: mesh ${m}`);
+  for (const s of socks) ok(['wk_s', 'wk_m', 'wk_l'].every((b) => RL_PARTS.bases[b].sockets[s]), `look ${id}: socket ${s} on every chassis`);
+}
+for (const id of Object.keys(PARTS)) if (['tool', 'sensor'].includes(PARTS[id].fam)) ok(WK_LOOK[id], `the ${PARTS[id].fam} ${id} has a picture on the robot`);
+for (const P of Object.values(PRESETS)) { const L = wkLook(P.build); ok(Object.keys(L.parts).length >= 6, `a ready robot shows its wheels and parts (${Object.keys(L.parts).join(',')})`); }
+
+// ── the technology cards (set 3): words in both forms, an icon, a group, and a prize that can be reached
+{ const seen = new Set();
+  for (const c of TECH_CARDS) {
+    ok(!seen.has(c.id), `tech card ${c.id}: one id`); seen.add(c.id);
+    for (const f of ['title', 'what', 'nature']) ok(c[f] && c[f].f && NIKUD.test(c[f].k) && !NIKUD.test(c[f].f), `tech card ${c.id}: ${f} plain and with nikud`);
+    ok(BLOCK_ICONS[c.icon], `tech card ${c.id}: icon ${c.icon}`);
+    ok(TECH_GROUPS.some((g) => g.id === c.group), `tech card ${c.id}: group`);
+    const [k, v] = c.earn.split(':');
+    ok((k === 'chapter' && CHAPTERS.some((h) => h.n === +v)) || (k === 'wk' && +v >= 1 && +v < WK_STEPS.length) || (k === 'stars' && +v <= 90) || (k === 'isl' && +v >= 1), `tech card ${c.id}: ${c.earn} can be reached`);
+    ok(earnWords(c.earn, false) && NIKUD.test(earnWords(c.earn, true)), `tech card ${c.id}: words for how it is earned`);
+  }
+  for (const g of TECH_GROUPS) ok(TECH_CARDS.filter((c) => c.group === g.id).length >= 5, `at least five cards in ${g.id}`); }
 
 if (fails.length) { console.log('robot workshop engine:\n  ' + fails.join('\n  ')); process.exit(1); }
 console.log(`robot workshop engine: ${ids.length} parts, ${Object.keys(PRESETS).length} ready robots, all rules hold`);

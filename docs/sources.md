@@ -856,3 +856,24 @@ Lab and inventors:
   out of reach of snakes (https://en.wikipedia.org/wiki/Village_weaver).
 - חוטים: `zone-savanna` (1.4.2): the termite mound (Eastgate Centre), the zebra (Kojima et al. 2019) and the elephant
   (Bionic Handling Assistant) taught real inventions (see above).
+
+קלפי טכנולוגיה (1.4.3, `src/data/robolab/tech-cards.js`):
+- The golden wheel spider (Carparachne aureoflava) of the Namib folds its legs and cartwheels down dunes to escape
+  (Henschel 1990, J. Arachnology; https://en.wikipedia.org/wiki/Carparachne_aureoflava).
+- Nymphs of the planthopper Issus coleoptratus have interlocking gears between the hind legs that keep both legs
+  jumping together (Burrows & Sutton 2013, Science 341: 1254).
+- Bees see ultraviolet light; many flowers have UV nectar guides (https://en.wikipedia.org/wiki/Nectar_guide).
+- Bats find insects by echolocation, calls mostly above human hearing; ultrasonic distance sensors use the same echo
+  timing (https://en.wikipedia.org/wiki/Animal_echolocation).
+- Camels have broad padded feet that spread their weight on sand (https://en.wikipedia.org/wiki/Camel#Biology).
+- Flies' halteres (small knobbed organs in place of hind wings) sense rotation like a gyroscope
+  (https://en.wikipedia.org/wiki/Halteres).
+- Hummingbirds hover with wingbeats of about 50 to 80 per second (https://en.wikipedia.org/wiki/Hummingbird#Flight).
+- Most bony fish control depth with a gas-filled swim bladder (https://en.wikipedia.org/wiki/Swim_bladder).
+- Squirrels bury nuts and forget some, which grow into trees (scatter hoarding:
+  https://en.wikipedia.org/wiki/Hoarding_(animal_behavior)).
+- Kilobots: 1,024 small robots that arrange themselves into shapes (Rubenstein, Cornejo & Nagpal 2014, Science 345:
+  795). Snake robots for pipes and rubble: https://en.wikipedia.org/wiki/Snakebot.
+- Mars rovers ride six wheels on a rocker-bogie suspension that climbs over rocks without tipping
+  (https://en.wikipedia.org/wiki/Rocker-bogie). Desert ants find the way home with tiny brains
+  (https://en.wikipedia.org/wiki/Cataglyphis). The elephant trunk arm: see "Lab and inventors" above.
