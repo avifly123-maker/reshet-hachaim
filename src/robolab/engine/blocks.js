@@ -30,6 +30,9 @@ export const BLOCKS = {
   photo:     { kind: 'act', fam: 'act', icon: 'photo', emo: '📷', f: 'צלם', k: 'צַלֵּם', tools: ALL },
   collect:   { kind: 'act', fam: 'act', icon: 'collect', emo: '🧺', f: 'אסוף', k: 'אֱסֹף', tools: ALL },
   coral:     { kind: 'act', fam: 'act', icon: 'coral', emo: '🪸', f: 'שתול אלמוג', k: 'שְׁתֹל אַלְמֹג', tools: ['sub'] },
+  // 1.4.3 (the robot workshop): only a built robot with the part for it (a pusher; a fork, a hook or a crane)
+  push:      { kind: 'act', fam: 'act', icon: 'push', emo: '🪨', f: 'דחוף', k: 'דְּחֹף', tools: ['robot'] },
+  lift:      { kind: 'act', fam: 'act', icon: 'lift', emo: '⬆️', f: 'הרם', k: 'הָרֵם', tools: ['robot'] },
   repeat:    { kind: 'repeat', fam: 'control', icon: 'repeat', emo: '🔁', f: 'חזור', k: 'חֲזֹר', param: 'n', tools: ALL },
   until:     { kind: 'until', fam: 'control', icon: 'until', emo: '⏳', f: 'חזור עד ש', k: 'חֲזֹר עַד שֶׁ', param: 'c', tools: ALL },
   if:        { kind: 'if', fam: 'control', icon: 'if', emo: '❓', f: 'אם', k: 'אִם', param: 'c', tools: ALL },

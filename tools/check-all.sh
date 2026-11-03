@@ -19,6 +19,9 @@ for v in validate-content validate-kids validate-guide validate-threads validate
   [ $code -ne 0 ] && { echo "$out" | tail -20; fail "$v (exit code $code)"; }
   echo "$out" | grep -q "ERROR\|error(s)" && { echo "$out" | grep "ERROR" | head -20; fail "$v"; }
 done
+# 1.4.3: the robot workshop's engine (parts, building rules, numbers, and what they change in a run) without the screen
+raw=$(node tests/robolab/build.mjs 2>&1); code=$?; out=$(echo "$raw" | grep -v -i "warning\|Reparsing\|trace-warnings"); echo "workshop engine: $(echo "$out" | tail -1)"
+[ $code -ne 0 ] && { echo "$out"; fail "workshop engine"; }
 # 1.4.2: the savanna's systems (seasons, grass, grazing order, fire, herds, stability) without the game
 raw=$(node tests/savanna/systems.mjs 2>&1); code=$?; out=$(echo "$raw" | grep -v -i "warning\|Reparsing\|trace-warnings"); echo "savanna systems: $(echo "$out" | tail -1)"
 [ $code -ne 0 ] && { echo "$out"; fail "savanna systems"; }

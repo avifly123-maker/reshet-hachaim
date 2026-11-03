@@ -6,11 +6,20 @@
 //   '.' ground   'T' tree (the robot cannot pass, the drone flies over)   'R' rock (blocks the robot and the diver)
 //   '~' water (the diver's only ground; the robot cannot enter; the drone flies over)   's' sand (ground, slower look only)
 //   '#' wall of the island's edge (blocks everyone)
-// level.items = [{ t: 'seed'|'fruit'|'thirsty'|'fire'|'net'|'trash'|'coral'|'animal', x, y, kind? }]
+//   1.4.3 (the robot workshop, set 2): 'm' mud, 'h' a slope, 'n' a narrow log or bridge, 'w' shallow water. Without a
+//   build they are plain ground for the robot ('w' blocks it, like water); a built robot needs the grip, the force and
+//   the precision for them (engine/build.js), and a float to cross shallow water ('~' too, with a propeller).
+// level.items = [{ t: 'seed'|'fruit'|'thirsty'|'fire'|'net'|'trash'|'coral'|'animal'|'rock'|'log', x, y, kind?, w? }]
+//   (1.4.3: a rock is pushed one cell with "דחוף" when the robot's push is at least w; a log is lifted with "הרם")
 // level.home  = { x, y }   the robot's base (for "go home" goals and the drone landing)
 // level.tools = { robot: { x, y, dir }, drone: { x, y, dir, battery, parked }, sub: { x, y, dir } }
+// level.build = { robot: <build> }  (1.4.3) the robot is the child's own, built from parts: its numbers come from
+//   statsOf(build), and only then do parts, sensors, ground, battery and speed matter (lessons without it run as before)
 //   dir: 0 north (up), 1 east (right on the screen), 2 south, 3 west. "ימינה" turns clockwise, as seen from above.
+import { statsOf, partsFor, partsForGround, FORCE_PARTS, PRECISION_PARTS } from './build.js';
+
 export const DIRS = [[0, -1], [1, 0], [0, 1], [-1, 0]];
+const GROUND = { '.': 'ground', s: 'sand', m: 'mud', h: 'slope', n: 'narrow' };   // the cells a robot drives on
 
 export function cellAt(W, x, y) {
   const r = W.rows[y];
@@ -23,7 +32,8 @@ export function canEnter(W, tool, x, y) {
   if (c === '#') return false;
   if (tool === 'drone') return true;
   if (tool === 'sub') return c === '~';
-  return c === '.' || c === 's';
+  if (c === 'w' || c === '~') { const st = W.tools[tool] && W.tools[tool].st; return !!st && (c === 'w' ? st.floats : st.swims); }
+  return !!GROUND[c] && !(W.itemAt && W.itemAt(x, y, 'rock'));   // a rock on a cell blocks it until it is pushed away
 }
 
 export function ahead(W, T, k = 1) { const d = DIRS[T.dir]; return [T.x + d[0] * k, T.y + d[1] * k]; }
@@ -35,6 +45,12 @@ export function makeWorld(level) {
   for (const k of ['robot', 'drone', 'sub']) {
     const t = level.tools && level.tools[k];
     if (t) tools[k] = { x: t.x, y: t.y, dir: t.dir || 0, battery: t.battery || 0, parked: !!t.parked, flying: k === 'drone' && !t.parked, landed: false, photos: 0, carry: 0 };
+  }
+  // a built robot (1.4.3): its numbers, its battery and the uses its tanks hold
+  const B = level.build && level.build.robot;
+  if (B && tools.robot) {
+    const st = statsOf(B);
+    if (st) Object.assign(tools.robot, { st, battery: st.battery, seeds: st.seeds, water: st.water });
   }
   const W = {
     rows, items, tools, home: level.home || null, ticks: 0, done: false, error: null, trace: [], counter: 0, reports: [],
@@ -56,12 +72,27 @@ export function makeWorld(level) {
     }
     return false;
   };
-  const useBattery = (tool) => {
+  const useBattery = (tool, n = 1) => {
     const T = tools[tool];
+    if (T.st) { T.battery -= n; if (T.battery <= 0) { T.battery = 0; W.fail('flat', tool); return false; } return true; }   // a built robot
     if (tool !== 'drone' || !T.battery) return true;
     T.battery--; if (T.battery <= 0 && T.flying) { W.fail('battery', tool); return false; }
     return true;
   };
+  // the sun charges a robot with a solar panel a little every few steps (not after sunset)
+  W.recharge = () => {
+    for (const k in tools) { const T = tools[k]; if (!T.st || !T.st.recharge || W.ticks % 5) continue; if (W.events.sunset != null && W.ticks >= W.events.sunset) continue; T.battery = Math.min(T.st.battery, T.battery + T.st.recharge); }
+  };
+  // a built robot on the ground it is about to enter: is it strong, steady and exact enough? (null = it can go)
+  const groundProblem = (T, c) => {
+    const g = GROUND[c]; if (!g || !T.st) return null;
+    if (T.st.grip[g] < 0.5) return { code: g === 'narrow' ? 'slip' : 'stuck', cell: c, need: partsForGround(g) };
+    if (g === 'slope' && T.st.force < 1) return { code: 'weak', cell: c, need: FORCE_PARTS };
+    if (g === 'narrow' && T.st.precision < 0.7) return { code: 'slip', cell: c, need: PRECISION_PARTS };
+    return null;
+  };
+  // the item a tool can reach: here, or one cell ahead for a long arm or a crane (reach)
+  const reachItem = (T, t) => { const it = W.itemAt(T.x, T.y, t); if (it || !T.st || !T.st.reach) return it; const [ax, ay] = ahead(W, T); return W.itemAt(ax, ay, t); };
   // one action of one tool; soft mistakes (planting where there is no spot) are 'oops' and cost a step, bumping into a
   // tree or leaving the island ends the run with a funny message
   W.act = (tool, nd) => {
@@ -69,22 +100,29 @@ export function makeWorld(level) {
     if (!T) { W.fail('notool', tool); return; }
     if (tool === 'drone' && !T.flying && nd.b !== 'launch') { W.fail('parked', tool); return; }
     const b = nd.b;
+    if (T.st && !T.st.blocks.has(b)) { W.fail('nopart', tool, { b, need: partsFor(b) }); return; }   // a built robot has no part for it
     if (b === 'fwd' || b === 'back') {
       const s = b === 'fwd' ? 1 : -1, d = DIRS[T.dir], nx = T.x + d[0] * s, ny = T.y + d[1] * s;
-      if (!canEnter(W, tool, nx, ny)) { W.fail(cellAt(W, nx, ny) === '#' ? 'edge' : 'bump', tool, { cell: cellAt(W, nx, ny) }); return; }
+      const nc = cellAt(W, nx, ny);
+      if ((nc === 'w' || nc === '~') && tool === 'robot' && T.st) { if (!canEnter(W, tool, nx, ny)) { W.fail('sink', tool, { cell: nc, need: nc === 'w' ? ['float'] : ['float', 'propeller'] }); return; } }
+      else if (!canEnter(W, tool, nx, ny)) { W.fail(nc === '#' ? 'edge' : 'bump', tool, { cell: nc }); return; }
+      const gp = tool === 'robot' ? groundProblem(T, nc) : null;
+      if (gp) { W.fail(gp.code, tool, gp); return; }
       if (tool !== 'drone') for (const k in tools) if (k !== tool && k !== 'drone' && tools[k].x === nx && tools[k].y === ny) { W.fail('crash', tool); return; }
       T.x = nx; T.y = ny; T.landed = false;
-      if (!useBattery(tool)) return;
+      if (!useBattery(tool, T.st ? T.st.moveDrain : 1)) return;
       log(tool, b);
     } else if (b === 'right' || b === 'left') {
       T.dir = (T.dir + (b === 'right' ? 1 : 3)) % 4; useBattery(tool); log(tool, b);
     } else if (b === 'wait') { useBattery(tool); log(tool, 'wait'); }
     else if (b === 'plant' || b === 'pick' || b === 'water' || b === 'collect' || b === 'coral') {
       const need = { plant: 'seed', pick: 'fruit', water: 'thirsty', collect: null, coral: 'coral' }[b];
-      let it = W.itemAt(T.x, T.y, need);
-      if (b === 'collect') it = W.itemAt(T.x, T.y, 'net') || W.itemAt(T.x, T.y, 'trash');
-      if (it) { it.done = true; log(tool, b, { item: it.i }); } else { W.oops++; log(tool, 'oops', { want: b }); }
-      useBattery(tool);
+      let it = reachItem(T, need);
+      if (b === 'collect') it = reachItem(T, 'net') || reachItem(T, 'trash');
+      const tank = T.st && (b === 'plant' ? 'seeds' : b === 'water' ? 'water' : null);   // a built robot's seed box and water tank run out
+      if (it && tank && T[tank] <= 0) { W.oops++; log(tool, 'oops', { want: tank === 'seeds' ? 'noseeds' : 'nowater' }); }
+      else if (it) { it.done = true; if (tank) T[tank]--; log(tool, b, { item: it.i }); } else { W.oops++; log(tool, 'oops', { want: b }); }
+      useBattery(tool, T.st ? T.st.actDrain : 1);
     } else if (b === 'spray') {   // water on a fire here or one step ahead
       const [ax, ay] = ahead(W, T);
       const it = W.itemAt(T.x, T.y, 'fire') || W.itemAt(ax, ay, 'fire');
@@ -95,6 +133,18 @@ export function makeWorld(level) {
       for (let k = 1; !it && k <= 2; k++) { const [x, y] = ahead(W, T, k); it = W.itemAt(x, y, 'animal'); }
       if (it) { it.done = true; T.photos++; log(tool, 'photo', { item: it.i }); } else { W.oops++; log(tool, 'oops', { want: b }); }
       useBattery(tool);
+    } else if (b === 'push') {   // 1.4.3: the pusher moves a rock one cell on, if the robot is strong enough and the cell behind is free
+      const [ax, ay] = ahead(W, T), it = W.itemAt(ax, ay, 'rock');
+      if (!it) { W.oops++; log(tool, 'oops', { want: b }); }
+      else if (T.st && T.st.push < (it.w || 1)) { W.fail('heavy', tool, { item: it.i, need: FORCE_PARTS }); return; }
+      else { const d = DIRS[T.dir], bx = ax + d[0], by = ay + d[1]; if (!GROUND[cellAt(W, bx, by)] || W.itemAt(bx, by, 'rock')) { W.oops++; log(tool, 'oops', { want: b }); } else { it.x = bx; it.y = by; it.pushed = true; log(tool, 'push', { item: it.i, to: [bx, by] }); } }
+      useBattery(tool, T.st ? T.st.actDrain + 1 : 1);
+    } else if (b === 'lift') {   // 1.4.3: the fork (with a rack, a worm or a crane) lifts a log here or within reach
+      const it = reachItem(T, 'log');
+      if (!it) { W.oops++; log(tool, 'oops', { want: b }); }
+      else if (T.st && T.st.lift < (it.w || 1)) { W.fail('heavy', tool, { item: it.i, need: partsFor('lift').concat(['crane', 'rack', 'worm']) }); return; }
+      else { it.done = true; log(tool, 'lift', { item: it.i }); }
+      useBattery(tool, T.st ? T.st.actDrain + 1 : 1);
     } else if (b === 'add') { W.counter += nd.n || 1; log(tool, 'add', { counter: W.counter }); }
     else if (b === 'report') { W.reports.push(W.counter); log(tool, 'report', { counter: W.counter }); }
     else if (b === 'reset') { W.counter = 0; log(tool, 'reset'); }
@@ -116,7 +166,7 @@ export function makeWorld(level) {
     else W.fail('unknown', tool, { b });
   };
   W.summary = () => ({
-    tools: Object.fromEntries(Object.entries(tools).map(([k, T]) => [k, { x: T.x, y: T.y, dir: T.dir, flying: T.flying, landed: T.landed, battery: T.battery }])),
+    tools: Object.fromEntries(Object.entries(tools).map(([k, T]) => [k, { x: T.x, y: T.y, dir: T.dir, flying: T.flying, landed: T.landed, battery: T.battery, ...(T.st ? { seeds: T.seeds, water: T.water } : {}) }])),
     items: items.map((it) => ({ t: it.t, x: it.x, y: it.y, done: it.done, kind: it.kind })),
     counter: W.counter, reports: W.reports.slice(), oops: W.oops, fun: W.fun, msgs: W.msgs.map((q) => ({ ...q })),
   });

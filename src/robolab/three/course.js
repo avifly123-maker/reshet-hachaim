@@ -21,7 +21,7 @@ const LIFE = {
   desert: { tree: ['acacia', 'barrelcactus'], sapling: 'acacia', thirsty: 'saltbush', treeG: 0.9 },
   reef:   { tree: ['brain', 'table', 'branching'], sapling: 'branching', thirsty: 'seagrass', treeG: 0.55 },
 };
-const TILE = { '.': '#f3ecd2', s: '#f0d9a0', '~': '#4fb4d8', T: '#d8e8c0', R: '#d8d2c4' };
+const TILE = { '.': '#f3ecd2', s: '#f0d9a0', '~': '#4fb4d8', T: '#d8e8c0', R: '#d8d2c4', m: '#b89870', h: '#e6d2a6', n: '#c89a6a', w: '#9fd6e6' };   // 1.4.3: mud, slope, a narrow log, shallow water (their 3D look comes with the set 4 missions)
 const DUR = { slow: 0.85, normal: 0.42, fast: 0.12 };   // seconds per step of the trace
 const FLY = 3.4;          // the drone's height over the ground while flying
 const ON_ROBOT = 1.75;    // ... while parked on the robot's back
