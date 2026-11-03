@@ -750,9 +750,10 @@ def rl_wk_one(i, path, pct=50, samples=24, look=None):
     for o in [s] + list(s.children_recursive): o.hide_render = False
     cam = bpy.data.objects.get('rl_cam')
     if not cam: return {'need': 'run rl_preview once first'}
-    L = WK_SIZE[base[-1]][1]
+    L = WK_SIZE.get(base[-1], (0.8, 1.2, 0.3))[1]; tall = base == 'wk_t'
     cam.location = (-1.25 * L / 1.02, -1.75 * L / 1.02, 1.0 * L / 1.02); cam.data.lens = 40
-    _look_at(cam, (0, 0, 0.3))
+    if tall: cam.location = (-1.0, -2.5, 1.35)
+    _look_at(cam, (0, 0, 0.62 if tall else 0.3))
     _review_light()
     sc.camera = cam; sc.render.resolution_x = 1200; sc.render.resolution_y = 900; sc.render.resolution_percentage = pct
     try: sc.eevee.taa_render_samples = samples
@@ -941,3 +942,106 @@ def kubi_portraits(outdir, px=(300, 446), samples=48):
     if floor: floor.hide_render = False
     json.dump({'w': px[0], 'h': px[1], 'screen': out}, open(outdir + '\\kubi_portraits.json', 'w'))
     return out
+
+# ── the tall robot (Avi, 3.11): an original robot of our own on tracks: a tracked base, a waist, a chest, shoulders
+# with mounting places, two arms with grippers, and a head. Three heads are drawn for Avi to choose from; none is a
+# copy of any known robot. Sockets: tl tr (tracks), shl shr (on the shoulders), head, back, chest.
+def build_tall():
+    R = group('base_wk_t')
+    # the tracked base: a low chamfered hull between the tracks
+    hs_block('wt_base', 0.62, 0.8, 0.22, 'dark', ch=0.035, top=(0.9, 0.92), panels=0.024, pdepth=0.008, parent=R, loc=(0, 0, 0.27))
+    bolt_row('wt_bb', (-0.24, -0.38, 0.33), (0.24, -0.38, 0.33), 5, 0.009, R, axis='Y')
+    # the waist: a turntable with a ring of bolts, and a piston on each side
+    cyl('wt_waist', 0.17, 0.09, 'metal', seg=10, bev=0.012, parent=R, loc=(0, 0, 0.42))
+    bolts('wt_wb', [(math.cos(2 * math.pi * k / 10) * 0.14, math.sin(2 * math.pi * k / 10) * 0.14, 0.468) for k in range(10)], 0.008, R)
+    for k in (-1, 1): _piston('wt_wp_%d' % k, (k * 0.2, 0.05, 0.36), (k * 0.17, 0.02, 0.56), 0.018, R)
+    # the chest: a faceted block with a front plate, a vent, a light strip; the back pack
+    hs_block('wt_chest', 0.5, 0.36, 0.42, 'body', ch=0.045, top=(1.08, 0.94), panels=0.03, pdepth=0.012, parent=R, loc=(0, 0, 0.68))
+    armor('wt_plate', 0.3, 0.025, 0.2, 'accent', R, (0, -0.19, 0.7), axis='Y')
+    for i in range(3): hs_block('wt_vent%d' % i, 0.18, 0.012, 0.012, 'metal', ch=0.003, parent=R, loc=(0, -0.205, 0.55 + i * 0.022))
+    hs_block('wt_pack', 0.36, 0.14, 0.32, 'trim', ch=0.03, panels=0.02, parent=R, loc=(0, 0.22, 0.7))
+    for i in range(3): hs_block('wt_rib%d' % i, 0.32, 0.012, 0.016, 'metal', ch=0.003, parent=R, loc=(0, 0.295, 0.6 + i * 0.09))
+    # shoulders: chamfered pads over a joint, a flat mounting plate on top of each
+    for k, n in ((-1, 'l'), (1, 'r')):
+        _joint_hs('wt_sh_%s' % n, (k * 0.29, 0, 0.82), 0.06, R)
+        hs_block('wt_pad_%s' % n, 0.16, 0.22, 0.08, 'trim', ch=0.02, top=(0.8, 0.9), parent=R, loc=(k * 0.31, 0, 0.9))
+        hs_block('wt_mount_%s' % n, 0.1, 0.12, 0.012, 'metal', ch=0.004, parent=R, loc=(k * 0.31, 0, 0.945))
+        bolts('wt_mb_%s' % n, [(k * 0.31 + a * 0.035, b * 0.045, 0.952) for a in (-1, 1) for b in (-1, 1)], 0.006, R)
+    # the neck: a short rod in a collar
+    cyl('wt_collar', 0.09, 0.05, 'dark', seg=10, bev=0.01, parent=R, loc=(0, 0, 0.915))
+    cyl('wt_neck', 0.04, 0.1, 'metal', seg=16, parent=R, loc=(0, 0, 0.97))
+    socket(R, 'tl', (-0.32, 0, 0)); socket(R, 'tr', (0.32, 0, 0), (0, 0, math.pi))
+    socket(R, 'shl', (-0.31, 0, 0.955)); socket(R, 'shr', (0.31, 0, 0.955))
+    socket(R, 'arm_l', (-0.36, 0, 0.82)); socket(R, 'arm_r', (0.36, 0, 0.82))
+    socket(R, 'head', (0, 0, 1.02)); socket(R, 'back', (0, 0.29, 0.7)); socket(R, 'chest', (0, -0.2, 0.62))
+    return R
+
+def _tall_arm(name, k):
+    """an arm hanging from the shoulder (k = -1 on the left, 1 on the right, outward): an upper beam, an elbow, a
+    forearm reaching forward, a piston, a gripper. Built for its side (a mirror, not a turn, so both reach forward)"""
+    P = group('part_' + name); x = k * 0.055
+    hs_block(name + '_upper', 0.09, 0.11, 0.32, 'trim', ch=0.02, panels=0.014, parent=P, loc=(x, 0, -0.16))
+    _joint_hs(name + '_elbow', (x, 0, -0.34), 0.048, P)
+    hs_block(name + '_fore', 0.085, 0.3, 0.085, 'trim', ch=0.018, panels=0.012, parent=P, loc=(x, -0.16, -0.36))
+    _piston(name + '_pis', (x + k * 0.05, 0.0, -0.2), (x + k * 0.05, -0.17, -0.33), 0.012, P)
+    _gripper_hs(name + '_g', (x, -0.33, -0.36), P, s=1.05)
+    return P
+
+def part_tall_arm_l(): return _tall_arm('tall_arm_l', -1)
+def part_tall_arm_r(): return _tall_arm('tall_arm_r', 1)
+
+def _head_box(P, pre, w, d, h, z0, slot='body', ch=0.04, top=(0.92, 0.92)):
+    return hs_block(pre + '_shell', w, d, h, slot, ch=ch, top=top, panels=0.024, pdepth=0.01, parent=P, loc=(0, 0, z0 + h / 2))
+
+def part_head_a():
+    """head A, 'the wide screen': a broad chamfered head, a visor brim, a wide screen for drawn eyes, side lamps"""
+    P = group('part_head_a')
+    _head_box(P, 'ha', 0.4, 0.3, 0.22, 0.0)
+    hs_block('ha_brim', 0.42, 0.08, 0.025, 'trim', ch=0.008, parent=P, loc=(0, -0.17, 0.215), rot=(0.25, 0, 0))
+    hs_block('ha_rim', 0.34, 0.02, 0.14, 'dark', ch=0.01, parent=P, loc=(0, -0.152, 0.105))
+    hs_block('ha_screen', 0.31, 0.012, 0.115, 'glass', ch=0.006, parent=P, loc=(0, -0.162, 0.105))
+    for k in (-1, 1):   # two soft oval eyes on the screen and a smile line (the game can draw them live later)
+        o = sphere('ha_eye_%d' % k, 0.03, 'glow', seg=16, ring=8, parent=P, loc=(k * 0.07, -0.17, 0.115)); o.scale = (1, 0.3, 1.35)
+        lamp_housing('ha_side_%d' % k, P, (k * 0.215, -0.04, 0.12), w=0.04, h=0.06)
+    sweep('ha_smile', [(math.cos(a) * 0.05, -0.17, 0.085 + math.sin(a) * 0.022) for a in [math.pi + 0.6 + t * (math.pi - 1.2) / 6 for t in range(7)]], 0.006, 'glow', ring=6, parent=P)
+    capsule('ha_ant', (0.12, 0.08, 0.22), (0.15, 0.1, 0.34), 0.008, 'metal', seg=8, parent=P)
+    sphere('ha_ant_tip', 0.018, 'accent', parent=P, loc=(0.15, 0.1, 0.35))
+    return P
+
+def part_head_b():
+    """head B, 'the dome': a glass dome on a chamfered collar, a curved light bar inside that shows the mood, fins"""
+    P = group('part_head_b')
+    cyl('hb_collar', 0.16, 0.06, 'dark', seg=12, bev=0.012, parent=P, loc=(0, 0, 0.03))
+    hs_block('hb_band', 0.34, 0.3, 0.06, 'body', ch=0.02, top=(0.95, 0.95), panels=0.014, parent=P, loc=(0, 0, 0.09))
+    sphere('hb_dome', 0.15, 'glass', cut=0.0, seg=32, ring=12, parent=P, loc=(0, 0, 0.12))
+    sweep('hb_bar', [(math.cos(a) * 0.09, -0.06 - math.sin(a) * 0.02, 0.2) for a in [0.3 + t * (math.pi - 0.6) / 10 for t in range(11)]], 0.014, 'glow', ring=8, parent=P)
+    for k in (-1, 1):
+        hs_block('hb_fin_%d' % k, 0.025, 0.14, 0.12, 'trim', ch=0.008, top=(1, 0.5), nose=0.04, parent=P, loc=(k * 0.18, 0.02, 0.17))
+        lamp_housing('hb_lamp_%d' % k, P, (k * 0.1, -0.16, 0.09), w=0.05, h=0.035)
+    return P
+
+def part_head_c():
+    """head C, 'the lantern': a six-sided chamfered head with one big round lens in a ring, a speaker grille, ears"""
+    P = group('part_head_c')
+    cyl('hc_shell', 0.16, 0.26, 'body', seg=6, bev=0.02, parent=P, loc=(0, 0, 0.13))
+    o = bpy.data.objects['hc_shell']; o.rotation_euler = (0, 0, math.pi / 6)
+    cyl('hc_cap', 0.13, 0.03, 'trim', seg=6, bev=0.008, parent=P, loc=(0, 0, 0.275))
+    cyl('hc_ring', 0.075, 0.03, 'dark', seg=28, axis='Y', bev=0.008, parent=P, loc=(0, -0.148, 0.16))
+    lamp('hc_lens', 0.055, P, (0, -0.16, 0.16))
+    for i in range(3): hs_block('hc_grille%d' % i, 0.09, 0.01, 0.008, 'metal', ch=0.002, parent=P, loc=(0, -0.152, 0.06 + i * 0.016))
+    for k in (-1, 1):
+        cyl('hc_ear_%d' % k, 0.05, 0.04, 'trim', seg=8, axis='X', bev=0.008, parent=P, loc=(k * 0.165, 0, 0.16))
+        sphere('hc_earled_%d' % k, 0.015, 'glow', parent=P, loc=(k * 0.19, 0, 0.16))
+    return P
+
+BASES['wk_t'] = build_tall
+PARTS.update({'tall_arm_l': part_tall_arm_l, 'tall_arm_r': part_tall_arm_r, 'head_a': part_head_a, 'head_b': part_head_b, 'head_c': part_head_c})
+
+def rl_tall_review(outdir, samples=48):
+    looks = {h: {'tl': 'tracks', 'tr': 'tracks', 'arm_l': 'tall_arm_l', 'arm_r': 'tall_arm_r', 'head': h, 'shl': 'light', 'shr': 'cammount', 'back': 'seedbox'} for h in ('head_a', 'head_b', 'head_c')}
+    paths = []
+    for h, look in looks.items():
+        p = outdir + '\\tall_' + h + '.png'
+        rl_wk_one(0, p, pct=60, samples=samples, look=('wk_t', look))
+        paths.append(p)
+    return paths
