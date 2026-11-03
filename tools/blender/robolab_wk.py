@@ -898,3 +898,46 @@ def rl_wk_hero(path, px=(1600, 720), samples=64, kubi=True):
     for o in list(hc.all_objects): o.hide_render = True
     if floor: floor.hide_render = False
     return path
+
+# ── Kubi's portraits for the guide's bubble (1.4.3: he leads the robot workshop's tutorial). Two frames (idle, wave),
+# his screen left dark: the game draws his live face on it (src/ui/kubi-face.js), at the screen's place in the picture,
+# which is written beside the frames (normalised x, y, w, h of the face plane, the same 0.4 x 0.287 m as three/kubi.js)
+def kubi_portraits(outdir, px=(300, 446), samples=48):
+    from bpy_extras.object_utils import world_to_camera_view
+    sc, c = _coll()
+    shc = _show_coll()
+    for o in list(shc.all_objects): bpy.data.objects.remove(o, do_unlink=True)
+    c.hide_render = True
+    for n in ('RL_hero',):
+        hc = bpy.data.collections.get(n)
+        if hc:
+            for o in hc.all_objects: o.hide_render = True
+    floor = bpy.data.objects.get('rl_floor')
+    if floor: floor.hide_render = True
+    out = {}
+    for pose in ('idle', 'wave'):
+        for o in list(shc.all_objects): bpy.data.objects.remove(o, do_unlink=True)
+        k = _copy_tree(bpy.data.objects['J:kubi'], None); k.location = (0, 0, 0); k.rotation_euler = (0, 0, 0.32)
+        for o in [k] + list(k.children_recursive):
+            o.hide_render = False
+            if pose == 'wave' and o.name.startswith('J:shoulder_r'): o.rotation_euler = (0, -2.4, 0)
+            if pose == 'wave' and o.name.startswith('J:elbow_r'): o.rotation_euler = (0, -0.5, 0)
+        cam = bpy.data.objects.get('rl_cam')
+        cam.location = (0.55, -3.3, 0.85); cam.data.lens = 52; _look_at(cam, (0.02, 0, 0.62))
+        _review_light()
+        sc.camera = cam; sc.render.film_transparent = True
+        sc.render.resolution_x, sc.render.resolution_y = px; sc.render.resolution_percentage = 100
+        sc.render.image_settings.file_format = 'PNG'; sc.render.image_settings.color_mode = 'RGBA'
+        try: sc.eevee.taa_render_samples = samples
+        except Exception: pass
+        sc.view_layers[0].depsgraph.update()
+        f = next(o for o in k.children_recursive if o.name.startswith('S:face'))
+        M = mw(f); pts = [world_to_camera_view(sc, cam, M @ Vector((x, 0, z))) for x in (-0.2, 0.2) for z in (-0.1435, 0.1435)]
+        xs = [p.x for p in pts]; ys = [1 - p.y for p in pts]
+        out[pose] = {'x': round(min(xs), 4), 'y': round(min(ys), 4), 'w': round(max(xs) - min(xs), 4), 'h': round(max(ys) - min(ys), 4)}
+        sc.render.filepath = outdir + '\\kubi_' + pose + '.png'
+        bpy.ops.render.render(write_still=True, scene=sc.name)
+    sc.render.film_transparent = False
+    if floor: floor.hide_render = False
+    json.dump({'w': px[0], 'h': px[1], 'screen': out}, open(outdir + '\\kubi_portraits.json', 'w'))
+    return out

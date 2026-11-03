@@ -10,6 +10,9 @@
 //              key: shown once per player (core/journey.js markIntro / introSeen); force: show again anyway
 //              modal: dim the screen behind (a new part being presented); actions: buttons on the last bubble
 //   guide.intro(part, opts)       the lines of src/data/guide-lines.js GUIDE[part], once per player
+//   opts.speaker: 'kubi' (1.4.3)   קוּבִּי says these lines (the robot lab's own teacher): his portrait with his live
+//                                 face (src/ui/kubi-face.js), his name, and opts.voice (his voice) if given. Both
+//                                 speak through this one queue, so רובו־דע and קוּבִּי never speak together.
 //   guide.tip(line, opts)         one bubble that closes by itself after a while (no buttons but a close)
 //   guide.close(match?), guide.isOpen()   close everything, or only one request (its promise, or { key }), or the
 //                                          requests made in a place ({ scene: 'game' }); a dropped request resolves 'abort'
@@ -17,6 +20,7 @@
 // Several requests wait in a queue: one bubble set at a time. Everything is RTL; the figure sits at the bottom right.
 import { drawRoboFace, ROBO_SVG, VISOR } from './robo-face.js';
 import { introSeen, markIntro, playMode } from '../core/journey.js';
+import { drawKubiFace } from './kubi-face.js';
 import { GUIDE } from '../data/guide-lines.js';
 import { setService } from '../core/services.js';
 
@@ -57,6 +61,11 @@ const CSS = `
 #ui #rguide button:focus-visible { outline: 3px solid #e6a93c; outline-offset: 2px; }
 #ui #rguide .rg-ring { position: fixed; border-radius: 16px; pointer-events: none; box-shadow: 0 0 0 4px #ffd166, 0 0 0 9px rgba(255, 209, 102, .35), 0 0 24px 8px rgba(255, 209, 102, .5); animation: rg-pulse 1.4s ease-in-out infinite; transition: all .25s ease; }
 #ui #rguide.tip .rg-bub { min-width: 200px; }
+#ui #rguide .rg-fig.kubi { width: clamp(80px, 11vw, 118px); height: auto; position: relative; }
+#ui #rguide .rg-fig.kubi .rg-fr { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; }
+#ui #rguide .rg-fig.kubi .rg-fr.on { opacity: 1; }
+#ui #rguide .rg-fig.kubi .rg-kface { position: absolute; }
+#ui #rguide .rg-wrap.kubi .rg-name { color: #e8873a; }
 @keyframes rg-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 @keyframes rg-talk { 0%,100% { rotate: 0deg; } 50% { rotate: -1.5deg; } }
 @keyframes rg-pulse { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
@@ -78,6 +87,11 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
   let pic = portrait, art = null;
   // his rendered portraits (src/data/robo-art.js, made from the lab's model): loaded the first time he appears
   const artP = import('../data/robo-art.js').then((m) => { art = m.ROBO_ART; if (cur) render(); }, () => { });
+  // קוּבִּי's portraits (src/data/kubi-art.js), loaded the first time he speaks here
+  let kart = null, kartP = null;
+  const kubiArt = () => (kartP = kartP || import('../data/kubi-art.js').then((m) => { kart = m.KUBI_ART; if (cur && isKubi(cur)) render(); }, () => { }));
+  const isKubi = (c) => !!(c && c.opts.speaker === 'kubi');
+  const voiceOf = (c) => (c && c.opts.voice) || (isKubi(c) ? null : voice);
   const kidsNow = () => playMode() === 'kids';
   const words = (ln) => (kidsNow() && ln.k ? ln.k : ln.f);
 
@@ -86,9 +100,13 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
     const ln = c.lines[c.i]; const lastOne = c.i === c.lines.length - 1; const kids = kidsNow();
     el.className = (c.opts.modal ? 'modal ' : '') + (c.opts.place === 'center' ? 'center ' : '') + (c.opts.tip ? 'tip' : '');
     const acts = lastOne && c.opts.actions && c.opts.actions.length ? c.opts.actions : null;
-    el.innerHTML = `<div class="rg-wrap" role="dialog" aria-live="polite" aria-label="רובו־דע">
-      <div class="rg-fig${art ? ' art' : ''}">${art ? Object.entries(art.frames).map(([k, src]) => `<img class="rg-fr" data-fr="${k}" src="${src}" alt="" draggable="false">`).join('') : `${pic ? `<img class="rg-pic" src="${pic}" alt="">` : ROBO_SVG}<canvas width="512" height="256"></canvas>`}</div>
-      <div class="rg-bub"><span class="rg-name">${kids ? 'רוֹבּוֹ־דַּע' : 'רובו־דע'}</span><p class="rg-txt">${esc(words(ln))}</p>
+    const kubi = isKubi(c); if (kubi && !kart) kubiArt();
+    const fig = kubi ? (kart ? `<div class="rg-fig kubi" style="aspect-ratio:${kart.w}/${kart.h}">${Object.entries(kart.frames).map(([k, src]) => `<img class="rg-fr" data-fr="${k}" src="${src}" alt="" draggable="false">`).join('')}<canvas class="rg-kface" width="256" height="184" style="left:${kart.screen.x * 100}%;top:${kart.screen.y * 100}%;width:${kart.screen.w * 100}%;height:${kart.screen.h * 100}%"></canvas></div>` : '<div class="rg-fig kubi"></div>')
+      : `<div class="rg-fig${art ? ' art' : ''}">${art ? Object.entries(art.frames).map(([k, src]) => `<img class="rg-fr" data-fr="${k}" src="${src}" alt="" draggable="false">`).join('') : `${pic ? `<img class="rg-pic" src="${pic}" alt="">` : ROBO_SVG}<canvas width="512" height="256"></canvas>`}</div>`;
+    const name = kubi ? 'קוּבִּי' : (kids ? 'רוֹבּוֹ־דַּע' : 'רובו־דע');
+    el.innerHTML = `<div class="rg-wrap${kubi ? ' kubi' : ''}" role="dialog" aria-live="polite" aria-label="${name}">
+      ${fig}
+      <div class="rg-bub"><span class="rg-name">${name}</span><p class="rg-txt">${esc(words(ln))}</p>
         <div class="rg-foot">${c.lines.length > 1 ? `<span class="rg-dots">${c.lines.map((_, j) => `<i class="${j === c.i ? 'on' : ''}"></i>`).join('')}</span>` : '<span class="rg-dots"></span>'}
           ${ln.id ? `<button class="rg-say" data-g="say" aria-label="${kids ? 'לִשְׁמֹעַ שׁוּב' : 'לשמוע שוב'}" title="${kids ? 'לִשְׁמֹעַ שׁוּב' : 'לשמוע שוב'}">${SPEAKER}</button>` : ''}
           ${acts ? acts.map((a, j) => `<button class="rg-act${a.kind === 'primary' || (!a.kind && j === 0) ? ' primary' : ''}${a.kind === 'quiet' ? ' quiet' : ''}" data-act="${esc(a.id)}">${esc(a.label)}</button>`).join('')
@@ -96,7 +114,8 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
           ${!lastOne && !c.opts.tip ? `<button class="rg-skip" data-g="skip">${kids ? 'דַּלֵּג' : 'דלג'}</button>` : ''}</div></div></div>`;
     placeRing(ln.at); placeWrap();
     synthTalk = Math.min(4, 0.9 + words(ln).length / 22);   // the mouth moves a little even without sound
-    if (voice && ln.id && c.spokenI !== c.i) { c.spokenI = c.i; voice.say(ln.id).catch(() => { }); }
+    const vc = voiceOf(c);
+    if (vc && ln.id && c.spokenI !== c.i) { c.spokenI = c.i; vc.say(ln.id).catch(() => { }); }
     const btn = el.querySelector('.rg-next, .rg-act:not(.quiet)');   // a quiet one ("לדלג על ההדרכה") is never the button a child presses by default try { btn && btn.focus({ preventScroll: true }); } catch (e) { }
   }
   // an element the child can see now (a ring around a removed or hidden one would float over nothing)
@@ -145,11 +164,20 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
     blinkT += dt; let blink = 0;
     if (blinkT > nextBlink) { const k = (blinkT - nextBlink) / 0.16; blink = k < 1 ? Math.sin(k * Math.PI) : 0; if (k >= 1) { blinkT = 0; nextBlink = 2 + Math.random() * 3; } }
     synthTalk = Math.max(0, synthTalk - dt);
-    const vl = voice && voice.speaking ? voice.level() : 0;
-    const talk = vl > 0 ? vl : (synthTalk > 0 && !(voice && voice.speaking) ? (0.5 + 0.5 * Math.sin(now / 70)) * 0.6 : 0);
+    const vc = voiceOf(cur);
+    const vl = vc && vc.speaking ? vc.level() : 0;
+    const talk = vl > 0 ? vl : (synthTalk > 0 && !(vc && vc.speaking) ? (0.5 + 0.5 * Math.sin(now / 70)) * 0.6 : 0);
     el.querySelector('.rg-fig').classList.toggle('talk', talk > 0.05);
     const ln = cur.lines[cur.i] || {};
     const expr = ln.expr || (cur.i === 0 ? 'happy' : 'normal');
+    if (isKubi(cur)) {   // קוּבִּי: the wave frame on the first bubble of a set, his live face on the screen
+      const kf = fig.querySelector('.rg-kface'); if (!kf) return;
+      const want = cur.i === 0 && !cur.opts.tip && (now - cur.t0) < WAVE_MS ? 'wave' : 'idle';
+      if (fig.dataset.on !== want) { fig.dataset.on = want; fig.querySelectorAll('.rg-fr').forEach((im) => im.classList.toggle('on', im.dataset.fr === want)); }
+      const mood = { happy: 'happy', wow: 'wow', oops: 'oops', curious: 'normal', think: 'think' }[expr] || 'normal';
+      drawKubiFace(kf.getContext('2d'), kf.width, kf.height, { mood, talking: talk > 0.05, mouth: Math.min(1, talk), blink });
+      return;
+    }
     if (cv) { drawRoboFace(cv.getContext('2d'), expr, blink, talk); return; }
     // the rendered portraits: he waves on the first bubble of a set, blinks, and his mouth follows the voice
     const pose = cur.i === 0 && !cur.opts.tip && (now - cur.t0) < WAVE_MS ? 'wave' : 'idle';
@@ -161,7 +189,7 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
   function finish(result) {
     const c = cur; if (!c) return;
     cur = null; clearTimeout(tipTimer);
-    if (voice) voice.stop();
+    const vcs = voiceOf(c); if (vcs) vcs.stop();
     if (c.opts.key && result !== 'abort') markIntro(c.opts.key);
     el.hidden = true; el.innerHTML = ''; el.className = ''; cancelAnimationFrame(raf); raf = 0;   // no '.modal' left on a hidden guide (others ask for #rguide.modal)
     try { c.opts.onClose && c.opts.onClose(result); } catch (e) { console.error(e); }
@@ -178,7 +206,7 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
     if (!cur) return;
     const a = e.target.closest('[data-act]'); if (a) { finish(a.dataset.act); return; }
     const g = e.target.closest('[data-g]'); if (!g) { if (e.target === el && cur.opts.modal) { /* a click outside does nothing: the child chooses */ } return; }
-    if (g.dataset.g === 'say') { const ln = cur.lines[cur.i]; if (voice && ln.id) voice.say(ln.id); synthTalk = 2; return; }
+    if (g.dataset.g === 'say') { const ln = cur.lines[cur.i], vc = voiceOf(cur); if (vc && ln.id) vc.say(ln.id); synthTalk = 2; return; }
     if (g.dataset.g === 'skip') { finish('skip'); return; }
     if (g.dataset.g === 'next') { if (cur.i < cur.lines.length - 1) { cur.i++; render(); } else finish('done'); }
   });

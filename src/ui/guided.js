@@ -4,7 +4,8 @@
 // (src/research/tutorial.js): a step that waits for the child's own action never locks anything else, and a step the
 // child already did on their own is passed over.
 //
-//   const run = runGuided({ guide, steps, onEnd, skipLabel, every })
+//   const run = runGuided({ guide, steps, onEnd, skipLabel, every, sayOpts })
+//   sayOpts: added to every bubble (1.4.3: { speaker: 'kubi', voice } – קוּבִּי leads the robot workshop's tutorial)
 //   steps: [{ id, lines: [{ id, f, k, at?, expr? }], wait?: () => bool, modal?, place?, before?: () => void }]
 //     - a step without `wait` shows its lines with "הבא" and moves on when the last one is read
 //     - a step with `wait` shows its lines (the last one stays, with a quiet "לדלג על ההדרכה" button) until wait() is
@@ -20,7 +21,7 @@ import { playMode } from '../core/journey.js';
 
 const LATER_MS = 15000;   // noSkip: "הבנתי" hides a waiting step's bubble for this long
 
-export function runGuided({ guide, steps, onEnd, skipLabel, noSkip = false, every = 300 }) {
+export function runGuided({ guide, steps, onEnd, skipLabel, noSkip = false, every = 300, sayOpts = null }) {
   let i = -1, over = false, pending = null, poll = 0;
   const run = { step: null, stop: () => end('abort') };
   const skipText = () => skipLabel || (playMode() === 'kids' ? 'לְדַלֵּג עַל הַהַדְרָכָה' : 'לדלג על ההדרכה');
@@ -41,7 +42,7 @@ export function runGuided({ guide, steps, onEnd, skipLabel, noSkip = false, ever
     try { st.before && st.before(); } catch (e) { console.error(e); }
     let ok = false; try { ok = !!(st.wait && st.wait()); } catch (e) { }
     if (ok) { next(); return; }   // done on their own already: on to the next one
-    const opts = { modal: !!st.modal, place: st.place || (st.modal ? 'center' : 'corner') };
+    const opts = { ...(sayOpts || {}), modal: !!st.modal, place: st.place || (st.modal ? 'center' : 'corner') };
     if (st.wait) opts.actions = noSkip ? [{ id: 'later', label: playMode() === 'kids' ? 'הָבַנְתִּי' : 'הבנתי', kind: 'quiet' }] : [{ id: 'skipall', label: skipText(), kind: 'quiet' }];
     show(st, st.lines, opts);
     if (st.wait) {

@@ -38,7 +38,7 @@ const STAT_MAX = { speed: 1.4, force: 1.6, precision: 1, battery: 100, lift: 3 }
 const blank = () => JSON.parse(JSON.stringify(PRESETS.gardener.build));
 let uid = Date.now() % 100000;
 
-export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, guide = null } = {}) {
+export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, guide = null, voice = null } = {}) {
   const T = (o) => (o ? (kids && o.k ? o.k : o.f) : '');
   const w = (f, k) => (kids ? k : f);
   let ES = earnState(), step = wkStepOf();
@@ -300,7 +300,7 @@ export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, gui
   const api = { close, el, trial, show: (t) => { if (tab !== t) { tab = t; picked = null; renderAll(); } },
     state: () => ({ cur, step, tab, fam, picked, robots: myRobots().length, tests: wkState().tests, passed: wkState().passed, stats: statsOf(B()), problems: checkBuild(B()).problems, tut: tut && tut.step, held, card: !el.querySelector('.wk-steps').hidden }) };
   function startTut() {
-    if (!tut && guide) tut = workshopTutorial({ guide, ws: api, onDone: (r) => { el.removeAttribute('data-hold-toasts'); if (r !== 'abort' && held && !closed) { const n = held; held = 0; showStep(n); } } });
+    if (!tut && guide) tut = workshopTutorial({ guide, ws: api, voice, onDone: (r) => { el.removeAttribute('data-hold-toasts'); if (r !== 'abort' && held && !closed) { const n = held; held = 0; showStep(n); } } });
     if (tut) el.setAttribute('data-hold-toasts', '');   // new cards and badges wait for its end
   }
   if (!wkState().tests && !myRobots().length) showStep(1); else startTut();

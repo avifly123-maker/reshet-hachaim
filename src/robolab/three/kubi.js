@@ -5,6 +5,7 @@
 //   const K = createKubi()   K.object (Group)   K.set(mood|action)   K.talk(on)   K.look(x, y)   K.update(dt)   K.dispose()
 //   moods: 'idle' | 'happy' | 'wow' | 'think' | 'oops';  actions: 'wave' | 'explain' | 'cheer' | 'surprised' | 'point'
 import * as THREE from 'three';
+import { drawKubiFace } from '../../ui/kubi-face.js';
 import { KUBI_MODEL } from '../../data/kubi-model.js';
 import { geo, mats } from './parts3d.js';
 
@@ -33,27 +34,9 @@ export function createKubi({ size = 1 } = {}) {
   const face = new THREE.Mesh(new THREE.PlaneGeometry(0.4, 0.287), new THREE.MeshBasicMaterial({ map: tex, transparent: true, toneMapped: false }));
   if (J._face) { face.position.fromArray(J._face.at); face.position.z += 0.004; J._face.parent.add(face); }
   let mood = 'happy', talking = false, mouth = 0, blink = 0, blinkT = 2, lookX = 0, lookY = 0, lookTX = 0, lookTY = 0, faceDirty = true;
-  const rr = (x, y, w, h, r) => { cx.beginPath(); cx.roundRect(x, y, w, h, r); cx.fill(); };
+  // the drawing itself is shared with his portrait in the guide's bubble (src/ui/kubi-face.js)
   function drawFace() {
-    const W = cv.width, H = cv.height;
-    cx.clearRect(0, 0, W, H);
-    cx.fillStyle = '#7fe3ff'; cx.strokeStyle = '#7fe3ff'; cx.lineWidth = 12; cx.lineCap = 'round';
-    cx.shadowColor = '#7fe3ff'; cx.shadowBlur = 14;
-    const ex = 70, ey = 74 + lookY * 10, dx = lookX * 12, ew = 44, eh = 54 * (1 - blink * 0.92);
-    for (const s of [-1, 1]) {
-      const x = W / 2 + s * ex + dx;
-      if (mood === 'happy' && !talking && blink < 0.5) { cx.beginPath(); cx.arc(x, ey + 12, 22, Math.PI * 1.1, Math.PI * 1.9); cx.stroke(); }
-      else if (mood === 'wow') { cx.beginPath(); cx.arc(x, ey, 26 * (1 - blink * 0.9), 0, 7); cx.fill(); }
-      else if (mood === 'oops') { cx.save(); cx.translate(x, ey); cx.rotate(s * 0.25); rr(-ew / 2, -eh / 3, ew, eh * 0.66, 10); cx.restore(); }
-      else rr(x - ew / 2, ey - eh / 2, ew, Math.max(5, eh), 16);
-    }
-    // the mouth: a smile, an "o", a talking oval, a thinking line
-    const my = 140;
-    if (talking) { const h = 8 + mouth * 22; rr(W / 2 - 22, my - h / 2, 44, h, 10); }
-    else if (mood === 'wow') { cx.beginPath(); cx.arc(W / 2, my, 13, 0, 7); cx.stroke(); }
-    else if (mood === 'think') { cx.beginPath(); cx.moveTo(W / 2 - 20, my); cx.lineTo(W / 2 + 18, my - 6); cx.stroke(); }
-    else if (mood === 'oops') { cx.beginPath(); cx.moveTo(W / 2 - 22, my + 4); cx.quadraticCurveTo(W / 2, my - 10, W / 2 + 22, my + 4); cx.stroke(); }
-    else { cx.beginPath(); cx.arc(W / 2, my - 16, 26, Math.PI * 0.2, Math.PI * 0.8); cx.stroke(); }
+    drawKubiFace(cx, cv.width, cv.height, { mood, talking, mouth, blink, lookX, lookY });
     tex.needsUpdate = true; faceDirty = false;
   }
 

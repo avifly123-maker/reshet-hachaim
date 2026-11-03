@@ -42,7 +42,9 @@ export function hubTutorial({ guide, hub, force = false }) {
 
 // מעבדת הרובוטים (1.4.1): the first lesson teaches the editor and the run; the first lesson with an event block teaches
 // the event (a hat that waits for its moment). rl.state() → { level, blocks, runs, hats } (src/robolab/index.js).
-export function robolabTutorial({ guide, rl, force = false }) {
+// 1.4.3: קוּבִּי leads the robot lab's tutorials (his lab); his voice object is shared with his lesson lines, so his
+// tutorial line and a lesson line never play together
+export function robolabTutorial({ guide, rl, force = false, voice = null }) {
   const KEY = 'g:rltut';
   if (!guide || !rl || !rl.state || (!force && introSeen(KEY))) return null;
   const st = () => rl.state();
@@ -54,9 +56,9 @@ export function robolabTutorial({ guide, rl, force = false }) {
     { id: 'run', lines: L('rltut:run'), before: () => { runs0 = st().runs; }, wait: () => st().runs > runs0 },
     { id: 'end', lines: L('rltut:end') },
   ];
-  return runGuided({ guide, steps, onEnd: (r) => { if (r !== 'abort') markIntro(KEY); } });
+  return runGuided({ guide, steps, sayOpts: { speaker: 'kubi', voice }, onEnd: (r) => { if (r !== 'abort') markIntro(KEY); } });
 }
-export function robolabEventTutorial({ guide, rl, force = false }) {
+export function robolabEventTutorial({ guide, rl, force = false, voice = null }) {
   const KEY = 'g:rltut:ev';
   if (!guide || !rl || !rl.state || (!force && introSeen(KEY))) return null;
   const st = () => rl.state();
@@ -65,12 +67,13 @@ export function robolabEventTutorial({ guide, rl, force = false }) {
       before: () => { const b = document.querySelector('#ui .rl-pal .rl-blk.f-event'); if (b) b.scrollIntoView({ block: 'center' }); } },
     { id: 'evbody', lines: L('rltut:evbody') },
   ];
-  return runGuided({ guide, steps, onEnd: (r) => { if (r !== 'abort') markIntro(KEY); } });
+  return runGuided({ guide, steps, sayOpts: { speaker: 'kubi', voice }, onEnd: (r) => { if (r !== 'abort') markIntro(KEY); } });
 }
 
 // 1.4.3: סדנת הרובוט, the first visit: a ready robot, a part's card and the numbers, a run on the test track.
 // ws = the workshop (src/robolab/workshop-ui.js): its state() tells what the child did.
-export function workshopTutorial({ guide, ws, force = false, onDone }) {
+// קוּבִּי leads it (Avi, 3.11: the workshop is in his lab), in his voice when the lines are recorded
+export function workshopTutorial({ guide, ws, force = false, onDone, voice = null }) {
   const KEY = 'g:wktut';
   if (!guide || !ws || !ws.state || (!force && introSeen(KEY))) return null;
   const st = () => ws.state();
@@ -83,5 +86,5 @@ export function workshopTutorial({ guide, ws, force = false, onDone }) {
     { id: 'track', lines: L('wktut:track'), before: () => { tests0 = st().tests; }, wait: () => st().tests > tests0 },
     { id: 'end', lines: L('wktut:end') },
   ];
-  return runGuided({ guide, steps, onEnd: (r) => { if (r !== 'abort') markIntro(KEY); if (onDone) onDone(r); } });
+  return runGuided({ guide, steps, sayOpts: { speaker: 'kubi', voice }, onEnd: (r) => { if (r !== 'abort') markIntro(KEY); if (onDone) onDone(r); } });
 }
