@@ -25,7 +25,9 @@ import { icon } from './ui/icons.js';
 import { isOpen as journeyOpen, lockWords, introSeen } from '../core/journey.js';
 import { roboProgress, markSolved, addFun, markSeen, addIsland, dropDrafts } from './progress.js';
 import { grantTechCards } from './tech.js';
-import { MISSION_BY, missionLevel, missionBuild } from './missions.js';   // 1.4.3 set 4: the workshop's missions
+import { MISSION_BY, missionLevel, missionBuild } from './missions.js';
+import { planLevel } from './engine/plan.js';
+import { levelOf } from './engine/level.js';   // 1.4.3 set 4: the workshop's missions
 import { addMission } from './progress.js';
 import { wkStepOf } from './earn.js';
 import { CHASSIS as WK_CHASSIS, PARTS as WK_PARTS } from '../data/robolab/workshop.js';
@@ -315,6 +317,29 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     if (workshop) { workshop.close(); workshop = null; }
     openLevel({ ...missionLevel(M, JSON.parse(JSON.stringify(robot.build))), robotName: robot.name || '' });
   }
+  // a workshop mission made from the child's own island (island-missions.js): his island loads (nothing is saved back),
+  // what grows there gives the mission, and the robot from the bench goes out. If his island gives none now, back to
+  // the workshop with words that say why
+  let wkNote = null, lastIslandDesc = null;
+  function openIslandMission(zone, robot) {
+    if (!enter3d || !robot || !robot.build) return;
+    if (workshop) { workshop.close(); workshop = null; }
+    stopTut(); if (in3d) end3d();
+    stopRun(); if (map) { map.dispose(); map = null; }
+    cur = null; el.hidden = true;
+    in3d = { zone, api: null, own: true };
+    const desc = lastIslandDesc = { robolab: true, ownIsland: true, zone, level: null, id: 'robolab:wkisland:' + zone,
+      islandMission: { build: JSON.parse(JSON.stringify(robot.build)), name: robot.name || '', step: wkStepOf(), seed: Date.now() },
+      makeSession: (ctx) => createRoboSession(ctx, desc),
+      attach: (api) => { if (!in3d || !open) { if (leave3d) leave3d(); return; } in3d.api = api; el.hidden = false; root.classList.add('rl3d'); mountLevel(api.level, api); },
+      detach: () => { root.classList.remove('rl3d'); },
+      onExit: () => { in3d = null; root.classList.remove('rl3d'); el.hidden = false;
+        if (desc.noMission && desc.later) wkNote = { f: `המשימות מהאי נפתחות בשלב ${desc.later} של הסדנה, כשיהיו לכם החלקים שהן צריכות. בינתיים יש משימות בשטחים המוכנים.`, k: `הַמְּשִׂימוֹת מֵהָאִי נִפְתָּחוֹת בְּשָׁלָב ${desc.later} שֶׁל הַסַּדְנָה. בֵּינְתַיִם יֵשׁ מְשִׂימוֹת אֲחֵרוֹת.` };
+        else if (desc.noMission) wkNote = {
+          f: 'באי שלכם עוד אין משימה לרובוט. למשל, להאבקה צריך לפחות שני צמחים גדולים מאותו מין שחרקים או ציפורים מאביקים. גדלו שם עוד צמחים, או צאו למשימה אחרת.', k: 'בָּאִי שֶׁלָּכֶם עוֹד אֵין מְשִׂימָה לָרוֹבּוֹט. גַּדְּלוּ שָׁם עוֹד צְמָחִים, אוֹ צְאוּ לִמְשִׂימָה אַחֶרֶת.' };
+        home(); openWs('missions'); } };
+    enter3d(desc);
+  }
   function winMission(r) {
     const { first, was, now } = addMission(cur.id, r.stars, cur.robotName, wkStepOf);
     if (now > was) wkNewStep = now;
@@ -368,8 +393,9 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   function openWs(tab = null) {
     if (workshop) workshop.close();
     markSeen('workshop');
-    const st = wkNewStep; wkNewStep = 0;
-    workshop = openWorkshop(el, { kids, sfx, guide: svcGuide(), voice: kvoice, newStep: st, tab, onMission: (id, robot) => openMission(id, robot), onClose: () => { workshop = null; } });
+    const st = wkNewStep, note = wkNote; wkNewStep = 0; wkNote = null;
+    const islands = enter3d && hasIsland ? ZONE_IDS.filter((z) => { try { return hasIsland(z); } catch (e) { return false; } }) : [];
+    workshop = openWorkshop(el, { kids, sfx, guide: svcGuide(), voice: kvoice, newStep: st, tab, note, islands, onMission: (id, robot) => openMission(id, robot), onIsland: (z, robot) => openIslandMission(z, robot), onClose: () => { workshop = null; } });
     grantTechCards();
     return workshop;
   }
@@ -400,7 +426,9 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     mission: (id, spec, flat) => { const M = MISSION_BY[id]; if (!M) return false; const b = missionBuild(spec || M.ways[0].robot); if (flat) { if (workshop) { workshop.close(); workshop = null; } openLevel({ ...missionLevel(M, b), robotName: 'test' }, { flat: true }); } else openMission(id, { name: 'test', build: b }); return true; },
     solveMission: (i = 0) => { if (!cur || !cur.mission || !ed) return null; ed.set(MISSION_BY[cur.id].ways[i].prog); run('fast'); return lastRun && { ok: lastRun.ok, stars: lastRun.stars }; },
     wk: () => roboProgress().wk,
+    islandInfo: () => lastIslandDesc && { found: lastIslandDesc.found, later: lastIslandDesc.later, stats: lastIslandDesc.stats, noMission: !!lastIslandDesc.noMission },
     edset: (prog) => { if (ed) ed.set(prog); return !!ed; },
+    autoplan: (speed = 'fast') => { if (!cur || !ed || !cur.build) return null; const r = planLevel(levelOf(cur), cur.build.robot); if (!r) return false; ed.set(r.prog); run(speed); return r.prog.robot.length; },
     field: () => (in3d && in3d.api && in3d.api.course && in3d.api.course.info ? in3d.api.course.info() : null),
     look: (x, y, d = 9) => { const C = in3d && in3d.api && in3d.api.course, rig = window.__game && window.__game.debug && window.__game.debug.rig; if (!C || !rig) return false; const t = C.cellPos(x, y); rig.goTo(t, t.clone().add({ x: d * 0.15, y: d * 0.7, z: d * 0.7 }), 0.05); return true; },
     workshop: () => openWs(),

@@ -5,6 +5,7 @@
 // and hands the field to the robot lab's screen (R.attach), which drives it like the flat map.
 import { createCourse } from './course.js';
 import { makeIslandLevel } from './island-level.js';
+import { islandMissions } from '../island-missions.js';   // 1.4.3 set 4: workshop missions made from the child's own island
 
 export function createRoboSession(ctx, R) {
   const { W, env, scene, reg, markers, rig, spawnPlant, spawnAnimal, ui } = ctx;
@@ -34,7 +35,21 @@ export function createRoboSession(ctx, R) {
       W.speed = 1;
       // a mission on the player's own island: the level is made from the island now that it is loaded
       const newIsland = (kind) => makeIslandLevel({ W, env }, R.zone, { kind, seed: Date.now() });
-      if (!R.level && R.ownIsland) R.level = newIsland();
+      // a workshop mission from his island (R.islandMission = { build, name, step, seed, template? }): what grows there
+      // now gives the mission, and his robot from the workshop goes out to it
+      const fromIsland = () => {
+        const Q = R.islandMission, alive = (p) => p && p.alive && !p.removed && p.sp;
+        const view = { plants: (W.plants || []).filter(alive).map((p) => ({ id: p.sp.id, x: p.x, z: p.z, g: p.growth, tree: !!p.isTree })),
+          animals: (W.animals || []).filter((a) => a && a.alive !== false && a.sp).map((a) => ({ id: a.sp.id, x: a.x, z: a.z })),
+          isWater: (x, z) => !!(env.isWater && env.isWater(x, z)), isPlaceable: (x, z) => !env.isPlaceable || env.isPlaceable(x, z), radius: env.radius || 38, sea: !!env.underwater };
+        const species = reg && reg.byId ? [...reg.byId.values()] : [];
+        const all = islandMissions(view, { zone: R.zone, species, step: Q.step, seed: Q.seed || Date.now(), only: Q.template || null });
+        R.found = all.map((M) => M.id); R.later = all.later || 0; R.stats = { ...all.stats, plants: view.plants.length };
+        const M = all[0]; if (!M) return null;
+        return { ...M, build: { robot: Q.build }, robotName: Q.name || '' };
+      };
+      if (!R.level && R.islandMission) { R.level = fromIsland(); if (!R.level) R.noMission = true; }
+      else if (!R.level && R.ownIsland) R.level = newIsland();
       if (!R.level) { R.noRoom = true; leaveSoon = true; return; }   // no room for a field on his island: closed from the first update, once the game is in place
       build(R.level);
       const api = {

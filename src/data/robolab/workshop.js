@@ -60,7 +60,7 @@ export const PARTS = {
   arm_short: { fam: 'tool', f: 'זרוע קצרה', k: 'זְרוֹעַ קְצָרָה', mass: 60, size: 1, lift: 1, motor: true, gives: ['pick'], earn: 'wk:4' },
   arm_long: { fam: 'tool', f: 'זרוע ארוכה', k: 'זְרוֹעַ אֲרֻכָּה', mass: 120, size: 2, lift: 1, reach: 1, motor: true, gives: ['pick'], earn: 'wk:4' },
   arm_fold: { fam: 'tool', f: 'זרוע מתקפלת', k: 'זְרוֹעַ מִתְקַפֶּלֶת', mass: 100, size: 1, lift: 1, reach: 1, motor: true, gives: ['pick'], earn: 'wk:5' },
-  brush: { fam: 'tool', f: 'מברשת', k: 'מִבְרֶשֶׁת', mass: 40, size: 1, gentle: true, motor: true, gives: ['collect'], earn: 'wk:3' },
+  brush: { fam: 'tool', f: 'מברשת', k: 'מִבְרֶשֶׁת', mass: 40, size: 1, gentle: true, motor: true, gives: ['collect', 'pollen'], earn: 'wk:3' },
   seedbox: { fam: 'tool', f: 'מיכל זרעים', k: 'מְכַל זְרָעִים', mass: 60, size: 1, seeds: 6, gives: ['plant'], earn: 'wk:1', mesh: 'planter' },
   sprayer: { fam: 'tool', f: 'מתזה למים', k: 'מַתָּזָה לְמַיִם', mass: 90, size: 2, water: 8, gives: ['water', 'spray'], earn: 'wk:2', mesh: 'water_tank' },
   net: { fam: 'tool', f: 'רשת איסוף', k: 'רֶשֶׁת אִסּוּף', mass: 40, size: 1, carry: 5, gentle: true, gives: ['collect'], earn: 'wk:3' },
@@ -68,7 +68,7 @@ export const PARTS = {
 
   // ── sensors (up to four): sees = the conditions they give (engine/blocks.js SENSORS), events they can hear
   gyro: { fam: 'sensor', f: "ג'ירוסקופ", k: 'גִּ\'ירוֹסְקוֹפּ', mass: 15, size: 1, precision: 0.3, sees: [], earn: 'wk:5' },
-  color: { fam: 'sensor', f: 'חיישן צבע', k: 'חַיְשַׁן צֶבַע', mass: 15, size: 1, sees: ['spot', 'fruit', 'thirsty', 'coralspot', 'net', 'home'], earn: 'wk:1' },
+  color: { fam: 'sensor', f: 'חיישן צבע', k: 'חַיְשַׁן צֶבַע', mass: 15, size: 1, sees: ['spot', 'fruit', 'thirsty', 'coralspot', 'net', 'home', 'flower'], earn: 'wk:1' },
   distance: { fam: 'sensor', f: 'חיישן מרחק', k: 'חַיְשַׁן מֶרְחָק', mass: 15, size: 1, sees: ['path', 'blocked', 'tree', 'water'], earn: 'wk:1' },
   touch: { fam: 'sensor', f: 'חיישן מגע', k: 'חַיְשַׁן מַגָּע', mass: 10, size: 1, sees: ['blocked'], earn: 'wk:2' },
   humidity: { fam: 'sensor', f: 'חיישן לחות', k: 'חַיְשַׁן לַחוּת', mass: 15, size: 1, sees: ['thirsty', 'water'], earn: 'wk:3' },

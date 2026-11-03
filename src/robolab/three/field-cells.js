@@ -177,3 +177,17 @@ export function makeLog() {
   g.rotation.z = Math.PI / 2;
   const holder = new THREE.Group(); holder.add(g); g.position.y = r; return holder;
 }
+// the mark on a flower of the island's own plant (set 4, artificial pollination): a ring on the ground, and over the
+// flower that gives pollen a little cloud of golden grains (no new plant: the flower is the child's own)
+export function makeFlowerMark(src = false) {
+  const g = new THREE.Group();
+  const ring = new THREE.Mesh(new THREE.RingGeometry(0.78, 0.95, 40), new THREE.MeshBasicMaterial({ color: src ? '#ffd25a' : '#f59ac8', transparent: true, opacity: 0.85, depthWrite: false }));
+  ring.rotation.x = -Math.PI / 2; ring.position.y = 0.05; g.add(ring);
+  if (src) {
+    const m = new THREE.MeshStandardMaterial({ color: '#ffd84a', emissive: '#ffb020', emissiveIntensity: 0.9, roughness: 0.5 });
+    const grains = new THREE.Group(); grains.position.y = 1.6; g.add(grains);
+    for (let i = 0; i < 9; i++) { const s = new THREE.Mesh(new THREE.IcosahedronGeometry(0.06 + (i % 3) * 0.02, 0), m); const a = i * 2.4; s.position.set(Math.cos(a) * 0.32, (i % 4) * 0.12, Math.sin(a) * 0.32); grains.add(s); }
+    g.userData.grains = grains;
+  }
+  return g;
+}

@@ -13,7 +13,7 @@ import { levelsOf } from '../engine/level.js';
 import { lookFor } from '../../data/robolab/parts.js';
 import { toolLook } from '../progress.js';
 import { makeTool, makeHome, makeSpot, makeFruit, makeNet, makeTrash, makeRock, makeEdge, makeFireBase } from './models.js';
-import { fieldCells, makeBoulder, makeLog } from './field-cells.js';   // 1.4.3 set 4: mud, hills, narrow logs, shallow water
+import { fieldCells, makeBoulder, makeLog, makeFlowerMark } from './field-cells.js';   // 1.4.3 set 4: mud, hills, narrow logs, shallow water
 import { buildTool, hasBlenderTools } from './parts3d.js';
 import { wkLook } from '../../data/robolab/workshop-look.js';
 import { DIRS } from '../engine/world.js';
@@ -166,6 +166,7 @@ export function createCourse(ctx, L) {
       else if (it.t === 'trash') S.obj = at(makeTrash(), it.x, it.y);
       else if (it.t === 'fire') { S.obj = at(makeFireBase(), it.x, it.y); fires.push(S); }
       else if (it.t === 'rock') S.obj = at(makeBoulder(rng), it.x, it.y);
+      else if (it.t === 'flower') S.obj = at(makeFlowerMark(!!it.src), it.x, it.y);
       else if (it.t === 'log') { S.obj = at(makeLog(), it.x, it.y); S.obj.rotation.y = (it.x * 3 + it.y) % 2 ? 0.4 : -0.5; }
       else if (it.t === 'thirsty') {
         const sp = spOf(life.thirsty), X = wx(it.x), Z = wz(it.y);
@@ -225,6 +226,10 @@ export function createCourse(ctx, L) {
   function itemDone(S, how) {
     if (S.done) return; S.done = true;
     const X = wx(S.x), Z = wz(S.y); _v.set(X, ground(X, Z) + 0.6, Z);
+    if (S.t === 'flower') {   // pollen taken (the grains go with the robot) or brought (a puff of gold on the flower)
+      if (S.obj && S.obj.userData.grains) S.obj.userData.grains.visible = false;
+      markers.burst(_v.setY(_v.y + 0.6), '#ffd84a', 26, { speed: 1.2, size: 0.35, life: 1.1, up: 1 }); return;
+    }
     if (S.t === 'log' && S.obj) { const from = S.obj.position.clone(); tweens.push({ obj: S.obj, from, to: from.clone().setY(from.y + CS * 0.55), t: 0, dur: (play ? play.dur : 0.4) * 1.6, hide: true }); markers.burst(_v, '#c9a46a', 12, { speed: 1, size: 0.4, life: 0.8, up: 1 }); return; }
     if (S.t === 'seed' || S.t === 'coral') {
       if (S.obj) S.obj.visible = false;
@@ -303,6 +308,7 @@ export function createCourse(ctx, L) {
   function update(rdt) {
     tick(rdt);
     FC.update(rdt);
+    for (const S of items) if (S.obj && S.obj.userData.grains && !S.done) S.obj.userData.grains.rotation.y += rdt * 0.8;
     for (const tw of tweens) {
       tw.t = Math.min(1, tw.t + rdt / Math.max(0.05, tw.dur)); const q = ease(tw.t);
       tw.obj.position.lerpVectors(tw.from, tw.to, q);

@@ -22,6 +22,9 @@ done
 # 1.4.3: the robot workshop's engine (parts, building rules, numbers, and what they change in a run) without the screen
 raw=$(node tests/robolab/build.mjs 2>&1); code=$?; out=$(echo "$raw" | grep -v -i "warning\|Reparsing\|trace-warnings"); echo "workshop engine: $(echo "$out" | tail -1)"
 [ $code -ne 0 ] && { echo "$out"; fail "workshop engine"; }
+# set 4: missions made from the child's own island, on the saved islands of every version and on made-up islands
+raw=$(node tests/robolab/island-missions.mjs 2>&1); code=$?; out=$(echo "$raw" | grep -v -i "warning\|Reparsing\|trace-warnings"); echo "$(echo "$out" | tail -1)"
+[ $code -ne 0 ] && { echo "$out"; fail "island missions"; }
 # 1.4.2: the savanna's systems (seasons, grass, grazing order, fire, herds, stability) without the game
 raw=$(node tests/savanna/systems.mjs 2>&1); code=$?; out=$(echo "$raw" | grep -v -i "warning\|Reparsing\|trace-warnings"); echo "savanna systems: $(echo "$out" | tail -1)"
 [ $code -ne 0 ] && { echo "$out"; fail "savanna systems"; }
@@ -81,7 +84,7 @@ echo "$out" | grep "\[pageerror\]\|JS ERROR\|UNTIL TIMEOUT\|NO ELEMENT" && fail 
 # track (stuck on sand with a hint, a step card only after the tutorial), wide wheels cross the sand, the garage; beginners;
 # and the technology cards (a drop-in after the step card, the album's tech tab, the zoom); set 4: the missions (the
 # missions tutorial, the robot on the bench goes to a mission in 3D, the count, a missing part's help, back to the workshop)
-for t in workshop:14 workshop-kids:5 techcards:7 workshop-missions:13; do
+for t in workshop:14 workshop-kids:5 techcards:7 workshop-missions:13 workshop-island:6; do
   f=${t%%:*}; want=${t##*:}
   out=$(timeout 1200 python3 tools/play.py dist/index.html tests/play/$f.json 800 460 2>&1)
   n=$(echo "$out" | grep -c "CHECK .* ok")

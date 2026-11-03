@@ -9,7 +9,8 @@
 //   1.4.3 (the robot workshop, set 2): 'm' mud, 'h' a slope, 'n' a narrow log or bridge, 'w' shallow water. Without a
 //   build they are plain ground for the robot ('w' blocks it, like water); a built robot needs the grip, the force and
 //   the precision for them (engine/build.js), and a float to cross shallow water ('~' too, with a propeller).
-// level.items = [{ t: 'seed'|'fruit'|'thirsty'|'fire'|'net'|'trash'|'coral'|'animal'|'rock'|'log', x, y, kind?, w? }]
+// level.items = [{ t: 'seed'|'fruit'|'thirsty'|'fire'|'net'|'trash'|'coral'|'animal'|'rock'|'log'|'flower', x, y, kind?, w?, src? }]
+//   (set 4: a flower with src gives pollen, the others of its kind take it: "העבר אבקה")
 //   (1.4.3: a rock is pushed one cell with "דחוף" when the robot's push is at least w; a log is lifted with "הרם")
 // level.home  = { x, y }   the robot's base (for "go home" goals and the drone landing)
 // level.tools = { robot: { x, y, dir }, drone: { x, y, dir, battery, parked }, sub: { x, y, dir } }
@@ -91,6 +92,8 @@ export function makeWorld(level) {
     if (g === 'narrow' && T.st.precision < 0.7) return { code: 'slip', cell: c, need: PRECISION_PARTS };
     return null;
   };
+  // can this tool drive into that cell now (for the planner, engine/plan.js): the same rules a move checks
+  W.canGo = (tool, x, y) => { const T = tools[tool]; if (!T || !canEnter(W, tool, x, y)) return false; return tool !== 'robot' || !groundProblem(T, cellAt(W, x, y)); };
   // the item a tool can reach: here, or one cell ahead for a long arm or a crane (reach)
   const reachItem = (T, t) => { const it = W.itemAt(T.x, T.y, t); if (it || !T.st || !T.st.reach) return it; const [ax, ay] = ahead(W, T); return W.itemAt(ax, ay, t); };
   // one action of one tool; soft mistakes (planting where there is no spot) are 'oops' and cost a step, bumping into a
@@ -145,6 +148,13 @@ export function makeWorld(level) {
       else if (T.st && T.st.lift < (it.w || 1)) { W.fail('heavy', tool, { item: it.i, need: partsFor('lift').concat(['crane', 'rack', 'worm']) }); return; }
       else { it.done = true; log(tool, 'lift', { item: it.i }); }
       useBattery(tool, T.st ? T.st.actDrain + 1 : 1);
+    } else if (b === 'pollen') {   // 1.4.3: take pollen at a flower that gives it, leave it at another of the same kind
+      const [ax, ay] = ahead(W, T), fl = (f) => W.itemAt(T.x, T.y, 'flower') && f(W.itemAt(T.x, T.y, 'flower')) ? W.itemAt(T.x, T.y, 'flower') : (W.itemAt(ax, ay, 'flower') && f(W.itemAt(ax, ay, 'flower')) ? W.itemAt(ax, ay, 'flower') : null);
+      const give = T.pollen ? fl((it) => !it.src && it.kind === T.pollen) : null, take = fl((it) => it.src);
+      if (give) { give.done = true; log(tool, 'pollinate', { item: give.i }); }
+      else if (take) { take.done = true; T.pollen = take.kind; log(tool, 'pollen', { item: take.i }); }
+      else { W.oops++; log(tool, 'oops', { want: T.pollen ? 'pollen_give' : 'pollen' }); }
+      useBattery(tool);
     } else if (b === 'add') { W.counter += nd.n || 1; log(tool, 'add', { counter: W.counter }); }
     else if (b === 'report') { W.reports.push(W.counter); log(tool, 'report', { counter: W.counter }); }
     else if (b === 'reset') { W.counter = 0; log(tool, 'reset'); }

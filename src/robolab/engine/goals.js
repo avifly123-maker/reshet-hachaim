@@ -10,7 +10,7 @@
 //   { t: 'nooops' }                   no wasted action (planting where there is nothing to plant)
 //   { t: 'steps', max }               the whole run took at most max steps
 //   { t: 'cleared' }                  1.4.3: every rock was pushed away;  { t: 'battery', min } the robot kept that much battery
-const ITEM = { seeds: 'seed', fruit: 'fruit', thirsty: 'thirsty', fires: 'fire', nets: 'net', trash: 'trash', corals: 'coral', animals: 'animal', logs: 'log' };
+const ITEM = { seeds: 'seed', fruit: 'fruit', thirsty: 'thirsty', fires: 'fire', nets: 'net', trash: 'trash', corals: 'coral', animals: 'animal', logs: 'log', flowers: 'flower' };
 
 function one(c, W) {
   const T = c.tool ? W.tools[c.tool] : null;

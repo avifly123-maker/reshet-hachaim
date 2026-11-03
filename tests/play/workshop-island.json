@@ -1,0 +1,124 @@
+[
+{
+"wait": 4
+},
+{
+"js": "window.__journey.markIntro('stage:1'); window.__journey.markIntro('g:wktut'); window.__journey.markIntro('g:wmtut'); window.__journey.markIntro('g:wmtut:run'); window.__guide && window.__guide.close(); window.__journey.unlockAll('2580'); window.__app.bus.emit('quality',{q:'medium'}); window.__app.bus.emit('ui:robolab'); 1"
+},
+{
+"until": "!!document.querySelector('.rl-home')",
+"timeout": 60
+},
+{
+"wait": 1
+},
+{
+"js": "const i=document.querySelector('.rl-intro [data-iskip]'); if(i) i.click(); 1"
+},
+{
+"wait": 1
+},
+{
+"js": "const ks=Object.keys(localStorage); const rk=ks.find(k=>/web-of-life-robolab::/.test(k)); const pre=rk.split('web-of-life-robolab::')[0], id=rk.split('::')[1]; localStorage.setItem(pre+'web-of-life-save-grove::'+id, \"{\\\"v\\\":1,\\\"biome\\\":\\\"grove\\\",\\\"savedAt\\\":1792702605780,\\\"points\\\":99887,\\\"day\\\":1,\\\"dayFrac\\\":0.3,\\\"season\\\":\\\"winter\\\",\\\"simT\\\":0,\\\"unlocked\\\":[\\\"oak\\\",\\\"mastic\\\",\\\"sage\\\",\\\"cyclamen\\\",\\\"anemone\\\",\\\"honeybee\\\",\\\"hyrax\\\",\\\"terebinth\\\",\\\"carob\\\",\\\"pine\\\",\\\"buckthorn\\\",\\\"rockrose\\\",\\\"mushroom\\\",\\\"butterfly\\\",\\\"harvesterant\\\",\\\"firefly\\\",\\\"jay\\\",\\\"blackbird\\\",\\\"chameleon\\\",\\\"agama\\\",\\\"spinymouse\\\",\\\"porcupine\\\",\\\"hedgehog\\\",\\\"gazelle\\\",\\\"fox\\\",\\\"owl\\\",\\\"hoopoe\\\",\\\"tortoise\\\",\\\"chukar\\\"],\\\"discovered\\\":[],\\\"everPlaced\\\":[\\\"oak\\\",\\\"carob\\\",\\\"pine\\\",\\\"mastic\\\",\\\"sage\\\",\\\"buckthorn\\\",\\\"jay\\\",\\\"hedgehog\\\"],\\\"quizDone\\\":[],\\\"seenNew\\\":[\\\"oak\\\",\\\"carob\\\",\\\"sage\\\",\\\"jay\\\",\\\"hedgehog\\\"],\\\"stats\\\":{\\\"pollinations\\\":{},\\\"dispersals\\\":0,\\\"experiments\\\":0,\\\"births\\\":0,\\\"toolUse\\\":{},\\\"seeded\\\":0,\\\"rescues\\\":0,\\\"expSpecies\\\":[],\\\"uprooted\\\":0,\\\"moved\\\":0,\\\"letGo\\\":0,\\\"transplants\\\":0,\\\"scarsHealed\\\":0},\\\"missions\\\":[],\\\"missionProgress\\\":{},\\\"events\\\":[],\\\"treeFallen\\\":false,\\\"gapPos\\\":null,\\\"protected\\\":false,\\\"road\\\":null,\\\"stumps\\\":[],\\\"plants\\\":[{\\\"id\\\":\\\"oak\\\",\\\"x\\\":-26.89,\\\"z\\\":21.17,\\\"g\\\":0.825,\\\"h\\\":1,\\\"w\\\":1,\\\"host\\\":-1,\\\"ai\\\":0,\\\"s\\\":438222232,\\\"b\\\":0},{\\\"id\\\":\\\"oak\\\",\\\"x\\\":-21.17,\\\"z\\\":20.12,\\\"g\\\":0.928,\\\"h\\\":1,\\\"w\\\":1,\\\"host\\\":-1,\\\"ai\\\":0,\\\"s\\\":786054498,\\\"b\\\":0},{\\\"id\\\":\\\"oak\\\",\\\"x\\\":-2.68,\\\"z\\\":34.62,\\\"g\\\":0.829,\\\"h\\\":1,\\\"w\\\":1,\\\"host\\\":-1,\\\"ai\\\":0,\\\"s\\\":661211053,\\\"b\\\":0},{\\\"id\\\":\\\"oak\\\",\\\"x\\\":7.68,\\\"z\\\":20.37,\\\"g\\\":0.963,\\\"h\\\":1,\\\"w\\\":1,\\\"host\\\":-1,\\\"ai\\\":0,\\\"s\\\":303371978,\\\"b\\\":0},{\\\"id\\\":\\\"carob\\\",\\\"x\\\":28.97,\\\"z\\\":13.46,\\\"g\\\":1,\\\"h\\\":1,\\\"w\\\":1,\\\"host\\\":-1,\\\"ai\\\":0,\\\"s\\\":409386803,\\\"b\\\":0},{\\\"id\\\":\\\"carob\\\",\\\"x\\\":-14.55,\\\"z\\\":-18.86,\\\"g\\\":0.928,\\\"h\\\":1,\\\"w\\\":1,\\\"host\\\":-1,\\\"ai\\\":0,\\\"s\\\":505494916,\\\"b\\\":0},{\\\"id\\\":\\\"pine\\\",\\\"x\\\":14.88,\\\"z\\\":-17.98,\\\"g\\\":0.893,\\\"h\\\":1,\\\"w\\\":1,\\\"host\\\":-1,\\\"ai\\\":0,\\\"s\\\":899439294,\\\"b\\\":0},{\\\"id\\\":\\\"mastic\\\",\\\"x\\\":-21.3,\\\"z\\\":-19.85,\\\"g\\\":1,\\\"h\\\":1,\\\"w\\\":1,\\\"host\\\":-1,\\\"ai\\\":0,\\\"s\\\":735865782,\\\"b\\\":0},{\\\"id\\\":\\\"mastic\\\",\\\"x\\\":-17.47,\\\"z\\\":-8.31,\\\"g\\\":1,\\\"h\\\":1,\\\"w\\\":1,\\\"host\\\":-1,\\\"ai\\\":0,\\\"s\\\":886349360,\\\"b\\\":0},{\\\"id\\\":\\\"mastic\\\",\\\"x\\\":15.95,\\\"z\\\":11.71,\\\"g\\\":0.883,\\\"h\\\":1,\\\"w\\\":1,\\\"host\\\":-1,\\\"ai\\\":0,\\\"s\\\":690721380,\\\"b\\\":0},{\\\"id\\\":\\\"mastic\\\",\\\"x\\\":34.23,\\\"z\\\":3.52,\\\"g\\\":0.869,\\\"h\\\":1,\\\"w\\\":1,\\\"host\\\":-1,\\\"ai\\\":0,\\\"s\\\":747085365,\\\"b\\\":0},{\\\"id\\\":\\\"mastic\\\",\\\"x\\\":-13.28,\\\"z\\\":14.45,\\\"g\\\":0.974,\\\"h\\\":1,\\\"w\\\":1,\\\"host\\\":-1,\\\"ai\\\":0,\\\"s\\\":120138553,\\\"b\\\":0},{\\\"id\\\":\\\"sage\\\",\\\"x\\\":-33.49,\\\"z\\\":-11.06,\\\"g\\\":0.941,\\\"h\\\":1,\\\"w\\\":1,\\\"host\\\":-1,\\\"ai\\\":0,\\\"s\\\":437867377,\\\"b\\\":0},{\\\"id\\\":\\\"sage\\\",\\\"x\\\":-14.69,\\\"z\\\":-21.9,\\\"g\\\":0.977,\\\"h\\\":1,\\\"w\\\":1,\\\"host\\\":-1,\\\"ai\\\":0,\\\"s\\\":561258007,\\\"b\\\":0},{\\\"id\\\":\\\"sage\\\",\\\"x\\\":-9.98,\\\"z\\\":30.08,\\\"g\\\":0.977,\\\"h\\\":1,\\\"w\\\":1,\\\"host\\\":-1,\\\"ai\\\":0,\\\"s\\\":918434173,\\\"b\\\":0},{\\\"id\\\":\\\"buckthorn\\\",\\\"x\\\":-26.01,\\\"z\\\":0.52,\\\"g\\\":0.854,\\\"h\\\":1,\\\"w\\\":1,\\\"host\\\":-1,\\\"ai\\\":0,\\\"s\\\":157686314,\\\"b\\\":0},{\\\"id\\\":\\\"buckthorn\\\",\\\"x\\\":12.63,\\\"z\\\":-21.45,\\\"g\\\":1,\\\"h\\\":1,\\\"w\\\":1,\\\"host\\\":-1,\\\"ai\\\":0,\\\"s\\\":923926261,\\\"b\\\":0},{\\\"id\\\":\\\"oak\\\",\\\"x\\\":-3.16,\\\"z\\\":11.43,\\\"g\\\":0.06,\\\"h\\\":1,\\\"w\\\":0,\\\"host\\\":-1,\\\"ai\\\":0,\\\"s\\\":17091774,\\\"b\\\":0},{\\\"id\\\":\\\"carob\\\",\\\"x\\\":-19.7,\\\"z\\\":-21.07,\\\"g\\\":0.06,\\\"h\\\":1,\\\"w\\\":0,\\\"host\\\":-1,\\\"ai\\\":0,\\\"s\\\":492515825,\\\"b\\\":0},{\\\"id\\\":\\\"sage\\\",\\\"x\\\":-11.1,\\\"z\\\":26.03,\\\"g\\\":0.15,\\\"h\\\":1,\\\"w\\\":0,\\\"host\\\":-1,\\\"ai\\\":0,\\\"s\\\":907683441,\\\"b\\\":0},{\\\"id\\\":\\\"sage\\\",\\\"x\\\":-11,\\\"z\\\":27.43,\\\"g\\\":0.15,\\\"h\\\":1,\\\"w\\\":0,\\\"host\\\":-1,\\\"ai\\\":0,\\\"s\\\":828573191,\\\"b\\\":0},{\\\"id\\\":\\\"sage\\\",\\\"x\\\":-12.85,\\\"z\\\":24.93,\\\"g\\\":0.15,\\\"h\\\":1,\\\"w\\\":0,\\\"host\\\":-1,\\\"ai\\\":0,\\\"s\\\":576941363,\\\"b\\\":0}],\\\"tools\\\":{\\\"devices\\\":[],\\\"photos\\\":[],\\\"told\\\":[]},\\\"report\\\":{\\\"v\\\":1,\\\"days\\\":[],\\\"cur\\\":{\\\"d\\\":1,\\\"s\\\":\\\"winter\\\",\\\"v0\\\":0.5,\\\"v1\\\":0.5,\\\"vl\\\":0.5,\\\"s0\\\":[\\\"oak\\\",\\\"carob\\\",\\\"pine\\\",\\\"mastic\\\",\\\"sage\\\",\\\"buckthorn\\\"],\\\"ev\\\":[],\\\"ms\\\":[],\\\"dc\\\":[],\\\"nd\\\":0,\\\"po\\\":0,\\\"di\\\":0,\\\"bi\\\":0,\\\"gr\\\":0,\\\"de\\\":0,\\\"lv\\\":0,\\\"wx\\\":{},\\\"bl\\\":[],\\\"ac\\\":[],\\\"n\\\":\\\"\\\",\\\"_st\\\":{\\\"po\\\":0,\\\"di\\\":0,\\\"bi\\\":0}}},\\\"animals\\\":[{\\\"id\\\":\\\"jay\\\",\\\"x\\\":0.64,\\\"y\\\":3.96,\\\"z\\\":-10.43,\\\"e\\\":0.74,\\\"g\\\":1},{\\\"id\\\":\\\"jay\\\",\\\"x\\\":-0.67,\\\"y\\\":4.04,\\\"z\\\":-8.37,\\\"e\\\":0.82,\\\"g\\\":1},{\\\"id\\\":\\\"hedgehog\\\",\\\"x\\\":17.2,\\\"y\\\":1.15,\\\"z\\\":-7.56,\\\"e\\\":0.74,\\\"g\\\":1}]}\"); const o=JSON.parse(localStorage.getItem(rk)||'{}'); o.wk=Object.assign({trials:{},done:{}},o.wk||{},{step:4,missions:3,passed:3,tests:3}); localStorage.setItem(rk, JSON.stringify(o)); 'eval seeded '+pre+id"
+},
+{
+"js": "window.__rlDebug.workshop(); 1"
+},
+{
+"wait": 1.5
+},
+{
+"js": "const b=document.querySelector('[data-wstepok]'); if(b) b.click(); 1"
+},
+{
+"wait": 0.8
+},
+{
+"js": "const s=document.querySelector('.rl-wk [data-wtab=missions]'); s.click(); 1"
+},
+{
+"wait": 1
+},
+{
+"shot": "shots/wki/i1-tab.png"
+},
+{
+"js": "const b=document.querySelector('[data-wisl=grove]'); 'CHECK island-button ' + (b && !b.disabled ? 'ok' : 'FAIL')"
+},
+{
+"js": "const c=window.__rlDebug.workshopState().cur; c.build.tools=['brush','seedbox']; c.build.motors=['motor_med']; 1"
+},
+{
+"clickSel": "[data-wisl=grove]"
+},
+{
+"until": "window.__rlDebug.in3d()",
+"timeout": 150
+},
+{
+"wait": 4
+},
+{
+"js": "'eval info '+JSON.stringify(window.__rlDebug.islandInfo())"
+},
+{
+"js": "const L=window.__rlDebug.level(); 'CHECK mission-from-island ' + (L && /^wi-grove-pollinate-/.test(L.id) && L.items.filter(i=>i.t==='flower').length>=2 && L.items.some(i=>i.src) ? 'ok' : 'FAIL '+JSON.stringify(L))"
+},
+{
+"shot": "shots/wki/i2-field.png"
+},
+{
+"js": "'CHECK planned-program ' + (window.__rlDebug.autoplan('fast')>0 ? 'ok' : 'FAIL')"
+},
+{
+"wait": 5
+},
+{
+"until": "!window.__rlDebug.playing()",
+"timeout": 90
+},
+{
+"wait": 1
+},
+{
+"js": "const r=window.__rlDebug.last(); const w=window.__rlDebug.wk(); 'CHECK island-mission-done ' + (r && r.ok && Object.keys(w.done).some(k=>/^wi-grove/.test(k)) ? 'ok' : 'FAIL '+JSON.stringify([r,w.done]))"
+},
+{
+"shot": "shots/wki/i4-end.png"
+},
+{
+"clickSel": ".rl-msg [data-wsback]"
+},
+{
+"wait": 2
+},
+{
+"js": "const s=window.__rlDebug.workshopState(); 'CHECK back-to-workshop ' + (s && s.tab==='missions' ? 'ok' : 'FAIL')"
+},
+{
+"js": "const c=window.__rlDebug.workshopState().cur; c.build.tools=['seedbox']; c.build.motors=[]; 1"
+},
+{
+"clickSel": "[data-wisl=grove]"
+},
+{
+"until": "window.__rlDebug.in3d() && !!document.querySelector('.rl-level')",
+"timeout": 150
+},
+{
+"wait": 2
+},
+{
+"js": "window.__rlDebug.edset({robot:[{b:'pollen'}]}); window.__rlDebug.run('fast'); 1"
+},
+{
+"until": "!window.__rlDebug.playing()",
+"timeout": 60
+},
+{
+"wait": 1
+},
+{
+"js": "const m=document.querySelector('.rl-msg.fail'); 'CHECK no-brush-help ' + (m && /מברשת/.test(m.textContent) ? 'ok' : 'FAIL '+(m&&m.textContent.slice(0,120)))"
+}
+]
