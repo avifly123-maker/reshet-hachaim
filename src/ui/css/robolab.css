@@ -161,6 +161,14 @@
 #ui.wol .rl-gchip { display: inline-flex; align-items: center; gap: 4px; padding: 6px 11px; border: 0; border-radius: 10px; background: #e3dccb; color: #1d2c38 !important; font-weight: 700; font-size: .88em; }
 #ui.wol .rl-gchip.on { background: #e8873a; color: #fff !important; box-shadow: 0 2px 0 #9a4f22; }
 #ui.wol .rl-gchip.locked { opacity: .55; cursor: default; flex-direction: column; align-items: flex-start; gap: 0; }
+#ui.wol .rl-gchip.wk-tile { flex-direction: column; justify-content: flex-start; width: 86px; min-height: 92px; padding: 4px 4px 6px; gap: 2px; text-align: center; line-height: 1.15; font-size: .8em; background: linear-gradient(180deg, #f1ebdc, #ddd4c0); }
+#ui.wol .rl-gchip.wk-tile .wk-pic { width: 62px; height: 62px; object-fit: contain; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .25)); }
+#ui.wol .rl-gchip.wk-tile.on { background: linear-gradient(180deg, #f2a35f, #e8873a); }
+#ui.wol .rl-gchip.wk-tile.pick { box-shadow: 0 0 0 3px #2fb3c0; }
+#ui.wol .wk-chead { display: flex; align-items: center; gap: 8px; }
+#ui.wol .wk-bigpic { width: 76px; height: 76px; object-fit: contain; flex: none; filter: drop-shadow(0 3px 3px rgba(0, 0, 0, .25)); }
+#ui.wol .wk-stepcard li { display: flex; align-items: center; gap: 8px; }
+#ui.wol .wk-lipic { width: 34px; height: 34px; object-fit: contain; flex: none; }
 #ui.wol .rl-gchip.locked svg { width: .9em; height: .9em; }
 #ui.wol .rl-gchip small { font-weight: 400; font-size: .78em; }
 #ui.wol .rl-gsw { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -286,5 +294,8 @@
 #ui.wol .wk-c.bot { outline: 2px solid #e8873a; } #ui.wol .wk-c svg { width: 20px; height: 20px; color: #1d2c38; }
 #ui.wol .wk-steps { position: absolute; inset: 0; z-index: 3; display: grid; place-items: center; background: rgba(8, 20, 32, .55); }
 #ui.wol .wk-steps[hidden] { display: none; }
-#ui.wol .wk-stepcard { width: min(520px, 90%); max-height: 86%; overflow: auto; padding: 14px 16px; border-radius: 16px; background: #fffaf0; color: #1d2c38; direction: rtl; }
+#ui.wol .wk-stepcard { width: min(640px, 92%); max-height: 90%; display: flex; flex-direction: column; padding: 12px 16px; border-radius: 16px; background: #fffaf0; color: #1d2c38; direction: rtl; }
+/* the list scrolls, the button stays in view; two columns of parts when there is room */
+#ui.wol .wk-stepcard ul { flex: 1; min-height: 0; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 2px 12px; list-style: none; padding: 0 !important; }
+#ui.wol .wk-stepcard > button { align-self: flex-start; flex: none; }
 #ui.wol .wk-stepcard h3 { margin: 0 0 6px; } #ui.wol .wk-stepcard ul { margin: 6px 0 10px; padding-inline-start: 1.1em; font-size: .9em; } #ui.wol .wk-stepcard li { margin: 3px 0; }

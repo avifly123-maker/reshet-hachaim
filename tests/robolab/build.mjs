@@ -16,6 +16,7 @@ import { earnWords } from '../../src/robolab/earn-words.js';
 import { CHAPTERS } from '../../src/data/robolab/index.js';
 import { WK_BASE, WK_WHEELS, WK_SIDES, WK_LOOK, wkLook } from '../../src/data/robolab/workshop-look.js';
 import { RL_PARTS } from '../../src/data/robolab-parts.js';
+import { WK_ICONS } from '../../src/data/robolab/wk-icons.js';
 
 const fails = [];
 const ok = (c, msg) => { if (!c) fails.push(msg); };
@@ -119,6 +120,8 @@ for (const [id, [m, ...socks]] of Object.entries(WK_LOOK)) {
 }
 for (const id of Object.keys(PARTS)) if (['tool', 'sensor'].includes(PARTS[id].fam)) ok(WK_LOOK[id], `the ${PARTS[id].fam} ${id} has a picture on the robot`);
 for (const P of Object.values(PRESETS)) { const L = wkLook(P.build); ok(Object.keys(L.parts).length >= 6, `a ready robot shows its wheels and parts (${Object.keys(L.parts).join(',')})`); }
+
+for (const id of [...Object.keys(CHASSIS), ...Object.keys(PARTS)]) ok(WK_ICONS[id], `${id} has its icon (tools/build-wk-icons.py)`);
 
 // ── the technology cards (set 3): words in both forms, an icon, a group, and a prize that can be reached
 { const seen = new Set();

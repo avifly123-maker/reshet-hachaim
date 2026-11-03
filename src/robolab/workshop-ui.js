@@ -17,6 +17,7 @@ import { runProgram } from './engine/run.js';
 import { buildTool, hasBlenderTools } from './three/parts3d.js';
 import { makeTool } from './three/models.js';
 import { wkLook, socketsOf } from '../data/robolab/workshop-look.js';
+import { WK_ICONS } from '../data/robolab/wk-icons.js';
 import { myRobots, saveRobot, deleteRobot, addTrial, wkState, MAX_ROBOTS } from './progress.js';
 import { earned, earnState, earnWords, wkStepOf } from './earn.js';
 import { icon } from './ui/icons.js';
@@ -31,6 +32,8 @@ export const TRACKS = [
 ];
 const TRACK_LEN = 8;
 const trackLevel = (t) => ({ map: { rows: ['..' + t.cell.repeat(4) + '..'] }, tools: { robot: { x: 0, y: 0, dir: 1 } }, goal: { t: 'reach', tool: 'robot', x: TRACK_LEN - 1, y: 0 } });
+// a part's picture (rendered from its Blender model, tools/build-wk-icons.py); nothing when it has none yet
+const pic = (id, cls = 'wk-pic') => (WK_ICONS[id] ? `<img class="${cls}" src="${WK_ICONS[id]}" alt="" draggable="false">` : '');
 const STAT_MAX = { speed: 1.4, force: 1.6, precision: 1, battery: 100, lift: 3 };
 const blank = () => JSON.parse(JSON.stringify(PRESETS.gardener.build));
 let uid = Date.now() % 100000;
@@ -79,16 +82,17 @@ export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, gui
     const L = wkLook(cur.build), before = shownLook && shownLook.base === L.base ? shownLook.parts : null;
     model = hasBlenderTools() ? (buildTool(L) || buildTool({ base: 'robot' })) : makeTool('robot');
     if (model) turn.add(model);
-    drops = [];
-    if (before && model && model.userData.parts) for (const [sock, P] of Object.entries(model.userData.parts)) {
-      if (P && before[sock] !== P.id) { P.obj.position.y = 0.38; drops.push({ obj: P.obj, t: 0 }); }
-    }
     shownLook = L; marks = []; showSockets(picked);
     // frame the robot: a three-quarter view from the front, as far as its size needs
     let r = 0.9, cy = 0.35;
     if (model) { const bb = new THREE.Box3().setFromObject(model), sz = bb.getSize(new THREE.Vector3()); r = Math.max(0.5, sz.length() / 2); cy = (bb.min.y + bb.max.y) / 2; }
-    const d = r / Math.sin((cam.fov * Math.PI / 180) / 2) * 0.66;
+    const d = r / Math.sin((cam.fov * Math.PI / 180) / 2) * 0.8;
     cam.position.set(d * 0.42, cy + d * 0.38, d * 0.82); cam.lookAt(0, cy, 0);
+    // the new parts drop in (after the framing, so the camera does not follow them up)
+    drops = [];
+    if (before && model && model.userData.parts) for (const [sock, P] of Object.entries(model.userData.parts)) {
+      if (P && before[sock] !== P.id) { P.obj.position.y = 0.38; drops.push({ obj: P.obj, t: 0 }); }
+    }
   }
   // the places on the robot where the picked part would go, glowing
   function showSockets(id) {
@@ -186,7 +190,7 @@ export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, gui
     h += `<p class="wk-note">${esc(T(FAMILY_WORDS[fam]))}</p><div class="rl-gchips">`;
     const ids = Object.keys(ALL).filter((id) => inFam(id, fam));
     const shown = ids.filter(open), hidden = ids.length - shown.length;
-    for (const id of shown) h += `<button type="button" class="rl-gchip${isOn(id) ? ' on' : ''}${picked === id ? ' pick' : ''}" data-wpart="${id}">${esc(T(ALL[id]))}</button>`;
+    for (const id of shown) h += `<button type="button" class="rl-gchip wk-tile${isOn(id) ? ' on' : ''}${picked === id ? ' pick' : ''}" data-wpart="${id}">${pic(id)}<span>${esc(T(ALL[id]))}</span></button>`;
     h += `</div>`;
     if (hidden) h += `<p class="wk-more">${icon('lock')} ${esc(w(`עוד ${hidden} חלקים ייפתחו בהמשך`, `עוֹד ${hidden} חֲלָקִים יִפָּתְחוּ בְּהֶמְשֵׁךְ`))}</p>`;
     return h;
@@ -202,7 +206,7 @@ export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, gui
     if (!picked || tab !== 'parts') { c.hidden = true; return; }
     const p = ALL[picked], words = PART_WORDS[picked] || {}, f = fitOf(picked, ZONE_GROUND);
     const zones = (list) => list.map((z) => `${T(ZONE_GROUND[z.zone])} (${z.ground.map((g) => T(GROUND_WORDS[g])).join(', ')})`).join(w('; ', '; '));
-    let h = `<button type="button" class="wk-x" data-wcard="close" aria-label="${esc(w('לסגור', 'לִסְגֹּר'))}">${icon('back')}</button><h3>${esc(T(p))}</h3>`;
+    let h = `<button type="button" class="wk-x" data-wcard="close" aria-label="${esc(w('לסגור', 'לִסְגֹּר'))}">${icon('back')}</button><div class="wk-chead">${pic(picked, 'wk-bigpic')}<h3>${esc(T(p))}</h3></div>`;
     h += `<p><b>${esc(w('מה הוא עושה: ', 'מָה הוּא עוֹשֶׂה: '))}</b>${esc(T(words.what))}</p>`;
     h += `<p><b>${esc(w('שימו לב: ', 'שִׂימוּ לֵב: '))}</b>${esc(T(words.watch))}</p>`;
     if (f.helps.length) h += `<p class="wk-good"><b>${esc(w('עוזר ב', 'עוֹזֵר בְּ'))}</b>${esc(zones(f.helps))}</p>`;
@@ -263,7 +267,7 @@ export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, gui
   function showStep(n) {
     const box = el.querySelector('.wk-steps');
     const ids = Object.keys(ALL).filter((id) => ALL[id].earn === 'wk:' + n && (!kids || ['move', 'tool', 'sensor'].includes(ALL[id].fam)));
-    box.innerHTML = `<div class="wk-stepcard"><h3>${esc(w(`שלב ${n} בסדנה`, `שָׁלָב ${n} בַּסַּדְנָה`))}</h3><p>${esc(T(STEP_WORDS[n]))}</p><ul>${ids.map((id) => `<li><b>${esc(T(ALL[id]))}</b> ${esc(T((PART_WORDS[id] || {}).what))}</li>`).join('')}</ul><button type="button" data-wstepok>${esc(w('יופי, ממשיכים', 'יֹפִי, מַמְשִׁיכִים'))}</button></div>`;
+    box.innerHTML = `<div class="wk-stepcard"><h3>${esc(w(`שלב ${n} בסדנה`, `שָׁלָב ${n} בַּסַּדְנָה`))}</h3><p>${esc(T(STEP_WORDS[n]))}</p><ul>${ids.map((id) => `<li>${pic(id, 'wk-lipic')}<span><b>${esc(T(ALL[id]))}</b> ${esc(T((PART_WORDS[id] || {}).what))}</span></li>`).join('')}</ul><button type="button" data-wstepok>${esc(w('יופי, ממשיכים', 'יֹפִי, מַמְשִׁיכִים'))}</button></div>`;
     box.hidden = false;
   }
 
@@ -301,9 +305,11 @@ export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, gui
   }
   if (!wkState().tests && !myRobots().length) showStep(1); else startTut();
   requestAnimationFrame(() => { size(); raf = requestAnimationFrame(frame); });
+  // the preview's box changes with the panel under it (the stat bars, a problem line): the picture follows it
+  let ro = null; try { ro = new ResizeObserver(() => size()); ro.observe(canvas); } catch (e) { }
 
   function close() {
-    if (closed) return; closed = true; cancelAnimationFrame(raf); window.removeEventListener('resize', onResize);
+    if (closed) return; closed = true; cancelAnimationFrame(raf); window.removeEventListener('resize', onResize); if (ro) ro.disconnect();
     if (tut && tut.stop) tut.stop();
     renderer.dispose(); try { renderer.forceContextLoss(); } catch (e) { }
     el.remove();

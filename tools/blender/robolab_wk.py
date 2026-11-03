@@ -26,7 +26,26 @@ def mat(slot):
         except Exception: pass
     if slot == 'dark': b.inputs['Metallic'].default_value = 0.55
     if slot == 'metal': b.inputs['Metallic'].default_value = 1.0
+    if slot not in ('glow', 'glass') and not m.get('grit'): _grit(m, b, slot)
     return m
+
+# round 11 (Avi: "less smooth, a certain roughness"): a fine grain on every surface (cast and painted metal is never a
+# mirror): a small bump from a fine noise and a slow change of roughness; rubber gets a coarser grain. The game does the
+# same in its shader (src/robolab/three/parts3d.js `grit`).
+GRIT = {'rubber': (90, 0.6, 0.14), 'metal': (220, 0.16, 0.12), 'dark': (160, 0.3, 0.14), 'wood': (60, 0.4, 0.12)}
+def _grit(m, b, slot):
+    nt = m.node_tree; scale, bump, rvar = GRIT.get(slot, (180, 0.25, 0.14))
+    tc = nt.nodes.new('ShaderNodeTexCoord')
+    n1 = nt.nodes.new('ShaderNodeTexNoise'); n1.inputs['Scale'].default_value = scale; n1.inputs['Detail'].default_value = 6
+    nt.links.new(tc.outputs['Object'], n1.inputs['Vector'])
+    bp = nt.nodes.new('ShaderNodeBump'); bp.inputs['Strength'].default_value = bump; bp.inputs['Distance'].default_value = 0.002
+    nt.links.new(n1.outputs['Fac'], bp.inputs['Height']); nt.links.new(bp.outputs['Normal'], b.inputs['Normal'])
+    n2 = nt.nodes.new('ShaderNodeTexNoise'); n2.inputs['Scale'].default_value = scale / 9; n2.inputs['Detail'].default_value = 3
+    nt.links.new(tc.outputs['Object'], n2.inputs['Vector'])
+    mr = nt.nodes.new('ShaderNodeMapRange'); r0 = b.inputs['Roughness'].default_value
+    mr.inputs['To Min'].default_value = max(0.05, r0 - rvar); mr.inputs['To Max'].default_value = min(1, r0 + rvar)
+    nt.links.new(n2.outputs['Fac'], mr.inputs['Value']); nt.links.new(mr.outputs['Result'], b.inputs['Roughness'])
+    m['grit'] = 1
 
 WK_SIZE = {'s': (0.62, 0.82, 0.3), 'm': (0.8, 1.02, 0.34), 'l': (1.0, 1.3, 0.38)}
 WK_BOTTOM = 0.2   # the body's underside above the ground, the same for every chassis (wheel brackets reach up to it)
@@ -590,6 +609,81 @@ def part_ballast():
     P = group('part_ballast')
     for k in range(2): hs_block('ba_block%d' % k, 0.36 - k * 0.06, 0.2, 0.06, 'metal' if k == 0 else 'dark', ch=0.012, panels=0.012, parent=P, loc=(0, 0, -0.02 - k * 0.065))
 
+
+# ── the mechanisms inside the body (round 10, for the workshop's icons; they are not drawn on the robot)
+def gear_wheel(name, R, t, teeth, slot, parent, loc, axis='X'):
+    """a spur gear: a toothed rim (rounded teeth), a hub and five round holes (never spokes in a cross)"""
+    def mod(a, j, x, r):
+        if j not in (1, 2): return (0, 0)
+        u = (a / (2 * math.pi) * teeth) % 1.0
+        return (0, R * 0.16 * _smooth((0.3 - abs(u - 0.5)) / 0.035))   # square teeth with a small round
+    o = revolve(name, [(-t / 2, 0.001), (-t / 2, R), (t / 2, R), (t / 2, 0.001)], slot, seg=teeth * 6, mod=mod, parent=parent, loc=loc)
+    if axis == 'Z': o.rotation_euler = (0, math.pi / 2, 0)
+    cyl(name + '_hub', R * 0.28, t * 1.6, 'metal', seg=20, axis=axis, bev=0.004, parent=parent, loc=loc)
+    return o
+
+def part_motor_med():
+    P = group('part_motor_med')
+    hs_block('mm_case', 0.14, 0.2, 0.14, 'dark', ch=0.025, panels=0.014, parent=P, loc=(0, 0, 0.07))
+    for i in range(4): cyl('mm_fin%d' % i, 0.078, 0.012, 'metal', seg=8, axis='Y', parent=P, loc=(0, 0.05 - i * 0.03, 0.07))
+    cyl('mm_shaft', 0.014, 0.08, 'metal', seg=12, axis='Y', parent=P, loc=(0, -0.14, 0.07))
+    hs_block('mm_label', 0.07, 0.06, 0.004, 'accent', ch=0.002, parent=P, loc=(0, 0.04, 0.142))
+    bolts('mm_b', [(k * 0.05, -0.1, 0.07 + m * 0.05) for k in (-1, 1) for m in (-1, 1)], 0.007, P, axis='Y')
+    return P
+
+def part_motor_big():
+    P = group('part_motor_big')
+    hs_block('mb_case', 0.2, 0.28, 0.2, 'dark', ch=0.035, panels=0.018, parent=P, loc=(0, 0, 0.1))
+    for i in range(5): cyl('mb_fin%d' % i, 0.11, 0.014, 'metal', seg=8, axis='Y', parent=P, loc=(0, 0.08 - i * 0.035, 0.1))
+    cyl('mb_shaft', 0.02, 0.1, 'metal', seg=12, axis='Y', parent=P, loc=(0, -0.19, 0.1))
+    hs_block('mb_label', 0.1, 0.08, 0.004, 'body', ch=0.002, parent=P, loc=(0, 0.05, 0.202))
+    sweep('mb_cable', [(0.08, 0.12, 0.04), (0.14, 0.18, 0.02), (0.16, 0.24, 0.0)], 0.01, 'accent', ring=6, parent=P)
+    return P
+
+def part_gear_fast():   # a big gear driving a small one: faster
+    P = group('part_gear_fast')
+    gear_wheel('gf_big', 0.16, 0.035, 20, 'accent', P, (0, 0, 0.18))
+    gear_wheel('gf_small', 0.08, 0.035, 10, 'trim', P, (0, -0.235, 0.18))
+    hs_block('gf_plate', 0.02, 0.5, 0.36, 'dark', ch=0.01, panels=0.014, parent=P, loc=(0.035, -0.1, 0.18))
+    return P
+
+def part_gear_strong():   # a small gear driving a big one: stronger
+    P = group('part_gear_strong')
+    gear_wheel('gs_small', 0.08, 0.035, 10, 'accent', P, (0, 0, 0.18))
+    gear_wheel('gs_big', 0.16, 0.035, 20, 'trim', P, (0, -0.235, 0.18))
+    hs_block('gs_plate', 0.02, 0.5, 0.36, 'dark', ch=0.01, panels=0.014, parent=P, loc=(0.035, -0.1, 0.18))
+    return P
+
+def part_worm():
+    P = group('part_worm')
+    gear_wheel('wo_wheel', 0.13, 0.04, 18, 'trim', P, (0, 0, 0.14))
+    coil('wo_screw', (0, 0, 0), 0.04, 0.3, 6, 0.014, 'metal', P)
+    o = bpy.data.objects['wo_screw']; o.rotation_euler = (math.pi / 2, 0, 0); o.location = (0.0, 0.15, 0.31)
+    cyl('wo_core', 0.03, 0.32, 'dark', seg=16, axis='Y', parent=P, loc=(0, 0.0, 0.31))
+    return P
+
+def part_rack():
+    P = group('part_rack')
+    hs_block('ra_bar', 0.05, 0.6, 0.05, 'metal', ch=0.01, parent=P, loc=(0, 0, 0.03))
+    for i in range(12): hs_block('ra_tooth%d' % i, 0.05, 0.022, 0.025, 'metal', ch=0.005, top=(1, 0.5), parent=P, loc=(0, -0.27 + i * 0.049, 0.065))
+    gear_wheel('ra_pinion', 0.07, 0.04, 10, 'accent', P, (0, 0, 0.15))
+    return P
+
+def part_lever():
+    P = group('part_lever')
+    hs_block('lv_base', 0.12, 0.12, 0.05, 'dark', ch=0.012, parent=P, loc=(0, 0, 0.025))
+    hs_block('lv_post', 0.05, 0.04, 0.12, 'dark', ch=0.01, top=(0.7, 0.7), parent=P, loc=(0, 0, 0.1))
+    _beam('lv_beam', (0, 0.28, 0.12), (0, -0.28, 0.22), 0.04, 0.04, 'accent', P)
+    _joint_hs('lv_pin', (0, 0, 0.17), 0.03, P)
+    return P
+
+def part_spring_launch():
+    P = group('part_spring_launch')
+    hs_block('sl_base', 0.14, 0.1, 0.04, 'dark', ch=0.01, parent=P, loc=(0, 0, 0.02))
+    coil('sl_coil', (0, 0, 0.04), 0.04, 0.2, 7, 0.007, 'accent', P)
+    hs_block('sl_cap', 0.12, 0.12, 0.03, 'trim', ch=0.01, parent=P, loc=(0, 0, 0.26))
+    return P
+
 WK_BASES = {'wk_s': lambda: build_wk('s'), 'wk_m': lambda: build_wk('m'), 'wk_l': lambda: build_wk('l')}
 WK_PARTS = {
     'wh_s': part_wh_s, 'wh_m': part_wh_m, 'wh_l': part_wh_l, 'wh_wide': part_wh_wide, 'omni': part_omni,
@@ -599,6 +693,8 @@ WK_PARTS = {
     'seedbox': part_seedbox, 'cammount': part_cammount, 'gyro': part_gyro, 'light': part_light,
     'color': part_color, 'distance': part_distance, 'touch': part_touch, 'humidity': part_humidity,
     'caster': part_caster, 'ballast': part_ballast,
+    'motor_med': part_motor_med, 'motor_big': part_motor_big, 'gear_fast': part_gear_fast, 'gear_strong': part_gear_strong,
+    'worm': part_worm, 'rack': part_rack, 'lever': part_lever, 'spring_launch': part_spring_launch,
 }
 BASES.update(WK_BASES); PARTS.update(WK_PARTS)
 
@@ -705,3 +801,34 @@ def _review_light():
     try:
         sc.eevee.use_shadows = True; sc.eevee.use_raytracing = True
     except Exception: pass
+
+
+ICON_VIEW = {'gear_fast': (-1.6, -0.5, 0.6), 'gear_strong': (-1.6, -0.5, 0.6), 'worm': (-1.5, -0.8, 0.7), 'rack': (-1.5, -0.6, 0.8), 'lever': (-1.6, -0.6, 0.6)}
+def rl_wk_icon(kind, pid, path, px=256, samples=48):
+    """a workshop icon: one part (kind 'part') or a bare chassis (kind 'base'), on a transparent background, from the
+    front-left and a little above, lit like the review pictures"""
+    shc = _show_coll()
+    for o in list(shc.all_objects): bpy.data.objects.remove(o, do_unlink=True)
+    sc, c = _coll(); c.hide_render = True
+    src = bpy.data.objects[('part_' if kind == 'part' else 'base_') + pid]
+    root = _copy_tree(src, None); root.name = 'show_' + pid
+    for o in [root] + list(root.children_recursive): o.hide_render = False
+    floor = bpy.data.objects.get('rl_floor')
+    if floor: floor.hide_render = True
+    sc.view_layers[0].depsgraph.update()
+    pts = [mw(o) @ Vector(v) for o in [root] + list(root.children_recursive) if o.type == 'MESH' for v in o.bound_box]
+    lo = Vector((min(p.x for p in pts), min(p.y for p in pts), min(p.z for p in pts))); hi = Vector((max(p.x for p in pts), max(p.y for p in pts), max(p.z for p in pts)))
+    ctr = (lo + hi) / 2; size = max((hi - lo).length, 0.12)
+    cam = bpy.data.objects.get('rl_cam')
+    cam.location = ctr + Vector(ICON_VIEW.get(pid, (-1.0, -1.3, 0.8))).normalized() * size * 1.55; cam.data.lens = 50
+    _look_at(cam, ctr); _review_light()
+    sc.camera = cam; sc.render.film_transparent = True
+    sc.render.resolution_x = px; sc.render.resolution_y = px; sc.render.resolution_percentage = 100
+    sc.render.image_settings.file_format = 'PNG'; sc.render.image_settings.color_mode = 'RGBA'
+    try: sc.eevee.taa_render_samples = samples
+    except Exception: pass
+    sc.render.filepath = path
+    bpy.ops.render.render(write_still=True, scene=sc.name)
+    sc.render.film_transparent = False
+    if floor: floor.hide_render = False
+    return path
