@@ -18,7 +18,7 @@ SLOT_ROUGH.setdefault('wood', 0.7)
 # round 7 (Avi: "a real machine, a shine on every facet"): painted metal, gunmetal for the dark parts, shining steel
 SLOT_COL['dark'] = (0.2, 0.22, 0.25)
 SLOT_ROUGH.update({'body': 0.3, 'trim': 0.3, 'accent': 0.28, 'dark': 0.38, 'metal': 0.22})
-_mat0 = mat
+if '_mat0' not in globals(): _mat0 = mat   # the kit's own (running this file twice must not wrap it twice)
 def mat(slot):
     m = _mat0(slot); b = _bsdf(m)
     if slot in ('body', 'trim', 'accent', 'cream'):
@@ -830,5 +830,71 @@ def rl_wk_icon(kind, pid, path, px=256, samples=48):
     sc.render.filepath = path
     bpy.ops.render.render(write_still=True, scene=sc.name)
     sc.render.film_transparent = False
+    if floor: floor.hide_render = False
+    return path
+
+# ── the workshop's front picture (round 10): three built robots on lit platforms in a workshop hall, Kubi beside them
+def rl_wk_hero(path, px=(1600, 720), samples=64, kubi=True):
+    sc, c = _coll()
+    shc = _show_coll()
+    for o in list(shc.all_objects): bpy.data.objects.remove(o, do_unlink=True)
+    c.hide_render = True
+    hc = bpy.data.collections.get('RL_hero')
+    if hc:
+        for o in list(hc.all_objects): bpy.data.objects.remove(o, do_unlink=True)
+    else:
+        hc = bpy.data.collections.new('RL_hero'); sc.collection.children.link(hc)
+    def put(o):
+        for coll in list(o.users_collection): coll.objects.unlink(o)
+        hc.objects.link(o); o.hide_render = False; return o
+    floor = bpy.data.objects.get('rl_floor')
+    if floor: floor.hide_render = True
+    # the hall: a dark floor with panel lines, a back wall of panels with a long window band, side shelves
+    put(hs_block('h_floor', 14, 9, 0.1, 'dark', ch=0.0, loc=(0, 1.5, -0.05)))
+    for i in range(-6, 7): put(hs_block('h_fl_%d' % i, 0.012, 9, 0.004, 'metal', ch=0.0, loc=(i * 1.0, 1.5, 0.002)))
+    put(hs_block('h_wall', 14, 0.2, 4.4, 'dark', ch=0.02, loc=(0, 3.6, 2.2)))
+    for i in range(-7, 8):   # wall panels between pillars, a stripe and a window band of light
+        put(hs_block('h_pan_%d' % i, 0.9, 0.06, 2.6, 'trim' if i % 2 else 'cream', ch=0.02, panels=0.05, pdepth=0.015, loc=(i * 1.0, 3.48, 1.4)))
+        put(hs_block('h_pil_%d' % i, 0.1, 0.12, 4.0, 'metal', ch=0.02, loc=(i * 1.0 + 0.5, 3.44, 2.0)))
+    put(hs_block('h_band', 13, 0.05, 0.36, 'glow', ch=0.01, loc=(0, 3.42, 2.95)))
+    put(hs_block('h_stripe', 13, 0.05, 0.08, 'accent', ch=0.01, loc=(0, 3.42, 0.25)))
+    for k in (-1, 1):
+        put(hs_block('h_shelf_%d' % k, 1.6, 0.5, 0.06, 'trim', ch=0.01, loc=(k * 4.4, 3.2, 1.2)))
+        put(hs_block('h_shelf2_%d' % k, 1.6, 0.5, 0.06, 'trim', ch=0.01, loc=(k * 4.4, 3.2, 1.9)))
+        for j in range(3): put(hs_block('h_box_%d_%d' % (k, j), 0.4, 0.35, 0.3, ('body', 'accent', 'trim')[j], ch=0.02, panels=0.02, loc=(k * 4.4 + (j - 1) * 0.5, 3.2, 1.38)))
+        for j in range(4): put(cyl('h_can_%d_%d' % (k, j), 0.1, 0.25, 'metal', seg=16, bev=0.01, loc=(k * 4.4 + (j - 1.5) * 0.35, 3.2, 2.06)))
+    # three platforms with a glowing ring
+    spots = [(-2.3, 0.7, 'wk_l', 0.55), (0.0, 0.0, 'wk_m', -0.45), (2.3, 0.7, 'wk_m', -0.95)]
+    looks = [WK_LOOKS[2][1], WK_LOOKS[0][1] | {'wfl': 'wh_m', 'wfr': 'wh_m', 'wbl': 'wh_m', 'wbr': 'wh_m'}, WK_LOOKS[1][1]]
+    for i, (x, y, base, yaw) in enumerate(spots):
+        put(cyl('h_plat_%d' % i, 0.95, 0.1, 'dark', seg=48, bev=0.02, loc=(x, y, 0.05)))
+        put(torus('h_ring_%d' % i, 0.92, 0.018, 'glow', seg=64, rseg=8, loc=(x, y, 0.1)))
+        r = rl_assemble(base, looks[i], (x, y, 0.1)); r.rotation_euler = (0, 0, yaw)
+        for o in [r] + list(r.children_recursive): o.hide_render = False
+    if kubi and bpy.data.objects.get('J:kubi'):
+        k = _copy_tree(bpy.data.objects['J:kubi'], None); k.location = (-1.15, -1.25, 0); k.rotation_euler = (0, 0, 0.3); k.scale = (0.8, 0.8, 0.8)
+        for o in [k] + list(k.children_recursive):
+            o.hide_render = False
+            if o.name.startswith('J:shoulder_r'): o.rotation_euler = (0, -2.4, 0)
+            if o.name.startswith('J:elbow_r'): o.rotation_euler = (0, -0.5, 0)
+            if o.name.startswith('S:face'):   # his face as the game draws it: two happy eyes and a smile, in light
+                for kx in (-1, 1):
+                    e = put(capsule('h_eye_%d' % kx, (kx * 0.08, -0.004, 0.02), (kx * 0.08, -0.004, 0.06), 0.028, 'glow', seg=16)); e.parent = o
+                m = put(sweep('h_smile', [(math.cos(a) * 0.08, -0.004, -0.05 + math.sin(a) * 0.04) for a in [math.pi + 0.5 + t * (math.pi - 1.0) / 8 for t in range(9)]], 0.012, 'glow', ring=8)); m.parent = o
+    cam = bpy.data.objects.get('rl_cam')
+    cam.location = (0.2, -6.3, 1.75); cam.data.lens = 33; _look_at(cam, (0, 0.8, 0.62))
+    _review_light()
+    for n, e in (('rl_key', 900), ('rl_fill', 300), ('rl_rim', 700)):
+        o = bpy.data.objects.get(n); o.data.energy = e
+    bpy.data.objects['rl_key'].location = (-3.5, -4.0, 4.5); _look_at(bpy.data.objects['rl_key'], (0, 0.5, 0.4))
+    bpy.data.objects['rl_rim'].location = (1.5, 3.0, 3.5); _look_at(bpy.data.objects['rl_rim'], (0, 0.5, 0.4))
+    sc.camera = cam; sc.render.film_transparent = False
+    sc.render.resolution_x, sc.render.resolution_y = px; sc.render.resolution_percentage = 100
+    try: sc.eevee.taa_render_samples = samples
+    except Exception: pass
+    sc.render.image_settings.file_format = 'PNG'
+    sc.render.filepath = path
+    bpy.ops.render.render(write_still=True, scene=sc.name)
+    for o in list(hc.all_objects): o.hide_render = True
     if floor: floor.hide_render = False
     return path

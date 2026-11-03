@@ -299,3 +299,13 @@
 #ui.wol .wk-stepcard ul { flex: 1; min-height: 0; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 2px 12px; list-style: none; padding: 0 !important; }
 #ui.wol .wk-stepcard > button { align-self: flex-start; flex: none; }
 #ui.wol .wk-stepcard h3 { margin: 0 0 6px; } #ui.wol .wk-stepcard ul { margin: 6px 0 10px; padding-inline-start: 1.1em; font-size: .9em; } #ui.wol .wk-stepcard li { margin: 3px 0; }
+
+/* the robot workshop's door on the lab's home (1.4.3): its rendered front picture with the name over it */
+#ui.wol .rl-wkhero { position: relative; display: block; width: 100%; margin: 0 0 12px; padding: 0; border: 0; border-radius: 16px; overflow: hidden; cursor: pointer; aspect-ratio: 1600 / 560; background: #1d3b5e; box-shadow: 0 6px 18px rgba(0, 0, 0, .35); }
+#ui.wol .rl-wkhero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 62%; transition: transform .5s; }
+#ui.wol .rl-wkhero:hover img { transform: scale(1.03); }
+#ui.wol .rl-wkhero .rl-wkt { position: absolute; inset-inline-start: 0; bottom: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 10px 16px 12px; border-start-end-radius: 16px; background: linear-gradient(90deg, rgba(10, 24, 40, .82), rgba(10, 24, 40, .55)); color: #fff; text-align: start; }
+#ui.wol .rl-wkhero b { display: inline-flex; align-items: center; gap: 6px; font-size: 1.25em; }
+#ui.wol .rl-wkhero b svg { width: 1em; height: 1em; }
+#ui.wol .rl-wkhero small { font-size: .85em; opacity: .9; }
+#ui.wol .rl-wkhero.locked { cursor: default; aspect-ratio: 1600 / 380; margin-top: 8px; } #ui.wol .rl-wkhero.locked img { filter: grayscale(.7) brightness(.7); }

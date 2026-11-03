@@ -25,6 +25,7 @@ import { icon } from './ui/icons.js';
 import { isOpen as journeyOpen, lockWords, introSeen } from '../core/journey.js';
 import { roboProgress, markSolved, addFun, markSeen, addIsland, dropDrafts } from './progress.js';
 import { grantTechCards } from './tech.js';
+import { WK_HERO } from '../data/robolab/wk-hero.js';
 import { FAIL_LINES, GOAL_LINES, WIN_LINES, OOPS_LINES, FUN_LINES } from '../data/robolab/lines.js';
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -75,10 +76,10 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
       <header class="rl-top"><button type="button" class="rl-back" data-exit>${icon('home')}<span>${kids ? 'יְצִיאָה' : 'יציאה'}</span></button>
         <div class="rl-title"><h1>${kids ? 'מַעְבֶּדֶת הָרוֹבּוֹטִים' : 'מעבדת הרובוטים'}</h1><p>${kids ? 'מְתַכְנְנִים, בּוֹנִים וּמַפְעִילִים' : 'מתכננים, בונים ומפעילים'}</p></div>
         <button type="button" class="rl-gbtn" data-garage>${icon('paint')}<span>${kids ? 'סַדְנַת הָעִצּוּב' : 'סדנת העיצוב'}</span></button>
-        ${journeyOpen('robolab:workshop') ? `<button type="button" class="rl-gbtn rl-wkbtn" data-workshop>${icon('robot')}<span>${kids ? 'סַדְנַת הָרוֹבּוֹט' : 'סדנת הרובוט'}</span></button>` : `<button type="button" class="rl-gbtn rl-wkbtn locked" disabled title="${esc(lockWords('robolab:workshop'))}">${icon('lock')}<span>${kids ? 'סַדְנַת הָרוֹבּוֹט' : 'סדנת הרובוט'}</span></button>`}
         <div class="rl-count">${icon('star')}<b>${nDone}</b><small>${kids ? 'פְּתוּרִים' : 'פתורים'}</small></div></header>
       <div class="rl-scroll">
         <div class="rl-hello"><canvas class="rl-hkubi" aria-hidden="true"></canvas><button type="button" class="rl-introb" data-intro>${icon('play')}<span>${kids ? 'סִרְטוֹן הַפְּתִיחָה' : 'סרטון הפתיחה'}</span></button><p>${nDone ? (kids ? 'שׁוּב שָׁלוֹם! מַמְשִׁיכִים מֵאֵיפֹה שֶׁעָצַרְנוּ? בְּסַדְנַת הָעִצּוּב אֶפְשָׁר לְעַצֵּב אֶת הַכֵּלִים.' : 'שוב שלום! ממשיכים מאיפה שעצרנו? בסדנת העיצוב אפשר לעצב את הכלים שלכם.') : (kids ? 'שָׁלוֹם! אֲנִי קוּבִּי. כָּאן לוֹמְדִים לְתַכְנֵת רוֹבּוֹטִים, רַחְפָנִים וְצוֹלְלָנִים, שֶׁעוֹזְרִים לַטֶּבַע.' : 'שלום! אני קוּבִּי. כאן לומדים לתכנת רובוטים, רחפנים וצוללנים שעוזרים לטבע. מתחילים בשיעור הראשון.')}</p></div>
+        ${journeyOpen('robolab:workshop') ? wkHero() : ''}
         <section class="rl-sec"><h2>${icon('lesson')}${kids ? 'שִׁעוּרִים' : 'שיעורים'}</h2>
           ${CHAPTERS.map((C) => { const ls = LESSONS.filter((q) => q.ch === C.n); if (!ls.length) return '';
             return `<div class="rl-ch" style="--cc:${C.color}"><div class="rl-chh"><b>${C.n}</b><span><strong>${esc(T(C.title))}</strong><small>${esc(T(C.idea))}</small>${C.n > 1 && !journeyOpen('robolab:more') ? `<em class="rl-lock">${esc(lockWords('robolab:more'))}</em>` : ''}</span></div>
@@ -88,6 +89,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
         ${islandsHTML(P)}
         ${PUZZLES.length ? `<section class="rl-sec"><h2>${icon('puzzle')}${kids ? 'חִידוֹת' : 'חידות'}</h2><div class="rl-pz">${PUZZLES.map((L) => { const ok = levelOpen(L, P), d = P.done[L.id];
           return `<button type="button" class="rl-pzb${d ? ' done' : ''}" data-level="${L.id}" ${ok ? '' : 'disabled'}><span class="rl-z z-${L.zone}"></span><b>${esc(T(L.title))}</b>${ok ? '' : `<small>${kids ? 'נִפְתָּח אַחֲרֵי שִׁעוּר ' : 'נפתח אחרי שיעור '}${L.after.replace('l', '').replace('-', '.')}</small>`}<span class="rl-st">${stars(d ? d.stars : 0)}</span></button>`; }).join('')}</div></section>` : ''}
+        ${journeyOpen('robolab:workshop') ? '' : wkHero()}
       </div></div>`;
     if (!P.seen.intro) showIntro();   // the opening film, once, on the first visit
   }
@@ -337,6 +339,14 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     workshop = openWorkshop(el, { kids, sfx, guide: svcGuide(), onClose: () => { workshop = null; } });
     grantTechCards();
     return workshop;
+  }
+  // the robot workshop's front picture (rendered in Blender: Kubi and three built robots), a door on the home (1.4.3):
+  // above the lessons once it is open; while it is still locked, small, at the end of the home (the lessons come first)
+  function wkHero() {
+    const open_ = journeyOpen('robolab:workshop');
+    return `<button type="button" class="rl-wkhero rl-wkbtn${open_ ? '' : ' locked'}" ${open_ ? 'data-workshop' : `disabled title="${esc(lockWords('robolab:workshop'))}"`}>
+      <img src="${WK_HERO}" alt="" draggable="false"><span class="rl-wkt"><b>${open_ ? '' : icon('lock')}${kids ? 'סַדְנַת הָרוֹבּוֹט' : 'סדנת הרובוט'}</b>
+      <small>${esc(open_ ? (kids ? 'בּוֹנִים רוֹבּוֹט מֵחֲלָקִים, וּמְנַסִּים אוֹתוֹ בַּמַּסְלוּל' : 'בונים רובוט מחלקים, ומנסים אותו במסלול') : lockWords('robolab:workshop'))}</small></span></button>`;
   }
   function openLab() { open = true; el.hidden = false; dropDrafts(); markSeen('home'); home(); grantTechCards(); }
   // the technology cards follow every step forward in the lab (a lesson, a mission, the workshop)
