@@ -48,10 +48,13 @@ export function practiceView(zone, species) {
 }
 
 // ── the field: a rectangle of cells over the island that holds the chosen things, read cell by cell
-function layField(view, want, step, { pad = 1, maxW = 9, maxH = 7 } = {}) {
+// Avi (4.11): the fields need not always be small and closed; when a mission cannot fit his things in the usual size
+// it is tried once more on a wider field (WIDE, makeMission), and the sandbox always has a wide one (minW / minH)
+let WIDE = false;
+function layField(view, want, step, { pad = 1, maxW = WIDE ? 13 : 9, maxH = WIDE ? 10 : 7, minW = 0, minH = 0 } = {}) {
   const xs = want.map((p) => p.x), zs = want.map((p) => p.z);
   const x0 = Math.min(...xs), x1 = Math.max(...xs), z0 = Math.min(...zs), z1 = Math.max(...zs);
-  const cols = Math.round((x1 - x0) / CS) + 1 + pad * 2, rows = Math.round((z1 - z0) / CS) + 1 + pad * 2;
+  const cols = Math.max(minW, Math.round((x1 - x0) / CS) + 1 + pad * 2), rows = Math.max(minH, Math.round((z1 - z0) / CS) + 1 + pad * 2);
   if (cols > maxW || rows > maxH) return null;
   const OX = (x0 + x1) / 2, OZ = (z0 + z1) / 2;
   const wx = (c) => OX + (c - (cols - 1) / 2) * CS, wz = (r) => OZ + (r - (rows - 1) / 2) * CS;
@@ -299,10 +302,10 @@ export function makeSandbox(view, { zone, species, step = 1, seed = 1 } = {}) {
   let s = (seed % 2147483646) + 1; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
   const by = new Map(species.map((q) => [q.id, q]));
   const big = view.plants.filter((p) => p.tree && p.g > 0.3), pts = big.length ? big : view.plants;
-  const size = { pad: 2, maxW: 11, maxH: 8 };
+  const size = { pad: 2, maxW: 14, maxH: 10, minW: 11, minH: 8 };   // always a wide field (Avi, 4.11)
   let C = null;
   for (const first of shuffled(pts, rnd).slice(0, 12)) { const c = cluster(view, first, pts, step, 7, size); if (c && (!C || c.take.length > C.take.length)) C = c; }
-  const F = C ? C.F : layField(view, [{ x: 0, z: 0 }], step, { pad: 4, maxW: 11, maxH: 8 });   // a bare island: an open field in its middle
+  const F = C ? C.F : layField(view, [{ x: 0, z: 0 }], step, { pad: 4, maxW: 14, maxH: 10, minW: 11, minH: 8 });   // a bare island: an open field in its middle
   if (!F) return null;
   const items = [], taken = (q) => items.some((it) => it.x === q.x && it.y === q.y);
   const add = (it) => { if (!taken(it) && OPEN.includes(F.ch(it.x, it.y))) items.push(it); };
@@ -362,7 +365,9 @@ export function makeMission(view, { zone, species, step = 1, seed = 1, tpl, shap
   const Tm = TEMPLATES[tpl]; if (!Tm || step < Tm.step || !view) return null;
   let s = (seed % 2147483646) + 1; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
   const by = new Map(species.map((q) => [q.id, q]));
-  const m = Tm.make({ view, sp: species, by, rnd, step }); if (!m) return null;
+  let m = Tm.make({ view, sp: species, by, rnd, step });
+  if (!m) { WIDE = true; try { m = Tm.make({ view, sp: species, by, rnd, step }); } finally { WIDE = false; } }   // a wider field, once
+  if (!m) return null;
   const home = startCell(m.F, m.items); if (!home) return null;
   const M = {
     id: id || `wi-${zone}-${tpl}-${m.subject || ''}`, mission: true, island: !view.practice, zone, tpl, shape, step: Tm.step, concept: 'mission',
