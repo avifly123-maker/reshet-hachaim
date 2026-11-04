@@ -50,12 +50,14 @@ function grit(mat, g) {
   };
   mat.customProgramCacheKey = () => 'grit:' + g.join(',');
 }
-export function mats(paint) {
+// opts.grit: false leaves the grain out (1.4.4 set 0: the workshop on a weak computer; the grain is a few noise lookups
+// for every pixel of every part)
+export function mats(paint, opts = {}) {
   const M = {};
   for (const [k, L] of Object.entries(SLOT_LOOK)) {
     const c = (paint && paint[k]) || L.c;
     M[k] = new THREE.MeshStandardMaterial({ color: c, roughness: L.r, metalness: L.m || 0.05, ...(L.e ? { emissive: c, emissiveIntensity: L.e } : {}) });
-    if (k !== 'glass' && k !== 'glow') grit(M[k], GRIT[k] || GRIT_DEF);
+    if (k !== 'glass' && k !== 'glow' && opts.grit !== false) grit(M[k], GRIT[k] || GRIT_DEF);
   }
   return M;
 }
@@ -73,7 +75,10 @@ export const hasBlenderTools = () => !!(RL_PARTS && RL_PARTS.bases && RL_PARTS.b
 export function buildTool(spec = {}) {
   const base = spec.base || 'robot', B = RL_PARTS.bases[base];
   if (!B) return null;
-  const M = mats(spec.paint);
+  // spec.mats: a set of materials to share (the workshop keeps one set for every rebuild, so a new part does not make
+  // the GPU compile its shaders again; 1.4.4 set 0, Avi: "the robot workshop is heavy")
+  const M = spec.mats || mats(spec.paint);
+  if (spec.mats) for (const k of ['body', 'trim', 'accent']) if (M[k]) M[k].color.set((spec.paint && spec.paint[k]) || SLOT_LOOK[k].c);
   const g = new THREE.Group(); g.name = 'rl-' + base;
   g.add(meshGroup('b:' + base, B.slots, M));
   const rotors = []; let prop = null;
@@ -101,9 +106,11 @@ export function attachPart(g, socket, pid) {
   return obj;
 }
 // one part alone (the design garage's tiles draw each part with the player's colours)
-export function buildPart(pid, paint) {
+// M: a set of materials to share (1.4.4 set 0: the garage draws all its tiles with one set, recoloured for the paint)
+export function buildPart(pid, paint, M = null) {
   const P = RL_PARTS && RL_PARTS.parts && RL_PARTS.parts[pid]; if (!P) return null;
-  const g = meshGroup('p:' + pid, P.slots, mats(paint)); g.name = 'part:' + pid;
+  if (M) for (const k of ['body', 'trim', 'accent']) if (M[k]) M[k].color.set((paint && paint[k]) || SLOT_LOOK[k].c);
+  const g = meshGroup('p:' + pid, P.slots, M || mats(paint)); g.name = 'part:' + pid;
   return g;
 }
 export function paintTool(g, paint) {

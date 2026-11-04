@@ -25,6 +25,10 @@
 "wait": 2.5
 },
 {
+"until": "(() => { const g = window.__rlDebug.gar(); return g && g.tiles >= 4; })()",
+"timeout": 40
+},
+{
 "js": "const g=window.__rlDebug.gar(); 'CHECK tiles-drawn ' + (g && g.tiles >= 4 && [...document.querySelectorAll('.rl-gtile img')].every(i=>i.src.startsWith('data:image/png') && i.src.length>2000) ? 'ok' : 'FAIL '+JSON.stringify(g))"
 },
 {
@@ -61,6 +65,10 @@
 "wait": 0.8
 },
 {
+"until": "(() => { const g = window.__rlDebug.gar(); return g && g.tiles >= 4; })()",
+"timeout": 40
+},
+{
 "js": "const g=window.__rlDebug.gar(); 'CHECK paint-and-tiles-repainted ' + (g.paint.body==='#1a9e99' && g.tiles>=4 && g.tut==='end' ? 'ok' : 'FAIL '+JSON.stringify(g))"
 },
 {
@@ -79,7 +87,13 @@
 "js": "document.querySelector('.rl-garage [data-greset]').click(); const g=window.__rlDebug.gar(); 'CHECK reset ' + (Object.keys(g.parts).length===0 && Object.keys(g.paint).length===0 ? 'ok' : 'FAIL '+JSON.stringify(g))"
 },
 {
-"js": "document.querySelector('.rl-garage [data-gtool=drone]').click(); const g=window.__rlDebug.gar(); 'CHECK drone-tiles ' + (g.tool==='drone' && g.tiles>=3 ? 'ok' : 'FAIL '+JSON.stringify(g))"
+"js": "document.querySelector('.rl-garage [data-gtool=drone]').click(); 1"
+},
+{
+"wait": 2.5
+},
+{
+"js": "const g=window.__rlDebug.gar(); 'CHECK drone-tiles ' + (g.tool==='drone' && g.tiles>=3 ? 'ok' : 'FAIL '+JSON.stringify(g))"
 },
 {
 "js": "document.querySelector(\".rl-garage .rl-sw[data-gslot=body][style*='#ffc72e']\").click(); 1"

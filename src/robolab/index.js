@@ -516,7 +516,10 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     markSeen('workshop');
     const st = wkNewStep, note = wkNote; wkNewStep = 0; wkNote = null;
     const islands = enter3d && hasIsland ? ZONE_IDS.filter((z) => { try { return hasIsland(z); } catch (e) { return false; } }) : [];
-    workshop = openWorkshop(el, { kids, sfx, guide: svcGuide(), voice: kvoice, newStep: st, tab, note, islands, onMission: (id, robot, island) => openMission(id, robot, island), onClose: () => { workshop = null; } });
+    // 1.4.4 set 0: the home under the workshop is put away while it is open (קוּבִּי's window on it stops drawing)
+    el.classList.add('wk-open');
+    workshop = openWorkshop(el, { kids, sfx, guide: svcGuide(), voice: kvoice, newStep: st, tab, note, islands, onMission: (id, robot, island) => openMission(id, robot, island), onClose: () => { workshop = null; el.classList.remove('wk-open'); } });
+    const wclose = workshop.close; workshop.close = () => { el.classList.remove('wk-open'); return wclose(); };
     grantTechCards();
     return workshop;
   }

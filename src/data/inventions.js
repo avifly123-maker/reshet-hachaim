@@ -553,6 +553,14 @@ export const MISSIONS = [
   { id: 'nest', title: 'לבדוק קן בצמרת', ask: 'רוצים לדעת אם יש ביצים בקן גבוה, בלי להבהיל את הציפורים.', tests: ['branch', 'quiet', 'glide'], art: 'grove:jay' },
   { id: 'snow', title: 'משלוח להר המושלג', ask: 'בחורף, תחנת המחקר בהר מכוסה שלג. צריך להביא לשם ציוד, במעלה סלע תלול.', tests: ['cold', 'carry', 'wall'], art: 'grove:hyrax' },
   { id: 'deep', title: 'מערה מתחת למים', ask: 'בשונית יש מערה חשוכה עם כניסה צרה. מה יש בפנים?', tests: ['swim', 'dark', 'gap'], art: 'reef:moray' },
+  // 1.4.4 set 0 (Avi: "more, different missions"): seven more, from every place, each with three tests of its own
+  { id: 'dune', title: 'קינים בדיונות', ask: 'בדיונות של המדבר יש מחילות של ירבועים. צריך רובוט שהולך בחול, עומד בחום ולא מעיר אף אחד.', tests: ['sand', 'heat', 'quiet'], art: 'desert:jerboa' },
+  { id: 'herd', title: 'לספור את העדר', ask: 'בסוואנה רוצים לספור את הזברות מלמעלה, בשמש החזקה, בלי להבהיל אותן.', tests: ['glide', 'heat', 'quiet'], art: 'savanna:zebra' },
+  { id: 'canopy', title: 'זרעים לצמרת', ask: 'ביער הגשם רוצים לשתול זרעים גבוה על הענפים. צריך רובוט שנאחז בענף, נושא משא ומטפס.', tests: ['branch', 'carry', 'wall'], art: 'amazon:sloth' },
+  { id: 'turtles', title: 'ללוות צבים לים', ask: 'גורי צבים בוקעים בלילה על החוף. צריך רובוט שהולך בחול, רואה בחושך ושוחה איתם.', tests: ['sand', 'dark', 'swim'], art: 'reef:turtle' },
+  { id: 'flood', title: 'אחרי השיטפון', ask: 'שיטפון עבר בוואדי וסחף ציוד למעלה המצוק. צריך רובוט ששוחה, נושא משא ומטפס על סלע.', tests: ['swim', 'carry', 'wall'], art: 'desert:ibex' },
+  { id: 'waterhole', title: 'לנקות את בור המים', ask: 'בעונה היבשה בור המים בסוואנה מתמלא בוץ ועלים. צריך רובוט ששוחה, מנקה ועומד בחום.', tests: ['swim', 'clean', 'heat'], art: 'savanna:elephant' },
+  { id: 'night', title: 'משמרת לילה במדבר', ask: 'בלילה במדבר קר וחשוך. רוצים לראות את שועלי הפנק בלי להבהיל אותם. צריך רובוט שעומד בקור, רואה בחושך ושקט.', tests: ['cold', 'dark', 'quiet'], art: 'desert:fennec' },
   { id: 'all', title: 'המבחן הגדול', ask: 'כל שתים עשרה הבדיקות. אין רובוט שמצליח בכולן. בכמה תצליחו?', tests: TRIALS.map((t) => t.id), art: 'reef:octopus', free: true },
 ];
 

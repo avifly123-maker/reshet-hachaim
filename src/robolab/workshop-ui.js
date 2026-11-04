@@ -14,7 +14,7 @@ import { PART_WORDS, FAMILY_WORDS, STEP_WORDS, PROBLEM_WORDS, STAT_WORDS, ZONE_G
 import { FAIL_LINES } from '../data/robolab/lines.js';
 import { checkBuild, statsOf, fitOf } from './engine/build.js';
 import { runProgram } from './engine/run.js';
-import { buildTool, hasBlenderTools } from './three/parts3d.js';
+import { buildTool, hasBlenderTools, mats } from './three/parts3d.js';
 import { makeTool } from './three/models.js';
 import { wkLook, socketsOf } from '../data/robolab/workshop-look.js';
 import { WK_ICONS } from '../data/robolab/wk-icons.js';
@@ -68,8 +68,14 @@ export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, gui
   // ── the preview: the build in its Blender chassis and parts, on a turntable, lit like a workshop (a soft room
   //    reflected in the paint and the steel, a warm key, a cool rim), framed to its own size
   const canvas = el.querySelector('canvas');
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+  // 1.4.4 set 0 (Avi: "the robot workshop is really heavy: turning, placing parts, building"): the preview follows the
+  // game's quality (a weak computer gets fewer pixels, no smoothing of edges and no grain), keeps one set of materials
+  // for every rebuild (a new part no longer makes the GPU compile its shaders again), draws only while something moves
+  // (the turntable, a drag, a part dropping in) at most 30 times a second, and nothing while it is hidden
+  const Q = (() => { try { return (window.__app && window.__app.quality) || 'medium'; } catch (e) { return 'medium'; } })();
+  const weak = Q === 'min' || Q === 'low';
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: !weak, alpha: true, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(Math.min(weak ? 1 : Q === 'medium' ? 1.25 : 1.75, window.devicePixelRatio || 1));
   renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping;
   const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(32, 1, 0.1, 50);
   try { const pm = new THREE.PMREMGenerator(renderer); scene.environment = pm.fromScene(new RoomEnvironment(), 0.04).texture; scene.environmentIntensity = 0.35; pm.dispose(); } catch (e) { }
@@ -79,17 +85,19 @@ export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, gui
   const floor = new THREE.Mesh(new THREE.CylinderGeometry(1.15, 1.22, 0.08, 64), new THREE.MeshStandardMaterial({ color: '#e9e2d2', roughness: 0.8 }));
   floor.position.y = -0.04; scene.add(floor);
   const turn = new THREE.Group(); scene.add(turn);
-  let model = null, yaw = -0.6, drag = null, raf = 0, last = performance.now(), closed = false;
+  let model = null, yaw = -0.6, drag = null, raf = 0, last = performance.now(), closed = false, dirty = 2, lastDraw = 0;
+  const MATS = mats({}, { grit: !weak });
   // the garage's feel (Avi, 3.11): a new part drops onto its place with a click, the places a picked part can go glow
   let shownLook = null, drops = [], marks = [], markT = 0;
   const glowMat = new THREE.MeshBasicMaterial({ color: '#7fe3ff', transparent: true, opacity: 0.85, depthTest: false });
   const glowGeo = new THREE.SphereGeometry(0.035, 16, 10);
   function rebuild() {
     // the old model's materials go (they are made with the robot's paint; shared geometry stays with parts3d.js)
-    if (model) { turn.remove(model); model.traverse((m) => { const ms = Array.isArray(m.material) ? m.material : m.material ? [m.material] : []; for (const x of ms) x.dispose(); }); }
+    if (model) turn.remove(model);   // the materials are shared (MATS) and stay; the geometry is shared by parts3d.js
     // the build as it is: its chassis, wheels and the parts that have a picture (src/data/robolab/workshop-look.js)
     const L = wkLook(cur.build), before = shownLook && shownLook.base === L.base ? shownLook.parts : null;
-    model = hasBlenderTools() ? (buildTool(L) || buildTool({ base: 'robot' })) : makeTool('robot');
+    model = hasBlenderTools() ? (buildTool({ ...L, mats: MATS }) || buildTool({ base: 'robot', mats: MATS })) : makeTool('robot');
+    dirty = 2;
     if (model) turn.add(model);
     shownLook = L; marks = []; showSockets(picked);
     // frame the robot: a three-quarter view from the front, as far as its size needs
@@ -116,7 +124,9 @@ export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, gui
   function size() { const r = canvas.getBoundingClientRect(); const ww = Math.max(100, r.width), hh = Math.max(80, r.height); renderer.setSize(ww, hh, false); cam.aspect = ww / hh; cam.updateProjectionMatrix(); }
   function frame(now) {
     if (closed) return; raf = requestAnimationFrame(frame);
-    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (canvas.offsetParent === null || document.hidden) { last = now; return; }   // hidden: nothing to draw
+    if (!dirty && !drag && !drops.some((D) => D.t < 1) && !marks.length && now - lastDraw < 33) return;   // 30 a second is enough for a turntable
+    const dt = Math.min(0.05, (now - last) / 1000); last = now; lastDraw = now; if (dirty) dirty--;
     if (!drag) yaw += dt * 0.35; turn.rotation.y = yaw;
     for (const D of drops) {   // a part dropping in: down with a little bounce, a click when it lands
       if (D.t >= 1) continue;
@@ -371,6 +381,8 @@ export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, gui
   function close() {
     if (closed) return; closed = true; cancelAnimationFrame(raf); window.removeEventListener('resize', onResize); if (ro) ro.disconnect();
     if (tut && tut.stop) tut.stop();
+    for (const m of Object.values(MATS)) m.dispose(); glowMat.dispose(); glowGeo.dispose(); floor.geometry.dispose(); floor.material.dispose();
+    if (scene.environment) scene.environment.dispose();
     renderer.dispose(); try { renderer.forceContextLoss(); } catch (e) { }
     el.remove();
   }

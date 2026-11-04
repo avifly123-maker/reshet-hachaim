@@ -400,3 +400,5 @@ body:has(#rguide .rg-wrap.kubi) .rl-say .rl-kubi { visibility: hidden; }
   #ui.wol .rl-colh { font-size: 1.05em; padding: 6px 10px; }
 }
 @media (max-height: 520px) { #ui.wol .rl-home .rl-hello { padding: 2px 10px; margin-bottom: 6px; } #ui.wol .rl-home .rl-hello p { font-size: .85em; } }
+/* 1.4.4 set 0: while the robot workshop is open the home under it is put away (its קוּבִּי stops drawing) */
+#ui.wol .rl.wk-open > .rl-home { display: none; }

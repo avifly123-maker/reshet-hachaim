@@ -23,7 +23,7 @@ import { ZONE_IDS, ZONE_LOOK } from '../../data/zones.js';
 //    and what was missing.
 // Prizes are badges (ctx.badge): inv:first, inv:five, inv:ten, inv:many (25), inv:all, inv:stubborn (10 failed
 // tries), inv:wild, inv:pair (the first combination of two traits), inv:theme:<theme> (every problem on a shelf),
-// inv:creative (a creative route), inv:creative5, inv:robot (a mission passed), inv:robotall (all six missions),
+// inv:creative (a creative route), inv:creative5, inv:robot (a mission passed), inv:robotall (all the missions; 13 since 1.4.4),
 // inv:lean (a mission with full marks and only two traits), inv:allround (7 of the 12 tests in the big test).
 // The shark-skin problem also gives the lab's invention (the faster reef survey robot) and, in the torah
 // edition, the source card "שאל נא בהמות ותורך".

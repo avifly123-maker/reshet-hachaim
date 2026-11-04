@@ -10,6 +10,7 @@
 //              key: shown once per player (core/journey.js markIntro / introSeen); force: show again anyway
 //              modal: dim the screen behind (a new part being presented); actions: buttons on the last bubble
 //   guide.intro(part, opts)       the lines of src/data/guide-lines.js GUIDE[part], once per player
+//   opts.speaker: 'nitzotz' (1.4.4) ניצוץ, the inventors' workshop's guide: his portrait, his live face, written only.
 //   opts.speaker: 'kubi' (1.4.3)   קוּבִּי says these lines (the robot lab's own teacher): his portrait with his live
 //                                 face (src/ui/kubi-face.js), his name, and opts.voice (his voice) if given. Both
 //                                 speak through this one queue, so רובו־דע and קוּבִּי never speak together.
@@ -21,6 +22,7 @@
 import { drawRoboFace, ROBO_SVG, VISOR } from './robo-face.js';
 import { introSeen, markIntro, playMode, guideQuiet, setGuideQuiet } from '../core/journey.js';
 import { drawKubiFace } from './kubi-face.js';
+import { drawNitzotzFace } from './nitzotz-face.js';
 import { GUIDE } from '../data/guide-lines.js';
 import { setService } from '../core/services.js';
 
@@ -71,6 +73,11 @@ const CSS = `
 #ui #rguide .rg-fig.kubi .rg-fr.on { opacity: 1; }
 #ui #rguide .rg-fig.kubi .rg-kface { position: absolute; }
 #ui #rguide .rg-wrap.kubi .rg-name { color: #e8873a; }
+#ui #rguide .rg-fig.nitz { width: clamp(84px, 11vw, 124px); height: auto; position: relative; filter: drop-shadow(0 0 10px rgba(255, 214, 120, .55)); }
+#ui #rguide .rg-fig.nitz .rg-fr { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; }
+#ui #rguide .rg-fig.nitz .rg-fr.on { opacity: 1; }
+#ui #rguide .rg-fig.nitz .rg-kface { position: absolute; }
+#ui #rguide .rg-wrap.nitz .rg-name { color: #c88a1a; }
 @keyframes rg-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 @keyframes rg-talk { 0%,100% { rotate: 0deg; } 50% { rotate: -1.5deg; } }
 @keyframes rg-pulse { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
@@ -96,7 +103,12 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
   let kart = null, kartP = null;
   const kubiArt = () => (kartP = kartP || import('../data/kubi-art.js').then((m) => { kart = m.KUBI_ART; if (cur && isKubi(cur)) render(); }, () => { }));
   const isKubi = (c) => !!(c && c.opts.speaker === 'kubi');
-  const voiceOf = (c) => (c && c.opts.voice) || (isKubi(c) ? null : voice);
+  // ניצוץ (1.4.4 set 2): the inventors' workshop's guide; portraits from the game's own model (src/data/nitzotz-art.js),
+  // his live face (src/ui/nitzotz-face.js), and no voice for now (Avi, 4.11: his bubbles are written only)
+  let nart = null, nartP = null;
+  const nitzArt = () => (nartP = nartP || import('../data/nitzotz-art.js').then((m) => { nart = m.NITZOTZ_ART; if (cur && isNitz(cur)) render(); }, () => { }));
+  const isNitz = (c) => !!(c && c.opts.speaker === 'nitzotz');
+  const voiceOf = (c) => (c && c.opts.voice) || (isKubi(c) || isNitz(c) ? null : voice);
   const kidsNow = () => playMode() === 'kids';
   const words = (ln) => (kidsNow() && ln.k ? ln.k : ln.f);
 
@@ -106,14 +118,16 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
     el.className = (c.opts.modal ? 'modal ' : '') + (c.opts.place === 'center' ? 'center ' : '') + (c.opts.tip ? 'tip' : '');
     const acts = lastOne && c.opts.actions && c.opts.actions.length ? c.opts.actions : null;
     const kubi = isKubi(c); if (kubi && !kart) kubiArt();
-    const fig = kubi ? (kart ? `<div class="rg-fig kubi" style="aspect-ratio:${kart.w}/${kart.h}">${Object.entries(kart.frames).map(([k, src]) => `<img class="rg-fr" data-fr="${k}" src="${src}" alt="" draggable="false">`).join('')}<canvas class="rg-kface" width="256" height="184" style="left:${kart.screen.x * 100}%;top:${kart.screen.y * 100}%;width:${kart.screen.w * 100}%;height:${kart.screen.h * 100}%"></canvas></div>` : '<div class="rg-fig kubi"></div>')
+    const nitz = isNitz(c); if (nitz && !nart) nitzArt();
+    const fig = nitz ? (nart ? `<div class="rg-fig nitz" style="aspect-ratio:${nart.w}/${nart.h}">${Object.entries(nart.frames).map(([k, src]) => `<img class="rg-fr" data-fr="${k}" src="${src}" alt="" draggable="false">`).join('')}<canvas class="rg-kface" width="256" height="200" style="left:${nart.screen.x * 100}%;top:${nart.screen.y * 100}%;width:${nart.screen.w * 100}%;height:${nart.screen.h * 100}%"></canvas></div>` : '<div class="rg-fig nitz"></div>')
+      : kubi ? (kart ? `<div class="rg-fig kubi" style="aspect-ratio:${kart.w}/${kart.h}">${Object.entries(kart.frames).map(([k, src]) => `<img class="rg-fr" data-fr="${k}" src="${src}" alt="" draggable="false">`).join('')}<canvas class="rg-kface" width="256" height="184" style="left:${kart.screen.x * 100}%;top:${kart.screen.y * 100}%;width:${kart.screen.w * 100}%;height:${kart.screen.h * 100}%"></canvas></div>` : '<div class="rg-fig kubi"></div>')
       : `<div class="rg-fig${art ? ' art' : ''}">${art ? Object.entries(art.frames).map(([k, src]) => `<img class="rg-fr" data-fr="${k}" src="${src}" alt="" draggable="false">`).join('') : `${pic ? `<img class="rg-pic" src="${pic}" alt="">` : ROBO_SVG}<canvas width="512" height="256"></canvas>`}</div>`;
-    const name = kubi ? 'קוּבִּי' : (kids ? 'רוֹבּוֹ־דַּע' : 'רובו־דע');
-    el.innerHTML = `<div class="rg-wrap${kubi ? ' kubi' : ''}" role="dialog" aria-live="polite" aria-label="${name}">
+    const name = nitz ? (kids ? 'נִיצוֹץ' : 'ניצוץ') : kubi ? 'קוּבִּי' : (kids ? 'רוֹבּוֹ־דַּע' : 'רובו־דע');
+    el.innerHTML = `<div class="rg-wrap${kubi ? ' kubi' : ''}${nitz ? ' nitz' : ''}" role="dialog" aria-live="polite" aria-label="${name}">
       ${fig}
       <div class="rg-bub"><span class="rg-name">${name}</span><p class="rg-txt">${esc(words(ln))}</p>
         <div class="rg-foot">${c.lines.length > 1 ? `<span class="rg-dots">${c.lines.map((_, j) => `<i class="${j === c.i ? 'on' : ''}"></i>`).join('')}</span>` : '<span class="rg-dots"></span>'}
-          ${ln.id ? `<button class="rg-say" data-g="say" aria-label="${kids ? 'לִשְׁמֹעַ שׁוּב' : 'לשמוע שוב'}" title="${kids ? 'לִשְׁמֹעַ שׁוּב' : 'לשמוע שוב'}">${SPEAKER}</button>` : ''}
+          ${ln.id && !nitz ? `<button class="rg-say" data-g="say" aria-label="${kids ? 'לִשְׁמֹעַ שׁוּב' : 'לשמוע שוב'}" title="${kids ? 'לִשְׁמֹעַ שׁוּב' : 'לשמוע שוב'}">${SPEAKER}</button>` : ''}
           ${acts ? acts.map((a, j) => `<button class="rg-act${a.kind === 'primary' || (!a.kind && j === 0) ? ' primary' : ''}${a.kind === 'quiet' ? ' quiet' : ''}" data-act="${esc(a.id)}">${esc(a.label)}</button>`).join('')
             : `<button class="rg-next" data-g="next">${lastOne ? (c.opts.tip ? (kids ? 'הָבַנְתִּי' : 'הבנתי') : (kids ? 'סִיּוּם' : 'סיום')) : (kids ? 'הַבָּא' : 'הבא')}</button>`}
           ${!lastOne && !c.opts.tip ? `<button class="rg-skip" data-g="skip">${kids ? 'דַּלֵּג' : 'דלג'}</button>` : ''}
@@ -176,6 +190,14 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
     el.querySelector('.rg-fig').classList.toggle('talk', talk > 0.05);
     const ln = cur.lines[cur.i] || {};
     const expr = ln.expr || (cur.i === 0 ? 'happy' : 'normal');
+    if (isNitz(cur)) {   // ניצוץ: he waves on the first bubble, lights up for a "wow", and his face is drawn live
+      const kf = fig.querySelector('.rg-kface'); if (!kf) return;
+      const want = expr === 'wow' ? 'idea' : cur.i === 0 && !cur.opts.tip && (now - cur.t0) < WAVE_MS ? 'wave' : 'idle';
+      if (fig.dataset.on !== want) { fig.dataset.on = want; fig.querySelectorAll('.rg-fr').forEach((im) => im.classList.toggle('on', im.dataset.fr === want)); }
+      const mood = { happy: 'happy', wow: 'idea', oops: 'fuse', curious: 'happy', think: 'think', proud: 'proud', bored: 'bored', excited: 'excited' }[expr] || 'happy';
+      drawNitzotzFace(kf.getContext('2d'), kf.width, kf.height, { mood, talking: talk > 0.05, mouth: Math.min(1, talk), blink, t: now / 1000 });
+      return;
+    }
     if (isKubi(cur)) {   // קוּבִּי: the wave frame on the first bubble of a set, his live face on the screen
       const kf = fig.querySelector('.rg-kface'); if (!kf) return;
       const want = cur.i === 0 && !cur.opts.tip && (now - cur.t0) < WAVE_MS ? 'wave' : 'idle';

@@ -10,7 +10,7 @@
 //   const G = openGarage(host, { kids, sfx, guide, voice, onClose })   G.close()   G.state()
 import * as THREE from 'three';
 import { PARTS, SOCKETS, PAINTS, DEFAULT_LOOK } from '../data/robolab/parts.js';
-import { buildTool, buildPart, paintTool, hasBlenderTools } from './three/parts3d.js';
+import { buildTool, buildPart, paintTool, hasBlenderTools, mats } from './three/parts3d.js';
 import { BLOCKS } from './engine/blocks.js';
 import { garageTutorial } from '../ui/tutorials.js';
 import { makeTool } from './three/models.js';
@@ -42,8 +42,16 @@ export function openGarage(host, { kids = false, sfx = () => { }, toolSound = nu
     <div class="rl-gbody"><div class="rl-gside"><div class="rl-gtabs" role="tablist"></div><div class="rl-gact"><span class="rl-gcount"></span><button type="button" data-gsurp>${icon('star')}<span>${esc(T(W.surprise))}</span></button><button type="button" data-greset>${icon('again')}<span>${esc(T(W.reset))}</span></button></div><div class="rl-gopts"></div></div>
       <div class="rl-gview"><canvas></canvas><div class="rl-ginfo" hidden></div><small>${kids ? 'גִּרְרוּ כְּדֵי לְסוֹבֵב' : 'גררו כדי לסובב'}</small></div></div>`;
   const canvas = el.querySelector('canvas');
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+  // 1.4.4 set 0 (Avi: "heavy: the surprise button, coming near the robot, it sticks on the wheels and freezes"): the
+  // preview follows the game's quality, keeps one set of materials (a new part or a surprise no longer recompiles the
+  // GPU's shaders, and old ones no longer pile up), draws at most 30 times a second and not while hidden, and the part
+  // tiles are drawn one at a time on a small canvas of their own (they used to be drawn all at once, each by resizing
+  // the big preview twice: a surprise that changed the colours redrew every tile in one go and froze the screen)
+  const Q = (() => { try { return (window.__app && window.__app.quality) || 'medium'; } catch (e) { return 'medium'; } })();
+  const weak = Q === 'min' || Q === 'low';
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: !weak, alpha: true, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(Math.min(weak ? 1 : Q === 'medium' ? 1.25 : 1.75, window.devicePixelRatio || 1));
+  const MATS = mats({}, { grit: !weak }), TMATS = mats({}, { grit: false });
   renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
   const scene = new THREE.Scene();
   const cam = new THREE.PerspectiveCamera(32, 1, 0.1, 50);
@@ -55,14 +63,15 @@ export function openGarage(host, { kids = false, sfx = () => { }, toolSound = nu
   const ring = new THREE.Mesh(new THREE.TorusGeometry(1.62, 0.025, 8, 64), new THREE.MeshStandardMaterial({ color: '#e8873a', emissive: '#e8873a', emissiveIntensity: 0.4 }));
   ring.rotation.x = Math.PI / 2; ring.position.y = 0.01; scene.add(ring);
   const turn = new THREE.Group(); scene.add(turn);
-  let model = null, yaw = -0.6, drag = null, raf = 0, last = performance.now(), closed = false;
+  let model = null, yaw = -0.6, drag = null, raf = 0, last = performance.now(), closed = false, dirty = 2, lastDraw = 0;
   let drop = null, picked = null, changes = 0, tut = null;   // drop: the part that just went on ({ obj, t })
 
   function rebuild(newSock) {
     if (model) turn.remove(model);
     const parts = { ...(DEFAULT_LOOK[tool] || {}), ...look.parts };
     for (const [s, pid] of Object.entries(parts)) { const P = PARTS[pid]; if (P && P.also) for (const s2 of P.also) if (!(s2 in look.parts)) parts[s2] = pid; }
-    model = hasBlenderTools() ? buildTool({ base: tool, parts, paint: look.paint }) : makeTool(tool, look.paint);
+    model = hasBlenderTools() ? buildTool({ base: tool, parts, paint: look.paint, mats: MATS }) : makeTool(tool, look.paint);
+    dirty = 2;
     model.position.y = tool === 'drone' ? 0.55 : tool === 'sub' ? 0.5 : 0;
     turn.add(model);
     const U = model.userData, P = newSock && U.parts && U.parts[newSock];
@@ -81,7 +90,10 @@ export function openGarage(host, { kids = false, sfx = () => { }, toolSound = nu
   function frame(now) {
     if (closed) return;
     raf = requestAnimationFrame(frame);
-    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (canvas.offsetParent === null || document.hidden) { last = now; return; }
+    { const t0 = performance.now(); do tileStep(); while (tileQ.length && performance.now() - t0 < 8); }   // waiting part tiles, about 8 ms a frame
+    if (!dirty && !drag && !drop && now - lastDraw < 33) return;
+    const dt = Math.min(0.05, (now - last) / 1000); last = now; lastDraw = now; if (dirty) dirty--;
     if (!drag) yaw += dt * 0.35;
     turn.rotation.y = yaw;
     if (model) {
@@ -110,24 +122,41 @@ export function openGarage(host, { kids = false, sfx = () => { }, toolSound = nu
   const irim = new THREE.DirectionalLight('#9fd8ff', 0.9); irim.position.set(-3, 1, -2); iscene.add(irim);
   const icam = new THREE.PerspectiveCamera(28, 1, 0.01, 50);
   const box = new THREE.Box3(), sph = new THREE.Sphere();
+  let tr = null;   // the tiles' own small renderer, made on the first tile
+  const tileQ = [];
+  const tileKey = (pid) => pid + '|' + ['body', 'trim', 'accent'].map((k) => look.paint[k] || '').join(',');
   function picOf(pid) {
-    const key = pid + '|' + ['body', 'trim', 'accent'].map((k) => look.paint[k] || '').join(',');
+    const key = tileKey(pid);
     if (pics.has(key)) return pics.get(key);
+    if (hasBlenderTools() && !tileQ.some((q) => q.key === key)) tileQ.push({ key, pid, paint: { ...look.paint } });
+    return '';
+  }
+  function tileStep() {
+    const q = tileQ.shift(); if (!q) return;
+    if (pics.has(q.key)) return;
     let url = '';
-    const g = hasBlenderTools() ? buildPart(pid, look.paint) : null;
-    if (g) {
-      g.rotation.y = /side_r|_r$/.test(pid) ? 0.7 : -0.7;
-      iscene.add(g); g.updateMatrixWorld(true);
-      box.setFromObject(g); box.getBoundingSphere(sph);
-      const r = Math.max(0.05, sph.radius), d = r / Math.sin((icam.fov * Math.PI) / 360) * 1.02;
-      icam.position.set(sph.center.x, sph.center.y + d * 0.42, sph.center.z + d * 0.9); icam.lookAt(sph.center);
-      const W0 = canvas.width, H0 = canvas.height;
-      renderer.setSize(128, 128, false); renderer.setClearColor(0x000000, 0);
-      renderer.render(iscene, icam); url = renderer.domElement.toDataURL('image/png');
-      renderer.setSize(W0, H0, false);
-      iscene.remove(g); g.traverse((o) => { if (o.material) o.material.dispose(); });   // the geometry is shared (parts3d geo)
+    try {
+      if (!tr) {
+        const c = document.createElement('canvas'); c.width = c.height = 128;
+        tr = new THREE.WebGLRenderer({ canvas: c, antialias: true, alpha: true, preserveDrawingBuffer: true });
+        tr.outputColorSpace = THREE.SRGBColorSpace; tr.toneMapping = THREE.ACESFilmicToneMapping; tr.toneMappingExposure = 1.05; tr.setClearColor(0x000000, 0);
+      }
+      const g = buildPart(q.pid, q.paint, TMATS);
+      if (g) {
+        g.rotation.y = /side_r|_r$/.test(q.pid) ? 0.7 : -0.7;
+        iscene.add(g); g.updateMatrixWorld(true);
+        box.setFromObject(g); box.getBoundingSphere(sph);
+        const r = Math.max(0.05, sph.radius), d = r / Math.sin((icam.fov * Math.PI) / 360) * 1.02;
+        icam.position.set(sph.center.x, sph.center.y + d * 0.42, sph.center.z + d * 0.9); icam.lookAt(sph.center);
+        tr.render(iscene, icam); url = tr.domElement.toDataURL('image/png');
+        iscene.remove(g);   // the materials are the shared TMATS; the geometry is shared (parts3d geo)
+      }
+    } catch (e) { console.error(e); }
+    pics.set(q.key, url);
+    // put it into its tile if the tile is on the screen now (same part, same colours)
+    if (url && q.key === tileKey(q.pid)) for (const b of el.querySelectorAll(`.rl-gtile[data-gpart="${q.pid}"] .rl-gpic`)) {
+      const im = document.createElement('img'); im.className = 'rl-gpic'; im.src = url; im.alt = ''; im.draggable = false; b.replaceWith(im);
     }
-    pics.set(key, url); return url;
   }
   const blockWord = (b) => (BLOCKS[b] ? T(BLOCKS[b]) : '');
   function showInfo(pid) {
@@ -217,6 +246,8 @@ export function openGarage(host, { kids = false, sfx = () => { }, toolSound = nu
   function close() {
     if (closed) return; closed = true; cancelAnimationFrame(raf); window.removeEventListener('resize', onResize);
     if (tut) { tut.stop(); tut = null; }
+    for (const m of [...Object.values(MATS), ...Object.values(TMATS)]) m.dispose();
+    if (tr) { tr.dispose(); try { tr.forceContextLoss(); } catch (e) { } tr = null; }
     renderer.dispose(); try { renderer.forceContextLoss(); } catch (e) { }
     el.remove();
   }
