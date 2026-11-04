@@ -55,6 +55,7 @@ export const K = {
   after: 'web-of-life-after',         // { v, z: { <zone>: {...} } } – challenges, photo missions, snapshots  game/rank.js
   robolabDraft: 'web-of-life-robolab-draft',   // 1.4.1–1.4.2 only: lesson drafts; since 1.4.3 a lesson opens empty and old drafts are removed (robolab/progress.js dropDrafts)
   robolab: 'web-of-life-robolab',   // { done: { <levelId>: { stars, blocks, t } }, seen, fun } – מעבדת הרובוטים (1.4.1) robolab/progress.js
+  weekly: 'web-of-life-weekly',     // { v, weeks, done, best, n, guests } – אירוע השבוע (1.4.4)                     core/weekly.js
 };
 export const zoneKey = (zone) => 'web-of-life-' + zone;                                    // { unlocked, done, discovered, placed, quiz }
 export const saveKey = (zone, kids) => 'web-of-life-save-' + zone + (kids ? '-kids' : '');  // the whole forest (game/game/save.js)
@@ -88,6 +89,7 @@ export const KEYS = [
   { key: K.after, scope: P, kind: 'json' },
   { key: K.robolab, scope: P, kind: 'json' },   // 1.4.1
   { key: K.robolabDraft, scope: P, kind: 'json' },   // 1.4.1
+  { key: K.weekly, scope: P, kind: 'json' },   // 1.4.4
   ...ZONE_IDS.flatMap((z) => [
     { key: zoneKey(z), scope: P, kind: 'json' },
     { key: saveKey(z, false), scope: P, kind: 'json' },

@@ -72,6 +72,8 @@ export const PARTS = {
   'zone:savanna': { stage: 7, v14: true, name: 'הסוואנה', kname: 'הַסָּוַאנָה', where: 'start' },
   robolab: { stage: 7, v14: true, name: 'מעבדת הרובוטים', kname: 'מַעְבֶּדֶת הָרוֹבּוֹטִים', where: 'start' },
   'robolab:more': { stage: 8, v14: true, name: 'שאר שיעורי התכנות והחידות', kname: 'שְׁאָר שִׁעוּרֵי הַתִּכְנוּת וְהַחִידוֹת', where: 'robolab' },
+  // 1.4.4 (Avi, 4.11): אירוע השבוע opens at stage 8 too, all four kinds (core/weekly.js)
+  weekly: { stage: 8, v14: true, name: 'אירוע השבוע', kname: 'אֵירוּעַ הַשָּׁבוּעַ', where: 'start' },
   // 1.4.3 set 5: stage 9 opens the robot workshop, the missions on the player's own island and the sandbox
   'robolab:workshop': { stage: 9, v14: true, name: 'סדנת הרובוט', kname: 'סַדְנַת הָרוֹבּוֹט', where: 'robolab' },
   'robolab:island': { stage: 9, v14: true, name: 'משימות באי שלי', kname: 'מְשִׂימוֹת בָּאִי שֶׁלִּי', where: 'robolab' },

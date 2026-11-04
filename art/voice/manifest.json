@@ -5476,5 +5476,50 @@
   "h": "f99565b176b8",
   "text": "כִּי הִיא אוֹכֶלֶת אֶת כָּל מָה שֶׁמֵּצִיק לָהּ!",
   "ipa": "kˈi hˈi ʔoχˈelet ʔˈet kˈol mˈa ʃemetsˈik lˈah!"
+ },
+ "wkt.days.1": {
+  "h": "1a6c05569980",
+  "text": "כָּל שָׁבוּעַ יֵשׁ כָּאן אֵירוּעַ חָדָשׁ. הוּא פָּתוּחַ מִיּוֹם רִאשׁוֹן עַד יוֹם חֲמִישִׁי, וְהַיּוֹם מְסוּמָּן.",
+  "ipa": "kˈol ʃavˈua jˈeʃ kˈan ʔejʁˈua χadˈaʃ. hˈu patˈuaχ miˈom ʁiʃˈon ʔˈad jˈom χamiʃˈi, vehajˈom mesumˈan."
+ },
+ "wkt.days.1.k": {
+  "h": "421c5fac6e74",
+  "text": "כָּל שָׁבוּעַ יֵשׁ כָּאן אֵירוּעַ חָדָשׁ. הוּא פָּתוּחַ מִיּוֹם רִאשׁוֹן עַד יוֹם חֲמִישִׁי.",
+  "ipa": "kˈol ʃavˈua jˈeʃ kˈan ʔejʁˈua χadˈaʃ. hˈu patˈuaχ miˈom ʁiʃˈon ʔˈad jˈom χamiʃˈi."
+ },
+ "wkt.kinds.1": {
+  "h": "780d16bdd850",
+  "text": "יֵשׁ אַרְבָּעָה סוּגִים שֶׁל אֵירוּעִים, וְהֵם מִתְחַלְּפִים. כָּאן רוֹאִים מָה כְּבָר עֲשִׂיתֶם, וְאֶת הַשִּׂיא שֶׁלָּכֶם.",
+  "ipa": "jˈeʃ ʔaʁbaʔˈa suɡˈim ʃˈel ʔejʁuʔˈim, vehˈem mitχalefˈim. kˈan ʁoʔˈim mˈa kevˈaʁ ʔasˈitem, veʔˈet hasˈi ʃelaχˈem."
+ },
+ "wkt.kinds.1.k": {
+  "h": "8fc55e1ad30b",
+  "text": "יֵשׁ אַרְבָּעָה סוּגִים שֶׁל אֵירוּעִים, וְהֵם מִתְחַלְּפִים. כָּאן רוֹאִים מָה כְּבָר עֲשִׂיתֶם.",
+  "ipa": "jˈeʃ ʔaʁbaʔˈa suɡˈim ʃˈel ʔejʁuʔˈim, vehˈem mitχalefˈim. kˈan ʁoʔˈim mˈa kevˈaʁ ʔasˈitem."
+ },
+ "wkt.guests.1": {
+  "h": "29acae2b5bdc",
+  "text": "כָּל אֵירוּעַ שֶׁמַּצְלִיחִים בּוֹ מֵבִיא אוֹרֵחַ נָדִיר. הוּא בָּא לָגוּר בְּאַחַד הָאִיִּים שֶׁלָּכֶם, וְאֶפְשָׁר לְבַקֵּר אוֹתוֹ שָׁם.",
+  "ipa": "kˈol ʔejʁˈua ʃematsliχˈim bˈo mevˈi ʔoʁˈeaχ nadˈiʁ. hˈu bˈa laɡˈuʁ beʔˈaχad haʔijˈim ʃelaχˈem, veʔefʃˈaʁ levakˈeʁ ʔotˈo ʃˈam."
+ },
+ "wkt.guests.1.k": {
+  "h": "f518fda138de",
+  "text": "כָּל אֵירוּעַ שֶׁמַּצְלִיחִים בּוֹ מֵבִיא אוֹרֵחַ נָדִיר. הוּא בָּא לָגוּר בָּאִי שֶׁלָּכֶם.",
+  "ipa": "kˈol ʔejʁˈua ʃematsliχˈim bˈo mevˈi ʔoʁˈeaχ nadˈiʁ. hˈu bˈa laɡˈuʁ baʔˈi ʃelaχˈem."
+ },
+ "wkt.end.1": {
+  "h": "c03c65cbe566",
+  "text": "פִּסְפַּסְתֶּם אֵירוּעַ? לֹא נוֹרָא. הוּא יַחֲזוֹר בַּפַּעַם הַבָּאָה. לָחֲצוּ כָּאן כְּדֵי לִסְגּוֹר.",
+  "ipa": "pispˈastem ʔejʁˈua? lˈo noʁˈa. hˈu jaχazˈoʁ bapˈaʔam habaʔˈa. laχatsˈu kˈan kedˈej lisɡˈoʁ."
+ },
+ "wkt.end.1.k": {
+  "h": "3cf62295a11c",
+  "text": "פִּסְפַּסְתֶּם אֵירוּעַ? לֹא נוֹרָא, הוּא יַחֲזֹר. לַחֲצוּ כָּאן כְּדֵי לִסְגֹּר.",
+  "ipa": "pispˈastem ʔejʁˈua? lˈo noʁˈa, hˈu jaχazˈoʁ. laχatsˈu kˈan kedˈej lisɡˈoʁ."
+ },
+ "wk.guest.1": {
+  "h": "da347004ef83",
+  "text": "אוֹרֵחַ נָדִיר בָּא לָגוּר בְּאַחַד הָאִיִּים שֶׁלָּכֶם! לְכוּ לְבַקֵּר אוֹתוֹ.",
+  "ipa": "ʔoʁˈeaχ nadˈiʁ bˈa laɡˈuʁ beʔˈaχad haʔijˈim ʃelaχˈem! leχˈu levakˈeʁ ʔotˈo."
  }
 }

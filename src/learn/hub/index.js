@@ -52,6 +52,8 @@ import { loadState } from './storage.js';
 import { injectCss } from './styles.js';
 import { svcGuide } from '../../core/services.js';
 import { openChat } from '../../ui/robo-chat.js';
+import { openWeekly, chipState } from '../../ui/weekly-ui.js';   // 1.4.4: אירוע השבוע
+import { hubIcon } from '../../ui/icons-hub.js';
 
 /* ───────────────────────────────────────────── the hub */
 export function createLearningHub(rootEl, { onClose, audio } = {}) {
@@ -81,6 +83,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
       <h2 class="wl-crumb"></h2><span class="wl-sp"></span>
       <span class="wl-who"></span>
       <button class="wl-gear wl-chat" data-wl="chat" title="לדבר עם רובו־דע" aria-label="לדבר עם רובו־דע">${icon('chat')}</button>
+      <button class="wl-gear wl-week" data-wl="week" title="אירוע השבוע" aria-label="אירוע השבוע" hidden>${hubIcon('week')}<i class="wl-wkdot" aria-hidden="true"></i></button>
       ${TORAH ? `<button class="wl-gear" data-wl="settings" title="הגדרות" aria-label="הגדרות">${icon('sliders')}</button>` : ''}
       <button class="wl-chip" data-wl="packs" title="חבילות קלפים">${icon('pack')}<span class="wl-chipn"></span></button>
       <img class="wl-logo" src="${BABA_DA_LOGO}" alt="בבא דע">
@@ -99,6 +102,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   const ownedCount = () => Object.keys(S.owned).length;
   function updateChip(bump) {
     $('.wl-chipn').textContent = `חבילות: ${S.packs}`;
+    const wk = $('.wl-week'); if (wk) { const c = chipState(); wk.hidden = !c.show; wk.classList.toggle('dot', !!c.dot); }
     const c = $('.wl-chip'); if (bump) { c.classList.remove('bump'); void c.offsetWidth; c.classList.add('bump'); }
   }
   let toastT;
@@ -319,7 +323,8 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
       else if (['home', 'album', 'setup', 'badges', 'frames'].includes(screen)) go(screen, { force: true });
       openSettings();
     },
-    chat: () => { sfx('click'); openChat({ place: 'hub' }); },   // 1.4.3: a talk with רובו־דע (src/ui/robo-chat.js)
+    chat: () => { sfx('click'); openChat({ place: 'hub' }); },
+    week: () => { sfx('click'); openWeekly(el, { onClose: () => updateChip() }); },   // 1.4.4: the week's sheet over the hub   // 1.4.3: a talk with רובו־דע (src/ui/robo-chat.js)
     settings: () => openSettings(), bzoom: (t) => bzoom(t.dataset.b),
     duel: () => { sfx('click'); go('duel'); }, play: (t) => playCard(+t.dataset.k), dnext: duelNext,
     badges: () => { sfx('click'); go('badges'); }, frames: () => { sfx('click'); go('frames'); },

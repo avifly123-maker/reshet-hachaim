@@ -1,0 +1,65 @@
+/* ===================================================== אירוע השבוע (1.4.4 set 1, src/ui/weekly-ui.js) */
+/* the chip on the start screen, beside the play time chip */
+#ui.wol .st-week { position: relative; flex: none; display: flex; align-items: center; gap: 6px; height: 40px; padding: 0 12px 0 10px; border-radius: 20px; color: var(--chalk);
+  background: linear-gradient(180deg, #7a3a6a, #5a2a52); box-shadow: inset 0 0 0 1px rgba(255, 220, 160, .35), 0 3px 8px rgba(0, 0, 0, .3); font: inherit; cursor: pointer; }
+#ui.wol .st-week[hidden] { display: none; }
+#ui.wol .st-week .st-wkic .ic { width: 22px; height: 22px; color: #f6cf72; }
+#ui.wol .st-week b { font-weight: 800; white-space: nowrap; }
+#ui.wol .st-week .st-wkdot { position: absolute; top: -2px; inset-inline-start: -2px; width: 12px; height: 12px; border-radius: 50%; background: #ffd84a; box-shadow: 0 0 0 2px #5a2a52; display: none; }
+#ui.wol .st-week.dot .st-wkdot { display: block; animation: wkv-pulse 1.6s ease-in-out infinite; }
+#ui.wol .st-week.shut { filter: saturate(.5); }
+@keyframes wkv-pulse { 50% { transform: scale(1.35); } }
+@media (max-width: 860px) { #ui.wol .st-week b { display: none; } #ui.wol .st-week { padding: 0 9px; } }
+
+/* the sheet */
+#ui.wol .wkv-layer { position: fixed; inset: 0; z-index: 6; }   /* inside the start screen (or the hub): over its own content, like .set-layer */
+#ui.wol .wkv-scrim { position: absolute; inset: 0; background: rgba(6, 16, 10, .5); animation: wol-pop .2s both; }
+#ui.wol .wkv-sheet { position: absolute; inset: 0; margin: auto; height: fit-content; width: min(620px, calc(100vw - 24px)); max-height: calc(100vh - 24px); box-sizing: border-box;
+  display: flex; flex-direction: column; gap: 8px; padding: 12px 14px 12px; text-align: right; color: var(--ink); animation: wol-pop .2s both; }
+#ui.wol .wkv-sheet.paper { border-image-source: var(--sheet); }
+#ui.wol .wkv-x { position: absolute; top: 8px; left: 8px; }
+#ui.wol .wkv-h { display: flex; align-items: center; gap: 8px; margin: 0; font-family: var(--serif); font-weight: 400; font-size: 1.6em; line-height: 1.1; color: #6a2a5a; }
+#ui.wol .wkv-h .ic { width: 28px; height: 28px; color: #8a3a6a; }
+#ui.wol .wkv-card { display: flex; gap: 12px; align-items: stretch; padding: 10px 12px; border-radius: 16px; background: linear-gradient(135deg, #fff6e0, #f3e2c0); box-shadow: inset 0 0 0 1px rgba(92, 59, 34, .2); }
+#ui.wol .wkv-big { flex: none; display: grid; place-items: center; width: 74px; border-radius: 14px; background: var(--wkc, #8a3a6a); }
+#ui.wol .wkv-card.k-glitch { --wkc: #b0602a; } #ui.wol .wkv-card.k-jar { --wkc: #2b7268; } #ui.wol .wkv-card.k-detective { --wkc: #5a4a8a; } #ui.wol .wkv-card.k-race { --wkc: #2f5f8f; }
+#ui.wol .wkv-big .ic { width: 46px; height: 46px; color: #fff; }
+#ui.wol .wkv-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+#ui.wol .wkv-body h4 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: 1.35em; color: var(--moss); }
+#ui.wol .wkv-body p { margin: 0; line-height: 1.35; font-size: .95em; }
+#ui.wol .wkv-days { display: flex; gap: 4px; margin-top: 2px; }
+#ui.wol .wkv-days i { font-style: normal; flex: 1; text-align: center; padding: 2px 0; border-radius: 8px; font-size: .78em; font-weight: 700; background: rgba(92, 59, 34, .1); color: #6a5a40; }
+#ui.wol .wkv-days i.past { opacity: .5; }
+#ui.wol .wkv-days i.today { background: #ffd84a; color: #3a2608; box-shadow: 0 0 0 2px #e8a43a; }
+#ui.wol .wkv-st { font-weight: 700; color: #7a3a2a; font-size: .9em !important; }
+#ui.wol .wkv-act { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+#ui.wol .wkv-act:empty { display: none; }
+#ui.wol .wkv-go { display: inline-flex; align-items: center; gap: 6px; }
+#ui.wol .wkv-done { display: inline-flex; align-items: center; gap: 4px; font-weight: 800; color: #2f7a3a; }
+#ui.wol .wkv-done .ic { width: 18px; height: 18px; }
+#ui.wol .wkv-kinds { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+#ui.wol .wkv-kind { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 4px; border-radius: 12px; background: rgba(255, 255, 255, .35); text-align: center; box-shadow: inset 0 0 0 1px rgba(92, 59, 34, .14); }
+#ui.wol .wkv-kind.now { box-shadow: inset 0 0 0 2px #8a3a6a; }
+#ui.wol .wkv-kind b { font-size: .82em; line-height: 1.15; }
+#ui.wol .wkv-kind small { font-size: .75em; color: #6a5a40; display: inline-flex; align-items: center; gap: 2px; min-height: 1.2em; }
+#ui.wol .wkv-kind small .ic { width: 13px; height: 13px; color: #2f7a3a; }
+#ui.wol .wkv-kic .ic { width: 26px; height: 26px; color: #6a2a5a; }
+#ui.wol .wkv-sheet h5 { margin: 2px 0 0; font-size: .95em; color: var(--moss); }
+#ui.wol .wkv-guests { display: flex; gap: 6px; flex-wrap: wrap; }
+#ui.wol .wkv-guest { display: inline-flex; flex-direction: column; padding: 4px 10px; border-radius: 12px; background: #fff6dc; box-shadow: inset 0 0 0 1px rgba(92, 59, 34, .18); }
+#ui.wol .wkv-guest b { font-size: .9em; } #ui.wol .wkv-guest small { font-size: .74em; color: #6a5a40; }
+#ui.wol .wkv-note { margin: 0; font-size: .88em; color: #5a4a30; }
+#ui.wol .wkv-staff summary { cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-size: .85em; color: #5a4a30; }
+#ui.wol .wkv-staff summary .ic { width: 16px; height: 16px; }
+#ui.wol .wkv-staff p { margin: 4px 0; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; font-size: .85em; }
+#ui.wol .wkv-staff .btn { padding: 2px 10px; font-size: .9em; }
+@media (max-height: 520px) {
+  #ui.wol .wkv-sheet { gap: 5px; padding: 8px 10px; }
+  #ui.wol .wkv-h { font-size: 1.3em; } #ui.wol .wkv-big { width: 56px; } #ui.wol .wkv-big .ic { width: 34px; height: 34px; }
+  #ui.wol .wkv-body p { font-size: .86em; } #ui.wol .wkv-kind { padding: 3px; } #ui.wol .wkv-kic .ic { width: 20px; height: 20px; }
+}
+/* the hub's button (beside the talk with רובו־דע) */
+#ui.wol .wol-learn .wl-week[hidden] { display: none; }
+#ui.wol .wol-learn .wl-week { position: relative; color: #f6cf72; }
+#ui.wol .wol-learn .wl-week .wl-wkdot { position: absolute; top: -1px; inset-inline-start: -1px; width: 11px; height: 11px; border-radius: 50%; background: #ffd84a; display: none; }
+#ui.wol .wol-learn .wl-week.dot .wl-wkdot { display: block; animation: wkv-pulse 1.6s ease-in-out infinite; }

@@ -16,6 +16,7 @@ export const BADGE_GROUPS = [
   { id: 'deep', name: 'משלחת לעומק', short: 'משלחת', col: '#163a5a', col2: '#6fd0ff' },
   { id: 'research', name: 'חוקרי הטבע', short: 'חוקרים', col: '#3a5a2a', col2: '#f6cf72' },
   { id: 'robolab', name: 'מעבדת הרובוטים', short: 'רובוטים', col: '#1f4a6e', col2: '#e8873a' },
+  { id: 'weekly', name: 'אירועי השבוע', short: 'אירועים', col: '#6a2a5a', col2: '#f6cf72' },   // 1.4.4
   // torah edition only (hidden in the general edition and while "מקורות ופסוקים" is off)
   { id: 'sources', name: 'מה הפסוק מלמד?', short: 'מקורות', col: '#7a5420', col2: '#f6dfa0', torah: true },
 ];
@@ -150,6 +151,16 @@ export const BADGES = [
   { id: 'b_ro_puz5', group: 'robolab', art: 'chameleon', name: 'ראש חידות', how: 'פותרים חמש חידות', earn: 'robo:puzzles:5' },
   { id: 'b_ro_fun', group: 'robolab', art: 'firefly', name: 'זיקוקים לכל הכיוונים', how: 'לוחצים עשרים פעם על בלוקים מפתיעים', earn: 'robo:fun' },
   { id: 'b_ro_design', group: 'robolab', art: 'butterfly', name: 'מעצב רובוטים', how: 'צובעים כלי בסדנת העיצוב', earn: 'robo:design' },
+  // ── אירוע השבוע (1.4.4, core/weekly.js finish(): the first win of a version gives these)
+  { id: 'b_wk_first', group: 'weekly', art: 'hoopoe', name: 'אירוע ראשון', how: 'מצליחים באירוע שבוע ראשון', earn: 'weekly:first' },
+  { id: 'b_wk_glitch', group: 'weekly', art: 'chameleon', name: 'מחזירים הביתה', how: 'מצליחים ב"התקלה במעבדה"', earn: 'weekly:glitch' },
+  { id: 'b_wk_jar', group: 'weekly', art: 'firefly', name: 'עולם בצנצנת', how: 'צנצנת שמחזיקה עד יום חמישי', earn: 'weekly:jar' },
+  { id: 'b_wk_detective', group: 'weekly', art: 'owl', name: 'בלש חד עין', how: 'פותרים את "הבלש של השבוע"', earn: 'weekly:detective' },
+  { id: 'b_wk_race', group: 'weekly', art: 'gazelle', name: 'עובר את כל המסלול', how: 'רובוט שמסיים את מירוץ הרובוטים', earn: 'weekly:race' },
+  { id: 'b_wk_all4', group: 'weekly', art: 'octopus', name: 'ארבעה בארבעה', how: 'מצליחים בכל ארבעת סוגי האירועים', earn: 'weekly:all4' },
+  { id: 'b_wk_8', group: 'weekly', art: 'harpy', name: 'שמונה שבועות', how: 'מצליחים בשמונה אירועים', earn: 'weekly:8' },
+  { id: 'b_wk_20', group: 'weekly', art: 'elephant', name: 'שנה של אירועים', how: 'מצליחים בעשרים אירועים', earn: 'weekly:20' },
+  { id: 'b_wk_record', group: 'weekly', art: 'hummingbird', name: 'שובר שיאים', how: 'שוברים את השיא האישי באירוע', earn: 'weekly:record' },
 ];
 
 // card frames for the album: a group's frame opens with `need` of its badges ('all': badges of any group)

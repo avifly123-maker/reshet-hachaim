@@ -11,7 +11,8 @@ import { CARD_ART } from '../../data/card-art.js';
 import { ISLAND_ART } from '../../data/island-art.js';
 import { islandRankHTML } from '../../game/rank.js';   /* H: the island's rank under the island */
 import { AVATAR_IDS, avatarHTML, avatarName } from '../avatars.js';
-import { tileIcon } from '../icons-hub.js';
+import { tileIcon, hubIcon } from '../icons-hub.js';
+import { openWeekly, chipState } from '../weekly-ui.js';
 import { lockTip, lockWords, mapIcon, openJourneyMap, STAGE_COLOR, stageEmblem } from '../journey-map.js';
 import { openSettings } from '../settings.js';
 import { canopySVG, VINE, waxSeal } from './art.js';
@@ -36,6 +37,7 @@ export function createStart(ctx) {
       ${S.logo ? `<div class="st-logo"><img src="${S.logo}" alt="בבא דע"></div>` : ''}
       <div class="st-corner"><div class="st-corner-row"><button class="st-who" aria-haspopup="dialog" aria-expanded="false" hidden></button>
         <button class="st-time" aria-haspopup="dialog" hidden>${icon('hourglass')}<b></b></button>
+        <button class="st-week" aria-haspopup="dialog" hidden><span class="st-wkic">${hubIcon('week')}</span><b></b><i class="st-wkdot" aria-hidden="true"></i></button>
         <button class="st-gear" aria-haspopup="dialog" aria-label="הגדרות" title="הגדרות">${icon('gear')}</button>
         <button class="st-gear st-chat" aria-label="לדבר עם רובו־דע" title="לדבר עם רובו־דע">${icon('chat')}</button></div>
         <button class="st-jbar" data-part="journey" aria-haspopup="dialog"></button></div>
@@ -197,7 +199,15 @@ export function createStart(ctx) {
       if (S.paintTrain) S.paintTrain();
       paintInfo();
     };
-    S.paintJourney = paintJourney;
+    // 1.4.4: אירוע השבוע. The chip shows once stage 8 is reached (or the instructors' switch is on); a dot while this
+    // week's event waits for the child. It opens the week's sheet (src/ui/weekly-ui.js).
+    const wkChip = startEl.querySelector('.st-week');
+    const paintWeek = () => { if (!wkChip) return; const c = chipState(); wkChip.hidden = !c.show; if (!c.show) return;
+      wkChip.querySelector('b').textContent = c.label; wkChip.title = c.sub || c.label; wkChip.classList.toggle('dot', !!c.dot); wkChip.classList.toggle('shut', !c.open); };
+    if (wkChip) wkChip.addEventListener('click', () => { emit('ui:click'); openWeekly(startEl, { emit, onClose: () => { paintWeek(); try { wkChip.focus({ preventScroll: true }); } catch (e) { } } }); });
+    S.paintJourney = () => { paintJourney(); paintWeek(); };
+    S.paintWeek = paintWeek;
+    if (!S.wkListen) { S.wkListen = true; addEventListener('wol-progress', (e) => { if (e.detail && e.detail.kind === 'weekly' && S.paintWeek) S.paintWeek(); }); }
     let map = null;
     const goPart = (part) => {   // an open tile on the map: go there
       const showTab = (tab) => { S.stTab = tab; paintTab(); };
@@ -255,7 +265,7 @@ export function createStart(ctx) {
         });
       });
     }
-    paintModes(); paintTab(); paintCar(); paintJourney();
+    paintModes(); paintTab(); paintCar(); paintJourney(); paintWeek();
     S.journeyIntro();
     const renderStartIntros = () => paintInfo();
     S.repaintStartMode = () => { paintModes(); paintJourney(true); renderStartIntros(); };   // another player was chosen: show their level

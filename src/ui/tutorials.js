@@ -160,3 +160,16 @@ export function missionRunTutorial({ guide, rl, force = false, voice = null }) {
   ];
   return runGuided({ guide, steps, sayOpts: { speaker: 'kubi', voice }, onEnd: (r) => { if (r !== 'abort') markIntro(KEY); } });
 }
+
+// אירוע השבוע (1.4.4 set 1): the first time the week's sheet opens. The last step waits for the child to close it.
+export function weeklyTutorial({ guide, sheet, force = false }) {
+  const KEY = 'g:weektut';
+  if (!guide || !sheet || (!force && introSeen(KEY))) return null;
+  const steps = [
+    { id: 'days', lines: L('weektut:days') },
+    { id: 'kinds', lines: L('weektut:kinds') },
+    { id: 'guests', lines: L('weektut:guests') },
+    { id: 'end', lines: L('weektut:end'), wait: () => !sheet.isConnected },
+  ];
+  return runGuided({ guide, steps, onEnd: (r) => { if (r !== 'abort' || !sheet.isConnected) markIntro(KEY); } });
+}

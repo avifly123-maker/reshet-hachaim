@@ -99,13 +99,22 @@ export const HUB_ICONS = {
   frame: '<rect class="f" x="4" y="3.5" width="16" height="17" rx="2.4"/><rect x="4" y="3.5" width="16" height="17" rx="2.4"/><rect x="7.5" y="7" width="9" height="10" rx="1.2" stroke-width="1.6"/>',
   // the lab (המעבדה): a round flask with bubbles
   lab: '<path class="f" d="M7 13.6a5.5 5.5 0 1 0 10 0z"/><path d="M10 3h4M10.6 3v5.6a6.6 6.6 0 1 0 2.8 0V3"/><path d="M7 13.6h10" stroke-width="1.6"/><circle cx="10.6" cy="16.6" r=".9" fill="currentColor" stroke="none"/><circle cx="13.6" cy="17.8" r=".7" fill="currentColor" stroke="none"/>',
+  // 1.4.4 אירוע השבוע: a page of a calendar with a star (two rings on top, no lines crossing)
+  week: '<rect class="f" x="3.5" y="5" width="17" height="15.5" rx="2.6"/><rect x="3.5" y="5" width="17" height="15.5" rx="2.6"/><path d="M3.5 9.6h17" stroke-width="1.6"/>'
+    + '<path d="M8 3v3.6M16 3v3.6"/><path d="M12 11.6l1.3 2.6 2.8.4-2 2 .5 2.8-2.6-1.4-2.6 1.4.5-2.8-2-2 2.8-.4z" fill="currentColor" stroke-width="1"/>',
+  // the four events: a lightning bolt (the glitch), a jar with a lid, a flag on a pole (the race)
+  bolt: '<path class="f" d="M13.5 2.5L5 13.5h6l-1.5 8 8.5-11h-6z"/><path d="M13.5 2.5L5 13.5h6l-1.5 8 8.5-11h-6z"/>',
+  jar: '<path class="f" d="M7 7.5h10v1.2c1.6.9 2.5 2.4 2.5 4.3v5a2.5 2.5 0 0 1-2.5 2.5H7A2.5 2.5 0 0 1 4.5 18v-5c0-1.9.9-3.4 2.5-4.3z"/>'
+    + '<path d="M7 7.5h10v1.2c1.6.9 2.5 2.4 2.5 4.3v5a2.5 2.5 0 0 1-2.5 2.5H7A2.5 2.5 0 0 1 4.5 18v-5c0-1.9.9-3.4 2.5-4.3z"/><rect x="6" y="3.5" width="12" height="4" rx="1.2"/>'
+    + '<path d="M9 16.5c.6-2.4 2.4-3.6 4.6-3.6-.4 2.4-2.1 3.6-4.6 3.6z" stroke-width="1.4"/>',
+  flag: '<path d="M6 21V3.5" stroke-width="2.2"/><path class="f" d="M6 4h12l-2.6 4L18 12H6z"/><path d="M6 4h12l-2.6 4L18 12H6z"/>',
 };
 
 // one colour per game / place: the tile behind its icon, on the start screen and in the hub alike
 export const TILE_TONE = {
   learn: '#3d7a3a', quiz: '#2f7a52', album: '#a8641a', strong: '#b2492e', keep: '#2b7268', thread: '#a3466e',
   invent: '#3a4d5c', dive: '#22648c', medal: '#8e6a12', scroll: '#8a6420', lab: '#3a4d5c', research: '#3f6a2e',
-  amazon: '#2f7a52', grove: '#9a6a1a', reef: '#22648c', desert: '#a8702a', savanna: '#a8822a', zones: '#4f6a3a', robot: '#3a4d5c',
+  amazon: '#2f7a52', grove: '#9a6a1a', reef: '#22648c', desert: '#a8702a', savanna: '#a8822a', zones: '#4f6a3a', robot: '#3a4d5c', week: '#8a3a6a', bolt: '#b0602a', jar: '#2b7268', flag: '#2f5f8f',
 };
 // the svg the same way ui.js icon() draws it (class "ic": the game's CSS sizes it and softens the "f" fill)
 export const hubIcon = (n, cls) => `<svg class="ic${cls ? ' ' + cls : ''}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${HUB_ICONS[n] || ''}</svg>`;
