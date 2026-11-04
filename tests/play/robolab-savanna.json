@@ -1,0 +1,44 @@
+[
+ {
+  "wait": 4
+ },
+ {
+  "js": "window.__guide && window.__guide.close(); window.__journey.unlockAll('2580'); window.__journey.markIntro('g:rltut'); window.__journey.markIntro('g:rltut:ev'); window.__app.bus.emit('ui:robolab'); 1"
+ },
+ {
+  "until": "!!document.querySelector('.rl-home')",
+  "timeout": 60
+ },
+ {
+  "js": "'CHECK savanna-lessons-listed ' + (document.querySelectorAll('.rl-z.z-savanna').length >= 4 ? 'ok' : 'FAIL ' + document.querySelectorAll('.rl-z.z-savanna').length)"
+ },
+ {
+  "js": "window.__rlDebug.open('ls5-2'); 1"
+ },
+ {
+  "until": "window.__rlDebug.in3d() && window.__rlDebug.cur() === 'ls5-2'",
+  "timeout": 400
+ },
+ {
+  "wait": 6
+ },
+ {
+  "js": "const W = window.__game; 'CHECK savanna-island ' + (W && (W.biomeId || (W.biome || {}).id) === 'savanna' ? 'ok' : 'FAIL ' + (W && (W.biomeId || (W.biome || {}).id)))"
+ },
+ {
+  "js": "window.__guide && window.__guide.close(); window.__rlDebug.solve('ls5-2'); 1"
+ },
+ {
+  "js": "window.__rlDebug.run('fast'); 1"
+ },
+ {
+  "until": "window.__rlDebug.last()",
+  "timeout": 120
+ },
+ {
+  "js": "'CHECK savanna-3d-run ' + (window.__rlDebug.last() && window.__rlDebug.last().ok ? 'ok' : 'FAIL ' + JSON.stringify(window.__rlDebug.last()))"
+ },
+ {
+  "wait": 1
+ }
+]

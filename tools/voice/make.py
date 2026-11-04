@@ -143,8 +143,10 @@ def to_ogg(a, path):
     return wav
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument('--model', required=True); ap.add_argument('--only', default=''); ap.add_argument('--check', action='store_true'); ap.add_argument('--force', action='store_true')
+    ap = argparse.ArgumentParser(); ap.add_argument('--model'); ap.add_argument('--pack', action='store_true', help='only pack art/voice into src/data/voice.js (no model needed)'); ap.add_argument('--only', default=''); ap.add_argument('--check', action='store_true'); ap.add_argument('--force', action='store_true')
     o = ap.parse_args()
+    if o.pack: return pack()
+    if not o.model: ap.error('--model is needed (or --pack)')
     lines = json.loads(subprocess.run(['node', str(ROOT / 'tools/voice/export-lines.mjs')], capture_output=True, text=True, cwd=ROOT, check=True).stdout)
     only = set(filter(None, o.only.split(',')))
     lex = {}
@@ -196,6 +198,9 @@ def main():
             print(vid, '|', ipa, '|', heard)
             manifest_p.write_text(json.dumps(man, ensure_ascii=False, indent=1))   # a killed run keeps what it made
     manifest_p.write_text(json.dumps(man, ensure_ascii=False, indent=1))
+    pack()
+
+def pack():
     # the asset module
     V = {}
     for p in sorted(OUT.glob('*.ogg')):

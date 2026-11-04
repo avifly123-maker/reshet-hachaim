@@ -71,7 +71,8 @@
 "timeout": 120
 },
 {
-"wait": 2
+"until": "!document.querySelector('#ui .svf') && !document.querySelector('#ui.imv-film')",
+"timeout": 20
 },
 {
 "js": "'CHECK svfilm-ends ' + (!document.querySelector('#ui .svf') && !document.querySelector('#ui.imv-film') ? 'ok' : 'FAIL')"
@@ -93,7 +94,8 @@
 "js": "document.querySelector('#ui .svf-skip').click(); 1"
 },
 {
-"wait": 4
+"until": "!document.querySelector('#ui .svf') && window.__svFilm.t < 0",
+"timeout": 20
 },
 {
 "js": "'CHECK svfilm-skip ' + (!document.querySelector('#ui .svf') && window.__svFilm.t < 0 ? 'ok' : 'FAIL')"

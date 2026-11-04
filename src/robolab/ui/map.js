@@ -12,6 +12,7 @@ const LOOK = {
   grove:  { ground: '#b8c48a', ground2: '#a7b679', sand: '#d9c896', tree: '#4f7a3a', tree2: '#6e9a4c', water: '#6fb4c8', rock: '#9a9488', edge: '#5b4a35' },
   amazon: { ground: '#7fa860', ground2: '#6e9a52', sand: '#c9b98a', tree: '#1f5e34', tree2: '#2f8048', water: '#4f9fb0', rock: '#7d7a70', edge: '#2d3b24' },
   desert: { ground: '#e3c58e', ground2: '#d9b87c', sand: '#ecd3a0', tree: '#5f9a5a', tree2: '#7cb56f', water: '#5fb0bf', rock: '#b08a62', edge: '#8a5e36' },
+  savanna: { ground: '#c9b46a', ground2: '#bba45c', sand: '#d8c08a', tree: '#6a8a3a', tree2: '#86a44c', water: '#5fa8b8', rock: '#9a7a5a', edge: '#7a4e2e' },
   reef:   { ground: '#e9d9a8', ground2: '#dccb98', sand: '#e9d9a8', tree: '#e07a8a', tree2: '#f0a0a8', water: '#2f8fb5', rock: '#8a8478', edge: '#1d4f6e' },
 };
 const DIRV = [[0, -1], [1, 0], [0, 1], [-1, 0]];

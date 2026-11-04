@@ -16,7 +16,7 @@ import { checkRoboBadges } from './badges.js';
 import { ZONE_IDS, ZONE_LOOK } from '../data/zones.js';
 import { BLOCK_INTRO, CHAPTER_INTRO } from '../data/robolab/kubi-lines.js';
 import { playIntro } from './intro.js';
-import { robolabTutorial, robolabEventTutorial, missionRunTutorial, sandboxTutorial } from '../ui/tutorials.js';   // hands-on: the editor and the run, then events
+import { robolabTutorial, robolabEventTutorial, robolabLoopTutorial, missionRunTutorial, sandboxTutorial } from '../ui/tutorials.js';   // hands-on: the editor and the run, the loop, then events
 import { svcGuide } from '../core/services.js';
 import { BLOCKS } from './engine/blocks.js';
 import { createVoice } from '../audio/voice.js';
@@ -36,10 +36,13 @@ import { FAIL_LINES, GOAL_LINES, WIN_LINES, OOPS_LINES, FUN_LINES } from '../dat
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const pick = (arr, seed) => arr[Math.abs(seed | 0) % arr.length];
+let viewMode = 0;   // the eye button's camera view (0 the whole field, 1 from above, 2 close to the tool)
+const VIEW_WORDS = [['כל המגרש', 'כָּל הַמִּגְרָשׁ'], ['מלמעלה', 'מִלְמַעְלָה'], ['קרוב לכלי', 'קָרוֹב לַכְּלִי']];
 const ZONE_WORD = { grove: { f: 'חורש', k: 'חֹרֶשׁ' }, amazon: { f: 'אמזונס', k: 'אָמָזוֹנַס' }, reef: { f: 'שונית', k: 'שׁוּנִית' }, desert: { f: 'מדבר', k: 'מִדְבָּר' }, savanna: { f: 'סוואנה', k: 'סָוַאנָה' } };
 
 export function createRoboLab({ root, audio, kids = false, onExit, enter3d = null, leave3d = null, hasIsland = null }) {
   const T = (o) => (o ? (kids && o.k ? o.k : o.f) : '');
+  const viewWord = (m) => (kids ? VIEW_WORDS[m][1] : VIEW_WORDS[m][0]);
   const el = document.createElement('div');
   el.className = 'rl'; el.hidden = true; el.setAttribute('dir', 'rtl');
   root.appendChild(el);
@@ -87,6 +90,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   let sbRobot = 0;   // the robot chosen for the sandbox (an index into his garage)
   const stars = (n) => [0, 1, 2].map((k) => `<i class="${k < n ? 'on' : ''}">${icon('star')}</i>`).join('');
   function home() {
+    clearTimeout(stageT);
     stopTut(); clearTimeout(talkT); speakGen++; kvoice.stop();
     requestAnimationFrame(helloKubi);   // קוּבִּי greets once the home is drawn
     stopRun(); if (map) { map.dispose(); map = null; } ed = null; cur = null;
@@ -134,6 +138,22 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   let workshop = null;      // 1.4.3: סדנת הרובוט while open (workshop-ui.js)
   let kubiDo = () => { };   // what קוּבִּי does (his window in the lesson's strip)
   let kcam = null;
+  // 1.4.2 (Avi, 1.11: "קוּבִּי is tiny, like a sample"): when he explains a lesson or cheers a win he comes forward, big,
+  // at the side of the field (the same window, grown: css .rl-kubi.stage), and goes back to his corner after. A click on
+  // him sends him back at once.
+  let stageT = 0;
+  function stageKubi(on, afterMs = 0) {
+    clearTimeout(stageT);
+    const c = el.querySelector('.rl-kubi'); if (!c) return;
+    // the strip clips and transforms its children: on stage the canvas moves to the lab's own layer, and comes back after
+    const set = (v) => {
+      if (!c.isConnected) return;   // the lesson closed meanwhile
+      const home = el.querySelector('.rl-say');
+      if (v && c.parentNode !== el) el.appendChild(c); else if (!v && home && c.parentNode !== home) home.insertBefore(c, home.firstChild);
+      c.classList.toggle('stage', v); requestAnimationFrame(() => { if (kcam && kcam.resize) kcam.resize(); });
+    };
+    if (on) set(true); else if (afterMs > 0) stageT = setTimeout(() => set(false), afterMs); else set(false);
+  }
   // קוּבִּי's voice (recorded lines, src/data/kubi-voice.js; tools/voice/kubi-lines.mjs lists them). Without a file
   // for a line he still "talks" for a while, so his mouth goes with the words on the screen.
   const kvoice = createVoice(audio, { load: () => import('../data/kubi-voice.js').then((m) => m.KUBI_VOICE) });
@@ -210,23 +230,28 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   const countHats = (prog) => { let n = 0; const walk = (xs) => (xs || []).forEach((nd) => { if (BLOCKS[nd.b] && BLOCKS[nd.b].kind === 'hat') n++; walk(nd.body); walk(nd.then); walk(nd.else); });
     for (const k of ['robot', 'drone', 'sub']) walk(prog[k]); return n + (prog.on || []).length; };   // handlers live in prog.on
   const countAll = (prog) => { let n = 0; const walk = (xs) => (xs || []).forEach((nd) => { n++; walk(nd.body); walk(nd.then); walk(nd.else); }); for (const k of ['robot', 'drone', 'sub']) walk(prog[k]); return n; };
-  const tutState = () => { const p = ed ? ed.program() : {}; return { level: cur && cur.id, blocks: ed ? countAll(p) : 0, runs, hats: ed ? countHats(p) : 0, drives }; };
+  // loops: "חזור" / "עד ש" blocks in the program; inLoop: blocks placed inside one (the loop tutorial, 1.4.2)
+  const countLoops = (prog) => { let n = 0, inside = 0; const walk = (xs) => (xs || []).forEach((nd) => { if (nd.body && BLOCKS[nd.b] && BLOCKS[nd.b].kind !== 'hat') { n++; inside += nd.body.length; } walk(nd.body); walk(nd.then); walk(nd.else); }); for (const k of ['robot', 'drone', 'sub']) walk(prog[k]); return { n, inside }; };
+  const tutState = () => { const p = ed ? ed.program() : {}; const lp = ed ? countLoops(p) : { n: 0, inside: 0 }; return { level: cur && cur.id, blocks: ed ? countAll(p) : 0, runs, hats: ed ? countHats(p) : 0, loops: lp.n, inLoop: lp.inside, drives }; };
   function stopTut() { clearTimeout(tutT); if (tut) { const t = tut; tut = null; t.stop(); } }
   function queueTut(L) {
     clearTimeout(tutT);
     if (L.ownIsland && !L.sandbox) return;
     const hasHat = (L.blocks || []).some((b) => BLOCKS[b] && BLOCKS[b].kind === 'hat');
+    const hasLoop = (L.blocks || []).includes('repeat');
     tutT = setTimeout(() => {
       if ((tut && tut.step) || intro || cur !== L) return;
       const g = svcGuide(); if (!g) return;
       const rl = { state: tutState };
       tut = L.sandbox ? sandboxTutorial({ guide: g, rl, voice: kvoice })   // ארגז החול: drive, then the program it made
         : L.mission ? missionRunTutorial({ guide: g, rl, voice: kvoice })   // a workshop mission: קוּבִּי on the robot that went out
-        : robolabTutorial({ guide: g, rl }) || (hasHat ? robolabEventTutorial({ guide: g, rl }) : null);
+        : robolabTutorial({ guide: g, rl }) || (hasLoop ? robolabLoopTutorial({ guide: g, rl }) : null) || (hasHat ? robolabEventTutorial({ guide: g, rl }) : null);
     }, 2600);
   }
   function maxbUpdate() { const m = el.querySelector('.rl-maxb b'); if (!m || !ed || !cur) return; const n = countBlocks(ed.program()); m.textContent = n; m.parentNode.classList.toggle('full', !!cur.maxBlocks && n >= cur.maxBlocks); }
   function mountLevel(L, api) {
+    viewMode = 0;   // a new lesson starts with the whole field in view
+    clearTimeout(stageT); el.querySelectorAll(':scope > .rl-kubi').forEach((x) => x.remove());   // קוּבִּי left on stage by the lesson before
     stopTut();
     const news = newsFor(L);
     stopRun(); if (map) map.dispose();
@@ -248,7 +273,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
             <button type="button" data-again>${icon('again')}<span>${kids ? 'מֵהַהַתְחָלָה' : 'מההתחלה'}</span></button>
             <button type="button" data-why disabled>${icon('why')}<span>${kids ? 'מָה קָרָה?' : 'מה קרה?'}</span></button>
             ${(L.blocks || []).includes('add') ? `<span class="rl-ctr" title="${kids ? 'הַמּוֹנֶה' : 'המונה'}">🔢 <b>0</b></span>` : ''}
-            ${api ? `<button type="button" data-view aria-label="${kids ? 'לְהַחֲזִיר אֶת הַמַּבָּט' : 'להחזיר את המבט'}">${icon('eye')}</button>` : ''}
+            ${api ? `<button type="button" data-view>${icon('eye')}<span>${viewWord(1)}</span></button>` : ''}
           </div>${L.sandbox ? driveHTML(L) : ''}</div>
       </div></div>`;
     ed = createEditor(el.querySelector('.rl-ed'), { lesson: L, kids, onFull: () => { sfx('invalid'); const m = el.querySelector('.rl-maxb'); if (m) { m.classList.remove('full'); void m.offsetWidth; m.classList.add('full'); } }, onChange: () => { maxbUpdate(); lastRun = null; el.querySelector('[data-why]').disabled = true; if (map && !map.isPlaying()) map.reset(); hideMsg(); } });
@@ -262,7 +287,13 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     kcam = kubiCam(el.querySelector('.rl-kubi'));
     kubiDo = (what, sec = 0) => { if (!kcam) return; if (what) kcam.set(what); if (sec > 0) kcam.talk(true, sec); };
     queueTut(L);
-    clearTimeout(talkT); talkT = setTimeout(() => { if (!open || cur !== L) return; kubiDo('explain'); speak([...(news.chapter ? ['kc_' + L.ch] : []), 'kl_' + L.id, ...news.blocks.map((b) => 'kb_' + b)], Math.min(9, 1.2 + (el.querySelector('.rl-say p') || { textContent: '' }).textContent.length / 16)); }, 700);
+    clearTimeout(talkT); talkT = setTimeout(() => {
+      if (!open || cur !== L) return; kubiDo('explain');
+      const sec = Math.min(9, 1.2 + (el.querySelector('.rl-say p') || { textContent: '' }).textContent.length / 16), t0 = performance.now();
+      stageKubi(true);   // 1.4.2 (Avi, 1.11): he steps forward, big, while he explains the lesson
+      speak([...(news.chapter ? ['kc_' + L.ch] : []), 'kl_' + L.id, ...news.blocks.map((b) => 'kb_' + b)], sec)
+        .then(() => { if (cur === L) stageKubi(false, Math.max(1200, sec * 1000 - (performance.now() - t0) + 600)); });
+    }, 700);
   }
   const CONCEPT = {
     step: { f: 'סדר פעולות', k: 'סֵדֶר פְּעֻלּוֹת' }, turn: { f: 'פניות', k: 'פְּנִיּוֹת' }, path: { f: 'מסלול', k: 'מַסְלוּל' }, order: { f: 'קודם ואחר כך', k: 'קֹדֶם וְאַחַר כָּךְ' },
@@ -302,7 +333,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
         if (cur.mission) { winMission(r); return; }
         const { first } = cur.ownIsland ? { first: !!addIsland() } : markSolved(cur.id, r.stars, r.blocks);
         setTimeout(checkRoboBadges, 1200);   // after the win message (the badge toast comes on its own)
-        kubiDo('cheer'); speak(['kw_' + (Math.abs(seedN) % WIN_LINES.length)], 2);
+        kubiDo('cheer'); stageKubi(true); speak(['kw_' + (Math.abs(seedN) % WIN_LINES.length)], 2).then(() => stageKubi(false, 2600));
         msg(`<div class="rl-win"><span class="rl-st big">${stars(r.stars)}</span><b>${esc(T(pick(WIN_LINES, seedN)))}</b><small>${r.variants > 1 ? (kids ? `עָבַד בְּכָל ${r.variants} הַגִּרְסָאוֹת · ` : `עבד בכל ${r.variants} הגרסאות · `) : ''}${r.blocks} ${kids ? 'בְּלוֹקִים' : 'בלוקים'}${r.stars < 3 && cur.par ? ' · ' + esc(T({ f: 'אפשר גם ב־' + cur.par, k: 'אֶפְשָׁר גַּם בְּ־' + cur.par })) : ''}</small>
           <span class="rl-winb"><button type="button" data-next>${kids ? 'לַשִּׁעוּר הַבָּא' : 'לשיעור הבא'}</button><button type="button" data-stay>${kids ? 'לְנַסּוֹת שׁוּב' : 'לנסות שוב'}</button></span></div>`, 'win');
         sfx(first ? 'mission' : 'pop');
@@ -429,6 +460,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
 
   el.addEventListener('change', (e) => { const q = e.target.closest('[data-sbrobot]'); if (q) sbRobot = +q.value || 0; });
   el.addEventListener('click', (e) => {
+    if (e.target.classList && e.target.classList.contains('rl-kubi') && e.target.classList.contains('stage')) { stageKubi(false); return; }   // back to his corner
     const b = e.target.closest('button'); if (!b || !el.contains(b) || b.disabled) return;
     if (b.dataset.wsback != null) { sfx('click'); home(); openWs('missions'); return; }
     if (b.dataset.exit != null) { close(); if (onExit) onExit(); return; }
@@ -442,7 +474,10 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     if (b.dataset.drive) { drive(b.dataset.drive); return; }
     if (b.dataset.sandbox) { sfx('click'); openSandbox(b.dataset.sandbox, b.dataset.sbown === '1'); return; }
     if (b.dataset.why != null) { why(); return; }
-    if (b.dataset.view != null) { if (in3d && in3d.api) in3d.api.frame(); return; }
+    if (b.dataset.view != null) {   // the eye: the whole field → from above → close to the tool → the whole field
+      if (in3d && in3d.api) { viewMode = (viewMode + 1) % 3; in3d.api.frame(viewMode); const sp = b.querySelector('span'); if (sp) sp.textContent = viewWord((viewMode + 1) % 3); sfx('click'); }
+      return;
+    }
     if (b.dataset.stay != null) { hideMsg(); map.reset(); return; }
     if (b.dataset.island) { sfx('click'); openIsland(b.dataset.island); return; }
     if (b.dataset.next != null && cur && cur.ownIsland) { openIsland(cur.zone); return; }
@@ -484,7 +519,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   function openLab() { open = true; el.hidden = false; dropDrafts(); markSeen('home'); home(); grantTechCards(); }
   // the technology cards follow every step forward in the lab (a lesson, a mission, the workshop)
   window.addEventListener('wol-progress', (e) => { if (open && e.detail && e.detail.kind === 'robolab') grantTechCards(); });
-  function close() { stopTut(); clearTimeout(talkT); open = false; speakGen++; kvoice.stop(); stopRun(); if (kcam) { kcam.dispose(); kcam = null; } if (garage) { garage.close(); garage = null; } if (workshop) { workshop.close(); workshop = null; } if (in3d) end3d(); if (map) { map.dispose(); map = null; } el.hidden = true; el.innerHTML = ''; }
+  function close() { stopTut(); clearTimeout(talkT); clearTimeout(stageT); el.querySelectorAll(':scope > .rl-kubi').forEach((x) => x.remove()); open = false; speakGen++; kvoice.stop(); stopRun(); if (kcam) { kcam.dispose(); kcam = null; } if (garage) { garage.close(); garage = null; } if (workshop) { workshop.close(); workshop = null; } if (in3d) end3d(); if (map) { map.dispose(); map = null; } el.hidden = true; el.innerHTML = ''; }
   const R = {
     open: openLab, close, isOpen: () => open,
     coversGame: () => open && !!in3d && !!in3d.api && !el.classList.contains('in3d'),   // (while it loads, or closes for lack of room, the game runs its own update)   // the home over a kept island (main.js skips it)

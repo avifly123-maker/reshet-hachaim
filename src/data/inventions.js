@@ -70,7 +70,7 @@ export const TRAITS = {
   houbara: ['hide', 'walk'], hawkmoth: ['hover', 'nightsee', 'fly'], desertsnail: ['reflect', 'dome', 'patient'],
   // סוואנה (1.4.2)
   umbrella: ['tall', 'spines', 'shelter'], baobab: ['storewater', 'tall'], whistling: ['spines', 'team'], redoat: ['patient'], stargrass: ['hold'],
-  kigelia: ['tall', 'bloom'], sycamore: ['tall', 'shelter'], marula: ['tall'], doum: ['tall'], papyrus: ['hold', 'float'], termitemound: ['airtunnels', 'woodgut', 'team'],
+  kigelia: ['tall', 'bloom'], sycamore: ['tall', 'shelter'], marula: ['tall'], doum: ['tall'], papyrus: ['hold', 'float'], termitemound: ['airtunnels', 'woodgut', 'team', 'shelter'],
   zebra: ['stripes', 'walk', 'team'], wildebeest: ['walk', 'team'], impala: ['fast', 'team'], giraffe: ['tightskin', 'tall', 'walk'], elephant: ['trunkgrip', 'coolears', 'strong'],
   lion: ['strong', 'team', 'nightsee'], crocodile: ['armor', 'patient', 'swim'], weaver: ['fly', 'hold'], buffalo: ['strong', 'team'], hyena: ['strong', 'team', 'nightsee'],
   baboon: ['climb', 'team', 'grip'],
@@ -115,9 +115,6 @@ export const PROBLEMS = [
     real: 'elephant', fact: 'לחדק של הפיל אין עצמות, אבל הוא חזק וגמיש, ויכול להרים גם בול עץ וגם עלה קטן. בשנת 2010 חברה בגרמניה בנתה זרוע רובוט רכה לפי החדק של הפיל.',
     clue: 'למי בסוואנה יש אף ארוך בלי עצמות, שמרים גם עלה קטן וגם ענף כבד?', show: { fail: 'הזרוע הקשה שברה את הביצה.', half: 'הזרוע תפסה בעדינות, אבל לא הצליחה להרים דברים כבדים.' } },
   // 1.4.3 set 6 (docs/sources.md "הממציאים, 1.4.3")
-  { id: 'gsuit', theme: 'health', land: true, icon: 'shield', title: 'חליפה לטייסים', ask: 'טייסים במטוס מהיר מרגישים שהדם בורח להם לרגליים, ומסתחרר להם הראש. איך עוזרים להם?', key: 'tightskin', half: ['tall', 'strong', 'cushion'],
-    real: 'giraffe', fact: 'הראש של הג׳ירפה רחוק מאוד מהלב, ולכן הלחץ של הדם שלה גבוה מאוד. העור ברגליים שלה הדוק כמו גרב לוחצת, והדם לא נאסף שם. חוקרים בנאס״א חקרו את הרגליים של הג׳ירפה כדי ללמוד איך לשמור על אסטרונאוטים ועל טייסים.',
-    clue: 'למי בסוואנה יש רגליים ארוכות מאוד וראש גבוה מאוד מעל הלב?', show: { fail: 'בפנייה החדה הראש של הטייס הסתחרר.', half: 'קצת עזר, אבל בפנייה חזקה הראש עדיין הסתחרר.' } },
   { id: 'biofuel', theme: 'energy', land: true, icon: 'leaf', title: 'דלק מקש ומגזם', ask: 'אחרי הקציר נשאר בשדות הרבה קש, ובגינות הרבה ענפים. אפשר להפוך אותם לדלק? ממי לומדים לפרק עץ?', key: 'woodgut', half: ['team', 'dig', 'shelter'],
     real: 'termitemound', fact: 'הטרמיטים אוכלים עץ ועשב יבש. בבטן שלהם חיים חיידקים זעירים שמפרקים את העץ. חוקרים בודקים את החיידקים האלה כדי ללמוד איך להפוך קש וגזם לדלק.',
     clue: 'מי בסוואנה אוכל עץ ועשב יבש, ובונה בית גבוה מאדמה?', show: { fail: 'הקש נשאר קש, ושום דלק לא יצא.', half: 'קצת מהקש התפרק, אבל רובו נשאר כמו שהיה.' } },
@@ -130,6 +127,9 @@ export const PROBLEMS = [
   { id: 'hopbot', kids: true, theme: 'robots', land: true, icon: 'gear', title: 'רובוט שעובר על חול ואבנים', ask: 'רובוט חוקר צריך לעבור מהר על חול רך ועל אבנים. הגלגלים שלו נתקעים. איך הוא יזוז?', key: 'hop', half: ['tail', 'fast', 'walk'],
     real: 'jerboa', fact: 'הירבוע קופץ על שתי רגליים ארוכות, ומשתמש בזנב כדי לשמור על איזון. בשנת 2015 חוקרים בארצות הברית בנו רובוט קופץ עם זנב בשם ג׳רבואה, לפי הירבוע.',
     clue: 'מי במדבר קופץ על שתי רגליים ארוכות, עם זנב ארוך מאחור?', show: { fail: 'הגלגלים שקעו בחול, והרובוט נתקע.', half: 'הרובוט זז קצת, אבל נתקע באבן הראשונה.' } },
+  { id: 'swelllegs', theme: 'health', land: true, icon: 'shield', title: 'רגליים שלא מתנפחות', ask: 'מי שעומד כל היום בעבודה, הרגליים שלו מתנפחות בערב. מה יעזור לו?', key: 'tightskin', half: ['strong', 'walk'],
+    real: 'giraffe', fact: 'לג׳ירפה יש עור הדוק וחזק ברגליים, והרגליים שלה לא מתנפחות, גם כשהיא עומדת כל היום. בשנות השבעים מהנדס אמריקאי בנה לפי זה תחבושת לחץ שלא נמתחת, שעוזרת לרגליים של אנשים לא להתנפח.',
+    clue: 'למי בסוואנה יש רגליים ארוכות מאוד, עם עור הדוק וחזק?', show: { fail: 'הרגליים התנפחו בדיוק כמו קודם.', half: 'הנפיחות ירדה קצת, אבל לא מספיק.' } },
   // 1.4, the desert (docs/sources.md "המדבר")
   { id: 'fogwater', kids: true, theme: 'water', land: true, icon: 'drop', title: 'מים מן הערפל', ask: 'בכפר על הר יבש יש ערפל כמעט כל בוקר, אבל אין מעיין. איך אוספים מים?', key: 'fogcatch', half: ['storewater', 'soak', 'spines'],
     real: 'darkling', fact: 'במדבר נמיב שבאפריקה יש חיפושית שחורה שעומדת בבוקר מול הרוח. טיפות ערפל נתפסות על הגב שלה ומתגלגלות אל הפה. לפי הרעיון הזה בונים רשתות ומשטחים שאוספים מים מהערפל.',
@@ -312,8 +312,6 @@ export const PROBLEMS = [
 // tools/check-inventions.mjs runs every card and every pair of cards against every problem.
 const ROUTES = {
   // 1.4.3 set 6
-  gsuit: { want: 'משהו שלוחץ חזק על הרגליים, כך שהדם לא ייאסף בהן.', half: ['tall', 'strong'],
-    alt: [{ t: ['coil'], why: 'רצועה שמתלפפת ולוחצת על הרגליים, כמו נחש שמתלפף, לא נותנת לדם להצטבר שם.', fact: 'חליפות של טייסי קרב מתנפחות בפנייה חדה ולוחצות על הרגליים, וכך הדם נשאר בראש.' }] },
   biofuel: { want: 'מישהו שיודע לפרק עץ ועשב יבש לחלקים קטנים.', half: ['team', 'dig'],
     alt: [{ t: ['mycel'], why: 'פטריות מפרקות עץ ועלים יבשים בעזרת חומרים מיוחדים. בעזרת חומרים כאלה אפשר להפוך גזם לדלק.', fact: 'במפעלים מפרקים קש בעזרת חומרים שפטריות מייצרות, ומהקש עושים דלק.' }] },
   waterbag: { want: 'משהו שמחזיק מים בתוכו כמו ספוג, ולא נותן להם להישפך.', half: ['float', 'fly'],
@@ -323,6 +321,8 @@ const ROUTES = {
   hopbot: { want: 'דרך לזוז בלי גלגלים, שלא שוקעת בחול ולא נתקעת באבנים.', half: ['tail', 'fast'],
     alt: [{ t: ['climb'], why: 'רגליים שמטפסות ונאחזות, כמו של היעל, עוברות על אבנים בלי להיתקע.', fact: 'היום יש רובוטים עם ארבע רגליים, שהולכים על סלעים ועל חול.' }] },
   // 1.4.2, the savanna
+  swelllegs: { want: 'משהו שלוחץ על הרגליים מבחוץ, או שעוזר לדם לעלות מהן חזרה למעלה.', half: ['strong'],
+    alt: [{ t: ['walk'], why: 'הליכה מזיזה את שרירי הרגליים, והם לוחצים על כלי הדם ודוחפים את הדם בחזרה למעלה.', fact: 'רופאים ממליצים למי שעומד הרבה ללכת ולהזיז את הרגליים: שרירי השוק לוחצים על הוורידים ועוזרים לדם לחזור אל הלב.' }] },
   coolhouse: { want: 'משהו שמכניס אוויר קריר ומוציא אוויר חם, בלי מנוע.', half: ['shelter', 'dome'],
     alt: [{ t: ['reflect'], why: 'קירות וגג לבנים ומבריקים מחזירים את קרני השמש, כמו הקונכייה של חילזון המדבר, והבניין מתחמם פחות.', fact: 'צבע לבן מחזיר את רוב קרני השמש. לכן בערים חמות צובעים גגות וקירות בלבן.' }] },
   nobites: { want: 'משהו שמבלבל את הזבובים, כך שלא ימצאו איפה לנחות.', half: ['hide', 'team'],

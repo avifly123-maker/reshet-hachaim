@@ -13,7 +13,7 @@ fail() { echo; echo "FAILED: $1"; exit 1; }
 step() { echo; echo "== $1"; }
 
 step "validators"
-for v in validate-content validate-kids validate-guide validate-threads validate-lab validate-quiz validate-verse validate-storage validate-zones validate-robolab validate-robot-missions; do
+for v in validate-content validate-kids validate-guide validate-threads validate-lab validate-quiz validate-verse validate-storage validate-zones validate-robolab validate-robot-missions check-sync; do
   raw=$(node tools/$v.mjs 2>&1); code=$?
   out=$(echo "$raw" | grep -v -i "warning\|Reparsing\|trace-warnings"); echo "$v: $(echo "$out" | tail -1)"
   [ $code -ne 0 ] && { echo "$out" | tail -20; fail "$v (exit code $code)"; }
@@ -92,6 +92,24 @@ for t in workshop:14 workshop-kids:5 techcards:7 workshop-missions:14 workshop-i
   echo "$out" | grep "\[pageerror\]\|JS ERROR\|UNTIL TIMEOUT\|NO ELEMENT" && fail "$f: errors"
   [ "$n" = "$want" ] || fail "$f: $n of $want checks"
 done
+# the robot lab's loop tutorial (1.4.2, Avi 1.11): the loop, a block inside it, the number, and going on under it
+out=$(timeout 1200 python3 tools/play.py dist/index.html tests/play/robolab-loop-tutorial.json 800 460 2>&1)
+n=$(echo "$out" | grep -c "CHECK .* ok")
+echo "$out" | grep "CHECK .* FAIL" && fail "robot lab loop tutorial: a check failed"
+echo "$out" | grep "\[pageerror\]\|JS ERROR\|UNTIL TIMEOUT\|NO ELEMENT" && fail "robot lab loop tutorial: errors"
+[ "$n" = 5 ] || fail "robot lab loop tutorial: $n of 5 checks"
+# the savanna pushes back (1.4.2, Avi 1.11): three hyenas against one lion steal its kills (W.thirstK)
+out=$(timeout 1200 python3 tools/play.py dist/index.html tests/play/savanna-rival.json 800 460 2>&1)
+echo "$out" | grep -q "CHECK rival ok" || fail "savanna rivalry: $(echo "$out" | grep CHECK)"
+# a big lion runs round a termite mound, not through it (1.4.3 closing, Avi: "lions get stuck in the termite mound")
+out=$(timeout 900 python3 tools/play.py dist/index.html tests/play/mound-walk.json 800 460 2>&1)
+echo "$out" | grep -q "CHECK lion-passes-mound ok" || fail "mound walk: $(echo "$out" | grep CHECK)"
+# the savanna's robot lessons (1.4.2, Avi 1.11): listed, and one runs on the savanna island in 3D
+out=$(timeout 1200 python3 tools/play.py dist/index.html tests/play/robolab-savanna.json 800 460 2>&1)
+n=$(echo "$out" | grep -c "CHECK .* ok")
+echo "$out" | grep "CHECK .* FAIL" && fail "robot lab savanna: a check failed"
+echo "$out" | grep "\[pageerror\]\|JS ERROR\|UNTIL TIMEOUT\|NO ELEMENT" && fail "robot lab savanna: errors"
+[ "$n" = 3 ] || fail "robot lab savanna: $n of 3 checks"
 # the desert's first visit (1.4.1): plant a saltbush, bring a sand rat, run time on (tests/play/desert-tutorial.json)
 out=$(timeout 1200 python3 tools/play.py dist/index.html tests/play/desert-tutorial.json 800 460 2>&1)
 n=$(echo "$out" | grep -c "CHECK .* ok")

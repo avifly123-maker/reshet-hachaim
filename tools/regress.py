@@ -17,6 +17,12 @@ QUIET = """(() => { try { window.__guide && window.__guide.close(); } catch (e) 
   document.querySelectorAll('#rguide button').forEach((b) => /דלג/.test(b.textContent) && b.click());
   document.querySelectorAll('.coach button, .howto button').forEach((b) => /דלג|הבנתי|סגירה/.test(b.textContent) && b.click()); return 1; })()"""
 OPEN = "window.__journey && window.__journey.unlockAll('2580'); 1"
+# 1.4.3: every first-visit intro marked seen, so the screens show themselves and not a tutorial
+SEEN = ("window.__journey && ['stage:1','g:wktut','g:wmtut','g:wmtut:run','g:rltut','g:rltut:ev','g:gartut','g:sbtut','g:svfilm','g:deserttut','g:savtut',"
+        "'g:labtut','g:hubtut','g:lab:news','g:start:chat','g:start:howstages'].forEach((k) => window.__journey.markIntro(k)); window.__journey && window.__journey.markTrained(); 1")
+RL = [{'js': SEEN}, {'js': OPEN}, {'js': "window.__app.bus.emit('ui:robolab'); 1"}, {'until': "!!document.querySelector('.rl-home')"}, {'wait': 3},
+      {'js': "const i=document.querySelector('.rl-intro [data-iskip]'); if(i) i.click(); 1"}, {'wait': 2}, {'q': 1}]
+def biome(z, extra=12): return [{'wait': 4}, {'js': SEEN}, {'js': OPEN}, {'js': "window.__app.bus.emit('start:biome', { id: '%s' }); 1" % z}, {'until': 'window.__game && window.__game.debug'}, {'wait': 18 + extra}, {'q': 1}, {'wait': 1}, {'q': 1}]
 
 # name: list of steps (js / wait / shot / click selector); every scenario starts on a fresh start screen
 SCEN = {
@@ -44,6 +50,27 @@ SCEN = {
   'reef': [{'wait': 4}, {'js': OPEN}, {'js': "window.__app.bus.emit('start:biome', { id: 'reef' }); 1"}, {'until': 'window.__game && window.__game.debug'}, {'wait': 18}, {'q': 1}, {'wait': 1}, {'q': 1}, {'shot': 'reef'}],
   'kids': [{'wait': 4}, {'js': "document.querySelector(\"[data-mode='kids']\") && document.querySelector(\"[data-mode='kids']\").click(); 1"}, {'wait': 3}, {'q': 1}, {'shot': 'kids-start'},
            {'js': "window.__app.bus.emit('start:biome', { id: 'grove' }); 1"}, {'until': 'window.__game && window.__game.debug'}, {'wait': 18}, {'q': 1}, {'wait': 1}, {'q': 1}, {'shot': 'kids-grove'}],
+  # 1.4 (the closing tour of 1.4.3): the two new zones, the robot lab and its workshop, the talk, the journey's nine stages
+  'desert': biome('desert') + [{'shot': 'desert'}],
+  'savanna': biome('savanna', 20) + [{'shot': 'savanna'}, {'click': '.sv-stab'}, {'wait': 1.5}, {'shot': 'savanna-herds'},
+              {'click': '.tb-chat'}, {'wait': 2.5}, {'shot': 'savanna-chat'}],
+  'chat': [{'wait': 4}, {'js': SEEN}, {'wait': 1}, {'q': 1}, {'click': '.st-chat'}, {'wait': 2.5}, {'shot': 'chat-start'},
+           {'click': "#rguide [data-act='t:riddle']"}, {'wait': 2.5}, {'shot': 'chat-riddle'}],
+  'map9': [{'wait': 4}, {'js': SEEN}, {'js': OPEN}, {'wait': 1}, {'q': 1}, {'click': '.st-jbar'}, {'wait': 2}, {'q': 1}, {'shot': 'map9'}],
+  'robolab': [{'wait': 4}] + RL + [{'shot': 'rl-home'}, {'click': '.rl-wkbtn'}, {'wait': 2}, {'click': '[data-wstepok]'}, {'wait': 2}, {'q': 1}, {'shot': 'rl-workshop'},
+              {'click': ".rl-wk [data-wtab=missions]"}, {'wait': 2}, {'q': 1}, {'shot': 'rl-missions'}],
+  'garage': [{'wait': 4}] + RL + [{'click': '.rl-home [data-garage]'}, {'wait': 4}, {'q': 1}, {'shot': 'rl-garage'}],
+  'lesson3d': [{'wait': 4}] + RL + [{'js': "window.__rlDebug.open('l1-1'); 1"}, {'until': 'window.__rlDebug.in3d()'}, {'wait': 8}, {'q': 1}, {'shot': 'rl-lesson3d'}],
+  'sandbox': [{'wait': 4}] + RL + [{'js': "window.__rlDebug.sandbox('savanna'); 1"}, {'until': 'window.__rlDebug.in3d() && window.__rlDebug.sb().on'}, {'wait': 8}, {'q': 1}, {'shot': 'rl-sandbox'}],
+  'techalbum': [{'wait': 4}, {'js': SEEN}, {'js': OPEN}, {'js': "window.__noRender = true; window.__app.bus.emit('ui:learn', {}); 1"}, {'wait': 10}, {'q': 1},
+                {'js': "window.__wolLearn._go('album'); 1"}, {'wait': 2}, {'click': "[data-wl=filter][data-v=tech]"}, {'wait': 2}, {'q': 1}, {'shot': 'hub-tech'},
+                {'click': "[data-wl=filter][data-v=savanna]"}, {'wait': 2}, {'q': 1}, {'shot': 'hub-savanna'}],
+  'lab14': [{'wait': 4}, {'js': SEEN}, {'js': OPEN}, {'js': "window.__app.openLab(); 1"}, {'wait': 20}, {'q': 1}, {'wait': 2}, {'q': 1},
+            {'js': "window.__labDebug.openQuestions('q_eleskin'); 1"}, {'wait': 3}, {'q': 1}, {'shot': 'lab-question'},
+            {'js': "window.__labDebug.go('cabinet'); 1"}, {'wait': 4}, {'q': 1}, {'shot': 'lab-cabinet'}],
+  'kids14': [{'wait': 4}, {'js': SEEN}, {'js': OPEN}, {'js': "document.querySelector(\"[data-mode='kids']\") && document.querySelector(\"[data-mode='kids']\").click(); 1"}, {'wait': 2}, {'q': 1},
+             {'click': '.st-chat'}, {'wait': 2.5}, {'shot': 'kids-chat'}, {'key': 'Escape'}, {'wait': 1},
+             {'js': "window.__app.bus.emit('start:biome', { id: 'savanna' }); 1"}, {'until': 'window.__game && window.__game.debug'}, {'wait': 30}, {'q': 1}, {'wait': 1}, {'q': 1}, {'shot': 'kids-savanna'}],
 }
 
 async def run(build, out, size, only):
@@ -64,6 +91,7 @@ async def run(build, out, size, only):
                     if 'wait' in s: await pg.wait_for_timeout(int(s['wait'] * 1000))
                     if 'q' in s: await pg.evaluate(QUIET)
                     if 'js' in s: await pg.evaluate(s['js'])
+                    if 'key' in s: await pg.keyboard.press(s['key'])
                     if 'until' in s: await pg.wait_for_function(s['until'], timeout=240000)
                     if 'click' in s:
                         box = await pg.evaluate('''(q) => { const e = [...document.querySelectorAll(q)].find((x) => x.offsetParent !== null || x.getClientRects().length); if (!e) return null; const r = e.getBoundingClientRect(); return [r.x + r.width / 2, r.y + r.height / 2]; }''', s['click'])

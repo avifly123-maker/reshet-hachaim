@@ -20,7 +20,7 @@ export function createRoboSession(ctx, R) {
     frame(quick ? 1 : 0.05);
     return course;
   }
-  function frame(dur = 1.4) { const v = course.view(); rig.goTo(v.target, v.pos, dur); }
+  function frame(dur = 1.4, mode = 0) { const v = course.view(mode); rig.goTo(v.target, v.pos, dur); }
   // the lesson's panel covers the right part of the screen (RTL): shift the picture so the field sits in the free part
   function fitPanel() {
     if (!camera) return;
@@ -68,7 +68,7 @@ export function createRoboSession(ctx, R) {
       const api = {
         get level() { return R.level; },
         newIsland: () => { const L = newIsland(); if (L) R.level = L; return L; },
-        get course() { return course; }, rebuild: (L, o) => { const c = build(L, o); return c; }, frame: () => frame(1) };
+        get course() { return course; }, rebuild: (L, o) => { const c = build(L, o); return c; }, frame: (mode = 0) => frame(1, mode) };
       if (R.attach) R.attach(api);
     },
     update(dt, rdt) {

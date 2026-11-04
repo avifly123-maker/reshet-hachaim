@@ -933,3 +933,4 @@ Lab and inventors:
 - The word "robot" comes from the Czech "robota" (work, forced labour); it was first used in Karel Čapek's play R.U.R.
   (1920), and his brother Josef suggested it (https://en.wikipedia.org/wiki/Robot#Etymology).
 - Octopuses change colour within a fraction of a second (https://en.wikipedia.org/wiki/Cephalopod_camouflage).
+- הממציאים, "רגליים שלא מתנפחות" (1.11.2026): העור ההדוק ברגלי הג׳ירפה ותחבושת הלחץ הקשיחה של פרנק שו משנות השבעים: https://www.medi.de/en/products/highlights/circaid-adjustable-compression/giraffes/ (וגם חליפת BioSuit של MIT בהשראת הג׳ירפה). ההליכה ושרירי השוק: ידע רפואי כללי.

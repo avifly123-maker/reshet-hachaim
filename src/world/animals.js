@@ -26,6 +26,9 @@ function trunksOf(W) {
     let r = 0;
     if (k === 'tree' || k === 'palm') r = Math.min(1.2, Math.max(0.14, (p.vis.trunkRadius || 0.4) * (0.35 + 0.65 * p.growth)));
     else if (k === 'shrub' && p.growth > 0.35) r = 0.18 + 0.32 * p.growth;
+    // 4.11 (Avi: lions got stuck in the termite mound): a shrub with a wide solid base (the termite mound, about a metre
+    // round) is as wide as its base, so walkers steer round it instead of being pushed out of its middle
+    if (r && p.vis.trunkRadius > 0.25) r = Math.max(r, Math.min(1.4, p.vis.trunkRadius * 1.55));
     if (r) out.push({ x: p.x, z: p.z, r, p });
   }
   W._trunks = out; W._trunksT = now; return out;

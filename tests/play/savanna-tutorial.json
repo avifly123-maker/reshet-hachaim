@@ -75,7 +75,7 @@
 "clickSel": "#ui .speed button[data-s='3']"
 },
 {
-"wait": 1
+"until": "window.__game.debug.savannaTut().step === 'end'", "timeout": 6
 },
 {
 "js": "'CHECK savanna-tut-waits-speed ' + (window.__game.debug.savannaTut().step === 'end' ? 'ok' : 'FAIL ' + window.__game.debug.savannaTut().step)"

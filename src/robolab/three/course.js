@@ -25,6 +25,7 @@ const LIFE = {
   amazon: { tree: ['acai', 'cecropia'], sapling: 'brazilnut', thirsty: 'heliconia', treeG: 0.3 },
   desert: { tree: ['acacia', 'barrelcactus'], sapling: 'acacia', thirsty: 'saltbush', treeG: 0.9 },
   reef:   { tree: ['brain', 'table', 'branching'], sapling: 'branching', thirsty: 'seagrass', treeG: 0.55 },
+  savanna: { tree: ['umbrella', 'marula'], sapling: 'umbrella', thirsty: 'redoat', treeG: 0.8 },   // 1.4.2
 };
 const TILE = { '.': '#f3ecd2', s: '#f0d9a0', '~': '#4fb4d8', T: '#d8e8c0', R: '#d8d2c4', m: '#b89870', h: '#e6d2a6', n: '#c89a6a', w: '#9fd6e6' };   // 1.4.3: mud, slope, a narrow log, shallow water (their look: field-cells.js)
 const DUR = { slow: 0.85, normal: 0.42, fast: 0.12 };   // seconds per step of the trace
@@ -351,10 +352,17 @@ export function createCourse(ctx, L) {
     if (fireT <= 0) { fireT = 0.22; for (const F of fires) if (!F.done) { const X = wx(F.x), Z = wz(F.y); _v.set(X, ground(X, Z) + 0.3, Z); markers.burst(_v, Math.random() < 0.5 ? '#ff8a3a' : '#ffd25a', 6, { speed: 0.5, size: 0.55, life: 0.9, up: 2.2 }); } }
   }
   // the camera's view of the field: target and distance
-  function view() {
+  // mode (1.4.2, Avi 1.11: "the eye button does nothing"): 0 the whole field, 1 from straight above (a map, easy to count
+  // cells), 2 close to the first tool (to see what it does)
+  function view(mode = 0) {
     const span = Math.max(Wd + 1.2, H * 1.3) * CS;   // the field and קוּבִּי beside it on the left
     const t = new THREE.Vector3(OX - CS * 0.3, ground(OX, OZ) + (sea ? 1 : 0.5), OZ + CS * 0.1);
     const d = span * (span > 30 ? 0.95 : 0.72) + 5;   // big fields (an island mission) need more room
+    if (mode === 1) return { target: t, pos: new THREE.Vector3(t.x, t.y + d * 1.12, t.z + d * 0.06) };
+    if (mode === 2) {
+      const k = Object.keys(tools).find((n) => tools[n] && tools[n].show && tools[n].obj);
+      if (k) { const p = tools[k].obj.getWorldPosition(new THREE.Vector3()); return { target: p, pos: new THREE.Vector3(p.x + CS * 0.5, p.y + CS * 1.5, p.z + CS * 2.1) }; }
+    }
     return { target: t, pos: new THREE.Vector3(0, t.y + d * 0.78, t.z + d * 0.72) };
   }
   // where קוּבִּי stands: beyond the field's far left corner (the panel covers the right side), facing the camera

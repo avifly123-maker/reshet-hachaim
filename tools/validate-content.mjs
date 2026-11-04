@@ -236,7 +236,8 @@ function validateBiome(B, id) {
     const g = m.goal || {};
     if (!GOALS[g.type]) err(id, `${p}: goal type "${g.type}" invalid`);
     else if (g.type === 'all') {
-      if (!m.expert) err(id, `${p}: an 'all' goal is for expert missions`);
+      // 1.4.2 (Avi, 1.11): the desert and the savanna are the advanced zones; their regular missions ask for several things
+      if (!m.expert && !['desert', 'savanna'].includes(id)) err(id, `${p}: an 'all' goal is for expert missions`);
       if (!Array.isArray(g.parts) || !g.parts.length) err(id, `${p}: goal all needs parts`);
       for (const k of Object.keys(g)) if (!['type', 'parts', 'hold', 'holdLabel'].includes(k)) err(id, `${p}: goal all unknown param ${k}`);
       if (g.hold !== undefined && !(Number.isInteger(g.hold) && g.hold > 0)) err(id, `${p}: hold must be positive int`);

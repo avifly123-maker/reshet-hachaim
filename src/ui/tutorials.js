@@ -58,6 +58,25 @@ export function robolabTutorial({ guide, rl, force = false, voice = null }) {
   ];
   return runGuided({ guide, steps, sayOpts: voice ? { speaker: 'kubi', voice } : null, onEnd: (r) => { if (r !== 'abort') markIntro(KEY); } });
 }
+// 1.4.2 (Avi, 1.11: "it is not clear how one block goes inside another"): the first lesson with "חזור" shows it by hand:
+// add the loop, see the glowing place inside it, put a block in, change the number, and how to go on below the loop.
+export function robolabLoopTutorial({ guide, rl, force = false }) {
+  const KEY = 'g:rltut:loop';
+  if (!guide || !rl || !rl.state || (!force && introSeen(KEY))) return null;
+  const st = () => rl.state();
+  const after = L('rltut:after').slice();
+  const steps = [
+    { id: 'loop', lines: L('rltut:loop'), wait: () => st().loops > 0,
+      before: () => { const b = document.querySelector('#ui .rl-pal .rl-blk[data-add="repeat"]'); if (b) b.scrollIntoView({ block: 'center' }); } },
+    { id: 'inside', lines: L('rltut:inside'), wait: () => st().inLoop > 0 },
+    { id: 'count', lines: L('rltut:count') },
+    { id: 'after', lines: after, before: () => {   // ring the empty place right under the loop (the top list's last slot)
+      const top = document.querySelector('#ui .rl-code .rl-list'), sl = top && [...top.children].filter((c) => c.classList.contains('rl-slot')).pop();
+      if (sl && after[0]) after[0] = { ...after[0], at: sl };
+    } },
+  ];
+  return runGuided({ guide, steps, onEnd: (r) => { if (r !== 'abort') markIntro(KEY); } });
+}
 export function robolabEventTutorial({ guide, rl, force = false, voice = null }) {
   const KEY = 'g:rltut:ev';
   if (!guide || !rl || !rl.state || (!force && introSeen(KEY))) return null;

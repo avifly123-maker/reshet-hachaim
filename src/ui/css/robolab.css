@@ -33,7 +33,7 @@
 #ui.wol .rl-lvb:disabled, #ui.wol .rl-pzb:disabled { opacity: .38; cursor: default; filter: grayscale(.6); }
 #ui.wol .rl-lvb:not(:disabled):hover, #ui.wol .rl-pzb:not(:disabled):hover { transform: translateY(-2px); }
 #ui.wol .rl-z { position: absolute; top: 5px; inset-inline-start: 5px; width: 9px; height: 9px; border-radius: 50%; background: #7a9a4a; }
-#ui.wol .rl-z.z-amazon { background: #2f7d4a; } #ui.wol .rl-z.z-reef { background: #2fa3b8; } #ui.wol .rl-z.z-desert { background: #d8a85a; }
+#ui.wol .rl-z.z-amazon { background: #2f7d4a; } #ui.wol .rl-z.z-reef { background: #2fa3b8; } #ui.wol .rl-z.z-desert { background: #d8a85a; } #ui.wol .rl-z.z-savanna { background: #b8862e; }
 #ui.wol .rl-st { display: inline-flex; gap: 1px; }
 #ui.wol .rl-st i { color: #c9d3da; display: inline-flex; } #ui.wol .rl-st i svg { width: .85em; height: .85em; }
 #ui.wol .rl-st i.on { color: #f5b82e; }
@@ -120,6 +120,7 @@
 
 /* the start screen's panel (science centre tab): a small drawn scene instead of a picture, until the opening film */
 #ui.wol .st-pimg.rlb { position: relative; background: radial-gradient(90% 90% at 60% 30%, #2a5f8a, #14314a); overflow: hidden; }
+#ui.wol .st-pimg.rlb.pic::before { display: none; }
 #ui.wol .st-pimg.rlb::before { content: ''; position: absolute; inset: 0; opacity: .25; background-image: linear-gradient(#9cc8e8 1px, transparent 1px), linear-gradient(90deg, #9cc8e8 1px, transparent 1px); background-size: 18px 18px; }
 #ui.wol .rlb-bot { position: absolute; left: 22%; bottom: 16%; width: 30%; aspect-ratio: 1.1; border-radius: 22%; background: #f5f1e8; box-shadow: inset 0 -8px 0 #d8d0bd, 0 6px 0 #2b2b2b; }
 #ui.wol .rlb-bot::before { content: ''; position: absolute; inset: 16% 16% 46%; border-radius: 14%; background: #e8873a; }
@@ -360,3 +361,9 @@ body:has(#rguide .rg-wrap.kubi) .rl-say .rl-kubi { visibility: hidden; }
 #ui.wol .rl-drive button:active { transform: translateY(1px); box-shadow: none; }
 #ui.wol .rl-drive svg { width: 18px; height: 18px; }
 #ui.wol .rl-sbend b { display: block; line-height: 1.4; }
+
+/* 1.4.2: קוּבִּי comes forward, big, while he explains a lesson or cheers (index.js stageKubi) */
+#ui.wol .rl-kubi.stage { position: absolute; inset-inline-start: auto; left: 14px; top: auto; bottom: 74px; width: clamp(150px, 19vw, 240px); height: clamp(170px, 34vh, 290px); z-index: 30; pointer-events: auto; cursor: pointer;
+  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, .35)); animation: rlk-in .35s ease-out; }
+@keyframes rlk-in { from { transform: translateY(24px) scale(.85); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { #ui.wol .rl-kubi.stage { animation: none; } }

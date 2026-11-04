@@ -60,7 +60,7 @@ export function runGuided({ guide, steps, onEnd, skipLabel, noSkip = false, ever
   // One bubble set. Only "לדלג על ההדרכה" ends the whole run; "דלג" or Escape skips this step's words: a step that
   // waits for the child keeps its last line on the screen (otherwise the child would not know what is asked).
   function show(st, lines, opts) {
-    const p = guide.say(lines, opts);
+    const p = guide.say(lines, { ...opts, guided: true });   // a hands-on tutorial is never dropped by the quiet switch
     pending = p;
     p.then((r) => {
       if (pending !== p || over) return;   // closed by us (the action was done) or the run ended
