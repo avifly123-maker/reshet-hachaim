@@ -31,7 +31,7 @@ for (const ln of allGuideLines()) {
     if (/[—]/.test(s)) err(`${where}: no em dash in on-screen words`);
   }
   if (ln.at != null && typeof ln.at !== 'string') err(`${where}: at must be a CSS selector string`);
-  if (ln.expr && !['normal', 'happy', 'curious', 'wow', 'oops'].includes(ln.expr)) err(`${where}: unknown expr ${ln.expr}`);
+  if (ln.expr && !['normal', 'happy', 'curious', 'wow', 'oops', ...(String(ln.id).startsWith('nz.') ? ['think', 'proud', 'excited', 'bored'] : [])].includes(ln.expr)) err(`${where}: unknown expr ${ln.expr}`);   // 1.4.4: ניצוץ has more faces (src/ui/nitzotz-face.js)
 }
 for (const k of Object.keys(GUIDE)) if (!k.includes(':') && !PARTS[k]) err(`GUIDE key "${k}" is neither a journey part nor an 'area:place' key`);
 for (const k of Object.keys(GUIDE)) if (k.includes(':') && /^(zone|lab):/.test(k) && !PARTS[k] && !/^(zone|lab):[a-z]+(:|$)/.test(k)) err(`GUIDE key "${k}" looks like a part but is not in PARTS`);

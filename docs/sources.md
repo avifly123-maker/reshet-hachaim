@@ -934,3 +934,11 @@ Lab and inventors:
   (1920), and his brother Josef suggested it (https://en.wikipedia.org/wiki/Robot#Etymology).
 - Octopuses change colour within a fraction of a second (https://en.wikipedia.org/wiki/Cephalopod_camouflage).
 - הממציאים, "רגליים שלא מתנפחות" (1.11.2026): העור ההדוק ברגלי הג׳ירפה ותחבושת הלחץ הקשיחה של פרנק שו משנות השבעים: https://www.medi.de/en/products/highlights/circaid-adjustable-compression/giraffes/ (וגם חליפת BioSuit של MIT בהשראת הג׳ירפה). ההליכה ושרירי השוק: ידע רפואי כללי.
+
+## הסדנה של ניצוץ (1.4.4 set 3, src/data/workshop/, src/workshop/progress.js)
+
+- **Four measures of creative thinking** (fluency, flexibility, originality, elaboration): the four scores of the Torrance Tests of Creative Thinking (E. P. Torrance, 1966; built on J. P. Guilford's divergent thinking, 1950). The workshop counts them gently, never as a test: fluency = ideas, flexibility = kinds of idea (ideas.js CATS), originality = a pair never tried before, more for a far lever or a wild trait, elaboration = "worth improving" and one thing turned at least three ways.
+- **The levers of the idea machine** (grow, shrink, flip, join, remove a part, change the material, use it differently, like nature): the SCAMPER checklist (B. Eberle, 1971, from A. Osborn's idea checklist, 1953), told in children's words, plus a nature lever (biomimicry).
+- **Constraints help creativity**: P. D. Stokes, "Creativity from Constraints" (2005); a round keeps only the child's own record.
+- **"כמו בטבע" facts in ideas.js:** pine cones open when dry and close when wet (Dawson, Vincent & Rocca, Nature 1997); the Namib desert beetle collects fog drops on its bumpy back (Parker & Lawrence, Nature 2001; also in the lab, `fogcatch`); a camel's wide padded feet spread its weight on sand; termite mounds move air through their tunnels (Turner & Soar 2008; `airtunnels`); a chameleon's tail wraps round branches; the honeycomb's hexagon cells give strength with little wax (Hales, the honeycomb conjecture, 2001); a hummingbird's long bill reaches deep into flowers; a hedgehog's spines absorb the blow of a fall (Vincent & Owers, J. Zool. 1986); a kangaroo carries its young in a front pouch.
+- **The nature mixer** scores a trait by the robot workshop's tests (src/data/inventions.js TRIALS, already sourced in "הממציאים"); the cards' traits come from the album cards (traitsOf).

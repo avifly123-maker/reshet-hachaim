@@ -173,3 +173,44 @@ export function weeklyTutorial({ guide, sheet, force = false }) {
   ];
   return runGuided({ guide, steps, onEnd: (r) => { if (r !== 'abort' || !sheet.isConnected) markIntro(KEY); } });
 }
+
+// הסדנה של ניצוץ (1.4.4 set 3): ניצוץ leads these himself (speaker 'nitzotz', written only). One per place, each the
+// first time the child comes there; ws.state() → { place, thing, last, mix, round } (src/workshop/index.js).
+const nzRun = (KEY, guide, steps, onDone) => runGuided({ guide, steps, sayOpts: { speaker: 'nitzotz' },
+  onEnd: (r) => { if (r !== 'abort') markIntro(KEY); if (onDone) onDone(r); } });
+export function nzRoomTutorial({ guide, ws, force = false, onDone }) {
+  const KEY = 'g:nztut';
+  if (!guide || !ws || (!force && introSeen(KEY))) return null;
+  return nzRun(KEY, guide, [
+    { id: 'hello', lines: L('nztut:hello') },
+    { id: 'board', lines: L('nztut:board') },
+    { id: 'go', lines: L('nztut:go'), wait: () => ws.state().place !== 'room' },
+  ], onDone);
+}
+export function nzMachineTutorial({ guide, ws, force = false, onDone }) {
+  const KEY = 'g:nztut:mach';
+  if (!guide || !ws || (!force && introSeen(KEY))) return null;
+  return nzRun(KEY, guide, [
+    { id: 'thing', lines: L('nzmach:thing'), wait: () => !!ws.state().thing },
+    { id: 'lever', lines: L('nzmach:lever'), wait: () => !!ws.state().last },
+    { id: 'rate', lines: L('nzmach:rate'), wait: () => { const l = ws.state().last; return !!(l && l.r); } },
+    { id: 'end', lines: L('nzmach:end') },
+  ], onDone);
+}
+export function nzMixerTutorial({ guide, ws, force = false, onDone }) {
+  const KEY = 'g:nztut:mix';
+  if (!guide || !ws || (!force && introSeen(KEY))) return null;
+  return nzRun(KEY, guide, [
+    { id: 'spin', lines: L('nzmix:spin'), wait: () => !!ws.state().mix },
+    { id: 'pick', lines: L('nzmix:pick'), wait: () => { const m = ws.state().mix; return !!(m && m.fit); } },
+    { id: 'end', lines: L('nzmix:end') },
+  ], onDone);
+}
+export function nzCardsTutorial({ guide, ws, force = false, onDone }) {
+  const KEY = 'g:nztut:card';
+  if (!guide || !ws || (!force && introSeen(KEY))) return null;
+  return nzRun(KEY, guide, [
+    { id: 'draw', lines: L('nzcard:draw'), wait: () => !!ws.state().round },
+    { id: 'end', lines: L('nzcard:end') },
+  ], onDone);
+}

@@ -13,7 +13,7 @@ scene.add(new THREE.HemisphereLight('#ffffff', '#8a9aa8', 1.0)); const sun = new
 const cam = new THREE.PerspectiveCamera(30, W / H, 0.05, 20);
 if (PORTRAIT) { cam.position.set(0, 0.52, 2.5); cam.lookAt(0, 0.47, 0); } else { cam.position.set(0.25, 0.55, 2.6); cam.lookAt(0, 0.5, 0); }
 const N = createNitzotz({ sparks: !PORTRAIT }); scene.add(N.object);
-if (PORTRAIT) N.face.visible = false;
+if (PORTRAIT) { N.face.visible = false; N.calm(true); }
 let last = performance.now(), still = false;
 function frame(now) { requestAnimationFrame(frame); if (still) return; const dt = Math.min(0.05, (now - last) / 1000); last = now; N.update(dt); r.render(scene, cam); }
 requestAnimationFrame(frame);

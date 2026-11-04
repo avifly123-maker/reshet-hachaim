@@ -115,13 +115,14 @@ async function boot() {
   const STAGE_GAP_MS = 600;     // a breath between two stage moments
   const STAGE_RETRY_MS = 1000;  // how often a waiting moment looks again for a calm place
   let robolab = null, robolabP = null;   // מעבדת הרובוטים (1.4.1), see openRoboLab
+  let workshop = null, workshopP = null;   // הסדנה של ניצוץ (1.4.4), see openWorkshop
   const stageQ = []; let stageRun = null, stageT = 0;
   const playerId = () => { try { return profiles.current().id; } catch (e) { return ''; } };
   const calmForStage = () => {
     if (game || loading || labOpening) return false;
     if (document.querySelector('.ss, .bdg-pop, #howto, #rguide.modal:not([hidden])')) return false;
     if (hub && hub.isOpen()) return !!root.querySelector('#wol-learn .wl-home');   // the hub's home (over the lab too)
-    if ((lab && lab.isOpen()) || researchHub.isOpen() || (robolab && robolab.isOpen())) return false;
+    if ((lab && lab.isOpen()) || researchHub.isOpen() || (robolab && robolab.isOpen()) || (workshop && workshop.isOpen())) return false;
     return ui.isStartShown();
   };
   function nextStage() {
@@ -361,6 +362,14 @@ async function boot() {
     robolabP.then((R) => { ui.hideLoading(); R.open(); }, (e) => { robolabP = null; ui.hideLoading(); console.error(e); showStart(); });
   }
   bus.on('ui:robolab', openRoboLab);
+  // הסדנה של ניצוץ (1.4.4 set 3): its own pack, opened from the science centre; leaving goes back to the start screen
+  function openWorkshop() {
+    audio.start(); ui.hideStart();
+    ui.setLoading && ui.setLoading(0.3, 'פותחים את הסדנה של ניצוץ...');
+    workshopP = workshopP || loadPack('workshop').then((m) => (workshop = m.createWorkshop({ root, audio, kids: () => playerMode() === 'kids', onExit: () => { startDrawn = false; showStart(); } })));
+    workshopP.then((W) => { ui.hideLoading(); W.open(); }, (e) => { workshopP = null; ui.hideLoading(); console.error(e); showStart(); });
+  }
+  bus.on('ui:workshop', openWorkshop);
   bus.on('audio:mute', ({ muted }) => { audio.setMuted(muted); writeDeviceRaw(K.sound, muted ? 'off' : 'on'); });   // remembered for the computer (1.3.2)
   if (readDeviceRaw(K.sound) === 'off') { audio.setMuted(true); ui.setToggles({ sound: false }); }
   // the parents' play time (1.3.3): when the day's time is over the lock screen covers everything; the forest stops
@@ -376,6 +385,7 @@ async function boot() {
     if (hub && hub.isOpen()) return null;
     if ((lab && lab.isOpen()) || labOpening) return 'lab';
     if (robolab && robolab.isOpen()) return 'lab';   // the robot lab shares the lab's music
+    if (workshop && workshop.isOpen()) return 'lab';
     if (researchHub.isOpen()) return null;
     return ui.isStartShown() ? 'start' : null;
   };
@@ -519,7 +529,7 @@ async function boot() {
     let bin = ''; const u = new Uint8Array(out.buffer); for (let i = 0; i < u.length; i += 0x8000) bin += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000));
     return btoa(bin);
   };
-  window.__app = { bus, ui, audio, music, pipe, voice, guide, journey, loadBiome, researchHub, get quality() { return quality; }, openLab: () => openLab(), openCase: (id, opts) => { let C = caseById(id); if (C && opts && opts.tutorial) C = { ...C, tutorial: true }; if (C) loadBiome(C.zone, null, C); }, get game() { return game; } };
+  window.__app = { bus, ui, audio, music, pipe, voice, guide, journey, loadBiome, researchHub, get quality() { return quality; }, openLab: () => openLab(), openCase: (id, opts) => { let C = caseById(id); if (C && opts && opts.tutorial) C = { ...C, tutorial: true }; if (C) loadBiome(C.zone, null, C); }, get game() { return game; }, get workshop() { return workshop; } };
   setService('app', window.__app);   // the parts read it through src/core/services.js; window.__app stays for the test tools
 }
 

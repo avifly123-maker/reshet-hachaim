@@ -17,6 +17,7 @@ export const BADGE_GROUPS = [
   { id: 'research', name: 'חוקרי הטבע', short: 'חוקרים', col: '#3a5a2a', col2: '#f6cf72' },
   { id: 'robolab', name: 'מעבדת הרובוטים', short: 'רובוטים', col: '#1f4a6e', col2: '#e8873a' },
   { id: 'weekly', name: 'אירועי השבוע', short: 'אירועים', col: '#6a2a5a', col2: '#f6cf72' },   // 1.4.4
+  { id: 'workshop', name: 'הסדנה של ניצוץ', short: 'ניצוץ', col: '#8a5a12', col2: '#ffe08a' },   // 1.4.4
   // torah edition only (hidden in the general edition and while "מקורות ופסוקים" is off)
   { id: 'sources', name: 'מה הפסוק מלמד?', short: 'מקורות', col: '#7a5420', col2: '#f6dfa0', torah: true },
 ];
@@ -151,6 +152,16 @@ export const BADGES = [
   { id: 'b_ro_puz5', group: 'robolab', art: 'chameleon', name: 'ראש חידות', how: 'פותרים חמש חידות', earn: 'robo:puzzles:5' },
   { id: 'b_ro_fun', group: 'robolab', art: 'firefly', name: 'זיקוקים לכל הכיוונים', how: 'לוחצים עשרים פעם על בלוקים מפתיעים', earn: 'robo:fun' },
   { id: 'b_ro_design', group: 'robolab', art: 'butterfly', name: 'מעצב רובוטים', how: 'צובעים כלי בסדנת העיצוב', earn: 'robo:design' },
+  // ── הסדנה של ניצוץ (1.4.4, src/workshop/progress.js earned(): the four measures of creative thinking and the places)
+  { id: 'b_nz_first', group: 'workshop', art: 'firefly', name: 'ניצוץ ראשון', how: 'רעיון ראשון בסדנה של ניצוץ', earn: 'nz:first' },
+  { id: 'b_nz_flu15', group: 'workshop', art: 'leafcutter', name: 'מעיין של רעיונות', how: 'חמישה עשר רעיונות (שטף)', earn: 'nz:fluency15' },
+  { id: 'b_nz_flu60', group: 'workshop', art: 'honeybee', name: 'כוורת של רעיונות', how: 'שישים רעיונות (שטף)', earn: 'nz:fluency60' },
+  { id: 'b_nz_flex', group: 'workshop', art: 'chameleon', name: 'מכל הכיוונים', how: 'רעיונות מכל שמונת הסוגים (גמישות)', earn: 'nz:flex' },
+  { id: 'b_nz_orig', group: 'workshop', art: 'octopus', name: 'אף אחד לא חשב על זה', how: 'עשרים וחמש נקודות מקוריות', earn: 'nz:orig25' },
+  { id: 'b_nz_elab', group: 'workshop', art: 'harvesterant', name: 'גרסה ב׳', how: 'שישה שיפורים (פירוט ושיפור)', earn: 'nz:elab6' },
+  { id: 'b_nz_crazy', group: 'workshop', art: 'sloth', name: 'תיבת השיגעונות', how: 'חמישה רעיונות מצחיקים בתיבה', earn: 'nz:crazy5' },
+  { id: 'b_nz_mixer', group: 'workshop', art: 'hummingbird', name: 'הטבע מלמד', how: 'שישה פתרונות שעובדים במערבל הטבע', earn: 'nz:mixer6' },
+  { id: 'b_nz_cards', group: 'workshop', art: 'jay', name: 'אוהב אתגרים', how: 'עומדים בחמישה קלפי אילוץ', earn: 'nz:cards5' },
   // ── אירוע השבוע (1.4.4, core/weekly.js finish(): the first win of a version gives these)
   { id: 'b_wk_first', group: 'weekly', art: 'hoopoe', name: 'אירוע ראשון', how: 'מצליחים באירוע שבוע ראשון', earn: 'weekly:first' },
   { id: 'b_wk_glitch', group: 'weekly', art: 'chameleon', name: 'מחזירים הביתה', how: 'מצליחים ב"התקלה במעבדה"', earn: 'weekly:glitch' },

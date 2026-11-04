@@ -24,7 +24,8 @@ const LOADERS = {
   hub: () => import('../packs/hub.js'),
   lab: () => import('../packs/lab.js'),
   research: () => import('../packs/research.js'),
-  robolab: () => import('../packs/robolab.js'),   // מעבדת הרובוטים (1.4.1)   // the words of a running mystery (חוקרי הטבע)
+  robolab: () => import('../packs/robolab.js'),
+  workshop: () => import('../packs/workshop.js'),   // הסדנה של ניצוץ (1.4.4)   // מעבדת הרובוטים (1.4.1)   // the words of a running mystery (חוקרי הטבע)
 };
 
 const pending = new Map();   // name → Promise<module>

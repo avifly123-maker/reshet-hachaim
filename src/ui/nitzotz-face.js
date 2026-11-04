@@ -40,7 +40,7 @@ export function drawNitzotzFace(cx, W, H, s = {}) {
     }
     // the brow
     cx.strokeStyle = 'rgba(70,52,30,.75)'; cx.lineWidth = 5; cx.lineCap = 'round'; cx.beginPath();
-    const by = ey - 54 - (mood === 'wow' || mood === 'idea' || mood === 'excited' ? 8 : 0) + (mood === 'bored' ? 10 : 0);
+    const by = ey - 54 - (mood === 'wow' || mood === 'idea' || mood === 'excited' ? 8 : mood === 'happy' ? 4 : 0) + (mood === 'bored' ? 10 : 0);
     const tilt = mood === 'think' ? (k < 0 ? -7 : 5) : mood === 'proud' ? -4 : 0;
     cx.moveTo(x - 20, by + 3 + tilt * k * -0.3); cx.quadraticCurveTo(x, by - 5 + tilt, x + 20, by + 3 - tilt * k * 0.3); cx.stroke();
   }
@@ -57,6 +57,9 @@ export function drawNitzotzFace(cx, W, H, s = {}) {
   }
   else if (mood === 'think') { cx.beginPath(); cx.moveTo(114, my + 2); cx.quadraticCurveTo(128, my - 4, 146, my - 2); cx.stroke(); }
   else if (mood === 'bored') { cx.beginPath(); cx.moveTo(114, my + 2); cx.lineTo(142, my + 2); cx.stroke(); }
-  else { cx.beginPath(); cx.arc(128, my - 14, 18, Math.PI * 0.22, Math.PI * 0.78); cx.stroke(); }
+  else {   // happy: an eager open smile (Avi, 5.11: a character of enthusiasm)
+    cx.beginPath(); cx.moveTo(108, my - 6); cx.quadraticCurveTo(128, my + 18, 148, my - 6); cx.closePath(); cx.fill();
+    cx.fillStyle = '#e8786a'; cx.beginPath(); cx.ellipse(128, my + 3, 7, 3.5, 0, 0, Math.PI * 2); cx.fill();
+  }
   cx.restore();
 }

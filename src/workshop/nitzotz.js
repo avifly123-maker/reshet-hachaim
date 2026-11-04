@@ -105,7 +105,10 @@ export function createNitzotz({ size = 1, sparks = true } = {}) {
   let act = null, actT = 0, t = 0, light = 1, lightT = 1, faceDirty = true, faceT = 0;
   const ACT_LEN = { idea: 1.6, explain: 2.4, hint: 2.2, cheer: 2.0, fuse: 2.6, wave: 2.0, excited: 1.8 };
   const MOOD_OF = { idea: 'idea', explain: 'happy', hint: 'think', cheer: 'proud', fuse: 'fuse', wave: 'happy', excited: 'excited' };
-  const LIGHT_OF = { happy: 1, think: 0.85, bored: 0.4, wow: 1.2, proud: 1.25, idea: 1.5, excited: 1.3, fuse: 0 };
+  const LIGHT_OF = { happy: 1.15, think: 0.9, bored: 0.4, wow: 1.25, proud: 1.3, idea: 1.5, excited: 1.35, fuse: 0 };
+  // Avi (5.11): "he is a character of an entrepreneur's enthusiasm": every few seconds, when nothing else happens, a
+  // small burst of excitement (a bounce and a flicker); `calm: true` turns it off (a portrait, a serious moment)
+  let burstT = 4 + Math.random() * 4, calm = false;
   function set(x) {
     if (ACT_LEN[x]) { act = x; actT = 0; mood = MOOD_OF[x] || mood; }
     else { mood = x; if (act && MOOD_OF[act] !== x) act = null; }
@@ -126,6 +129,7 @@ export function createNitzotz({ size = 1, sparks = true } = {}) {
       HL.rotation.z += Math.sin(t * 1.3) * 0.12; HR.rotation.z -= Math.sin(t * 1.4 + 0.5) * 0.12;
     }
     lightT = LIGHT_OF[mood] != null ? LIGHT_OF[mood] : 1;
+    if (!act && !calm && mood === 'happy' && !talking) { burstT -= dt; if (burstT <= 0) { burstT = 7 + Math.random() * 6; set('excited'); } }
     if (act) {
       actT += dt; const k = Math.min(1, actT / ACT_LEN[act]), e = env(k);
       if (act === 'idea') { float.position.y += Math.sin(Math.min(1, k * 2) * Math.PI) * 0.12; lightT = 1.5 + (k < 0.25 ? 1 : 0); }
@@ -193,6 +197,7 @@ export function createNitzotz({ size = 1, sparks = true } = {}) {
   return {
     object: root, set, update, dispose,
     talk: (on) => { talking = !!on; if (!on) mouth = 0; faceDirty = true; },
+    calm: (on) => { calm = !!on; },
     look: (x, y) => { lookTX = Math.max(-1, Math.min(1, x)); lookTY = Math.max(-1, Math.min(1, y)); },
     get mood() { return mood; }, get action() { return act; }, get light() { return light; },
     face,   // the face's mesh (the portraits' tool hides it and measures where it is)

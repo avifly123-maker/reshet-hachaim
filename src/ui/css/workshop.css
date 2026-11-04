@@ -1,0 +1,122 @@
+/* הסדנה של ניצוץ (1.4.4 set 3): an inventor's workshop of its own: warm wood, amber light, paper notes, fully right to
+   left. One layer over everything (--z-panels, like the robot lab). Sized for 800x460 and up; the places fit without a
+   scroll bar, a long list (the constraint cards) scrolls inside its own box. No cross shapes. */
+#ui.wol .ws { position: absolute; inset: 0; z-index: var(--z-panels); pointer-events: auto; color: #3a2a18; font-family: var(--sans);
+  background: radial-gradient(110% 80% at 25% 0%, #fff2cf 0%, #f3d9a2 40%, #d9b177 100%); overflow: hidden; display: flex; flex-direction: column; }
+#ui.wol .ws::before { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .14;
+  background-image: repeating-linear-gradient(90deg, #8a5a2a 0 2px, transparent 2px 46px), repeating-linear-gradient(0deg, transparent 0 22px, rgba(138, 90, 42, .5) 22px 23px); }
+#ui.wol .ws[hidden] { display: none; }
+#ui.wol .ws button { font: inherit; color: inherit; cursor: pointer; }
+#ui.wol .ws svg.ic { width: 1.2em; height: 1.2em; flex: none; }
+#ui.wol .ws-top { position: relative; display: flex; align-items: center; gap: 10px; padding: 7px 12px; background: #6b3f1d; color: #fff3da; box-shadow: 0 3px 0 rgba(60, 30, 10, .35); }
+#ui.wol .ws-title { flex: 1; min-width: 0; }
+#ui.wol .ws-title h1 { margin: 0; font-family: var(--serif); font-size: 1.4em; line-height: 1.05; color: #ffe08a; white-space: nowrap; }
+#ui.wol .ws-title p { margin: 1px 0 0; font-size: .8em; color: #f6d9b0; }
+#ui.wol .ws-back, #ui.wol .ws-room-btn { display: flex; align-items: center; gap: 6px; padding: 7px 12px; border: 0; border-radius: 12px; background: #f0a93a; color: #3a2108 !important; font-weight: 700; box-shadow: 0 3px 0 #9a6420; }
+#ui.wol .ws-room-btn[hidden] { display: none; }
+#ui.wol .ws-back:active, #ui.wol .ws-room-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #9a6420; }
+#ui.wol .ws-body { position: relative; flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(170px, 23%) 1fr; gap: 10px; padding: 8px 10px 10px; }
+#ui.wol .ws-side { display: flex; flex-direction: column; gap: 6px; min-height: 0; }
+#ui.wol .ws-nz { display: block; width: 100%; flex: 1 1 120px; min-height: 96px; max-height: 220px; border-radius: 16px;
+  background: radial-gradient(70% 70% at 50% 45%, rgba(255, 236, 160, .65), rgba(255, 236, 160, 0) 70%), #4a2d16; box-shadow: inset 0 0 0 3px #8a5a2a; }
+#ui.wol .ws-board { padding: 6px 9px 7px; border-radius: 14px; background: #fffaf0; box-shadow: 0 3px 0 #c79b62, inset 0 0 0 1.5px #e8cfa3; font-size: .82em; }
+#ui.wol .ws-board h3 { margin: 0 0 3px; font-family: var(--serif); font-size: 1.05em; color: #a04f12; }
+#ui.wol .ws-meter { display: grid; grid-template-columns: 4.6em 1fr 2.2em; align-items: center; gap: 5px; margin: 2px 0; }
+#ui.wol .ws-meter i { height: 9px; border-radius: 6px; background: #ecdcc0; overflow: hidden; }
+#ui.wol .ws-meter u { display: block; height: 100%; border-radius: 6px; background: linear-gradient(90deg, #ffd24a, #ff9a2a); transition: width .5s; }
+#ui.wol .ws-meter b { text-align: left; color: #8a4a12; }
+#ui.wol .ws-crazy { margin-top: 4px; width: 100%; padding: 4px 6px; border: 0; border-radius: 9px; background: #f7e4c4; font-size: .95em; }
+#ui.wol .ws-crazy b { color: #c2410c; }
+#ui.wol .ws-roundbar { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; padding: 6px 8px; border-radius: 12px; background: #3a6b4a; color: #fff; font-size: .82em; box-shadow: 0 3px 0 #1f4430; }
+#ui.wol .ws-roundbar[hidden] { display: none; }
+#ui.wol .ws-roundbar > b { flex: 1 0 100%; line-height: 1.2; }
+#ui.wol .ws-clock { font-size: 1.5em; font-weight: 800; color: #ffe08a; min-width: 1.8em; }
+#ui.wol .ws-clock.low { color: #ffb0a0; animation: ws-pulse .8s infinite; }
+#ui.wol .ws-prog { font-weight: 700; }
+#ui.wol .ws-roundbar button { margin-inline-start: auto; padding: 2px 9px; border: 0; border-radius: 8px; background: rgba(255, 255, 255, .2); }
+@keyframes ws-pulse { 50% { opacity: .55; } }
+#ui.wol .ws-main { position: relative; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
+/* the room: seven places */
+#ui.wol .ws-room { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 1fr; gap: 9px; }
+#ui.wol .ws-st { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 8px 6px; border: 0; border-radius: 16px; text-align: center;
+  background: linear-gradient(#fffaf0, #f6e6c8); box-shadow: 0 4px 0 #b9894f, inset 0 0 0 2px #e6c995; transition: transform .15s; }
+#ui.wol .ws-st:hover:not(.soon) { transform: translateY(-3px); }
+#ui.wol .ws-st:nth-child(-n+3) { background: linear-gradient(#fff6d6, #ffd98a); box-shadow: 0 4px 0 #c08530, inset 0 0 0 2px #f0b850; }
+#ui.wol .ws-stic { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; background: #6b3f1d; color: #ffe08a; }
+#ui.wol .ws-stic svg.ic { width: 26px; height: 26px; }
+#ui.wol .ws-st b { font-size: 1em; line-height: 1.15; }
+#ui.wol .ws-st small { font-size: .74em; color: #7a5a3a; line-height: 1.2; }
+#ui.wol .ws-st.soon { opacity: .55; cursor: default; filter: saturate(.5); }
+#ui.wol .ws-st.soon small { color: #a0662a; font-weight: 700; }
+/* the idea machine */
+#ui.wol .wm { flex: 1; display: grid; grid-template-rows: auto auto auto 1fr; gap: 8px; min-height: 0; }
+#ui.wol .wm-things { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; }
+#ui.wol .wm-things button { padding: 5px 11px; border: 0; border-radius: 20px; background: #fffaf0; box-shadow: 0 2px 0 #c79b62; font-size: .92em; }
+#ui.wol .wm-things button.on { background: #6b3f1d; color: #ffe08a; box-shadow: 0 2px 0 #3a200c; }
+#ui.wol .wm-machine { position: relative; display: flex; align-items: center; justify-content: center; gap: 14px; padding: 7px; border-radius: 18px; background: #8a5a2a; box-shadow: inset 0 -4px 0 rgba(0, 0, 0, .25); }
+#ui.wol .wm-slot { min-width: 150px; padding: 6px 14px; border-radius: 12px; background: #2b1a0c; color: #ffe08a; text-align: center; font-size: 1.15em; font-weight: 700; box-shadow: inset 0 0 0 2px #c08530; }
+#ui.wol .wm-gears { display: flex; gap: 4px; }
+#ui.wol .wm-gears i { width: 26px; height: 26px; border-radius: 50%; border: 5px dotted #ffd24a; }
+#ui.wol .wm-machine.run .wm-gears i { animation: ws-turn .7s linear 2; }
+#ui.wol .wm-machine.run .wm-gears i:nth-child(2) { animation-direction: reverse; }
+#ui.wol .wm-machine.run .wm-slot { animation: ws-shake .35s 2; }
+@keyframes ws-turn { to { transform: rotate(1turn); } }
+@keyframes ws-shake { 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+#ui.wol .wm-levers { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+#ui.wol .wm-levers button { display: flex; align-items: center; justify-content: center; gap: 5px; padding: 7px 4px; border: 0; border-radius: 12px; background: #f0a93a; color: #3a2108; font-weight: 700; box-shadow: 0 3px 0 #9a6420; font-size: .9em; }
+#ui.wol .wm-levers button:disabled { opacity: .45; cursor: default; }
+#ui.wol .wm-levers button:not(:disabled):active { transform: translateY(2px); box-shadow: 0 1px 0 #9a6420; }
+#ui.wol .wm-out { align-self: start; padding: 9px 14px; border-radius: 4px 16px 16px 16px; background: #fffef8; box-shadow: 0 3px 0 #c79b62, 4px 4px 0 rgba(0, 0, 0, .05); animation: ws-in .3s; }
+#ui.wol .wm-out.empty { background: transparent; box-shadow: none; text-align: center; color: #7a5a3a; animation: none; }
+#ui.wol .wm-out small { display: inline-block; padding: 1px 8px; border-radius: 8px; background: #ffe6a8; color: #8a4a12; font-size: .78em; }
+#ui.wol .wm-out.fun small { background: #ffd0e0; color: #9d174d; }
+#ui.wol .wm-out p { margin: 4px 0 0; font-size: 1.08em; line-height: 1.35; }
+#ui.wol .wm-rate { display: flex; gap: 7px; justify-content: center; align-self: end; }
+#ui.wol .wm-rate button { padding: 6px 14px; border: 0; border-radius: 12px; background: #fffaf0; box-shadow: 0 3px 0 #c79b62; font-weight: 700; }
+#ui.wol .wm-rate button.on { background: #3a6b4a; color: #fff; box-shadow: 0 3px 0 #1f4430; }
+@keyframes ws-in { from { transform: scale(.92); opacity: 0; } }
+/* the nature mixer */
+#ui.wol .wx { flex: 1; display: flex; flex-direction: column; gap: 8px; min-height: 0; }
+#ui.wol .wx-wheels { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; }
+#ui.wol .wx-wheel { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 104px; padding: 6px; border-radius: 18px; text-align: center;
+  background: #fffaf0; box-shadow: 0 4px 0 #c79b62, inset 0 0 0 2px #e6c995; overflow: hidden; }
+#ui.wol .wx-wheel img { width: 64px; height: 64px; border-radius: 12px; object-fit: cover; }
+#ui.wol .wx-wheel b { font-size: 1.05em; line-height: 1.2; }
+#ui.wol .wx-wheel small { color: #7a5a3a; font-size: .78em; }
+#ui.wol .wx-wheel.probs { background: #eaf4ff; box-shadow: 0 4px 0 #8aa9c8, inset 0 0 0 2px #c6dbef; }
+#ui.wol .wx-wheel.spin > * { animation: ws-roll .18s linear infinite; }
+@keyframes ws-roll { 50% { transform: translateY(-8px); opacity: .4; } }
+#ui.wol .wx-vs { font-weight: 800; color: #8a4a12; }
+#ui.wol .wx-act { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; }
+#ui.wol .wx-spin { display: flex; align-items: center; gap: 6px; padding: 8px 20px; border: 0; border-radius: 14px; background: #3a6b4a; color: #fff !important; font-weight: 800; font-size: 1.05em; box-shadow: 0 3px 0 #1f4430; }
+#ui.wol .wx-mine { display: flex; align-items: center; gap: 5px; font-size: .85em; cursor: pointer; }
+#ui.wol .wx-traits { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; }
+#ui.wol .wx-traits p { flex: 1 0 100%; margin: 0; text-align: center; font-weight: 700; }
+#ui.wol .wx-traits button { padding: 6px 13px; border: 0; border-radius: 20px; background: #f0a93a; color: #3a2108; font-weight: 700; box-shadow: 0 3px 0 #9a6420; }
+#ui.wol .wx-res { padding: 8px 14px; border-radius: 14px; text-align: center; animation: ws-in .3s; }
+#ui.wol .wx-res p { margin: 0; font-size: 1.02em; line-height: 1.35; }
+#ui.wol .wx-res.fit-good { background: #dff3e4; box-shadow: inset 0 0 0 2px #7cc08f; }
+#ui.wol .wx-res.fit-ok { background: #fff3cf; box-shadow: inset 0 0 0 2px #e8c35a; }
+#ui.wol .wx-res.fit-wild { background: #fbe3f0; box-shadow: inset 0 0 0 2px #e49ac0; }
+/* the constraint cards */
+#ui.wol .wc { flex: 1; display: flex; flex-direction: column; gap: 8px; min-height: 0; }
+#ui.wol .wc-head { display: flex; align-items: center; gap: 12px; }
+#ui.wol .wc-head p { margin: 0; font-size: .88em; color: #6a4a2a; }
+#ui.wol .wc-draw { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border: 0; border-radius: 14px; background: #6b3f1d; color: #ffe08a !important; font-weight: 800; box-shadow: 0 3px 0 #3a200c; white-space: nowrap; }
+#ui.wol .wc-list { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 7px; align-content: start; padding: 2px 2px 6px; }
+#ui.wol .wc-card { display: flex; flex-direction: column; gap: 2px; padding: 7px 10px; border: 0; border-radius: 12px; text-align: right; background: #fffaf0; box-shadow: 0 3px 0 #c79b62; }
+#ui.wol .wc-card b { font-size: .92em; line-height: 1.25; }
+#ui.wol .wc-card small { color: #7a5a3a; font-size: .74em; }
+#ui.wol .wc-card.done { background: #f0f8e8; box-shadow: 0 3px 0 #8ab07a; }
+/* the box of crazy ideas */
+#ui.wol .ws-box { flex: 1; min-height: 0; overflow: auto; padding: 10px 14px; border-radius: 16px; background: #fffaf0; box-shadow: 0 3px 0 #c79b62; }
+#ui.wol .ws-box h3 { margin: 0 0 6px; font-family: var(--serif); color: #9d174d; }
+#ui.wol .ws-box ul { margin: 0; padding-inline-start: 18px; line-height: 1.5; }
+/* the start screen's panel */
+#ui.wol .st-pimg.nzw { position: relative; display: grid; place-items: center; background: radial-gradient(60% 70% at 50% 45%, #ffe9a8, #f0b052 60%, #a8642a 100%); }
+#ui.wol .st-pimg.nzw img { width: auto !important; height: 92% !important; object-fit: contain !important; }
+@media (max-width: 860px) {
+  #ui.wol .ws-room { grid-template-columns: repeat(4, 1fr); gap: 7px; }
+  #ui.wol .ws-stic { width: 38px; height: 38px; }
+  #ui.wol .wm-levers button span { font-size: .9em; }
+}

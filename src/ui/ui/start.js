@@ -9,6 +9,7 @@ import { EDITION_NAME } from '../../core/edition.js';
 import * as JR from '../../core/journey.js';
 import { CARD_ART } from '../../data/card-art.js';
 import { ISLAND_ART } from '../../data/island-art.js';
+import { NITZOTZ_ART } from '../../data/nitzotz-art.js';
 import { islandRankHTML } from '../../game/rank.js';   /* H: the island's rank under the island */
 import { AVATAR_IDS, avatarHTML, avatarName } from '../avatars.js';
 import { tileIcon, hubIcon } from '../icons-hub.js';
@@ -74,6 +75,8 @@ export function createStart(ctx) {
             <span class="st-ptext"><b>המעבדה של רובו־דע</b><small>מיקרוסקופ, שולחן ממציאים ואטלס. ממציאים בעזרת הטבע ומשדרגים את הכלים.</small><em>${icon('arrowL')}למעבדה</em><em class="jv-note"></em></span></button>
           <button class="st-panel" data-robolab="1" data-part="robolab"><span class="st-pimg rlb${ISLAND_ART.robolab ? ' pic' : ''}" aria-hidden="true">${ISLAND_ART.robolab ? `<img src="${ISLAND_ART.robolab}" alt="" draggable="false">` : '<i class="rlb-bot"></i><i class="rlb-drone"></i><i class="rlb-blocks"></i>'}<i class="jv-curtain" aria-hidden="true"></i></span>
             <span class="st-ptext"><b>מעבדת הרובוטים</b><small>מתכננים, בונים ומפעילים: רובוט, רחפן ורובוט צולל בתוך הסביבות. שיעורים, חידות ותגים.</small><em>${icon('arrowL')}למעבדת הרובוטים</em><em class="jv-note"></em></span></button>
+          <button class="st-panel" data-workshop="1" data-part="workshop"><span class="st-pimg nzw" aria-hidden="true">${NITZOTZ_ART.frames && NITZOTZ_ART.frames.wave ? `<img src="${NITZOTZ_ART.frames.wave}" alt="" draggable="false">` : ''}<i class="jv-curtain" aria-hidden="true"></i></span>
+            <span class="st-ptext"><b>הסדנה של ניצוץ</b><small>מכונת רעיונות, מערבל הטבע וקלפי אילוץ. חושבים כמו ממציאים, וניצוץ מאיר יותר ויותר.</small><em>${icon('arrowL')}לסדנה</em><em class="jv-note"></em></span></button>
         </div>
       </section>
       <section class="st-pane" data-pane="learn">
@@ -122,6 +125,7 @@ export function createStart(ctx) {
     rsBtn.addEventListener('click', gate(rsBtn, () => emit('ui:research')));
     labBtn.addEventListener('click', gate(labBtn, () => emit('ui:lab')));
     const rlBtn = startEl.querySelector('[data-robolab]'); if (rlBtn) rlBtn.addEventListener('click', gate(rlBtn, () => emit('ui:robolab')));
+    const wsBtn = startEl.querySelector('[data-workshop]'); if (wsBtn) wsBtn.addEventListener('click', gate(wsBtn, () => emit('ui:workshop')));
     // tabs
     const paintTab = () => {
       startEl.querySelectorAll('[data-tab]').forEach((b) => { const on = b.dataset.tab === S.stTab; b.classList.toggle('on', on); b.setAttribute('aria-selected', String(on)); });
@@ -220,6 +224,7 @@ export function createStart(ctx) {
       if (part === 'robots') { emit('ui:learn', { screen: 'inventors', opts: { view: 'robots' } }); return true; }   // the robot workshop tab
       if (part === 'lab' || part.startsWith('lab:')) { emit('ui:lab'); return true; }
       if (part === 'robolab' || part.startsWith('robolab:')) { emit('ui:robolab'); return true; }
+      if (part === 'workshop') { emit('ui:workshop'); return true; }
       return false;
     };
     const openMap = () => { emit('ui:click'); map = openJourneyMap(root, { emit, onPart: goPart, onClose: () => { map = null; try { jbar.focus({ preventScroll: true }); } catch (e) { } } }); };
