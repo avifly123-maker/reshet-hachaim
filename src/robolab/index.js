@@ -107,18 +107,25 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
         <div class="rl-count">${icon('star')}<b>${nDone}</b><small>${kids ? 'פְּתוּרִים' : 'פתורים'}</small></div></header>
       <div class="rl-scroll">
         <div class="rl-hello"><canvas class="rl-hkubi" aria-hidden="true"></canvas><button type="button" class="rl-introb" data-intro>${icon('play')}<span>${kids ? 'סִרְטוֹן הַפְּתִיחָה' : 'סרטון הפתיחה'}</span></button><p>${nDone ? (kids ? 'שׁוּב שָׁלוֹם! מַמְשִׁיכִים מֵאֵיפֹה שֶׁעָצַרְנוּ? בְּסַדְנַת הָעִצּוּב אֶפְשָׁר לְעַצֵּב אֶת הַכֵּלִים.' : 'שוב שלום! ממשיכים מאיפה שעצרנו? בסדנת העיצוב אפשר לעצב את הכלים שלכם.') : (kids ? 'שָׁלוֹם! אֲנִי קוּבִּי. כָּאן לוֹמְדִים לְתַכְנֵת רוֹבּוֹטִים, רַחְפָנִים וְצוֹלְלָנִים, שֶׁעוֹזְרִים לַטֶּבַע.' : 'שלום! אני קוּבִּי. כאן לומדים לתכנת רובוטים, רחפנים וצוללנים שעוזרים לטבע. מתחילים בשיעור הראשון.')}</p></div>
-        ${journeyOpen('robolab:workshop') ? wkHero() : ''}
-        <section class="rl-sec"><h2>${icon('lesson')}${kids ? 'שִׁעוּרִים' : 'שיעורים'}</h2>
+        <div class="rl-cols">
+        <div class="rl-col rl-col-code">
+        <h2 class="rl-colh">${icon('lesson')}${kids ? 'שִׁעוּרֵי תִּכְנוּת' : 'שיעורי תכנות'}</h2>
+        <section class="rl-sec rl-lessons">
           ${CHAPTERS.map((C) => { const ls = LESSONS.filter((q) => q.ch === C.n); if (!ls.length) return '';
             return `<div class="rl-ch" style="--cc:${C.color}"><div class="rl-chh"><b>${C.n}</b><span><strong>${esc(T(C.title))}</strong><small>${esc(T(C.idea))}</small>${C.n > 1 && !journeyOpen('robolab:more') ? `<em class="rl-lock">${esc(lockWords('robolab:more'))}</em>` : ''}</span></div>
             <div class="rl-lv">${ls.map((L, i) => { const ok = levelOpen(L, P), d = P.done[L.id];
               return `<button type="button" class="rl-lvb${d ? ' done' : ''}" data-level="${L.id}" ${ok ? '' : 'disabled'} title="${esc(T(L.title))}"><span class="rl-z z-${L.zone}"></span><b>${i + 1}</b><span class="rl-st">${stars(d ? d.stars : 0)}</span></button>`; }).join('')}</div></div>`; }).join('')}
         </section>
-        ${islandsHTML(P)}
-        ${sandboxHTML(P)}
         ${PUZZLES.length ? `<section class="rl-sec"><h2>${icon('puzzle')}${kids ? 'חִידוֹת' : 'חידות'}</h2><div class="rl-pz">${PUZZLES.map((L) => { const ok = levelOpen(L, P), d = P.done[L.id];
           return `<button type="button" class="rl-pzb${d ? ' done' : ''}" data-level="${L.id}" ${ok ? '' : 'disabled'}><span class="rl-z z-${L.zone}"></span><b>${esc(T(L.title))}</b>${ok ? '' : `<small>${kids ? 'נִפְתָּח אַחֲרֵי שִׁעוּר ' : 'נפתח אחרי שיעור '}${L.after.replace('l', '').replace('-', '.')}</small>`}<span class="rl-st">${stars(d ? d.stars : 0)}</span></button>`; }).join('')}</div></section>` : ''}
-        ${journeyOpen('robolab:workshop') ? '' : wkHero()}
+        </div>
+        <div class="rl-col rl-col-field">
+        <h2 class="rl-colh">${icon('home')}${kids ? 'סַדְנַת הָרוֹבּוֹט וְהַשֶּׁטַח' : 'סדנת הרובוט והשטח החי'}</h2>
+        ${wkHero()}
+        ${islandsHTML(P)}
+        ${sandboxHTML(P)}
+        </div>
+        </div>
       </div></div>`;
     if (!P.seen.intro) showIntro();   // the opening film, once, on the first visit
   }

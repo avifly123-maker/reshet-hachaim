@@ -3603,19 +3603,19 @@
   "ipa": "lehitʁaʔˈot! tikʁeʔˈu lˈi matˈaj ʃetiʁtsˈu."
  },
  "chat.j.sloth": {
-  "h": "887dfa4f669d",
-  "text": "לָמָּה הָעַצְלָן לֹא סִיפֵּר לִי אֶת הַבְּדִיחָה שֶׁלּוֹ עַד הַסּוֹף?",
-  "ipa": "lamˈa haʔatslˈan lˈo sipˈeʁ lˈi ʔˈet habediχˈa ʃelˈo ʔˈad hasˈof?"
+  "h": "1bebed078894",
+  "text": "מָה הָעַצְלָן הֲכִי אוֹהֵב לַעֲשׂוֹת בַּחוֹפֶשׁ?",
+  "ipa": "mˈa haʔatslˈan haχˈi ʔohˈev laʔasˈot baχˈofeʃ?"
  },
  "chat.j.sloth.k": {
-  "h": "9e96ff67e72e",
-  "text": "לָמָּה הָעַצְלָן לֹא סִפֵּר לִי אֶת הַבְּדִיחָה עַד הַסּוֹף?",
-  "ipa": "lamˈa haʔatslˈan lˈo sipˈeʁ lˈi ʔˈet habediχˈa ʔˈad hasˈof?"
+  "h": "3e3701c3fd45",
+  "text": "מָה הָעַצְלָן הֲכִי אוֹהֵב לַעֲשׂוֹת בַּחֹפֶשׁ?",
+  "ipa": "mˈa haʔatslˈan haχˈi ʔohˈev laʔasˈot baχˈofeʃ?"
  },
  "chat.j.sloth.p": {
-  "h": "6983b73e005c",
-  "text": "כִּי הוּא עוֹד בְּאֶמְצַע הַמִּשְׁפָּט הָרִאשׁוֹן!",
-  "ipa": "kˈi hˈu ʔˈod beʔemtsˈa hamiʃpˈat haʁiʃˈon!"
+  "h": "d6bee43954aa",
+  "text": "לָנוּחַ מִכָּל הַמְּנוּחָה!",
+  "ipa": "lanˈuaχ mikˈal hamenuχˈa!"
  },
  "chat.j.toucan": {
   "h": "5ec436d73ee7",
@@ -3753,9 +3753,9 @@
   "ipa": "kˈi hˈu kofˈets leχˈol makˈom beʔatsmˈo!"
  },
  "chat.j.sand": {
-  "h": "353e987db758",
-  "text": "מָה אָמַר גַּרְגַּר חוֹל אֶחָד לַגַּרְגַּר שֶׁלְּיָדוֹ?",
-  "ipa": "mˈa ʔamˈaʁ ɡaʁɡˈaʁ χˈol ʔeχˈad laɡaʁɡˈaʁ ʃelejadˈo?"
+  "h": "b33886700fe5",
+  "text": "לָמָּה הַמִּדְבָּר אַף פַּעַם לֹא נוֹסֵעַ לְחוֹף הַיָּם?",
+  "ipa": "lamˈa hamidbˈaʁ ʔˈaf pˈaʔam lˈo nosˈea leχˈof hajˈam?"
  },
  "chat.j.sand.k": {
   "h": "5cdcd3627b3f",
@@ -3763,19 +3763,19 @@
   "ipa": "mˈa ʔamˈaʁ ɡaʁɡˈaʁ haχˈol laɡaʁɡˈaʁ ʃelejadˈo?"
  },
  "chat.j.sand.p": {
-  "h": "c5aac038eaf4",
-  "text": "אַל תִּדְאַג, אַתָּה לֹא לְבַד פֹּה!",
-  "ipa": "ʔˈal tidʔˈaɡ, ʔatˈa lˈo levˈad pˈo!"
+  "h": "bd957b519e82",
+  "text": "כִּי יֵשׁ לוֹ מַסְפִּיק חוֹל בַּבַּיִת!",
+  "ipa": "kˈi jˈeʃ lˈo maspˈik χˈol babajˈit!"
  },
  "chat.j.zebra": {
-  "h": "425eb22632e3",
-  "text": "לָמָּה הַזֶּבְּרָה לֹא צְרִיכָה פִּיגָ׳מָה?",
-  "ipa": "lamˈa hazebeʁˈa lˈo tsʁiχˈa pidʒˈama?"
+  "h": "ccd52fce7086",
+  "text": "לָמָּה הַזֶּבְּרָה לֹא נִכְנֶסֶת לַסּוּפֶּרְמַרְקֶט?",
+  "ipa": "lamˈa hazebeʁˈa lˈo niχnˈeset lasupeʁmˈaʁket?"
  },
  "chat.j.zebra.p": {
-  "h": "8ba3709ff8e0",
-  "text": "כִּי הִיא כְּבָר נוֹלְדָה בְּפַסִּים!",
-  "ipa": "kˈi hˈi kevˈaʁ noldˈa befasˈim!"
+  "h": "6c1d892df7e2",
+  "text": "כִּי עִם כָּל הַפַּסִּים הָאֵלֶּה, יַעֲבִירוּ אוֹתָהּ בַּקּוּפָּה!",
+  "ipa": "kˈi ʔˈim kˈol hapasˈim haʔelˈe, jaʔaviʁˈu ʔotˈah bakupˈa!"
  },
  "chat.j.giraffe": {
   "h": "9c40ea241306",
@@ -4693,19 +4693,19 @@
   "ipa": "kˈi heʔalˈe ʔˈal haʁˈoʃ ʃelˈi tamˈid metsˈits!"
  },
  "chat.j.snail": {
-  "h": "a7b248ae96db",
-  "text": "מָה אָמַר הַצָּב לְחִילָּזוֹן?",
-  "ipa": "mˈa ʔamˈaʁ hatsˈav leχilazˈon?"
+  "h": "4d6115082bee",
+  "text": "מָה צָעַק הַחִילָּזוֹן כְּשֶׁרָכַב עַל הַגַּב שֶׁל הַצָּב?",
+  "ipa": "mˈa tsaʔˈak haχilazˈon keʃeʁaχˈav ʔˈal haɡˈav ʃˈel hatsˈav?"
  },
  "chat.j.snail.k": {
-  "h": "12995b98ee41",
-  "text": "מָה אָמַר הַצָּב לַחִלָּזוֹן?",
-  "ipa": "mˈa ʔamˈaʁ hatsˈav laχilazˈon?"
+  "h": "e27334395292",
+  "text": "מָה צָעַק הַחִלָּזוֹן כְּשֶׁרָכַב עַל הַגַּב שֶׁל הַצָּב?",
+  "ipa": "mˈa tsaʔˈak haχilazˈon keʃeʁaχˈav ʔˈal haɡˈav ʃˈel hatsˈav?"
  },
  "chat.j.snail.p": {
-  "h": "9ef44abdcea9",
-  "text": "תָּאֵט קְצָת, אֲנִי לֹא עוֹמֵד בַּקֶּצֶב!",
-  "ipa": "taʔˈet ktsˈat, ʔanˈi lˈo ʔomˈed bakˈetsev!"
+  "h": "e36fec0e39fe",
+  "text": "יוּהוּ! תַּחְזִיקוּ חָזָק, אֲנַחְנוּ טָסִים!",
+  "ipa": "juhˈu! taχzikˈu χazˈak, ʔanˈaχnu tasˈim!"
  },
  "chat.j.owl": {
   "h": "18693301f3b9",
@@ -4873,19 +4873,19 @@
   "ipa": "kˈi hˈu lamˈad mehaʔatslˈan!"
  },
  "chat.j.chameleon": {
-  "h": "37d50f97d603",
-  "text": "מָה אוֹמֶרֶת הַזִּיקִית כָּל בּוֹקֶר?",
-  "ipa": "mˈa ʔomˈeʁet hazikˈit kˈol bˈokeʁ?"
+  "h": "916d651226c9",
+  "text": "לָמָּה הַזִּיקִית לֹא בָּאָה לִמְסִיבָּה?",
+  "ipa": "lamˈa hazikˈit lˈo baʔˈa limsibˈa?"
  },
  "chat.j.chameleon.k": {
-  "h": "abfd524a1da8",
-  "text": "מָה אוֹמֶרֶת הַזִּקִּית כָּל בֹּקֶר?",
-  "ipa": "mˈa ʔomˈeʁet hazikˈit kˈol bˈokeʁ?"
+  "h": "34b39527eb75",
+  "text": "לָמָּה הַזִּקִּית לֹא בָּאָה לַמְּסִבָּה?",
+  "ipa": "lamˈa hazikˈit lˈo baʔˈa lamesibˈa?"
  },
  "chat.j.chameleon.p": {
-  "h": "0b435c5f4a14",
-  "text": "רֶגַע, עוֹד לֹא הֶחְלַטְתִּי בְּאֵיזֶה צֶבַע לִהְיוֹת הַיּוֹם!",
-  "ipa": "ʁˈeɡa, ʔˈod lˈo heχlˈatti beʔejzˈe tsˈeva lihjˈot hajˈom!"
+  "h": "ad9f866a4100",
+  "text": "הִיא בָּאָה! פָּשׁוּט אַף אֶחָד לֹא שָׂם לֵב.",
+  "ipa": "hˈi baʔˈa! paʃˈut ʔˈaf ʔeχˈad lˈo sˈam lˈev."
  },
  "chat.j.chameleon.p.k": {
   "h": "f4eab22a233f",
@@ -5176,5 +5176,305 @@
   "h": "ecc7d9c3557d",
   "text": "וּלְכָל בְּלוֹק יֵשׁ חִצִּים קְטַנִּים: לְמַעְלָה וּלְמַטָּה מְזִיזִים אוֹתוֹ, וְהָעִגּוּל עִם הַקַּו מוֹחֵק אוֹתוֹ.",
   "ipa": "ulχˈol belˈok jˈeʃ χitsˈim ktanˈim, lemalˈa ulmatˈa mezizˈim ʔotˈo, vehaʔiɡˈul ʔˈim hakˈav moχˈek ʔotˈo."
+ },
+ "chat.j.elmouse": {
+  "h": "478a84a2fb19",
+  "text": "לָמָּה הַפִּיל לֹא מִתְקָרֵב לַמַּחְשֵׁב?",
+  "ipa": "lamˈa hapˈil lˈo mitkaʁˈev lamaχʃˈev?"
+ },
+ "chat.j.elmouse.p": {
+  "h": "5e0328fa35db",
+  "text": "כִּי יֵשׁ שָׁם עַכְבָּר!",
+  "ipa": "kˈi jˈeʃ ʃˈam ʔaχbˈaʁ!"
+ },
+ "chat.j.virus": {
+  "h": "f826f97eb6f4",
+  "text": "לָמָּה הַמַּחְשֵׁב הָלַךְ לָרוֹפֵא?",
+  "ipa": "lamˈa hamaχʃˈev halˈaχ laʁofˈe?"
+ },
+ "chat.j.virus.p": {
+  "h": "cc5d0228b820",
+  "text": "כִּי הוּא תָּפַס וִירוּס!",
+  "ipa": "kˈi hˈu tafˈas viʁˈus!"
+ },
+ "chat.j.windows": {
+  "h": "913cdbd7df4b",
+  "text": "לָמָּה הַמַּחְשֵׁב הִצְטַנֵּן?",
+  "ipa": "lamˈa hamaχʃˈev hitstanˈen?"
+ },
+ "chat.j.windows.p": {
+  "h": "88fbc8769e62",
+  "text": "כִּי הִשְׁאִירוּ לוֹ אֶת כָּל הַחַלּוֹנוֹת פְּתוּחִים!",
+  "ipa": "kˈi hiʃʔiʁˈu lˈo ʔˈet kˈol haχalonˈot ptuχˈim!"
+ },
+ "chat.j.charger": {
+  "h": "e8fb01d230f2",
+  "text": "מָה אָמַר הַטֶּלֶפוֹן לַמַּטְעֵן?",
+  "ipa": "mˈa ʔamˈaʁ hatelefˈon lamatʔˈen?"
+ },
+ "chat.j.charger.p": {
+  "h": "13a23fd3a8c2",
+  "text": "בִּלְעָדֶיךָ אֲנִי מַרְגִּישׁ רֵיק!",
+  "ipa": "bilʔadejχˈa ʔanˈi maʁɡˈiʃ ʁˈejk!"
+ },
+ "chat.j.buttons": {
+  "h": "6b936f07b046",
+  "text": "לָמָּה הָרוֹבּוֹט הָיָה עַצְבָּנִי כָּל הַיּוֹם?",
+  "ipa": "lamˈa haʁobˈot hajˈa ʔatsbanˈi kˈol hajˈom?"
+ },
+ "chat.j.buttons.p": {
+  "h": "067125339de2",
+  "text": "כִּי כּוּלָּם לָחֲצוּ לוֹ עַל הַכַּפְתּוֹרִים!",
+  "ipa": "kˈi kulˈam laχatsˈu lˈo ʔˈal hakaftoʁˈim!"
+ },
+ "chat.j.buttons.p.k": {
+  "h": "e7c4c9de9107",
+  "text": "כִּי כֻּלָּם לָחֲצוּ לוֹ עַל הַכַּפְתּוֹרִים!",
+  "ipa": "kˈi kulˈam laχatsˈu lˈo ʔˈal hakaftoʁˈim!"
+ },
+ "chat.j.iron": {
+  "h": "5c71ec590657",
+  "text": "לָמָּה רוֹבּוֹטִים לֹא נִבְהָלִים מִכְּלוּם?",
+  "ipa": "lamˈa ʁobˈotim lˈo nivhalˈim mikelˈum?"
+ },
+ "chat.j.iron.p": {
+  "h": "a5815677c7cf",
+  "text": "כִּי יֵשׁ לָהֶם עֲצַבִּים שֶׁל בַּרְזֶל!",
+  "ipa": "kˈi jˈeʃ lahˈem ʔatsabˈim ʃˈel bˈaʁzel!"
+ },
+ "chat.j.recharge": {
+  "h": "cfaaa61de562",
+  "text": "לָמָּה הָרוֹבּוֹט לָקַח יוֹם חוֹפֶשׁ?",
+  "ipa": "lamˈa haʁobˈot lakˈaχ jˈom χˈofeʃ?"
+ },
+ "chat.j.recharge.k": {
+  "h": "f7aecb33767b",
+  "text": "לָמָּה הָרוֹבּוֹט לָקַח יוֹם חֹפֶשׁ?",
+  "ipa": "lamˈa haʁobˈot lakˈaχ jˈom χˈofeʃ?"
+ },
+ "chat.j.recharge.p": {
+  "h": "fdceea415f53",
+  "text": "הוּא הָיָה צָרִיךְ לְהַטְעִין מַצְבְּרִים!",
+  "ipa": "hˈu hajˈa tsaʁˈiχ lehatʔˈin matsbeʁˈim!"
+ },
+ "chat.j.mouse": {
+  "h": "1f484f552b94",
+  "text": "אֵיזֶה עַכְבָּר לֹא בּוֹרֵחַ מֵחָתוּל?",
+  "ipa": "ʔejzˈe ʔaχbˈaʁ lˈo boʁˈeaχ meχatˈul?"
+ },
+ "chat.j.mouse.p": {
+  "h": "5547c1aabc93",
+  "text": "הָעַכְבָּר שֶׁל הַמַּחְשֵׁב!",
+  "ipa": "haʔaχbˈaʁ ʃˈel hamaχʃˈev!"
+ },
+ "chat.j.wall": {
+  "h": "add5bc4694f1",
+  "text": "מָה אָמַר קִיר אֶחָד לַקִּיר הַשֵּׁנִי?",
+  "ipa": "mˈa ʔamˈaʁ kˈiʁ ʔeχˈad lakˈiʁ haʃenˈi?"
+ },
+ "chat.j.wall.p": {
+  "h": "33297d3f0742",
+  "text": "נִיפָּגֵשׁ בַּפִּינָּה!",
+  "ipa": "nipaɡˈeʃ bapinˈa!"
+ },
+ "chat.j.wall.p.k": {
+  "h": "f11e00fce932",
+  "text": "נִפָּגֵשׁ בַּפִּנָּה!",
+  "ipa": "nipaɡˈeʃ bapinˈa!"
+ },
+ "chat.j.zebra.p.k": {
+  "h": "ec07f051e9c1",
+  "text": "כִּי עִם כָּל הַפַּסִּים הָאֵלֶּה, יַעֲבִירוּ אוֹתָהּ בַּקֻּפָּה!",
+  "ipa": "kˈi ʔˈim kˈol hapasˈim haʔelˈe, jaʔaviʁˈu ʔotˈah bakupˈa!"
+ },
+ "chat.j.fridge": {
+  "h": "333a53c4fd80",
+  "text": "אֵיךְ יוֹדְעִים שֶׁפִּיל בִּיקֵּר בַּמְּקָרֵר?",
+  "ipa": "ʔˈejχ jodʔˈim ʃepˈil bikˈeʁ bamekaʁˈeʁ?"
+ },
+ "chat.j.fridge.k": {
+  "h": "6323144eef6c",
+  "text": "אֵיךְ יוֹדְעִים שֶׁפִּיל בִּקֵּר בַּמְּקָרֵר?",
+  "ipa": "ʔˈejχ jodʔˈim ʃepˈil bikˈeʁ bamekaʁˈeʁ?"
+ },
+ "chat.j.fridge.p": {
+  "h": "522957472fae",
+  "text": "יֵשׁ עִקְּבוֹת בַּחֶמְאָה!",
+  "ipa": "jˈeʃ ʔikevˈot baχemʔˈa!"
+ },
+ "chat.j.flea": {
+  "h": "ac02adfbf5f3",
+  "text": "מָה הַהֶבְדֵּל בֵּין פִּיל לְפַרְעוֹשׁ?",
+  "ipa": "mˈa hahevdˈel bˈejn pˈil lefaʁʔˈoʃ?"
+ },
+ "chat.j.flea.p": {
+  "h": "9f0f89bf853e",
+  "text": "לְפִיל יְכוֹלִים לִהְיוֹת פַּרְעוֹשִׁים. לְפַרְעוֹשׁ לֹא יְכוֹלִים לִהְיוֹת פִּילִים!",
+  "ipa": "lefˈil jeχolˈim lihjˈot paʁʔoʃˈim. lefaʁʔˈoʃ lˈo jeχolˈim lihjˈot pilˈim!"
+ },
+ "chat.j.throat": {
+  "h": "395f9b0de674",
+  "text": "מָה יוֹתֵר גָּרוּעַ מִכְּאֵב גָּרוֹן שֶׁל גִּ׳ירָפָה?",
+  "ipa": "mˈa jotˈeʁ ɡaʁˈua mikeʔˈev ɡaʁˈon ʃˈel dʒiʁˈafa?"
+ },
+ "chat.j.throat.p": {
+  "h": "c57d06f9da84",
+  "text": "נָדָל עִם נַעֲלַיִים קְטַנּוֹת מִדַּי!",
+  "ipa": "nadˈal ʔˈim naʔalajˈim ktanˈot midˈaj!"
+ },
+ "chat.j.throat.p.k": {
+  "h": "126925aee778",
+  "text": "נָדָל עִם נַעֲלַיִם קְטַנּוֹת מִדַּי!",
+  "ipa": "nadˈal ʔˈim naʔalˈajim ktanˈot midˈaj!"
+ },
+ "chat.j.secret": {
+  "h": "7e870904b18f",
+  "text": "לָמָּה הַגִּ׳ירָפָה לֹא מַצְלִיחָה לְסַפֵּר סוֹד?",
+  "ipa": "lamˈa hadʒiʁˈafa lˈo matsliχˈa lesapˈeʁ sˈod?"
+ },
+ "chat.j.secret.p": {
+  "h": "08e76ba74be0",
+  "text": "עַד שֶׁהוּא עוֹבֵר אֶת כָּל הַצַּוָּואר, הִיא כְּבָר שׁוֹכַחַת אוֹתוֹ!",
+  "ipa": "ʔˈad ʃehˈu ʔovˈeʁ ʔˈet kˈol hatsavˈaʁ, hˈi kevˈaʁ ʃoχˈaχat ʔotˈo!"
+ },
+ "chat.j.secret.p.k": {
+  "h": "d365d6ed0b13",
+  "text": "עַד שֶׁהוּא עוֹבֵר אֶת כָּל הַצַּוָּאר, הִיא כְּבָר שׁוֹכַחַת אוֹתוֹ!",
+  "ipa": "ʔˈad ʃehˈu ʔovˈeʁ ʔˈet kˈol hatsavˈaʁ, hˈi kevˈaʁ ʃoχˈaχat ʔotˈo!"
+ },
+ "chat.j.bee": {
+  "h": "162111303132",
+  "text": "לָמָּה הַדְּבוֹרָה מְזַמְזֶמֶת?",
+  "ipa": "lamˈa hadvoʁˈa mezamzˈemet?"
+ },
+ "chat.j.bee.p": {
+  "h": "4ee6d8329ca0",
+  "text": "כִּי הִיא שָׁכְחָה אֶת הַמִּילִּים שֶׁל הַשִּׁיר!",
+  "ipa": "kˈi hˈi ʃaχχˈa ʔˈet hamilˈim ʃˈel haʃˈiʁ!"
+ },
+ "chat.j.bee.p.k": {
+  "h": "ade9cca5e96d",
+  "text": "כִּי הִיא שָׁכְחָה אֶת הַמִּלִּים שֶׁל הַשִּׁיר!",
+  "ipa": "kˈi hˈi ʃaχχˈa ʔˈet hamilˈim ʃˈel haʃˈiʁ!"
+ },
+ "chat.j.pepper": {
+  "h": "d3b2291c42d2",
+  "text": "לָמָּה הַדָּגִים גָּרִים בְּמַיִם מְלוּחִים?",
+  "ipa": "lamˈa hadaɡˈim ɡaʁˈim bemˈajim meluχˈim?"
+ },
+ "chat.j.pepper.p": {
+  "h": "d5c7b4dea1bd",
+  "text": "כִּי מִפִּלְפֵּל הֵם מִתְעַטְּשִׁים!",
+  "ipa": "kˈi mipilpˈel hˈem mitʔateʃˈim!"
+ },
+ "chat.j.call": {
+  "h": "6e106600a341",
+  "text": "אֵיךְ מִתְקַשְּׁרִים לְדָג?",
+  "ipa": "ʔˈejχ mitkaʃʁˈim ledˈaɡ?"
+ },
+ "chat.j.call.p": {
+  "h": "d01821360ffe",
+  "text": "זוֹרְקִים לוֹ קַו!",
+  "ipa": "zoʁkˈim lˈo kˈav!"
+ },
+ "chat.j.laces": {
+  "h": "cda50c4ed752",
+  "text": "כַּמָּה זְמַן לוֹקֵחַ לַתְּמָנוּן לִקְשׁוּר שְׂרוֹכִים?",
+  "ipa": "kamˈa zmˈan lokˈeaχ latmanˈun likʃˈuʁ sʁoχˈim?"
+ },
+ "chat.j.laces.k": {
+  "h": "f1d949f174da",
+  "text": "כַּמָּה זְמַן לוֹקֵחַ לַתְּמָנוּן לִקְשֹׁר שְׂרוֹכִים?",
+  "ipa": "kamˈa zmˈan lokˈeaχ latmanˈun likʃˈoʁ sʁoχˈim?"
+ },
+ "chat.j.laces.p": {
+  "h": "93e487a351ff",
+  "text": "הָמוֹן! עַד שֶׁהוּא גּוֹמֵר אֶת הַשְּׁמִינִי, הָרִאשׁוֹן כְּבָר נִפְתָּח.",
+  "ipa": "hamˈon! ʔˈad ʃehˈu ɡomˈeʁ ʔˈet haʃminˈi, haʁiʃˈon kevˈaʁ niftˈaχ."
+ },
+ "chat.j.clown": {
+  "h": "30a0693c46ac",
+  "text": "לָמָּה הַכָּרִישׁ לֹא נוֹגֵעַ בְּדַג הַלֵּיצָן?",
+  "ipa": "lamˈa hakaʁˈiʃ lˈo noɡˈea bedˈaɡ halejtsˈan?"
+ },
+ "chat.j.clown.p": {
+  "h": "676b9d79c8a7",
+  "text": "כִּי יֵשׁ לוֹ טַעַם מַצְחִיק!",
+  "ipa": "kˈi jˈeʃ lˈo tˈaʔam matsχˈik!"
+ },
+ "chat.j.cactus": {
+  "h": "701c622486b8",
+  "text": "מָה אָמַר הַקִּיפּוֹד הַקָּטָן כְּשֶׁרָאָה קַקְטוּס?",
+  "ipa": "mˈa ʔamˈaʁ hakipˈod hakatˈan keʃeʁaʔˈa kaktˈus?"
+ },
+ "chat.j.cactus.k": {
+  "h": "bac875b797c2",
+  "text": "מָה אָמַר הַקִּפּוֹד הַקָּטָן כְּשֶׁרָאָה קַקְטוּס?",
+  "ipa": "mˈa ʔamˈaʁ hakipˈod hakatˈan keʃeʁaʔˈa kaktˈus?"
+ },
+ "chat.j.cactus.p": {
+  "h": "aaacd3749969",
+  "text": "אַבָּא? זֶה אַתָּה?",
+  "ipa": "ʔabˈa? zˈe ʔatˈa?"
+ },
+ "chat.j.fennec": {
+  "h": "a809f2cf402f",
+  "text": "לָמָּה לְשׁוּעַל הַפֶּנֶק אֵין טֶלֶפוֹן?",
+  "ipa": "lamˈa leʃuʔˈal hapˈenek ʔˈejn telefˈon?"
+ },
+ "chat.j.fennec.p": {
+  "h": "ead2891e7f94",
+  "text": "עִם אוֹזְנַיִים כָּאֵלֶּה, הוּא שׁוֹמֵעַ אֶת הַחֲבֵרִים גַּם בְּלִי!",
+  "ipa": "ʔˈim ʔoznajˈim kaʔelˈe, hˈu ʃomˈea ʔˈet haχaveʁˈim ɡˈam belˈi!"
+ },
+ "chat.j.fennec.p.k": {
+  "h": "baf741eac95a",
+  "text": "עִם אָזְנַיִם כָּאֵלֶּה, הוּא שׁוֹמֵעַ אֶת הַחֲבֵרִים גַּם בְּלִי!",
+  "ipa": "ʔˈim ʔaznˈajim kaʔelˈe, hˈu ʃomˈea ʔˈet haχaveʁˈim ɡˈam belˈi!"
+ },
+ "chat.j.lizard": {
+  "h": "592eb23df74c",
+  "text": "לָמָּה הַחַרְדּוֹן שׁוֹכֵב בַּשֶּׁמֶשׁ כָּל הַבּוֹקֶר?",
+  "ipa": "lamˈa haχaʁdˈon ʃoχˈev baʃˈemeʃ kˈol habˈokeʁ?"
+ },
+ "chat.j.lizard.k": {
+  "h": "cc0ac19f6e4a",
+  "text": "לָמָּה הַחַרְדּוֹן שׁוֹכֵב בַּשֶּׁמֶשׁ כָּל הַבֹּקֶר?",
+  "ipa": "lamˈa haχaʁdˈon ʃoχˈev baʃˈemeʃ kˈol habˈokeʁ?"
+ },
+ "chat.j.lizard.p": {
+  "h": "31ef70b72a86",
+  "text": "כִּי בְּלִי שֶׁמֶשׁ, הַמָּנוֹעַ שֶׁלּוֹ לֹא מַתְנִיעַ!",
+  "ipa": "kˈi belˈi ʃˈemeʃ, hamanˈoa ʃelˈo lˈo matnˈia!"
+ },
+ "chat.j.parrot": {
+  "h": "cf9dac2c7f94",
+  "text": "לָמָּה הַתּוּכִּי לֹא צָרִיךְ לָלֶכֶת לְבֵית סֵפֶר?",
+  "ipa": "lamˈa hatukˈi lˈo tsaʁˈiχ lalˈeχet levˈejt sˈefeʁ?"
+ },
+ "chat.j.parrot.k": {
+  "h": "ef70b43dfc44",
+  "text": "לָמָּה הַתֻּכִּי לֹא צָרִיךְ לָלֶכֶת לְבֵית סֵפֶר?",
+  "ipa": "lamˈa hatukˈi lˈo tsaʁˈiχ lalˈeχet levˈejt sˈefeʁ?"
+ },
+ "chat.j.parrot.p": {
+  "h": "9040c2aec99b",
+  "text": "כִּי הוּא כְּבָר יוֹדֵעַ לַחֲזוֹר עַל הַכּוֹל!",
+  "ipa": "kˈi hˈu kevˈaʁ jodˈea laχazˈoʁ ʔˈal hakˈol!"
+ },
+ "chat.j.parrot.p.k": {
+  "h": "e5c13de32e20",
+  "text": "כִּי הוּא כְּבָר יוֹדֵעַ לַחֲזֹר עַל הַכֹּל!",
+  "ipa": "kˈi hˈu kevˈaʁ jodˈea laχazˈoʁ ʔˈal hakˈol!"
+ },
+ "chat.j.frog": {
+  "h": "a2f9f57dd669",
+  "text": "לָמָּה הַצְּפַרְדֵּעַ תָּמִיד בְּמַצַּב רוּחַ טוֹב?",
+  "ipa": "lamˈa hatsfaʁdˈea tamˈid bematsˈav ʁˈuaχ tˈov?"
+ },
+ "chat.j.frog.p": {
+  "h": "f99565b176b8",
+  "text": "כִּי הִיא אוֹכֶלֶת אֶת כָּל מָה שֶׁמֵּצִיק לָהּ!",
+  "ipa": "kˈi hˈi ʔoχˈelet ʔˈet kˈol mˈa ʃemetsˈik lˈah!"
  }
 }

@@ -133,10 +133,14 @@ export function bindSettingsRows(el, opts = {}) {
   el._setOpts = opts;
   if (el._setBound) return;
   el._setBound = true;
+  // 1.4.4 set 0 (Avi: "it says wrong before there is a code"): a press on the button, or Enter, with nothing typed asks for
+  // the code instead of calling it wrong, and does not count as a try
+  const emptyCode = (inp, err) => { if (err) { err.textContent = 'הקלידו את הקוד ואז לחצו אישור'; err.hidden = false; } try { inp.focus({ preventScroll: true }); } catch (e) { } };
   const tryUnlock = () => {
     const inp = el.querySelector('#set-code'); if (!inp) return;
     const err = el.querySelector('.set-err');
     if (Date.now() < codeWaitUntil) { inp.value = ''; if (err) { err.textContent = 'נסו שוב בעוד חצי דקה'; err.hidden = false; } return; }
+    if (!inp.value.trim()) { emptyCode(inp, err); return; }   // 1.4.4 set 0 (Avi): an empty field is not a wrong code
     const ok = J.unlockAll(inp.value); inp.value = '';
     if (!ok) {
       codeWrong++; if (codeWrong >= CODE_TRIES) { codeWrong = 0; codeWaitUntil = Date.now() + CODE_WAIT_MS; }
@@ -148,8 +152,10 @@ export function bindSettingsRows(el, opts = {}) {
   };
   const tryTime = () => {
     const inp = el.querySelector('#set-pcode'); if (!inp || ptPending == null) return;
-    const err = el.querySelector('.set-perr'); const v = inp.value; inp.value = '';
-    if (Date.now() < ptWaitUntil) { if (err) { err.textContent = 'נסו שוב בעוד חצי דקה'; err.hidden = false; } return; }
+    const err = el.querySelector('.set-perr');
+    if (Date.now() < ptWaitUntil) { inp.value = ''; if (err) { err.textContent = 'נסו שוב בעוד חצי דקה'; err.hidden = false; } return; }
+    if (!inp.value.trim()) { emptyCode(inp, err); return; }
+    const v = inp.value; inp.value = '';
     if (!PT.setLimit(ptPending, v)) {
       ptWrong++; if (ptWrong >= CODE_TRIES) { ptWrong = 0; ptWaitUntil = Date.now() + CODE_WAIT_MS; }
       if (err) { err.textContent = Date.now() < ptWaitUntil ? 'הקוד לא נכון. נסו שוב בעוד חצי דקה' : 'הקוד לא נכון'; err.hidden = false; }

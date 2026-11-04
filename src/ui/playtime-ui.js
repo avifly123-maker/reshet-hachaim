@@ -80,8 +80,11 @@ export function startPlaytime({ root, kids = () => false, onLock, onUnlock } = {
   }
   function tryCode() {
     const inp = lockEl && lockEl.querySelector('#pt-code'); if (!inp) return;
-    const err = lockEl.querySelector('.pt-err'); const v = inp.value; inp.value = '';
-    if (Date.now() < waitUntil) { err.textContent = 'נסו שוב בעוד חצי דקה'; err.hidden = false; return; }
+    const err = lockEl.querySelector('.pt-err');
+    if (Date.now() < waitUntil) { inp.value = ''; err.textContent = 'נסו שוב בעוד חצי דקה'; err.hidden = false; return; }
+    // 1.4.4 set 0: an empty field is not a wrong code (it asks for the code and does not count as a try)
+    if (!inp.value.trim()) { err.textContent = 'הקלידו את הקוד ואז לחצו אישור'; err.hidden = false; try { inp.focus({ preventScroll: true }); } catch (e) { } return; }
+    const v = inp.value; inp.value = '';
     if (!PT.checkCode(v)) {
       wrong++; if (wrong >= CODE_TRIES) { wrong = 0; waitUntil = Date.now() + CODE_WAIT_MS; }
       err.textContent = Date.now() < waitUntil ? 'הקוד לא נכון. נסו שוב בעוד חצי דקה' : 'הקוד לא נכון'; err.hidden = false;
