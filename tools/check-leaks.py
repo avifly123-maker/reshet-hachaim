@@ -32,6 +32,10 @@ async def main(build, rounds):
         for r in range(1, rounds + 1):
             for z in ['amazon', 'grove', 'reef', 'desert', 'savanna']:
                 await pg.evaluate("window.__app.bus.emit('start:biome', { id: '%s' }); 1" % z)
+                # from round 2 on the zone has a save: continue it (the same island again, as a returning child would)
+                for _ in range(20):
+                    await pg.wait_for_timeout(500)
+                    if await pg.evaluate("(() => { const b = document.querySelector('[data-id=\"save-continue\"], [data-b=\"save-continue\"]') || [...document.querySelectorAll('button')].find((x) => x.textContent.trim() === 'להמשיך את היער השמור'); if (b) { b.click(); return 1; } return window.__game && window.__game.debug ? 1 : 0; })()"): break
                 await pg.wait_for_function('window.__game && window.__game.debug', timeout=240000)
                 await pg.wait_for_timeout(20000); await pg.evaluate(QUIET)
                 await pg.evaluate("window.__game && window.__game.debug && window.__game.debug.ff && window.__game.debug.ff(60); 1")
@@ -45,7 +49,7 @@ async def main(build, rounds):
             await pg.evaluate("window.__rlDebug.open(); 1"); await pg.wait_for_timeout(3000)
             await pg.evaluate("const b=document.querySelector('.rl-exit, .rl-home [data-exit], .rl-back'); b && b.click(); 1"); await home()
             # the lab of רובו־דע
-            await pg.evaluate("window.__app.openLab(); 1"); await pg.wait_for_timeout(15000); await pg.evaluate(QUIET)
+            await pg.evaluate("window.__app.bus.emit('ui:lab'); 1"); await pg.wait_for_timeout(15000); await pg.evaluate(QUIET)
             await pg.evaluate("const b=document.querySelector('.lb-exit'); b && b.click(); 1"); await home()
             s = await pg.evaluate(SAMPLE); s['round'] = r; rows.append(s); print(json.dumps(s), flush=True)
         await b.close()
