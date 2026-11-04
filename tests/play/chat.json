@@ -1,0 +1,350 @@
+[
+{
+"wait": 3
+},
+{
+"js": "window.__guide.close(); window.__journey.unlockAll('2580'); window.__guide.close(); 1"
+},
+{
+"wait": 1.5
+},
+{
+"js": "window.__guide.close(); 1"
+},
+{
+"clickSel": ".st-chat"
+},
+{
+"wait": 3
+},
+{
+"shot": "shots/chat/1-open.png"
+},
+{
+"js": "const a=[...document.querySelectorAll('#rguide .rg-act')]; 'CHECK opens ' + (a.length === 6 && a.some(b=>b.dataset.act==='t:joke') && document.querySelector('#rguide .rg-say') ? 'ok' : 'FAIL '+a.length)"
+},
+{
+"clickSel": "#rguide [data-act='t:joke']"
+},
+{
+"wait": 3
+},
+{
+"js": "const a=[...document.querySelectorAll('#rguide .rg-act')]; 'CHECK joke-setup ' + (a.length === 1 && a[0].dataset.act==='punch' && /\\?/.test(document.querySelector('#rguide .rg-txt').textContent) ? 'ok' : 'FAIL '+a.length)"
+},
+{
+"js": "window.__t0 = document.querySelector('#rguide .rg-txt').textContent; 1"
+},
+{
+"clickSel": "#rguide [data-act='punch']"
+},
+{
+"wait": 3
+},
+{
+"shot": "shots/chat/2-punch.png"
+},
+{
+"js": "const a=[...document.querySelectorAll('#rguide .rg-act')]; 'CHECK joke-punch ' + (a.length === 6 && document.querySelector('#rguide .rg-txt').textContent !== window.__t0 ? 'ok' : 'FAIL '+a.length)"
+},
+{
+"clickSel": "#rguide [data-act='t:joke']"
+},
+{
+"wait": 3
+},
+{
+"clickSel": "#rguide [data-act='punch']"
+},
+{
+"wait": 3
+},
+{
+"clickSel": "#rguide [data-act='t:joke']"
+},
+{
+"wait": 3
+},
+{
+"clickSel": "#rguide [data-act='punch']"
+},
+{
+"wait": 3
+},
+{
+"clickSel": "#rguide .rg-next"
+},
+{
+"wait": 2
+},
+{
+"js": "const t=document.querySelector('#rguide .rg-txt').textContent; 'CHECK react-jokes ' + (/ברצף/.test(t) && document.querySelectorAll('#rguide .rg-act').length === 6 ? 'ok' : 'FAIL '+t)"
+},
+{
+"clickSel": "#rguide [data-act='t:riddle']"
+},
+{
+"wait": 3
+},
+{
+"shot": "shots/chat/3-riddle.png"
+},
+{
+"js": "const a=[...document.querySelectorAll('#rguide .rg-act')]; 'CHECK riddle-three ' + (a.length === 3 && a.every(b=>/^a[012]$/.test(b.dataset.act)) ? 'ok' : 'FAIL '+a.length)"
+},
+{
+"clickSel": "#rguide [data-act='a0']"
+},
+{
+"wait": 3
+},
+{
+"js": "const t=document.querySelector('#rguide .rg-txt').textContent; 'CHECK riddle-right ' + (/^נכון/.test(t) && document.querySelectorAll('#rguide .rg-act').length === 6 ? 'ok' : 'FAIL '+t)"
+},
+{
+"clickSel": "#rguide [data-act='t:riddle']"
+},
+{
+"wait": 3
+},
+{
+"clickSel": "#rguide [data-act='a1']"
+},
+{
+"wait": 3
+},
+{
+"js": "const t=document.querySelector('#rguide .rg-txt').textContent; 'CHECK riddle-almost ' + (/^(כמעט|אופס)/.test(t) ? 'ok' : 'FAIL '+t)"
+},
+{
+"clickSel": "#rguide [data-act='t:fact']"
+},
+{
+"wait": 3
+},
+{
+"js": "const t=document.querySelector('#rguide .rg-txt').textContent; 'CHECK fact ' + (t.length > 20 && document.querySelectorAll('#rguide .rg-act').length === 6 ? 'ok' : 'FAIL '+t)"
+},
+{
+"clickSel": "#rguide [data-act='t:me']"
+},
+{
+"wait": 3
+},
+{
+"js": "'CHECK me-menu ' + (document.querySelectorAll('#rguide .rg-act').length === 5 ? 'ok' : 'FAIL')"
+},
+{
+"js": "document.querySelector('#rguide [data-act^=\"m:\"]').click(); 1"
+},
+{
+"wait": 3
+},
+{
+"js": "const b=document.querySelector('#rguide .rg-next'); b && b.click(); 1"
+},
+{
+"wait": 1.5
+},
+{
+"js": "const b=document.querySelector('#rguide .rg-next'); b && b.click(); 1"
+},
+{
+"wait": 1.5
+},
+{
+"js": "const b=document.querySelector('#rguide .rg-next'); b && b.click(); 1"
+},
+{
+"wait": 1.5
+},
+{
+"js": "const t=document.querySelector('#rguide .rg-txt').textContent; 'CHECK me-answer ' + (t.length > 15 && document.querySelectorAll('#rguide .rg-act').length === 6 ? 'ok' : 'FAIL '+t)"
+},
+{
+"clickSel": "#rguide [data-act='t:ask']"
+},
+{
+"wait": 3
+},
+{
+"shot": "shots/chat/4-ask.png"
+},
+{
+"js": "const a=[...document.querySelectorAll('#rguide .rg-act')]; window.__o = a[0] && a[0].dataset.act; 'CHECK ask-back ' + (a.length >= 3 && a.every(b=>/^o:/.test(b.dataset.act)) ? 'ok' : 'FAIL '+a.length)"
+},
+{
+"js": "document.querySelector('#rguide [data-act=\"'+window.__o+'\"]').click(); 1"
+},
+{
+"wait": 3
+},
+{
+"js": "'CHECK ask-reply ' + (document.querySelectorAll('#rguide .rg-act').length === 6 ? 'ok' : 'FAIL')"
+},
+{
+"clickSel": "#rguide [data-act='t:bye']"
+},
+{
+"wait": 3
+},
+{
+"clickSel": "#rguide .rg-next"
+},
+{
+"wait": 1.5
+},
+{
+"js": "'CHECK bye-closes ' + (!window.__guide.isOpen() ? 'ok' : 'FAIL')"
+},
+{
+"js": "window.__app.bus.emit('ui:learn',{}); 1"
+},
+{
+"until": "window.__wolLearn && window.__wolLearn.isOpen && window.__wolLearn.isOpen()",
+"timeout": 120
+},
+{
+"wait": 2
+},
+{
+"js": "window.__guide.close(); 1"
+},
+{
+"wait": 0.5
+},
+{
+"clickSel": "#wol-learn .wl-chat"
+},
+{
+"wait": 3
+},
+{
+"shot": "shots/chat/5-hub.png"
+},
+{
+"js": "'CHECK hub-opens ' + (document.querySelectorAll('#rguide .rg-act').length === 6 ? 'ok' : 'FAIL')"
+},
+{
+"key": "Escape"
+},
+{
+"wait": 1.5
+},
+{
+"js": "'CHECK escape-ends ' + (!window.__guide.isOpen() ? 'ok' : 'FAIL')"
+},
+{
+"js": "window.__journey.markIntro('g:labtut'); window.__wolLearn.close(); window.__app.bus.emit('ui:lab'); 1"
+},
+{
+"until": "document.querySelector('.lb.on')",
+"timeout": 120
+},
+{
+"wait": 5
+},
+{
+"shot": "shots/chat/7-labnews.png"
+},
+{
+"js": "const t=document.querySelector('#rguide .rg-txt')?.textContent||''; 'CHECK lab-news ' + (/חדש במעבדה/.test(t) ? 'ok' : 'FAIL '+t)"
+},
+{
+"js": "window.__guide.close(); window.__labDebug.openTalk(); 1"
+},
+{
+"wait": 1.5
+},
+{
+"clickSel": ".lb-qs [data-q='more']"
+},
+{
+"wait": 3
+},
+{
+"shot": "shots/chat/8-lab.png"
+},
+{
+"js": "'CHECK lab-chat ' + (document.querySelectorAll('#rguide .rg-act').length === 6 && !document.querySelector('.lb-chat') ? 'ok' : 'FAIL')"
+},
+{
+"key": "Escape"
+},
+{
+"wait": 1
+},
+{
+"js": "window.__labDebug.go('scope'); 1"
+},
+{
+"wait": 3
+},
+{
+"js": "'CHECK lab-scope ' + (document.querySelector('.lb-eye svg') ? 'ok' : 'FAIL')"
+},
+{
+"js": "document.querySelector('.lb-home') && document.querySelector('.lb-home').click(); 1"
+},
+{
+"wait": 2
+},
+{
+"js": "const b=document.querySelector('.lb-exit, [data-lb=\"exit\"]'); b && b.click(); window.__app.bus.emit('ui:home'); 1"
+},
+{
+"wait": 3
+},
+{
+"js": "window.__journey.markTrained(); window.__journey.markIntro('g:svfilm'); window.__wolLearn.close ? window.__wolLearn.close() : 0; window.__app.bus.emit('start:biome', { id: 'savanna' }); 1"
+},
+{
+"until": "window.__game && window.__game.savanna && window.__game.debug",
+"timeout": 240
+},
+{
+"wait": 16
+},
+{
+"js": "const b=[...document.querySelectorAll('button')].find(x=>/דלג/.test(x.textContent)); if (b) b.click(); window.__guide.close(); 1"
+},
+{
+"wait": 2
+},
+{
+"js": "window.__guide.close(); 1"
+},
+{
+"wait": 1
+},
+{
+"clickSel": ".tb-chat"
+},
+{
+"wait": 3
+},
+{
+"js": "'CHECK island-opens ' + (document.querySelectorAll('#rguide .rg-act').length === 6 ? 'ok' : 'FAIL')"
+},
+{
+"clickSel": "#rguide [data-act='t:fact']"
+},
+{
+"wait": 3
+},
+{
+"shot": "shots/chat/6-island.png"
+},
+{
+"js": "const t=document.querySelector('#rguide .rg-txt').textContent; window.__f1=t; 'fact1 '+t"
+},
+{
+"clickSel": "#rguide [data-act='t:fact']"
+},
+{
+"wait": 3
+},
+{
+"js": "const t=document.querySelector('#rguide .rg-txt').textContent; 'CHECK island-facts-turn ' + (t !== window.__f1 ? 'ok' : 'FAIL '+t)"
+}
+]

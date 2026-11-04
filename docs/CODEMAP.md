@@ -28,7 +28,7 @@ npm run check                     # every check (≈15 min); npm run check:quick
 | `src/env/` | The renderer pipeline and the environment: `environment/` (sky, sun and moon, weather, ground, water, island edge…, one file per part), `reef.js`. |
 | `src/models/` | Procedural plant and animal models per zone (folders, one file per family), the Blender-rigged animals (`rigged.js`), reef models. |
 | `src/ui/ui/` | The overlay UI: start screen, HUD, tray, toolbar, missions panel, species card, toasts. `src/ui/ui.js` re-exports it. |
-| `src/ui/` | Other screens and pieces: `robo-guide.js` (רובו־דע's bubbles), `settings.js`, `journey-map.js`, `threads-ui.js`, `stage-scenes.js` (the stage films), `flourish.js`, `howto.js`, `guided.js` + `tutorials.js` (hands-on tutorials, 1.3.3), `badge-toast.js`, `css/` (one stylesheet per area; `00-layers.css` = the layer order). |
+| `src/ui/` | Other screens and pieces: `robo-guide.js` (רובו־דע's bubbles), `robo-chat.js` (1.4.3: a talk with him anywhere; words in `src/data/guide/chat.js`), `settings.js`, `journey-map.js`, `threads-ui.js`, `stage-scenes.js` (the stage films), `flourish.js`, `howto.js`, `guided.js` + `tutorials.js` (hands-on tutorials, 1.3.3), `badge-toast.js`, `css/` (one stylesheet per area; `00-layers.css` = the layer order). |
 | `src/learn/hub/` | מרכז הלמידה: album, packs, quiz, sets, badges and frames screens, navigation. |
 | `src/learn/games/` | The card games: keep-forest (folder), web-puzzle, inventors (and the robot workshop), expedition, verse-match. |
 | `src/lab/` | The lab of רובו־דע: the room, stations, microscope, atlas, thinking corner, cabinet. |

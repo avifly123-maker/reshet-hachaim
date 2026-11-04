@@ -21,6 +21,7 @@ import { THINK, OPEN as THINK_OPEN, openThinkMenu, thinkById, thinkDone } from '
 import { openQuestions, answeredCount, islandQuestions } from './questions.js';
 import { markHTML } from '../ui/threads-ui.js';   // חוטים: "מהאי שלכם" on the atlas's questions button
 import { labKids, fmt, readMs } from './level.js';
+import { openChat } from '../ui/robo-chat.js';
 import { ROOM_K, TALK_K, FACTS_K, JOKES_K, ATLAS_K, SAMPLES_K, THINK_K } from './kids-text.js';   // the beginners' words (ניקוד מלא)
 // the station worlds (19.10): the aquarium, the greenhouse and the cabinet open a menu of their own activities
 import { openStationMenu, one, face as stFace, injectStationCss } from './station-kit.js';
@@ -804,6 +805,7 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     fact: { q: 'ספר לי משהו מפתיע', a: () => FACTS[(talkN++) % FACTS.length], e: 'wow' },
     joke: { q: 'בדיחה!', a: () => JOKES[(jokeN++) % JOKES.length], e: 'happy' },
     feel: { q: 'איך אתה מרגיש?', a: () => { const n = Object.keys(labProgress().seen).length; return n >= 6 ? 'מצוין! מצאתם כבר ' + n + ' דגימות. אני מרגיש כמו רובוט של חוקרים אמיתיים.' : n ? 'שמח! כבר מצאתם ' + n + (n === 1 ? ' דגימה' : ' דגימות') + '. יש עוד הרבה לגלות.' : 'קצת משועמם... עוד לא בדקנו אף דגימה. בואו למיקרוסקופ!'; }, e: 'happy' },
+    more: { q: 'בוא נדבר על עוד דברים', a: () => '', e: 'happy' },   // 1.4.3: the talk of the whole game (src/ui/robo-chat.js)
   };
   // true facts, gently said (docs/sources.md, the lab)
   const FACTS = [
@@ -816,6 +818,11 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     'יונק הדבש יכול לעוף גם אחורה!',
     'העלה של הוויקטוריה האמזונית יכול להיות רחב יותר משני מטרים.',
     'תפוז עם קליפה צף במים, ותפוז קלוף שוקע. הקליפה מלאה כיסי אוויר קטנים.',
+    // 1.4.3: the desert and the savanna
+    'העור של הפיל מלא סדקים זעירים, והם מחזיקים מים כמו ספוג. ככה העור שלו נשאר קריר.',
+    'על העלים של המלוח יש בלונים זעירים מלאים במלח. כך הצמח נפטר מהמלח העודף.',
+    'בסהרה חיה נמלה כסופה שיוצאת דווקא בצהריים, כשהחול הכי חם. השערות שלה מחזירות את השמש.',
+    'מהגבעולים של הגומא עשו בעבר הרחוק דפים לכתיבה.',
   ];
   const JOKES = [
     'למה פחדתי להיכנס לאקווריום? חשבתי שאחליד. מאז שקיבלתי ציפוי עור כריש, אני כבר לא מפחד!',
@@ -824,6 +831,9 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     'בניתי רובוט עם קוצים של קיפוד. עכשיו אף אחד לא רוצה לחבק אותו.',
     'התמנון ניצח אותי בציור. יש לו שמונה מכחולים!',
     'שקלתי את עצמי שלוש פעמים ולקחתי את האמצעית. עדיין כבד. כנראה המשקל צודק.',
+    'ניסיתי לקפוץ כמו ירבוע. הגלגלים שלי עדיין לא הבינו מה רציתי מהם.',
+    'רציתי להתקרר כמו פיל, בבוץ. אחר כך ניקיתי ברגים שלושה ימים.',
+    'הג׳ירפה ביקשה ממני לשים לה כובע. אני עדיין מחפש סולם מספיק גבוה.',
   ];
   // the beginners' answers: the same questions, fully vocalised and in short bubbles (src/lab/kids-text.js)
   const KA = {
@@ -850,7 +860,9 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
       <div class="lb-qs">${Object.entries(TALK).map(([k, t]) => `<button data-q="${k}">${esc(kids ? TALK_K.q[k] : t.q)}</button>`).join('')}</div><div class="lb-pv lb-chat-pv" aria-live="polite"></div>`;
     panels.appendChild(talkEl);
     talkEl.querySelector('.lb-back').onclick = () => { talkEl.remove(); talkEl = null; };
-    talkEl.querySelectorAll('[data-q]').forEach((b) => b.onclick = () => { const k = b.dataset.q, t = TALK[k]; audio && audio.play('click'); robot.wave(); say(kids ? KA[k]() : t.a(), t.e); });
+    talkEl.querySelectorAll('[data-q]').forEach((b) => b.onclick = () => { const k = b.dataset.q, t = TALK[k]; audio && audio.play('click');
+      if (k === 'more') { talkEl.remove(); talkEl = null; openChat({ place: 'lab' }); return; }
+      robot.wave(); say(kids ? KA[k]() : t.a(), t.e); });
     say(kids ? TALK_K.open : 'שאלו אותי מה שתרצו. כלומר... מה שכתוב על הכפתורים.', 'happy');
   }
 

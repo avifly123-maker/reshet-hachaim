@@ -112,7 +112,7 @@ def word_ipa(w, lex):
     return ipa
 
 def text_to_ipa(text, lex):
-    text = text.replace('־', ' ').replace('–', ',').replace('"', '').replace('״', '')
+    text = text.replace('־', ' ').replace('–', ',').replace('"', '').replace('״', '').replace('\u05F3', "'")   # 4.11: a geresh (ג׳) keeps its word whole
     toks = re.findall(r'[א-ת֑-ׇ\']+|[,.!?;:]', text)
     out = []
     for t in toks:
@@ -166,7 +166,8 @@ def main():
     for l in lines:
         for t in (l.get('k') or '', l.get('f') or ''):
             if not NIK.search(t): continue
-            for w in re.findall(r'[א-ת\u0591-\u05C7]+', t): forms.setdefault(NIK.sub('', w), set()).add(w)
+            for w in re.findall(r'[א-ת\u0591-\u05C7]+', t):
+                if re.search(r'[\u0591-\u05BD\u05BF-\u05C7]', w): forms.setdefault(NIK.sub('', w), set()).add(w)   # 4.11: a bare word in a line with one vocalised name is no form
     known = {b: next(iter(v)) for b, v in forms.items() if len(v) == 1}
     def dia_k(text):
         return re.sub(r'[א-ת\u0591-\u05C7]+', lambda m: known.get(NIK.sub('', m.group(0)), m.group(0)), dia(text))
@@ -177,7 +178,10 @@ def main():
         same = NIK.sub('', k) == NIK.sub('', f)
         if same and k: jobs.append((l['id'], k))
         else:
-            jobs.append((l['id'], f if NIK.search(f) else dia_k(f)))
+            # 4.11: a line with nikud on one name only (קוּבִּי) is not a vocalised line: it is read like an unvocalised one
+            marks = len(re.findall(r'[\u0591-\u05BD\u05BF-\u05C7]', f)); letters = len(re.findall(r'[א-ת]', f))
+            raw = NIK.search(f) and (marks == 0 or marks >= 0.3 * letters)   # marks == 0: only a maqaf (as before)
+            jobs.append((l['id'], f if raw else dia_k(NIK.sub('', f) if marks else f)))
             if k: jobs.append((l['id'] + '.k', k))
         for vid, text in jobs:
             ipa = text_to_ipa(text, lex)

@@ -10,6 +10,7 @@
   background: var(--canopy2); box-shadow: inset 0 0 0 1.5px rgba(180, 203, 102, .32), 0 4px 12px rgba(0, 0, 0, .35); transition: background .2s, transform .2s, color .2s; animation: wol-rise .9s .25s both; }
 #ui.wol .st-gear .ic { width: 24px; height: 24px; }
 #ui.wol .st-gear:hover, #ui.wol .st-gear[aria-expanded="true"] { background: #23432f; color: var(--chalk); transform: rotate(-12deg); }
+#ui.wol .st-chat:hover { transform: translateY(-2px); }   /* 1.4.3: the talk with רובו־דע: it does not turn like the gear */
 #ui.wol .st-gear:focus-visible, #ui.wol .st-jbar:focus-visible { outline: 3px solid var(--honey); outline-offset: 2px; }
 
 /* the journey bar: the rank medallion, the rank name, a progress line to the next stage, what is still missing */

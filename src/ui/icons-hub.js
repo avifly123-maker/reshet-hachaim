@@ -80,6 +80,10 @@ export const HUB_ICONS = {
   savanna: '<path class="f" d="M4 9.6c1.6-2.6 4.8-3.6 8-3.6s6.4 1 8 3.6c-2.4 1-5.2 1.4-8 1.4s-5.6-.4-8-1.4z"/><path d="M4 9.6c1.6-2.6 4.8-3.6 8-3.6s6.4 1 8 3.6c-2.4 1-5.2 1.4-8 1.4s-5.6-.4-8-1.4z"/>'
     + '<path d="M12 11v8.6M12 14.2l-2.6-3M12 13l2.4-2.2"/><path d="M2.5 19.6c3-1 6-1.4 9.5-1.4s6.5.4 9.5 1.4"/>',
   zones: '<circle class="f" cx="12" cy="8.2" r="4.6"/><circle cx="12" cy="8.2" r="4.6"/><circle cx="8" cy="15" r="4.6"/><circle cx="16" cy="15" r="4.6"/>',
+  // a talk with רובו־דע (1.4.3): a speech bubble with his two eyes
+  chat: '<path class="f" d="M5.5 4.5h13A2.5 2.5 0 0 1 21 7v7a2.5 2.5 0 0 1-2.5 2.5h-7.2L7 20v-3.5H5.5A2.5 2.5 0 0 1 3 14V7a2.5 2.5 0 0 1 2.5-2.5z"/>'
+    + '<path d="M5.5 4.5h13A2.5 2.5 0 0 1 21 7v7a2.5 2.5 0 0 1-2.5 2.5h-7.2L7 20v-3.5H5.5A2.5 2.5 0 0 1 3 14V7a2.5 2.5 0 0 1 2.5-2.5z"/>'
+    + '<circle cx="9" cy="10.6" r="1.4" fill="currentColor" stroke="none"/><circle cx="15" cy="10.6" r="1.4" fill="currentColor" stroke="none"/>',
   // technology cards: a small robot head with one antenna
   robot: '<rect class="f" x="4.5" y="7.5" width="15" height="11.5" rx="3.6"/><rect x="4.5" y="7.5" width="15" height="11.5" rx="3.6"/>'
     + '<path d="M12 7.5V5"/><circle cx="12" cy="3.6" r="1.3"/><circle cx="9.3" cy="13" r="1.4" fill="currentColor" stroke="none"/><circle cx="14.7" cy="13" r="1.4" fill="currentColor" stroke="none"/>'

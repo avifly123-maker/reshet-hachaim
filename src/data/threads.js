@@ -27,6 +27,7 @@ export const SAMPLE_OF = {
   sloth: 'slothhair', kapok: 'kapokfibre', parrotfish: 'parrottooth', urchin: 'urchinteeth', mushroom: 'mycelium',
   clam: 'clammantle', leafcutter: 'leafbac', scorpion: 'scorpionback', desertsnail: 'snailshell',
   zebra: 'zebrahair', termitemound: 'moundwall',
+  elephant: 'elephantskin', umbrella: 'acacialeaf', weaver: 'weavernest', papyrus: 'papyrusstem', darkling: 'beetleback', saltbush: 'saltleaf', sandgrouse: 'grousefeather',
 };
 // a photo of these marks a sample of a near creature (a glowing fungus grows threads like every fungus)
 export const PHOTO_SAMPLE = { glowfungus: 'mycelium' };
@@ -35,7 +36,7 @@ export const QUESTION_SPECIES = ['agama', 'branching', 'brazilnut', 'butterfly',
   'fruitbat', 'glowfungus', 'harvesterant', 'hedgehog', 'honeybee', 'hoopoe', 'hummingbird', 'jellyfish', 'kapok', 'leafcutter', 'liana', 'morpho',
   'mushroom', 'octopus', 'owl', 'parrotfish', 'pine', 'porcupine', 'reefshark', 'shrimp', 'sloth', 'spinymouse', 'stingray', 'tortoise', 'toucan',
   'turtle', 'urchin', 'waterlily', 'fennec', 'desertsnail', 'desertant', 'sandgrouse', 'scorpion',
-  'zebra', 'termitemound', 'elephant', 'giraffe', 'weaver'];
+  'zebra', 'termitemound', 'elephant', 'giraffe', 'weaver', 'umbrella', 'papyrus', 'darkling', 'saltbush', 'jerboa', 'camel'];
 // the species each mystery is about (the card stamp 'case'): from the case's board (src/research/cases)
 export const CASE_SPECIES = {
   'mice-owl': ['grove', 'spinymouse', 'owl', 'sage'],

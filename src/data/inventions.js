@@ -32,6 +32,8 @@ export const TRAIT = {
   bumpy: 'שריון עם בליטות', coolears: 'אוזניים שמוציאות חום', reflect: 'מחזיר את קרני השמש',
   // 1.4.2, the savanna
   airtunnels: 'תעלות אוויר בקיר', stripes: 'פסים שחורים ולבנים', trunkgrip: 'חדק גמיש שאוחז',
+  // 1.4.3 set 6
+  tightskin: 'עור הדוק ברגליים', woodgut: 'מעכל עץ', silverhair: 'שערות כסופות', hop: 'קופץ על שתי רגליים',
 };
 
 // species id → traits (the first one is the strongest; the cards show the first three)
@@ -62,14 +64,14 @@ export const TRAITS = {
   acacia: ['tall', 'spines'], datepalm: ['tall'], tamarisk: ['tall'], retama: ['shelter'], saltbush: ['shelter'], zygophyllum: ['storewater'],
   caper: ['bloom'], calotropis: ['skinchem'], colocynth: ['storewater'], anastatica: ['opens', 'patient'], blooms: ['bloom', 'patient'], crust: ['hold', 'team'],
   columncactus: ['storewater', 'spines', 'tall'], barrelcactus: ['storewater', 'spines'], fennec: ['coolears', 'nightsee', 'dig'], sandcat: ['nightsee', 'walk'],
-  caracal: ['fast', 'strong'], ibex: ['climb', 'grip'], dorcas: ['fast', 'walk'], camel: ['patient', 'strong', 'walk'], jerboa: ['tail', 'fast', 'dig'],
+  caracal: ['fast', 'strong'], ibex: ['climb', 'grip'], dorcas: ['fast', 'walk'], camel: ['patient', 'strong', 'walk'], jerboa: ['hop', 'tail', 'dig'],
   psammomys: ['dig', 'memory'], deserthedgehog: ['spines', 'armor', 'nightsee'], uromastyx: ['spines', 'sun', 'dig'], scorpion: ['bumpy', 'armor', 'nightsee'],
-  darkling: ['fogcatch', 'armor', 'walk'], desertant: ['suncompass', 'fast', 'team'], sandgrouse: ['soak', 'fly'], eagleowl: ['quiet', 'nightsee', 'fly'],
+  darkling: ['fogcatch', 'armor', 'walk'], desertant: ['suncompass', 'silverhair', 'team'], sandgrouse: ['soak', 'fly'], eagleowl: ['quiet', 'nightsee', 'fly'],
   houbara: ['hide', 'walk'], hawkmoth: ['hover', 'nightsee', 'fly'], desertsnail: ['reflect', 'dome', 'patient'],
   // סוואנה (1.4.2)
   umbrella: ['tall', 'spines', 'shelter'], baobab: ['storewater', 'tall'], whistling: ['spines', 'team'], redoat: ['patient'], stargrass: ['hold'],
-  kigelia: ['tall', 'bloom'], sycamore: ['tall', 'shelter'], marula: ['tall'], doum: ['tall'], papyrus: ['hold', 'float'], termitemound: ['airtunnels', 'team', 'shelter'],
-  zebra: ['stripes', 'walk', 'team'], wildebeest: ['walk', 'team'], impala: ['fast', 'team'], giraffe: ['tall', 'walk'], elephant: ['trunkgrip', 'coolears', 'strong'],
+  kigelia: ['tall', 'bloom'], sycamore: ['tall', 'shelter'], marula: ['tall'], doum: ['tall'], papyrus: ['hold', 'float'], termitemound: ['airtunnels', 'woodgut', 'team'],
+  zebra: ['stripes', 'walk', 'team'], wildebeest: ['walk', 'team'], impala: ['fast', 'team'], giraffe: ['tightskin', 'tall', 'walk'], elephant: ['trunkgrip', 'coolears', 'strong'],
   lion: ['strong', 'team', 'nightsee'], crocodile: ['armor', 'patient', 'swim'], weaver: ['fly', 'hold'], buffalo: ['strong', 'team'], hyena: ['strong', 'team', 'nightsee'],
   baboon: ['climb', 'team', 'grip'],
   // technology cards
@@ -112,6 +114,22 @@ export const PROBLEMS = [
   { id: 'softarm', kids: true, theme: 'robots', land: true, icon: 'gear', title: 'זרוע רובוט רכה', ask: 'רובוט במפעל צריך להרים דברים שבירים, ולעבוד ליד אנשים בלי לפגוע בהם. איזו זרוע מתאימה לו?', key: 'trunkgrip', half: ['grip', 'coil', 'strong'],
     real: 'elephant', fact: 'לחדק של הפיל אין עצמות, אבל הוא חזק וגמיש, ויכול להרים גם בול עץ וגם עלה קטן. בשנת 2010 חברה בגרמניה בנתה זרוע רובוט רכה לפי החדק של הפיל.',
     clue: 'למי בסוואנה יש אף ארוך בלי עצמות, שמרים גם עלה קטן וגם ענף כבד?', show: { fail: 'הזרוע הקשה שברה את הביצה.', half: 'הזרוע תפסה בעדינות, אבל לא הצליחה להרים דברים כבדים.' } },
+  // 1.4.3 set 6 (docs/sources.md "הממציאים, 1.4.3")
+  { id: 'gsuit', theme: 'health', land: true, icon: 'shield', title: 'חליפה לטייסים', ask: 'טייסים במטוס מהיר מרגישים שהדם בורח להם לרגליים, ומסתחרר להם הראש. איך עוזרים להם?', key: 'tightskin', half: ['tall', 'strong', 'cushion'],
+    real: 'giraffe', fact: 'הראש של הג׳ירפה רחוק מאוד מהלב, ולכן הלחץ של הדם שלה גבוה מאוד. העור ברגליים שלה הדוק כמו גרב לוחצת, והדם לא נאסף שם. חוקרים בנאס״א חקרו את הרגליים של הג׳ירפה כדי ללמוד איך לשמור על אסטרונאוטים ועל טייסים.',
+    clue: 'למי בסוואנה יש רגליים ארוכות מאוד וראש גבוה מאוד מעל הלב?', show: { fail: 'בפנייה החדה הראש של הטייס הסתחרר.', half: 'קצת עזר, אבל בפנייה חזקה הראש עדיין הסתחרר.' } },
+  { id: 'biofuel', theme: 'energy', land: true, icon: 'leaf', title: 'דלק מקש ומגזם', ask: 'אחרי הקציר נשאר בשדות הרבה קש, ובגינות הרבה ענפים. אפשר להפוך אותם לדלק? ממי לומדים לפרק עץ?', key: 'woodgut', half: ['team', 'dig', 'shelter'],
+    real: 'termitemound', fact: 'הטרמיטים אוכלים עץ ועשב יבש. בבטן שלהם חיים חיידקים זעירים שמפרקים את העץ. חוקרים בודקים את החיידקים האלה כדי ללמוד איך להפוך קש וגזם לדלק.',
+    clue: 'מי בסוואנה אוכל עץ ועשב יבש, ובונה בית גבוה מאדמה?', show: { fail: 'הקש נשאר קש, ושום דלק לא יצא.', half: 'קצת מהקש התפרק, אבל רובו נשאר כמו שהיה.' } },
+  { id: 'waterbag', kids: true, theme: 'water', land: true, icon: 'drop', title: 'להביא מים בלי לשפוך', ask: 'בגינה רחוקה אין צינור, וצריך להביא מים לשתילים. הדליים נשפכים בדרך. ממי אפשר ללמוד?', key: 'soak', half: ['float', 'fly', 'filter'],
+    real: 'sandgrouse', fact: 'זכר הקטה טובל את הבטן במים. הנוצות שם מחזיקות מים כמו ספוג, והוא עף איתן קילומטרים אל הגוזלים, והם שותים מהן. בשנת 2023 חוקרים בדקו את הנוצות האלה במיקרוסקופ, כדי לבנות חומרים שמחזיקים מים.',
+    clue: 'איזו ציפור במדבר מביאה מים לגוזלים שלה בנוצות?', show: { fail: 'עד שהגענו לשתילים, כל המים נשפכו.', half: 'הגיעו קצת מים, אבל רובם נשפכו בדרך.' } },
+  { id: 'coolcoat', theme: 'matter', land: true, icon: 'sparkle', title: 'ציפוי שמקרר בשמש', ask: 'רכבים וגגות במדבר מתחממים מאוד בשמש של הצהריים. איזה ציפוי ישמור עליהם קרירים?', key: 'silverhair', half: ['sun', 'shelter', 'dome'],
+    real: 'desertant', fact: 'בסהרה חיה נמלת מדבר כסופה שיוצאת בצהריים החמים. השערות שלה בנויות כמו מנסרות קטנות: הן מחזירות את אור השמש ומוציאות חום. בשנת 2015 חוקרים גילו את זה, ומאז מפתחים ציפויים שמתקררים כך בשמש.',
+    clue: 'למי במדבר יש שערות שמבריקות כמו כסף, והוא יוצא דווקא בצהריים?', show: { fail: 'הגג התחמם כל כך שאי אפשר היה לגעת בו.', half: 'הגג היה קצת פחות חם, אבל עדיין חם מאוד.' } },
+  { id: 'hopbot', kids: true, theme: 'robots', land: true, icon: 'gear', title: 'רובוט שעובר על חול ואבנים', ask: 'רובוט חוקר צריך לעבור מהר על חול רך ועל אבנים. הגלגלים שלו נתקעים. איך הוא יזוז?', key: 'hop', half: ['tail', 'fast', 'walk'],
+    real: 'jerboa', fact: 'הירבוע קופץ על שתי רגליים ארוכות, ומשתמש בזנב כדי לשמור על איזון. בשנת 2015 חוקרים בארצות הברית בנו רובוט קופץ עם זנב בשם ג׳רבואה, לפי הירבוע.',
+    clue: 'מי במדבר קופץ על שתי רגליים ארוכות, עם זנב ארוך מאחור?', show: { fail: 'הגלגלים שקעו בחול, והרובוט נתקע.', half: 'הרובוט זז קצת, אבל נתקע באבן הראשונה.' } },
   // 1.4, the desert (docs/sources.md "המדבר")
   { id: 'fogwater', kids: true, theme: 'water', land: true, icon: 'drop', title: 'מים מן הערפל', ask: 'בכפר על הר יבש יש ערפל כמעט כל בוקר, אבל אין מעיין. איך אוספים מים?', key: 'fogcatch', half: ['storewater', 'soak', 'spines'],
     real: 'darkling', fact: 'במדבר נמיב שבאפריקה יש חיפושית שחורה שעומדת בבוקר מול הרוח. טיפות ערפל נתפסות על הגב שלה ומתגלגלות אל הפה. לפי הרעיון הזה בונים רשתות ומשטחים שאוספים מים מהערפל.',
@@ -293,6 +311,17 @@ export const PROBLEMS = [
 //   · `half` (when given here) replaces the problem's half list: traits that became an alt route leave it.
 // tools/check-inventions.mjs runs every card and every pair of cards against every problem.
 const ROUTES = {
+  // 1.4.3 set 6
+  gsuit: { want: 'משהו שלוחץ חזק על הרגליים, כך שהדם לא ייאסף בהן.', half: ['tall', 'strong'],
+    alt: [{ t: ['coil'], why: 'רצועה שמתלפפת ולוחצת על הרגליים, כמו נחש שמתלפף, לא נותנת לדם להצטבר שם.', fact: 'חליפות של טייסי קרב מתנפחות בפנייה חדה ולוחצות על הרגליים, וכך הדם נשאר בראש.' }] },
+  biofuel: { want: 'מישהו שיודע לפרק עץ ועשב יבש לחלקים קטנים.', half: ['team', 'dig'],
+    alt: [{ t: ['mycel'], why: 'פטריות מפרקות עץ ועלים יבשים בעזרת חומרים מיוחדים. בעזרת חומרים כאלה אפשר להפוך גזם לדלק.', fact: 'במפעלים מפרקים קש בעזרת חומרים שפטריות מייצרות, ומהקש עושים דלק.' }] },
+  waterbag: { want: 'משהו שמחזיק מים בתוכו כמו ספוג, ולא נותן להם להישפך.', half: ['float', 'fly'],
+    alt: [{ t: ['storewater'], why: 'מכל סגור ששומר את המים בתוכו, כמו הגזע של קקטוס, לא נשפך בדרך.' }] },
+  coolcoat: { want: 'משהו שמחזיר את אור השמש ולא נותן לו לחמם.', half: ['sun', 'shelter'],
+    alt: [{ t: ['reflect'], why: 'צבע לבן ומבריק מחזיר את קרני השמש, כמו הקונכייה של חילזון המדבר.', fact: 'צבע לבן מחזיר את רוב קרני השמש. לכן בערים חמות צובעים גגות בלבן.' }] },
+  hopbot: { want: 'דרך לזוז בלי גלגלים, שלא שוקעת בחול ולא נתקעת באבנים.', half: ['tail', 'fast'],
+    alt: [{ t: ['climb'], why: 'רגליים שמטפסות ונאחזות, כמו של היעל, עוברות על אבנים בלי להיתקע.', fact: 'היום יש רובוטים עם ארבע רגליים, שהולכים על סלעים ועל חול.' }] },
   // 1.4.2, the savanna
   coolhouse: { want: 'משהו שמכניס אוויר קריר ומוציא אוויר חם, בלי מנוע.', half: ['shelter', 'dome'],
     alt: [{ t: ['reflect'], why: 'קירות וגג לבנים ומבריקים מחזירים את קרני השמש, כמו הקונכייה של חילזון המדבר, והבניין מתחמם פחות.', fact: 'צבע לבן מחזיר את רוב קרני השמש. לכן בערים חמות צובעים גגות וקירות בלבן.' }] },

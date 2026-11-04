@@ -51,6 +51,7 @@ import { createQuiz } from './quiz.js';
 import { loadState } from './storage.js';
 import { injectCss } from './styles.js';
 import { svcGuide } from '../../core/services.js';
+import { openChat } from '../../ui/robo-chat.js';
 
 /* ───────────────────────────────────────────── the hub */
 export function createLearningHub(rootEl, { onClose, audio } = {}) {
@@ -79,6 +80,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
       <button class="wl-back" data-wl="back">${IC.back}<span>חזרה</span></button>
       <h2 class="wl-crumb"></h2><span class="wl-sp"></span>
       <span class="wl-who"></span>
+      <button class="wl-gear wl-chat" data-wl="chat" title="לדבר עם רובו־דע" aria-label="לדבר עם רובו־דע">${icon('chat')}</button>
       ${TORAH ? `<button class="wl-gear" data-wl="settings" title="הגדרות" aria-label="הגדרות">${icon('sliders')}</button>` : ''}
       <button class="wl-chip" data-wl="packs" title="חבילות קלפים">${icon('pack')}<span class="wl-chipn"></span></button>
       <img class="wl-logo" src="${BABA_DA_LOGO}" alt="בבא דע">
@@ -317,6 +319,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
       else if (['home', 'album', 'setup', 'badges', 'frames'].includes(screen)) go(screen, { force: true });
       openSettings();
     },
+    chat: () => { sfx('click'); openChat({ place: 'hub' }); },   // 1.4.3: a talk with רובו־דע (src/ui/robo-chat.js)
     settings: () => openSettings(), bzoom: (t) => bzoom(t.dataset.b),
     duel: () => { sfx('click'); go('duel'); }, play: (t) => playCard(+t.dataset.k), dnext: duelNext,
     badges: () => { sfx('click'); go('badges'); }, frames: () => { sfx('click'); go('frames'); },

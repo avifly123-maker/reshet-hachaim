@@ -207,8 +207,9 @@ async function boot() {
   });
   function howStages() {
     if (game || loading || !ui.isStartShown()) return;   // (another bubble on screen: this one waits in the guide's queue)
-    try { if (!journey.wasUsed('training') || journey.introSeen('g:start:howstages')) return; } catch (e) { return; }
-    guide.say(GUIDE['start:howstages'] || [], { key: 'g:start:howstages', modal: true });
+    try { if (!journey.wasUsed('training')) return; } catch (e) { return; }
+    if (!journey.introSeen('g:start:howstages')) guide.say(GUIDE['start:howstages'] || [], { key: 'g:start:howstages', modal: true });
+    guide.intro('start:chat');   // 1.4.3: once, the button that opens a talk with him (src/ui/robo-chat.js); it waits in the queue
   }
 
   let gameZone = null;   // the zone whose pack the running (or last) game uses
@@ -343,8 +344,9 @@ async function boot() {
       }
       return lab;
     });
+    // (1.4.3: a player who knows the lab hears once what is new in it: lab:news)
     // the first visit: רובו־דע's hands-on steps (turn the room, the "?" button, a station); the four cards stay on "?"
-    labP.then((L) => { labOpening = false; ui.hideLoading(); L.open(); setTimeout(() => { if (!L.isOpen()) return; if (labTut) return; labTut = labTutorial({ guide, lab: L }); }, LAB_TUT_MS); }, (e) => { labOpening = false; labP = null; ui.hideLoading(); console.error(e); showStart(); });
+    labP.then((L) => { labOpening = false; ui.hideLoading(); L.open(); setTimeout(() => { if (!L.isOpen()) return; if (labTut) return; labTut = labTutorial({ guide, lab: L }); if (labTut) journey.markIntro('g:lab:news'); else guide.intro('lab:news'); }, LAB_TUT_MS); }, (e) => { labOpening = false; labP = null; ui.hideLoading(); console.error(e); showStart(); });
   }
   bus.on('ui:research', () => { audio.start(); researchHub.open(); });
   // מעבדת הרובוטים (1.4.1): its own pack, opened from the science centre; leaving goes back to the start screen

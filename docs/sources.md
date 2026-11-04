@@ -877,3 +877,59 @@ Lab and inventors:
 - Mars rovers ride six wheels on a rocker-bogie suspension that climbs over rocks without tipping
   (https://en.wikipedia.org/wiki/Rocker-bogie). Desert ants find the way home with tiny brains
   (https://en.wikipedia.org/wiki/Cataglyphis). The elephant trunk arm: see "Lab and inventors" above.
+
+## המעבדה, 1.4.3 (set 6: the lab's desert and savanna content, src/lab/samples.js, src/data/inventions.js, clue-cases.js, observe-cases.js, src/data/lab-questions.js)
+- Elephant skin: a network of micro-cracks holds 5 to 10 times more water than a flat surface, and cools by slow
+  evaporation; elephants have no sweat glands (Martins et al. 2018, Nature Communications 9: 3865).
+- Acacia: the bipinnate leaf is made of very small leaflets; stomata close in the midday heat to keep water
+  (https://en.wikipedia.org/wiki/Vachellia_tortilis; https://en.wikipedia.org/wiki/Stoma).
+- Weaver nests: the male winds strips of grass round a twig and ties real knots with beak and feet (Collias & Collias
+  1964, Evolution of nest-building in the weaverbirds; https://en.wikipedia.org/wiki/Ploceidae).
+- Papyrus: the stem is full of air spaces (aerenchyma) that carry air down to the roots in the mud; in the past its
+  stems were made into writing sheets (https://en.wikipedia.org/wiki/Cyperus_papyrus; https://en.wikipedia.org/wiki/Aerenchyma).
+- Fog-basking beetles: on foggy mornings beetles of the Namib stand head-down into the wind, drops gather on the bumps
+  of the back and roll to the mouth (Parker & Lawrence 2001, Nature 414: 33).
+- Saltbush (Atriplex): salt bladders, hairs that fill with salt and burst, leave a white crust; the plant gets rid of
+  extra salt this way (https://en.wikipedia.org/wiki/Atriplex; Kiani-Pouya et al. 2017, Plant Cell Environ. 40: 1900).
+- Sandgrouse: the male's belly feathers have coiled barbules that hold water; he soaks them and carries water to the
+  chicks (Cade & Maclean 1967, The Condor 69: 323; Mueller & Gibson 2023, J. R. Soc. Interface 20: 20230510).
+- Giraffe legs: tight skin and fascia keep blood from pooling in the legs; NASA researchers studied it for pressure
+  suits (Hargens et al. 1987, Nature 329: 59; https://en.wikipedia.org/wiki/Giraffe#Circulatory_system).
+- Termites digest wood with the help of microbes in the gut (Warnecke et al. 2007, Nature 450: 560); mound termites
+  also grow a fungus in the nest. Air moves through the mound's tunnels and changes the nest's air (Turner 2001,
+  "On the mound of Macrotermes michaelseni").
+- Saharan silver ant (Cataglyphis bombycina): prism-shaped hairs reflect sunlight and help heat leave the body, so it
+  forages at midday (Shi et al. 2015, Science 349: 298).
+- The "Jerboa" robot of the University of Pennsylvania, a hopping two-legged robot with a tail (Brill et al. 2015,
+  ICRA); jerboas hop on long hind legs and turn suddenly to escape (https://en.wikipedia.org/wiki/Jerboa).
+- Clue and observe cases: zebras have one hoof on each leg and often dust-bathe; wildebeest, impala and buffalo have
+  cloven hooves (https://en.wikipedia.org/wiki/Zebra; https://en.wikipedia.org/wiki/Even-toed_ungulate). Lions keep
+  their claws pulled in while walking, so their tracks show no claw marks, while hyena tracks do; lions have a dark
+  tail tuft and rest up to about 20 hours a day (https://en.wikipedia.org/wiki/Lion). Impala leap up to about 3 m
+  high and 10 m long, and both graze and browse (https://en.wikipedia.org/wiki/Impala). Scorpions shed their skin to
+  grow, and the exoskeleton, the shed one too, glows blue-green under UV light (Liu et al. 2024, Spectrochim. Acta A
+  316: 124309). Uromastyx lizards are dark when cold and turn paler as they warm (https://en.wikipedia.org/wiki/Uromastyx).
+  Elephants cover themselves with mud and dust against the sun and insects (Martins 2018 above).
+- Camel feet: wide pads spread the weight on sand (https://en.wikipedia.org/wiki/Camel#Biology).
+
+## השיחה עם רובו־דע (1.4.3, src/data/guide/chat.js)
+- The arowana jumps out of the water to take insects from branches (https://en.wikipedia.org/wiki/Osteoglossum_bicirrhosum).
+- Sloths come down from the tree about once a week (https://en.wikipedia.org/wiki/Sloth).
+- Kapok trees reach 60 to 70 m (https://en.wikipedia.org/wiki/Ceiba_pentandra).
+- Hoopoe nestlings squirt a foul-smelling liquid at intruders (https://en.wikipedia.org/wiki/Hoopoe#Breeding).
+- Oaks live for hundreds of years; jays bury acorns and forget some, which grow into oaks
+  (https://en.wikipedia.org/wiki/Eurasian_jay).
+- Spur-thighed tortoises hibernate in winter (https://en.wikipedia.org/wiki/Spur-thighed_tortoise).
+- Parrotfish sleep in a mucus cocoon (Grutter et al. 2011, Biology Letters 7: 292).
+- Corals are animals, colonies of tiny polyps; clownfish live among anemone tentacles unharmed
+  (https://en.wikipedia.org/wiki/Coral; https://en.wikipedia.org/wiki/Amphiprioninae).
+- Jerboas get most of their water from their food (https://en.wikipedia.org/wiki/Jerboa).
+- A thirsty camel can drink about 100 litres at once (https://en.wikipedia.org/wiki/Camel#Biology).
+- Desert annuals' seeds wait in the soil for years and sprout soon after rain (https://en.wikipedia.org/wiki/Desert_ecology).
+- The giraffe's tongue is about 45 to 50 cm long and dark (https://en.wikipedia.org/wiki/Giraffe).
+- An elephant eats up to about 150 kg of plants a day (https://en.wikipedia.org/wiki/African_bush_elephant).
+- Hummingbird hearts beat up to about 1,200 times a minute (https://en.wikipedia.org/wiki/Hummingbird#Metabolism).
+- About two million flowers are visited for a pound of honey (https://en.wikipedia.org/wiki/Honey#Production).
+- The word "robot" comes from the Czech "robota" (work, forced labour); it was first used in Karel Čapek's play R.U.R.
+  (1920), and his brother Josef suggested it (https://en.wikipedia.org/wiki/Robot#Etymology).
+- Octopuses change colour within a fraction of a second (https://en.wikipedia.org/wiki/Cephalopod_camouflage).

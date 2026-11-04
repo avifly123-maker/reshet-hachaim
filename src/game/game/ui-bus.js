@@ -13,6 +13,7 @@ import { toolDef } from '../tools.js';
 import { K, writePlayerRaw } from '../../core/storage.js';
 import { zoneWord } from '../../core/place.js';
 import { late } from './common.js';
+import { openChat } from '../../ui/robo-chat.js';
 
 export function createUiBus(ctx) {
   const { bus, dragStart, dragMove, dragEnd, audio, reg, W, ui, refreshTray, showPanel, nearestOf, rig, select,
@@ -99,6 +100,7 @@ export function createUiBus(ctx) {
   on('journal:select', ({ id }) => { ui.hideJournal(); showPanel(id, true); });
   on('ui:journal', () => openJournal());
   on('ui:help', () => showHowto(true));
+  on('ui:chat', () => openChat({ place: biome.id }));   // 1.4.3: a talk with רובו־דע (jokes, facts, riddles)
   on('ui:coach', () => { if (W.xp) robo('zone:' + biome.id, { tip: false, force: true }); else startCoach(true); });
   // "מה עושים עכשיו?" next to the missions: רובו־דע answers in one bubble with the current mission's how-to
   on('mission:whatnow', () => {
