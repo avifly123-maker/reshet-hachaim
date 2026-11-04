@@ -208,7 +208,7 @@
 "clickSel": ".rl-wk [data-wtab=garage]"
 },
 {
-"wait": 0.5
+"wait": 2.0
 },
 {
 "clickSel": ".rl-wk .wk-rob:last-child .wk-del"
