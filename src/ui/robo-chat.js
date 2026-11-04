@@ -51,7 +51,7 @@ const menu = () => Object.entries(CHAT.topics).map(([id, t]) => ({ id: 't:' + id
 const ENDS = new Set(['abort', 'skip', 'done', 'none', 'seen', 'queued']);
 
 async function talk(g, place) {
-  const say = (ids, actions) => g.say(ids.map(line).filter(Boolean), actions ? { actions } : {});
+  const say = (ids, actions) => g.say(ids.map(line).filter(Boolean), { force: true, ...(actions ? { actions } : {}) })   // the child asked for this talk: the quiet switch does not hold it back;
   let r = await say([CHAT.opens[rnd(CHAT.opens.length)]], menu());
   let askN = rnd(CHAT.asksBack.length), jokeRun = 0, answers = 0, saidLong = false;
   // his reactions to the talk itself: after three jokes in a row, and once in a long talk

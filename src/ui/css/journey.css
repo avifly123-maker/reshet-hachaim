@@ -339,3 +339,14 @@
 @media (prefers-reduced-motion: reduce) {
   #ui.wol .jm, #ui.wol .jm.out, #ui.wol .jm-st.cur .jm-med, #ui.wol .jv .jv-curtain { animation: none; }
 }
+/* 1.4.3 closing (the tour at 800x460, nine stages): a stage with many parts keeps one column on a narrow screen, and
+   a name breaks only between words (it broke inside words: "הממציאי ם") */
+@media (max-width: 1100px) {
+  #ui.wol .jm-stages { grid-template-columns: none !important; grid-auto-flow: column;   /* over the inline widths of journey-map.js */
+    grid-auto-columns: minmax(0, 1fr); }
+  #ui.wol .jm-st { grid-column: auto; }
+  #ui.wol .jm-st.many .jm-parts { display: flex; }
+  #ui.wol .jm-part { padding: 3px 4px; gap: 3px; font-size: calc(.7em * var(--ts, 1)); }
+  #ui.wol .jm-part .jm-dot { flex: none; width: 8px; height: 8px; }
+  #ui.wol .jm-part span { overflow-wrap: normal; word-break: normal; }
+}
