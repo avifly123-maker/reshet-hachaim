@@ -6,13 +6,11 @@
 //
 //   openChat({ place })   place: the zone the child is in ('amazon' … 'savanna'), or 'lab' / 'hub' / 'start'
 //                         jokes, facts and riddles of that place come first, then of the open zones and of anywhere
-//   chatOpen()            a talk is running
 // Nothing is saved: the order turns in memory, from a random start, so a new day brings other jokes first.
 import { svcGuide } from '../core/services.js';
 import { isOpen, playMode } from '../core/journey.js';
 import { CHAT, CHAT_GUIDE } from '../data/guide/chat.js';
 
-const ZONES = ['amazon', 'grove', 'reef', 'desert', 'savanna'];
 const ZONE_PART = { amazon: 'zone:amazon', grove: 'zone:grove', reef: 'zone:reef', desert: 'zone:desert', savanna: 'zone:savanna' };
 const open = (z) => { try { return isOpen(ZONE_PART[z] || z); } catch (e) { return false; } };
 const kids = () => playMode() === 'kids';
@@ -41,7 +39,6 @@ function meOffer() {
 }
 
 let running = false;
-export const chatOpen = () => running;
 
 export function openChat({ place = 'start' } = {}) {
   const g = svcGuide(); if (!g || running) return null;
@@ -100,4 +97,3 @@ async function talk(g, place) {
     } else return;
   }
 }
-export { ZONES as CHAT_ZONES };

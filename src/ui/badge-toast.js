@@ -5,7 +5,10 @@
 import { badgeHTML, BADGE_CSS } from './badge-art.js';
 import { badgeById } from '../data/badges.js';
 import { TECH_BY } from '../data/robolab/tech-cards.js';
-import { techCardHTML, ensureTechCSS } from './tech-card.js';
+// 1.4.3 closing: the technology card's face (and its paintings) load only when the first card is shown
+let TC = null, tcLoad = null;
+const loadTC = () => tcLoad || (tcLoad = import('./tech-card.js').then((m) => { TC = m; }));
+import { svcGuide } from '../core/services.js';
 import { playerMode } from '../core/storage.js';
 
 export function startBadgeToasts(root, audio) {
@@ -37,21 +40,22 @@ export function startBadgeToasts(root, audio) {
   }
   const queue = []; let busy = false, waitT = 0;
   // a technology card waits while רובו־דע speaks (the workshop's tutorial): one voice and one picture at a time
-  const guideTalks = () => { try { return !!(window.__guide && window.__guide.isOpen && window.__guide.isOpen()); } catch (e) { return false; } };
+  const guideTalks = () => { try { const g = svcGuide(); return !!(g && g.isOpen()); } catch (e) { return false; } };
   function next() {
     if (busy || !queue.length) return;
     // a mission banner ("משימה הושלמה!") is showing: the badge waits until it is gone, so they never cover each other
     // 1.4.3: also the robot workshop's step card, the robot lab's opening film, and any screen that holds them for a
     // while ([data-hold-toasts]: the workshop during its tutorial, whose bubbles have short gaps between steps)
     if (root.querySelector('.mission-banner') || document.querySelector('.ss') || document.querySelector('.wk-steps:not([hidden]), .rl-intro, [data-hold-toasts]') || (queue[0] && queue[0].tech && guideTalks())) { if (!waitT) waitT = setTimeout(() => { waitT = 0; next(); }, 300); return; }
+    if (queue[0] && queue[0].tech && !TC) { loadTC().then(() => next(), () => { queue.shift(); next(); }); return; }
     const item = queue.shift();
     let html = '', tech = false;
     if (item && item.tech) {
       const ids = [item.tech]; while (queue.length && queue[0] && queue[0].tech) ids.push(queue.shift().tech);
       const c = TECH_BY.get(ids[0]); if (!c) { next(); return; }
-      const kids = playerMode() === 'kids'; tech = true; ensureTechCSS();
+      const kids = playerMode() === 'kids'; tech = true; TC.ensureTechCSS();
       const more = ids.length - 1;
-      html = `<i class="rays"></i><h4>${kids ? 'קְלַף טֶכְנוֹלוֹגְיָה חָדָשׁ!' : 'קלף טכנולוגיה חדש!'}</h4>${techCardHTML(c, { kids })}<p>${more > 0 ? (kids ? `וְעוֹד ${more}. ` : `ועוד ${more}. `) : ''}${kids ? 'מְחַכֶּה לָכֶם בָּאַלְבּוֹם, בַּלַּשּׁוֹנִית "טֶכְנוֹלוֹגְיָה".' : 'מחכה לכם באלבום, בלשונית "טכנולוגיה".'}</p>`;
+      html = `<i class="rays"></i><h4>${kids ? 'קְלַף טֶכְנוֹלוֹגְיָה חָדָשׁ!' : 'קלף טכנולוגיה חדש!'}</h4>${TC.techCardHTML(c, { kids })}<p>${more > 0 ? (kids ? `וְעוֹד ${more}. ` : `ועוד ${more}. `) : ''}${kids ? 'מְחַכֶּה לָכֶם בָּאַלְבּוֹם, בַּלַּשּׁוֹנִית "טֶכְנוֹלוֹגְיָה".' : 'מחכה לכם באלבום, בלשונית "טכנולוגיה".'}</p>`;
     } else {
       const b = badgeById(item); if (!b) { next(); return; }
       html = `<i class="rays"></i><h4>תג חדש!</h4>${badgeHTML(b)}<p>${b.how}</p>`;

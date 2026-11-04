@@ -153,7 +153,12 @@ export function createCourse(ctx, L) {
   const at = (o, x, y, up = 0) => { const X = wx(x), Z = wz(y); o.position.set(X, ground(X, Z) + up, Z); return o; };
   function clearItems() {
     tweens = [];
-    for (const o of [...itemRoot.children]) itemRoot.remove(o);
+    // 4.11 (closing review): the items are made again on every reset (every edit of the program), so free what they hold
+    // (a shared geometry or material that is used again is simply sent to the GPU again by three.js)
+    for (const o of [...itemRoot.children]) {
+      itemRoot.remove(o);
+      o.traverse((m) => { if (m.geometry) m.geometry.dispose(); const mats = Array.isArray(m.material) ? m.material : m.material ? [m.material] : []; for (const x of mats) { if (x.map) x.map.dispose(); x.dispose(); } });
+    }
     for (const p of spawned) { try { W.removeEntity(p); } catch (e) { } }
     spawned = []; fires = [];
   }

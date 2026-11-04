@@ -141,5 +141,16 @@ const land = (x, z) => Math.hypot(x, z) < 54;
   const p2 = createPop({ grass: createGrass({ S: 60, N: 32, land }) }); p2.load(good.pop.save());
   ok(p2.total('zebra', 3) === good.n, 'the herd comes back from the save');
 }
+// 1.4.3 closing: a herd that died out starts again where the child's new animals are, not at its old place
+{
+  const land = () => true;
+  const pop = createPop({ grass: createGrass({ S: 60, N: 32, land }), nearWater: () => ({ x: 0, z: 0, d: 2 }), edge: 54 });
+  const h = pop.ensure('zebra', [{ x: -20, z: -20 }]); h.n = 0;
+  pop.step(1, { members: {} });   // no animals at all: the herd is gone
+  const h2 = pop.ensure('zebra', [{ x: 18, z: 12 }]);
+  ok(h2.n > 0 && Math.hypot(h2.x - 18, h2.z - 12) < 0.5, 'a herd that died out starts again at the new animals (' + h2.n + ' at ' + h2.x.toFixed(1) + ',' + h2.z.toFixed(1) + ')');
+  h2.n = 3; pop.step(1, { members: { zebra: [{ x: 18, z: 12 }] } });
+  ok(pop.ensure('zebra', [{ x: -5, z: -5 }]).n >= 3 && Math.hypot(pop.herd('zebra').x - 18, pop.herd('zebra').z - 12) < 3, 'a living herd is not moved by a new member');
+}
 if (fails.length) { console.log('savanna systems:\n  ' + fails.join('\n  ')); process.exit(1); }
 console.log('savanna systems: all rules hold');

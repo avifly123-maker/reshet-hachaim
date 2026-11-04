@@ -85,7 +85,8 @@ export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, gui
   const glowMat = new THREE.MeshBasicMaterial({ color: '#7fe3ff', transparent: true, opacity: 0.85, depthTest: false });
   const glowGeo = new THREE.SphereGeometry(0.035, 16, 10);
   function rebuild() {
-    if (model) turn.remove(model);
+    // the old model's materials go (they are made with the robot's paint; shared geometry stays with parts3d.js)
+    if (model) { turn.remove(model); model.traverse((m) => { const ms = Array.isArray(m.material) ? m.material : m.material ? [m.material] : []; for (const x of ms) x.dispose(); }); }
     // the build as it is: its chassis, wheels and the parts that have a picture (src/data/robolab/workshop-look.js)
     const L = wkLook(cur.build), before = shownLook && shownLook.base === L.base ? shownLook.parts : null;
     model = hasBlenderTools() ? (buildTool(L) || buildTool({ base: 'robot' })) : makeTool('robot');

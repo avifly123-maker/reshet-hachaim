@@ -95,7 +95,7 @@ function riggedKind(scene, kind, src, cap, renderer) {
     a.time = ((t * ts + phase * d / PHASES) % d + d) % d;
     mixer.update(0);
   }
-  return { im, pose, cap, dispose() { mixer.stopAllAction(); mixer.uncacheRoot(holder); im.removeFromParent(); im.dispose(); skel.dispose(); src.geo.deleteAttribute('instanceIndex'); } };   // the cached geometry is clean for the next island
+  return { im, pose, cap, dispose() { mixer.stopAllAction(); mixer.uncacheRoot(holder); im.removeFromParent(); im.dispose(); skel.dispose(); src.geo.deleteAttribute('instanceIndex'); src.geo.dispose(); } };   // the cached geometry is clean for the next island
 }
 
 export function createHerdCrowd(scene, env, { builders = {}, quality = () => 'medium', renderer = null } = {}) {

@@ -56,7 +56,8 @@ export function createRoboSession(ctx, R) {
       const fromSandbox = () => {
         const Q = R.sandbox, M = makeSandbox(viewOf(Q.island), { zone: R.zone, species, step: Q.step, seed: Q.seed || 1 });
         if (!M) return null;
-        const can = [...statsOf(Q.build).blocks], acts = can.filter((b) => !BASE_BLOCKS.includes(b));
+        const st = statsOf(Q.build); if (!st) return null;   // a build that breaks a rule has no numbers (index.js sends the gardener instead)
+        const can = [...st.blocks], acts = can.filter((b) => !BASE_BLOCKS.includes(b));
         const blocks = ['fwd', 'back', 'right', 'left', ...acts, 'wait', 'repeat', 'if', 'until', 'add', 'fireworks', 'dance', 'lights', 'beep'].filter((b, i, a) => a.indexOf(b) === i && (can.includes(b) || ['repeat', 'if', 'until'].includes(b)));
         return { ...M, blocks, acts, build: { robot: Q.build }, robotName: Q.name || '' };
       };

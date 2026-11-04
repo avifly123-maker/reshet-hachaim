@@ -27,6 +27,7 @@ import { roboProgress, markSolved, addFun, markSeen, addIsland, dropDrafts } fro
 import { grantTechCards } from './tech.js';
 import { MISSION_BY, missionLevel, missionBuild } from './missions.js';
 import { planLevel } from './engine/plan.js';
+import { checkBuild } from './engine/build.js';   // the sandbox takes only a robot that keeps the rules
 import { levelOf } from './engine/level.js';   // 1.4.3 set 4: the workshop's missions
 import { addMission } from './progress.js';
 import { wkStepOf } from './earn.js';
@@ -246,6 +247,9 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
       tut = L.sandbox ? sandboxTutorial({ guide: g, rl, voice: kvoice })   // ארגז החול: drive, then the program it made
         : L.mission ? missionRunTutorial({ guide: g, rl, voice: kvoice })   // a workshop mission: קוּבִּי on the robot that went out
         : robolabTutorial({ guide: g, rl }) || (hasLoop ? robolabLoopTutorial({ guide: g, rl }) : null) || (hasHat ? robolabEventTutorial({ guide: g, rl }) : null);
+      // one voice at a time (closing review): a tutorial ends קוּבִּי's lesson lines; his own tutorials cut his current
+      // line themselves (the same voice), רובו־דע's need it stopped here
+      if (tut) { speakGen++; if (!L.sandbox && !L.mission) kvoice.stop(); }
     }, 2600);
   }
   function maxbUpdate() { const m = el.querySelector('.rl-maxb b'); if (!m || !ed || !cur) return; const n = countBlocks(ed.program()); m.textContent = n; m.parentNode.classList.toggle('full', !!cur.maxBlocks && n >= cur.maxBlocks); }
@@ -276,7 +280,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
             ${api ? `<button type="button" data-view>${icon('eye')}<span>${viewWord(1)}</span></button>` : ''}
           </div>${L.sandbox ? driveHTML(L) : ''}</div>
       </div></div>`;
-    ed = createEditor(el.querySelector('.rl-ed'), { lesson: L, kids, onFull: () => { sfx('invalid'); const m = el.querySelector('.rl-maxb'); if (m) { m.classList.remove('full'); void m.offsetWidth; m.classList.add('full'); } }, onChange: () => { maxbUpdate(); lastRun = null; el.querySelector('[data-why]').disabled = true; if (map && !map.isPlaying()) map.reset(); hideMsg(); } });
+    ed = createEditor(el.querySelector('.rl-ed'), { lesson: L, kids, onFull: () => { sfx('invalid'); const m = el.querySelector('.rl-maxb'); if (m) { m.classList.remove('full'); void m.offsetWidth; m.classList.add('full'); } }, onChange: () => { maxbUpdate(); lastRun = null; if (!driving) driveN = 0; el.querySelector('[data-why]').disabled = true; if (map && !map.isPlaying()) map.reset(); hideMsg(); } });
     // a lesson always opens fresh (Avi, 2.11): empty, or a puzzle's program to fix; the stars stay in the progress
     if (L.start0) ed.set({ ...L.start0, defs: { ...(L.defs0 || {}), ...(L.start0.defs || {}) } });
     maxbUpdate();
@@ -396,7 +400,8 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   function openSandbox(zone, island) {
     if (!enter3d || !journeyOpen('robolab:sandbox')) return;
     const P = roboProgress(), R0 = P.robots[sbRobot] || P.robots[0];
-    const robot = R0 && R0.build ? R0 : { name: kids ? 'הַגַּנָּן' : 'הגנן', build: missionBuild('gardener') };
+    // a saved robot that breaks a rule (a part clicked on the bench, not finished) does not go out: the gardener does
+    const robot = R0 && R0.build && checkBuild(R0.build).ok ? R0 : { name: kids ? 'הַגַּנָּן' : 'הגנן', build: missionBuild('gardener') };
     if (workshop) { workshop.close(); workshop = null; }
     stopTut(); if (in3d) end3d();
     stopRun(); if (map) { map.dispose(); map = null; }
@@ -424,7 +429,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     msg(`<div class="rl-sbend"><b>${line}</b>${why}</div>`, 'why');
   }
   // free driving: every arrow or tool button is one more block at the end of the program, and only that step plays
-  let driveN = 0, drives = 0;
+  let driveN = 0, drives = 0, driving = false;
   // the driving buttons on the field: the four moves and what the robot's parts can do
   function driveHTML(L) {
     const mv = [['fwd', 'fwd'], ['left', 'left'], ['right', 'right'], ['back', 'back']];
@@ -434,7 +439,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   function drive(b) {
     if (!cur || !cur.sandbox || !ed || (map && map.isPlaying())) return;
     const prog = ed.program(); prog.robot = [...(prog.robot || []), { b }];
-    ed.set(prog);
+    driving = true; try { ed.set(prog); } finally { driving = false; }   // an edit by hand (not an arrow) starts the drive from the start again
     const r = runLevel(levelsOf(cur), ed.program()); lastRun = r; drives++;
     const from = driveN && driveN <= r.trace.length ? driveN : 0;
     if (r.trace.length === from) { if (r.error) sandboxEnd(r); return; }

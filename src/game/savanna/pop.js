@@ -48,9 +48,11 @@ export function createPop({ grass, nearWater = () => ({ x: 0, z: 0, d: 0 }), edg
   }
   function ensure(kind, members = [], seed = true) {
     if (!POP_KIND[kind]) return null;
-    if (H[kind]) return H[kind];
     let x = 0, z = 0;
     if (members.length) { for (const m of members) { x += m.x; z += m.z; } x /= members.length; z /= members.length; }
+    // a herd that died out (no animals left at all) starts again where the child's new animals are (closing review)
+    if (H[kind] && H[kind].empty && members.length) { const h = H[kind]; Object.assign(h, { n: seed ? POP_KIND[kind].start : 0, x, z, tx: x, tz: z, fed: 0.8, hungryT: 0, thirstT: 0, acc: 0, trend: 0, moveT: 0, empty: false }); return h; }
+    if (H[kind]) return H[kind];
     H[kind] = { kind, n: seed ? POP_KIND[kind].start : 0, x, z, tx: x, tz: z, fed: 0.8, hungryT: 0, thirstT: 0, acc: 0, trend: 0, moveT: 0, notes: {} };
     return H[kind];
   }
@@ -62,7 +64,8 @@ export function createPop({ grass, nearWater = () => ({ x: 0, z: 0, d: 0 }), edg
     t += dt;
     for (const kind in H) {
       const h = H[kind], K = POP_KIND[kind], mem = members[kind] || [], m = mem.length, P = h.n + m;
-      if (P <= 0) continue;
+      if (P <= 0) { h.empty = true; continue; }
+      h.empty = false;
       // the centre: it walks to its target slowly; the members follow it (the game moves their home)
       const dx = h.tx - h.x, dz = h.tz - h.z, d = Math.hypot(dx, dz);
       if (d > 0.3) { const v = Math.min(d, 1.2 * dt); h.x += dx / d * v; h.z += dz / d * v; }
