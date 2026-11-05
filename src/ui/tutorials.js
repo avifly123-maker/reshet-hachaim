@@ -198,7 +198,8 @@ export function nzRoomTutorial({ guide, ws, force = false, onDone }) {
   return nzRun(KEY, guide, [
     { id: 'hello', lines: L('nztut:hello') },
     { id: 'board', lines: L('nztut:board') },
-    { id: 'go', lines: L('nztut:go'), wait: () => ws.state().place !== 'room' },
+    ...(document.querySelector('.wr3-turn') ? [{ id: 'look', lines: L('nztut:look') }] : []),
+    { id: 'go', lines: L('nztut:go'), before: () => { if (ws.face) ws.face('machine'); }, wait: () => ws.state().place !== 'room' },
   ], onDone);
 }
 export function nzMachineTutorial({ guide, ws, force = false, onDone }) {

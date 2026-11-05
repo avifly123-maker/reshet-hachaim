@@ -29,6 +29,8 @@ import { TPL_BLURB, SHAPE_WORDS } from '../data/robolab/mission-words.js';
 const titleOf = (M) => (M.template ? templateInfo(M.tpl).title : M.title);
 import { roboProgress } from './progress.js';
 import { ZONE_LOOK } from '../data/zones.js';
+import { missionPic, statIcon } from './mission-art.js';
+import { CARD_ART } from '../data/card-art.js';
 const MISSION_ZONES = ['amazon', 'grove', 'reef', 'desert', 'savanna'];
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -54,7 +56,7 @@ export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, gui
   // the robot on the bench: one of the garage's, or a new one from a ready robot
   let robots = myRobots();
   let cur = robots[0] ? JSON.parse(JSON.stringify(robots[0])) : { id: 'r' + (++uid), name: w('רובוט 1', 'רוֹבּוֹט 1'), build: blank() };
-  let tab = tab0 && (tab0 !== 'missions' || onMission) ? tab0 : robots.length ? 'parts' : 'garage', fam = kids ? 'move' : 'chassis', picked = null, delAsk = null, lastRun = null, mpick = null, gone = false;
+  let tab = tab0 && (tab0 !== 'missions' || onMission) ? tab0 : robots.length ? 'parts' : 'garage', fam = kids ? 'move' : 'chassis', picked = null, delAsk = null, lastRun = null, mpick = null, gone = false, mzone = 'all';
   const el = document.createElement('div'); el.className = 'rl-garage rl-wk';
   host.appendChild(el);
   el.innerHTML = `<header class="rl-top"><button type="button" class="rl-back" data-wclose>${icon('home')}<span>${w('למעבדה', 'לַמַּעְבָּדָה')}</span></button>
@@ -187,7 +189,7 @@ export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, gui
     let h = `<p class="wk-note">${esc(w(`אפשר לשמור עד ${MAX_ROBOTS} רובוטים, לתת להם שם ולבחור ביניהם.`, `אֶפְשָׁר לִשְׁמֹר עַד ${MAX_ROBOTS} רוֹבּוֹטִים, לָתֵת לָהֶם שֵׁם וְלִבְחֹר בֵּינֵיהֶם.`))}</p><div class="wk-robots">`;
     for (const r of robots) {
       const st = statsOf(r.build);
-      h += `<div class="wk-rob${r.id === cur.id ? ' on' : ''}"><button type="button" data-wpick="${r.id}"><b>${esc(r.name)}</b><small>${st ? esc(w(`${st.mass} גרם · ${Object.values(r.build).flat().filter(Boolean).length} חלקים`, `${st.mass} גְּרַם`)) : esc(T(PROBLEM_WORDS.any))}</small></button>`
+      h += `<div class="wk-rob${r.id === cur.id ? ' on' : ''}"><button type="button" data-wpick="${r.id}">${pic(r.build.chassis, 'wk-robpic')}<b>${esc(r.name)}</b><small>${st ? esc(w(`${st.mass} גרם · ${Object.values(r.build).flat().filter(Boolean).length} חלקים`, `${st.mass} גְּרַם`)) : esc(T(PROBLEM_WORDS.any))}</small></button>`
         + `<button type="button" class="wk-del" data-wdel="${r.id}" aria-label="${esc(w('למחוק', 'לִמְחֹק'))}">${delAsk === r.id ? esc(w('בטוח?', 'בָּטוּחַ?')) : icon('del')}</button></div>`;
     }
     h += `</div>`;
@@ -195,7 +197,7 @@ export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, gui
       h += `<b class="wk-h">${esc(w('רובוט חדש', 'רוֹבּוֹט חָדָשׁ'))}</b><div class="rl-gchips">`;
       for (const [k, P] of Object.entries(PRESETS)) {
         const ok = step >= P.step;
-        h += `<button type="button" class="rl-gchip${ok ? '' : ' locked'}" data-wnew="${k}" ${ok ? '' : 'disabled'}>${ok ? '' : icon('lock')}<span>${esc(T(P))}</span>${ok ? '' : `<small>${esc(earnWords('wk:' + P.step, kids))}</small>`}</button>`;
+        h += `<button type="button" class="rl-gchip wk-tile wk-preset${ok ? '' : ' locked'}" data-wnew="${k}" ${ok ? '' : 'disabled'}>${pic(P.build.chassis)}<span>${esc(T(P))}</span>${ok ? '' : `<small class="wk-mlock">${icon('lock')}${esc(w(`שלב ${P.step}`, `שָׁלָב ${P.step}`))}</small>`}</button>`;
       }
       h += `</div>`;
     }
@@ -216,16 +218,21 @@ export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, gui
   }
   // ── set 4: the missions, by zone. A mission opens when the workshop reached its step and the one before it in the
   // zone is done; the robot on the bench goes to it (src/robolab/missions.js, index.js openMission)
+  // 5.11 (Avi: "too textual"): a row of island chips (each with its mascot), and big picture tiles, one per mission
   function renderMissions() {
     const P = roboProgress();
-    let h = `<p class="wk-note">${esc(w('בוחרים משימה, והרובוט שעל השולחן יוצא אליה. אפשר לחזור לסדנה ולשפר אותו.', 'בּוֹחֲרִים מְשִׂימָה, וְהָרוֹבּוֹט שֶׁעַל הַשֻּׁלְחָן יוֹצֵא אֵלֶיהָ.'))}</p>`;
-    for (const z of MISSION_ZONES) {
-      const list = missionsOf(z); if (!list.length) continue;
-      h += `<div class="wk-mz"><b class="wk-h"><span class="rl-z z-${z}"></span>${esc(kids ? ZONE_LOOK[z].shortK : ZONE_LOOK[z].short)}</b><div class="wk-ml">`;
-      for (const M of list) {
+    const zones = MISSION_ZONES.filter((z) => missionsOf(z).length);
+    const mascot = (z) => (CARD_ART[ZONE_LOOK[z].mascot] ? `<img src="${CARD_ART[ZONE_LOOK[z].mascot]}" alt="">` : '');
+    const doneIn = (z) => missionsOf(z).filter((M) => P.wk.done[M.id]).length;
+    let h = `<div class="wk-mzones"><button type="button" data-wmz="all" class="${mzone === 'all' ? 'on' : ''}">${icon('star')}<span>${esc(w('הכול', 'הַכֹּל'))}</span></button>${zones.map((z) => `<button type="button" data-wmz="${z}" class="z-${z}${mzone === z ? ' on' : ''}" style="--zc:${ZONE_LOOK[z].color}">${mascot(z)}<span>${esc(kids ? ZONE_LOOK[z].shortK : ZONE_LOOK[z].short)}</span><small>${doneIn(z)}/${missionsOf(z).length}</small></button>`).join('')}</div>`;
+    for (const z of zones) {
+      if (mzone !== 'all' && mzone !== z) continue;
+      h += `<div class="wk-mz" style="--zc:${ZONE_LOOK[z].color}">${mzone === 'all' ? `<b class="wk-mzh">${mascot(z)}<span>${esc(kids ? ZONE_LOOK[z].shortK : ZONE_LOOK[z].short)}</span></b>` : ''}<div class="wk-ml">`;
+      for (const M of missionsOf(z)) {
         const ok = missionOpen(M, P), d = P.wk.done[M.id];
-        h += `<button type="button" class="wk-mis${d ? ' done' : ''}${mpick === M.id ? ' pick' : ''}" data-wmis="${M.id}" ${ok ? '' : 'disabled'}>${ok ? '' : icon('lock')}<span>${esc(T(titleOf(M)))}</span>${M.template && islands.includes(z) && ok ? `<em class="wk-own" title="${esc(w('אפשר גם באי שלכם', 'אֶפְשָׁר גַּם בָּאִי שֶׁלָּכֶם'))}">${icon('home')}</em>` : ''}`
-          + (ok ? `<i class="wk-mst">${[0, 1, 2].map((k) => `<u class="${d && k < d.stars ? 'on' : ''}">${icon('star')}</u>`).join('')}</i>` : `<small>${esc(step < M.step ? earnWords('wk:' + M.step, kids) : w('אחרי המשימה הקודמת', 'אַחֲרֵי הַקּוֹדֶמֶת'))}</small>`) + `</button>`;
+        h += `<button type="button" class="wk-mis${d ? ' done' : ''}${mpick === M.id ? ' pick' : ''}${ok ? '' : ' locked'}" data-wmis="${M.id}" ${ok ? '' : 'disabled'}>${missionPic(M)}<span class="wk-mt">${esc(T(titleOf(M)))}</span>`
+          + (M.template && islands.includes(z) && ok ? `<em class="wk-own" title="${esc(w('אפשר גם באי שלכם', 'אֶפְשָׁר גַּם בָּאִי שֶׁלָּכֶם'))}">${icon('home')}</em>` : '')
+          + (ok ? `<i class="wk-mst">${[0, 1, 2].map((k) => `<u class="${d && k < d.stars ? 'on' : ''}">${icon('star')}</u>`).join('')}</i>` : `<small class="wk-mlock">${icon('lock')}${esc(step < M.step ? w(`שלב ${M.step}`, `שָׁלָב ${M.step}`) : w('אחרי הקודמת', 'אַחֲרֵי הַקּוֹדֶמֶת'))}</small>`) + `</button>`;
       }
       h += `</div></div>`;
     }
@@ -237,7 +244,7 @@ export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, gui
     if (!Mi) { c.hidden = true; return; }
     const ok = checkBuild(B()).ok;
     const info = Mi.template ? templateInfo(Mi.tpl) : Mi, own = Mi.template && islands.includes(Mi.zone);
-    let h = `<button type="button" class="wk-x" data-wcard="close" aria-label="${esc(w('לסגור', 'לִסְגֹּר'))}">${icon('back')}</button><h3>${esc(T(info.title))}</h3>`;
+    let h = `<button type="button" class="wk-x" data-wcard="close" aria-label="${esc(w('לסגור', 'לִסְגֹּר'))}">${icon('back')}</button><div class="wk-chead wk-mhead" style="--zc:${ZONE_LOOK[Mi.zone].color}">${missionPic(Mi)}<h3>${esc(T(info.title))}</h3></div>`;
     h += Mi.template ? `<p>${esc(T(TPL_BLURB[Mi.tpl] || TPL_BLURB.any))}</p>${SHAPE_WORDS[Mi.shape] ? `<p>${esc(T(SHAPE_WORDS[Mi.shape]))}</p>` : ''}` : (Mi.say || []).map((q) => `<p>${esc(T(q))}</p>`).join('');
     h += `<p class="wk-good"><b>${esc(w('מה כדאי לרובוט: ', 'מָה כְּדַאי: '))}</b>${esc(T(info.need))}</p>`;
     if (own) h += `<p class="wk-note">${esc(w('המשימה הזאת יכולה לצמוח גם מהאי שבניתם: מהעצים, מהצמחים ומבעלי החיים שגידלתם שם.', 'הַמְּשִׂימָה יְכוֹלָה לִצְמֹחַ גַּם מֵהָאִי שֶׁלָּכֶם.'))}</p>`;
@@ -280,14 +287,14 @@ export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, gui
     const chk = checkBuild(B()), st = statsOf(B());
     const pct = (k, v) => Math.round(Math.max(0.04, Math.min(1, v / STAT_MAX[k])) * 100);
     const bar = (k, v, txt) => { const was = prevStats && prevStats[k] != null ? pct(k, prevStats[k]) : pct(k, v), now = pct(k, v);
-      return `<div class="wk-stat${now > was ? ' up' : now < was ? ' down' : ''}"><span>${esc(T(STAT_WORDS[k]))}</span><i><u style="width:${was}%" data-to="${now}"></u></i>${txt ? `<small>${esc(txt)}</small>` : ''}</div>`; };
+      return `<div class="wk-stat s-${k}${now > was ? ' up' : now < was ? ' down' : ''}"><span>${statIcon(k)}${esc(T(STAT_WORDS[k]))}</span><i><u style="width:${was}%" data-to="${now}"></u></i>${txt ? `<small>${esc(txt)}</small>` : ''}</div>`; };
     el.querySelector('.wk-stats').innerHTML = st ? bar('speed', st.speed, st.stepsPerMove > 1 ? w(`${st.stepsPerMove} צעדים למשבצת`, 'אִטִּי') : '') + bar('force', st.force) + bar('precision', st.precision) + bar('battery', st.battery, w(`${st.moveDrain} לכל צעד`, '')) + bar('lift', st.lift)
       + `<p class="wk-mass">${esc(w(`משקל: ${st.mass} גרם`, `מִשְׁקָל: ${st.mass} גְּרַם`))}</p>` : '';
     prevStats = st;
     requestAnimationFrame(() => el.querySelectorAll('.wk-stat u[data-to]').forEach((u) => { u.style.width = u.dataset.to + '%'; }));
     el.querySelector('.wk-probs').innerHTML = chk.ok ? '' : chk.problems.map((q) => `<p>${icon('lock')} ${esc(T(PROBLEM_WORDS[q.code] || PROBLEM_WORDS.any))}</p>`).join('');
     const mine = myRobots().some((r) => r.id === cur.id);
-    let h = `<div class="wk-tbar"><b>${esc(w('מסלול ניסוי', 'מַסְלוּל נִסּוּי'))}</b>${TRACKS.map((t) => `<button type="button" data-wtrack="${t.id}" ${st ? '' : 'disabled'}>${esc(T(GROUND_WORDS[t.id]))}</button>`).join('')}`
+    let h = `<div class="wk-tbar"><b>${esc(w('מסלול ניסוי', 'מַסְלוּל נִסּוּי'))}</b>${TRACKS.map((t) => `<button type="button" data-wtrack="${t.id}" ${st ? '' : 'disabled'}><i class="wk-c c-${t.cell === '.' ? 'g' : t.cell}"></i>${esc(T(GROUND_WORDS[t.id]))}</button>`).join('')}`
       + (mine ? '' : `<button type="button" class="wk-save" data-wsave ${myRobots().length >= MAX_ROBOTS ? 'disabled' : ''}>${esc(w('לשמור במוסך', 'לִשְׁמֹר בַּמּוּסָךְ'))}</button>`) + `</div>`;
     h += `<div class="wk-run">${lastRun ? lastRun : esc(w('בחרו קרקע, והרובוט ינסה לעבור אותה.', 'בַּחֲרוּ קַרְקַע, וְהָרוֹבּוֹט יְנַסֶּה לַעֲבֹר אוֹתָהּ.'))}</div>`;
     el.querySelector('.wk-track').innerHTML = h;
@@ -331,6 +338,7 @@ export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, gui
     if (d.wfam) { fam = d.wfam; picked = null; sfx('click'); renderSide(); return; }
     if (d.wpart) { picked = picked === d.wpart ? null : d.wpart; sfx('click'); renderSide(); return; }
     if (d.wcard === 'close') { picked = null; mpick = null; renderSide(); return; }
+    if (d.wmz) { mzone = d.wmz; mpick = null; sfx('click'); renderSide(); return; }
     if (d.wmis) { mpick = mpick === d.wmis ? null : d.wmis; sfx('click'); renderSide(); return; }
     if (d.wgo != null && mpick && onMission) {
       if (!myRobots().some((r) => r.id === cur.id)) saveRobot(cur);   // the robot that goes out is kept in the garage

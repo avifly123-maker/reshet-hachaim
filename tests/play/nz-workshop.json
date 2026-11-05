@@ -33,14 +33,14 @@
 "clickSel": ".st-panel[data-workshop]"
 },
 {
-"until": "!!document.querySelector('.ws:not([hidden]) .ws-room')",
+"until": "!!document.querySelector('.ws:not([hidden]) .ws-main[data-place=room]')",
 "timeout": 60
 },
 {
 "wait": 2
 },
 {
-"js": "const s=document.querySelectorAll('.ws-st .wsa.station'); 'CHECK room-seven-machines ' + (s.length===7 && !!document.querySelector('.ws-board .ws-meter') && /url\\(/.test(getComputedStyle(document.querySelector('.ws')).backgroundImage) ? 'ok' : 'FAIL ' + s.length)"
+"js": "const s=document.querySelectorAll('.ws-st'), R=window.__wsDebug.room(); 'CHECK room-seven-machines ' + (s.length===7 && !!document.querySelector('.ws-board .ws-meter') && R && R.loaded && document.querySelector('.wr3-cv').width>0 && R.visible.includes('machine') ? 'ok' : 'FAIL ' + JSON.stringify(R))"
 },
 {
 "until": "window.__wsDebug.state().tut === 'hello'",
@@ -53,11 +53,40 @@
 "shot": "shots/nz-workshop/room.png"
 },
 {
+"until": "((window.__wsDebug.state().tut === 'look') || (document.querySelector('#rguide .rg-next') && document.querySelector('#rguide .rg-next').click(), false))",
+"timeout": 30
+},
+{
+"js": "window.__wr3y = window.__wsDebug.room().yaw; 1"
+},
+{
+"clickSel": ".wr3-turn.r"
+},
+{
+"wait": 1.2
+},
+{
+"js": "const R=window.__wsDebug.room(); 'CHECK room-turns ' + (R.yaw > window.__wr3y + 15 ? 'ok' : 'FAIL ' + JSON.stringify(R) + ' ' + window.__wr3y)"
+},
+{
+"shot": "shots/nz-workshop/room3d.png"
+},
+{
 "until": "((window.__wsDebug.state().tut === 'go') || (document.querySelector('#rguide .rg-next') && document.querySelector('#rguide .rg-next').click(), false))",
 "timeout": 30
 },
 {
+"js": "window.__wsDebug.face('machine'); 1"
+},
+{
+"wait": 2
+},
+{
 "clickSel": ".ws-st[data-st=machine]"
+},
+{
+"until": "window.__wsDebug.state().place === 'machine'",
+"timeout": 10
 },
 {
 "until": "window.__wsDebug.state().tut === 'thing'",
@@ -137,7 +166,17 @@
 "wait": 0.5
 },
 {
+"js": "window.__wsDebug.face('mixer'); 1"
+},
+{
+"wait": 2
+},
+{
 "clickSel": ".ws-st[data-st=mixer]"
+},
+{
+"until": "window.__wsDebug.state().place === 'mixer'",
+"timeout": 10
 },
 {
 "until": "window.__wsDebug.state().tut === 'spin'",
@@ -184,7 +223,17 @@
 "wait": 0.5
 },
 {
+"js": "window.__wsDebug.face('cards'); 1"
+},
+{
+"wait": 2
+},
+{
 "clickSel": ".ws-st[data-st=cards]"
+},
+{
+"until": "window.__wsDebug.state().place === 'cards'",
+"timeout": 10
 },
 {
 "until": "window.__wsDebug.state().tut === 'draw'",
@@ -240,7 +289,17 @@
 "wait": 0.5
 },
 {
+"js": "window.__wsDebug.face('orders'); 1"
+},
+{
+"wait": 2
+},
+{
 "clickSel": ".ws-st[data-st=orders]"
+},
+{
+"until": "window.__wsDebug.state().place === 'orders'",
+"timeout": 10
 },
 {
 "until": "window.__wsDebug.state().tut === 'pick'",
@@ -457,7 +516,7 @@
 "clickSel": ".st-panel[data-workshop]"
 },
 {
-"until": "!!document.querySelector('.ws:not([hidden]) .ws-room')",
+"until": "!!document.querySelector('.ws:not([hidden]) .ws-main[data-place=room]')",
 "timeout": 30
 },
 {
@@ -476,7 +535,7 @@
 "js": "window.__app.bus.emit('ui:workshop'); 1"
 },
 {
-"until": "!!document.querySelector('.ws:not([hidden]) .ws-room')",
+"until": "!!document.querySelector('.ws:not([hidden]) .ws-main[data-place=room]')",
 "timeout": 30
 },
 {

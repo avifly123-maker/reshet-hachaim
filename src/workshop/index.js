@@ -26,6 +26,8 @@ import { thingSVG, stationSVG, machineSVG, blenderSVG, catIcon, clockSVG } from 
 import { WS_ART } from '../data/workshop-art.js';
 import { createBench } from './bench.js';
 import { createOffice } from './office.js';
+import { createRoom3d, roomReady } from './room3d.js';
+import { introSeen } from '../core/journey.js';
 import { grant } from '../core/badges-store.js';
 import { K, readPlayer } from '../core/storage.js';
 import { svcGuide } from '../core/services.js';
@@ -140,13 +142,15 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
   function go(p) {
     if (tut && tut.step && tutPlace !== 'room' && tutPlace !== p) { tut.stop(); tut = null; }
     if (place === 'build' || place === 'test') { if (p !== 'build' && p !== 'test') bench.leave(); }
+    if (room3 && p !== 'room') { room3.dispose(); room3 = null; }
     place = p; if (p !== 'mixer') mix = null;
+    el.dataset.place = p;
     el.querySelector('[data-wsroom]').hidden = p === 'room';
     const P = PLACES.find((x) => x.id === p) || (p === 'fair' ? { n: 'יריד הממציאים', k: 'יְרִיד הַמַּמְצִיאִים' } : null);
     el.querySelector('.ws-where').textContent = P ? (kids ? P.k : P.n) : '';
     const M = el.querySelector('.ws-main');
     M.dataset.place = p;
-    if (p === 'room') M.innerHTML = roomHTML();
+    if (p === 'room') roomView(M);
     else if (p === 'machine') M.innerHTML = machineHTML();
     else if (p === 'mixer') M.innerHTML = mixerHTML();
     else if (p === 'cards') { hand = shuffle(cardsFor().slice()).slice(0, 5); M.innerHTML = cardsHTML(); }
@@ -157,9 +161,25 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
     else if (p === 'fair') office.fair(M);
     startTut();
   }
-  function roomHTML() {
+  // the room: the Blender room to look around in, with ניצוץ flying to the chosen place (room3d.js); the flat room of drawn
+  // machines stays as the fallback (no WebGL, no picture)
+  let room3 = null;
+  function roomBadges() {
     const S = readWs(), done = Object.values(S.orders).filter((x) => x.done).length;
-    const badge = { orders: done ? `${done}` : '', patent: S.patents.length ? `${S.patents.length}` : '', cards: Object.keys(S.rounds).length ? `${Object.keys(S.rounds).length}` : '', machine: S.n.ideas ? `${S.n.ideas}` : '' };
+    return { orders: done ? `${done}` : '', patent: S.patents.length ? `${S.patents.length}` : '', cards: Object.keys(S.rounds).length ? `${Object.keys(S.rounds).length}` : '', machine: S.n.ideas ? `${S.n.ideas}` : '' };
+  }
+  function roomView(M) {
+    if (room3) { room3.dispose(); room3 = null; }
+    if (roomReady()) {
+      const Q = (() => { try { return (window.__app && window.__app.quality) || 'medium'; } catch (e) { return 'medium'; } })();
+      const names = Object.fromEntries(PLACES.map((P) => [P.id, kids ? P.k : P.n]));
+      room3 = createRoom3d(M, { kids, names, counts: roomBadges(), quality: Q, onPick: (id) => { if (open_ && place === 'room') { sfx('click'); go(id); } } });
+      if (room3) { el.classList.add('room3'); if (!introSeen('g:nztut')) room3.face('machine'); return; }
+    }
+    el.classList.remove('room3'); M.innerHTML = roomHTML();
+  }
+  function roomHTML() {
+    const badge = roomBadges();
     return `<div class="ws-room"><div class="ws-wall" aria-hidden="true"></div>
       <div class="ws-floor">${PLACES.map((P, i) => `<button type="button" class="ws-st st${i}" data-st="${P.id}">${stationSVG(P.id)}<b class="ws-plaque">${esc(kids ? P.k : P.n)}</b>${badge[P.id] ? `<em class="ws-count">${badge[P.id]}</em>` : ''}</button>`).join('')}</div></div>`;
   }
@@ -354,7 +374,7 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
   function startTut() {
     if (tut && tut.step) return;
     const g = svcGuide(); if (!g) return;
-    const ws = { state }, onDone = (r) => { tut = null; if (open_ && r !== 'abort' && r !== 'skip') startTut(); };
+    const ws = { state, face: (id) => { if (room3) room3.face(id); } }, onDone = (r) => { tut = null; if (open_ && r !== 'abort' && r !== 'skip') startTut(); };
     const F = { room: nzRoomTutorial, machine: nzMachineTutorial, mixer: nzMixerTutorial, cards: nzCardsTutorial, build: nzBuildTutorial, test: nzTestTutorial, orders: nzOrdersTutorial }[place];
     tut = F ? F({ guide: g, ws, onDone }) : null; tutPlace = tut ? place : null;
   }
@@ -374,12 +394,13 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
   function close() {
     if (!open_) return; open_ = false;
     if (tut && tut.stop) tut.stop(); tut = null;
-    bench.leave(); stopNz(); el.hidden = true; el.innerHTML = '';
+    bench.leave(); if (room3) { room3.dispose(); room3 = null; } stopNz(); el.hidden = true; el.innerHTML = '';
   }
   try {
     window.__wsDebug = { state, go: (p) => go(p), thing: (id) => { thing = id; last = null; if (place === 'machine') el.querySelector('.ws-main').innerHTML = machineHTML(); }, lever: (id) => pull(id), rate: (r) => rate(r),
       spin: (sp, pb) => spin(sp, pb), trait: (t) => pickTrait(t), draw: (id) => draw(id), endRound: () => { if (round) round.t0 = Date.now() - round.sec * 1000 - 1; }, nz: (x) => act(x),
-      order: (id) => { orderId = id; bench.resetRun(); }, proto: (p) => bench.setProto(p), runTests: (list) => bench.run(list) };
+      order: (id) => { orderId = id; bench.resetRun(); }, proto: (p) => bench.setProto(p), runTests: (list) => bench.run(list),
+      face: (id) => { if (room3) room3.face(id); return !!room3; }, room: () => (room3 ? room3.state() : null) };
   } catch (e) { }
   return { open: openWs, close, isOpen: () => open_, state };
 }

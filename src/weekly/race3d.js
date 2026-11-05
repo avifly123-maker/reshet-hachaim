@@ -199,6 +199,6 @@ export function createRace3D(canvas, { level, segs, kids = false }) {
     setRobot, play, reset,
     view: () => { mode = mode === 'follow' ? 'all' : 'follow'; overview = 0; return mode; },
     isPlaying: () => !!(run && !run.done),
-    dispose: () => { disposed = true; cancelAnimationFrame(raf); try { FC.dispose(); } catch (e) { } scene.traverse((o) => { if (o.geometry) o.geometry.dispose(); }); renderer.dispose(); },
+    dispose: () => { disposed = true; cancelAnimationFrame(raf); try { FC.dispose(); } catch (e) { } scene.traverse((o) => { if (o.geometry) o.geometry.dispose(); }); renderer.dispose(); try { renderer.forceContextLoss(); } catch (e) { } },
   };
 }

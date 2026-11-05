@@ -412,3 +412,25 @@
 #ui.wol .wt-why em { font-style: normal; opacity: .85; }
 #ui.wol .wt-why span { padding: 1px 8px; border-radius: 10px; } #ui.wol .wt-why span small { font-weight: 700; }
 #ui.wol .wt-why span.up { background: #2f7a54; } #ui.wol .wt-why span.down { background: #a8443a; }
+/* 5.11 (Avi): the workshop as a room to look around in, ניצוץ flying from place to place (src/workshop/room3d.js) */
+#ui.wol .ws.room3[data-place=room] .ws-nzbox { display: none; }
+#ui.wol .ws-main[data-place=room]:has(.wr3) { padding: 0; overflow: hidden; }
+#ui.wol .wr3 { position: relative; flex: 1; width: 100%; height: 100%; min-height: 0; border-radius: 16px; overflow: hidden; box-shadow: inset 0 0 0 3px #6a3e1c, 0 4px 0 rgba(40, 20, 6, .4); background: #3a2a1a; }
+#ui.wol .wr3-cv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+#ui.wol .wr3-cv:active { cursor: grabbing; }
+#ui.wol .wr3-hots { position: absolute; inset: 0; pointer-events: none; }
+#ui.wol .wr3-hot { position: absolute; left: 0; top: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; margin: -26px 0 0 -60px; width: 120px; padding: 0; border: 0; background: none; pointer-events: auto; min-height: 0; }
+#ui.wol .wr3-hot.off { visibility: hidden; pointer-events: none; }
+#ui.wol .wr3-ring { width: 34px; height: 34px; border-radius: 50%; background: radial-gradient(circle, #fff6c0 0 22%, #ffb52e 26% 46%, rgba(255, 181, 46, .25) 50%, transparent 70%); box-shadow: 0 0 14px #ffc04a; animation: wr3-pulse 1.8s ease-in-out infinite; }
+#ui.wol .wr3-hot .ws-plaque { opacity: .92; transition: opacity .2s, transform .2s; white-space: nowrap; font-size: .82em; }
+#ui.wol .wr3-hot:hover .ws-plaque, #ui.wol .wr3-hot:focus-visible .ws-plaque, #ui.wol .wr3-hot.go .ws-plaque { opacity: 1; transform: scale(1.08); }
+#ui.wol .wr3-hot:hover .wr3-ring { transform: scale(1.25); }
+#ui.wol .wr3-hot .ws-count { position: absolute; top: -6px; inset-inline-end: 34px; }
+@keyframes wr3-pulse { 0%, 100% { transform: scale(.9); opacity: .85; } 50% { transform: scale(1.12); opacity: 1; } }
+#ui.wol .wr3-turn { position: absolute; top: 50%; margin-top: -26px; width: 44px; height: 52px; border: 0; border-radius: 14px; background: rgba(255, 246, 225, .85); color: #6a3e1c; box-shadow: 0 3px 0 rgba(40, 20, 6, .4); display: grid; place-items: center; }
+#ui.wol .wr3-turn .ic { width: 26px; height: 26px; }
+#ui.wol .wr3-turn.l { left: 8px; } #ui.wol .wr3-turn.r { right: 8px; }
+#ui.wol .wr3-edge { position: absolute; left: 60px; right: 60px; bottom: 8px; pointer-events: none; }
+#ui.wol .wr3-edgeb { pointer-events: auto; display: flex; align-items: center; gap: 4px; padding: 4px 10px; border: 0; border-radius: 12px; background: rgba(255, 246, 225, .9); color: #6a3e1c !important; font-family: var(--serif); font-size: .85em; box-shadow: 0 3px 0 rgba(40, 20, 6, .4); }
+#ui.wol .wr3-edgeb { position: absolute; bottom: 0; direction: rtl; } #ui.wol .wr3-edgeb.l { left: 0; } #ui.wol .wr3-edgeb.r { right: 0; }
+#ui.wol .wr3-edgeb .ic { width: 16px; height: 16px; }
