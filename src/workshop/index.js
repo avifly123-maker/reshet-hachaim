@@ -75,10 +75,10 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
     const weak = Q === 'min' || Q === 'low';
     try { renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: !weak, alpha: true }); } catch (e) { return; }
     renderer.setPixelRatio(Math.min(weak ? 1 : 1.5, window.devicePixelRatio || 1));
-    renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.35;   // Avi 5.11: a little brighter, so his glass shows over the dark box
     scene = new THREE.Scene();
-    try { const pm = new THREE.PMREMGenerator(renderer); scene.environment = pm.fromScene(new RoomEnvironment(), 0.04).texture; scene.environmentIntensity = 0.5; pm.dispose(); } catch (e) { }
-    scene.add(new THREE.HemisphereLight('#fff4e0', '#5a4a3a', 1.1)); const sun = new THREE.DirectionalLight('#fff0d0', 2); sun.position.set(-2, 3, 3); scene.add(sun);
+    try { const pm = new THREE.PMREMGenerator(renderer); scene.environment = pm.fromScene(new RoomEnvironment(), 0.04).texture; scene.environmentIntensity = 0.85; pm.dispose(); } catch (e) { }
+    scene.add(new THREE.HemisphereLight('#fff4e0', '#7a6a5a', 1.6)); const sun = new THREE.DirectionalLight('#fff0d0', 2.6); sun.position.set(-2, 3, 3); scene.add(sun);
     cam = new THREE.PerspectiveCamera(30, 1, 0.05, 20); cam.position.set(0.2, 0.55, 2.7); cam.lookAt(0, 0.48, 0);
     nz = createNitzotz({ sparks: !weak }); scene.add(nz.object);
     lastT = performance.now(); raf = requestAnimationFrame(frame);

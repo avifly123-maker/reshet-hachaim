@@ -29,7 +29,7 @@ function glowTex() {
 function materials() {
   const M = {
     // the glass: almost clear, bright at its edges (a rim term), so the face and the heart show through
-    shell: new THREE.MeshStandardMaterial({ color: '#eef6ff', roughness: 0.06, metalness: 0, transparent: true, opacity: 0.1, depthWrite: false, envMapIntensity: 0.8, emissive: '#ffcf80', emissiveIntensity: 0.3 }),
+    shell: new THREE.MeshStandardMaterial({ color: '#eef6ff', roughness: 0.06, metalness: 0, transparent: true, opacity: 0.16, depthWrite: false, envMapIntensity: 1.1, emissive: '#ffcf80', emissiveIntensity: 0.3 }),
     core: new THREE.MeshBasicMaterial({ color: WARM.clone(), transparent: true, opacity: 0.55, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false }),
     filament: new THREE.MeshBasicMaterial({ color: '#ffb84a', toneMapped: false }),
     wire: new THREE.MeshStandardMaterial({ color: '#9a8a74', roughness: 0.4, metalness: 0.7 }),
@@ -158,7 +158,7 @@ export function createNitzotz({ size = 1, sparks = true } = {}) {
     light += (lightT - light) * Math.min(1, dt * (lightT > light ? 14 : 5));
     const L = Math.max(0, light);
     M.core.opacity = Math.min(0.6, 0.05 + L * 0.2);
-    M.shell.emissiveIntensity = 0.06 + Math.min(1.6, L) * 0.34;   // the glass itself glows warm with his light
+    M.shell.emissiveIntensity = 0.14 + Math.min(1.6, L) * 0.4;   // the glass itself glows warm with his light
     M.core.color.copy(DIM).lerp(L > 1 ? HOT : WARM, Math.min(1, L > 1 ? (L - 1) * 1.6 : L));
     M.filament.color.copy(DIM).lerp(WARM, Math.min(1, L));
     halo.material.opacity = Math.min(0.8, L * 0.28); halo.scale.setScalar(0.5 + L * 0.28);
