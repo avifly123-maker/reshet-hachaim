@@ -2,6 +2,8 @@
 // The shader patch (patchShader, makeUniforms: wind sway, collapse / grow, droop, seasonal colour) and the geometry
 // helpers (Geo builder, tube, walk, curve, taper, blob, card, gem, lathe, barkFn, colour helpers).
 // Exports these and V3, Col, UP, TAU, SEASON_INDEX.
+import { cloudPatch } from '../../env/cloud-shade.js';
+import { leafLightPatch } from '../leaf-light.js';
 import * as THREE from 'three';
 import { clamp, lerp, smoothstep } from '../../core/util.js';
 
@@ -20,7 +22,7 @@ uniform float uTime; uniform float uWind; uniform float uPhase; uniform float uH
 uniform float uSway; uniform float uFlutter; uniform float uSquash;
 uniform float uKeep; uniform float uGrow; uniform float uDroop;
 attribute vec3 aCenter; attribute float aRank;
-varying float vRank;
+varying float vRank; varying float vAO;
 `;
 const VERT_BEGIN = /* glsl */`
 vec3 transformed = vec3( position );
@@ -37,12 +39,15 @@ vRank = aRank;
   transformed.xz += dir * ( sw * ( 0.25 + uWind ) + uWind * 0.6 ) * uSway * hh * hh * uH;
   float fl = sin( uTime * 6.3 + aCenter.x * 2.1 + aCenter.z * 1.7 + aCenter.y * 1.3 ) * uFlutter * ( 0.25 + uWind ) * step( 0.001, aRank );
   transformed += vec3( 0.6, 1.0, 0.45 ) * fl;
+  // 1.4.4 set 10: shade inside the crown (leaves near the trunk and low down are darker) and where the wood meets the ground
+  float rIn = clamp( length( aCenter.xz ) / max( uR, 0.05 ), 0.0, 1.0 );
+  vAO = aRank > 0.001 ? mix( 0.68, 1.0, clamp( rIn * 0.6 + hh * 0.55, 0.0, 1.0 ) ) : mix( 0.6, 1.0, smoothstep( 0.0, 0.32, transformed.y ) );
 }
 `;
 const FRAG_PRE = /* glsl */`
 uniform vec3 uTarget; uniform vec3 uTarget2; uniform float uTargetAmt;
 uniform vec3 uDry; uniform float uDryAmt; uniform float uBaseL; uniform vec3 uTint;
-varying float vRank;
+varying float vRank; varying float vAO;
 `;
 const FRAG_COLOR = /* glsl */`
 #if defined( USE_COLOR )
@@ -58,6 +63,7 @@ const FRAG_COLOR = /* glsl */`
   diffuseColor.rgb *= c * uTint;
 }
 #endif
+diffuseColor.rgb *= vAO;
 `;
 // foliage cards are double sided; keep our hand-made (crown-spherical) normals on back faces too
 const FRAG_NORMAL = /* glsl */`
@@ -74,6 +80,8 @@ export function patchShader(shader) {
   shader.fragmentShader = FRAG_PRE + shader.fragmentShader
     .replace('#include <color_fragment>', FRAG_COLOR)
     .replace('#include <normal_fragment_begin>', FRAG_NORMAL);
+  cloudPatch(shader);   // 1.4.4 set 10: passing cloud shadows (src/env/cloud-shade.js)
+  leafLightPatch(shader, 'step(0.001, vRank)');   // and light through the leaves (src/models/leaf-light.js)
 }
 
 export function makeUniforms(shared, baseL) {

@@ -114,13 +114,24 @@ function clipsOf(id, d) {
 }
 
 // the per-vertex roughness (glossy eyes, noses, claws) is the same shader patch for v1 and v2
+// 1.4.4 set 10: a little life in the look. A catch light in the eyes (and on wet noses: the glossy parts), and a soft
+// sheen of fur at the edges of the body, as fur catches the light. RIM_U.uRimK follows the daylight (the island's update).
+export const RIM_U = { uRimK: { value: 0.2 } };
+const LOOK_FRAG = `
+  { float _g = 1.0 - smoothstep(0.25, 0.4, vRough);
+    totalEmissiveRadiance += vec3(1.0, 0.98, 0.94) * pow(max(dot(normal, normalize(vec3(-0.35, 0.55, 0.75))), 0.0), 70.0) * 1.4 * _g * (0.35 + uRimK * 3.0);
+    float _rim = pow(1.0 - max(dot(normal, normalize(vViewPosition)), 0.0), 3.0);
+    totalEmissiveRadiance += diffuseColor.rgb * _rim * uRimK * (1.0 - _g); }`;
+function lookPatch(sh) {
+  sh.uniforms.uRimK = RIM_U.uRimK;
+  sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nattribute float aRough;\nvarying float vRough;')
+    .replace('#include <begin_vertex>', '#include <begin_vertex>\nvRough = aRough;');
+  sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying float vRough; uniform float uRimK;')
+    .replace('#include <roughnessmap_fragment>', 'float roughnessFactor = vRough;')
+    .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>' + LOOK_FRAG);
+}
 function roughPatch(m) {
-  m.onBeforeCompile = (sh) => {
-    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nattribute float aRough;\nvarying float vRough;')
-      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvRough = aRough;');
-    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying float vRough;')
-      .replace('#include <roughnessmap_fragment>', 'float roughnessFactor = vRough;');
-  };
+  m.onBeforeCompile = lookPatch;
   m.customProgramCacheKey = () => 'rigged-rough';
   return m;
 }
@@ -133,17 +144,27 @@ function materialV2(id, tex, meta = {}) {
 function materials() {
   return cachedMaterial('rigged:skin', () => {
     const m = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.85, metalness: 0 });
-    m.onBeforeCompile = (sh) => {
-      sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nattribute float aRough;\nvarying float vRough;')
-        .replace('#include <begin_vertex>', '#include <begin_vertex>\nvRough = aRough;');
-      sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying float vRough;')
-        .replace('#include <roughnessmap_fragment>', 'float roughnessFactor = vRough;');
-    };
+    m.onBeforeCompile = lookPatch;
     m.customProgramCacheKey = () => 'rigged-rough';
     return m;
   });
 }
 
+// the contact spot: one shared soft round texture, geometry and material for all animals
+let BLOB = null;
+function contactBlob(size) {
+  if (!BLOB) {
+    const c = document.createElement('canvas'); c.width = c.height = 64;
+    const x = c.getContext('2d'), g = x.createRadialGradient(32, 32, 0, 32, 32, 32);
+    g.addColorStop(0, 'rgba(0,0,0,0.55)'); g.addColorStop(0.55, 'rgba(0,0,0,0.25)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+    x.fillStyle = g; x.fillRect(0, 0, 64, 64);
+    const tex = new THREE.CanvasTexture(c);
+    BLOB = { geo: new THREE.PlaneGeometry(1, 1).rotateX(-Math.PI / 2), mat: new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, opacity: 0.6, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }) };
+  }
+  const m = new THREE.Mesh(BLOB.geo, BLOB.mat); m.name = 'contact'; m.position.y = 0.03; m.scale.set(size * 0.9, 1, size * 0.9 * 1.3); m.renderOrder = 1;
+  m.castShadow = false; m.receiveShadow = false; m.raycast = () => { };
+  return m;
+}
 export function makeRigged(id, data, opts = {}) {
   const P = prepare(id, data), meta = P.meta;
   const seed = opts.seed ?? 1, rng = makeRng(((seed * 2654435761) ^ (id.length * 977)) >>> 0);
@@ -215,6 +236,35 @@ export function makeRigged(id, data, opts = {}) {
   };
   for (const m of meshes) m.onBeforeRender = onDraw;
   const grip = {}; for (const [k, v] of Object.entries(meta.gripY || {})) grip[k] = v * sc;
+  // 1.4.4 set 10: life at rest, laid over the clip after each evaluation (the clip sets the bones again next time, so
+  // nothing adds up): breathing in the chest, a slow look around, a tail that sways, an ear that flicks now and then
+  const byName = (re) => bones.find((b) => re.test(b.name));
+  const LB = { chest: byName(/^chest/), head: (byName(/^head/) || byName(/^neck/) || {}).parent ? (byName(/^head/) || byName(/^neck/)) : null, tail: byName(/^tail/), ears: bones.filter((b) => /^ear/.test(b.name)) };
+  const life = { t: rng() * 50, look: 0, lookT: 0, flick: 0, flickT: 3 + rng() * 6 };
+  const _q = new THREE.Quaternion(), _pq = new THREE.Quaternion(), _ax = new THREE.Vector3(), UPW = new THREE.Vector3(0, 1, 0);
+  // turn a bone about an axis given in the world (up = look left and right), whatever way the bone itself points
+  const turn = (b, axisW, a) => { b.parent.getWorldQuaternion(_pq); _ax.copy(axisW).applyQuaternion(_pq.invert()); b.quaternion.premultiply(_q.setFromAxisAngle(_ax, a)); };
+  const REST = { idle: 1, sit: 1, graze: 0.5, eat: 0.5, sleep: 0.3, perch: 1, look: 1 };
+  function rest(name) {
+    const k = REST[name] || 0; if (!k) return;
+    const t = life.t;
+    if (LB.chest) LB.chest.scale.setScalar(1 + 0.018 * Math.sin(t * 2.1));
+    if (LB.head && name !== 'sleep') {
+      if (t > life.lookT) { life.look = (rng() - 0.5) * 0.9; life.lookT = t + 2.5 + rng() * 4; }
+      life.lookNow = (life.lookNow || 0) + (life.look - (life.lookNow || 0)) * 0.08;
+      turn(LB.head, UPW, life.lookNow * k);
+    }
+    if (LB.tail && LB.tail.parent) turn(LB.tail, UPW, Math.sin(t * 1.3) * 0.18 * k);
+    if (LB.ears.length) {
+      if (t > life.flickT) { life.flick = 1; life.flickT = t + 4 + rng() * 7; }
+      if (life.flick > 0) { life.flick = Math.max(0, life.flick - 0.25); for (const e of LB.ears) e.quaternion.multiply(_q.setFromAxisAngle(_ax.set(1, 0, 0), Math.sin(life.flick * Math.PI) * 0.35)); }
+    }
+  }
+  // a soft dark spot on the ground under the animal (it holds it to the ground, even where there are no shadow maps);
+  // hidden when it flies, perches, climbs or swims
+  const blob = opts.noBlob ? null : contactBlob(Math.max(meta.length || 0.4, (meta.height || 0.4) * 0.7));
+  if (blob) object.add(blob);
+  const AIR = /^(fly|hover|glide|perch|climb|hang|swim)/;
   return {
     type: 'animal', id, object,
     height: (meta.height || (data.box[4] - Math.min(0, data.box[1]))) * sc,
@@ -224,6 +274,8 @@ export function makeRigged(id, data, opts = {}) {
     update(dt, s = {}) {
       dt = Math.min(Math.max(dt || 0, 0), 0.1);
       setAction(s.action || 'idle', s.speed);
+      life.t += dt;
+      if (blob) blob.visible = !AIR.test(curName);
       acc = Math.min(acc + dt, 1);
       const vis = seen; seen = false;
       if (!vis && !dirty) return;
@@ -231,8 +283,10 @@ export function makeRigged(id, data, opts = {}) {
       if (!dirty && ++skip < every) return;
       skip = 0; dirty = false;
       mixer.update(acc); acc = 0;
+      if (every === 1) rest(curName);   // close enough to see: the little movements of rest
+      else if (LB.chest) LB.chest.scale.setScalar(1);
     },
-    dispose() { mixer.stopAllAction(); mixer.uncacheRoot(mixer.getRoot()); mesh.skeleton.dispose(); object.removeFromParent(); },
+    dispose() { if (blob) blob.removeFromParent(); mixer.stopAllAction(); mixer.uncacheRoot(mixer.getRoot()); mesh.skeleton.dispose(); object.removeFromParent(); },
   };
 }
 

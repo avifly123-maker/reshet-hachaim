@@ -46,6 +46,13 @@ export function createWater(ctx) {
         vec3 Hh = normalize(uSunDir + V);
         float spec = pow(max(dot(nrm, Hh), 0.0), 220.0);
         col += uSunCol * spec * 5.0 * smoothstep(-0.02, 0.1, uSunDir.y);
+        // 1.4.4 set 10: sparkles: tiny bright points that blink on the moving surface, toward the sun
+        {
+          vec2 sp = vW.xz * 2.6 + vec2(uTime * 0.21, -uTime * 0.17);
+          float tw = texture2D(uNoise, sp).b * texture2D(uNoise, sp * 0.73 + uTime * 0.05).a;
+          float glit = smoothstep(0.72, 0.86, tw) * pow(max(dot(nrm, Hh), 0.0), 18.0);
+          col += uSunCol * glit * 2.4 * smoothstep(0.02, 0.2, uSunDir.y) * (1.0 - uNight);
+        }
         // moon glint
         col += vec3(0.6, 0.7, 1.0) * pow(max(dot(nrm, normalize(vec3(-uSunDir.x, abs(uSunDir.y), -uSunDir.z) + V)), 0.0), 160.0) * uNight * 1.5;
         float foam = smoothstep(0.9, 1.05, edge) * smoothstep(0.5, 0.75, n2);

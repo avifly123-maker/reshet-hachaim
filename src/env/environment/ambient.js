@@ -6,17 +6,27 @@ import * as THREE from 'three';
 import { makeRng } from '../../core/util.js';
 import { TAU, C, K } from './common.js';
 
+// 1.4.4 set 10: each island's own air. dayCol/size: the day's motes; lo/hi: their height band (m); drift: how fast they
+// are carried along by the wind (m/s, 0 = they only float); night: how many glow at night (fireflies), and their colour
+const AIR = {
+  amazon: { dayCol: '#fff6d8', size: 0.06, lo: 0.5, hi: 12, drift: 0, night: 1, nightCol: '#9fffd0', n: 1 },
+  grove: { dayCol: '#fff1a8', size: 0.065, lo: 0.4, hi: 9, drift: 0.35, night: 1, nightCol: '#e8ff7a', n: 1 },      // pollen
+  savanna: { dayCol: '#ffd27a', size: 0.075, lo: 0.2, hi: 5, drift: 1.1, night: 0.6, nightCol: '#f0ff9a', n: 1.2 },   // golden dust
+  desert: { dayCol: '#e9c98e', size: 0.05, lo: 0.05, hi: 1.8, drift: 3.2, night: 0.15, nightCol: '#ffe6a0', n: 1.4 },  // blown sand
+};
 export function createPollen(ctx) {
-  const { U, isAmazon, qual, seed, heightAt, track, root } = ctx;
+  const { U, isAmazon, qual, seed, heightAt, track, root, biome } = ctx;
+  const A = AIR[biome] || AIR.amazon;
   // ───────────────────────────── ambient particles (pollen by day, glow motes at night)
-  let pollenMesh; const pollenU = { uTime: U.uTime, uPx: U.uPx, uWind: U.uWind, uDay: { value: 1 }, uNightA: { value: 0 }, uDayCol: { value: C('#fff6d8') }, uNightCol: { value: C(isAmazon ? '#9fffd0' : '#e8ff7a') }, uLight: U.uLightCol };
+  let pollenMesh; const pollenU = { uTime: U.uTime, uPx: U.uPx, uWind: U.uWind, uDay: { value: 1 }, uNightA: { value: 0 }, uDayCol: { value: C(A.dayCol) }, uNightCol: { value: C(A.nightCol) }, uLight: U.uLightCol,
+    uDrift: { value: A.drift }, uSize: { value: A.size }, uNightK: { value: A.night } };
   {
-    const n = qual.pollen; const rr = makeRng(seed + 505);
+    const n = Math.round(qual.pollen * A.n); const rr = makeRng(seed + 505);
     const pos = new Float32Array(n * 3), rnd = new Float32Array(n * 4);
     for (let i = 0; i < n; i++) {
       const th = rr() * TAU, r = Math.sqrt(rr()) * 40 * K; const x = Math.cos(th) * r, z = Math.sin(th) * r;
       const night = i % 4 === 0;
-      pos[i * 3] = x; pos[i * 3 + 1] = heightAt(x, z) + (night ? 0.4 + rr() * 2.5 : 0.5 + rr() * 12); pos[i * 3 + 2] = z;
+      pos[i * 3] = x; pos[i * 3 + 1] = heightAt(x, z) + (night ? 0.4 + rr() * 2.5 : A.lo + rr() * rr() * (A.hi - A.lo)); pos[i * 3 + 2] = z;
       rnd[i * 4] = rr(); rnd[i * 4 + 1] = rr(); rnd[i * 4 + 2] = night ? 1 : 0; rnd[i * 4 + 3] = rr();
     }
     const g = new THREE.BufferGeometry();
@@ -25,17 +35,24 @@ export function createPollen(ctx) {
     const mat = new THREE.ShaderMaterial({
       uniforms: pollenU, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
       vertexShader: /* glsl */`
-        uniform float uTime, uPx, uWind, uDay, uNightA; attribute vec4 aRnd; varying float vA; varying float vNight;
+        uniform float uTime, uPx, uWind, uDay, uNightA, uDrift, uSize, uNightK; attribute vec4 aRnd; varying float vA; varying float vNight;
         void main(){
           vec3 p = position; float ph = aRnd.x * 60.0;
+          float fade = 1.0;
+          if (uDrift > 0.0 && aRnd.z < 0.5) {   // carried along by the wind across a 40 m stretch, fading in and out at its ends
+            float d = mod(uTime * uDrift * (0.55 + aRnd.y * 0.9) * (0.6 + uWind) + aRnd.w * 40.0, 40.0);
+            p.xz += vec2(0.86, 0.5) * (d - 20.0);
+            p.y += sin(d * 0.9 + ph) * 0.12;
+            fade = smoothstep(0.0, 5.0, d) * smoothstep(40.0, 35.0, d);
+          }
           p.x += sin(uTime * 0.21 + ph) * 2.0 + uWind * sin(uTime * 0.5 + ph) * 3.0;
           p.z += cos(uTime * 0.17 + ph * 1.3) * 2.0;
           p.y += sin(uTime * 0.31 + ph * 0.7) * (aRnd.z > 0.5 ? 0.6 : 1.5);
           vec4 mv = viewMatrix * vec4(p, 1.0); gl_Position = projectionMatrix * mv;
           vNight = aRnd.z;
           float blink = smoothstep(0.55, 1.0, sin(uTime * (1.1 + aRnd.w) + ph));
-          vA = aRnd.z > 0.5 ? uNightA * blink : uDay * 0.55;
-          float sz = aRnd.z > 0.5 ? 0.16 : 0.06;
+          vA = aRnd.z > 0.5 ? uNightA * blink * step(aRnd.y, uNightK) : uDay * 0.55 * fade;
+          float sz = aRnd.z > 0.5 ? 0.16 : uSize;
           gl_PointSize = vA > 0.001 ? clamp(uPx * sz / -mv.z, 1.0, 10.0) : 0.0;
         }`,
       fragmentShader: /* glsl */`

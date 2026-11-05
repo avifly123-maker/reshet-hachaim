@@ -5,6 +5,8 @@
 // The shared context is called envCtx here because update(dt, ctx) already uses ctx for the frame's input (time of day,
 // rain, wind, season, shafts, fire ...). It reads nearly every part; envCtx.updateTreeShadowStrength (tree-shadows.js) is
 // looked up at call time because that part is created after this one.
+import { CLOUD_U } from '../cloud-shade.js';
+import { RIM_U } from '../../models/rigged.js';
 import * as THREE from 'three';
 import { clamp, lerp, smoothstep, damp } from '../../core/util.js';
 import { TAU, MAX_SHAFTS, MAX_FIRES, MAX_SCORCH, MAX_GAPS, C, tmpC, tmpC2, V3, bump } from './common.js';
@@ -93,6 +95,9 @@ export function createUpdate(envCtx) {
     if (waterMeshes[0] && !waterMeshes[0].userData.hole) waterMeshes[0].position.y = -sd * 0.1 - state.drought * 0.08;
   }
 
+  const gradeLift = new THREE.Color(), gradeGain = new THREE.Color();
+  const gradeNightLift = new THREE.Color(0.0, 0.012, 0.04), gradeEveLift = new THREE.Color(0.02, 0.006, 0.0);
+  const gradeMornGain = new THREE.Color(1.0, 1.01, 1.025), gradeEveGain = new THREE.Color(1.05, 0.99, 0.92), gradeNightGain = new THREE.Color(0.95, 0.98, 1.06);
   function update(dt, ctx = {}) {
     dt = Math.min(dt || 0.016, 0.1);
     const t = ctx.t !== undefined ? ctx.t : (U.uTime.value + dt);
@@ -130,6 +135,18 @@ export function createUpdate(envCtx) {
     skyU.uMoonDir.value.copy(moonDir);
     skyU.uNight.value = night.v * (1 - rn * 0.9);
     skyU.uCloud.value = clamp((isAmazon ? 0.45 : 0.2) + rn * 0.8);
+    if (pipeline.setGrade) {   // 1.4.4 set 10: a colour grade for each hour (morning fresh, noon neutral, evening gold, night blue)
+      const morning = bump(dayFrac, 0.2, 0.26, 0.33, 0.42), evening = bump(dayFrac, 0.6, 0.68, 0.76, 0.82);
+      gradeLift.setRGB(0.0, 0.004, 0.012).lerp(gradeNightLift, night.v).lerp(gradeEveLift, evening * 0.8);
+      gradeGain.setRGB(1.015, 1.0, 0.975).lerp(gradeMornGain, morning * 0.7).lerp(gradeEveGain, evening).lerp(gradeNightGain, night.v);
+      pipeline.setGrade({ lift: gradeLift, gain: gradeGain, sat: 1.06 + 0.06 * evening - 0.1 * night.v - 0.05 * rn });
+    }
+    {   // 1.4.4 set 10: cloud shadows drift with the wind; darker on cloudy days, none at night; the desert's sky is mostly clear
+      const dayK = smoothstep(-0.02, 0.2, e);
+      CLOUD_U.uCloudK.value = dayK * (isDesert ? 0.16 : isSavanna ? 0.3 : isAmazon ? 0.34 : 0.28) * (1 + rn * 0.6) * (1 - 0.5 * rn);
+      CLOUD_U.uCloudT.value = t * (0.6 + wind * 1.4);
+      RIM_U.uRimK.value = 0.05 + 0.17 * dayK * (1 - 0.5 * rn);   // the animals' fur sheen and eye light follow the daylight
+    }
     skyU.uCloudCol.value.copy(cHor).lerp(CC('#ffffff'), 0.5 * (1 - night.v)).multiplyScalar(lerp(1, 0.55, rn));
     {   // distant landscape lighting: daylight tinted by the sun, dim blue at night, hazier in rain and morning mist
       const day = smoothstep(-0.05, 0.16, e);

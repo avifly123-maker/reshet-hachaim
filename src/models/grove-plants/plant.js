@@ -103,7 +103,7 @@ export function makePlantFrom(id, S, getG, opts = {}, prefix = 'plant-') {
   const root = new THREE.Group(); object.add(root);
   const rotY = irng() * TAU; root.rotation.y = rotY;
   const sizeJ = irng.range(0.93, 1.07);
-  const tint = new Col(1, 1, 1).multiplyScalar(irng.range(0.94, 1.06)); tint.g *= irng.range(0.97, 1.03);
+  const tint = new Col(1, 1, 1).multiplyScalar(irng.range(0.91, 1.08)); tint.g *= irng.range(0.96, 1.04); tint.r *= irng.range(0.94, 1.05);   // 1.4.4 set 10: a little more difference between trees of one kind
   const shared = {
     uTime: { value: 0 }, uWind: { value: 0.3 }, uPhase: { value: irng() * 100 }, uH: { value: Math.max(0.3, info.H) }, uR: { value: Math.max(0.2, info.crownR) },
     uSway: { value: S.sway }, uFlutter: { value: S.flutter * Math.max(0.3, info.H) * 0.06 }, uSquash: { value: S.squash },
