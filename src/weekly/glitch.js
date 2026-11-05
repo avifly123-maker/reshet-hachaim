@@ -132,6 +132,6 @@ export function openGlitch(o) {
   paint(); raf = requestAnimationFrame(frame);
   setTimeout(() => { const k = $('.wg-kubi'); if (k) k.classList.add('gone'); }, 3200);
   try { const g = svcGuide(); if (g) tut = glitchTutorial({ guide: g, ev: { state: () => ({ sel: S.sel, picks: S.picks, sent: Object.keys(S.status).length }) } }); } catch (e) { }
-  try { window.__glitch = { state: () => ({ ...S, ids }), send, pick: (id) => { S.sel = id; paint(); }, drain: (id, v) => { S.left[id] = v; } }; } catch (e) { }
+  try { window.__glitch = { state: () => ({ ...S, ids, tut: (tut && tut.step) || null }), send, pick: (id) => { S.sel = id; paint(); }, drain: (id, v) => { S.left[id] = v; } }; } catch (e) { }
   return { close, el };
 }

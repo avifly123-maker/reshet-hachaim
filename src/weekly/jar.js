@@ -104,6 +104,6 @@ export function openJar(o) {
   function close() { if (tut && tut.stop) tut.stop(); el.remove(); }
   paint();
   try { const g = svcGuide(); if (g && S.sealed == null) tut = jarTutorial({ guide: g, ev: { state: () => ({ picks: S.pick.length, sealed: S.sealed != null }) } }); } catch (e) { }
-  try { window.__jar = { state: () => ({ ...S, shown: shown(), sim: S.pick.length ? sim() : null }), pick: (list) => { S.pick = list.slice(); save(); paint(); }, seal: () => { S.sealed = today(); S.tries++; save(); paint(); }, repaint: paint }; } catch (e) { }
+  try { window.__jar = { state: () => ({ ...S, shown: shown(), sim: S.pick.length ? sim() : null, tut: (tut && tut.step) || null }), pick: (list) => { S.pick = list.slice(); save(); paint(); }, seal: () => { S.sealed = today(); S.tries++; save(); paint(); }, repaint: paint }; } catch (e) { }
   return { close, el };
 }
