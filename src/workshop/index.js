@@ -250,7 +250,7 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
   function cardFace(c, i, R) {
     const r = R[c.id], sec = (kids && c.ksec) || c.sec;
     return `<button type="button" class="wc-card at-${c.at}${r ? ' done' : ''}" data-wscard="${c.id}" style="--i:${i};--y:${Math.abs(i - 2) * 6}px"><span class="wc-top">${clockSVG()}<small>${Math.round(sec / 6) / 10} ${W('דק׳', 'דַּק׳')}</small></span>
-      <b>${esc(kids ? c.k : c.f)}</b><span class="wc-at">${esc(W(AT[c.at][0], AT[c.at][1]))}</span>${r ? `<em class="wc-rec">${W('שיא', 'שִׂיא')} ${Math.ceil(r.best / 1000)} ${W('שנ׳', 'שְׁנ׳')}</em>` : ''}</button>`;
+      <span class="wc-pic">${stationSVG(c.at)}</span><b>${esc(kids ? c.k : c.f)}</b><span class="wc-at">${esc(W(AT[c.at][0], AT[c.at][1]))}</span>${r ? `<em class="wc-rec">${W('שיא', 'שִׂיא')} ${Math.ceil(r.best / 1000)} ${W('שנ׳', 'שְׁנ׳')}</em>` : ''}</button>`;
   }
   function cardsHTML() {
     const R = readWs().rounds;

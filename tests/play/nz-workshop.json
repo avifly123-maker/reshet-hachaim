@@ -77,7 +77,7 @@
 {"wait": 0.5},
 {"clickSel": ".ws-st[data-st=orders]"},
 {"until": "window.__wsDebug.state().tut === 'pick'", "timeout": 10},
-{"js": "'CHECK orders-board ' + (document.querySelectorAll('.wo-note').length===30 && !!document.querySelector('.wo-note .wo-who svg') && !!document.querySelector('.wo-note .wo-who img') ? 'ok' : 'FAIL ' + document.querySelectorAll('.wo-note').length)"},
+{"js": "'CHECK orders-board ' + (document.querySelectorAll('.wo-note').length===30 && document.querySelectorAll('.wo-note .wo-who img').length===30 ? 'ok' : 'FAIL ' + document.querySelectorAll('.wo-note').length)"},
 {"shot": "shots/nz-workshop/orders.png"},
 {"clickSel": ".wo-note[data-woopen=phone]"},
 {"wait": 0.6},

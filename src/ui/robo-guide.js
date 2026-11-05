@@ -127,7 +127,7 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
       ${fig}
       <div class="rg-bub"><span class="rg-name">${name}</span><p class="rg-txt">${esc(words(ln))}</p>
         <div class="rg-foot">${c.lines.length > 1 ? `<span class="rg-dots">${c.lines.map((_, j) => `<i class="${j === c.i ? 'on' : ''}"></i>`).join('')}</span>` : '<span class="rg-dots"></span>'}
-          ${ln.id && !nitz ? `<button class="rg-say" data-g="say" aria-label="${kids ? 'לִשְׁמֹעַ שׁוּב' : 'לשמוע שוב'}" title="${kids ? 'לִשְׁמֹעַ שׁוּב' : 'לשמוע שוב'}">${SPEAKER}</button>` : ''}
+          ${ln.id && !nitz && !String(ln.id).startsWith('kw.') ? `<button class="rg-say" data-g="say" aria-label="${kids ? 'לִשְׁמֹעַ שׁוּב' : 'לשמוע שוב'}" title="${kids ? 'לִשְׁמֹעַ שׁוּב' : 'לשמוע שוב'}">${SPEAKER}</button>` : ''}
           ${acts ? acts.map((a, j) => `<button class="rg-act${a.kind === 'primary' || (!a.kind && j === 0) ? ' primary' : ''}${a.kind === 'quiet' ? ' quiet' : ''}" data-act="${esc(a.id)}">${esc(a.label)}</button>`).join('')
             : `<button class="rg-next" data-g="next">${lastOne ? (c.opts.tip ? (kids ? 'הָבַנְתִּי' : 'הבנתי') : (kids ? 'סִיּוּם' : 'סיום')) : (kids ? 'הַבָּא' : 'הבא')}</button>`}
           ${!lastOne && !c.opts.tip ? `<button class="rg-skip" data-g="skip">${kids ? 'דַּלֵּג' : 'דלג'}</button>` : ''}

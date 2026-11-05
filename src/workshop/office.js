@@ -43,16 +43,24 @@ export function createOffice(ctx) {
   const list = () => ORDERS.filter((o) => !kids() || o.lv === 1);
 
   // ── the cork board
+  // the board: a filter row (all, our world, each island) and big tickets: the client's picture beside the words,
+  // the tests it needs as little pictures, the level as stars (Avi 5.11: lists with pictures and a bigger, nicer font)
+  let filt = 'all';
+  const ZF = [['all', 'הכול', 'הַכֹּל'], ['world', 'העולם שלנו', 'הָעוֹלָם שֶׁלָּנוּ'], ['amazon', 'אמזונס', 'אֲמָזוֹנָס'], ['grove', 'חורש', 'חֹרֶשׁ'], ['reef', 'שונית', 'שׁוּנִית'], ['desert', 'מדבר', 'מִדְבָּר'], ['savanna', 'סוואנה', 'סַוַואנָה']];
   function ordersHTML() {
     const S = readWs().orders;
-    const notes = list().map((o, i) => {
-      const st = S[o.id] || {}, rot = ((i * 37) % 9) - 4;
-      return `<button type="button" class="wo-note lv${o.lv}${st.done ? ' done' : ''}${st.versions && st.versions.length && !st.done ? ' wip' : ''}" data-woopen="${o.id}" style="--r:${rot}deg">
-        <i class="wo-pin"></i><span class="wo-who z-${o.z}">${who(o)}</span><b>${esc(T(o))}</b>
-        <small>${esc(zoneName(o.z))} · ${esc(LV[o.lv][kids() ? 1 : 0])}</small>${st.done ? `<em class="wo-stamp">${W('בוצע!', 'בֻּצַּע!')}</em>` : ''}</button>`;
+    const notes = list().filter((o) => filt === 'all' || o.z === filt).map((o, i) => {
+      const st = S[o.id] || {}, rot = ((i * 37) % 5) - 2;
+      return `<button type="button" class="wo-note lv${o.lv}${st.done ? ' done' : ''}${st.versions && st.versions.length && !st.done ? ' wip' : ''}" data-woopen="${o.id}" style="--r:${rot * 0.6}deg;--d:${(i % 12) * 0.03}s">
+        <i class="wo-pin"></i><span class="wo-who z-${o.z}">${who(o)}</span>
+        <span class="wo-txt"><b>${esc(T(o))}</b>
+          <span class="wo-tags"><em class="wo-zone z-${o.z}">${esc(zoneName(o.z))}</em><span class="wo-lv" title="${esc(LV[o.lv][0])}">${[1, 2, 3].map((k) => `<i class="${k <= o.lv ? 'on' : ''}"></i>`).join('')}</span>
+          <span class="wo-tst">${Object.keys(o.tests).map((t) => testSVG(t)).join('')}</span></span></span>
+        ${st.done ? `<em class="wo-stamp">${W('בוצע!', 'בֻּצַּע!')}</em>` : ''}</button>`;
     }).join('');
     const done = list().filter((o) => (S[o.id] || {}).done).length;
-    return `<div class="wo"><div class="wo-head"><h2>${W('הזמנות עבודה', 'הַזְמָנוֹת עֲבוֹדָה')}</h2><span class="wo-count"><b>${done}</b> / ${list().length}</span></div>
+    const zones = kids() ? ZF.filter((z) => z[0] === 'all' || list().some((o) => o.z === z[0])) : ZF;
+    return `<div class="wo"><div class="wo-head"><span class="wo-filt">${zones.map(([id, f, k]) => `<button type="button" data-wofilt="${id}" class="${filt === id ? 'on' : ''}${id !== 'all' && id !== 'world' ? ' z-' + id : ''}">${esc(kids() ? k : f)}</button>`).join('')}</span><span class="wo-count">${W('בוצעו', 'בֻּצְּעוּ')} <b>${done}</b> / ${list().length}</span></div>
       <div class="wo-board">${notes}</div>${ticket ? ticketHTML(orderOf(ticket)) : ''}</div>`;
   }
   function ticketHTML(o) {
@@ -122,6 +130,7 @@ export function createOffice(ctx) {
 
   function click(b) {
     const d = b.dataset;
+    if (d.wofilt) { filt = d.wofilt; ctx.sfx('click'); ctx.go('orders'); return true; }
     if (d.woopen) { ticket = d.woopen; ctx.sfx('click'); ctx.act('explain'); ctx.go('orders'); return true; }
     if (d.woclose != null) { ticket = null; ctx.go('orders'); return true; }
     if (d.wogo) { ticket = null; ctx.setOrder(d.wogo); ctx.sfx('pop'); ctx.act('excited'); ctx.go('build'); return true; }

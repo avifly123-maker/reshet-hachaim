@@ -5,6 +5,7 @@
 //   const st = createStage(canvas, { weak })   st.show(proto) · st.play(test, pass) → Promise · st.dispose()
 //   st.view: 'build' | 'test'   st.spin(true) turns the prototype slowly on the build table
 import * as THREE from 'three';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { protoOk } from './engine.js';
 import { materialOf } from '../data/workshop/build-parts.js';
 
@@ -22,30 +23,39 @@ function bodyGeo(shape) {
 const H = { ball: 0.55, tube: 0.36, cone: 0.45, plate: 0.1, dome: 0.62, box: 0.43 };   // top above the centre
 const LOW = { ball: -0.55, tube: -0.36, cone: -0.45, plate: -0.1, dome: 0, box: -0.43 };
 
+// small textures drawn once on a canvas: wood grain, woven cloth, a speckle for rubber and clay (no files to load)
+function canvasTex(draw, n = 256, rep = 1) {
+  const c = document.createElement('canvas'); c.width = c.height = n; draw(c.getContext('2d'), n);
+  const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(rep, rep); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t;
+}
+const rnd = (i) => { const x = Math.sin(i * 127.1) * 43758.5453; return x - Math.floor(x); };
+const woodTex = (a, b) => canvasTex((g, n) => { g.fillStyle = a; g.fillRect(0, 0, n, n); for (let y = 0; y < n; y += 2) { const w = Math.sin(y * 0.09 + Math.sin(y * 0.021) * 4) * 0.5 + 0.5; g.fillStyle = b; g.globalAlpha = 0.12 + w * 0.35; g.fillRect(0, y, n, 1 + (w > 0.8 ? 1 : 0)); } g.globalAlpha = 1; });
+const clothTex = (a, b) => canvasTex((g, n) => { g.fillStyle = a; g.fillRect(0, 0, n, n); g.fillStyle = b; for (let y = 0; y < n; y += 4) for (let x = (y / 4) % 2 * 2; x < n; x += 4) g.fillRect(x, y, 2, 2); }, 128, 4);
+const speckTex = (a, b, k = 900) => canvasTex((g, n) => { g.fillStyle = a; g.fillRect(0, 0, n, n); g.fillStyle = b; for (let i = 0; i < k; i++) { g.globalAlpha = 0.2 + rnd(i) * 0.4; g.fillRect(rnd(i + 1) * n, rnd(i + 2) * n, 1.5, 1.5); } g.globalAlpha = 1; });
 export function makeMats() {
   const M = {
-    wood: new THREE.MeshStandardMaterial({ color: '#c58a4a', roughness: 0.75 }),
-    cloth: new THREE.MeshStandardMaterial({ color: '#e07a8a', roughness: 0.95 }),
-    metal: new THREE.MeshStandardMaterial({ color: '#b8c4d0', roughness: 0.3, metalness: 0.85 }),
-    rubber: new THREE.MeshStandardMaterial({ color: '#3a9a6a', roughness: 0.6 }),
-    glass: new THREE.MeshPhysicalMaterial({ color: '#bfe8fa', roughness: 0.05, transmission: 0.6, transparent: true, opacity: 0.55, thickness: 0.4 }),
+    wood: new THREE.MeshPhysicalMaterial({ map: woodTex('#c58a4a', '#7a4a1e'), roughness: 0.62, clearcoat: 0.25, clearcoatRoughness: 0.4 }),
+    cloth: new THREE.MeshPhysicalMaterial({ map: clothTex('#e07a8a', '#c85a6c'), roughness: 0.95, sheen: 1, sheenColor: new THREE.Color('#ffc8d0'), sheenRoughness: 0.5 }),
+    metal: new THREE.MeshPhysicalMaterial({ color: '#c8d2dc', roughness: 0.22, metalness: 1, clearcoat: 0.4 }),
+    rubber: new THREE.MeshPhysicalMaterial({ map: speckTex('#3a9a6a', '#2a7a50'), roughness: 0.5, clearcoat: 0.35, clearcoatRoughness: 0.3 }),
+    glass: new THREE.MeshPhysicalMaterial({ color: '#dff4ff', roughness: 0.02, transmission: 0.9, transparent: true, opacity: 0.6, thickness: 0.4, ior: 1.45, clearcoat: 1 }),
     dark: new THREE.MeshStandardMaterial({ color: '#3a2a1a', roughness: 0.6 }),
     steel: new THREE.MeshStandardMaterial({ color: '#8a96a2', roughness: 0.35, metalness: 0.8 }),
     tyre: new THREE.MeshStandardMaterial({ color: '#2a2a2e', roughness: 0.85 }),
     yellow: new THREE.MeshStandardMaterial({ color: '#ffcc33', roughness: 0.5 }),
-    spine: new THREE.MeshStandardMaterial({ color: '#7a5a3a', roughness: 0.7 }),
+    spine: new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: 0.45, clearcoat: 0.5 }),
     scale: new THREE.MeshStandardMaterial({ color: '#5f8a3a', roughness: 0.55, flatShading: true }),
     pink: new THREE.MeshStandardMaterial({ color: '#f0a0b0', roughness: 0.6 }),
-    shell: new THREE.MeshStandardMaterial({ color: '#8a6a3a', roughness: 0.6, flatShading: true }),
+    shell: new THREE.MeshPhysicalMaterial({ color: '#8a6a3a', roughness: 0.45, clearcoat: 0.6, flatShading: true }),
     feather: new THREE.MeshStandardMaterial({ color: '#f2e6cc', roughness: 0.9, side: THREE.DoubleSide }),
     leaf: new THREE.MeshStandardMaterial({ color: '#3f9a4a', roughness: 0.7, side: THREE.DoubleSide }),
-    clay: new THREE.MeshStandardMaterial({ color: '#c8783a', roughness: 0.9 }),
+    clay: new THREE.MeshPhysicalMaterial({ map: speckTex('#c8783a', '#8a4a20'), roughness: 0.85 }),
     shark: new THREE.MeshStandardMaterial({ color: '#7d93a6', roughness: 0.45, flatShading: true }),
     bump: new THREE.MeshStandardMaterial({ color: '#2a2a2a', roughness: 0.4 }),
     glow: new THREE.MeshStandardMaterial({ color: '#fff3a0', emissive: '#ffdd44', emissiveIntensity: 1.6 }),
     reflect: new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.05, metalness: 1, emissive: '#665522', emissiveIntensity: 0.4 }),
     uv: new THREE.MeshStandardMaterial({ color: '#8a5ad8', emissive: '#7a3ad8', emissiveIntensity: 1.2 }),
-    hive: new THREE.MeshStandardMaterial({ color: '#f2c443', roughness: 0.7 }),
+    hive: new THREE.MeshPhysicalMaterial({ color: '#f2c443', roughness: 0.35, clearcoat: 0.6 }),
     egg: new THREE.MeshStandardMaterial({ color: '#fbf3e4', roughness: 0.5 }),
     yolk: new THREE.MeshStandardMaterial({ color: '#ffb81c', roughness: 0.3 }),
     sail: new THREE.MeshStandardMaterial({ color: '#ff8a5a', roughness: 0.9, side: THREE.DoubleSide }),
@@ -81,7 +91,31 @@ function addon(id, M, shape) {
       for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2; const geo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(Math.cos(a) * 0.5, top + 0.75, Math.sin(a) * 0.5), new THREE.Vector3(0, top, 0)]); g.add(new THREE.Line(geo, lineM)); }
       break;
     }
-    case 'spines': { const geo = new THREE.ConeGeometry(0.03, 0.28, 6); for (let i = 0; i < 46; i++) { const u = i / 46, a = i * 2.4, r = Math.sqrt(u); const dir = new THREE.Vector3(Math.cos(a) * r * 0.7, 0.75, Math.sin(a) * r * 0.7).normalize(); const m = mesh(geo, M.spine, dir.x * 0.42, top - 0.05 + dir.y * 0.1, dir.z * 0.42); m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir); } break; }
+    case 'spines': {   // like a hedgehog's: thin, tapered, dark at the base and pale at the tip, set on the body's own upper surface
+      const geo = new THREE.ConeGeometry(0.016, 0.26, 7, 4); geo.translate(0, 0.13, 0);
+      const pos = geo.attributes.position, col = [];
+      for (let i = 0; i < pos.count; i++) { const k = Math.min(1, pos.getY(i) / 0.26); const a = new THREE.Color('#3a2414').lerp(new THREE.Color('#f2e2c0'), Math.pow(k, 1.6)); col.push(a.r, a.g, a.b); }
+      geo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+      // points spread over the body's upward-facing triangles by area (works for a box's flat top as well as a ball)
+      const body = bodyGeo(shape), bp = body.attributes.position, ix = body.index, tris = [];
+      const A = new THREE.Vector3(), B = new THREE.Vector3(), C = new THREE.Vector3(), N = new THREE.Vector3();
+      const tc = ix ? ix.count / 3 : bp.count / 3; let total = 0;
+      for (let t = 0; t < tc; t++) {
+        const a = ix ? ix.getX(t * 3) : t * 3, b = ix ? ix.getX(t * 3 + 1) : t * 3 + 1, c = ix ? ix.getX(t * 3 + 2) : t * 3 + 2;
+        A.fromBufferAttribute(bp, a); B.fromBufferAttribute(bp, b); C.fromBufferAttribute(bp, c);
+        N.subVectors(C, B).cross(new THREE.Vector3().subVectors(A, B)); const area = N.length() / 2; N.normalize();
+        if (N.y > 0.2 && area > 1e-6) { total += area; tris.push({ a: A.clone(), b: B.clone(), c: C.clone(), n: N.clone(), w: total }); }
+      }
+      const up = new THREE.Vector3(0, 1, 0), n = tris.length ? 140 : 0;
+      for (let k = 0; k < n; k++) {
+        const r = rnd(k + 7) * total; const T = tris.find((x) => x.w >= r) || tris[tris.length - 1];
+        let u = rnd(k + 11), v = rnd(k + 13); if (u + v > 1) { u = 1 - u; v = 1 - v; }
+        const p = T.a.clone().multiplyScalar(1 - u - v).add(T.b.clone().multiplyScalar(u)).add(T.c.clone().multiplyScalar(v));
+        const nn = T.n.clone().add(new THREE.Vector3(rnd(k) - 0.5, 0, rnd(k + 3) - 0.5).multiplyScalar(0.4)).normalize();
+        const m = mesh(geo, M.spine, p.x, p.y, p.z); m.quaternion.setFromUnitVectors(up, nn); m.scale.setScalar(0.8 + rnd(k + 5) * 0.45);
+      }
+      body.dispose(); break;
+    }
     case 'scales': { const geo = new THREE.SphereGeometry(0.11, 8, 5); for (let r = 0; r < 3; r++) for (let i = 0; i < 6; i++) { for (const s of [-1, 1]) { const m = mesh(geo, M.scale, s * 0.5, 0.25 - r * 0.2, -0.3 + i * 0.12 + (r % 2) * 0.06); m.scale.set(0.45, 1, 0.9); } } break; }
     case 'suction': { const geo = new THREE.CylinderGeometry(0.07, 0.09, 0.07, 16); for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2; mesh(geo, M.pink, Math.cos(a) * 0.3, low - 0.03, Math.sin(a) * 0.3); } break; }
     case 'bigears': for (const s of [-1, 1]) { const e = mesh(new THREE.SphereGeometry(0.34, 18, 12), M.clay, s * 0.62, top * 0.5 + 0.25, 0); e.scale.set(0.12, 1.15, 0.7); e.rotation.z = s * -0.35; } break;
@@ -126,12 +160,16 @@ export function createStage(canvas, { weak = false } = {}) {
   renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.shadowMap.enabled = !weak; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   const scene = new THREE.Scene();
+  renderer.toneMappingExposure = 1.05;
+  try { const pm = new THREE.PMREMGenerator(renderer); scene.environment = pm.fromScene(new RoomEnvironment(), 0.04).texture; scene.environmentIntensity = 0.55; pm.dispose(); } catch (e) { }
   const cam = new THREE.PerspectiveCamera(34, 1, 0.05, 50); cam.position.set(2.2, 1.7, 2.8);
   scene.add(new THREE.HemisphereLight('#fff6e0', '#6a4a2a', 1.25));
   const sun = new THREE.DirectionalLight('#fff0d0', 2.2); sun.position.set(2.5, 4, 2.5); sun.castShadow = !weak; sun.shadow.mapSize.set(512, 512); scene.add(sun);
   const M = makeMats();
-  const floorMat = new THREE.MeshStandardMaterial({ color: '#d9b177', roughness: 0.9 });
-  const floor = new THREE.Mesh(new THREE.CircleGeometry(2.4, 48), floorMat); floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
+  const floorMat = new THREE.MeshPhysicalMaterial({ map: woodTex('#c89a62', '#8a5a2a'), roughness: 0.55, clearcoat: 0.3, clearcoatRoughness: 0.35 });
+  floorMat.map.repeat.set(2, 2);
+  const floor = new THREE.Mesh(new THREE.CylinderGeometry(1.9, 1.9, 0.12, 64), floorMat); floor.position.y = -0.06; floor.receiveShadow = true; scene.add(floor);
+  const rim = new THREE.Mesh(new THREE.TorusGeometry(1.9, 0.05, 12, 96), new THREE.MeshPhysicalMaterial({ color: '#d9a441', metalness: 1, roughness: 0.3 })); rim.rotation.x = Math.PI / 2; scene.add(rim);
   const props = new THREE.Group(); scene.add(props);
   let proto = null, yaw = 0.5, spinOn = true, raf = 0, last = 0, lastDraw = 0, anim = null, alive = true, look = new THREE.Vector3(0, 0.5, 0);
   const fx = [];   // little things that live a while (bubbles, streaks, yolk drops)
@@ -144,10 +182,10 @@ export function createStage(canvas, { weak = false } = {}) {
   }
   function dispose(o) { o.traverse((m) => { if (m.geometry) m.geometry.dispose(); }); }
   function clearFx() { for (const f of fx) { props.remove(f.o); if (f.o.geometry) f.o.geometry.dispose(); } fx.length = 0; }
-  function resetProps() { clearFx(); while (props.children.length) { const c = props.children.pop(); dispose(c); } floorMat.color.set('#d9b177'); }
+  function resetProps() { clearFx(); while (props.children.length) { const c = props.children.pop(); dispose(c); } floorMat.color.set('#ffffff'); }
   // the stations' look
   const tank = () => { const w = new THREE.Mesh(new THREE.BoxGeometry(2.6, 1.0, 1.8), new THREE.MeshStandardMaterial({ color: '#4fa8d8', transparent: true, opacity: 0.35, roughness: 0.1 })); w.position.y = 0.5; props.add(w); return w; };
-  const sandBed = () => { floorMat.color.set('#e8c98a'); const d = new THREE.Mesh(new THREE.CircleGeometry(1.6, 40), new THREE.MeshStandardMaterial({ color: '#efd49a', roughness: 1 })); d.rotation.x = -Math.PI / 2; d.position.y = 0.005; props.add(d); };
+  const sandBed = () => { floorMat.color.set('#f0d8a8'); const d = new THREE.Mesh(new THREE.CircleGeometry(1.6, 40), new THREE.MeshStandardMaterial({ color: '#efd49a', roughness: 1 })); d.rotation.x = -Math.PI / 2; d.position.y = 0.005; props.add(d); };
   const lamp = () => { const l = new THREE.PointLight('#ff6a2a', 6, 4); l.position.set(0, 2.2, 0.6); props.add(l); const s = new THREE.Mesh(new THREE.SphereGeometry(0.18, 16, 10), new THREE.MeshStandardMaterial({ color: '#ffb070', emissive: '#ff6a2a', emissiveIntensity: 2 })); s.position.copy(l.position); props.add(s); return l; };
   const tower = () => { const m = new THREE.MeshStandardMaterial({ color: '#8a5a2a', roughness: 0.8 }); for (const x of [-0.9, 0.9]) { const p = new THREE.Mesh(new THREE.BoxGeometry(0.1, 3.6, 0.1), m); p.position.set(x, 1.8, -0.6); props.add(p); } const b = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.1, 0.1), m); b.position.set(0, 3.6, -0.6); props.add(b); };
   const tunnel = () => { const t = new THREE.Mesh(new THREE.CylinderGeometry(1.15, 1.15, 3.2, 32, 1, true), new THREE.MeshStandardMaterial({ color: '#cfe8f5', transparent: true, opacity: 0.22, side: THREE.DoubleSide })); t.rotation.z = Math.PI / 2; t.position.y = 0.7; props.add(t); };
@@ -157,7 +195,7 @@ export function createStage(canvas, { weak = false } = {}) {
   function play(test, pass) {
     resetProps(); if (!proto) return Promise.resolve();
     proto.position.set(0, 0, 0); proto.rotation.set(0, 0, 0); proto.scale.set(1, 1, 1);
-    const P = proto, t0 = performance.now(); let eggM = null; yaw = 0.35;   // a front view: the stations' props stand behind
+    const P = proto, t0 = performance.now(); let eggM = null; yaw = 0;   // a front view: the stations' props stand behind
     if (test === 'water') tank(); if (test === 'sand') sandBed(); if (test === 'heat') lamp(); if (test === 'drop') { tower(); eggM = egg(); } if (test === 'wind') tunnel();
     const DUR = 3200;
     return new Promise((res) => {
@@ -234,7 +272,7 @@ export function createStage(canvas, { weak = false } = {}) {
       canvas.removeEventListener('pointerdown', down); window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up);
       resetProps(); if (proto) dispose(proto);
       scene.traverse((o) => { if (o.geometry) o.geometry.dispose(); });
-      Object.values(M).forEach((m) => m.dispose()); floorMat.dispose();
+      Object.values(M).forEach((m) => { if (m.map) m.map.dispose(); m.dispose(); }); if (floorMat.map) floorMat.map.dispose(); floorMat.dispose(); if (scene.environment) scene.environment.dispose();
       renderer.dispose(); try { renderer.forceContextLoss(); } catch (e) { }
     },
   };

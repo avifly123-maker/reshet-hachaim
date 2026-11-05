@@ -10,6 +10,7 @@ import { current } from '../core/weekly.js';
 import { NATURE_CARDS } from '../data/workshop/nature-cards.js';
 import { CARD_ART } from '../data/card-art.js';
 import { icon } from '../ui/ui/icons.js';
+import { WS_ART } from '../data/workshop-art.js';
 import { esc } from '../ui/ui/helpers.js';
 import { svcGuide } from '../core/services.js';
 import { jarTutorial } from '../ui/tutorials.js';
@@ -40,28 +41,23 @@ export function openJar(o) {
   const shown = () => (S.sealed == null ? 0 : (today() >= 4 ? DAYS : Math.max(0, Math.min(DAYS, today() - S.sealed + 1))));
   const sim = () => simulate(S.pick, V);
 
-  function jarSVG(r, k) {
+  // the jar is a Blender render (tools/blender/workshop_art.py: jar_<kind>_<0 open | 1 shut>); the water's colour, the
+  // bubbles of air and the creatures sit over its inside (points from the render: x 30.6–70%, y 39.4–66.3% of 420x520)
+  function jarRig(r, k) {
     const d = r && k ? r.days[Math.min(k, r.days.length) - 1] : null;
     const broke = r && !r.ok && k > r.day;
-    const murk = d ? Math.min(1, d.M / 7) : 0, green = d ? Math.min(1, d.P / 9) : 0.4, air = d ? Math.min(1, d.O / 10) : 0.6;
-    const fill = V.kind === 'sea' ? `rgba(${70 + murk * 90},${160 - murk * 40 + green * 20},${200 - murk * 120},.55)` : V.kind === 'sand' ? 'rgba(255,236,190,.25)' : `rgba(${200 - green * 60},${235},${200 - green * 40},.25)`;
-    const ground = V.kind === 'sea' ? '#e8d6a8' : V.kind === 'sand' ? '#e8c98a' : '#6a4a2a';
-    return `<svg class="wj-svg${broke ? ' broke' : ''}" viewBox="0 0 220 280" aria-hidden="true">
-      <defs><linearGradient id="wjg" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".2" stop-color="#fff" stop-opacity=".08"/><stop offset=".85" stop-color="#fff" stop-opacity=".05"/><stop offset="1" stop-color="#fff" stop-opacity=".35"/></linearGradient></defs>
-      <path d="M40 60 Q36 70 36 90 V250 Q36 270 56 270 H164 Q184 270 184 250 V90 Q184 70 180 60Z" fill="${fill}"/>
-      <path d="M36 220 Q110 205 184 220 V250 Q184 270 164 270 H56 Q36 270 36 250Z" fill="${ground}"/>
-      ${V.kind === 'sea' ? `<path d="M36 96 Q73 88 110 96 T184 96" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="2"/>` : ''}
-      <g class="wj-air">${Array.from({ length: Math.round(2 + air * 6) }, (_, i) => `<circle cx="${60 + (i * 37) % 110}" cy="${200 - (i * 23) % 80}" r="${2 + (i % 3)}" fill="#fff" fill-opacity=".7" style="animation-delay:${-i * 0.6}s"/>`).join('')}</g>
-      <path d="M40 60 Q36 70 36 90 V250 Q36 270 56 270 H164 Q184 270 184 250 V90 Q184 70 180 60Z" fill="url(#wjg)" stroke="#9fc8d8" stroke-width="3"/>
-      <rect x="44" y="40" width="132" height="22" rx="6" fill="${S.sealed != null ? '#b8862a' : '#d8c0a0'}" stroke="#6a4a1a" stroke-width="3" class="wj-lid${S.sealed != null ? ' shut' : ''}"/>
-      ${S.sealed != null ? '<circle cx="110" cy="51" r="11" fill="#c8402f" stroke="#7a1a10" stroke-width="2"/><circle cx="110" cy="51" r="5" fill="#e8574a"/>' : ''}
-      ${broke ? '<path d="M70 120 L88 150 L80 175 L98 205" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity=".85"/>' : ''}
-    </svg>`;
+    const murk = d ? Math.min(1, d.M / 7) : 0, air = d ? Math.min(1, d.O / 10) : 0.6, lush = d ? Math.min(1, d.P / 9) : 0.4;
+    const tint = broke ? 'rgba(90,70,40,.45)' : `rgba(${Math.round(120 + murk * 40)},${Math.round(110 + lush * 50)},${Math.round(60 + (1 - murk) * 40)},${(murk * 0.5 + (lush > 0.9 ? 0.15 : 0)).toFixed(2)})`;
+    const nb = Math.round(1 + air * 7);
+    return `<span class="wj-rig${broke ? ' broke' : ''}"><img class="wj-img" src="${WS_ART.jar[V.kind + '_' + (S.sealed != null ? 1 : 0)] || ''}" alt="" draggable="false">
+      <span class="wj-tint" style="background:${tint}"></span>
+      <span class="wj-bubbles">${Array.from({ length: nb }, (_, i) => `<i style="left:${10 + (i * 37) % 80}%;animation-delay:${(-i * 0.55).toFixed(2)}s;--s:${0.6 + (i % 3) * 0.25}"></i>`).join('')}</span>
+      <span class="wj-inside">${insideHTML(r, k)}</span>${broke ? '<span class="wj-crack"></span>' : ''}</span>`;
   }
   function insideHTML(r, k) {
     const d = r && k ? r.days[Math.min(k, r.days.length) - 1] : null;
     const broke = r && !r.ok && k > r.day;
-    const spots = [[30, 64], [66, 70], [48, 50], [22, 40], [72, 40], [50, 28]];
+    const spots = [[24, 70], [74, 72], [50, 52], [20, 34], [78, 36], [50, 18]];
     return S.pick.map((id, i) => { const role = V.pool[id].role; const fade = broke || (d && ((role === 'prod' && d.P < 1) || (role !== 'prod' && d.O < 2.5))) ? ' fade' : '';
       return `<span class="wj-in r-${role}${fade}" style="left:${spots[i][0]}%;top:${spots[i][1]}%;--d:${i * 0.4}s"><img src="${CARD_ART[id] || ''}" alt=""></span>`; }).join('');
   }
@@ -82,7 +78,7 @@ export function openJar(o) {
         <div><h2>${esc(W(V.title, V.ktitle))}</h2><p>${esc(W(V.light >= 1 ? 'על אדן חלון שמשי' : V.light >= 0.7 ? 'בחדר מואר' : 'בפינה מוצלת', V.light >= 1 ? 'בַּשֶּׁמֶשׁ' : V.light >= 0.7 ? 'בְּחֶדֶר מוּאָר' : 'בַּצֵּל'))}</p></div>
         <ol class="wj-week">${DAYN.map((d, i) => `<li class="${i === t ? 'today' : ''}${S.sealed != null && i >= S.sealed && i - S.sealed < k ? (broke && i - S.sealed > r.day ? ' bad' : ' seen') : ''}">${esc(d[kids ? 1 : 0])}</li>`).join('')}</ol></header>
       <div class="wj-body"><div class="wj-shelf">${ids.map((id) => { const role = V.pool[id].role, on = S.pick.includes(id); return `<button type="button" class="wj-c r-${role}${on ? ' on' : ''}" data-jc="${id}" ${S.sealed != null ? 'disabled' : ''}><img src="${CARD_ART[id] || ''}" alt=""><b>${esc(nm(id))}</b><small style="--rc:${ROLES[role].col}">${esc(ROLES[role].short[kids ? 1 : 0])}</small></button>`; }).join('')}</div>
-        <div class="wj-glass${S.sealed != null ? ' sealed' : ''}${broke ? ' broke' : ''}${end && r && r.ok ? ' won' : ''}">${jarSVG(r, k)}<div class="wj-inside">${insideHTML(r, k)}</div>
+        <div class="wj-glass${S.sealed != null ? ' sealed' : ''}${broke ? ' broke' : ''}${end && r && r.ok ? ' won' : ''}">${jarRig(r, k)}
           <div class="wj-count">${S.pick.length}/6</div></div>
         <div class="wj-side">${S.sealed == null ? `<p class="wj-how">${esc(W(`שימו בצנצנת בין ${min} לשישה יצורים, וסגרו את המכסה. מאז אסור לגעת: הצנצנת תחיה יום אחרי יום, וביום חמישי נראה אם החזיקה.`, `שִׂימוּ ${min} עַד 6 יְצוּרִים וְסִגְרוּ אֶת הַמִּכְסֶה.`))}</p>
             <div class="wj-roles">${Object.entries(ROLES).map(([k2, R]) => `<span style="--rc:${R.col}"><i></i>${esc(kids ? R.k : R.f)}</span>`).join('')}</div>

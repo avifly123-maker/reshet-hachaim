@@ -6,6 +6,16 @@
 //   machineSVG(thingId)  the big idea machine (hopper, window, lights, chute)
 //   blenderSVG()    the nature mixer's jar between the two drums
 //   catIcon(cat)    the kinds of ideas on an invention card
+import { WS_ART } from '../data/workshop-art.js';
+// Avi (5.11): the machines, the things and the stations are Blender renders (tools/blender/workshop_art.py →
+// src/data/workshop-art.js); these functions give them as pictures. The hand-drawn SVG below stays for the small icons
+// (build pieces, test stations, world clients, kinds of ideas).
+const img = (src, cls) => (src ? `<img class="wsa ${cls}" src="${src}" alt="" draggable="false">` : '');
+// points on the machine's 640x600 canvas (projected from the Blender scene)
+const MP = { win: [275.9, 331.9], r: 46.9, pivot: [447.1, 335.5], bulbs: [[186.8, 288], [188.1, 326.7], [189.3, 364.7]], chimney: [409.2, 163] };
+const MB = (WS_ART.machineBox && WS_ART.machineBox.length) ? WS_ART.machineBox : [0, 0, 640, 600];   // the crop of the render
+const MW = MB[2] - MB[0], MH = MB[3] - MB[1];
+const pX = (x) => ((x - MB[0]) / MW * 100).toFixed(2) + '%', pY = (y) => ((y - MB[1]) / MH * 100).toFixed(2) + '%';
 const S = (vb, body, cls = '') => `<svg class="wsa ${cls}" viewBox="${vb}" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">${body}</svg>`;
 const INK = '#4a2d16';
 
@@ -43,7 +53,7 @@ const THING = {
     <path d="M12 44 Q32 50 52 44 Q48 50 44 53 Q32 56 20 53 Q15 50 12 44Z" fill="#4f8fd8"/>
     <circle cx="32" cy="32" r="25" fill="none" stroke="${INK}" stroke-width="2.5"/>`,
 };
-export const thingSVG = (id) => S('0 0 64 64', THING[id] || '', 'thing');
+export const thingSVG = (id) => (WS_ART.things[id] ? img(WS_ART.things[id], 'thing') : S('0 0 64 64', THING[id] || '', 'thing'));
 
 // ── the seven places (120 x 100), each with something that moves
 const STATION = {
@@ -92,35 +102,15 @@ const STATION = {
       <path d="M82 62 L85 69 L92 69 L86 74 L88 81 L82 77 L76 81 L78 74 L72 69 L79 69Z" fill="#ffd24a" stroke="${INK}" stroke-width="1.2"/></g>
     <path d="M76 86 L72 98 L80 94 L84 98 L86 86" fill="#c8402f" stroke="${INK}" stroke-width="2"/>`,
 };
-export const stationSVG = (id) => S('0 0 120 100', STATION[id] || '', 'station st-' + id);
+export const stationSVG = (id) => (WS_ART.st[id] ? img(WS_ART.st[id], 'station st-' + id) : S('0 0 120 100', STATION[id] || '', 'station st-' + id));
 
 // ── the idea machine itself (320 x 210): the thing shows in its window; .wm-machine.run makes it go
-export const machineSVG = (thing) => S('0 0 320 210', `
-  <defs><linearGradient id="wmBody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f0a043"/><stop offset="1" stop-color="#c76b22"/></linearGradient>
-    <radialGradient id="wmWin" cx=".5" cy=".4" r=".7"><stop offset="0" stop-color="#3a2410"/><stop offset="1" stop-color="#1a0f06"/></radialGradient></defs>
-  <path d="M110 58 L92 8 H228 L210 58Z" fill="#b8601e" stroke="${INK}" stroke-width="4" stroke-linejoin="round"/>
-  <path d="M104 14 H216" stroke="#e8a457" stroke-width="4" stroke-linecap="round"/>
-  <rect x="40" y="56" width="240" height="128" rx="22" fill="url(#wmBody)" stroke="${INK}" stroke-width="4"/>
-  <rect x="96" y="72" width="128" height="92" rx="16" fill="url(#wmWin)" stroke="${INK}" stroke-width="4"/>
-  <svg class="wm-thing" x="124" y="86" width="72" height="72" viewBox="0 0 64 64">${THING[thing] || '<text x="32" y="44" text-anchor="middle" font-size="34" fill="#ffd24a">?</text>'}</svg>
-  <path d="M104 80 Q112 74 124 76" stroke="#fff" stroke-width="3" fill="none" opacity=".25" stroke-linecap="round"/>
-  <g class="wm-lights"><circle cx="64" cy="80" r="9" fill="#ffd24a" stroke="${INK}" stroke-width="2.5"/><circle cx="64" cy="108" r="9" fill="#7cd8a0" stroke="${INK}" stroke-width="2.5"/><circle cx="64" cy="136" r="9" fill="#ff8a7a" stroke="${INK}" stroke-width="2.5"/>
-    <circle cx="256" cy="80" r="9" fill="#7cc4e8" stroke="${INK}" stroke-width="2.5"/><circle cx="256" cy="108" r="9" fill="#ffd24a" stroke="${INK}" stroke-width="2.5"/><circle cx="256" cy="136" r="9" fill="#c9a8e8" stroke="${INK}" stroke-width="2.5"/></g>
-  <g class="wm-dial"><circle cx="64" cy="162" r="11" fill="#fffaf0" stroke="${INK}" stroke-width="2.5"/><path d="M64 162 L70 155" stroke="#e8574a" stroke-width="3" stroke-linecap="round"/></g>
-  <path d="M226 184 L246 202 H290 L272 184Z" fill="#8a4a18" stroke="${INK}" stroke-width="4" stroke-linejoin="round"/>
-  <path d="M74 184 V204 M150 184 V204" stroke="${INK}" stroke-width="7" stroke-linecap="round"/>
-  <g class="wm-steam"><circle cx="150" cy="40" r="7" fill="#fff" opacity=".7"/><circle cx="168" cy="30" r="9" fill="#fff" opacity=".55"/><circle cx="186" cy="38" r="6" fill="#fff" opacity=".6"/></g>`, 'machine');
-
-export const blenderSVG = () => S('0 0 120 150', `
-  <path d="M26 146 H94 L86 118 H34Z" fill="#6b3f1d" stroke="${INK}" stroke-width="3.5" stroke-linejoin="round"/>
-  <circle cx="60" cy="132" r="6" fill="#ffd24a" class="mv-blink"/>
-  <path d="M34 118 L26 18 H94 L86 118Z" fill="#cfeefa" fill-opacity=".8" stroke="${INK}" stroke-width="3.5" stroke-linejoin="round"/>
-  <g class="wx-swirl" style="transform-origin:60px 72px">
-    <path d="M60 72 m-22 0 a22 16 0 1 0 44 0 a16 11 0 1 0 -32 0" fill="none" stroke="#2f7a5a" stroke-width="4" stroke-linecap="round"/>
-    <path d="M42 50 q8 -14 20 -8 q-6 12 -20 8Z" fill="#4fb880" stroke="${INK}" stroke-width="1.8"/>
-    <path d="M66 92 q14 -2 14 10 q-12 0 -14 -10Z" fill="#e8574a" stroke="${INK}" stroke-width="1.8"/>
-    <circle cx="74" cy="56" r="5" fill="#ffd24a" stroke="${INK}" stroke-width="1.5"/></g>
-  <rect x="22" y="10" width="76" height="12" rx="4" fill="#e08a32" stroke="${INK}" stroke-width="3.5"/>`, 'blender');
+export const machineSVG = (thing) => `<span class="wsa machine wm-rig" style="aspect-ratio:${MW} / ${MH}">${img(WS_ART.machine, 'wm-body')}
+  <span class="wm-win" style="left:${pX(MP.win[0])};top:${pY(MP.win[1])};width:${(MP.r * 2 / MW * 100).toFixed(2)}%">${thing && WS_ART.things[thing] ? `<img class="wm-thing" src="${WS_ART.things[thing]}" alt="">` : '<b>?</b>'}</span>
+  <img class="wm-lever" src="${WS_ART.lever}" alt="" draggable="false" style="transform-origin:${pX(MP.pivot[0])} ${pY(MP.pivot[1])}">
+  ${MP.bulbs.map((b, i) => `<i class="wm-lamp l${i}" style="left:${pX(b[0])};top:${pY(b[1])}"></i>`).join('')}
+  ${[0, 1, 2].map((i) => `<i class="wm-puff p${i}" style="left:${pX(MP.chimney[0])};top:${pY(MP.chimney[1])}"></i>`).join('')}</span>`;
+export const blenderSVG = () => img(WS_ART.blender, 'blender');
 
 // the kind of an idea, as a small round badge on its card
 const CAT = {
@@ -146,7 +136,7 @@ const SHAPE = {
   plate: `<path d="M6 36 L26 26 H58 L38 36Z" fill="#e9a457" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/><path d="M6 36 V42 H38 L58 32 V26 M38 36 V42" fill="#c76b22" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>`,
   dome: `<path d="M10 44 Q10 18 32 18 Q54 18 54 44Z" fill="#e9a457" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/><ellipse cx="32" cy="44" rx="22" ry="4" fill="#c76b22" stroke="${INK}" stroke-width="2.5"/><ellipse cx="24" cy="27" rx="5" ry="3" fill="#fff" opacity=".5"/>`,
 };
-export const shapeSVG = (id) => S('0 0 64 64', SHAPE[id] || '', 'piece');
+export const shapeSVG = (id) => (WS_ART.pieces && WS_ART.pieces[id] ? img(WS_ART.pieces[id], 'piece') : S('0 0 64 64', SHAPE[id] || '', 'piece'));
 const MECH = {
   spring: `<path d="M20 14 H44 M20 50 H44" stroke="${INK}" stroke-width="3" stroke-linecap="round"/><path d="M32 14 c12 3 12 6 0 9 c-12 3 -12 6 0 9 c12 3 12 6 0 9 c-12 3 -12 6 0 9" fill="none" stroke="#6a7a88" stroke-width="3.5"/>`,
   wheel: `<circle cx="32" cy="32" r="20" fill="#2a2a2e" stroke="${INK}" stroke-width="2.5"/><circle cx="32" cy="32" r="12" fill="#5a5a62"/><circle cx="32" cy="32" r="6" fill="#ffcc33" stroke="${INK}" stroke-width="2"/>`,
@@ -155,7 +145,7 @@ const MECH = {
   fan: `<circle cx="32" cy="32" r="22" fill="#fffaf0" stroke="${INK}" stroke-width="2.5"/><g class="mv-fan" style="transform-origin:32px 32px"><path d="M32 32 Q26 16 32 12 Q40 16 32 32 M32 32 Q46 38 48 44 Q40 48 32 32 M32 32 Q20 44 14 42 Q14 34 32 32" fill="#ffcc33" stroke="${INK}" stroke-width="1.8"/></g><circle cx="32" cy="32" r="4" fill="${INK}"/>`,
   chute: `<path d="M8 28 Q32 0 56 28 Q48 24 40 28 Q32 24 24 28 Q16 24 8 28Z" fill="#ff8a5a" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/><path d="M8 28 L30 52 M56 28 L34 52 M32 28 V52" stroke="${INK}" stroke-width="1.5"/><rect x="26" y="50" width="12" height="9" rx="2" fill="#e9a457" stroke="${INK}" stroke-width="2"/>`,
 };
-export const mechSVG = (id) => S('0 0 64 64', MECH[id] || '', 'piece');
+export const mechSVG = (id) => (WS_ART.pieces && WS_ART.pieces[id] ? img(WS_ART.pieces[id], 'piece') : S('0 0 64 64', MECH[id] || '', 'piece'));
 const TEST = {
   wind: `<rect x="6" y="18" width="52" height="28" rx="14" fill="#cfe8f5" stroke="${INK}" stroke-width="2.5"/><g class="mv-wind"><path d="M14 27 h16 M10 33 h24 M16 39 h14" stroke="#4f8fd8" stroke-width="3" stroke-linecap="round"/></g><path d="M38 32 L50 27 V37Z" fill="#e8574a" stroke="${INK}" stroke-width="2"/>`,
   water: `<rect x="10" y="14" width="44" height="40" rx="5" fill="#bfe6f5" stroke="${INK}" stroke-width="2.5"/><path d="M10 30 q6 -4 11 0 t11 0 t11 0 t11 0 V54 H10Z" fill="#4fa8d8" opacity=".8"/><circle class="mv-bob" cx="30" cy="27" r="6" fill="#e9a457" stroke="${INK}" stroke-width="2"/>`,
@@ -164,7 +154,7 @@ const TEST = {
   drop: `<path d="M14 58 V8 M50 58 V8 M14 8 H50" stroke="#8a5a2a" stroke-width="4" stroke-linecap="round"/><g class="mv-fall"><ellipse cx="32" cy="22" rx="7" ry="9" fill="#fbf3e4" stroke="${INK}" stroke-width="2.5"/></g><path d="M20 56 H44" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`,
   noise: `<path d="M10 26 H20 L32 16 V48 L20 38 H10Z" fill="#e9a457" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/><g class="mv-blink"><path d="M38 24 Q44 32 38 40" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/><path d="M44 18 Q54 32 44 46" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/></g>`,
 };
-export const testSVG = (id) => S('0 0 64 64', TEST[id] || '', 'tst');
+export const testSVG = (id) => (WS_ART.tests && WS_ART.tests[id] ? img(WS_ART.tests[id], 'tst') : S('0 0 64 64', TEST[id] || '', 'tst'));
 const CLIENT = {
   road: `<path d="M22 60 L28 4 H36 L42 60Z" fill="#5a5a62"/><path d="M32 8 V16 M32 24 V32 M32 40 V48 M32 54 V60" stroke="#ffd24a" stroke-width="3"/><circle cx="14" cy="16" r="5" fill="#2a2a2e"/><circle cx="14" cy="16" r="2" fill="#ffd24a"/>`,
   phone: `<rect x="20" y="6" width="24" height="46" rx="5" fill="#3a4a5a" stroke="${INK}" stroke-width="2.5"/><rect x="23" y="12" width="18" height="32" rx="2" fill="#9fd8f0"/><path d="M26 30 L36 22 M28 38 L38 28" stroke="#fff" stroke-width="1.5" opacity=".8"/><path d="M12 56 L20 52 M44 52 L52 56" stroke="#e8574a" stroke-width="3" stroke-linecap="round"/>`,
@@ -182,4 +172,4 @@ const CLIENT = {
   library: `<rect x="8" y="10" width="48" height="46" fill="#c9965a" stroke="${INK}" stroke-width="2.5"/><path d="M8 32 H56" stroke="${INK}" stroke-width="2.5"/>${['#e8574a', '#4f8fd8', '#3a9a6a', '#f2c443', '#c9a8e8'].map((c, i) => `<rect x="${12 + i * 8}" y="14" width="6" height="18" fill="${c}"/><rect x="${12 + i * 8}" y="36" width="6" height="18" fill="${c}" opacity=".8"/>`).join('')}`,
   helmet: `<path d="M8 42 Q8 14 32 14 Q56 14 56 42Z" fill="#4f8fd8" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/><path d="M18 22 Q24 18 30 18 M34 18 Q42 18 46 22" stroke="#bfe0ff" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M6 42 H58" stroke="${INK}" stroke-width="4" stroke-linecap="round"/><circle cx="52" cy="54" r="7" fill="none" stroke="${INK}" stroke-width="3"/><circle cx="14" cy="54" r="7" fill="none" stroke="${INK}" stroke-width="3"/>`,
 };
-export const clientSVG = (id) => S('0 0 64 64', CLIENT[id] || '', 'client');
+export const clientSVG = (id) => (WS_ART.clients && WS_ART.clients[id] ? img(WS_ART.clients[id], 'client') : S('0 0 64 64', CLIENT[id] || '', 'client'));

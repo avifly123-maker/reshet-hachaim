@@ -36,7 +36,7 @@
 {"js": "const d=document.querySelector('.wkv-staff'); d.open=true; document.querySelector('[data-wk=any][data-k=jar][data-v=j1]').click(); 1"},
 {"until": "!!document.querySelector('.wj .wj-c')", "timeout": 30},
 {"wait": 1.5},
-{"js": "'CHECK jar-opens ' + (document.querySelectorAll('.wj-c').length===7 && !!document.querySelector('.wj-svg') && document.querySelector('.wj-seal').disabled ? 'ok' : 'FAIL')"},
+{"js": "'CHECK jar-opens ' + (document.querySelectorAll('.wj-c').length===7 && !!document.querySelector('.wj-img') && document.querySelector('.wj-seal').disabled ? 'ok' : 'FAIL')"},
 {"until": "((window.__jar.state().tut === 'pick') || (document.querySelector('#rguide .rg-next') && document.querySelector('#rguide .rg-next').click(), false))", "timeout": 15},
 {"clickSel": ".wj-c[data-jc=algae]"},
 {"clickSel": ".wj-c[data-jc=urchin]"},
