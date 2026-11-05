@@ -6,7 +6,7 @@
 //   ctx: { kids, T, W, say(key), act(x), sfx(n), after(), go(place), order() → order|null, setOrder(id|null),
 //          onTests(results, proto), onPatent(order|null, proto, sc) }
 import { SHAPES, MATERIALS, ADDONS, TESTS, MAX_ADDONS, shapeOf, materialOf, addonOf } from '../data/workshop/build-parts.js';
-import { scores, checkOrder, protoOk, hasNature, PASS } from './engine.js';
+import { scores, checkOrder, protoOk, hasNature, PASS, unitOf, gaugeOf, reasons } from './engine.js';
 import { readWs, saveProto, recordTests } from './progress.js';
 import { createStage } from './proto3d.js';
 import { shapeSVG, mechSVG, testSVG, clientSVG } from './art.js';
@@ -31,14 +31,14 @@ export function nameIdeas(proto, kids) {
 export function createBench(ctx) {
   const { T, W } = ctx;
   let proto = protoOk(readWs().proto || { shape: 'box', mat: 'wood', add: [] });
-  let tab = 'shape', stage = null, name = '', nameI = 0, running = false, last = {}, verdict = null, mainEl = null;
+  let tab = 'shape', stage = null, name = '', nameI = 0, running = false, last = {}, verdict = null, mainEl = null, lastT = null;
   const kids = () => ctx.kids();
   const nm = (o) => (kids() ? o.k : o.n);
   // the evidence (5.11, Avi: a patent only for tests actually run): the tests this very version of the prototype passed.
   // Any change to it (shape, material, a part) is a new version, and its tests start again.
   const protoKey = (p) => [p.shape, p.mat, ...(p.add || []).slice().sort()].join('|');
   let evidence = { key: protoKey(proto), passed: new Set() };
-  const setProto = (p) => { proto = protoOk(p); saveProto(proto); last = {}; verdict = null; evidence = { key: protoKey(proto), passed: new Set() }; if (stage) stage.show(proto); };
+  const setProto = (p) => { proto = protoOk(p); saveProto(proto); last = {}; verdict = null; lastT = null; evidence = { key: protoKey(proto), passed: new Set() }; if (stage) stage.show(proto); };
   const freshName = () => { const L = nameIdeas(proto, kids()); name = L[nameI % L.length]; };
 
   function mountStage(cv) {
@@ -97,14 +97,34 @@ export function createBench(ctx) {
   };
 
   // ── the test hall
+  // the station's score as a quantity a child can picture ("31 מעלות בפנים")
+  const qty = (t, s) => { const U = unitOf(t, s); return U ? `${esc(kids() ? U.k : U.n)}: <b>${U.value}</b> ${esc(kids() ? U.uk : U.u)}` : ''; };
+  const partName = (x) => esc(nm(x.kind === 'shape' ? shapeOf(x.id) : x.kind === 'mat' ? materialOf(x.id) : addonOf(x.id)));
+  // why it passed or failed: the pieces that helped and those that got in the way of the last test run
+  function whyHTML() {
+    if (!lastT || last[lastT] == null) return '';
+    const R = reasons(proto, lastT), X = TESTS.find((x) => x.id === lastT);
+    const L = (list, cls) => list.slice(0, 3).map((x) => `<span class="${cls}">${partName(x)} <small>${x.v > 0 ? '+' : '−'}${Math.abs(x.v)}</small></span>`).join('');
+    return `<div class="wt-why"><b>${W('למה?', 'לָמָּה?')} ${esc(nm(X))}</b>${R.plus.length ? `<p><em>${W('עזרו:', 'עָזְרוּ:')}</em>${L(R.plus, 'up')}</p>` : ''}${R.minus.length ? `<p><em>${W('הפריעו:', 'הִפְרִיעוּ:')}</em>${L(R.minus, 'down')}</p>` : ''}${!R.plus.length && !R.minus.length ? `<p>${W('אף חלק לא משנה את הבדיקה הזאת. נסו חלק אחר.', 'שׁוּם חֵלֶק לֹא עוֹזֵר כָּאן. נַסּוּ אַחֵר.')}</p>` : ''}</div>`;
+  }
+  // the client's own number: what it is now, and what the client needs (shown once its test was run)
+  function gaugeHTML(order) {
+    const G = order && gaugeOf(proto, order); if (!G) return '';
+    const run = last[G.test] != null, U = kids() ? G.uk : G.u;
+    const top = Math.max(G.value, G.target) * 1.25 || 1, pct = (v) => Math.max(3, Math.min(100, Math.round((v / top) * 100)));
+    return `<div class="wt-gauge${run ? (G.ok ? ' ok' : ' no') : ' wait'}"><span class="wt-gn">${esc(kids() ? G.k : G.n)}</span>
+      <em class="wt-gbar"><u style="width:${run ? pct(G.value) : 0}%"></u><s style="inset-inline-start:${pct(G.target)}%"></s></em>
+      <span class="wt-gv">${run ? `<b>${G.value}</b> ${esc(U)}` : W('עוד לא נמדד', 'עוֹד לֹא מָדַדְנוּ')}</span>
+      <small>${W('הלקוח צריך', 'צָרִיךְ')} ${G.better === 'up' ? W('לפחות', 'לְפָחוֹת') : W('לכל היותר', 'לֹא יוֹתֵר מִ')} ${G.target} ${esc(U)}</small></div>`;
+  }
   function testHTML() {
     const order = ctx.order(), sc = last, need = order ? order.tests : null;
     const S = order ? (readWs().orders[order.id] || { versions: [] }) : null;
     const vers = S && S.versions.length ? `<div class="wt-vers">${S.versions.map((v, i) => `<span title="${HEB[i] || i + 1}"><b>${HEB[i] || i + 1}</b>${Object.keys(need).map((t) => `<i style="--h:${Math.round((v.sc[t] || 0))}%" class="${(v.sc[t] || 0) >= need[t] ? 'ok' : ''}"></i>`).join('')}</span>`).join('')}</div>` : '';
     return `<div class="wt">${ticketHTML(order, sc)}
-      <div class="wt-row"><div class="wt-stagebox"><canvas class="wt-stage"></canvas><div class="wt-verdict">${verdict ? verdict : ''}</div><div class="wt-pname">${esc(name)}</div></div>
+      <div class="wt-row"><div class="wt-stagebox"><canvas class="wt-stage"></canvas><div class="wt-verdict">${verdict ? verdict : ''}</div><div class="wt-pname">${esc(name)}</div><div class="wt-info">${gaugeHTML(order)}${whyHTML()}</div></div>
       <div class="wt-side"><div class="wt-stations">${TESTS.map((t) => { const s = sc[t.id], min = need ? need[t.id] : null, pass = s != null && s >= (min || PASS);
-        return `<button type="button" class="wt-st${need && min == null ? ' dim' : ''}${need && min != null ? ' want' : ''}${s != null ? (pass ? ' ok' : ' no') : ''}" data-wtrun="${t.id}" ${running ? 'disabled' : ''}>${testSVG(t.id)}<span><b>${esc(nm(t))}</b><small>${esc(kids() ? t.kd : t.d)}</small></span>
+        return `<button type="button" class="wt-st${need && min == null ? ' dim' : ''}${need && min != null ? ' want' : ''}${s != null ? (pass ? ' ok' : ' no') : ''}" data-wtrun="${t.id}" ${running ? 'disabled' : ''}>${testSVG(t.id)}<span><b>${esc(nm(t))}</b><small>${s != null ? qty(t.id, s) : esc(kids() ? t.kd : t.d)}</small></span>
           <em class="wt-bar"><u style="width:${s != null ? s : 0}%"></u>${min != null ? `<s style="inset-inline-start:${min}%"></s>` : `<s style="inset-inline-start:${PASS}%" class="std"></s>`}</em><strong>${s != null ? s : ''}</strong></button>`; }).join('')}</div>
         <div class="wt-acts"><button type="button" class="wt-all" data-wtall ${running ? 'disabled' : ''}>${icon('play')} ${need ? W('הבדיקות של ההזמנה', 'לִבְדֹּק הַכֹּל') : W('כל שש הבדיקות', 'לִבְדֹּק הַכֹּל')}</button>
           <button type="button" class="wt-back" data-wtbuild>${icon('pencil')} ${W('לשפר', 'לְשַׁפֵּר')}</button></div>${vers}</div></div></div>`;
@@ -122,7 +142,7 @@ export function createBench(ctx) {
       const min = order && order.tests[t] != null ? order.tests[t] : PASS, pass = sc[t] >= min;
       const T0 = TESTS.find((x) => x.id === t);
       if (stage) { stage.spin(false); await stage.play(t, pass); }
-      last[t] = sc[t]; results.push({ id: t, score: sc[t], pass });
+      last[t] = sc[t]; lastT = t; results.push({ id: t, score: sc[t], pass });
       verdict = pass ? `<b class="ok">${W('עבר!', 'עָבַר!')}</b>` : `<b class="no">${esc(kids() ? T0.failK : T0.failF)}</b>`;
       ctx.sfx(pass ? 'good' : 'pop'); ctx.act(pass ? 'cheer' : (Math.random() < 0.4 ? 'fuse' : 'excited'));
       repaintTest();
@@ -168,7 +188,7 @@ export function createBench(ctx) {
     }
     if (d.wbname != null) { nameI++; freshName(); ctx.sfx('click'); ctx.act('excited'); repaintBuild(); return true; }
     if (d.wbgo != null) { ctx.sfx('click'); ctx.go('test'); return true; }
-    if (d.wbdrop != null) { ctx.setOrder(null); last = {}; verdict = null; if (mainEl && mainEl.querySelector('.wt')) repaintTest(); else repaintBuild(); return true; }
+    if (d.wbdrop != null) { ctx.setOrder(null); last = {}; verdict = null; lastT = null; if (mainEl && mainEl.querySelector('.wt')) repaintTest(); else repaintBuild(); return true; }
     if (d.wtrun) { run([d.wtrun]); return true; }
     if (d.wtall != null) { const o = ctx.order(); run(o ? Object.keys(o.tests) : TESTS.map((t) => t.id)); return true; }
     if (d.wtbuild != null) { ctx.sfx('click'); ctx.go('build'); return true; }
@@ -177,9 +197,9 @@ export function createBench(ctx) {
   return {
     build, test, leave, click, pic: (n) => (stage ? stage.snapshot(n) : ''),
     setProto, get proto() { return proto; }, get name() { return name; },
-    resetRun: () => { last = {}; verdict = null; },
+    resetRun: () => { last = {}; verdict = null; lastT = null; },
     run: (list) => run(list),
-    state: () => ({ proto, tab, name, running, last: { ...last }, sc: scores(proto), evidence: [...evidence.passed] }),
+    state: () => ({ proto, tab, name, running, last: { ...last }, sc: scores(proto), evidence: [...evidence.passed], lastT, gauge: ctx.order() ? gaugeOf(proto, ctx.order()) : null, why: lastT ? reasons(proto, lastT) : null }),
   };
 }
 // the nature cards a child owns that bring an add-on (the drawer marks them; the album takes part)

@@ -5,6 +5,7 @@
 //   protoOk(proto) → a proto with known pieces only (an old save may hold a piece that no longer exists)
 // A proto: { shape, mat, add: [addon ids] (at most MAX_ADDONS, no repeats) }
 import { TESTS, TEST_IDS, shapeOf, materialOf, addonOf, MAX_ADDONS } from '../data/workshop/build-parts.js';
+import { UNITS, GAUGES } from '../data/workshop/gauges.js';
 
 export const PASS = 60;
 const BASE = 30;
@@ -34,4 +35,26 @@ export function checkOrder(proto, order) {
   const nature = hasNature(p);
   const missing = [...(nature ? [] : ['nature']), ...(need ? [] : ['need']), ...tests.filter((t) => !t.pass).map((t) => t.id)];
   return { ok: !missing.length, tests, need, nature, missing };
+}
+// ── the quantities and the reasons (5.11, Avi: "real quantities, from a simple model, with a clear reason")
+// unitOf(test, score) → { value, unit... } the station's score as a quantity (src/data/workshop/gauges.js UNITS)
+export function unitOf(test, score) { const U = UNITS[test]; return U ? { ...U, value: U.f(score) } : null; }
+// gaugeOf(proto, order) → the client's own quantity now and the target it must reach (the same line at the order's minimum)
+export function gaugeOf(proto, order) {
+  if (!order || !order.g) return null;
+  const [id, test0] = Array.isArray(order.g) ? order.g : [order.g, null];
+  const G = GAUGES[id]; if (!G) return null;
+  const test = test0 || Object.keys(order.tests)[0];
+  const p = protoOk(proto), sc = scores(p)[test], has = (a) => p.add.includes(a);
+  const needHas = (a) => has(a) || (order.need || []).includes(a);
+  const value = G.f(sc, has), target = G.f(order.tests[test], needHas);
+  const ok = G.better === 'up' ? value >= target : value <= target;
+  return { id, test, ...G, value, target, ok };
+}
+// reasons(proto, test) → which pieces helped and which got in the way, biggest first ({ id, kind, v })
+export function reasons(proto, test) {
+  const p = protoOk(proto);
+  const parts = [{ id: p.shape, kind: 'shape', v: shapeOf(p.shape).fx[test] || 0 }, { id: p.mat, kind: 'mat', v: materialOf(p.mat).fx[test] || 0 },
+    ...p.add.map((a) => ({ id: a, kind: 'add', v: addonOf(a).fx[test] || 0 }))];
+  return { plus: parts.filter((x) => x.v > 0).sort((a, b) => b.v - a.v), minus: parts.filter((x) => x.v < 0).sort((a, b) => a.v - b.v) };
 }

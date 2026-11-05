@@ -2,7 +2,8 @@
 // drawn by hand, clients from the islands with their album paintings); a ticket opens with the need, the tests and a
 // hint from nature. A prototype that passes becomes a patent: ניצוץ stamps a certificate with its picture and name.
 // At the fair the child's patents stand on a stall; animals from the islands come by and say what they think, and
-// three judges give a star each: רובו־דע (kind to nature: quiet), קוּבִּי (it works, with room to spare), ניצוץ (original).
+// three judges give a star each: רובו־דע (kind to nature: quiet), קוּבִּי (it works, with room to spare), ניצוץ (original:
+// a combination of nature ideas the child has not patented before).
 //   const O = createOffice(ctx)   O.orders(main) · O.patents(main) · O.fair(main) · O.ceremony(order, proto, sc, name, pic) · O.click(b)
 import { ORDERS, orderOf } from '../data/workshop/orders.js';
 import { TESTS, addonOf } from '../data/workshop/build-parts.js';
@@ -29,8 +30,11 @@ export function judge(P) {
   const sc = P.sc || {}, o = P.order && orderOf(P.order);
   const robo = (sc.noise || 0) >= 50;
   const kubi = o ? Object.entries(o.tests).every(([t, min]) => (sc[t] || 0) >= min + 5) : Object.values(sc).filter((v) => v >= 60).length >= 4;
-  const nature = (P.proto && P.proto.add || []).filter((a) => (addonOf(a) || {}).kind === 'nature').length;
-  const nitz = nature >= 2 || (P.proto && P.proto.add || []).length >= 4;
+  // ניצוץ's star (5.11, Avi: never from the number of parts): an idea from nature put together in a way this child has
+  // not patented before (the set of nature ideas is new among his earlier patents)
+  const natOf = (x) => ((x.proto && x.proto.add) || []).filter((a) => (addonOf(a) || {}).kind === 'nature').sort().join('+');
+  const mine = natOf(P);
+  const nitz = !!mine && !readWs().patents.some((x) => x.no < P.no && natOf(x) === mine);
   return { robo, kubi, nitz, n: (robo ? 1 : 0) + (kubi ? 1 : 0) + (nitz ? 1 : 0) };
 }
 
@@ -108,7 +112,7 @@ export function createOffice(ctx) {
         <div class="wf-judges">
           ${jd(ROBO_ART.frames['idle-happy'] || ROBO_ART.frames['idle-normal'], J.robo, W('רובו־דע', 'רוֹבּוֹ־דַּע'), W('טוב לטבע: שקט', 'שָׁקֵט לַחַיּוֹת'))}
           ${jd(KUBI_ART.frames.idle, J.kubi, W('קוּבִּי', 'קוּבִּי'), W('עובד, ויש עוד מקום', 'עוֹבֵד חָזָק'))}
-          ${jd(NITZOTZ_ART.frames.idea || NITZOTZ_ART.frames.idle, J.nitz, W('ניצוץ', 'נִיצוֹץ'), W('מקורי: הרבה טבע', 'מְקוֹרִי!'))}</div></div></div>`;
+          ${jd(NITZOTZ_ART.frames.idea || NITZOTZ_ART.frames.idle, J.nitz, W('ניצוץ', 'נִיצוֹץ'), W('מקורי: שילוב חדש מהטבע', 'שִׁלּוּב חָדָשׁ!'))}</div></div></div>`;
   }
   function fair(main) { main.innerHTML = fairHTML(); const L = readWs().patents; const P = L.find((x) => x.no === fairNo); if (P) { const J = judge(P); if ((P.stars || 0) !== J.n) setStars(P.no, J.n); ctx.act(J.n >= 2 ? 'cheer' : 'happy'); ctx.after(); } }
 

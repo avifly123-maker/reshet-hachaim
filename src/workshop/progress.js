@@ -1,4 +1,5 @@
-// ניצוץ's workshop: what a child did there, and the four measures of creative thinking (1.4.4 set 3; Avi, 4.11):
+// ניצוץ's workshop: what a child did there, and the thinking methods he tried (1.4.4 set 3; Avi, 4.11; shown since 5.11
+// as "התנסות בשיטות חשיבה", with simplifying, keeping a constraint and improving between versions):
 //   fluency (שטף): how many ideas;  flexibility (גמישות): from how many kinds (ideas.js CATS);
 //   originality (מקוריות): a pair the child never tried before, a far lever, a wild trait in the mixer;
 //   elaboration (פירוט ושיפור): "worth improving", and one thing turned many ways.
@@ -8,9 +9,10 @@
 // The list keeps the newest 400 ideas; the counters keep counting (n*).
 import { K, readPlayer, writePlayer } from '../core/storage.js';
 import { CATS } from '../data/workshop/ideas.js';
+import { orderOf } from '../data/workshop/orders.js';
 
 const FAR = new Set(['remove', 'material', 'reuse', 'nature']);   // the levers that move far from the thing
-const blank = () => ({ v: 1, ideas: [], tried: {}, rounds: {}, proto: null, orders: {}, patents: [], n: { ideas: 0, orig: 0, improve: 0, works: 0, funny: 0, mixWorks: 0, mixWild: 0, tests: 0, fails: 0, allSix: 0 } });
+const blank = () => ({ v: 1, ideas: [], tried: {}, rounds: {}, proto: null, orders: {}, patents: [], n: { ideas: 0, orig: 0, improve: 0, works: 0, funny: 0, mixWorks: 0, mixWild: 0, tests: 0, fails: 0, allSix: 0, simplify: 0, better: 0 } });
 export function readWs() {
   const o = readPlayer(K.workshop, null);
   if (!o || typeof o !== 'object') return blank();
@@ -50,15 +52,18 @@ export function roundDone(id, ms) {
 export const crazyBox = () => readWs().ideas.filter((x) => x.r === 'funny' || x.fun);
 
 // the four measures, each with its value and a level 0..1 for the meters
-const CAP = { fluency: 60, flexibility: Object.keys(CATS).length, originality: 60, elaboration: 20 };
+const CAP = { fluency: 60, flexibility: Object.keys(CATS).length, originality: 60, elaboration: 20, simplify: 6, constraint: 15 };
 export function measures(o = readWs()) {
   const kinds = new Set(o.ideas.map((x) => x.cat).filter(Boolean));
   const byThing = {};
   for (const x of o.ideas) if (x.at === 'machine') (byThing[x.th] = byThing[x.th] || new Set()).add(x.lv);
   const deep = Object.values(byThing).filter((s) => s.size >= 3).length;
-  const v = { fluency: o.n.ideas, flexibility: kinds.size, originality: o.n.orig, elaboration: o.n.improve + deep };
+  // elaboration (שיפור): ideas marked "worth improving", one thing turned many ways, and versions clearly better than the one before
+  // simplify (פישוט): a version with fewer pieces that still does the job;  constraint (עמידה באילוץ): constraint-card rounds done
+  const constraint = Object.values(o.rounds).reduce((a, R) => a + (R.n || 0), 0);
+  const v = { fluency: o.n.ideas, flexibility: kinds.size, originality: o.n.orig, elaboration: o.n.improve + deep + (o.n.better || 0), simplify: o.n.simplify || 0, constraint };
   const lv = Object.fromEntries(Object.entries(v).map(([k, x]) => [k, Math.min(1, x / CAP[k])]));
-  return { ...v, level: lv, glow: (lv.fluency + lv.flexibility + lv.originality + lv.elaboration) / 4 };
+  return { ...v, level: lv, glow: Object.values(lv).reduce((a, x) => a + x, 0) / Object.keys(lv).length };
 }
 
 // the badges a state has reached (earn keys of src/data/badges.js, group 'workshop')
@@ -96,6 +101,16 @@ export function recordTests(results, { orderId = null, proto = null } = {}) {
     const lastV = S.versions[S.versions.length - 1];
     if (!lastV || JSON.stringify(lastV.proto) !== JSON.stringify(proto)) S.versions.push({ proto, sc, t: Date.now() });
     else lastV.sc = { ...lastV.sc, ...sc };
+    // thinking methods (5.11, Avi): a clear improvement over the version before, and a simpler version that still works.
+    // Each version counts once for each, and only when every test of the order was run on it.
+    const O = orderOf(orderId), V = S.versions[S.versions.length - 1], prev = S.versions[S.versions.length - 2];
+    if (O && V) {
+      const keys = Object.keys(O.tests), full = (x) => x && keys.every((t) => x.sc[t] != null);
+      const sum = (x) => keys.reduce((a, t) => a + x.sc[t], 0), parts = (x) => ((x.proto && x.proto.add) || []).length;
+      const passes = (x) => keys.every((t) => x.sc[t] >= O.tests[t]);
+      if (full(V) && full(prev) && !V.bt && sum(V) >= sum(prev) + 10) { V.bt = 1; o.n.better++; }
+      if (full(V) && !V.sp && passes(V) && S.versions.slice(0, -1).some((x) => full(x) && parts(x) > parts(V))) { V.sp = 1; o.n.simplify++; }
+    }
     if (S.versions.length > 8) S.versions.splice(0, S.versions.length - 8);
     o.orders[orderId] = S;
   }

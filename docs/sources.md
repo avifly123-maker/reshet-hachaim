@@ -962,6 +962,16 @@ The test hall's numbers are game logic (a simple sum, like the robot workshop's 
 - **Scorpion glow** (`uvglow`, order bank): scorpions glow blue-green under ultraviolet light (Stachel et al. 1999); banknotes carry marks that show only under such light.
 - **Beehive fences** (`buzz`, order elephants): elephants avoid the sound and stings of bees; beehive fences protect farms in Kenya (King, Douglas-Hamilton & Vollrath, Afr. J. Ecol. 2011).
 
+### הזמנות חדשות (5.11 בערב, אבי: חמש מהעולם וחמש מהאיים)
+
+- טורבינת רוח שקטה (turbine): השוליים המשוננים בקצה הקדמי של כנף התנשמת שולטים בזרימת האוויר ומנמיכים רעש; החוקרים מציעים זאת לכנפי טורבינות רוח ולרחפנים. Rao et al., Bioinspiration & Biomimetics 2017; https://www.sciencedaily.com/releases/2017/07/170704093621.htm
+- אורות נגד אריות (lionlights): ריצ׳רד טורר מקניה התקין נורות מהבהבות סביב הדיר, והאריות חושבים שמישהו מסתובב עם פנס ומתרחקים. היום המערכת בשימוש באלפי משקים. https://www.wipo.int/web/wipo-magazine/articles/lion-lights-shedding-light-on-wildlife-protection-in-africa-63983 , https://www.epo.org/en/news-events/european-inventor-award/meet-the-finalists/richard-turere
+- תיבות קינון לתוכי ארה (macaw): פרויקט טמבופטה בפרו תולה תיבות קינון מעץ ומצינורות פלסטיק, והתוכים מקננים בהן כמו בחורים טבעיים. Olah et al., Journal for Nature Conservation 22 (2014) 176–185; https://conservationevidencejournal.com/individual-study/110
+- משתלת אלמוגים צפה (nursery): באילת גידלו אלפי שברי אלמוגים ענפים במשתלה צפה בעומק 6 מטרים, ואחר כך שתלו אותם בשונית. Shafir, Van Rijn, Rinkevich, Marine Biology 149 (2006); https://cris.huji.ac.il/en/publications/steps-in-the-construction-of-underwater-coral-nursery-an-essentia/
+- תחנת אוטובוס (busstop): מרכז איסטגייט בהרארה מתקרר בזרימת אוויר במנהרות, בהשראת תל הטרמיטים (כמו בהזמנה office שכבר כאן).
+- חבילה מרחפן (dronebox), כיסא גלגלים בחוף (beachchair), אופניים בלילה (bikelight), קיפודים בבריכה (pondramp), שוקת לקטה (sandgrouse): בעיות יומיומיות; הרעיון מהטבע בכל אחת כבר מתועד למעלה (חלת דבש, כף רגל של גמל, עיני חתול וגחלילית, צלעות ויקטוריה ופתי יניקה, אוזני הפנק).
+- המספרים של הלקוח (src/data/workshop/gauges.js) הם מודל פשוט בכוונה: קו ישר מהציון של התחנה. הם לא מדידה אמיתית, הם עוזרים לילד לדמיין מה הציון אומר.
+
 ## התקלה במעבדה (1.4.4 set 5, src/data/weekly/glitch.js)
 
 Each creature's home is its album card's zone (sourced with the cards). The needs on the screen:

@@ -42,11 +42,14 @@ const PLACES = [
   { id: 'test', n: 'אולם הבדיקות', k: 'אוּלַם הַבְּדִיקוֹת' },
   { id: 'patent', n: 'משרד הפטנטים', k: 'מִשְׂרַד הַפָּטֶנְטִים' },
 ];
+// התנסות בשיטות חשיבה (5.11, Avi: present the measures as thinking methods a child tries, not as grades)
 const MEASURES = [
-  { id: 'fluency', n: 'שטף', k: 'רַעְיוֹנוֹת', d: 'כמה רעיונות' },
-  { id: 'flexibility', n: 'גמישות', k: 'סוּגִים', d: 'מכמה סוגים' },
-  { id: 'originality', n: 'מקוריות', k: 'חֲדָשִׁים', d: 'כמה חדשים ומפתיעים' },
-  { id: 'elaboration', n: 'שיפור', k: 'שִׁפּוּרִים', d: 'כמה שיפרתם' },
+  { id: 'fluency', n: 'הרבה רעיונות', k: 'הַרְבֵּה רַעְיוֹנוֹת', d: 'לחשוב על הרבה רעיונות בלי לעצור' },
+  { id: 'flexibility', n: 'מכמה כיוונים', k: 'מִכַּמָּה כִּוּוּנִים', d: 'רעיונות מסוגים שונים' },
+  { id: 'originality', n: 'רעיון מפתיע', k: 'רַעְיוֹן מַפְתִּיעַ', d: 'שילוב שעוד לא ניסיתם' },
+  { id: 'elaboration', n: 'משפרים גרסה', k: 'מְשַׁפְּרִים', d: 'גרסה חדשה שטובה בבירור מהקודמת' },
+  { id: 'simplify', n: 'מפשטים', k: 'מְפַשְּׁטִים', d: 'פחות חלקים, והוא עדיין עובד' },
+  { id: 'constraint', n: 'עם אילוץ', k: 'עִם כְּלָל', d: 'עמדתם בקלף אילוץ' },
 ];
 const RATE = [['works', 'עובד!', 'עוֹבֵד!'], ['funny', 'מצחיק', 'מַצְחִיק'], ['improve', 'שווה לשפר', 'שָׁוֶה לְשַׁפֵּר']];
 const LEVER_IC = { grow: 'M4 20h4M4 20v-4M20 4h-4M20 4v4M5 19l5-5M19 5l-5 5', shrink: 'M10 14H6M10 14v4M14 10h4M14 10V6M10 14l-5 5M14 10l5-5',
@@ -130,7 +133,7 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
   function paintBoard() {
     const b = el.querySelector('.ws-board'); if (!b) return;
     const m = measures();
-    b.innerHTML = `<h3>${W('לוח הניצוצות', 'לוּחַ הַנִּיצוֹצוֹת')}</h3>${MEASURES.map((x) => `<div class="ws-meter" data-m="${x.id}" title="${esc(x.d)}"><span>${esc(kids ? x.k : x.n)}</span><i><u style="width:${Math.round(m.level[x.id] * 100)}%"></u></i><b>${m[x.id]}</b></div>`).join('')}
+    b.innerHTML = `<h3>${W('התנסות בשיטות חשיבה', 'שִׁיטוֹת חֲשִׁיבָה')}</h3>${MEASURES.map((x) => `<div class="ws-meter" data-m="${x.id}" title="${esc(x.d)}"><span>${esc(kids ? x.k : x.n)}</span><i><u style="width:${Math.round(m.level[x.id] * 100)}%"></u></i><b>${m[x.id]}</b></div>`).join('')}
       <button type="button" class="ws-crazy" data-wscrazy>${icon('sparkle')}${W('תיבת השיגעונות', 'תֵּבַת הַשִּׁגְעוֹנוֹת')} <b>${crazyBox().length}</b></button>`;
     const lamp = el.querySelector('.ws-nzbox'); if (lamp) lamp.style.setProperty('--glow', String(0.25 + m.glow * 0.75));
   }

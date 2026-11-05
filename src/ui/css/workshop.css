@@ -27,7 +27,7 @@
 #ui.wol .ws-nz { position: relative; z-index: 1; display: block; width: 100%; height: 100%; }
 #ui.wol .ws-board { padding: 6px 9px 7px; border-radius: 12px; background: linear-gradient(#fffaf0, #f4e4c6); box-shadow: 0 3px 0 #8a5a2a, inset 0 0 0 1.5px #e8cfa3; font-size: .8em; }
 #ui.wol .ws-board h3 { margin: 0 0 3px; font-family: var(--serif); font-size: 1.02em; color: #a04f12; }
-#ui.wol .ws-meter { display: grid; grid-template-columns: 4.4em 1fr 2em; align-items: center; gap: 5px; margin: 2px 0; }
+#ui.wol .ws-meter { display: grid; grid-template-columns: 6.6em 1fr 2em; align-items: center; gap: 5px; margin: 2px 0; }
 #ui.wol .ws-meter i { height: 9px; border-radius: 6px; background: #e6d2ae; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0, 0, 0, .2); }
 #ui.wol .ws-meter u { display: block; height: 100%; border-radius: 6px; background: linear-gradient(90deg, #ffe066, #ff9a2a); transition: width .6s cubic-bezier(.3, 1.4, .5, 1); box-shadow: 0 0 6px #ffc040; }
 #ui.wol .ws-meter b { text-align: left; color: #8a4a12; }
@@ -395,3 +395,20 @@
 
 /* the music button sits in the corner of the screen; inside the workshop it would cover the buttons */
 #ui.wol:has(> .ws:not([hidden])) > .mus-btn { display: none !important; }
+/* 5.11 (Avi): the client's own number and the reason, over the test stage */
+#ui.wol .wt-info { position: absolute; inset-inline: 8px; bottom: 30px; display: flex; flex-direction: column; gap: 5px; pointer-events: none; }
+#ui.wol .wt-gauge { display: grid; grid-template-columns: auto 1fr auto; grid-template-areas: "n bar v" "s s s"; align-items: center; gap: 2px 8px; padding: 6px 10px; border-radius: 14px; background: rgba(255, 255, 255, .92); box-shadow: 0 3px 0 rgba(30, 50, 70, .35); }
+#ui.wol .wt-gn { grid-area: n; font-family: var(--serif); font-size: .95em; color: #2a4a62; }
+#ui.wol .wt-gv { grid-area: v; font-size: .9em; color: #2a4a62; white-space: nowrap; } #ui.wol .wt-gv b { font-size: 1.35em; font-family: var(--serif); }
+#ui.wol .wt-gauge small { grid-area: s; font-size: .72em; color: #5a7a92; }
+#ui.wol .wt-gbar { grid-area: bar; position: relative; height: 12px; border-radius: 7px; background: #d8e6f0; }
+#ui.wol .wt-gbar u { display: block; height: 100%; border-radius: 7px; background: linear-gradient(90deg, #ffb04a, #ffd24a); transition: width .8s cubic-bezier(.3, 1.3, .5, 1); }
+#ui.wol .wt-gauge.ok .wt-gbar u { background: linear-gradient(90deg, #3a9a6a, #7cd8a0); } #ui.wol .wt-gauge.no .wt-gbar u { background: linear-gradient(90deg, #e8574a, #ff9a8a); }
+#ui.wol .wt-gbar s { position: absolute; top: -4px; bottom: -4px; width: 4px; border-radius: 2px; background: #2a3a4a; }
+#ui.wol .wt-gauge.ok { box-shadow: 0 0 0 3px #3a9a6a, 0 3px 0 rgba(30, 50, 70, .35); }
+#ui.wol .wt-why { padding: 5px 10px; border-radius: 14px; background: rgba(42, 58, 74, .88); color: #fff; font-size: .8em; line-height: 1.35; }
+#ui.wol .wt-why b { font-family: var(--serif); font-weight: 400; color: #ffd24a; }
+#ui.wol .wt-why p { margin: 2px 0 0; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+#ui.wol .wt-why em { font-style: normal; opacity: .85; }
+#ui.wol .wt-why span { padding: 1px 8px; border-radius: 10px; } #ui.wol .wt-why span small { font-weight: 700; }
+#ui.wol .wt-why span.up { background: #2f7a54; } #ui.wol .wt-why span.down { background: #a8443a; }

@@ -423,6 +423,48 @@ def piece(id_):
         cut = box('hcut', (1.2, 1.2, 0.5), (0, 0, -0.19), DARK(), 0.0); m.object = cut; cut.hide_render = True
         for i in range(3): box(f'vent{i}', (0.05, 0.22, 0.03), (-0.12 + i * 0.12, 0, 0.33), DARK(), 0.01)
         torus('hrim', 0.355, 0.02, (0, 0, 0.065), DARK(), (0, 0, 0)).scale = (1.05, 0.9, 1)
+    # 5.11 evening: the five new world clients (no crosses: three rotor arms, wheels without spokes)
+    elif id_ == 'c_busstop':
+        for x in (-0.3, 0.3): cyl(f'bp{x}', 0.022, 0.62, (x, 0.12, 0.31), STEEL())
+        box('broof', (0.78, 0.36, 0.04), (0, 0.02, 0.64), enamel('#3f7fd0', 'blkb'), 0.02, (math.radians(-6), 0, 0))
+        box('bback', (0.66, 0.02, 0.4), (0, 0.13, 0.36), clear_glass('bglass', (0.8, 0.92, 1.0), 0.12), 0.004)
+        box('bench', (0.5, 0.14, 0.04), (0, 0.04, 0.2), wood('#c58a4a', 'benchw'), 0.01)
+        for x in (-0.2, 0.2): box(f'bl{x}', (0.03, 0.1, 0.18), (x, 0.04, 0.09), DARK(), 0.005)
+        cyl('bsign', 0.012, 0.75, (0.48, -0.05, 0.375), STEEL()); cyl('bdisc', 0.09, 0.02, (0.48, -0.05, 0.76), enamel('#2f9a5a', 'bsignc'), (math.pi / 2, 0, 0), bevel=0.005)
+        sphere('bsun', 0.07, (-0.42, -0.2, 0.92), pbsdf('sunb', hexc('#ffd24a'), emit=hexc('#ffb020'), estr=6))
+    elif id_ == 'c_dronebox':
+        box('dbox', (0.34, 0.34, 0.26), (0, 0, 0.13), noisy('#c9a878', '#b0905e', 40, 'carton'), 0.02)
+        for i in range(3):
+            for j in range(2): cyl(f'hx{i}{j}', 0.045, 0.012, (-0.1 + i * 0.1, -0.172, 0.08 + j * 0.1), noisy('#b0905e', '#9a7a4a', 40, 'carton2'), (math.pi / 2, 0, 0), verts=6, bevel=0.003)
+        cyl('dbody', 0.1, 0.06, (0, 0, 0.62), enamel('#e0443a', 'redknob'), bevel=0.02)
+        for k in range(3):
+            a = k * 2 * math.pi / 3 + 0.3; ex, ey = math.cos(a) * 0.3, math.sin(a) * 0.3
+            box(f'darm{k}', (0.3, 0.03, 0.02), (ex / 2, ey / 2, 0.62), DARK(), 0.008, (0, 0, a))
+            cyl(f'drot{k}', 0.11, 0.008, (ex, ey, 0.65), pbsdf('rotor', hexc('#9fd8f0'), rough=0.2, alpha=0.6), bevel=0.002)
+        for k in range(3):
+            a = k * 2 * math.pi / 3; tube(f'dline{k}', [(math.cos(a) * 0.06, math.sin(a) * 0.06, 0.6), (math.cos(a) * 0.15, math.sin(a) * 0.15, 0.27)], 0.006, DARK())
+    elif id_ == 'c_turbine':
+        cyl('tmast', 0.04, 1.0, (0, 0, 0.5), pbsdf('tmw', hexc('#f2efe6'), rough=0.4), r2=0.025)
+        box('tnac', (0.08, 0.2, 0.08), (0, 0.02, 1.0), pbsdf('tmw', hexc('#f2efe6'), rough=0.4), 0.03)
+        sphere('thub', 0.05, (0, -0.1, 1.0), pbsdf('tmw', hexc('#f2efe6'), rough=0.4), (1, 1.2, 1))
+        for k in range(3):
+            a = k * 2 * math.pi / 3 + 0.4
+            o = box(f'tbl{k}', (0.06, 0.012, 0.46), (math.sin(a) * 0.24, -0.12, 1.0 + math.cos(a) * 0.24), pbsdf('tmw', hexc('#f2efe6'), rough=0.4), 0.006, (0, a, 0))
+        box('tgrass', (0.9, 0.6, 0.03), (0, 0.1, 0.0), noisy('#7ab85a', '#5a9a3a', 50, 'tgr'), 0.01)
+    elif id_ == 'c_beachchair':
+        box('csand', (0.9, 0.7, 0.03), (0, 0, 0.0), noisy('#ecc98a', '#d4a860', 60, 'jdesert'), 0.01)
+        for y in (-0.2, 0.2): torus(f'cw{y}', 0.2, 0.035, (0, y, 0.2), RUBBER(), (math.pi / 2, 0, 0)); cyl(f'chub{y}', 0.04, 0.04, (0, y, 0.2), STEEL(), (math.pi / 2, 0, 0))
+        box('cseat', (0.3, 0.36, 0.04), (0.04, 0, 0.32), enamel('#3f7fd0', 'blkb'), 0.02)
+        box('cback', (0.04, 0.36, 0.3), (-0.1, 0, 0.48), enamel('#3f7fd0', 'blkb'), 0.02, (0, math.radians(-10), 0))
+        for y in (-0.17, 0.17): tube(f'cfr{y}', [(-0.12, y, 0.62), (-0.1, y, 0.32), (0.2, y, 0.3), (0.26, y, 0.1)], 0.012, STEEL())
+        sphere('cfw', 0.05, (0.28, 0, 0.06), RUBBER())
+    elif id_ == 'c_bike':
+        for x in (-0.3, 0.3): torus(f'kw{x}', 0.2, 0.025, (x, 0, 0.22), RUBBER(), (math.pi / 2, 0, 0)); cyl(f'khub{x}', 0.035, 0.05, (x, 0, 0.22), STEEL(), (math.pi / 2, 0, 0))
+        tube('kfr', [(-0.3, 0, 0.22), (-0.05, 0, 0.24), (0.15, 0, 0.48), (-0.12, 0, 0.46), (-0.05, 0, 0.24)], 0.018, enamel('#2f9a5a', 'bsignc'))
+        tube('kfork', [(0.3, 0, 0.22), (0.18, 0, 0.5), (0.16, 0, 0.58)], 0.016, enamel('#2f9a5a', 'bsignc'))
+        box('ksad', (0.12, 0.06, 0.03), (-0.14, 0, 0.52), DARK(), 0.015); tube('kbar', [(0.12, -0.12, 0.6), (0.16, 0, 0.58), (0.12, 0.12, 0.6)], 0.014, DARK())
+        sphere('klamp', 0.04, (0.24, 0, 0.5), pbsdf('klmp', hexc('#fff4c0'), emit=hexc('#fff0a0'), estr=8))
+        sphere('kref', 0.03, (-0.34, 0, 0.42), pbsdf('cateye', hexc('#e8574a'), metal=1, rough=0.05, emit=hexc('#ff6a50'), estr=3), (1, 0.5, 1))
     return 0.5
 
 # ── the seven places of the room (each a small scene)
@@ -615,7 +657,7 @@ def _fit(view=(1.3, -2.2, 1.25), k=2.25):
     studio(tuple(ctr), tuple(ctr + Vector(view).normalized() * size * k), 50)
 for _id in ('p_box', 'p_ball', 'p_tube', 'p_cone', 'p_plate', 'p_dome', 'm_spring', 'm_wheel', 'm_pipe', 'm_pump', 'm_fan', 'm_chute',
             's_wind', 's_water', 's_heat', 's_sand', 's_drop', 's_noise',
-            'c_road', 'c_phone', 'c_slide', 'c_eggs', 'c_roof', 'c_ship', 'c_school', 'c_building', 'c_umbrella', 'c_tent', 'c_window', 'c_bank', 'c_train', 'c_library', 'c_helmet'):
+            'c_road', 'c_phone', 'c_slide', 'c_eggs', 'c_roof', 'c_ship', 'c_school', 'c_building', 'c_umbrella', 'c_tent', 'c_window', 'c_bank', 'c_train', 'c_library', 'c_helmet', 'c_busstop', 'c_dronebox', 'c_turbine', 'c_beachchair', 'c_bike'):
     def _mp(i=_id):
         def f(): piece(i); _fit(); return {}
         return f

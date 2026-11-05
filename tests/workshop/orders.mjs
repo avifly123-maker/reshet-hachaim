@@ -2,7 +2,8 @@
 // (no idea from nature) never passes: checked without a screen over every prototype the build table can make.
 import { ORDERS } from '../../src/data/workshop/orders.js';
 import { SHAPES, MATERIALS, ADDONS, MAX_ADDONS, addonOf } from '../../src/data/workshop/build-parts.js';
-import { checkOrder, scores } from '../../src/workshop/engine.js';
+import { checkOrder, scores, gaugeOf, reasons, unitOf } from '../../src/workshop/engine.js';
+import { GAUGES } from '../../src/data/workshop/gauges.js';
 import { NATURE_CARDS } from '../../src/data/workshop/nature-cards.js';
 
 let bad = 0; const err = (m) => { bad++; console.log('ERR ' + m); };
@@ -16,10 +17,13 @@ for (const a of ADDONS) if (a.card && !NATURE_CARDS.find((c) => c.id === a.card)
 const stats = [];
 for (const o of ORDERS) {
   if (o.lv === 1 && !/[ְ-ּ]/.test(o.k || '')) err(`${o.id}: a level-1 order needs beginners' words`);
+  if (!o.g) err(`${o.id}: no client quantity (g)`); else { const gid = Array.isArray(o.g) ? o.g[0] : o.g, gt = Array.isArray(o.g) ? o.g[1] : null; if (!GAUGES[gid]) err(`${o.id}: gauge ${gid}`); if (gt && o.tests[gt] == null) err(`${o.id}: gauge reads ${gt}, not one of its tests`); }
   if (o.need) for (const n of o.need) if (!addonOf(n)) err(`${o.id}: need ${n}`);
   let ok = 0, shapesOk = new Set(), natureOk = new Set(), smallest = 9;
   for (const s of SHAPES) for (const m of MATERIALS) for (const add of subsets) {
     const r = checkOrder({ shape: s.id, mat: m.id, add }, o);
+    const gg = gaugeOf({ shape: s.id, mat: m.id, add }, o);
+    if (gg && r.need && gg.ok !== (r.tests.find((t) => t.id === gg.test) || {}).pass) err(`${o.id}: the client's number and the test disagree (${s.id} ${m.id} ${add})`);
     if (r.ok) { ok++; shapesOk.add(s.id); add.forEach((a) => addonOf(a).kind === 'nature' && natureOk.add(a)); smallest = Math.min(smallest, add.length); }
   }
   if (shapesOk.size < 2) err(`${o.id}: works with only ${shapesOk.size} shape(s)`);
@@ -34,5 +38,8 @@ for (const t of ['wind', 'water', 'heat', 'sand', 'drop', 'noise']) {
   let lo = 100, hi = 0; for (const s of SHAPES) for (const m of MATERIALS) { const v = scores({ shape: s.id, mat: m.id, add: [] })[t]; lo = Math.min(lo, v); hi = Math.max(hi, v); }
   if (lo >= 60) err(`test ${t} never fails without add-ons`);
 }
+const R = reasons({ shape: 'cone', mat: 'metal', add: ['sharkskin'] }, 'wind');
+if (R.plus[0].id !== 'cone' || !R.plus.find((x) => x.id === 'sharkskin') || R.minus.length) err('reasons for wind');
+if (unitOf('heat', 100).value >= unitOf('heat', 0).value) err('heat inside must fall as the score rises');
 console.log(bad ? `workshop orders: ${bad} errors` : `workshop orders OK: ${ORDERS.length} orders, each with several working prototypes (fewest add-ons: ${stats.join(' ')})`);
 process.exit(bad ? 1 : 0);
