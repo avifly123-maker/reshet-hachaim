@@ -86,6 +86,7 @@ const { EXPLAIN, TUTORIAL } = await import('../src/research/explain-data.js');
 const { KIDS_EXPLAIN } = await import('../src/research/explain.js');
 const { BADGES } = await import('../src/data/badges.js');
 const { CARD_ART } = await import('../src/data/card-art.js');
+const { MEDAL_ART } = await import('../src/data/medal-art.js');
 for (const C of CASES) {
   const X = EXPLAIN[C.id];
   if (!X) { err(C.id, 'no explanations in src/research/explain-data.js'); continue; }
@@ -107,7 +108,7 @@ for (const C of CASES) {
   if (!BADGES.some((b) => b.earn === 'research:case:' + C.id)) err(C.id, 'no badge for this mystery (research:case:<id> in src/data/badges.js)');
 }
 for (const L of new Set(CASES.map((c) => c.level))) if (!BADGES.some((b) => b.earn === 'research:level:' + L)) err('badges', `no badge for the level ${L}`);
-for (const b of BADGES) if (!CARD_ART[b.art]) err('badges', `${b.id}: no card painting "${b.art}"`);
+for (const b of BADGES) if (b.rare ? !MEDAL_ART[b.rare.metal + '_' + b.rare.emblem] : !CARD_ART[b.art]) err('badges', `${b.id}: no ${b.rare ? 'medallion' : 'card painting'} "${b.art || ''}"`);
 for (const [k, s] of Object.entries(TUTORIAL)) if (!vocalised(s)) err('tutorial', `guided mystery text without full nikud: ${k} "${s}"`);
 for (const [k, s] of Object.entries(KIDS_EXPLAIN)) if (!vocalised(s)) err('explain', `beginner sentence without full nikud: ${k} "${s}"`);
 for (const e of errors) console.log('ERROR', e);
