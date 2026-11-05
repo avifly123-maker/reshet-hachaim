@@ -10,12 +10,12 @@ import { K, readPlayer, writePlayer } from '../core/storage.js';
 import { CATS } from '../data/workshop/ideas.js';
 
 const FAR = new Set(['remove', 'material', 'reuse', 'nature']);   // the levers that move far from the thing
-const blank = () => ({ v: 1, ideas: [], tried: {}, rounds: {}, n: { ideas: 0, orig: 0, improve: 0, works: 0, funny: 0, mixWorks: 0, mixWild: 0 } });
+const blank = () => ({ v: 1, ideas: [], tried: {}, rounds: {}, proto: null, orders: {}, patents: [], n: { ideas: 0, orig: 0, improve: 0, works: 0, funny: 0, mixWorks: 0, mixWild: 0, tests: 0, fails: 0, allSix: 0 } });
 export function readWs() {
   const o = readPlayer(K.workshop, null);
   if (!o || typeof o !== 'object') return blank();
   const b = blank();
-  return { ...b, ...o, ideas: Array.isArray(o.ideas) ? o.ideas : [], tried: o.tried || {}, rounds: o.rounds || {}, n: { ...b.n, ...(o.n || {}) } };
+  return { ...b, ...o, ideas: Array.isArray(o.ideas) ? o.ideas : [], tried: o.tried || {}, rounds: o.rounds || {}, orders: o.orders || {}, patents: Array.isArray(o.patents) ? o.patents : [], n: { ...b.n, ...(o.n || {}) } };
 }
 const save = (o) => { try { writePlayer(K.workshop, o); } catch (e) { /* the play goes on */ } };
 
@@ -73,6 +73,43 @@ export function earned(o = readWs()) {
   if (crazyBox().length >= 5) out.push('nz:crazy5');
   if (o.n.mixWorks >= 6) out.push('nz:mixer6');
   if (Object.keys(o.rounds).length >= 5) out.push('nz:cards5');
+  if (o.patents.length >= 1) out.push('nz:patent1');
+  if (o.patents.length >= 10) out.push('nz:patent10');
+  if (Object.values(o.orders).filter((x) => x.done).length >= 10) out.push('nz:orders10');
+  if (o.n.allSix >= 1) out.push('nz:allsix');
+  if (o.n.fails >= 10) out.push('nz:fails10');
+  if (o.patents.some((p) => (p.stars || 0) >= 3)) out.push('nz:fair3');
   return out;
 }
+// ── the build table and the test hall (set 4)
+// the prototype on the table, kept between visits
+export function saveProto(proto) { const o = readWs(); o.proto = proto; save(o); }
+// a run in the test hall: counts tests and failures (a failure is a celebration: badge at ten); an order's versions
+// (א', ב', ג'...) keep the scores of each tested prototype, so the child sees the improvement
+export function recordTests(results, { orderId = null, proto = null } = {}) {
+  const o = readWs();
+  o.n.tests += results.length; o.n.fails += results.filter((r) => !r.pass).length;
+  if (results.length === 6 && results.every((r) => r.pass)) o.n.allSix++;
+  if (orderId) {
+    const S = o.orders[orderId] || { versions: [], done: false };
+    const sc = Object.fromEntries(results.map((r) => [r.id, r.score]));
+    const lastV = S.versions[S.versions.length - 1];
+    if (!lastV || JSON.stringify(lastV.proto) !== JSON.stringify(proto)) S.versions.push({ proto, sc, t: Date.now() });
+    else lastV.sc = { ...lastV.sc, ...sc };
+    if (S.versions.length > 8) S.versions.splice(0, S.versions.length - 8);
+    o.orders[orderId] = S;
+  }
+  save(o);
+}
+export function orderState(id) { return readWs().orders[id] || { versions: [], done: false }; }
+export function markOrder(id, patch) { const o = readWs(); o.orders[id] = { ...(o.orders[id] || { versions: [], done: false }), ...patch }; save(o); }
+// a patent: { no, name, proto, order, sc, pic (a small picture), stars, t }; the newest 40 are kept with their pictures
+export function addPatent(p) {
+  const o = readWs();
+  const no = 101 + (o.n.patents || 0); o.n.patents = (o.n.patents || 0) + 1;
+  const P = { ...p, no, t: Date.now() };
+  o.patents.push(P); if (o.patents.length > 40) o.patents.splice(0, o.patents.length - 40);
+  save(o); return P;
+}
+export function setStars(no, stars) { const o = readWs(); const P = o.patents.find((x) => x.no === no); if (P) { P.stars = stars; save(o); } }
 try { window.__wsProgress = { readWs, measures, earned, reset: () => save(blank()) }; } catch (e) { /* node */ }

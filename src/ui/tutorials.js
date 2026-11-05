@@ -214,3 +214,26 @@ export function nzCardsTutorial({ guide, ws, force = false, onDone }) {
     { id: 'end', lines: L('nzcard:end') },
   ], onDone);
 }
+export function nzBuildTutorial({ guide, ws, force = false, onDone }) {
+  const KEY = 'g:nztut:build';
+  if (!guide || !ws || (!force && introSeen(KEY))) return null;
+  return nzRun(KEY, guide, [
+    { id: 'pick', lines: L('nzbuild:pick'), wait: () => { const b = ws.state().bench; return !!(b && b.proto.add.length); } },
+    { id: 'go', lines: L('nzbuild:go'), wait: () => ws.state().place !== 'build' },
+  ], onDone);
+}
+export function nzTestTutorial({ guide, ws, force = false, onDone }) {
+  const KEY = 'g:nztut:test';
+  if (!guide || !ws || (!force && introSeen(KEY))) return null;
+  return nzRun(KEY, guide, [
+    { id: 'run', lines: L('nztest:run'), wait: () => { const b = ws.state().bench; return !!(b && Object.keys(b.last).length); } },
+    { id: 'end', lines: L('nztest:end') },
+  ], onDone);
+}
+export function nzOrdersTutorial({ guide, ws, force = false, onDone }) {
+  const KEY = 'g:nztut:ord';
+  if (!guide || !ws || (!force && introSeen(KEY))) return null;
+  return nzRun(KEY, guide, [
+    { id: 'pick', lines: L('nzord:pick'), wait: () => { const s = ws.state(); return !!(s.office && s.office.ticket) || s.place !== 'orders'; } },
+  ], onDone);
+}

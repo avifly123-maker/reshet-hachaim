@@ -942,3 +942,22 @@ Lab and inventors:
 - **Constraints help creativity**: P. D. Stokes, "Creativity from Constraints" (2005); a round keeps only the child's own record.
 - **"כמו בטבע" facts in ideas.js:** pine cones open when dry and close when wet (Dawson, Vincent & Rocca, Nature 1997); the Namib desert beetle collects fog drops on its bumpy back (Parker & Lawrence, Nature 2001; also in the lab, `fogcatch`); a camel's wide padded feet spread its weight on sand; termite mounds move air through their tunnels (Turner & Soar 2008; `airtunnels`); a chameleon's tail wraps round branches; the honeycomb's hexagon cells give strength with little wax (Hales, the honeycomb conjecture, 2001); a hummingbird's long bill reaches deep into flowers; a hedgehog's spines absorb the blow of a fall (Vincent & Owers, J. Zool. 1986); a kangaroo carries its young in a front pouch.
 - **The nature mixer** scores a trait by the robot workshop's tests (src/data/inventions.js TRIALS, already sourced in "הממציאים"); the cards' traits come from the album cards (traitsOf).
+
+## שולחן הבנייה, אולם הבדיקות והזמנות העבודה (1.4.4 set 4, src/data/workshop/build-parts.js, orders.js)
+
+The test hall's numbers are game logic (a simple sum, like the robot workshop's `statsOf`); the ideas from nature behind the add-ons and the orders are real:
+- **Shark skin** (`sharkskin`, orders ship, umbrella): the denticles (tiny tooth-like scales) of fast sharks reduce drag; riblet films on ships and planes copy them (Dean & Bhushan, Phil. Trans. R. Soc. A 2010).
+- **Owl feathers** (`softwing`, orders train, library, sloth): serrated leading edges and soft fringes make owl flight nearly silent (Graham 1934; Jaworski & Peake, J. Fluid Mech. 2020). The 500-series Shinkansen pantograph copied them (Eiji Nakatsu), and quiet fan blades with "owl wing" edges are sold today (ebm-papst FE2owlet).
+- **Termite mound tunnels** (`airtunnels`, orders office, owlbox, waterhole, shade): mound tunnels move and exchange air; the Eastgate Centre in Harare was designed after them (Turner & Soar 2008).
+- **Victoria's ribs** (`ribs`): the giant water lily's leaf floats and carries weight thanks to a branching network of deep ribs (Box et al., Science Advances 2022).
+- **Fog beetle** (`fogcatch`, order school): Namib beetles collect fog drops on their bumpy backs (Parker & Lawrence, Nature 2001); fog nets for villages and schools use the same idea.
+- **Camel's foot** (`widefoot`): a camel's wide, padded feet spread its weight on sand.
+- **Octopus suckers** (`suction`, orders window, tent, weaver): grip on wet and rough surfaces; suction grippers copy them (Tramacere et al. 2013).
+- **Fennec ears** (`bigears`): large thin ears full of blood vessels give off heat (Maloiy et al. 1982; the general pattern: hot-climate animals have larger ears).
+- **Honeycomb** (`honeycomb`): hexagon cells give strength with little material; honeycomb panels are used in helmets, planes and packaging.
+- **Hedgehog spines** (`spines`): absorb the blow of a fall (Vincent & Owers, J. Zool. 1986); helmet liners have been designed after them.
+- **Tortoise shell, crocodile scales** (`shell`, `scales`): hard plates (scutes, osteoderms) protect, and overlapping scales shed water.
+- **Cat's eyes** (`reflect`, orders road, turtles, seaturtle): a cat's eyes shine back in headlights (the tapetum lucidum); the road reflectors called "cat's eyes" (Percy Shaw, 1934) were named and inspired by them.
+- **Firefly light** (`glow`): cold light, almost no heat (bioluminescence).
+- **Scorpion glow** (`uvglow`, order bank): scorpions glow blue-green under ultraviolet light (Stachel et al. 1999); banknotes carry marks that show only under such light.
+- **Beehive fences** (`buzz`, order elephants): elephants avoid the sound and stings of bees; beehive fences protect farms in Kenya (King, Douglas-Hamilton & Vollrath, Afr. J. Ecol. 2011).

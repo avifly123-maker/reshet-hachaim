@@ -35,7 +35,7 @@ const goalOK = (g, levers, kidsMode) => {
   return true;   // ratings and the mixer: any idea can get them
 };
 for (const c of CONSTRAINTS) {
-  if (!['machine', 'mixer'].includes(c.at)) err(`${c.id}: at`);
+  if (!['machine', 'mixer', 'build'].includes(c.at)) err(`${c.id}: at`);
   if (c.levers && c.levers.some((l) => !LEVERS.find((x) => x.id === l))) err(`${c.id}: lever`);
   if (!goalOK(c.goal, c.levers, false)) err(`${c.id}: cannot be won`);
   if (c.k) {

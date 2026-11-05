@@ -1,12 +1,14 @@
 // הסדנה של ניצוץ (1.4.4 sets 3–4, docs/PLAN-1.4.4.md): the inventors' workshop, a whole world in the science centre
-// (Avi, 4.11), where children learn to think like inventors while they play. ניצוץ, an enthusiastic light bulb, leads
-// it; his light is the meter of the child's creative thinking (fluency, flexibility, originality, elaboration:
-// progress.js). Seven places in one room; set 3 opens three of them:
-//   machine (מכונת הרעיונות: a thing and a lever give an invention), mixer (מערבל הטבע: a creature's trait for a
-//   problem), cards (קלפי אילוץ: a short round with a constraint and a clock, with a personal record).
-// The other four (the build table, the test hall, the clients' orders, the patent office and the fair) come in set 4.
+// (Avi, 4.11), where children learn to think like inventors while they play. Avi, 5.11: "a computer game, not
+// homework": every place is a drawn machine with light motion (src/workshop/art.js, workshop.css), not a list of words.
+// ניצוץ, an enthusiastic light bulb, leads it; his light is the meter of the child's creative thinking (progress.js).
+// Seven places in one room:
+//   machine (מכונת הרעיונות), mixer (מערבל הטבע), cards (קלפי אילוץ)            set 3, here
+//   build (שולחן הבנייה), test (אולם הבדיקות)                                  set 4, bench.js (3D: proto3d.js)
+//   orders (הזמנות עבודה), patent (משרד הפטנטים) and the fair                  set 4, office.js
 //   const S = createWorkshop({ root, audio, kids: () => bool, onExit })   S.open(); S.close(); S.isOpen()
-// Debug and tests: window.__wsDebug = { state(), go(place), thing(id), lever(id), rate(r), spin(cardId?, problemId?), trait(t), draw(cardId), endRound() }
+// Debug and tests: window.__wsDebug = { state(), go(place), thing(id), lever(id), rate(r), spin(cardId?, problemId?),
+//   trait(t), draw(cardId), endRound(), order(id), proto(spec), runTests(list) }
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { createNitzotz } from './nitzotz.js';
@@ -14,37 +16,43 @@ import { THINGS, LEVERS, CATS, thingOf, leverOf } from '../data/workshop/ideas.j
 import { PROBLEMS, problemOf } from '../data/workshop/mixer.js';
 import { CONSTRAINTS, constraintOf } from '../data/workshop/constraints.js';
 import { NATURE_CARDS } from '../data/workshop/nature-cards.js';
+import { orderOf } from '../data/workshop/orders.js';
 import { TRIALS, TRAIT } from '../data/inventions.js';
 import { TRAIT_K } from '../data/inventions-kids.js';
 import { CARD_ART } from '../data/card-art.js';
 import { ZONE_LOOK } from '../data/zones.js';
 import { readWs, addIdea, rateLast, roundDone, measures, earned, crazyBox } from './progress.js';
+import { thingSVG, stationSVG, machineSVG, blenderSVG, catIcon, clockSVG } from './art.js';
+import { createBench } from './bench.js';
+import { createOffice } from './office.js';
 import { grant } from '../core/badges-store.js';
 import { K, readPlayer } from '../core/storage.js';
 import { svcGuide } from '../core/services.js';
 import { icon } from '../ui/ui/icons.js';
 import { esc } from '../ui/ui/helpers.js';
-import { nzRoomTutorial, nzMachineTutorial, nzMixerTutorial, nzCardsTutorial } from '../ui/tutorials.js';
+import { nzRoomTutorial, nzMachineTutorial, nzMixerTutorial, nzCardsTutorial, nzBuildTutorial, nzTestTutorial, nzOrdersTutorial } from '../ui/tutorials.js';
 
 const PLACES = [
-  { id: 'machine', n: 'מכונת הרעיונות', k: 'מְכוֹנַת הָרַעְיוֹנוֹת', d: 'שמים חפץ, מושכים בידית, ויוצאת המצאה', kd: 'שָׂמִים חֵפֶץ, מוֹשְׁכִים בַּיָּדִית!', ic: 'bulb' },
-  { id: 'mixer', n: 'מערבל הטבע', k: 'מְעַרְבֵּל הַטֶּבַע', d: 'יצור מהטבע מול בעיה מהעולם', kd: 'יְצוּר מוּל בְּעָיָה', ic: 'leaf' },
-  { id: 'cards', n: 'קלפי אילוץ', k: 'קַלְפֵי אִלּוּץ', d: 'אתגר בזק עם שעון ושיא אישי', kd: 'אֶתְגָּר קָצָר עִם שָׁעוֹן', ic: 'cards' },
-  { id: 'build', n: 'שולחן הבנייה', k: 'שֻׁלְחַן הַבְּנִיָּה', d: 'בונים אב טיפוס מחלקים', soon: true, ic: 'gear' },
-  { id: 'test', n: 'אולם הבדיקות', k: 'אוּלַם הַבְּדִיקוֹת', d: 'מנהרת רוח, מגדל נפילה ועוד', soon: true, ic: 'flask' },
-  { id: 'orders', n: 'הזמנות עבודה', k: 'הַזְמָנוֹת עֲבוֹדָה', d: 'לקוחות מהטבע ומהעולם', soon: true, ic: 'book' },
-  { id: 'patent', n: 'משרד הפטנטים', k: 'מִשְׂרַד הַפָּטֶנְטִים', d: 'תעודות, ויריד הממציאים', soon: true, ic: 'sparkle' },
+  { id: 'machine', n: 'מכונת הרעיונות', k: 'מְכוֹנַת הָרַעְיוֹנוֹת' },
+  { id: 'mixer', n: 'מערבל הטבע', k: 'מְעַרְבֵּל הַטֶּבַע' },
+  { id: 'cards', n: 'קלפי אילוץ', k: 'קַלְפֵי אִלּוּץ' },
+  { id: 'orders', n: 'הזמנות עבודה', k: 'הַזְמָנוֹת עֲבוֹדָה' },
+  { id: 'build', n: 'שולחן הבנייה', k: 'שֻׁלְחַן הַבְּנִיָּה' },
+  { id: 'test', n: 'אולם הבדיקות', k: 'אוּלַם הַבְּדִיקוֹת' },
+  { id: 'patent', n: 'משרד הפטנטים', k: 'מִשְׂרַד הַפָּטֶנְטִים' },
 ];
 const MEASURES = [
-  { id: 'fluency', n: 'שטף', k: 'כַּמָּה רַעְיוֹנוֹת', d: 'כמה רעיונות' },
-  { id: 'flexibility', n: 'גמישות', k: 'כַּמָּה סוּגִים', d: 'מכמה סוגים' },
-  { id: 'originality', n: 'מקוריות', k: 'רַעְיוֹנוֹת חֲדָשִׁים', d: 'כמה חדשים ומפתיעים' },
+  { id: 'fluency', n: 'שטף', k: 'רַעְיוֹנוֹת', d: 'כמה רעיונות' },
+  { id: 'flexibility', n: 'גמישות', k: 'סוּגִים', d: 'מכמה סוגים' },
+  { id: 'originality', n: 'מקוריות', k: 'חֲדָשִׁים', d: 'כמה חדשים ומפתיעים' },
   { id: 'elaboration', n: 'שיפור', k: 'שִׁפּוּרִים', d: 'כמה שיפרתם' },
 ];
+const RATE = [['works', 'עובד!', 'עוֹבֵד!'], ['funny', 'מצחיק', 'מַצְחִיק'], ['improve', 'שווה לשפר', 'שָׁוֶה לְשַׁפֵּר']];
 const LEVER_IC = { grow: 'M4 20h4M4 20v-4M20 4h-4M20 4v4M5 19l5-5M19 5l-5 5', shrink: 'M10 14H6M10 14v4M14 10h4M14 10V6M10 14l-5 5M14 10l5-5',
-  flip: 'M7 7h10l-3-3M17 17H7l3 3', join: 'M8 12a4 4 0 1 1 0 .1M16 12a4 4 0 1 1 0 .1M12 12h0', remove: 'M5 12h14', material: 'M4 16c3-6 5-6 8 0s5 6 8 0',
+  flip: 'M7 7h10l-3-3M17 17H7l3 3', join: 'M8 12a4 4 0 1 1 0 .1M16 12a4 4 0 1 1 0 .1', remove: 'M5 12h14', material: 'M4 16c3-6 5-6 8 0s5 6 8 0',
   reuse: 'M5 12a7 7 0 0 1 12-5l2 2M19 12a7 7 0 0 1-12 5l-2-2', nature: 'M6 18c0-8 5-12 12-12 0 7-4 12-12 12zM6 18l6-6' };
-const lvIcon = (id) => `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${LEVER_IC[id] || ''}"/></svg>`;
+const lvIcon = (id) => `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${LEVER_IC[id] || ''}"/></svg>`;
+const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
 export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onExit = null } = {}) {
   let kids = false;   // read again at every opening: the player or the level may have changed (kidsOpt may be a function)
@@ -52,7 +60,9 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
   const W = (f, k) => (kids ? k : f);
   const el = document.createElement('div'); el.className = 'ws'; el.hidden = true; el.dir = 'rtl';
   root.appendChild(el);
-  let open_ = false, place = 'room', thing = null, last = null, mix = null, round = null, roundT = 0, mine = false, tut = null, spinning = 0;
+  let tutPlace = null;   // the place whose tutorial runs (leaving it mid-way stops it; it comes back next time)
+  let open_ = false, place = 'room', thing = null, last = null, mix = null, round = null, roundT = 0, mine = false, tut = null, spinning = 0, hand = [], orderId = null;
+  const roundLog = [];   // test results during a build round
   const sfx = (n) => { try { audio && audio.play && audio.play(n); } catch (e) { } };
 
   // ── ניצוץ in 3D: one small renderer for his window; quality-aware, at most 30 frames a second, nothing when hidden
@@ -92,56 +102,74 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
 
   // ── his words: a bubble of the guide, his portrait and face (written only)
   const say = (key, opts = {}) => {
+    if (tut && tut.step) return;
     const g = svcGuide(); const L = g && g.lines(key); if (!L || !L.length) return;
-    const ln = L[Math.floor(Math.random() * L.length)];
-    g.tip(ln, { speaker: 'nitzotz', ms: 3800, ...opts });
+    g.tip(L[Math.floor(Math.random() * L.length)], { speaker: 'nitzotz', ms: 3800, ...opts });
   };
-  // the badges every new idea may bring, and the board
-  function after() {
-    for (const e of earned()) grant(e);
-    paintBoard();
-  }
+  function after() { for (const e of earned()) grant(e); paintBoard(); }
+
+  // the set 4 places
+  const ctx = { kids: () => kids, T, W, say, act, sfx, after, go: (p) => go(p), order: () => (orderId ? orderOf(orderId) : null), setOrder: (id) => { orderId = id; bench.resetRun(); },
+    onTests: (results, proto) => { if (round && round.card.at === 'build') { roundLog.push(...results.map((r) => ({ ...r, proto }))); roundCheck(); } },
+    onPatent: (order, proto, sc, name) => { const pic = benchPic(); const P = office.ceremony(order, proto, sc, name, pic); void P; showCeremony(); } };
+  const bench = createBench(ctx), office = createOffice(ctx);
+  const benchPic = () => bench.pic(96);   // drawn in the same frame as the snapshot (a WebGL canvas keeps nothing between frames)
+  function showCeremony() { const M = el.querySelector('.ws-main'); const d = document.createElement('div'); d.innerHTML = office.ceremonyHTML(); M.appendChild(d.firstElementChild); }
 
   // ── the screens
   function shell() {
     el.innerHTML = `<header class="ws-top"><button type="button" class="ws-back" data-wsexit>${icon('home')}<span>${W('יציאה', 'יְצִיאָה')}</span></button>
         <div class="ws-title"><h1>${W('הסדנה של ניצוץ', 'הַסַּדְנָה שֶׁל נִיצוֹץ')}</h1><p>${W('חושבים כמו ממציאים', 'חוֹשְׁבִים כְּמוֹ מַמְצִיאִים')}</p></div>
+        <span class="ws-where"></span>
         <button type="button" class="ws-room-btn" data-wsroom hidden>${icon('arrowR')}<span>${W('לסדנה', 'לַסַּדְנָה')}</span></button></header>
-      <div class="ws-body"><aside class="ws-side"><canvas class="ws-nz" aria-hidden="true"></canvas><div class="ws-board"></div><div class="ws-roundbar" hidden></div></aside>
+      <div class="ws-body"><aside class="ws-side"><div class="ws-nzbox"><canvas class="ws-nz" aria-hidden="true"></canvas></div><div class="ws-board"></div><div class="ws-roundbar" hidden></div></aside>
         <main class="ws-main"></main></div>`;
   }
   function paintBoard() {
     const b = el.querySelector('.ws-board'); if (!b) return;
     const m = measures();
     b.innerHTML = `<h3>${W('לוח הניצוצות', 'לוּחַ הַנִּיצוֹצוֹת')}</h3>${MEASURES.map((x) => `<div class="ws-meter" data-m="${x.id}" title="${esc(x.d)}"><span>${esc(kids ? x.k : x.n)}</span><i><u style="width:${Math.round(m.level[x.id] * 100)}%"></u></i><b>${m[x.id]}</b></div>`).join('')}
-      <button type="button" class="ws-crazy" data-wscrazy>${W('תיבת השיגעונות', 'תֵּבַת הַשִּׁגְעוֹנוֹת')} <b>${crazyBox().length}</b></button>`;
+      <button type="button" class="ws-crazy" data-wscrazy>${icon('sparkle')}${W('תיבת השיגעונות', 'תֵּבַת הַשִּׁגְעוֹנוֹת')} <b>${crazyBox().length}</b></button>`;
+    const lamp = el.querySelector('.ws-nzbox'); if (lamp) lamp.style.setProperty('--glow', String(0.25 + m.glow * 0.75));
   }
   function go(p) {
-    place = p; if (p !== 'machine') thing = thing; mix = p === 'mixer' ? mix : null;
+    if (tut && tut.step && tutPlace !== 'room' && tutPlace !== p) { tut.stop(); tut = null; }
+    if (place === 'build' || place === 'test') { if (p !== 'build' && p !== 'test') bench.leave(); }
+    place = p; if (p !== 'mixer') mix = null;
     el.querySelector('[data-wsroom]').hidden = p === 'room';
+    const P = PLACES.find((x) => x.id === p) || (p === 'fair' ? { n: 'יריד הממציאים', k: 'יְרִיד הַמַּמְצִיאִים' } : null);
+    el.querySelector('.ws-where').textContent = P ? (kids ? P.k : P.n) : '';
     const M = el.querySelector('.ws-main');
+    M.dataset.place = p;
     if (p === 'room') M.innerHTML = roomHTML();
     else if (p === 'machine') M.innerHTML = machineHTML();
     else if (p === 'mixer') M.innerHTML = mixerHTML();
-    else if (p === 'cards') M.innerHTML = cardsHTML();
-    M.dataset.place = p;
+    else if (p === 'cards') { hand = shuffle(cardsFor().slice()).slice(0, 5); M.innerHTML = cardsHTML(); }
+    else if (p === 'build') bench.build(M);
+    else if (p === 'test') bench.test(M);
+    else if (p === 'orders') office.orders(M);
+    else if (p === 'patent') office.patents(M);
+    else if (p === 'fair') office.fair(M);
     startTut();
   }
   function roomHTML() {
-    return `<div class="ws-room">${PLACES.map((P) => `<button type="button" class="ws-st${P.soon ? ' soon' : ''}" data-st="${P.id}" ${P.soon ? 'disabled' : ''}>
-      <span class="ws-stic">${icon(P.ic)}</span><b>${esc(kids ? P.k : P.n)}</b><small>${esc(P.soon ? W('בקרוב', 'בְּקָרוֹב') : kids ? P.kd : P.d)}</small></button>`).join('')}</div>`;
+    const S = readWs(), done = Object.values(S.orders).filter((x) => x.done).length;
+    const badge = { orders: done ? `${done}` : '', patent: S.patents.length ? `${S.patents.length}` : '', cards: Object.keys(S.rounds).length ? `${Object.keys(S.rounds).length}` : '', machine: S.n.ideas ? `${S.n.ideas}` : '' };
+    return `<div class="ws-room"><div class="ws-wall" aria-hidden="true"><i class="ws-shelf s1"></i><i class="ws-shelf s2"></i>
+        <i class="ws-jar j1"></i><i class="ws-jar j2"></i><i class="ws-jar j3"></i><i class="ws-plant"></i><i class="ws-bulb b1"></i><i class="ws-bulb b2"></i><i class="ws-bulb b3"></i></div>
+      <div class="ws-floor">${PLACES.map((P, i) => `<button type="button" class="ws-st st${i}" data-st="${P.id}">${stationSVG(P.id)}<b class="ws-plaque">${esc(kids ? P.k : P.n)}</b>${badge[P.id] ? `<em class="ws-count">${badge[P.id]}</em>` : ''}</button>`).join('')}</div></div>`;
   }
   // ── the idea machine
   const leversNow = () => LEVERS.filter((l) => (!kids || l.kids) && (!round || !round.card.levers || round.card.levers.includes(l.id)));
-  function machineHTML() {
+  function machineHTML(pulled = null) {
     const t = thing && thingOf(thing), L = leversNow();
-    const outH = last ? `<div class="wm-out cat-${last.cat}${last.fun ? ' fun' : ''}"><small>${esc(kids ? CATS[last.cat].k : CATS[last.cat].n)}</small><p>${esc(T(last))}</p></div>
-      <div class="wm-rate">${[['works', W('עובד!', 'עוֹבֵד!')], ['funny', W('מצחיק', 'מַצְחִיק')], ['improve', W('שווה לשפר', 'שָׁוֶה לְשַׁפֵּר')]].map(([r, n]) => `<button type="button" data-wsrate="${r}" class="${last.r === r ? 'on' : ''}">${esc(n)}</button>`).join('')}</div>`
-      : `<div class="wm-out empty"><p>${esc(t ? W('עכשיו מושכים בידית!', 'עַכְשָׁו מוֹשְׁכִים בַּיָּדִית!') : W('בחרו חפץ ושימו אותו במכונה', 'בַּחֲרוּ חֵפֶץ'))}</p></div>`;
-    return `<div class="wm"><div class="wm-things">${THINGS.map((x) => `<button type="button" data-wsthing="${x.id}" class="${thing === x.id ? 'on' : ''}">${esc(kids ? x.k : x.n)}</button>`).join('')}</div>
-      <div class="wm-machine"><div class="wm-slot">${t ? esc(kids ? t.k : t.n) : '?'}</div><div class="wm-gears" aria-hidden="true"><i></i><i></i></div></div>
-      <div class="wm-levers">${LEVERS.filter((l) => !kids || l.kids).map((l) => { const ok = L.includes(l) && !!t; return `<button type="button" data-wslever="${l.id}" ${ok ? '' : 'disabled'}>${lvIcon(l.id)}<span>${esc(kids ? l.k : l.n)}</span></button>`; }).join('')}</div>
-      ${outH}</div>`;
+    const outH = last ? `<div class="wm-out cat-${last.cat}${last.fun ? ' fun' : ''}"><span class="wm-cat">${catIcon(last.cat)}<small>${esc(kids ? CATS[last.cat].k : CATS[last.cat].n)}</small></span><p>${esc(T(last))}</p>${last.fun ? '<i class="wm-burst" aria-hidden="true"></i>' : ''}</div>`
+      : `<div class="wm-out empty"><p>${esc(t ? W('עכשיו מושכים בידית!', 'עַכְשָׁו מוֹשְׁכִים בַּיָּדִית!') : W('בחרו חפץ מהמדף, והוא ייפול למכונה', 'בַּחֲרוּ חֵפֶץ מֵהַמַּדָּף'))}</p></div>`;
+    const rateH = last ? `<div class="wm-rate">${RATE.map(([r, f, k]) => `<button type="button" data-wsrate="${r}" class="st-${r}${last.r === r ? ' on' : ''}">${esc(W(f, k))}</button>`).join('')}${last.r === 'works' && !kids ? `<button type="button" class="wm-tobuild" data-wstobuild>${icon('arrowL')} ${W('לבנות את זה!', 'לִבְנוֹת!')}</button>` : ''}</div>` : '<div class="wm-rate"></div>';
+    return `<div class="wm"><div class="wm-shelf wm-things">${THINGS.map((x) => `<button type="button" data-wsthing="${x.id}" class="${thing === x.id ? 'on' : ''}">${thingSVG(x.id)}<small>${esc(kids ? x.k : x.n)}</small></button>`).join('')}</div>
+      <div class="wm-stage"><div class="wm-machine${t ? ' fed' : ''}${pulled ? ' run' : ''}">${machineSVG(thing)}</div>${outH}</div>
+      <div class="wm-levers">${LEVERS.filter((l) => !kids || l.kids).map((l) => { const ok = L.includes(l) && !!t; return `<button type="button" data-wslever="${l.id}" class="${pulled === l.id ? 'pulled' : ''}" ${ok ? '' : 'disabled'}><i class="lv-stick" aria-hidden="true"><u></u></i>${lvIcon(l.id)}<span>${esc(kids ? l.k : l.n)}</span></button>`; }).join('')}</div>
+      ${rateH}</div>`;
   }
   function pull(lv) {
     const t = thingOf(thing), L = leverOf(lv); if (!t || !L || !leversNow().includes(L)) return;
@@ -149,15 +177,14 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
     const r = addIdea({ at: 'machine', th: t.id, lv, cat: out.cat, fun: !!out.fun });
     last = { ...out, r: '', lv };
     sfx('pop'); act(r.orig >= 2 ? 'idea' : out.fun ? 'excited' : 'explain');
-    const M = el.querySelector('.ws-main'); M.innerHTML = machineHTML();
-    const g = M.querySelector('.wm-machine'); if (g) { g.classList.remove('run'); void g.offsetWidth; g.classList.add('run'); }
+    el.querySelector('.ws-main').innerHTML = machineHTML(lv);
     after(); roundCheck();
   }
   function rate(r) {
     if (!last) return; last.r = r; rateLast(r);
     sfx(r === 'works' ? 'good' : 'click');
     act(r === 'works' ? 'cheer' : r === 'funny' ? (Math.random() < 0.35 ? 'fuse' : 'excited') : 'hint');
-    if (!tut || !tut.step) say('nz:react:' + r);
+    say('nz:react:' + r);
     el.querySelector('.ws-main').innerHTML = machineHTML();
     after(); roundCheck();
   }
@@ -166,22 +193,22 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
   function mixerHTML() {
     const C = mix && NATURE_CARDS.find((c) => c.id === mix.sp), P = mix && problemOf(mix.pb);
     const traits = C ? C.tr.slice(0, 4) : [];
-    const res = mix && mix.fit ? `<div class="wx-res fit-${mix.fit}"><p>${esc(mixWords(mix))}</p></div>` : '';
-    return `<div class="wx"><div class="wx-wheels">
-        <div class="wx-wheel cards${spinning ? ' spin' : ''}">${C ? `${CARD_ART[C.id] ? `<img src="${CARD_ART[C.id]}" alt="">` : ''}<b>${esc(kids ? C.k : C.n)}</b><small>${esc(ZONE_LOOK[C.z] ? (kids ? ZONE_LOOK[C.z].shortK : ZONE_LOOK[C.z].short) : '')}</small>` : `<b>?</b>`}</div>
-        <span class="wx-vs">${W('פותר את', 'פּוֹתֵר אֶת')}</span>
-        <div class="wx-wheel probs${spinning ? ' spin' : ''}">${P ? `<b>${esc(T(P))}</b>` : `<b>?</b>`}</div></div>
+    const res = mix && mix.fit ? `<div class="wx-res fit-${mix.fit}"><b>${esc(mix.fit === 'good' ? W('עובד!', 'עוֹבֵד!') : mix.fit === 'ok' ? W('עוזר קצת', 'עוֹזֵר קְצָת') : W('רעיון פרוע!', 'רַעְיוֹן פָּרוּעַ!'))}</b><p>${esc(mixWords(mix))}</p></div>` : '';
+    return `<div class="wx"><div class="wx-row">
+        <div class="wx-drum cards${spinning ? ' spin' : ''}"><div class="wx-win">${C ? `${CARD_ART[C.id] ? `<img src="${CARD_ART[C.id]}" alt="">` : ''}<b>${esc(kids ? C.k : C.n)}</b><small>${esc(ZONE_LOOK[C.z] ? (kids ? ZONE_LOOK[C.z].shortK : ZONE_LOOK[C.z].short) : '')}</small>` : `<i class="wx-q">?</i><small>${W('יצור מהטבע', 'יְצוּר')}</small>`}</div></div>
+        <div class="wx-mid${spinning ? ' spin' : ''}">${blenderSVG()}</div>
+        <div class="wx-drum probs${spinning ? ' spin' : ''}"><div class="wx-win">${P ? `<span class="wx-pic">${catIcon(P.cat)}</span><b>${esc(T(P))}</b>` : `<i class="wx-q">?</i><small>${W('בעיה מהעולם', 'בְּעָיָה')}</small>`}</div></div></div>
       <div class="wx-act"><button type="button" class="wx-spin" data-wsspin>${icon('undo')}<span>${W('לסובב!', 'לְסוֹבֵב!')}</span></button>
         <label class="wx-mine"><input type="checkbox" data-wsmine ${mine ? 'checked' : ''}> ${W('רק מהקלפים שלי', 'רַק מֵהַקְּלָפִים שֶׁלִּי')}</label></div>
-      ${C && !mix.fit ? `<div class="wx-traits"><p>${W('איזו תכונה שלו תעזור?', 'אֵיזוֹ תְּכוּנָה תַּעֲזֹר?')}</p>${traits.map((t) => `<button type="button" data-wstrait="${t}">${esc(kids ? (TRAIT_K[t] || TRAIT[t]) : TRAIT[t])}</button>`).join('')}</div>` : ''}
+      ${C && !mix.fit && !spinning ? `<div class="wx-traits"><p>${W('איזו תכונה שלו תפתור את הבעיה?', 'אֵיזוֹ תְּכוּנָה תַּעֲזֹר?')}</p>${traits.map((t) => `<button type="button" data-wstrait="${t}">${esc(kids ? (TRAIT_K[t] || TRAIT[t]) : TRAIT[t])}</button>`).join('')}</div>` : ''}
       ${res}</div>`;
   }
   function mixWords(m) {
     const C = NATURE_CARDS.find((c) => c.id === m.sp), P = problemOf(m.pb), tr = kids ? (TRAIT_K[m.tr] || TRAIT[m.tr]) : TRAIT[m.tr];
     const nm = kids ? C.k : C.n;
-    if (m.fit === 'good') return W(`עובד! "${tr}" של ${nm} באמת עוזר ${P.f}.`, `עוֹבֵד! "${tr}" שֶׁל ${nm} עוֹזֵר!`);
-    if (m.fit === 'ok') return W(`יעזור קצת: "${tr}" של ${nm}. אולי יש תכונה טובה עוד יותר?`, `יַעֲזֹר קְצָת. אוּלַי תְּכוּנָה אַחֶרֶת?`);
-    return W(`רעיון פרוע: "${tr}" של ${nm}. זה לא מה שהטבע עושה כאן, אבל אף אחד לא חשב על זה!`, `רַעְיוֹן פָּרוּעַ! אַף אֶחָד לֹא חָשַׁב עַל זֶה!`);
+    if (m.fit === 'good') return W(`"${tr}" של ${nm} באמת עוזר ${P.f}.`, `"${tr}" שֶׁל ${nm} עוֹזֵר!`);
+    if (m.fit === 'ok') return W(`"${tr}" של ${nm} יעזור קצת. אולי יש תכונה טובה עוד יותר?`, `אוּלַי תְּכוּנָה אַחֶרֶת?`);
+    return W(`"${tr}" של ${nm}? זה לא מה שהטבע עושה כאן, אבל אף אחד לא חשב על זה!`, `אַף אֶחָד לֹא חָשַׁב עַל זֶה!`);
   }
   function spin(spId, pbId) {
     const mineSet = mine ? owned() : null;
@@ -195,8 +222,17 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
     const C = (spId && NATURE_CARDS.find((c) => c.id === spId)) || from[Math.floor(Math.random() * from.length)];
     mix = { sp: C.id, pb: P.id, fit: null, mine: !!(mineSet && mineSet.has(C.id)) };
     spinning = 1; sfx('click'); act('excited');
-    el.querySelector('.ws-main').innerHTML = mixerHTML();
-    setTimeout(() => { spinning = 0; if (place === 'mixer') el.querySelector('.ws-main').innerHTML = mixerHTML(); }, 700);
+    const M = el.querySelector('.ws-main'); M.innerHTML = mixerHTML();
+    // the drums roll through paintings and problems before they stop
+    const winC = M.querySelector('.wx-drum.cards .wx-win'), winP = M.querySelector('.wx-drum.probs .wx-win');
+    let n = 0; const roll = setInterval(() => {
+      if (!winC || place !== 'mixer') { clearInterval(roll); return; }
+      const c = NATURE_CARDS[(Math.random() * NATURE_CARDS.length) | 0], p = PROBLEMS[(Math.random() * PROBLEMS.length) | 0];
+      winC.innerHTML = CARD_ART[c.id] ? `<img src="${CARD_ART[c.id]}" alt=""><b>${esc(kids ? c.k : c.n)}</b>` : `<b>${esc(c.n)}</b>`;
+      winP.innerHTML = `<span class="wx-pic">${catIcon(p.cat)}</span><b>${esc(T(p))}</b>`;
+      if (++n > 7) clearInterval(roll);
+    }, 90);
+    setTimeout(() => { clearInterval(roll); spinning = 0; if (place === 'mixer') { el.querySelector('.ws-main').innerHTML = mixerHTML(); sfx('pop'); } }, 820);
   }
   function pickTrait(tr) {
     if (!mix || mix.fit) return;
@@ -204,22 +240,30 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
     mix.tr = tr; mix.fit = TL.good.includes(tr) ? 'good' : TL.ok.includes(tr) ? 'ok' : 'wild';
     addIdea({ at: 'mixer', sp: C.id, pb: P.id, tr, cat: P.cat, fit: mix.fit, zone: C.z, mine: mix.mine });
     sfx(mix.fit === 'good' ? 'good' : 'pop'); act(mix.fit === 'good' ? 'cheer' : mix.fit === 'ok' ? 'hint' : 'idea');
-    if (!tut || !tut.step) say('nz:react:' + mix.fit);
+    say('nz:react:' + mix.fit);
     el.querySelector('.ws-main').innerHTML = mixerHTML();
     after(); roundCheck();
   }
-  // ── constraint cards: a round
+  // ── constraint cards: a table with a deck and a hand
   const cardsFor = () => CONSTRAINTS.filter((c) => !kids || (c.k && !c.adv));
+  const AT = { machine: ['מכונת הרעיונות', 'מְכוֹנָה'], mixer: ['מערבל הטבע', 'מְעַרְבֵּל'], build: ['שולחן הבנייה', 'בְּנִיָּה'] };
+  function cardFace(c, i, R) {
+    const r = R[c.id], sec = (kids && c.ksec) || c.sec;
+    return `<button type="button" class="wc-card at-${c.at}${r ? ' done' : ''}" data-wscard="${c.id}" style="--i:${i};--y:${Math.abs(i - 2) * 6}px"><span class="wc-top">${clockSVG()}<small>${Math.round(sec / 6) / 10} ${W('דק׳', 'דַּק׳')}</small></span>
+      <b>${esc(kids ? c.k : c.f)}</b><span class="wc-at">${esc(W(AT[c.at][0], AT[c.at][1]))}</span>${r ? `<em class="wc-rec">${W('שיא', 'שִׂיא')} ${Math.ceil(r.best / 1000)} ${W('שנ׳', 'שְׁנ׳')}</em>` : ''}</button>`;
+  }
   function cardsHTML() {
     const R = readWs().rounds;
-    return `<div class="wc"><div class="wc-head"><button type="button" class="wc-draw" data-wsdraw>${icon('cards')}<span>${W('לשלוף קלף', 'לִשְׁלֹף קְלָף')}</span></button>
-      <p>${W('כל קלף הוא אתגר קצר. בתוך הזמן, ומול השיא שלכם בלבד.', 'כָּל קְלָף הוּא אֶתְגָּר קָצָר עִם שָׁעוֹן.')}</p></div>
-      <div class="wc-list">${cardsFor().map((c) => { const r = R[c.id]; return `<button type="button" class="wc-card${r ? ' done' : ''}" data-wscard="${c.id}"><b>${esc(kids ? c.k : c.f)}</b><small>${c.at === 'mixer' ? W('מערבל הטבע', 'מְעַרְבֵּל') : W('מכונת הרעיונות', 'מְכוֹנָה')} · ${Math.round((kids && c.ksec ? c.ksec : c.sec) / 60 * 10) / 10} ${W('דק׳', 'דַּק׳')}${r ? ` · ${W('שיא', 'שִׂיא')} ${Math.ceil(r.best / 1000)} ${W('שנ׳', 'שְׁנ׳')}` : ''}</small></button>`; }).join('')}</div></div>`;
+    const won = cardsFor().filter((c) => R[c.id]);
+    return `<div class="wc"><div class="wc-table"><button type="button" class="wc-deck wc-draw" data-wsdraw><i></i><i></i><i></i><span>${W('לשלוף קלף', 'לִשְׁלֹף קְלָף')}</span></button>
+        <div class="wc-hand">${hand.map((c, i) => cardFace(c, i, R)).join('')}</div></div>
+      <div class="wc-foot"><button type="button" class="wc-shuffle" data-wsshuffle>${icon('undo')} ${W('לערבב', 'לְעַרְבֵּב')}</button>
+        <span class="wc-won">${W('ניצחתם', 'נִצַּחְתֶּם')} <b>${won.length}</b> / ${cardsFor().length}</span><small>${W('השיא הוא רק מול עצמכם', 'הַשִּׂיא רַק מוּל עַצְמְכֶם')}</small></div></div>`;
   }
   function draw(id) {
     const list = cardsFor(); const c = (id && constraintOf(id)) || list[Math.floor(Math.random() * list.length)]; if (!c) return;
     round = { card: c, goal: (kids && c.kgoal) || c.goal, sec: (kids && c.ksec) || c.sec, t0: Date.now(), done: false };
-    roundT = 0; sfx('pop'); act('excited');
+    roundT = 0; roundLog.length = 0; sfx('pop'); act('excited');
     paintRound(); go(c.at);
   }
   function roundProgress() {
@@ -227,6 +271,10 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
     const G = round.goal, ideas = readWs().ideas.filter((x) => x.t >= round.t0);
     const mach = ideas.filter((x) => x.at === 'machine'), mixr = ideas.filter((x) => x.at === 'mixer');
     const works = mixr.filter((x) => x.fit === 'good' || x.fit === 'ok');
+    if (G.pass) {
+      const ok = roundLog.filter((r) => r.pass && (!G.test || r.id === G.test) && (!G.noMetal || r.proto.mat !== 'metal') && (G.maxAdd == null || r.proto.add.length <= G.maxAdd) && (!G.nature || r.proto.add.some((a) => /^(spines|scales|suction|bigears|honeycomb|shell|softwing|ribs|widefoot|airtunnels|sharkskin|fogcatch|glow|reflect|uvglow|buzz)$/.test(a))));
+      return { have: new Set(ok.map((r) => r.id)).size, need: G.pass };
+    }
     if (G.ideas) return { have: mach.length, need: G.ideas };
     if (G.cats) return { have: new Set(mach.map((x) => x.cat)).size, need: G.cats };
     if (G.cat) return { have: mach.filter((x) => x.cat === G.cat).length, need: G.n };
@@ -247,7 +295,8 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
     if (!round) { b.hidden = true; return; }
     const p = roundProgress(), left = Math.max(0, round.sec - (Date.now() - round.t0) / 1000);
     b.hidden = false;
-    b.innerHTML = `<b>${esc(kids ? round.card.k : round.card.f)}</b><span class="ws-clock${left < 15 ? ' low' : ''}">${Math.ceil(left)}</span><span class="ws-prog">${Math.min(p.have, p.need)} / ${p.need}</span><button type="button" data-wsstop>${W('לעצור', 'לַעֲצֹר')}</button>`;
+    b.style.setProperty('--left', String(left / round.sec));
+    b.innerHTML = `<b>${esc(kids ? round.card.k : round.card.f)}</b><span class="ws-clock${left < 15 ? ' low' : ''}">${clockSVG()}${Math.ceil(left)}</span><span class="ws-prog">${Array.from({ length: Math.min(8, p.need) }, (_, i) => `<i class="${i < p.have ? 'on' : ''}"></i>`).join('')}${p.need > 8 ? ` ${Math.min(p.have, p.need)}/${p.need}` : ''}</span><button type="button" data-wsstop>${W('לעצור', 'לַעֲצֹר')}</button>`;
   }
   function roundCheck() {
     if (!round || round.done) return;
@@ -257,7 +306,8 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
       round.done = true;
       const r = roundDone(round.card.id, Date.now() - round.t0);
       sfx('quizRight'); act('cheer'); say(r.record && !r.first ? 'nz:react:record' : 'nz:react:roundwin', { ms: 4500 });
-      setTimeout(() => { round = null; paintRound(); after(); if (place !== 'cards') go('cards'); }, 1600);
+      const b = el.querySelector('.ws-roundbar'); if (b) b.classList.add('won');
+      setTimeout(() => { round = null; paintRound(); after(); if (el.querySelector('.ws-roundbar')) el.querySelector('.ws-roundbar').classList.remove('won'); if (place !== 'cards') go('cards'); }, 1600);
     }
   }
   function tickRound() {
@@ -269,7 +319,7 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
   function showCrazy() {
     const list = crazyBox().slice(-12).reverse();
     const M = el.querySelector('.ws-main');
-    M.innerHTML = `<div class="ws-box"><h3>${W('תיבת השיגעונות', 'תֵּבַת הַשִּׁגְעוֹנוֹת')}</h3>${list.length ? `<ul>${list.map((x) => { const t = x.at === 'machine' && thingOf(x.th); const o = t && t.out[x.lv]; return o ? `<li>${esc(T(o))}</li>` : ''; }).join('')}</ul>` : `<p>${W('עוד ריק. כל רעיון שתסמנו "מצחיק" נכנס לכאן.', 'עוֹד רֵיק.')}</p>`}</div>`;
+    M.innerHTML = `<div class="ws-box"><h3>${icon('sparkle')} ${W('תיבת השיגעונות', 'תֵּבַת הַשִּׁגְעוֹנוֹת')}</h3>${list.length ? `<div class="ws-boxgrid">${list.map((x) => { const t = x.at === 'machine' && thingOf(x.th); const o = t && t.out[x.lv]; return o ? `<div class="wm-out fun"><span class="wm-cat">${thingSVG(t.id)}</span><p>${esc(T(o))}</p></div>` : ''; }).join('')}</div>` : `<p>${W('עוד ריק. כל רעיון שתסמנו "מצחיק" נכנס לכאן.', 'עוֹד רֵיק.')}</p>`}</div>`;
     M.dataset.place = 'box'; place = 'box'; el.querySelector('[data-wsroom]').hidden = false;
   }
 
@@ -283,12 +333,16 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
     if (d.wsthing) { thing = d.wsthing; last = null; sfx('click'); act('hint'); el.querySelector('.ws-main').innerHTML = machineHTML(); return; }
     if (d.wslever) { pull(d.wslever); return; }
     if (d.wsrate) { rate(d.wsrate); return; }
+    if (d.wstobuild != null) { orderId = null; sfx('click'); go('build'); return; }
     if (d.wsspin != null) { spin(); return; }
     if (d.wstrait) { pickTrait(d.wstrait); return; }
     if (d.wsdraw != null) { draw(); return; }
     if (d.wscard) { draw(d.wscard); return; }
+    if (d.wsshuffle != null) { sfx('click'); hand = shuffle(cardsFor().slice()).slice(0, 5); el.querySelector('.ws-main').innerHTML = cardsHTML(); return; }
     if (d.wsstop != null) { round = null; paintRound(); go('cards'); return; }
     if (d.wscrazy != null) { sfx('click'); showCrazy(); return; }
+    if (bench.click(b)) return;
+    if (office.click(b)) return;
   });
   el.addEventListener('change', (e) => { if (e.target.matches('[data-wsmine]')) { mine = e.target.checked; } });
 
@@ -297,28 +351,31 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
     if (tut && tut.step) return;
     const g = svcGuide(); if (!g) return;
     const ws = { state }, onDone = (r) => { tut = null; if (open_ && r !== 'abort' && r !== 'skip') startTut(); };
-    const F = { room: nzRoomTutorial, machine: nzMachineTutorial, mixer: nzMixerTutorial, cards: nzCardsTutorial }[place];
-    tut = F ? F({ guide: g, ws, onDone }) : null;
+    const F = { room: nzRoomTutorial, machine: nzMachineTutorial, mixer: nzMixerTutorial, cards: nzCardsTutorial, build: nzBuildTutorial, test: nzTestTutorial, orders: nzOrdersTutorial }[place];
+    tut = F ? F({ guide: g, ws, onDone }) : null; tutPlace = tut ? place : null;
   }
   function state() {
     const w = readWs();
-    return { place, thing, last: last && { cat: last.cat, r: last.r, lv: last.lv }, mix: mix && { ...mix }, round: round && { id: round.card.id, ...roundProgress(), done: round.done }, ideas: w.n.ideas, measures: measures(w), tut: tut && tut.step, nz: nz ? { mood: nz.mood, action: nz.action, light: nz.light } : null };
+    return { place, thing, last: last && { cat: last.cat, r: last.r, lv: last.lv }, mix: mix && { ...mix }, round: round && { id: round.card.id, ...roundProgress(), done: round.done }, ideas: w.n.ideas, measures: measures(w), tut: tut && tut.step, nz: nz ? { mood: nz.mood, action: nz.action, light: nz.light } : null,
+      order: orderId, bench: bench.state(), office: office.state(), patents: w.patents.length, hand: hand.map((c) => c.id) };
   }
 
   function openWs() {
     kids = typeof kidsOpt === 'function' ? !!kidsOpt() : !!kidsOpt;
-    open_ = true; el.hidden = false; place = 'room'; thing = null; last = null; mix = null; round = null;
+    open_ = true; el.hidden = false; place = 'room'; thing = null; last = null; mix = null; round = null; orderId = null;
+    el.classList.toggle('kids', kids);
     shell(); paintBoard(); go('room'); startNz();
     setTimeout(() => { if (open_ && nz) nz.set('wave'); }, 600);
   }
   function close() {
     if (!open_) return; open_ = false;
     if (tut && tut.stop) tut.stop(); tut = null;
-    stopNz(); el.hidden = true; el.innerHTML = '';
+    bench.leave(); stopNz(); el.hidden = true; el.innerHTML = '';
   }
   try {
     window.__wsDebug = { state, go: (p) => go(p), thing: (id) => { thing = id; last = null; if (place === 'machine') el.querySelector('.ws-main').innerHTML = machineHTML(); }, lever: (id) => pull(id), rate: (r) => rate(r),
-      spin: (sp, pb) => spin(sp, pb), trait: (t) => pickTrait(t), draw: (id) => draw(id), endRound: () => { if (round) round.t0 = Date.now() - round.sec * 1000 - 1; }, nz: (x) => act(x) };
+      spin: (sp, pb) => spin(sp, pb), trait: (t) => pickTrait(t), draw: (id) => draw(id), endRound: () => { if (round) round.t0 = Date.now() - round.sec * 1000 - 1; }, nz: (x) => act(x),
+      order: (id) => { orderId = id; bench.resetRun(); }, proto: (p) => bench.setProto(p), runTests: (list) => bench.run(list) };
   } catch (e) { }
   return { open: openWs, close, isOpen: () => open_, state };
 }

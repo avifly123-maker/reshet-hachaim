@@ -2,7 +2,8 @@
 // round to answer it at the idea machine or the nature mixer. A constraint makes thinking more creative, not less.
 // Every round keeps a personal record (the time it took), never a comparison with others. The cards that ask for a
 // build ("only three parts", "no metal") come with the build table (set 4).
-// A card: { id, f, k?, at: 'machine' | 'mixer', sec, goal, levers?, adv? }
+// A card: { id, f, k?, at: 'machine' | 'mixer' | 'build', sec, goal, levers?, adv? }
+//   build goals (set 4): { pass: n, test?, noMetal?, maxAdd?, nature? } = n different tests passed in the hall
 //   goal: { ideas: n } | { cats: n } | { cat: id, n } | { works: n } | { funny: n } | { improve: n } | { thing: n }
 //         | { allLevers: true } | { mixWorks: n } | { mixWild: n } | { mixZones: n } | { mixMine: n }
 //   levers: the only levers that work in this round; adv: only at the full level (it needs levers beginners do not have)
@@ -32,5 +33,12 @@ export const CONSTRAINTS = [
   { id: 'mixwild', f: 'מערבל משוגע: שלושה רעיונות פרועים, שאף אחד לא חשב עליהם.', k: 'שְׁנֵי רַעְיוֹנוֹת מְשֻׁגָּעִים!', at: 'mixer', sec: 90, goal: { mixWild: 3 }, kgoal: { mixWild: 2 } },
   { id: 'mixzones', f: 'מסביב לעולם: פתרונות שעובדים עם קלפים משלוש סביבות.', k: 'פִּתְרוֹנוֹת מִשְּׁתֵּי סְבִיבוֹת.', at: 'mixer', sec: 150, goal: { mixZones: 3 }, kgoal: { mixZones: 2 } },
   { id: 'mixmine', f: 'הקלפים שלי: שלושה פתרונות שעובדים, רק מהקלפים באלבום שלכם.', k: 'שְׁנֵי פִּתְרוֹנוֹת מֵהַקְּלָפִים שֶׁלָּכֶם.', at: 'mixer', sec: 150, goal: { mixMine: 3 }, kgoal: { mixMine: 2 } },
+  // set 4: at the build table (goal.pass = how many different tests must be passed at the hall during the round)
+  { id: 'three', f: 'רק שלושה חלקים: אב טיפוס עם שלוש תוספות לכל היותר, שעובר שתי בדיקות.', k: 'רַק שְׁלוֹשָׁה חֲלָקִים, וּבְדִיקָה אַחַת עוֹבֶרֶת.', at: 'build', sec: 150, ksec: 180, goal: { pass: 2, maxAdd: 3 }, kgoal: { pass: 1, maxAdd: 3 } },
+  { id: 'nometal', f: 'בלי מתכת: אב טיפוס שעובר את מגדל הנפילה, ובלי מתכת.', k: 'בְּלִי מַתֶּכֶת! הַבֵּיצָה לֹא נִשְׁבֶּרֶת.', at: 'build', sec: 150, ksec: 180, goal: { pass: 1, test: 'drop', noMetal: true } },
+  { id: 'quiet', f: 'בשביל החיות: אב טיפוס שקט, שעובר את מד הרעש.', k: 'שֶׁיִּהְיֶה שָׁקֵט לַחַיּוֹת!', at: 'build', sec: 120, ksec: 150, goal: { pass: 1, test: 'noise' } },
+  { id: 'natureonly', f: 'רק מהטבע: שלוש בדיקות עוברות, ובאב הטיפוס רעיון מהטבע.', at: 'build', sec: 180, goal: { pass: 3, nature: true }, adv: true },
+  { id: 'onepart', f: 'חלק אחד בלבד: תוספת אחת, ושתי בדיקות עוברות.', at: 'build', sec: 150, goal: { pass: 2, maxAdd: 1 }, adv: true },
+  { id: 'floatfast', f: 'צף מהר: אב טיפוס שעובר את מיכל המים, בתוך דקה.', k: 'שֶׁיָּצוּף! בְּתוֹךְ דַּקָּה וָחֵצִי.', at: 'build', sec: 60, ksec: 90, goal: { pass: 1, test: 'water' } },
 ];
 export const constraintOf = (id) => CONSTRAINTS.find((c) => c.id === id) || null;

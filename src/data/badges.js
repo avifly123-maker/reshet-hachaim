@@ -162,6 +162,12 @@ export const BADGES = [
   { id: 'b_nz_crazy', group: 'workshop', art: 'sloth', name: 'תיבת השיגעונות', how: 'חמישה רעיונות מצחיקים בתיבה', earn: 'nz:crazy5' },
   { id: 'b_nz_mixer', group: 'workshop', art: 'hummingbird', name: 'הטבע מלמד', how: 'שישה פתרונות שעובדים במערבל הטבע', earn: 'nz:mixer6' },
   { id: 'b_nz_cards', group: 'workshop', art: 'jay', name: 'אוהב אתגרים', how: 'עומדים בחמישה קלפי אילוץ', earn: 'nz:cards5' },
+  { id: 'b_nz_pat1', group: 'workshop', art: 'scorpion', name: 'פטנט ראשון', how: 'מקבלים תעודת פטנט ראשונה', earn: 'nz:patent1' },
+  { id: 'b_nz_pat10', group: 'workshop', art: 'termitemound', name: 'ממציא רשום', how: 'עשרה פטנטים', earn: 'nz:patent10' },
+  { id: 'b_nz_ord10', group: 'workshop', art: 'weaver', name: 'הלקוחות מרוצים', how: 'מסיימים עשר הזמנות עבודה', earn: 'nz:orders10' },
+  { id: 'b_nz_six', group: 'workshop', art: 'tortoise', name: 'עובר הכול', how: 'אב טיפוס שעובר את כל שש הבדיקות', earn: 'nz:allsix' },
+  { id: 'b_nz_fail', group: 'workshop', art: 'hedgehog', name: 'כישלון הוא חגיגה', how: 'עשרה כישלונות באולם הבדיקות', earn: 'nz:fails10' },
+  { id: 'b_nz_fair', group: 'workshop', art: 'macaw', name: 'שלושה כוכבים ביריד', how: 'שלושה שופטים נותנים כוכב לפטנט אחד', earn: 'nz:fair3' },
   // ── אירוע השבוע (1.4.4, core/weekly.js finish(): the first win of a version gives these)
   { id: 'b_wk_first', group: 'weekly', art: 'hoopoe', name: 'אירוע ראשון', how: 'מצליחים באירוע שבוע ראשון', earn: 'weekly:first' },
   { id: 'b_wk_glitch', group: 'weekly', art: 'chameleon', name: 'מחזירים הביתה', how: 'מצליחים ב"התקלה במעבדה"', earn: 'weekly:glitch' },

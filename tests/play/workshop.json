@@ -211,6 +211,12 @@
 "wait": 2.0
 },
 {
+"js": "document.querySelectorAll('.bdg-pop').forEach((b)=>b.click()); 1"
+},
+{
+"wait": 0.5
+},
+{
 "clickSel": ".rl-wk .wk-rob:last-child .wk-del"
 },
 {
@@ -218,6 +224,12 @@
 },
 {
 "js": "'eval robots before delete '+window.__rlDebug.workshopState().robots"
+},
+{
+"js": "document.querySelectorAll('.bdg-pop').forEach((b)=>b.click()); 1"
+},
+{
+"wait": 0.5
 },
 {
 "clickSel": ".rl-wk .wk-rob:last-child .wk-del"

@@ -31,6 +31,8 @@ raw=$(node tests/savanna/systems.mjs 2>&1); code=$?; out=$(echo "$raw" | grep -v
 # 1.4.4 set 1: אירוע השבוע (the clock, the turns, a missed version coming back, badges, guests)
 raw=$(node tests/workshop/data.mjs 2>&1); code=$?; out=$(echo "$raw" | grep -v -i "warning\|Reparsing\|trace-warnings"); echo "workshop data: $(echo "$out" | tail -1)"
 [ $code -ne 0 ] && { echo "$out"; fail "workshop data"; }
+raw=$(node tests/workshop/orders.mjs 2>&1); code=$?; out=$(echo "$raw" | grep -v -i "warning\|Reparsing\|trace-warnings"); echo "workshop orders: $(echo "$out" | tail -1 | cut -c1-90)"
+[ $code -ne 0 ] && { echo "$out"; fail "workshop orders"; }
 raw=$(node tests/weekly/engine.mjs 2>&1); code=$?; out=$(echo "$raw" | grep -v -i "warning\|Reparsing\|trace-warnings"); echo "weekly engine: $(echo "$out" | tail -1)"
 [ $code -ne 0 ] && { echo "$out"; fail "weekly engine"; }
 out=$(node tools/validate-research.mjs --all 2>&1); code=$?; echo "validate-research: $(echo "$out" | tail -1)"
@@ -90,7 +92,7 @@ echo "$out" | grep "\[pageerror\]\|JS ERROR\|UNTIL TIMEOUT\|NO ELEMENT" && fail 
 # and the technology cards (a drop-in after the step card, the album's tech tab, the zoom); set 4: the missions (the
 # missions tutorial, the robot on the bench goes to a mission in 3D, the count, a missing part's help, back to the workshop)
 # 1.4.4 set 0: the robot lab home has two sides; the inventors' robot workshop fits the screen with no scroll bar (inv-robots)
-for t in workshop:14 workshop-kids:5 techcards:7 workshop-missions:14 workshop-island:8 garage:10 stage9:5 sandbox:8 chat:20 inv-robots:7 weekly:11 nz-workshop:19; do
+for t in workshop:14 workshop-kids:5 techcards:7 workshop-missions:14 workshop-island:8 garage:10 stage9:5 sandbox:8 chat:20 inv-robots:7 weekly:11 nz-workshop:27; do
   f=${t%%:*}; want=${t##*:}
   out=$(timeout 1200 python3 tools/play.py dist/index.html tests/play/$f.json 800 460 2>&1)
   n=$(echo "$out" | grep -c "CHECK .* ok")
