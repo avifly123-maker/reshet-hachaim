@@ -43,9 +43,9 @@ c = WK.current(); ok(c.daysLeft === 1 && c.kind === rec.kind, 'Thursday: the las
 const ver = versionsOf(c.kind).find((v) => v.id === c.ver);
 const r = WK.finish({ win: true, score: 7, guest: ver.guest });
 ok(r.first && r.badges.includes('weekly:first') && r.badges.includes('weekly:' + c.kind), 'the first win: badges ' + r.badges.join(','));
-ok(r.guest && WK.guestsOf('grove').length === 1, 'a guest comes to live on the island');
+ok(r.guest && WK.guestsOf(ver.guest.zone).length === 1, 'a guest comes to live on the island');
 const r2 = WK.finish({ win: true, score: 5, guest: ver.guest });
-ok(!r2.first && !r2.badges.length && WK.guestsOf('grove').length === 1, 'a second finish of the same version gives nothing again');
+ok(!r2.first && !r2.badges.length && WK.guestsOf(ver.guest.zone).length === 1, 'a second finish of the same version gives nothing again');
 ok(WK.bestOf(c.kind) === 7 && WK.eventsDone() === 1, 'the record and the count');
 WK.setDate(fri); c = WK.current(); ok(!c.open && c.done, 'Friday: closed, and the week is marked done');
 

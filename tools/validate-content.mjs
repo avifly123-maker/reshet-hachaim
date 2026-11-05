@@ -389,7 +389,7 @@ checkForbidden('common', COMMON);
   const fs = await import('node:fs'), path = await import('node:path');
   const files = [];
   const walk = (d) => { for (const f of fs.readdirSync(d)) { const q = path.join(d, f); if (fs.statSync(q).isDirectory()) walk(q); else if (/\.js$/.test(f)) files.push(q); } };
-  for (const d of ['src/learn', 'src/ui', 'src/research', 'src/lab', 'src/workshop', 'src/data/workshop']) if (fs.existsSync(d)) walk(d);   // 1.4.4: ניצוץ's workshop
+  for (const d of ['src/learn', 'src/ui', 'src/research', 'src/lab', 'src/workshop', 'src/data/workshop', 'src/weekly', 'src/data/weekly']) if (fs.existsSync(d)) walk(d);   // 1.4.4: ניצוץ's workshop
   for (const f of fs.readdirSync('src/data')) if (/torah|source|invention|expedition|badge|quiz|lab-questions/i.test(f)) files.push(path.join('src/data', f));
   for (const f of ['src/data/robolab/tech-cards.js', 'src/data/robolab/workshop-text.js', 'src/robolab/workshop-ui.js', 'src/robolab/earn-words.js']) if (fs.existsSync(f)) files.push(f);   // 1.4.3
   const W = ['אישה', 'אשה', 'נשים', 'ילדה', 'ילדות', 'נערה', 'דינוזאור', 'דינוזאורים', 'אבולוציה'];

@@ -12,10 +12,11 @@ import { THREAD_GUIDE } from './guide/threads.js';
 import { AFTER_GUIDE } from './guide/after.js';
 import { CHAT_GUIDE } from './guide/chat.js';   // 1.4.3: a conversation with רובו־דע anywhere (src/ui/robo-chat.js)
 import { NITZ_GUIDE } from './guide/workshop.js';   // 1.4.4: ניצוץ's words (written only, ids nz.*)
+import { WEEK_EVENT_GUIDE } from './guide/weekly-events.js';   // 1.4.4: the weekly events' tutorials, קוּבִּי in writing (ids kw.*)
 import { TUTORIAL_GUIDE } from './guide/tutorials.js';   // 1.3.3 (refresh of 29.10): the hands-on tutorials (training field, lab, hub) and the journey's "how to go on"   // area H: visitors, photos, challenges, the island's rank
 export { STAGE_LINES, LEGACY_LINES };
 // THREAD_GUIDE: 'threads:<id>' → the line רובו־דע says when that thread opens (src/core/threads.js)
-export const GUIDE = { ...START_GUIDE, ...HUB_GUIDE, ...LAB_GUIDE, ...ZONE_GUIDE, ...RESEARCH_GUIDE, ...THREAD_GUIDE, ...AFTER_GUIDE, ...TUTORIAL_GUIDE, ...CHAT_GUIDE, ...NITZ_GUIDE };
+export const GUIDE = { ...START_GUIDE, ...HUB_GUIDE, ...LAB_GUIDE, ...ZONE_GUIDE, ...RESEARCH_GUIDE, ...THREAD_GUIDE, ...AFTER_GUIDE, ...TUTORIAL_GUIDE, ...CHAT_GUIDE, ...NITZ_GUIDE, ...WEEK_EVENT_GUIDE };
 // every line in the game, for the voice maker and the validator
 export function allGuideLines() {
   const out = [];

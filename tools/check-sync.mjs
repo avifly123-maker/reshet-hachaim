@@ -1,7 +1,7 @@
 // check-sync (1.4.3, Avi 4.11: "the layers are in step: what shows in one shows accordingly in the others, no
 // contradictions"): checks that the words and the docs agree with the data they speak of.
 //   1. the journey table in docs/JOURNEY.md has the same numbers as STAGES in src/core/journey.js (full and beginners)
-//   2. every guide line is voiced: רובו־דע's in art/voice, קוּבִּי's in src/data/kubi-voice.js (ניצוץ's, nz.*, are written only)
+//   2. every guide line is voiced: רובו־דע's in art/voice, קוּבִּי's in src/data/kubi-voice.js (ניצוץ's, nz.*, and קוּבִּי's weekly-event lines, kw.*, are written only)
 //   3. every `at` of a guide line names classes and data attributes that exist in the game's code
 //   4. the robot workshop: every technology card speaks of parts and missions that exist; six missions per zone
 //   5. the zones: every zone of ZONE_IDS is in the start screen's list, the album, the quiz banks and the journey
@@ -38,7 +38,7 @@ const lines = allGuideLines();
 for (const l of lines) {
   const robo = fs.existsSync(path.join(ROOT, 'art/voice', l.id + '.ogg'));
   const kubi = kubiVoice.includes(`'${l.id}'`) || kubiVoice.includes(`"${l.id}"`);
-  if (!robo && !kubi && !l.id.startsWith('nz.')) err(`guide line ${l.id} has no voice`);   // 1.4.4: ניצוץ's lines (nz.*) are written only (Avi, 4.11)
+  if (!robo && !kubi && !l.id.startsWith('nz.') && !l.id.startsWith('kw.')) err(`guide line ${l.id} has no voice`);   // 1.4.4: ניצוץ's lines (nz.*) are written only (Avi, 4.11)
 }
 
 // 3. the `at` of guide lines: its class names and data attributes are written somewhere in the code

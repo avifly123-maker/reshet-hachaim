@@ -961,3 +961,21 @@ The test hall's numbers are game logic (a simple sum, like the robot workshop's 
 - **Firefly light** (`glow`): cold light, almost no heat (bioluminescence).
 - **Scorpion glow** (`uvglow`, order bank): scorpions glow blue-green under ultraviolet light (Stachel et al. 1999); banknotes carry marks that show only under such light.
 - **Beehive fences** (`buzz`, order elephants): elephants avoid the sound and stings of bees; beehive fences protect farms in Kenya (King, Douglas-Hamilton & Vollrath, Afr. J. Ecol. 2011).
+
+## התקלה במעבדה (1.4.4 set 5, src/data/weekly/glitch.js)
+
+Each creature's home is its album card's zone (sourced with the cards). The needs on the screen:
+- **Sea** (clownfish, parrotfish, octopus, green turtle, jellyfish, sea star): marine animals of the Red Sea reef live only in salt water; river and waterhole water is fresh.
+- **Wet forest** (poison dart frog, toucan, sloth, morpho, kinkajou, howler monkey, heliconia): Amazon rainforest species that need the year-round rain and humidity of the forest (dart frogs dry out quickly outside it).
+- **Desert** (fennec, jerboa, yellow scorpion, darkling beetle, uromastyx, sand cat): built for heat, dryness and sand (the fennec's and the jerboa's burrows in sand, the sand cat's furred paws).
+- **Grass** (zebra, wildebeest, impala, African buffalo): grazers of the open savanna grasslands.
+- **Oak** (Eurasian jay): caches thousands of acorns in autumn for the winter (Bossema, Behaviour 1979), and so plants oak woods.
+- **Mediterranean** (cyclamen, crown anemone, common oak): plants of the Mediterranean grove, growing in the rainy winter and resting in the dry summer.
+The "what is missing there" lines are general facts about each zone (fresh water, a long dry summer, little rain, no oak trees, no open grassland).
+
+## הצנצנת הסגורה (1.4.4 set 6, src/data/weekly/jar.js, src/weekly/jar-model.js)
+
+- **Closed worlds can last:** David Latimer's bottle garden was sealed in 1972 and lived for decades on light alone; sealed "ecospheres" of algae, shrimp and bacteria were developed from NASA's closed-system research (Folsome & Hanson 1986).
+- **The circle:** producers (plants, algae) make food and oxygen from light; consumers (grazers, hunters) use oxygen and make waste; decomposers and filter feeders (fungi, darkling beetles, hermit crabs, sponges, clams) return the waste to the soil or water as nutrients. A sealed jar fails when one part of the circle is missing or too big.
+- **Size matters:** a mouse, an agouti or a jerboa needs far more air and food than a jar can make (game logic: weight 3).
+- The model's numbers are game logic; the roles of the creatures are real (fungi decompose, darkling beetles eat dead plant matter, sea urchins graze algae, sea stars hunt grazers, sponges and clams filter water).

@@ -20,7 +20,9 @@ export const WEEK_KINDS = [
 export const kindOf = (id) => WEEK_KINDS.find((k) => k.id === id) || null;
 
 // the versions of each kind (sets 5 to 7 fill them; tests may add their own through addVersions)
-export const VERSIONS = { glitch: [], jar: [], detective: [], race: [] };
+import { GLITCH_VERSIONS } from './weekly/glitch.js';   // set 5
+import { JAR_VERSIONS } from './weekly/jar.js';         // set 6
+export const VERSIONS = { glitch: GLITCH_VERSIONS.slice(), jar: JAR_VERSIONS.slice(), detective: [], race: [] };
 export const versionsOf = (kind) => VERSIONS[kind] || [];
 export function addVersions(kind, list) { (VERSIONS[kind] = VERSIONS[kind] || []).push(...list); }
 

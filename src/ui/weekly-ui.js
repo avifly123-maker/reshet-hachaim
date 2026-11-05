@@ -17,6 +17,7 @@ import { ZONE_LOOK } from '../data/zones.js';
 import { grant } from '../core/badges-store.js';
 import { svcGuide } from '../core/services.js';
 import { weeklyTutorial } from './tutorials.js';
+import { loadPack } from '../core/packs.js';
 
 const kids = () => playMode() === 'kids';
 const w = (o, vars) => { let s = kids() ? o.k : o.f; if (vars) for (const [k, v] of Object.entries(vars)) s = s.replace('{' + k + '}', v); return s; };
@@ -25,6 +26,9 @@ const nameOf = (k) => (kids() ? k.kname : k.name);
 const OPENERS = {};
 let tutRun = null;   // the first-visit tutorial while it runs (tests read its step)
 export function registerWeekly(kind, open) { OPENERS[kind] = open; }
+// the events that are built (their screens load with the pack 'weekly' when opened)
+registerWeekly('glitch', (o) => loadPack('weekly').then((m) => m.openGlitch(o), (e) => console.error(e)));   // set 5
+registerWeekly('jar', (o) => loadPack('weekly').then((m) => m.openJar(o), (e) => console.error(e)));         // set 6
 export const weeklyReady = (kind) => !!OPENERS[kind];
 try { window.__weeklyUI = { registerWeekly, openWeekly, chipState, afterEvent, tut: () => (tutRun && tutRun.step) || null }; } catch (e) { /* node */ }
 

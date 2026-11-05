@@ -237,3 +237,24 @@ export function nzOrdersTutorial({ guide, ws, force = false, onDone }) {
     { id: 'pick', lines: L('nzord:pick'), wait: () => { const s = ws.state(); return !!(s.office && s.office.ticket) || s.place !== 'orders'; } },
   ], onDone);
 }
+
+// אירוע השבוע: התקלה במעבדה והצנצנת (1.4.4 sets 5–6). קוּבִּי leads them in writing (no voice: kw.* lines).
+const kwRun = (KEY, guide, steps) => runGuided({ guide, steps, sayOpts: { speaker: 'kubi' }, onEnd: (r) => { if (r !== 'abort') markIntro(KEY); } });
+export function glitchTutorial({ guide, ev, force = false }) {
+  const KEY = 'g:wk:glitch';
+  if (!guide || !ev || (!force && introSeen(KEY))) return null;
+  return kwRun(KEY, guide, [
+    { id: 'oops', lines: L('gltut:oops') },
+    { id: 'pick', lines: L('gltut:pick'), wait: () => ev.state().picks > 0 || ev.state().sent > 0 },
+    { id: 'gate', lines: L('gltut:gate'), wait: () => ev.state().sent > 0 },
+  ]);
+}
+export function jarTutorial({ guide, ev, force = false }) {
+  const KEY = 'g:wk:jar';
+  if (!guide || !ev || (!force && introSeen(KEY))) return null;
+  return kwRun(KEY, guide, [
+    { id: 'jar', lines: L('jartut:jar') },
+    { id: 'pick', lines: L('jartut:pick'), wait: () => ev.state().picks >= 2 },
+    { id: 'seal', lines: L('jartut:seal'), wait: () => ev.state().sealed },
+  ]);
+}
