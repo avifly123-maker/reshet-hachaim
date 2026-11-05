@@ -27,10 +27,10 @@ export const RACE_VERSIONS = [
   { id: 'r1', title: L('מסלול הפתיחה', 'מַסְלוּל הַפְּתִיחָה'), segs: ['sv2', 'am1', 'gr1', 'de1', 'rf2'], guest: { zone: 'savanna', id: 'giraffe', name: 'ג׳ירפה', kname: 'גִ׳ירָפָה' } },
   { id: 'r2', title: L('גשר החבלים', 'גֶּשֶׁר הַחֲבָלִים'), segs: ['am1', 'gr1', 'rf1', 'de1', 'sv2'], guest: { zone: 'reef', id: 'turtle', name: 'צב ים ירוק', kname: 'צַב יָם יָרֹק' } },
   { id: 'r3', title: L('בוץ וחול', 'בֹּץ וְחוֹל'), segs: ['am2', 'gr2', 'rf2', 'de2', 'sv1'], guest: { zone: 'amazon', id: 'harpy', name: 'עיט הרפיה', kname: 'עֵיט הַרְפְּיָה' } },
-  { id: 'r4', title: L('הדרך הארוכה', 'הַדֶּרֶךְ הָאֲרֻכָּה'), segs: ['am1', 'gr2', 'rf2', 'de1', 'sv2'], guest: { zone: 'grove', id: 'owl', name: 'תנשמת', kname: 'תִּנְשֶׁמֶת' } },
+  { id: 'r4', title: L('הדרך הארוכה', 'הַדֶּרֶךְ הָאֲרֻכָּה'), segs: ['am1', 'gr2', 'rf2', 'de1', 'sv2'], guest: { zone: 'grove', id: 'jay', name: 'עורבני', kname: 'עוֹרְבָנִי' } },
   { id: 'r5', title: L('מהמדבר לנהר', 'מֵהַמִּדְבָּר לַנָּהָר'), segs: ['de2', 'am2', 'sv1', 'gr1', 'rf2'], guest: { zone: 'desert', id: 'eagleowl', name: 'אוח מדבר', kname: 'אוֹחַ מִדְבָּר' } },
-  { id: 'r6', title: L('שני גשרים', 'שְׁנֵי גְּשָׁרִים'), segs: ['am1', 'gr1', 'de1', 'sv1', 'rf1'], guest: { zone: 'savanna', id: 'giraffe', name: 'ג׳ירפה', kname: 'גִ׳ירָפָה' } },
-  { id: 'r7', title: L('הנהר קודם', 'הַנָּהָר קֹדֶם'), segs: ['sv1', 'de1', 'am1', 'rf2', 'gr1'], guest: { zone: 'reef', id: 'turtle', name: 'צב ים ירוק', kname: 'צַב יָם יָרֹק' } },
+  { id: 'r6', title: L('שני גשרים', 'שְׁנֵי גְּשָׁרִים'), segs: ['am1', 'gr1', 'de1', 'sv1', 'rf1'], guest: { zone: 'savanna', id: 'elephant', name: 'פיל', kname: 'פִּיל' } },
+  { id: 'r7', title: L('הנהר קודם', 'הַנָּהָר קֹדֶם'), segs: ['sv1', 'de1', 'am1', 'rf2', 'gr1'], guest: { zone: 'reef', id: 'octopus', name: 'תמנון', kname: 'תְּמָנוּן' } },
   { id: 'r8', title: L('המירוץ הגדול', 'הַמֵּרוֹץ הַגָּדוֹל'), segs: ['sv2', 'de2', 'rf2', 'am2', 'gr2'], guest: { zone: 'grove', id: 'owl', name: 'תנשמת', kname: 'תִּנְשֶׁמֶת' } },
 ];
 // the screen's words
