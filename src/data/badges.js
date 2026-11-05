@@ -18,10 +18,12 @@ export const BADGE_GROUPS = [
   { id: 'robolab', name: 'מעבדת הרובוטים', short: 'רובוטים', col: '#1f4a6e', col2: '#e8873a' },
   { id: 'weekly', name: 'אירועי השבוע', short: 'אירועים', col: '#6a2a5a', col2: '#f6cf72' },   // 1.4.4
   { id: 'workshop', name: 'הסדנה של ניצוץ', short: 'ניצוץ', col: '#8a5a12', col2: '#ffe08a' },   // 1.4.4
+  { id: 'rare', name: 'תגים למצטיינים', short: 'מצטיינים', col: '#3a3a4a', col2: '#e8c050' },   // 1.4.4 set 9: metal medallions (src/data/rare-badges.js)
   // torah edition only (hidden in the general edition and while "מקורות ופסוקים" is off)
   { id: 'sources', name: 'מה הפסוק מלמד?', short: 'מקורות', col: '#7a5420', col2: '#f6dfa0', torah: true },
 ];
 
+import { RARE_BADGES } from './rare-badges.js';
 export const BADGES = [
   // ── expert missions (src/data/<zone>.js, ids ax*, gx*, rx*: open after the regular missions)
   { id: 'b_ax1', group: 'amazon', art: 'harpy', name: 'שומר החופה', how: 'משימת מומחים "גג היער" באמזונס', earn: 'mission:ax1' },
@@ -189,6 +191,7 @@ export const BADGES = [
   { id: 'b_wk_8', group: 'weekly', art: 'harpy', name: 'שמונה שבועות', how: 'מצליחים בשמונה אירועים', earn: 'weekly:8' },
   { id: 'b_wk_20', group: 'weekly', art: 'elephant', name: 'שנה של אירועים', how: 'מצליחים בעשרים אירועים', earn: 'weekly:20' },
   { id: 'b_wk_record', group: 'weekly', art: 'hummingbird', name: 'שובר שיאים', how: 'שוברים את השיא האישי באירוע', earn: 'weekly:record' },
+  ...RARE_BADGES,   // 1.4.4 set 9
 ];
 
 // card frames for the album: a group's frame opens with `need` of its badges ('all': badges of any group)
@@ -202,6 +205,19 @@ export const FRAMES = [
   { id: 'silver', name: 'כסף של חוקרי הטבע', need: 2, group: 'research' },
   { id: 'sources', name: 'קלף עתיק', need: 2, group: 'sources', torah: true },
   { id: 'gold', name: 'זהב', need: 12, group: 'all' },
+  // 1.4.4 set 9: twelve more frames from Blender (tools/blender/medals.py)
+  { id: 'desert', name: 'אבן חול ודיונות', need: 2, group: 'desert' },
+  { id: 'savanna', name: 'שיטה בסוואנה', need: 2, group: 'savanna' },
+  { id: 'robolab', name: 'פלדה ומעגלים', need: 3, group: 'robolab' },
+  { id: 'workshop', name: 'נחושת ונורה', need: 3, group: 'workshop' },
+  { id: 'weekly', name: 'כוכבי השבוע', need: 2, group: 'weekly' },
+  { id: 'night', name: 'ירח וכוכבים', need: 5, group: 'weekly' },
+  { id: 'pearl', name: 'צדף ופנינה', need: 8, group: 'reef' },
+  { id: 'bloom', name: 'פריחה', need: 30, group: 'all' },
+  { id: 'bronze', name: 'ענף דפנה מנחושת', need: 1, group: 'rare' },
+  { id: 'silverlaurel', name: 'ענף דפנה מכסף', need: 5, group: 'rare' },
+  { id: 'goldlaurel', name: 'ענף דפנה מזהב', need: 12, group: 'rare' },
+  { id: 'crystal', name: 'בדולח', need: 20, group: 'rare' },
 ];
 
 export const badgeById = (id) => BADGES.find((b) => b.id === id) || null;
