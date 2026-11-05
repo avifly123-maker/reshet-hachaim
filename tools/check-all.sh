@@ -176,4 +176,11 @@ out=$(timeout 2400 python3 tools/check-old-saves.py dist/index.html 2>&1 | grep 
 echo "$out" | grep "saves-"
 echo "$out" | grep -q "^FAIL\|Traceback" && fail "old saves"
 
+# 5.11 (Avi: every world we build is checked for memory, weight, loading and long runs): open and close every world three
+# times, play in it, and fail if anything is left behind after closing (tools/check-worlds.py, about 25 minutes)
+step "worlds under load: memory, weight, loading"
+out=$(timeout 3600 python3 tools/check-worlds.py dist/index.html 3 2>&1)
+echo "$out" | grep -A12 "^world "
+echo "$out" | grep -q "WORLDS: OK" || fail "worlds under load"
+
 echo; echo "OK – all checks passed"
