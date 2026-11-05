@@ -69,6 +69,10 @@
 "timeout": 40
 },
 {
+"until": "window.__rlDebug.gar().tut === 'end'",
+"timeout": 10
+},
+{
 "js": "const g=window.__rlDebug.gar(); 'CHECK paint-and-tiles-repainted ' + (g.paint.body==='#1a9e99' && g.tiles>=4 && g.tut==='end' ? 'ok' : 'FAIL '+JSON.stringify(g))"
 },
 {

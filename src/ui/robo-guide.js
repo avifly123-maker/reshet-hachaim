@@ -40,7 +40,7 @@ const hushable = (opts, sc) => !opts.force && !opts.guided && !opts.modal && (op
 const CSS = `
 #ui #rguide { position: absolute; inset: 0; z-index: var(--z-guide); pointer-events: none; direction: rtl; font-family: var(--sans, sans-serif); }
 #ui #rguide.modal { pointer-events: auto; background: rgba(6, 14, 9, .55); animation: rg-fade .25s ease-out; }
-#ui #rguide .rg-wrap { position: absolute; right: max(12px, 2vw); bottom: max(10px, 2vh); display: flex; align-items: flex-end; gap: 10px; pointer-events: none; max-width: min(760px, calc(100vw - 24px)); }
+#ui #rguide .rg-wrap { position: absolute; z-index: 1; right: max(12px, 2vw); bottom: max(10px, 2vh); display: flex; align-items: flex-end; gap: 10px; pointer-events: none; max-width: min(760px, calc(100vw - 24px)); }
 #ui #rguide.center .rg-wrap { right: 50%; bottom: 50%; transform: translate(50%, 50%); }
 #ui #rguide .rg-fig { position: relative; flex: none; width: clamp(92px, 13vw, 150px); aspect-ratio: 200 / 240; animation: rg-bob 3.2s ease-in-out infinite; filter: drop-shadow(0 6px 10px rgba(0,0,0,.35)); }
 #ui #rguide .rg-fig svg, #ui #rguide .rg-fig img.rg-pic { position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -66,7 +66,7 @@ const CSS = `
 #ui #rguide .rg-say { background: transparent; color: #1f7f78; padding: 6px 8px; min-width: 42px; }
 #ui #rguide .rg-say svg { width: 22px; height: 22px; display: block; }
 #ui #rguide button:focus-visible { outline: 3px solid #e6a93c; outline-offset: 2px; }
-#ui #rguide .rg-ring { position: fixed; border-radius: 16px; pointer-events: none; box-shadow: 0 0 0 4px #ffd166, 0 0 0 9px rgba(255, 209, 102, .35), 0 0 24px 8px rgba(255, 209, 102, .5); animation: rg-pulse 1.4s ease-in-out infinite; transition: all .25s ease; }
+#ui #rguide .rg-ring { position: fixed; z-index: 0; border-radius: 16px; pointer-events: none; box-shadow: 0 0 0 4px #ffd166, 0 0 0 9px rgba(255, 209, 102, .35), 0 0 24px 8px rgba(255, 209, 102, .5); animation: rg-pulse 1.4s ease-in-out infinite; transition: all .25s ease; }
 #ui #rguide.tip .rg-bub { min-width: 200px; }
 #ui #rguide .rg-fig.kubi { width: clamp(80px, 11vw, 118px); height: auto; position: relative; }
 #ui #rguide .rg-fig.kubi .rg-fr { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; }
@@ -172,14 +172,21 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
     ringAt = t; const r = t.getBoundingClientRect();
     const ring = document.createElement('i'); ring.className = 'rg-ring';
     ring.style.cssText = `left:${r.left - 6}px;top:${r.top - 6}px;width:${r.width + 12}px;height:${r.height + 12}px`;
-    el.appendChild(ring);
+    el.insertBefore(ring, el.firstChild);   // under the bubble (Avi, 5.11: a highlight never covers the words)
   }
   function loop(now) {
     raf = requestAnimationFrame(loop);
     const dt = last ? Math.min(0.1, (now - last) / 1000) : 0; last = now;
     const fig = el.querySelector('.rg-fig'); if (!fig || !cur) return;
     // the ringed thing went away (a forest closed, a panel changed): the ring goes too
-    if (ringAt && now - ringCheck > RING_CHECK_MS) { ringCheck = now; if (!shown(ringAt)) placeRing(null); }
+    if (now - ringCheck > RING_CHECK_MS) {
+      ringCheck = now;
+      if (ringAt) { if (!shown(ringAt)) placeRing(null); }
+      else {   // 5.11: a thing that shows a moment after its line (a list drawn after a spin) still gets its ring, and the bubble moves off it
+        const at = cur.lines[cur.i] && cur.lines[cur.i].at, t = at && (typeof at === 'string' ? document.querySelector(at) : at);
+        if (shown(t)) { placeRing(at); placeWrap(); }
+      }
+    }
     const cv = fig.querySelector('canvas');
     blinkT += dt; let blink = 0;
     if (blinkT > nextBlink) { const k = (blinkT - nextBlink) / 0.16; blink = k < 1 ? Math.sin(k * Math.PI) : 0; if (k >= 1) { blinkT = 0; nextBlink = 2 + Math.random() * 3; } }

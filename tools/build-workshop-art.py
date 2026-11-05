@@ -16,16 +16,17 @@ def machine_box():
     l = Image.open(os.path.join(src, 'machine_lever.png')).split()[3].point(lambda v: 255 if v > 40 else 0).getbbox()
     if l: b = (min(b[0], l[0]), min(b[1], l[1]), max(b[2], l[2]), max(b[3], l[3]))
     pad = 6; return (max(0, b[0] - pad), max(0, b[1] - pad), b[2] + pad, b[3] + pad)
-def pack(name, maxw=None):
+def pack(name, maxw=None, q=84):
     im = Image.open(os.path.join(src, name + '.png')).convert('RGBA')
     if name in ('machine', 'machine_lever'):
         CROP.setdefault('m', machine_box()); im = im.crop(CROP['m'])
-    if not KEEP(name):
+    if name == 'wall': im = im.crop((52, 0, im.width - 52, im.height)).convert('RGB')
+    if not KEEP(name) and name != 'wall':
         a = im.split()[3].point(lambda v: 255 if v > 10 else 0); box = a.getbbox()
         if box:
             pad = 4; box = (max(0, box[0] - pad), max(0, box[1] - pad), min(im.width, box[2] + pad), min(im.height, box[3] + pad)); im = im.crop(box)
     if maxw and im.width > maxw: im = im.resize((maxw, round(im.height * maxw / im.width)), Image.LANCZOS)
-    b = io.BytesIO(); im.save(b, 'WEBP', quality=84, method=6)
+    b = io.BytesIO(); im.save(b, 'WEBP', quality=q, method=6)
     return 'data:image/webp;base64,' + base64.b64encode(b.getvalue()).decode(), im.size
 
 out = {'things': {}, 'st': {}, 'jar': {}, 'pieces': {}, 'tests': {}, 'clients': {}, 'meta': {}}
@@ -34,7 +35,7 @@ for f in sorted(os.listdir(src)):
     if not f.endswith('.png'): continue
     n = f[:-4]
     if n == 'jars': continue
-    url, size = pack(n, 220 if n.startswith('t_') else 150 if n[:2] in ('p_', 'm_', 's_', 'c_') else None)
+    url, size = pack(n, 1280, 74) if n == 'wall' else pack(n, 220 if n.startswith('t_') else 150 if n[:2] in ('p_', 'm_', 's_', 'c_') else None)
     total += len(url)
     if n.startswith('t_'): out['things'][n[2:]] = url
     elif n.startswith('st_'): out['st'][n[3:]] = url

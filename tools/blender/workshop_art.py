@@ -522,11 +522,72 @@ def jar_model(kind, shut):
         o = cyl('lid', 0.27, 0.07, (0.62, -0.05, 0.035), metal('#c8a050', 0.3, 'lidm'), bevel=0.015); o.rotation_euler = (0, 0, 0)
     return dict(target=(0, 0, 0.58), cam=(0.0, -3.4, 1.15), lens=55)
 
+# ── the workshop's back wall (Avi, 5.11: "a wall of an inventors' lab, not plain wood"): riveted teal plates over a wooden
+# wainscot, copper pipes with valves and gauges, a control panel with nickel buttons and toggles, two blueprints, shelves
+# with glowing jars, hanging lamps. Rendered opaque, wide, as the background of the whole workshop.
+def wall():
+    TEAL = enamel('#2c5f66', 'wallteal'); TEAL2 = enamel('#33707a', 'wallteal2'); NICKEL = metal('#d6dde2', 0.18, 'nickel')
+    W = wood('#6a3e1c', 'wainscot')
+    for i in range(-5, 6):   # the plates, a grid with small gaps, alternating shades
+        for j in range(4):
+            box(f'pl{i}{j}', (0.96, 0.05, 0.96), (i * 1.0, 0.1, 1.68 + j * 1.0), TEAL if (i + j) % 2 else TEAL2, 0.02)
+            rivets(f'rv{i}{j}', [(i * 1.0 + dx, 0.06, 1.68 + j * 1.0 + dz) for dx in (-0.42, 0.42) for dz in (-0.42, 0.42)], NICKEL, 0.022)
+    for i in range(-11, 12): box(f'wp{i}', (0.48, 0.06, 1.12), (i * 0.5, 0.08, 0.56), W, 0.01)
+    box('rail', (11.0, 0.12, 0.06), (0, 0.02, 1.15), BRASS(), 0.02)
+    box('beam', (11.4, 0.4, 0.5), (0, -0.1, 5.25), W, 0.03); box('beamtrim', (11.4, 0.42, 0.06), (0, -0.1, 4.98), BRASS(), 0.01)
+    box('floor', (11.0, 3.0, 0.05), (0, -1.5, -0.02), wood('#8a5a2a', 'floorw'), 0.0)
+    # pipes along the top, an elbow down, valves and gauges
+    tube('pipeA', [(-5.5, -0.05, 4.05), (-1.2, -0.05, 4.05), (-0.6, -0.05, 4.05), (-0.4, -0.05, 3.7), (-0.4, -0.05, 2.9)], 0.07, COPPER())
+    tube('pipeB', [(0.8, -0.05, 3.85), (5.5, -0.05, 3.85)], 0.055, COPPER())
+    for x in (-3.6, -1.9, 2.2, 4.0): torus(f'clamp{x}', 0.08, 0.02, (x, -0.05, 4.05 if x < 0 else 3.85), BRASS(), (0, math.pi / 2, 0))
+    for k, (x, z) in enumerate(((-2.8, 4.05), (3.1, 3.85))):
+        cyl(f'vstem{k}', 0.025, 0.25, (x, -0.2, z), BRASS(), (math.pi / 2, 0, 0)); torus(f'vwheel{k}', 0.13, 0.022, (x, -0.33, z), enamel('#c8402f', 'redknob'), (math.pi / 2, 0, 0))
+        for a in range(3): box(f'vsp{k}{a}', (0.012, 0.012, 0.13), (x + 0.065 * math.sin(a * 2.094), -0.33, z + 0.065 * math.cos(a * 2.094)), enamel('#c8402f', 'redknob'), 0.003, (0, a * 2.094, 0))
+    for k, (x, z) in enumerate(((-0.4, 2.75), (1.6, 3.55))):
+        cyl(f'gface{k}', 0.2, 0.05, (x, -0.1, z), pbsdf('dialface', hexc('#fffaf0'), rough=0.4), (math.pi / 2, 0, 0), bevel=0)
+        torus(f'gring{k}', 0.2, 0.03, (x, -0.13, z), BRASS(), (math.pi / 2, 0, 0)); box(f'gneedle{k}', (0.02, 0.01, 0.15), (x + 0.04, -0.15, z + 0.04), enamel('#d8402f', 'red'), 0.004, (0, -0.5, 0))
+    # the control panel: nickel buttons, toggles and little lamps
+    box('cpanel', (1.5, 0.12, 0.9), (2.6, -0.02, 2.35), enamel('#3a4048', 'panelgrey'), 0.04)
+    for r in range(2):
+        for c in range(4):
+            cyl(f'btn{r}{c}', 0.075, 0.08, (2.08 + c * 0.34, -0.12, 2.55 - r * 0.32), NICKEL, (math.pi / 2, 0, 0), bevel=0.02)
+            sphere(f'btnc{r}{c}', 0.05, (2.08 + c * 0.34, -0.17, 2.55 - r * 0.32), enamel(['#e0443a', '#f2c443', '#3a9a6a', '#3f7fd0'][(r + c) % 4], 'btncol' + str((r + c) % 4)), (1, 0.5, 1))
+    for c in range(4):
+        sphere(f'plamp{c}', 0.035, (2.08 + c * 0.34, -0.1, 2.12), pbsdf('pl' + str(c), hexc(['#7cf0a0', '#ffd24a', '#ff6a5a', '#7cc4ff'][c]), emit=hexc(['#7cf0a0', '#ffd24a', '#ff6a5a', '#7cc4ff'][c]), estr=12))
+    # two blueprints in thin frames
+    for k, (x, z) in enumerate(((-2.4, 2.6), (-4.3, 2.4))):
+        box(f'bp{k}', (1.3 if k == 0 else 0.9, 0.03, 0.9), (x, -0.02, z), pbsdf('blueprint', hexc('#1f4f8a'), rough=0.7, emit=hexc('#1f4f8a'), estr=0.15), 0.005)
+        box(f'bpf{k}', (1.38 if k == 0 else 0.98, 0.02, 0.98), (x, 0.0, z), W, 0.01)
+        for li in range(5): box(f'bpl{k}{li}', ((0.9 if k == 0 else 0.6) - li * 0.1, 0.01, 0.012), (x, -0.04, z + 0.3 - li * 0.14), pbsdf('bpline', (0.9, 0.95, 1), emit=(0.8, 0.9, 1), estr=1.2), 0.003)
+        torus(f'bpc{k}', 0.15, 0.01, (x + 0.3, -0.04, z - 0.1), pbsdf('bpline', (0.9, 0.95, 1), emit=(0.8, 0.9, 1), estr=1.2), (math.pi / 2, 0, 0))
+    # shelves with glowing jars and a plant
+    for k, (x, z) in enumerate(((0.9, 2.3), (4.6, 2.9))):
+        box(f'sh{k}', (1.3, 0.35, 0.05), (x, -0.15, z), W, 0.01)
+        for j in range(3):
+            col = ['#7cf0a0', '#ffb84a', '#c08aff'][(j + k) % 3]
+            lathe(f'jar{k}{j}', [(0, 0), (0.1, 0), (0.11, 0.2), (0.07, 0.24), (0.07, 0.27), (0, 0.27)], (x - 0.4 + j * 0.4, -0.15, z + 0.025), pbsdf('jarc' + col, hexc(col), rough=0.1, emit=hexc(col), estr=1.6))
+            cyl(f'jcap{k}{j}', 0.075, 0.04, (x - 0.4 + j * 0.4, -0.15, z + 0.31), BRASS(), bevel=0.008)
+    sphere('plant', 0.22, (5.2, -0.15, 3.15), noisy('#3f8a3a', '#2a6a2a', 30, 'plantn'), (1, 0.8, 0.8)); cyl('pot', 0.13, 0.2, (5.2, -0.15, 3.0), enamel('#b0562a', 'pot'), bevel=0.02, r2=0.1)
+    # hanging lamps
+    for k, x in enumerate((-3.3, -0.2, 3.3)):
+        cyl(f'cord{k}', 0.012, 0.8, (x, -0.6, 4.6), DARK())   # hangs from the beam
+        lathe(f'shade{k}', [(0.03, 0.0), (0.12, -0.04), (0.32, -0.28), (0.34, -0.3), (0.32, -0.3), (0.11, -0.06)], (x, -0.6, 4.2), enamel('#2f8a8a', 'teal'))
+        sphere(f'lbulb{k}', 0.1, (x, -0.6, 3.95), pbsdf('lampbulb', hexc('#fff0c0'), emit=hexc('#ffd88a'), estr=40))
+    return {}
+
 # ── the jobs
 JOBS = {}
 def job(name, w, h, samples=40):
     def deco(fn): JOBS[name] = (fn, w, h, samples); return fn
     return deco
+@job('wall', 1600, 900, 56)
+def _wall():
+    wall(); c = studio((0, 0, 2.3), (0, -7.6, 2.0), 24)
+    bpy.context.scene.render.film_transparent = False
+    w = bpy.context.scene.world; w.node_tree.nodes['Background'].inputs[1].default_value = 0.35
+    for o in bpy.context.scene.objects:
+        if o.name == 'ground': o.hide_render = True
+    return {}
 @job('machine', 640, 600, 48)
 def _m():
     P = idea_machine(with_lever=False); studio((0.05, 0, 0.92), (1.7, -4.0, 1.8), 46)

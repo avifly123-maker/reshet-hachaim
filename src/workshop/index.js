@@ -23,6 +23,7 @@ import { CARD_ART } from '../data/card-art.js';
 import { ZONE_LOOK } from '../data/zones.js';
 import { readWs, addIdea, rateLast, roundDone, measures, earned, crazyBox } from './progress.js';
 import { thingSVG, stationSVG, machineSVG, blenderSVG, catIcon, clockSVG } from './art.js';
+import { WS_ART } from '../data/workshop-art.js';
 import { createBench } from './bench.js';
 import { createOffice } from './office.js';
 import { grant } from '../core/badges-store.js';
@@ -59,6 +60,7 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
   const T = (o) => (kids ? (o.k || o.f || o.n) : (o.f || o.n));
   const W = (f, k) => (kids ? k : f);
   const el = document.createElement('div'); el.className = 'ws'; el.hidden = true; el.dir = 'rtl';
+  if (WS_ART.wall) el.style.setProperty('--wsbg', `url(${WS_ART.wall})`);
   root.appendChild(el);
   let tutPlace = null;   // the place whose tutorial runs (leaving it mid-way stops it; it comes back next time)
   let open_ = false, place = 'room', thing = null, last = null, mix = null, round = null, roundT = 0, mine = false, tut = null, spinning = 0, hand = [], orderId = null;
@@ -155,8 +157,7 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
   function roomHTML() {
     const S = readWs(), done = Object.values(S.orders).filter((x) => x.done).length;
     const badge = { orders: done ? `${done}` : '', patent: S.patents.length ? `${S.patents.length}` : '', cards: Object.keys(S.rounds).length ? `${Object.keys(S.rounds).length}` : '', machine: S.n.ideas ? `${S.n.ideas}` : '' };
-    return `<div class="ws-room"><div class="ws-wall" aria-hidden="true"><i class="ws-shelf s1"></i><i class="ws-shelf s2"></i>
-        <i class="ws-jar j1"></i><i class="ws-jar j2"></i><i class="ws-jar j3"></i><i class="ws-plant"></i><i class="ws-bulb b1"></i><i class="ws-bulb b2"></i><i class="ws-bulb b3"></i></div>
+    return `<div class="ws-room"><div class="ws-wall" aria-hidden="true"></div>
       <div class="ws-floor">${PLACES.map((P, i) => `<button type="button" class="ws-st st${i}" data-st="${P.id}">${stationSVG(P.id)}<b class="ws-plaque">${esc(kids ? P.k : P.n)}</b>${badge[P.id] ? `<em class="ws-count">${badge[P.id]}</em>` : ''}</button>`).join('')}</div></div>`;
   }
   // ── the idea machine

@@ -3,9 +3,8 @@
    One layer over everything (--z-panels, like the robot lab). Sized for 800x460 and up; nothing scrolls except long
    lists inside their own box. No cross shapes. Motion is gentle, and stops for prefers-reduced-motion. */
 #ui.wol .ws { position: absolute; inset: 0; z-index: var(--z-panels); pointer-events: auto; color: #3a2a18; font-family: var(--sans); display: flex; flex-direction: column; overflow: hidden;
-  background: linear-gradient(180deg, #7a4a24 0, #8e5a2e 52%, #6a3e1e 52.2%, #b07a45 53%, #c99a62 100%); }
-#ui.wol .ws::before { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .22;
-  background: repeating-linear-gradient(90deg, rgba(0, 0, 0, .35) 0 2px, transparent 2px 64px), radial-gradient(120% 70% at 50% 0, rgba(255, 210, 120, .55), transparent 70%); }
+  background: linear-gradient(180deg, rgba(10, 30, 34, .08), rgba(20, 12, 4, .22)), var(--wsbg, linear-gradient(180deg, #7a4a24 0, #8e5a2e 52%, #6a3e1e 52.2%, #b07a45 53%, #c99a62 100%)) center 30% / cover #3e5a5a; }
+#ui.wol .ws::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(110% 80% at 50% 0, rgba(255, 220, 140, .18), transparent 70%); }
 #ui.wol .ws[hidden] { display: none; }
 #ui.wol .ws button { font: inherit; color: inherit; cursor: pointer; }
 #ui.wol .ws svg.ic { width: 1.15em; height: 1.15em; flex: none; }
@@ -49,14 +48,6 @@
 /* ── the room: a wall with shelves and bulbs, the seven machines on the floor */
 #ui.wol .ws-room { position: relative; flex: 1; display: flex; flex-direction: column; }
 #ui.wol .ws-wall { position: relative; height: 22%; min-height: 54px; pointer-events: none; }
-#ui.wol .ws-shelf { position: absolute; height: 7px; border-radius: 3px; background: #4a2a12; box-shadow: 0 4px 0 rgba(0, 0, 0, .25); }
-#ui.wol .ws-shelf.s1 { inset: 64% 6% auto 56%; } #ui.wol .ws-shelf.s2 { inset: 64% 58% auto 8%; }
-#ui.wol .ws-jar { position: absolute; bottom: 36%; width: 20px; height: 26px; border-radius: 6px 6px 8px 8px; background: rgba(190, 235, 255, .45); box-shadow: inset 0 -10px 0 rgba(120, 200, 120, .7), 0 0 0 2px rgba(255, 255, 255, .35); }
-#ui.wol .ws-jar.j1 { inset-inline-start: 62%; } #ui.wol .ws-jar.j2 { inset-inline-start: 70%; height: 20px; box-shadow: inset 0 -8px 0 rgba(255, 170, 60, .8), 0 0 0 2px rgba(255, 255, 255, .35); } #ui.wol .ws-jar.j3 { inset-inline-start: 22%; box-shadow: inset 0 -12px 0 rgba(230, 100, 140, .7), 0 0 0 2px rgba(255, 255, 255, .35); }
-#ui.wol .ws-plant { position: absolute; bottom: 36%; inset-inline-start: 12%; width: 24px; height: 30px; background: radial-gradient(60% 55% at 50% 35%, #4fb05a 60%, transparent 62%), linear-gradient(transparent 60%, #b0562a 60%); }
-#ui.wol .ws-bulb { position: absolute; top: -6px; width: 2px; height: 34px; background: #2a1a0e; transform-origin: top center; animation: ws-swing 4s ease-in-out infinite; }
-#ui.wol .ws-bulb::after { content: ''; position: absolute; left: -9px; bottom: -16px; width: 20px; height: 22px; border-radius: 50% 50% 45% 45%; background: radial-gradient(circle at 50% 40%, #fff8d0, #ffd24a 55%, #f0a020); box-shadow: 0 0 22px 8px rgba(255, 210, 90, .55); }
-#ui.wol .ws-bulb.b1 { inset-inline-start: 30%; } #ui.wol .ws-bulb.b2 { inset-inline-start: 50%; animation-delay: -1.3s; height: 26px; } #ui.wol .ws-bulb.b3 { inset-inline-start: 82%; animation-delay: -2.6s; }
 #ui.wol .ws-floor { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: 1fr 1fr; gap: 4px 10px; padding: 4px 4px 0; }
 #ui.wol .ws-floor .st4 { grid-column: 1; } #ui.wol .ws-floor .st4, #ui.wol .ws-floor .st5, #ui.wol .ws-floor .st6 { transform: translateX(-50%); }
 #ui.wol .ws-st:nth-child(2n) .wsa { animation-delay: -1.5s; } #ui.wol .ws-st:nth-child(3n) .wsa { animation-delay: -3s; }
@@ -306,7 +297,7 @@
 #ui.wol .wo-head h2 { display: none; margin: 0; font-family: var(--serif); font-size: 1.2em; color: #ffe8b0; text-shadow: 0 2px 0 #2a1406; }
 #ui.wol .wo-count { padding: 2px 10px; border-radius: 10px; background: #fff3da; font-weight: 800; }
 #ui.wol .wo-filt { display: flex; flex-wrap: wrap; gap: 4px; }
-#ui.wol .wo-filt button { padding: 3px 11px; border: 0; border-radius: 14px; background: rgba(255, 240, 210, .25); color: #fff3da !important; font-family: var(--serif); font-size: .9em; }
+#ui.wol .wo-filt button { padding: 3px 11px; border: 0; border-radius: 14px; background: rgba(30, 22, 12, .62); box-shadow: inset 0 0 0 1px rgba(255, 220, 150, .35); color: #fff3da !important; font-family: var(--serif); font-size: .9em; }
 #ui.wol .wo-filt button.on { background: #ffd24a; color: #3a2108 !important; box-shadow: 0 2px 0 #8a5418; }
 #ui.wol .wo-count { margin-inline-start: auto; color: #3a2108; }
 #ui.wol .wo-board { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; align-content: start; padding: 14px 12px; border-radius: 14px; scrollbar-width: thin; scrollbar-color: #8a5a2a transparent;
