@@ -29,6 +29,8 @@ export function registerWeekly(kind, open) { OPENERS[kind] = open; }
 // the events that are built (their screens load with the pack 'weekly' when opened)
 registerWeekly('glitch', (o) => loadPack('weekly').then((m) => m.openGlitch(o), (e) => console.error(e)));   // set 5
 registerWeekly('jar', (o) => loadPack('weekly').then((m) => m.openJar(o), (e) => console.error(e)));         // set 6
+registerWeekly('detective', (o) => loadPack('weekly').then((m) => m.openDetective(o), (e) => console.error(e)));   // set 7
+registerWeekly('race', (o) => loadPack('weekly').then((m) => m.openRace(o), (e) => console.error(e)));            // set 7
 export const weeklyReady = (kind) => !!OPENERS[kind];
 try { window.__weeklyUI = { registerWeekly, openWeekly, chipState, afterEvent, tut: () => (tutRun && tutRun.step) || null }; } catch (e) { /* node */ }
 

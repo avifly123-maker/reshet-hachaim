@@ -979,3 +979,20 @@ The "what is missing there" lines are general facts about each zone (fresh water
 - **The circle:** producers (plants, algae) make food and oxygen from light; consumers (grazers, hunters) use oxygen and make waste; decomposers and filter feeders (fungi, darkling beetles, hermit crabs, sponges, clams) return the waste to the soil or water as nutrients. A sealed jar fails when one part of the circle is missing or too big.
 - **Size matters:** a mouse, an agouti or a jerboa needs far more air and food than a jar can make (game logic: weight 3).
 - The model's numbers are game logic; the roles of the creatures are real (fungi decompose, darkling beetles eat dead plant matter, sea urchins graze algae, sea stars hunt grazers, sponges and clams filter water).
+
+## הבלש של השבוע (1.4.4 set 7, src/data/weekly/detective.js)
+
+The cases reuse the facts of "מי השאיר את זה?" above (porcupine quills and digging, barn owl feathers, tapir toes, fox tracks with claws, cats' hidden claws, parrotfish beak and sand, the sea urchin's mouth, green turtle and seagrass). New in the week's cases:
+- **Indian crested porcupine:** active at night, in the den by day; it can "rattle the hollow quills at the base of its tail" as a warning — https://en.wikipedia.org/wiki/Indian_crested_porcupine .
+- **Barn owl:** does "not hoot", it gives "an eerie, long-drawn-out shriek"; nocturnal, hunts by hearing in darkness; conceals itself by day — https://en.wikipedia.org/wiki/Western_barn_owl .
+- **Tapir:** "largely nocturnal and crepuscular"; four toes on the front feet, three on the hind; spread, hoofed toes — https://en.wikipedia.org/wiki/Tapir .
+- **Howler monkey:** famous for howls "heard from a distance through dense rain forest"; males call at dawn and through the day; eats mainly top-canopy leaves, with fruit, buds and flowers — https://en.wikipedia.org/wiki/Howler_monkey . Toucans are mainly fruit eaters — https://en.wikipedia.org/wiki/Toucan ; the South American coati forages on the ground for fruit and invertebrates — https://en.wikipedia.org/wiki/South_American_coati .
+- **Parrotfish:** some species "secrete a mucus cocoon, particularly at night"; they rasp algae from coral with a beak of fused teeth and excrete the ground rock as sand — https://en.wikipedia.org/wiki/Parrotfish . Surgeonfish graze algae — https://en.wikipedia.org/wiki/Acanthuridae .
+- **Fennec fox:** mostly active at night; digs dens in sand; large ears "listen for underground prey"; communicates "by barking, purring, yapping and squeaking" — https://en.wikipedia.org/wiki/Fennec_fox . Jerboas hop on long hind legs — https://en.wikipedia.org/wiki/Jerboa .
+- **African bush elephant:** eats grasses, leaves and bark; uproots trees; "infrasonic rumbles can travel vast distances" — https://en.wikipedia.org/wiki/African_bush_elephant . African buffalo is mainly a grazer — https://en.wikipedia.org/wiki/African_buffalo ; the giraffe browses leaves of tall trees — https://en.wikipedia.org/wiki/Giraffe .
+- **Village weaver:** a woven nest of grass and leaf strips "with a downward-facing entrance", hung from a branch; "large noisy colonies", eight to a hundred nests in one tree — https://en.wikipedia.org/wiki/Village_weaver .
+- The night-camera photos are the cards' own paintings shown dark green; the sound waves are drawings (no recordings).
+
+## מירוץ הרובוטים (1.4.4 set 7, src/data/weekly/race.js)
+
+No facts about nature: the course, the cells and the robots' numbers are the robot lab's game rules (engine/world.js, engine/build.js).

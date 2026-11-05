@@ -258,3 +258,24 @@ export function jarTutorial({ guide, ev, force = false }) {
     { id: 'seal', lines: L('jartut:seal'), wait: () => ev.state().sealed },
   ]);
 }
+// הבלש של השבוע ומירוץ הרובוטים (1.4.4 set 7)
+export function detectiveTutorial({ guide, ev, force = false }) {
+  const KEY = 'g:wk:det';
+  if (!guide || !ev || (!force && introSeen(KEY))) return null;
+  return kwRun(KEY, guide, [
+    { id: 'board', lines: L('dettut:board') },
+    { id: 'clue', lines: L('dettut:clue'), wait: () => ev.state().clicks > 0 },
+    { id: 'guess', lines: L('dettut:guess'), wait: () => !!ev.state().hyp },
+    { id: 'end', lines: L('dettut:end') },
+  ]);
+}
+export function raceTutorial({ guide, ev, force = false }) {
+  const KEY = 'g:wk:race';
+  if (!guide || !ev || (!force && introSeen(KEY))) return null;
+  return kwRun(KEY, guide, [
+    { id: 'race', lines: L('ractut:race') },
+    { id: 'robot', lines: L('ractut:robot'), wait: () => ev.state().picks > 0 },
+    { id: 'prog', lines: L('ractut:prog'), wait: () => ev.state().blocks > 0 },
+    { id: 'run', lines: L('ractut:run'), wait: () => ev.state().runs > 0 },
+  ]);
+}

@@ -1,9 +1,9 @@
 /* The weekly events' screens (1.4.4): התקלה במעבדה (.wg) and הצנצנת הסגורה (.wj). Each takes the whole screen over the
    start screen or the hub (inside the week sheet's host). Painted and moving like the rest of 1.4.4: islands from the
    game's own pictures, album paintings in round frames, portals that turn, a jar with air bubbles. No cross shapes. */
-#ui.wol .wg, #ui.wol .wj { position: fixed; inset: 0; z-index: 7; display: flex; flex-direction: column; overflow: hidden; pointer-events: auto; font-family: var(--sans); color: #fff; }
-#ui.wol .wg button, #ui.wol .wj button { font: inherit; color: inherit; cursor: pointer; }
-#ui.wol .wg svg.ic, #ui.wol .wj svg.ic { width: 1.15em; height: 1.15em; }
+#ui.wol .wg, #ui.wol .wj, #ui.wol .wd, #ui.wol .wr { position: fixed; inset: 0; z-index: 7; display: flex; flex-direction: column; overflow: hidden; pointer-events: auto; font-family: var(--sans); color: #fff; }
+#ui.wol .wg button, #ui.wol .wj button, #ui.wol .wd button, #ui.wol .wr button { font: inherit; color: inherit; cursor: pointer; }
+#ui.wol .wg svg.ic, #ui.wol .wj svg.ic, #ui.wol .wd svg.ic, #ui.wol .wr svg.ic { width: 1.15em; height: 1.15em; }
 /* ── התקלה במעבדה */
 #ui.wol .wg { background: radial-gradient(90% 70% at 50% 40%, #3a4a8a, #1a1f4a 60%, #0e1030); }
 #ui.wol .wg-sky { position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(255, 255, 255, .03) 0 2px, transparent 2px 5px); animation: wg-scan 6s linear infinite; }
@@ -11,10 +11,10 @@
 #ui.wol .wg-spark.s1 { top: 18%; left: 12%; } #ui.wol .wg-spark.s2 { top: 30%; right: 16%; animation-delay: -1s; } #ui.wol .wg-spark.s3 { top: 62%; left: 22%; animation-delay: -2s; }
 @keyframes wg-scan { to { background-position: 0 100px; } }
 @keyframes wg-twinkle { 50% { opacity: .2; transform: scale(.5); } }
-#ui.wol .wg-top, #ui.wol .wj-top { position: relative; display: flex; align-items: center; gap: 12px; padding: 7px 12px; background: rgba(0, 0, 0, .35); }
-#ui.wol .wg-top > div, #ui.wol .wj-top > div { flex: 1; min-width: 0; }
-#ui.wol .wg-top h2, #ui.wol .wj-top h2 { margin: 0; font-family: var(--serif); font-size: 1.3em; color: #ffe08a; }
-#ui.wol .wg-top p, #ui.wol .wj-top p { margin: 0; font-size: .8em; opacity: .85; }
+#ui.wol .wg-top, #ui.wol .wj-top, #ui.wol .wd-top, #ui.wol .wr-top { position: relative; display: flex; align-items: center; gap: 12px; padding: 7px 12px; background: rgba(0, 0, 0, .35); }
+#ui.wol .wg-top > div, #ui.wol .wj-top > div, #ui.wol .wd-top > div, #ui.wol .wr-top > div { flex: 1; min-width: 0; }
+#ui.wol .wg-top h2, #ui.wol .wj-top h2, #ui.wol .wd-top h2, #ui.wol .wr-top h2 { margin: 0; font-family: var(--serif); font-size: 1.3em; color: #ffe08a; }
+#ui.wol .wg-top p, #ui.wol .wj-top p, #ui.wol .wd-top p, #ui.wol .wr-top p { margin: 0; font-size: .8em; opacity: .85; }
 #ui.wol .wg-x { display: flex; align-items: center; gap: 5px; padding: 6px 12px; border: 0; border-radius: 12px; background: rgba(255, 255, 255, .16); }
 #ui.wol .wg-score { padding: 4px 12px; border-radius: 14px; background: #ffd24a; color: #3a2108; font-weight: 900; font-size: 1.1em; }
 #ui.wol .wg-kubi { position: absolute; bottom: 92px; left: 14px; z-index: 4; display: flex; align-items: flex-end; gap: 6px; transition: transform .6s, opacity .6s; animation: wg-in .5s; }
@@ -121,4 +121,116 @@
 #ui.wol .wj-wait { margin: 0; color: #6a5a4a; text-align: center; }
 @media (prefers-reduced-motion: reduce) { #ui.wol .wg *, #ui.wol .wj * { animation: none !important; transition: none !important; } }
 
-#ui.wol:has(.wg, .wj) > .mus-btn { display: none !important; }   /* the corner music button would cover the events' buttons */
+#ui.wol:has(.wg, .wj, .wd, .wr) > .mus-btn { display: none !important; }   /* the corner music button would cover the events' buttons */
+
+/* ── הבלש של השבוע (set 7): a cork board in a study at night, a desk lamp's pool of light, photos pinned at angles */
+#ui.wol .wd { background: radial-gradient(70% 60% at 35% 30%, #5a3e26, #2a1a10 70%, #160d06); }
+#ui.wol .wd-body { flex: 1; min-height: 0; display: flex; gap: 12px; padding: 8px 12px 4px; }
+#ui.wol .wd-cork { position: relative; flex: 1 1 52%; min-width: 0; border-radius: 10px; padding: 12px;
+  background: radial-gradient(circle at 30% 20%, rgba(255, 230, 170, .35), transparent 60%), repeating-radial-gradient(circle at 17% 31%, #b98a55 0 1px, #a87843 1px 3px), #a87843;
+  box-shadow: inset 0 0 0 7px #5a3618, inset 0 0 0 9px #8a5a2a, inset 0 0 30px rgba(0, 0, 0, .45), 0 8px 18px rgba(0, 0, 0, .5); }
+#ui.wol .wd-cards { height: 100%; display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: 14px 16px; }
+#ui.wol .wd-card { position: relative; width: clamp(92px, 15vw, 132px); padding: 6px 6px 4px; border: 0; border-radius: 3px; background: #fbf7ec; color: #3a2a18 !important;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, .4); transform: rotate(var(--r)); transition: transform .2s, box-shadow .2s; display: flex; flex-direction: column; gap: 4px; animation: wd-drop .5s both; }
+#ui.wol .wd-card:hover, #ui.wol .wd-card.on { transform: rotate(0) scale(1.06); z-index: 2; box-shadow: 0 10px 18px rgba(0, 0, 0, .5), 0 0 0 3px #ffd24a; }
+#ui.wol .wd-card.new { animation: wd-drop .5s both, wd-glow 1.6s ease-in-out 3 .5s; }
+@keyframes wd-drop { from { transform: translateY(-30px) rotate(calc(var(--r) * 3)); opacity: 0; } }
+@keyframes wd-glow { 50% { box-shadow: 0 6px 10px rgba(0, 0, 0, .4), 0 0 0 4px #ffd24a, 0 0 24px 8px rgba(255, 210, 74, .6); } }
+#ui.wol .wd-pin { position: absolute; top: -6px; left: 50%; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; z-index: 2;
+  background: radial-gradient(circle at 35% 30%, #ff9a8a, #c8302f 60%, #7a1a1a); box-shadow: 0 3px 3px rgba(0, 0, 0, .45); }
+#ui.wol .wd-cap { display: flex; align-items: center; justify-content: center; gap: 4px; font-family: var(--serif); font-size: .74em; font-weight: 700; }
+#ui.wol .wd-card.locked { aspect-ratio: 4 / 5; padding: 0; background: repeating-linear-gradient(45deg, #c9a46e 0 6px, #c19b63 6px 12px); }
+#ui.wol .wd-back { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: #5a3a18; }
+#ui.wol .wd-back svg.ic { width: 1.6em; height: 1.6em; opacity: .7; }
+#ui.wol .wd-back small { font-size: .7em; }
+#ui.wol .wd-ph { position: relative; display: block; width: 100%; aspect-ratio: 1; overflow: hidden; border-radius: 2px; background: #2a2a2a; }
+#ui.wol .wd-ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+#ui.wol .wd-ph.look img { transform: scale(2.1); transform-origin: 58% 46%; }
+#ui.wol .wd-lens { position: absolute; inset: 12%; border-radius: 50%; box-shadow: 0 0 0 4px #c89a52, 0 0 0 999px rgba(30, 20, 10, .55), inset 0 0 18px rgba(255, 255, 255, .5); }
+#ui.wol .wd-ph.night { background: #061a0c; }
+#ui.wol .wd-ph.night img { filter: grayscale(1) brightness(1.05) contrast(1.45) blur(.9px); transform: scale(1.12); }
+#ui.wol .wd-ph.night::before { content: ''; position: absolute; inset: 0; z-index: 1; background: #3cff6a; mix-blend-mode: multiply; }
+#ui.wol .wd-ph.night::after { content: ''; position: absolute; inset: 0; z-index: 1; background: radial-gradient(65% 65% at 50% 50%, rgba(120, 255, 150, .1) 40%, rgba(0, 20, 6, .72)); }
+#ui.wol .wd-scan { position: absolute; inset: 0; z-index: 1; background: repeating-linear-gradient(0deg, rgba(0, 0, 0, .25) 0 1px, transparent 1px 3px); animation: wg-scan 4s linear infinite; }
+#ui.wol .wd-rec { position: absolute; z-index: 2; top: 4%; inset-inline-end: 5%; font: 700 .62em monospace; color: #9fffb0; font-style: normal; }
+#ui.wol .wd-rec::before { content: ''; display: inline-block; width: .6em; height: .6em; margin-inline-end: .3em; border-radius: 50%; background: #ff4a3a; animation: wd-blink 1s steps(2) infinite; }
+@keyframes wd-blink { 50% { opacity: 0; } }
+#ui.wol .wd-none { position: absolute; z-index: 2; inset: auto 0 12% 0; text-align: center; font-size: .72em; color: #9fffb0; }
+#ui.wol .wd-ph.sound { display: flex; align-items: center; justify-content: center; gap: 3%; background: radial-gradient(circle, #1f3a5a, #0c1a2a); }
+#ui.wol .wd-ph.sound i { width: 5%; height: calc(var(--h) * 70%); border-radius: 4px; background: linear-gradient(#9fe8ff, #3aa0e8); animation: wd-wave .9s ease-in-out var(--d) infinite alternate; }
+@keyframes wd-wave { from { transform: scaleY(.35); } }
+#ui.wol .wd-ph.note { padding: 8%; background: repeating-linear-gradient(#fffbe8 0 13px, #b8d0e8 13px 14px); color: #2a3a5a; font-family: var(--serif); font-size: .58em; line-height: 14px; text-align: right; }
+#ui.wol .wd-ph.note span { display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
+#ui.wol .wd-panel { flex: 1 1 40%; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 12px;
+  background: radial-gradient(90% 60% at 50% 0, rgba(255, 220, 140, .3), transparent 70%), rgba(20, 12, 6, .55); box-shadow: inset 0 0 0 2px rgba(255, 210, 140, .25); }
+#ui.wol .wd-big { width: min(100%, 230px); flex: 0 1 auto; min-height: 0; padding: 7px 7px 10px; background: #fbf7ec; border-radius: 3px; box-shadow: 0 8px 16px rgba(0, 0, 0, .5); transform: rotate(-1.5deg); animation: wd-drop .4s both; }
+#ui.wol .wd-big .wd-ph.note { font-size: .9em; line-height: 20px; background: repeating-linear-gradient(#fffbe8 0 19px, #b8d0e8 19px 20px); }
+#ui.wol .wd-big .wd-ph.note span { -webkit-line-clamp: 9; }
+#ui.wol .wd-txt { margin: 0; font-family: var(--serif); font-size: 1.02em; line-height: 1.45; color: #fff3da; text-align: center; }
+#ui.wol .wd-txt b { color: #ffd24a; }
+#ui.wol .wd-foot { display: flex; align-items: center; gap: 12px; padding: 6px 12px 10px; background: linear-gradient(transparent, rgba(0, 0, 0, .45)); }
+#ui.wol .wd-sus { flex: 1; display: flex; justify-content: center; gap: 12px; }
+#ui.wol .wd-s { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 0; border: 0; background: none; transition: transform .2s, opacity .3s; }
+#ui.wol .wd-s:hover:not(:disabled) { transform: translateY(-4px); }
+#ui.wol .wd-fr { display: block; width: clamp(54px, 8vw, 72px); aspect-ratio: 1; border-radius: 50%; overflow: hidden; background: #fff; box-shadow: 0 0 0 3px #c89a52, 0 0 0 5px #5a3618, 0 6px 10px rgba(0, 0, 0, .5); }
+#ui.wol .wd-fr img { width: 100%; height: 100%; object-fit: cover; }
+#ui.wol .wd-s b { font-family: var(--serif); font-size: .9em; text-shadow: 0 2px 2px #000; }
+#ui.wol .wd-s em { position: absolute; top: -8px; padding: 1px 8px; border-radius: 10px; background: #c8302f; font-style: normal; font-size: .68em; font-weight: 800; white-space: nowrap; box-shadow: 0 2px 4px rgba(0, 0, 0, .4); }
+#ui.wol .wd-s em.no { background: #555; }
+#ui.wol .wd-s.hyp .wd-fr { box-shadow: 0 0 0 3px #ff5a4a, 0 0 0 6px #ffd24a, 0 0 20px 6px rgba(255, 90, 74, .6); }
+#ui.wol .wd-s.out { opacity: .42; filter: grayscale(1); }
+#ui.wol .wd-act { flex: 0 0 auto; max-width: 34%; text-align: center; }
+#ui.wol .wd-act p { margin: 0 0 4px; font-size: .78em; opacity: .9; }
+#ui.wol .wd-solve { padding: 9px 16px; border: 0; border-radius: 16px; background: linear-gradient(#ffd24a, #e8952a); color: #3a2108 !important; font-weight: 900; box-shadow: 0 4px 0 #8a5418; }
+#ui.wol .wd-solve:disabled { filter: grayscale(.8); opacity: .6; }
+#ui.wol .wd-verdict { position: absolute; inset: 0; z-index: 5; display: flex; align-items: center; justify-content: center; background: rgba(10, 6, 2, .6); animation: wg-in .3s; }
+#ui.wol .wd-vcard { width: min(440px, 92%); padding: 16px 20px; border-radius: 6px; background: #fbf7ec; color: #3a2a18; text-align: center; box-shadow: 0 12px 30px rgba(0, 0, 0, .6); }
+#ui.wol .wd-vcard .wd-fr.big { width: 96px; margin: -50px auto 6px; }
+#ui.wol .wd-verdict.ok .wd-fr.big { box-shadow: 0 0 0 4px #3a9a4a, 0 0 0 7px #ffd24a, 0 0 30px 10px rgba(255, 210, 74, .7); }
+#ui.wol .wd-vcard h3 { margin: 0 0 4px; font-family: var(--serif); font-size: 1.4em; }
+#ui.wol .wd-vcard p { margin: 0 0 8px; line-height: 1.45; }
+#ui.wol .wd-vcard .wd-by { font-size: .85em; color: #8a5a2a; }
+#ui.wol .wd-vcard button { padding: 8px 22px; border: 0; border-radius: 14px; background: #3a9a6a; color: #fff !important; font-weight: 800; }
+/* ── מירוץ הרובוטים (set 7): a race-day workshop: the course in 3D in a frame of riveted steel, the robots as garage cards */
+#ui.wol .wr { background: linear-gradient(160deg, #1f3a4a, #12222e 60%, #0b151c); }
+#ui.wol .wr-recs { display: flex; align-items: center; gap: 6px; }
+#ui.wol .wr-rec { display: flex; flex-direction: column; align-items: center; min-width: 46px; padding: 2px 8px; border-radius: 10px; background: rgba(255, 255, 255, .1); line-height: 1.1; }
+#ui.wol .wr-rec:first-child { background: none; min-width: 0; }
+#ui.wol .wr-rec b { font-size: 1.15em; color: #ffd24a; font-variant-numeric: tabular-nums; } #ui.wol .wr-rec small { font-size: .66em; opacity: .85; }
+#ui.wol .wr-body { flex: 1; min-height: 0; display: flex; gap: 8px; padding: 6px 8px 8px; }
+#ui.wol .wr-side { flex: 0 0 clamp(270px, 36vw, 380px); min-height: 0; display: flex; flex-direction: column; gap: 6px; }
+#ui.wol .wr-bots { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 2px; flex: none; }
+#ui.wol .wr-bots.nudge { animation: wr-nudge .5s 2; }
+@keyframes wr-nudge { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+#ui.wol .wr-bot { position: relative; flex: 0 0 auto; width: 88px; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 4px 5px; border: 0; border-radius: 12px;
+  background: linear-gradient(#e8eef2, #c4d0d8); color: #1a2a34 !important; box-shadow: 0 3px 0 #5a6a74, inset 0 1px 0 #fff; transition: transform .15s; }
+#ui.wol .wr-bot.mine { background: linear-gradient(#fff3d8, #f0d49a); box-shadow: 0 3px 0 #8a6a2a, inset 0 1px 0 #fff; }
+#ui.wol .wr-bot.on { box-shadow: 0 3px 0 #5a6a74, 0 0 0 3px #ffd24a, 0 0 14px 4px rgba(255, 210, 74, .55); transform: translateY(-2px); }
+#ui.wol .wr-bpic { position: relative; width: 50px; height: 34px; }
+#ui.wol .wr-bpic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+#ui.wol .wr-bpic img.wh { inset: auto -4px -4px auto; width: 24px; height: 24px; }
+#ui.wol .wr-bot b { font-size: .74em; line-height: 1.1; text-align: center; } #ui.wol .wr-bot b em { font-style: normal; color: #a8681a; }
+#ui.wol .wr-speed { width: 92%; height: 5px; border-radius: 3px; background: rgba(0, 0, 0, .15); overflow: hidden; }
+#ui.wol .wr-speed u { display: block; height: 100%; background: linear-gradient(90deg, #3aa06a, #8ad84a); border-radius: 3px; }
+#ui.wol .wr-gr { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; }
+#ui.wol .wr-gr i { padding: 0 4px; border-radius: 6px; font-style: normal; font-size: .56em; font-weight: 700; background: rgba(0, 0, 0, .08); color: rgba(0, 0, 0, .3); }
+#ui.wol .wr-gr i.ok { text-decoration: none; color: #fff; }
+#ui.wol .wr-gr i.ok.g-m { background: #7a5434; } #ui.wol .wr-gr i.ok.g-s { background: #c8955a; } #ui.wol .wr-gr i.ok.g-h { background: #5a8a3a; } #ui.wol .wr-gr i.ok.g-n { background: #8a5a2a; } #ui.wol .wr-gr i.ok.g-w { background: #2a8ab0; }
+#ui.wol .wr-ed { flex: 1; min-height: 0; padding: 6px; border-radius: 14px; background: rgba(14, 34, 52, .84); box-shadow: 0 6px 18px rgba(0, 0, 0, .3), inset 0 0 0 1px rgba(160, 220, 255, .15); }
+#ui.wol .wr-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+#ui.wol .wr-view { position: relative; flex: 1; min-height: 0; border-radius: 14px; overflow: hidden; background: #6aa8e0;
+  box-shadow: 0 0 0 4px #5a6a74, 0 0 0 6px #2a3a44, 0 8px 18px rgba(0, 0, 0, .5); }
+#ui.wol .wr-cv { display: block; width: 100%; height: 100%; }
+#ui.wol .wr-segs { position: absolute; top: 6px; inset-inline: 6px; display: flex; gap: 4px; margin: 0; padding: 0; list-style: none; pointer-events: none; }
+#ui.wol .wr-segs li { flex: 1; min-width: 0; padding: 2px 6px; border-radius: 8px; background: color-mix(in srgb, var(--zc) 82%, #000); color: #fff; font-size: .64em; font-weight: 700; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 2px 4px rgba(0, 0, 0, .35); }
+#ui.wol .wr-bar { display: flex; align-items: center; gap: 8px; flex: none; }
+#ui.wol .wr-go { display: flex; align-items: center; gap: 6px; padding: 8px 22px; border: 0; border-radius: 16px; background: linear-gradient(#7ad84a, #3a9a3a); color: #fff !important; font-weight: 900; font-size: 1.05em; box-shadow: 0 4px 0 #1f5a1f; }
+#ui.wol .wr.running .wr-go { filter: grayscale(.7); opacity: .6; }
+#ui.wol .wr-sp, #ui.wol .wr-vw { display: flex; align-items: center; gap: 5px; padding: 7px 12px; border: 0; border-radius: 12px; background: rgba(255, 255, 255, .14); font-weight: 800; }
+#ui.wol .wr-msg { position: absolute; inset: auto 10% 10px 10%; z-index: 2; padding: 10px 14px; border-radius: 14px; background: rgba(255, 252, 240, .96); color: #2a2a2a; text-align: center; box-shadow: 0 8px 20px rgba(0, 0, 0, .45); animation: wg-in .3s; }
+#ui.wol .wr-msg[hidden] { display: none; }
+#ui.wol .wr-msg p { margin: 0 0 6px; } #ui.wol .wr-msg h3 { margin: 0 0 2px; font-family: var(--serif); color: #2a7a3a; }
+#ui.wol .wr-msg em { padding: 0 6px; border-radius: 8px; background: #ffd24a; font-style: normal; font-weight: 800; font-size: .85em; }
+#ui.wol .wr-msg button { margin: 0 4px; padding: 6px 14px; border: 0; border-radius: 12px; background: #e8eef2; color: #1a2a34 !important; font-weight: 800; }
+#ui.wol .wr-msg button.ok { background: #3a9a6a; color: #fff !important; }
+#ui.wol .wr-fail p { color: #8a2a1a; font-weight: 700; }

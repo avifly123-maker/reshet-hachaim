@@ -1,0 +1,262 @@
+[
+{
+"wait": 4
+},
+{
+"js": "['stage:1','g:hubtut','g:album','g:learn','g:start:chat','g:start:howstages','g:start:settings','g:weektut','g:journey'].forEach((k) => window.__journey.markIntro(k)); window.__journey.markTrained(); window.__guide && window.__guide.close(); window.__journey.unlockAll('2580'); window.__weekly.setDate(new Date(2026, 10, 2, 10)); window.dispatchEvent(new CustomEvent('wol-journey')); 1"
+},
+{
+"wait": 1
+},
+{
+"js": "window.__guide && window.__guide.close(); document.querySelector('.st-week').click(); 1"
+},
+{
+"wait": 1
+},
+{
+"js": "const d=document.querySelector('.wkv-staff'); d.open=true; document.querySelector('[data-wk=any][data-k=detective][data-v=d1]').click(); 1"
+},
+{
+"until": "!!document.querySelector('.wd .wd-card')",
+"timeout": 30
+},
+{
+"wait": 1.5
+},
+{
+"js": "const s=window.__det.state(); 'CHECK det-opens-one-clue ' + (document.querySelectorAll('.wd-card').length===5 && document.querySelectorAll('.wd-card.locked').length===5-s.shown && document.querySelectorAll('.wd-s').length===4 && !document.querySelector('.wd-solve') ? 'ok' : 'FAIL ' + JSON.stringify(s))"
+},
+{
+"js": "'CHECK det-tutorial-kubi ' + (!!document.querySelector('#rguide .rg-fig') && window.__guide.isOpen() ? 'ok' : 'FAIL')"
+},
+{
+"shot": "shots/weekly-events/det.png"
+},
+{
+"until": "((window.__det.state().tut === 'clue') || (document.querySelector('#rguide .rg-next') && document.querySelector('#rguide .rg-next').click(), false))",
+"timeout": 15
+},
+{
+"clickSel": ".wd-card[data-dc='0']"
+},
+{
+"wait": 0.6
+},
+{
+"until": "((window.__det.state().tut === 'guess') || (document.querySelector('#rguide .rg-next') && document.querySelector('#rguide .rg-next').click(), false))",
+"timeout": 15
+},
+{
+"clickSel": ".wd-s[data-ds=fox]"
+},
+{
+"wait": 0.6
+},
+{
+"js": "const s=window.__det.state(); 'CHECK det-guess-pinned ' + (s.hyp==='fox' && !!document.querySelector('.wd-s.hyp em') ? 'ok' : 'FAIL ' + JSON.stringify(s))"
+},
+{
+"until": "(!window.__det.state().tut || (document.querySelector('#rguide .rg-next') && document.querySelector('#rguide .rg-next').click(), false))",
+"timeout": 15
+},
+{
+"js": "window.__det.peek(5); 1"
+},
+{
+"wait": 0.8
+},
+{
+"js": "'CHECK det-five-clues-solve ' + (document.querySelectorAll('.wd-card.locked').length===0 && document.querySelectorAll('.wd-ph.night').length>=1 && document.querySelectorAll('.wd-ph.sound').length>=1 && !document.querySelector('.wd-solve').disabled ? 'ok' : 'FAIL')"
+},
+{
+"clickSel": ".wd-card[data-dc='3']"
+},
+{
+"wait": 0.5
+},
+{
+"shot": "shots/weekly-events/det-night.png"
+},
+{
+"clickSel": ".wd-solve"
+},
+{
+"wait": 0.8
+},
+{
+"js": "const s=window.__det.state(); 'CHECK det-wrong-explains ' + (s.out.includes('fox') && s.wrong===1 && /פרווה/.test(document.querySelector('.wd-verdict').textContent) && document.querySelector('.wd-s[data-ds=fox]').disabled ? 'ok' : 'FAIL ' + JSON.stringify(s))"
+},
+{
+"shot": "shots/weekly-events/det-wrong.png"
+},
+{
+"clickSel": ".wd-verdict [data-dok]"
+},
+{
+"wait": 0.4
+},
+{
+"clickSel": ".wd-s[data-ds=porcupine]"
+},
+{
+"wait": 0.4
+},
+{
+"clickSel": ".wd-solve"
+},
+{
+"wait": 0.8
+},
+{
+"js": "'CHECK det-solved ' + (window.__det.state().solved && /הדורבן/.test(document.querySelector('.wd-verdict.ok').textContent) ? 'ok' : 'FAIL')"
+},
+{
+"shot": "shots/weekly-events/det-solved.png"
+},
+{
+"clickSel": ".wd-verdict [data-ddone]"
+},
+{
+"wait": 1.5
+},
+{
+"js": "const W=JSON.parse(localStorage.getItem(Object.keys(localStorage).find((k)=>/web-of-life-weekly/.test(k)))||'{}'); 'CHECK det-done-won ' + (!document.querySelector('.wd') && !!(W.done||{})['detective:d1'] ? 'ok' : 'FAIL ' + JSON.stringify(W.done))"
+},
+{
+"js": "window.__guide && window.__guide.close(); document.querySelectorAll('.bdg-pop').forEach((b)=>b.click()); document.querySelector('.wkv-x') && document.querySelector('.wkv-x').click(); 1"
+},
+{
+"wait": 1
+},
+{
+"js": "window.__guide && window.__guide.close(); document.querySelector('.st-week').click(); 1"
+},
+{
+"wait": 1
+},
+{
+"js": "const d=document.querySelector('.wkv-staff'); d.open=true; document.querySelector('[data-wk=any][data-k=race][data-v=r1]').click(); 1"
+},
+{
+"until": "!!document.querySelector('.wr .wr-bot')",
+"timeout": 40
+},
+{
+"wait": 3
+},
+{
+"js": "'CHECK race-opens ' + (document.querySelectorAll('.wr-bot').length>=3 && document.querySelectorAll('.wr-segs li').length===5 && !!document.querySelector('.wr-ed .rl-pal') && document.querySelector('.wr-cv').width>100 ? 'ok' : 'FAIL')"
+},
+{
+"shot": "shots/weekly-events/race.png"
+},
+{
+"until": "((window.__race.state().tut === 'robot') || (document.querySelector('#rguide .rg-next') && document.querySelector('#rguide .rg-next').click(), false))",
+"timeout": 15
+},
+{
+"clickSel": ".wr-bot[data-rbot=digger]"
+},
+{
+"wait": 0.5
+},
+{
+"until": "((window.__race.state().tut === 'prog') || (document.querySelector('#rguide .rg-next') && document.querySelector('#rguide .rg-next').click(), false))",
+"timeout": 15
+},
+{
+"clickSel": ".wr-ed .rl-blk[data-add=fwd]"
+},
+{
+"wait": 0.3
+},
+{
+"until": "((window.__race.state().tut === 'run') || (document.querySelector('#rguide .rg-next') && document.querySelector('#rguide .rg-next').click(), false))",
+"timeout": 15
+},
+{
+"js": "window.__race.speed(4); 1"
+},
+{
+"clickSel": ".wr-go"
+},
+{
+"wait": 1
+},
+{
+"until": "!window.__race.state().playing",
+"timeout": 40
+},
+{
+"wait": 0.6
+},
+{
+"js": "const s=window.__race.state(); 'CHECK race-fail-says-why ' + (s.last && !s.last.ok && !document.querySelector('.wr-msg').hidden && document.querySelector('.wr-fail p').textContent.length>10 ? 'ok' : 'FAIL ' + JSON.stringify(s))"
+},
+{
+"shot": "shots/weekly-events/race-fail.png"
+},
+{
+"js": "document.querySelector('.wr-msg [data-rok]').click(); window.__race.pick('gardener'); window.__race.plan('gardener'); 1"
+},
+{
+"wait": 0.5
+},
+{
+"clickSel": ".wr-go"
+},
+{
+"wait": 4
+},
+{
+"shot": "shots/weekly-events/race-run.png"
+},
+{
+"until": "!window.__race.state().playing",
+"timeout": 60
+},
+{
+"wait": 1.2
+},
+{
+"js": "const s=window.__race.state(); 'CHECK race-finish-record ' + (s.won && s.best && s.best.steps===s.last.steps && !!document.querySelector('.wr-win em') ? 'ok' : 'FAIL ' + JSON.stringify(s))"
+},
+{
+"shot": "shots/weekly-events/race-win.png"
+},
+{
+"js": "document.querySelector('.wr-msg [data-rmore]').click(); window.__race.pick('tall'); window.__race.plan('tall'); 1"
+},
+{
+"wait": 0.5
+},
+{
+"clickSel": ".wr-go"
+},
+{
+"wait": 3
+},
+{
+"js": "'CHECK race-ghost ' + (window.__race.state().playing ? 'ok' : 'FAIL')"
+},
+{
+"shot": "shots/weekly-events/race-ghost.png"
+},
+{
+"until": "!window.__race.state().playing",
+"timeout": 80
+},
+{
+"wait": 1
+},
+{
+"clickSel": ".wr-msg [data-rdone]"
+},
+{
+"wait": 1.5
+},
+{
+"js": "const W=JSON.parse(localStorage.getItem(Object.keys(localStorage).find((k)=>/web-of-life-weekly/.test(k)))||'{}'); 'CHECK race-done-won ' + (!document.querySelector('.wr') && !!(W.done||{})['race:r1'] && (W.best||{}).race>0 ? 'ok' : 'FAIL ' + JSON.stringify(W.best))"
+}
+]

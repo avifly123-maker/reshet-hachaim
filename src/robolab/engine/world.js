@@ -52,7 +52,8 @@ export function makeWorld(level) {
   const B = level.build && level.build.robot;
   if (B && tools.robot) {
     const st = statsOf(B);
-    if (st) Object.assign(tools.robot, { st, battery: st.battery, seeds: st.seeds, water: st.water });
+    // level.batteryK (1.4.4, the robot race): a long course gives every robot a bigger race battery, in proportion
+    if (st) Object.assign(tools.robot, { st, battery: Math.round(st.battery * (level.batteryK || 1)), batMax: Math.round(st.battery * (level.batteryK || 1)), seeds: st.seeds, water: st.water });
   }
   const W = {
     rows, items, tools, home: level.home || null, ticks: 0, done: false, error: null, trace: [], counter: 0, reports: [],
@@ -84,7 +85,7 @@ export function makeWorld(level) {
   };
   // the sun charges a robot with a solar panel a little every few steps (not after sunset)
   W.recharge = () => {
-    for (const k in tools) { const T = tools[k]; if (!T.st || !T.st.recharge || W.ticks % 5) continue; if (W.events.sunset != null && W.ticks >= W.events.sunset) continue; T.battery = Math.min(T.st.battery, T.battery + T.st.recharge); }
+    for (const k in tools) { const T = tools[k]; if (!T.st || !T.st.recharge || W.ticks % 5) continue; if (W.events.sunset != null && W.ticks >= W.events.sunset) continue; T.battery = Math.min(T.batMax || T.st.battery, T.battery + T.st.recharge); }
   };
   // a built robot on the ground it is about to enter: is it strong, steady and exact enough? (null = it can go)
   const groundProblem = (T, c) => {
