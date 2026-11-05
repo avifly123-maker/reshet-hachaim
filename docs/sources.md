@@ -996,3 +996,19 @@ The cases reuse the facts of "מי השאיר את זה?" above (porcupine quill
 ## מירוץ הרובוטים (1.4.4 set 7, src/data/weekly/race.js)
 
 No facts about nature: the course, the cells and the robots' numbers are the robot lab's game rules (engine/world.js, engine/build.js).
+
+## משימות רחפן ואתגרי היער הקשים (1.4.4 set 8)
+
+The drone missions (src/data/robolab/lessons-9.js):
+- **Heat cameras:** "humans and other warm-blooded animals become easily visible against their environment in day or night"; warm objects stand out against cooler backgrounds — https://en.wikipedia.org/wiki/Thermography . Reptiles and scorpions are ectotherms (their body takes the temperature of their surroundings), so at night they hardly stand out — https://en.wikipedia.org/wiki/Ectotherm .
+- **Camera traps** photograph animals when a sensor detects them passing — https://en.wikipedia.org/wiki/Camera_trap . The signal to a drone is game logic.
+- **Keeping distance from a herd:** a review found that drone altitude, speed and approach distance significantly influence how wildlife responds, and recommends keeping distance — Penny et al. 2025, "Impact of Drone Disturbances on Wildlife: A Review", Drones 9, 311, https://doi.org/10.3390/drones9040311 (the two cells are game logic).
+
+The hard challenges (ax5–7, gx5–7, rx5–7 in the zone files):
+- **Dart frogs and bromeliads:** adults carry tadpoles to "the water gathered in the throat of bromeliads", "the pools of water that accumulate in epiphytic plants" — https://en.wikipedia.org/wiki/Poison_dart_frog . Hummingbirds pollinate bromeliads, and bromeliads grow on trees (the zone's relations, Amazon section above).
+- **Fruit bats spread seeds at night** (Egyptian fruit bat and the Amazon's fruit bats, sections above; relation `disperses` cecropia).
+- **Anteaters eat ants** (Giant anteater line above); leafcutter ants cut leaves and farm a fungus (above).
+- **Honeybees pollinate the grove's flowers; barn owls hunt rodents and nest in boxes** (grove sections and the mystery `mice-owl` above).
+- **Blackbirds eat mastic fruit and spread the seeds** (grove relation `disperses`, above).
+- **Crown-of-thorns starfish** prey on hard coral polyps; in outbreaks, divers remove them — https://en.wikipedia.org/wiki/Crown-of-thorns_starfish .
+- **Green turtles graze seagrass** (above); **morays and octopuses shelter in holes in the reef** (reef relations `shelter`, above).

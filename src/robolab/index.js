@@ -16,7 +16,7 @@ import { checkRoboBadges } from './badges.js';
 import { ZONE_IDS, ZONE_LOOK } from '../data/zones.js';
 import { BLOCK_INTRO, CHAPTER_INTRO } from '../data/robolab/kubi-lines.js';
 import { playIntro } from './intro.js';
-import { robolabTutorial, robolabEventTutorial, robolabLoopTutorial, missionRunTutorial, sandboxTutorial } from '../ui/tutorials.js';   // hands-on: the editor and the run, the loop, then events
+import { robolabTutorial, robolabEventTutorial, robolabLoopTutorial, missionRunTutorial, sandboxTutorial, droneMissionTutorial } from '../ui/tutorials.js';   // hands-on: the editor and the run, the loop, then events
 import { svcGuide } from '../core/services.js';
 import { BLOCKS } from './engine/blocks.js';
 import { createVoice } from '../audio/voice.js';
@@ -253,6 +253,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
       const rl = { state: tutState };
       tut = L.sandbox ? sandboxTutorial({ guide: g, rl, voice: kvoice })   // ארגז החול: drive, then the program it made
         : L.mission ? missionRunTutorial({ guide: g, rl, voice: kvoice })   // a workshop mission: קוּבִּי on the robot that went out
+        : L.ch === 9 && hasHat ? droneMissionTutorial({ guide: g, rl })   // 1.4.4 set 8: the drone's field jobs
         : robolabTutorial({ guide: g, rl }) || (hasLoop ? robolabLoopTutorial({ guide: g, rl }) : null) || (hasHat ? robolabEventTutorial({ guide: g, rl }) : null);
       // one voice at a time (closing review): a tutorial ends קוּבִּי's lesson lines; his own tutorials cut his current
       // line themselves (the same voice), רובו־דע's need it stopped here

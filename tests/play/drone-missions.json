@@ -1,0 +1,129 @@
+[
+{
+"wait": 4
+},
+{
+"js": "window.__journey.markIntro('stage:1'); ['g:rltut','g:rltut:ev','g:rltut:loop'].forEach(k=>window.__journey.markIntro(k)); window.__guide && window.__guide.close(); window.__journey.unlockAll('2580'); window.__app.bus.emit('ui:robolab'); 1"
+},
+{
+"until": "!!document.querySelector('.rl-home')",
+"timeout": 60
+},
+{
+"wait": 2
+},
+{
+"js": "const i=document.querySelector('.rl-intro [data-iskip]'); if(i) i.click(); 1"
+},
+{
+"wait": 1
+},
+{
+"js": "'CHECK chapter9-on-home ' + (/משימות רחפן/.test(document.querySelector('.rl-home').textContent) ? 'ok' : 'FAIL')"
+},
+{
+"js": "window.__rlDebug.open('l9-1'); 1"
+},
+{
+"until": "window.__rlDebug.in3d() && window.__rlDebug.cur() === 'l9-1'",
+"timeout": 240
+},
+{
+"until": "!!document.querySelector('#rguide:not([hidden])') && /מלכודות/.test(document.querySelector('#rguide').textContent)",
+"timeout": 30
+},
+{
+"js": "'CHECK drone-tutorial ' + (/מלכודות/.test(document.querySelector('#rguide').textContent) ? 'ok' : 'FAIL')"
+},
+{
+"shot": "shots/drone-missions/trap-tut.png"
+},
+{
+"until": "(document.querySelector('.rl-pal .rl-blk.f-event') && document.querySelector('#rguide .rg-ring') ? true : (document.querySelector('#rguide .rg-next') && document.querySelector('#rguide .rg-next').click(), false))",
+"timeout": 20
+},
+{
+"clickSel": ".rl-pal .rl-blk.f-event"
+},
+{
+"wait": 1
+},
+{
+"until": "(window.__journey.introSeen('g:rltut:dm') || (document.querySelector('#rguide .rg-next') && document.querySelector('#rguide .rg-next').click(), false))",
+"timeout": 20
+},
+{
+"js": "'CHECK drone-tutorial-done ' + (window.__journey.introSeen('g:rltut:dm') ? 'ok' : 'FAIL')"
+},
+{
+"js": "window.__guide && window.__guide.close(); window.__rlDebug.solve('l9-1'); 1"
+},
+{
+"wait": 3
+},
+{
+"js": "if (!window.__rlDebug.playing() && !document.querySelector('.rl-msg .rl-win')) window.__rlDebug.run('fast'); 1"
+},
+{
+"wait": 6
+},
+{
+"shot": "shots/drone-missions/trap-run.png"
+},
+{
+"until": "!window.__rlDebug.playing() && window.__rlDebug.last() && window.__rlDebug.last().ok",
+"timeout": 240
+},
+{
+"js": "'CHECK trap-win ' + (window.__rlDebug.last() && window.__rlDebug.last().ok ? 'ok':'FAIL')"
+},
+{
+"js": "window.__rlDebug.open('l9-5'); 1"
+},
+{
+"until": "window.__rlDebug.in3d() && window.__rlDebug.cur() === 'l9-5'",
+"timeout": 240
+},
+{
+"wait": 2
+},
+{
+"js": "window.__guide && window.__guide.close(); window.__rlDebug.solve('l9-5'); 1"
+},
+{
+"wait": 6
+},
+{
+"shot": "shots/drone-missions/herd.png"
+},
+{
+"until": "!!document.querySelector('.rl-msg .rl-win')",
+"timeout": 240
+},
+{
+"js": "'CHECK herd-win ' + (window.__rlDebug.last() && window.__rlDebug.last().ok ? 'ok':'FAIL')"
+},
+{
+"js": "window.__rlDebug.open('l9-3'); 1"
+},
+{
+"until": "window.__rlDebug.in3d() && window.__rlDebug.cur() === 'l9-3'",
+"timeout": 240
+},
+{
+"wait": 4
+},
+{
+"shot": "shots/drone-missions/night.png"
+},
+{
+"js": "window.__guide && window.__guide.close(); window.__rlDebug.solve('l9-3'); 1"
+},
+{
+"until": "!!document.querySelector('.rl-msg .rl-win')",
+"timeout": 240
+},
+{
+"js": "'CHECK night-win ' + (window.__rlDebug.last() && window.__rlDebug.last().ok ? 'ok':'FAIL')"
+}
+]

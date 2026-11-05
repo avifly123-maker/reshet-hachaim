@@ -64,9 +64,32 @@ export function makeWorld(level) {
   };
   const log = (tool, a, extra) => { const T = tools[tool] || {}; W.trace.push({ t: W.ticks, tool, a, x: T.x, y: T.y, dir: T.dir, nid: W.cur || null, ...(T.st || T.battery ? { bat: T.battery } : {}), ...extra }); };   // bat: the run counter (three/run-counter.js)
   W.fail = (code, tool, extra) => { if (W.done) return; W.error = { code, tool, ...(tool && tools[tool] ? { x: tools[tool].x, y: tools[tool].y } : {}), ...extra }; W.done = true; log(tool, 'fail', { code }); };
-  W.itemAt = (x, y, t) => items.find((it) => !it.done && !(it.appear > W.ticks) && it.x === x && it.y === y && (!t || it.t === t));
+  // 1.4.4 set 8: at night (level.night) the drone's heat camera sees only warm animals: a cold one (it.cold: a lizard,
+  // a frog, a tortoise) is not seen, not counted and not photographed
+  W.night = !!level.night;
+  W.itemAt = (x, y, t) => items.find((it) => !it.done && !(it.appear > W.ticks) && it.x === x && it.y === y && (!t || it.t === t) && !(W.night && it.cold && it.t === 'animal'));
+  // 1.4.4 set 8: a herd (an animal item with it.path) walks along its path, one cell every it.every steps; a tool that
+  // comes nearer than two cells (it.calm) scares it away, and the run ends. A herd is never "done": every photo counts.
+  const herds = items.filter((it) => Array.isArray(it.path) && it.path.length);
+  W.checkHerds = () => {
+    for (const h of herds) for (const k in tools) {
+      const T = tools[k]; if (k === 'drone' && !T.flying) continue;
+      if (Math.max(Math.abs(T.x - h.x), Math.abs(T.y - h.y)) < (h.calm || 2)) { W.fail('scared', k, { item: h.i }); return; }
+    }
+  };
+  // 1.4.4 set 8: a camera trap on the field (level.beeps: [{ at, x, y, m }]) sends a signal when an animal passes it
+  const beeps = Array.isArray(level.beeps) ? level.beeps : [];
   // 1.4.3 set 4: an item may come in the middle of a run (it.appear = the step it shows up: a fire starts, a fruit falls)
-  W.tick = () => { W.ticks++; for (const it of items) if (it.appear === W.ticks) W.trace.push({ t: W.ticks, tool: null, a: 'appear', item: it.i }); };
+  W.tick = () => {
+    W.ticks++;
+    for (const it of items) if (it.appear === W.ticks) W.trace.push({ t: W.ticks, tool: null, a: 'appear', item: it.i });
+    for (const h of herds) {
+      const at = h.path[Math.min(h.path.length - 1, Math.floor(W.ticks / (h.every || 3)))];
+      if (at && (at[0] !== h.x || at[1] !== h.y)) { h.x = at[0]; h.y = at[1]; W.trace.push({ t: W.ticks, tool: null, a: 'move', item: h.i, x: h.x, y: h.y }); }
+    }
+    for (const b of beeps) if (b.at === W.ticks) { W.msgs.push({ m: b.m || 'a', from: 'sensor', t: W.ticks, x: b.x, y: b.y }); W.trace.push({ t: W.ticks, tool: null, a: 'beep', x: b.x, y: b.y, m: b.m || 'a' }); }
+    if (herds.length) W.checkHerds();
+  };
   W.eventNow = (ev, tool) => {
     const T = tools[tool]; if (!T) return false;
     if (ev === 'sunset') return W.events.sunset != null && W.ticks >= W.events.sunset;
@@ -118,6 +141,7 @@ export function makeWorld(level) {
       T.x = nx; T.y = ny; T.landed = false;
       if (!useBattery(tool, T.st ? T.st.moveDrain : 1)) return;
       log(tool, b);
+      if (herds.length) W.checkHerds();
     } else if (b === 'right' || b === 'left') {
       T.dir = (T.dir + (b === 'right' ? 1 : 3)) % 4; useBattery(tool); log(tool, b);
     } else if (b === 'wait') { useBattery(tool); log(tool, 'wait'); }
@@ -137,7 +161,7 @@ export function makeWorld(level) {
     } else if (b === 'photo') {   // an animal here or up to two steps ahead (the drone sees from above: here too)
       let it = W.itemAt(T.x, T.y, 'animal');
       for (let k = 1; !it && k <= 2; k++) { const [x, y] = ahead(W, T, k); it = W.itemAt(x, y, 'animal'); }
-      if (it) { it.done = true; T.photos++; log(tool, 'photo', { item: it.i }); } else { W.oops++; log(tool, 'oops', { want: b }); }
+      if (it) { if (it.path) it.shots = (it.shots || 0) + 1; else it.done = true; T.photos++; log(tool, 'photo', { item: it.i }); } else { W.oops++; log(tool, 'oops', { want: b }); }
       useBattery(tool);
     } else if (b === 'push') {   // 1.4.3: the pusher moves a rock one cell on, if the robot is strong enough and the cell behind is free
       const [ax, ay] = ahead(W, T), it = W.itemAt(ax, ay, 'rock');
@@ -185,7 +209,7 @@ export function makeWorld(level) {
   };
   W.summary = () => ({
     tools: Object.fromEntries(Object.entries(tools).map(([k, T]) => [k, { x: T.x, y: T.y, dir: T.dir, flying: T.flying, landed: T.landed, battery: T.battery, ...(T.st ? { seeds: T.seeds, water: T.water } : {}) }])),
-    items: items.map((it) => ({ t: it.t, x: it.x, y: it.y, done: it.done, kind: it.kind })),
+    items: items.map((it) => ({ t: it.t, x: it.x, y: it.y, done: it.done, kind: it.kind, ...(it.path ? { shots: it.shots || 0 } : {}) })),
     counter: W.counter, reports: W.reports.slice(), oops: W.oops, fun: W.fun, msgs: W.msgs.map((q) => ({ ...q })),
   });
   return W;

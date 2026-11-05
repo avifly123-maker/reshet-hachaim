@@ -75,8 +75,9 @@ export function createRoboSession(ctx, R) {
     update(dt, rdt) {
       if (leaveSoon) { leaveSoon = false; if (ctx.exit) ctx.exit(); else if (R.onExit) R.onExit(); return; }
       if (disposed || !course) return;
-      // a training field is in good daylight; the "sunset" event of a run turns it to evening, slowly
-      { const want = W._rlSunset ? 0.735 : 0.42; W.dayFrac += (want - W.dayFrac) * Math.min(1, (rdt || 0) * (W._rlSunset ? 0.8 : 4)); }
+      // a training field is in good daylight; the "sunset" event of a run turns it to evening, slowly (1.4.4 set 8: a
+      // night mission is night from the start)
+      { const want = W._rlNight ? 0.9 : W._rlSunset ? 0.735 : 0.42; W.dayFrac += (want - W.dayFrac) * Math.min(1, (rdt || 0) * (W._rlSunset ? 0.8 : 4)); }
       course.update(rdt || dt || 0);
       if (course.setFar && camera && course.robotAt) { const p = course.robotAt(); if (p) course.setFar(camera.position.distanceTo(p) > 16); }   // far from the camera: the light eyes
       // a big field (a mission on an island): while the robot runs the camera goes with it, nearer; then back to all of it

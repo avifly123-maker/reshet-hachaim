@@ -89,6 +89,20 @@ export function robolabEventTutorial({ guide, rl, force = false, voice = null })
   return runGuided({ guide, steps, sayOpts: voice ? { speaker: 'kubi', voice } : null, onEnd: (r) => { if (r !== 'abort') markIntro(KEY); } });
 }
 
+// 1.4.4 set 8: משימות רחפן, the first one: what is new in the field (camera traps, night, a herd), then the hat that
+// listens for the trap's signal. קוּבִּי leads, in writing (kw.* lines).
+export function droneMissionTutorial({ guide, rl, force = false }) {
+  const KEY = 'g:rltut:dm';
+  if (!guide || !rl || !rl.state || (!force && introSeen(KEY))) return null;
+  const st = () => rl.state();
+  const steps = [
+    { id: 'field', lines: L('dmtut:field') },
+    { id: 'hat', lines: L('dmtut:hat'), wait: () => st().hats > 0,
+      before: () => { const b = document.querySelector('#ui .rl-pal .rl-blk.f-event'); if (b) b.scrollIntoView({ block: 'center' }); } },
+  ];
+  return runGuided({ guide, steps, sayOpts: { speaker: 'kubi' }, onEnd: (r) => { if (r !== 'abort') markIntro(KEY); } });
+}
+
 // 1.4.3: סדנת הרובוט, the first visit: a ready robot, a part's card and the numbers, a run on the test track.
 // ws = the workshop (src/robolab/workshop-ui.js): its state() tells what the child did.
 // קוּבִּי leads it (Avi, 3.11: the workshop is in his lab), in his voice when the lines are recorded

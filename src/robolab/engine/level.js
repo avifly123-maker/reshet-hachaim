@@ -1,6 +1,7 @@
 // A lesson or puzzle (src/data/robolab/) as a level the engine runs: the parts the engine needs, nothing else.
 export function levelOf(L) {
-  return { map: L.map, items: L.items || [], home: L.home || null, tools: L.tools0 || {}, events: L.events || null, goal: L.goal, par: L.par || 0, maxTicks: L.maxTicks || 0, maxBlocks: L.maxBlocks || 0, ...(L.build ? { build: L.build } : {}) };
+  return { map: L.map, items: L.items || [], home: L.home || null, tools: L.tools0 || {}, events: L.events || null, goal: L.goal, par: L.par || 0, maxTicks: L.maxTicks || 0, maxBlocks: L.maxBlocks || 0, ...(L.build ? { build: L.build } : {}), ...(L.night ? { night: true } : {}), ...(L.beeps ? { beeps: L.beeps } : {}) };
+  // 1.4.4 set 8: night (a heat camera) and camera traps that send signals (engine/world.js)
   // 1.4.3: a workshop mission carries the child's robot (L.build = { robot }), so the engine uses its parts and numbers
 }
 // A level may come in a few variants (L.variants = [{ items?, map?, tools0?, home? }]): the same program must work in

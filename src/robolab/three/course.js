@@ -39,6 +39,7 @@ export function createCourse(ctx, L) {
   const { W, env, scene, reg, markers, spawnPlant, spawnAnimal } = ctx;
   const zone = ctx.zone || L.zone || 'grove';
   W._rlSunset = false;   // a new field starts in daylight, even after a run that ended at sunset
+  W._rlNight = !!L.night;   // 1.4.4 set 8: a night mission (the drone's heat camera; session.js darkens the sky)
   let gone = false;      // the field was disposed (its fireworks timers must not burst any more)
   const life = LIFE[zone] || LIFE.grove;
   const rows = L.map.rows, H = rows.length, Wd = Math.max(...rows.map((r) => r.length));
@@ -163,11 +164,41 @@ export function createCourse(ctx, L) {
     spawned = []; fires = [];
   }
   let variant = 0;   // which version of the level is on the field (L.variants: the same map, other items)
+  // 1.4.4 set 8: the animals of a variant (lessons whose animals change between variants), herds that walk, camera
+  // traps, and at night a warm glow over every warm animal (the heat camera; a cold one stays dark)
+  let vAnimals = new Map(), traps = [], glows = [];
+  const S_HERD = new Map();   // item index → the herd's animals
+  const glowMat = new THREE.SpriteMaterial({ map: (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'); const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(255,240,170,1)'); gr.addColorStop(0.35, 'rgba(255,150,40,.75)'); gr.addColorStop(1, 'rgba(255,60,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); const t = new THREE.CanvasTexture(c); return t; })(), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true });
+  function makeTrap() {   // a camera trap on a short post: a green box, a lens, a red lamp that flashes on a signal
+    const g = new THREE.Group(), post = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 1.1, 8), new THREE.MeshStandardMaterial({ color: '#5a4630', roughness: 0.9 }));
+    post.position.y = 0.55; g.add(post);
+    const box = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.5, 0.3), new THREE.MeshStandardMaterial({ color: '#3f5a34', roughness: 0.7 })); box.position.y = 1.15; g.add(box);
+    const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.08, 16), new THREE.MeshStandardMaterial({ color: '#111', roughness: 0.2, metalness: 0.4 })); lens.rotation.x = Math.PI / 2; lens.position.set(0, 1.2, 0.17); g.add(lens);
+    const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.05, 10, 8), new THREE.MeshBasicMaterial({ color: '#5a1a1a' })); lamp.position.set(0.12, 1.34, 0.16); g.add(lamp);
+    g.userData.lamp = lamp; return g;
+  }
+  function animalAt(S) { return S.herd ? S.herd[0] : animals.get(S.x + ',' + S.y) || vAnimals.get(S.i); }
   function buildItems() {
     clearItems();
-    const lvs = levelsOf(L), w0 = makeWorld(lvs[Math.min(variant, lvs.length - 1)]);
+    const lvs = levelsOf(L), lv0 = lvs[Math.min(variant, lvs.length - 1)], w0 = makeWorld(lv0);
+    vAnimals = new Map(); traps = []; glows = [];
+    for (const b of lv0.beeps || []) { const o = makeTrap(); at(o, b.x, b.y); o.position.x += CS * 0.32; o.position.z -= CS * 0.32; o.scale.multiplyScalar(CS / 3); itemRoot.add(o); traps.push({ ...b, obj: o, flash: 0 }); }
+    for (const it of w0.items) if (it.t === 'animal' && (it.path || !animals.has(it.x + ',' + it.y))) {
+      const sp = spOf(it.kind); if (!sp) continue;
+      const n = it.path ? 3 : 1, list = [];
+      for (let k = 0; k < n; k++) {
+        const X = wx(it.x) + (k ? (k - 1.5) * CS * 0.35 : 0), Z = wz(it.y) + (k ? (k % 2 ? 1 : -1) * CS * 0.22 : 0);
+        const a = spawnAnimal(sp, new THREE.Vector3(X, ground(X, Z), Z));
+        if (!a) continue;
+        a.home.set(X, a.home.y, Z); a.range = Math.max(0.6, CS * 0.25); a.grow = 1; spawned.push(a); list.push(a);
+        if (it.appear) { a.obj.visible = false; a._hideUntil = true; }
+        if (L.night && !it.cold) { const gl = new THREE.Sprite(glowMat); gl.scale.setScalar(CS * 0.9); itemRoot.add(gl); glows.push({ a, gl }); }
+      }
+      if (it.path) S_HERD.set(it.i, list); else if (list[0]) vAnimals.set(it.i, list[0]);
+      if (!it.path) { const X = wx(it.x), Z = wz(it.y), ring = new THREE.Mesh(new THREE.RingGeometry(CS * 0.28, CS * 0.36, 40), new THREE.MeshBasicMaterial({ color: L.night ? '#ff9a3a' : '#ffd25a', transparent: true, opacity: 0.85, depthWrite: false })); ring.rotation.x = -Math.PI / 2; ring.position.set(X, ground(X, Z) + 0.06, Z); itemRoot.add(ring); }
+    }
     items = w0.items.map((it) => {
-      const S = { ...it, obj: null, plant: null };
+      const S = { ...it, obj: null, plant: null, ...(it.path ? { herd: S_HERD.get(it.i) || [] } : {}) };
       const sc = CS / 3;
       if (it.t === 'seed') S.obj = at(makeSpot(sea ? '#c9b48a' : '#7a5434'), it.x, it.y);
       else if (it.t === 'coral') S.obj = at(makeSpot('#d9c79a'), it.x, it.y);
@@ -263,7 +294,7 @@ export function createCourse(ctx, L) {
     else if (S.t === 'thirsty') { if (S.plant) { S.plant.vis.setHealth(1); } markers.burst(_v, '#6fc3e8', 24, { speed: 1.2, size: 0.35, life: 1, up: 0.6 }); }
     else if (S.t === 'fire') { if (S.obj) S.obj.children.slice(1).forEach((c) => { c.visible = false; }); markers.burst(_v.setY(_v.y + 0.6), '#c9c9c9', 30, { speed: 1, size: 0.8, life: 1.6, up: 2.2 }); markers.burst(_v, '#6fc3e8', 20, { speed: 1.4, size: 0.35, life: 0.8, up: 0.8 }); }
     else if (S.t === 'net' || S.t === 'trash') { if (S.obj) S.obj.visible = false; markers.burst(_v, '#ffffff', 16, { speed: 1.2, size: 0.4, life: 0.8, up: 1.2 }); }
-    else if (S.t === 'animal') { const a = animals.get(S.x + ',' + S.y); if (a) a.focusPoint(_v); markers.burst(_v, '#ffffff', 26, { speed: 3, size: 0.6, life: 0.5, up: 0.4 }); }
+    else if (S.t === 'animal') { const a = animalAt(S); if (a) a.focusPoint(_v); markers.burst(_v, '#ffffff', 26, { speed: 3, size: 0.6, life: 0.5, up: 0.4 }); }
     if (how) { /* a sound is played by the screen (onStep) */ }
   }
   const COL = ['#ff5a5a', '#ffd25a', '#5ad1ff', '#8fe36a', '#d66aa8', '#ff9a3a'];
@@ -283,9 +314,10 @@ export function createCourse(ctx, L) {
     const keep = from > 0;
     stop(); variant = vi || 0;
     if (!keep) { W._rlSunset = false; buildItems(); }
-    // a slow built robot: its 'slow' steps after a move are part of that move (it drives the cell in all their time)
+    // a slow built robot: its 'slow' steps after a move are part of that move (it drives the cell in all their time);
+    // they are counted in .mul, not .m: a signal's name is .m (5.11: a run with a signal hung on it in 3D)
     const evs = [];
-    for (const e of keep ? trace.slice(from) : trace) { if (e.a === 'slow' && evs.length) { evs[evs.length - 1].m = (evs[evs.length - 1].m || 1) + 1; continue; } evs.push({ ...e }); }
+    for (const e of keep ? trace.slice(from) : trace) { if (e.a === 'slow' && evs.length) { evs[evs.length - 1].mul = (evs[evs.length - 1].mul || 1) + 1; continue; } evs.push({ ...e }); }
     play = { evs, i: 0, t: 0, dur: DUR[speed] || DUR.normal, from: null, onStep, onEnd };
     if (!keep) RC.reset();
   }
@@ -294,8 +326,13 @@ export function createCourse(ctx, L) {
     const T = tools[e.tool];
     play.from = T ? { x: T.x, y: T.y, a: T.a, lift: T.lift } : {};
     if (e.a === 'launch' && tools.drone) { const D = tools.drone; D.show = true; D.x = e.x; D.y = e.y; D.a = (e.dir || 0) * Math.PI / 2; D.lift = 0; }
-    if (e.a === 'appear') { const S = items.find((q) => q.i === e.item); if (S && S.hidden) { S.hidden = false; if (S.obj) S.obj.visible = true; if (S.plant) S.plant.obj.visible = true; const X = wx(S.x), Z = wz(S.y); markers.burst(_v.set(X, ground(X, Z) + 0.8, Z), '#ffd25a', 22, { speed: 1.6, size: 0.45, life: 1, up: 1.4 }); } if (play.onStep) play.onStep(e, play.i); return; }
-    if (e.item != null) { const S = items.find((q) => q.i === e.item); if (S && e.a === 'push') pushTo(S, e.to); else if (S) itemDone(S, e.a); }
+    if (e.a === 'appear') { const S = items.find((q) => q.i === e.item); if (S && S.hidden) { S.hidden = false; if (S.obj) S.obj.visible = true; for (const a of S.herd || [vAnimals.get(S.i)]) if (a && a.obj) a.obj.visible = true; if (S.plant) S.plant.obj.visible = true; const X = wx(S.x), Z = wz(S.y); markers.burst(_v.set(X, ground(X, Z) + 0.8, Z), '#ffd25a', 22, { speed: 1.6, size: 0.45, life: 1, up: 1.4 }); } if (play.onStep) play.onStep(e, play.i); return; }
+    if (e.a === 'move') {   // 1.4.4 set 8: the herd walks on to its next cell
+      const S = items.find((q) => q.i === e.item);
+      if (S) { S.x = e.x; S.y = e.y; (S.herd || []).forEach((a, k) => { const X = wx(e.x) + (k - 1) * CS * 0.3, Z = wz(e.y) + (k % 2 ? 1 : -1) * CS * 0.2; a.home.set(X, a.home.y, Z); }); }
+    } else if (e.a === 'beep') {   // a camera trap saw an animal: its lamp flashes and it sends its signal
+      const tr = traps.find((q) => q.x === e.x && q.y === e.y); if (tr) { tr.flash = 1.2; tr.obj.getWorldPosition(_v); _v.y += 1.3; const S = SIGNALS[e.m] || SIGNALS.a; markers.burst(_v, S.color, 22, { speed: 2.6, size: 0.4, life: 0.9, up: 0.8 }); }
+    } else if (e.item != null) { const S = items.find((q) => q.i === e.item); if (S && e.a === 'push') pushTo(S, e.to); else if (S) itemDone(S, e.a); }
     if (T && /^(fireworks|lights|beep|sneeze)$/.test(e.a)) fun(e.tool, T, e.a);
     if (T && e.a === 'send') { const S = SIGNALS[e.m] || SIGNALS.a; T.obj.getWorldPosition(_v); _v.y += 1.6; markers.burst(_v, S.color, 26, { speed: 3.2, size: 0.45, life: 0.9, up: 0.6 }); }
     if (e.a === 'event' && e.ev === 'msg' && tools[e.tool]) { const S = SIGNALS[e.m] || SIGNALS.a; tools[e.tool].obj.getWorldPosition(_v); _v.y += 1.4; markers.burst(_v, S.color, 14, { speed: 1, size: 0.5, life: 0.8, up: 1.2 }); }
@@ -316,8 +353,8 @@ export function createCourse(ctx, L) {
     if (!e) { const cb = play.onEnd; play = null; if (cb) cb(); return; }
     if (!play.from) begin(e);
     if (!play) return;   // onStep may have stopped the run
-    if (e.a === 'appear') { play.i++; play.t = 0; play.from = null; return; }   // a thing that shows up takes no time of its own
-    play.t += rdt; const k = Math.min(1, play.t / (play.dur * (e.m || 1))), q = ease(k), T = tools[e.tool], F = play.from;
+    if (e.a === 'appear' || e.a === 'move' || e.a === 'beep') { play.i++; play.t = 0; play.from = null; return; }   // a thing that shows up (or a herd's step, a trap's signal) takes no time of its own
+    play.t += rdt; const k = Math.min(1, play.t / (play.dur * (e.mul || 1))), q = ease(k), T = tools[e.tool], F = play.from;
     if (T && F.x != null) {
       if (e.a === 'fwd' || e.a === 'back') { T.x = F.x + (e.x - F.x) * q; T.y = F.y + (e.y - F.y) * q; }
       if (e.a === 'right' || e.a === 'left') T.a = F.a + (e.a === 'right' ? 1 : -1) * Math.PI / 2 * q;
@@ -340,6 +377,8 @@ export function createCourse(ctx, L) {
     tick(rdt);
     FC.update(rdt);
     for (const S of items) if (S.obj && S.obj.userData.grains && !S.done) S.obj.userData.grains.rotation.y += rdt * 0.8;
+    for (const G of glows) { const a = G.a; G.gl.visible = !!(a.obj && a.obj.visible); if (G.gl.visible) { a.focusPoint(G.gl.position); G.gl.material.opacity = 0.75 + 0.15 * Math.sin(performance.now() / 300); } }
+    for (const tr of traps) { tr.flash = Math.max(0, tr.flash - rdt); tr.obj.userData.lamp.material.color.set(tr.flash > 0 && (tr.flash * 6 | 0) % 2 ? '#ff3a2a' : '#5a1a1a'); }
     for (const tw of tweens) {
       tw.t = Math.min(1, tw.t + rdt / Math.max(0.05, tw.dur)); const q = ease(tw.t);
       tw.obj.position.lerpVectors(tw.from, tw.to, q);
@@ -376,9 +415,10 @@ export function createCourse(ctx, L) {
     return { pos: new THREE.Vector3(x, ground(x, z), z), yaw: 0.3 };
   }
   buildItems();
+  try { window.__rlCourse = { play: () => play && { i: play.i, n: play.evs.length, e: play.evs[play.i], t: play.t, dur: play.dur } }; } catch (e) { }   // tests: where a run's playback is
   return {
     kubiSpot,
-    reset: () => { stop(); variant = 0; W._rlSunset = false; RC.reset(); buildItems(); },
+    reset: () => { stop(); variant = 0; W._rlSunset = false; W._rlNight = !!L.night; RC.reset(); buildItems(); },
     counter: () => RC.state(),   // (tests)
     play: start, stop, isPlaying: () => !!play, update, view, redraw: () => { },
     cellPos: (x, y) => new THREE.Vector3(wx(x), ground(wx(x), wz(y)), wz(y)), CS,
