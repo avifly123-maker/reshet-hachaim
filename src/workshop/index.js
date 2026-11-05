@@ -26,7 +26,7 @@ import { thingSVG, stationSVG, machineSVG, blenderSVG, catIcon, clockSVG } from 
 import { WS_ART } from '../data/workshop-art.js';
 import { createBench } from './bench.js';
 import { createOffice } from './office.js';
-import { createRoom3d, roomReady } from './room3d.js';
+import { createRoom3d, roomReady, prepareSmallPano } from './room3d.js';
 import { introSeen } from '../core/journey.js';
 import { grant } from '../core/badges-store.js';
 import { K, readPlayer } from '../core/storage.js';
@@ -105,7 +105,7 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
     if (renderer) { renderer.dispose(); try { renderer.forceContextLoss(); } catch (e) { } renderer = null; }
     scene = null;
   }
-  const act = (x) => { if (nz) nz.set(x); };
+  const act = (x) => { if (nz) nz.set(x); if (room3) room3.act(x); };
 
   // ── his words: a bubble of the guide, his portrait and face (written only)
   const say = (key, opts = {}) => {
@@ -145,6 +145,7 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
     if (room3 && p !== 'room') { room3.dispose(); room3 = null; }
     place = p; if (p !== 'mixer') mix = null;
     el.dataset.place = p;
+    if (p !== 'room' && open_ && !nz) startNz();
     el.querySelector('[data-wsroom]').hidden = p === 'room';
     const P = PLACES.find((x) => x.id === p) || (p === 'fair' ? { n: 'יריד הממציאים', k: 'יְרִיד הַמַּמְצִיאִים' } : null);
     el.querySelector('.ws-where').textContent = P ? (kids ? P.k : P.n) : '';
@@ -380,7 +381,7 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
   }
   function state() {
     const w = readWs();
-    return { place, thing, last: last && { cat: last.cat, r: last.r, lv: last.lv }, mix: mix && { ...mix }, round: round && { id: round.card.id, ...roundProgress(), done: round.done }, ideas: w.n.ideas, measures: measures(w), tut: tut && tut.step, nz: nz ? { mood: nz.mood, action: nz.action, light: nz.light } : null,
+    return { place, thing, last: last && { cat: last.cat, r: last.r, lv: last.lv }, mix: mix && { ...mix }, round: round && { id: round.card.id, ...roundProgress(), done: round.done }, ideas: w.n.ideas, measures: measures(w), tut: tut && tut.step, nz: nz ? { mood: nz.mood, action: nz.action, light: nz.light } : room3 ? { room: true } : null,
       order: orderId, bench: bench.state(), office: office.state(), patents: w.patents.length, hand: hand.map((c) => c.id) };
   }
 
@@ -388,7 +389,8 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
     kids = typeof kidsOpt === 'function' ? !!kidsOpt() : !!kidsOpt;
     open_ = true; el.hidden = false; place = 'room'; thing = null; last = null; mix = null; round = null; orderId = null;
     el.classList.toggle('kids', kids);
-    shell(); paintBoard(); go('room'); startNz();
+    try { const Q = window.__app && window.__app.quality; if (Q === 'min' || Q === 'low') prepareSmallPano(); } catch (e) { }
+    shell(); paintBoard(); go('room'); if (!room3) startNz();   // in the 3D room ניצוץ lives in the room: his side window starts when the child leaves it
     setTimeout(() => { if (open_ && nz) nz.set('wave'); }, 600);
   }
   function close() {

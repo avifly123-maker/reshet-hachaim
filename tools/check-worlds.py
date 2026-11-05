@@ -4,7 +4,7 @@ Opens and closes every world again and again, plays in it a little, stays in it,
   load   what it holds while open: JS heap (MB), renderer geometries / textures / shader programs, page elements
   run    frames per second while it stays open (SwiftShader: compare worlds and rounds, not with a real PC)
   leak   after it closed and a full garbage collection: the growth from the end of round 1 to the end of the last round
-The first round warms the caches; from round 2 on the closed numbers must stay flat.
+The first round warms the caches; with three rounds or more growth is read from round 2 on, and must stay flat.
 
   python3 tools/check-worlds.py dist/index.html [rounds=3] [world ...]     → a table, exit code 1 if something grows or breaks
 
@@ -101,9 +101,10 @@ async def main(build, rounds, only):
                       f'closed heap {after["heap"]:4d} gl {after["ctx"]} ctx {after["gbuf"]:5d} buf {after["gtex"]:4d} tex nodes {after["nodes"]:5d}', flush=True)
         await b.close()
     bad = []
-    print('\nworld              open ms (worst)  fps (min)  weight while open (heap MB / gl buffers / gl textures over the start screen)   growth after closing (round 1 → %d)' % rounds)
+    print('\nworld              open ms (worst)  fps (min)  weight while open (heap MB / gl buffers / gl textures over the start screen)   growth after closing (round %d → %d)' % (2 if rounds > 2 else 1, rounds))
     for n, R in res.items():
-        g = {k: R['after'][-1][k] - R['after'][0][k] for k in LIMIT}
+        b0 = R['after'][1] if len(R['after']) > 2 else R['after'][0]   # round 1 warms every world's caches (the hub keeps its page, packs load)
+        g = {k: R['after'][-1][k] - b0[k] for k in LIMIT}
         w = {k: R['held'][-1][k] - base[k] for k in ('heap', 'gbuf', 'gtex')}
         over = [k for k in LIMIT if g[k] > LIMIT[k]]
         slow = max(R['open']) > OPEN_MS or min(R['open']) < 0

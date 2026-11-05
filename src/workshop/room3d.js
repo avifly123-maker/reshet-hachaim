@@ -19,6 +19,15 @@ const D2R = Math.PI / 180;
 const wrap = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 const ease = (k) => k * k * (3 - 2 * k);
 export const roomReady = () => !!(WS_ROOM && WS_ROOM.pano);
+// a weak computer gets the picture at half size (made once, from the big one, the first time it is needed)
+let SMALL = null;
+function smallPano() { return SMALL || WS_ROOM.pano; }
+export function prepareSmallPano() {
+  if (SMALL || !roomReady()) return;
+  const im = new Image();
+  im.onload = () => { try { const c = document.createElement('canvas'); c.width = im.width >> 1; c.height = im.height >> 1; c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); SMALL = c.toDataURL('image/jpeg', 0.86); } catch (e) { } };
+  im.src = WS_ROOM.pano;
+}
 
 export function createRoom3d(host, { kids = false, names = {}, counts = {}, onPick = () => { }, quality = 'medium' } = {}) {
   const weak = quality === 'min' || quality === 'low';
@@ -32,7 +41,7 @@ export function createRoom3d(host, { kids = false, names = {}, counts = {}, onPi
   renderer.setPixelRatio(Math.min(weak ? 1 : 1.5, window.devicePixelRatio || 1));
   renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.3;
   const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(60, 1, 0.05, 200);
-  const view = createRoomView({ url: WS_ROOM.pano, eye: WS_ROOM.eye, renderer });
+  const view = createRoomView({ url: weak ? smallPano() : WS_ROOM.pano, eye: WS_ROOM.eye, renderer });
   view.quad.material.toneMapped = false; scene.add(view.quad); view.load();
   try { const pm = new THREE.PMREMGenerator(renderer); scene.environment = pm.fromScene(new RoomEnvironment(), 0.04).texture; scene.environmentIntensity = 0.8; pm.dispose(); } catch (e) { }
   scene.add(new THREE.HemisphereLight('#fff4e0', '#8a6a4a', 1.5)); const sun = new THREE.DirectionalLight('#fff0d0', 2.2); sun.position.set(0, 4, -3); scene.add(sun);
