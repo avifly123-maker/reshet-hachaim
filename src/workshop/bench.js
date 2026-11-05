@@ -34,7 +34,11 @@ export function createBench(ctx) {
   let tab = 'shape', stage = null, name = '', nameI = 0, running = false, last = {}, verdict = null, mainEl = null;
   const kids = () => ctx.kids();
   const nm = (o) => (kids() ? o.k : o.n);
-  const setProto = (p) => { proto = protoOk(p); saveProto(proto); last = {}; verdict = null; if (stage) stage.show(proto); };
+  // the evidence (5.11, Avi: a patent only for tests actually run): the tests this very version of the prototype passed.
+  // Any change to it (shape, material, a part) is a new version, and its tests start again.
+  const protoKey = (p) => [p.shape, p.mat, ...(p.add || []).slice().sort()].join('|');
+  let evidence = { key: protoKey(proto), passed: new Set() };
+  const setProto = (p) => { proto = protoOk(p); saveProto(proto); last = {}; verdict = null; evidence = { key: protoKey(proto), passed: new Set() }; if (stage) stage.show(proto); };
   const freshName = () => { const L = nameIdeas(proto, kids()); name = L[nameI % L.length]; };
 
   function mountStage(cv) {
@@ -126,17 +130,24 @@ export function createBench(ctx) {
       if (stage) stage.show(proto);
     }
     running = false;
+    if (evidence.key !== protoKey(proto)) evidence = { key: protoKey(proto), passed: new Set() };
+    for (const r of results) { if (r.pass) evidence.passed.add(r.id); else evidence.passed.delete(r.id); }
     recordTests(results, { orderId: order && order.id, proto });
     ctx.onTests(results, proto);
     const fails = results.filter((r) => !r.pass).length;
     if (order) {
       const r = checkOrder(proto, order);
+      const missing = Object.keys(order.tests).filter((t) => !evidence.passed.has(t));
+      if (r.ok && missing.length) {   // it would pass, but the client wants to see every test done on this very version
+        verdict = `<b class="no">${W('עוד לא בדקתם: ', 'עוֹד לֹא בְּדַקְתֶּם: ')}${missing.map((t) => { const X = TESTS.find((x) => x.id === t); return esc(kids() ? X.k : X.n); }).join(W(', ', ', '))}</b>`;
+        ctx.say('nz:react:ok'); repaintTest(); ctx.after(); return;
+      }
       if (r.ok) { verdict = `<b class="ok big">${W('ההזמנה מוכנה!', 'הַהַזְמָנָה מוּכָנָה!')}</b>`; repaintTest(); ctx.onPatent(order, proto, sc, name); return; }
       verdict = `<b class="no">${!r.nature ? W('חסר רעיון מהטבע', 'חָסֵר רַעְיוֹן מֵהַטֶּבַע') : !r.need ? W('חסר הלב של הרעיון', 'חָסֵר חֵלֶק חָשׁוּב') : W('עוד לא. משפרים ובודקים שוב!', 'עוֹד לֹא. מְשַׁפְּרִים!')}</b>`;
       ctx.say(fails >= 2 ? 'nz:react:improve' : 'nz:react:ok');
     } else {
       const passed = results.filter((r) => r.pass).length;
-      if (results.length >= 3 && passed >= 3 && hasNature(proto)) { repaintTest(); ctx.onPatent(null, proto, sc, name); return; }
+      if (evidence.passed.size >= 3 && passed >= 1 && hasNature(proto)) { repaintTest(); ctx.onPatent(null, proto, sc, name); return; }   // three tests passed on this version (one run or several)
       ctx.say(fails ? 'nz:react:improve' : 'nz:react:works');
     }
     repaintTest(); ctx.after();
@@ -168,7 +179,7 @@ export function createBench(ctx) {
     setProto, get proto() { return proto; }, get name() { return name; },
     resetRun: () => { last = {}; verdict = null; },
     run: (list) => run(list),
-    state: () => ({ proto, tab, name, running, last: { ...last }, sc: scores(proto) }),
+    state: () => ({ proto, tab, name, running, last: { ...last }, sc: scores(proto), evidence: [...evidence.passed] }),
   };
 }
 // the nature cards a child owns that bring an add-on (the drawer marks them; the album takes part)
