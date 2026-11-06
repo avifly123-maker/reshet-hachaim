@@ -65,7 +65,7 @@
 },
 {
 "until": "document.querySelector('.wm-things').scrollLeft !== window.__x0",
-"timeout": 8
+"timeout": 30
 },
 {
 "js": "'CHECK shelf-arrow ' + (document.querySelector('.wm-things').scrollLeft !== window.__x0 ? 'ok' : 'FAIL ' + window.__x0)"

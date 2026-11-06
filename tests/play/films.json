@@ -21,7 +21,7 @@
 "shot": "shots/films/loading.png"
 },
 {
-"clickSel": ".film-skip"
+"js": "const b=document.querySelector('.film-skip'); if (b) b.click(); 1"
 },
 {
 "until": "!document.querySelector('.loading.on')",

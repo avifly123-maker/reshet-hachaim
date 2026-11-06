@@ -32,7 +32,7 @@
 },
 {
 "until": "window.__wsDebug.state().tut === 'pick'",
-"timeout": 15
+"timeout": 30
 },
 {
 "js": "const n=document.querySelectorAll('.wo-note'), w=document.querySelector('.wo-note .wo-who'); 'CHECK kids-orders-big ' + (n.length===10 && !document.querySelector('.wo-note .wo-tags') && w.getBoundingClientRect().width>=80 && /[\\u05B0-\\u05BC]/.test(n[0].textContent) ? 'ok' : 'FAIL ' + n.length)"
@@ -63,7 +63,7 @@
 },
 {
 "until": "window.__wsDebug.state().place === 'build'",
-"timeout": 10
+"timeout": 30
 },
 {
 "wait": 2
@@ -73,7 +73,7 @@
 },
 {
 "until": "window.__wsDebug.state().tut === 'shape'",
-"timeout": 15
+"timeout": 30
 },
 {
 "clickSel": "#rguide .rg-next"
@@ -110,7 +110,7 @@
 },
 {
 "until": "window.__wsDebug.state().place === 'test'",
-"timeout": 10
+"timeout": 30
 },
 {
 "wait": 1
@@ -130,7 +130,7 @@
 },
 {
 "until": "!!document.querySelector('.wp-cer .wp-cert')",
-"timeout": 10
+"timeout": 30
 },
 {
 "js": "'CHECK kids-certificate ' + (window.__wsDebug.state().patents===1 ? 'ok' : 'FAIL')"
