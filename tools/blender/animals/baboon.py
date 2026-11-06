@@ -41,7 +41,7 @@ for sx, L in ((1, 'l'), (-1, 'r')):
 cat_muscles(blobs, bones, sh=(0.04, 0.08, 0.055), th=(0.05, 0.09, 0.07))
 E = blob_ears(blobs, bones, base=(0.06, ph(0, 88)[1], ph(296, 0)[0]), d=(0.6, 0.8, -0.3), H=0.04, w=0.035, t=0.01, tip=0.95, turn=20)
 
-OLIVE, OLIVE2, FACE, DARK, PALE = srgb('#a09470'), srgb('#857a58'), srgb('#5a524a'), srgb('#3a3428'), srgb('#a8a07a')
+OLIVE, OLIVE2, FACE, DARK, PALE = srgb('#8c8656'), srgb('#6c6842'), srgb('#5a524a'), srgb('#3a3428'), srgb('#a29a72')   # 6.11: an olive baboon's greener, darker coat
 def paint(P, N, tag):
     x, y, z = P
     e = ear_paint(P, N, E)
