@@ -187,7 +187,9 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
     const lamp = el.querySelector('.ws-nzbox'); if (lamp) lamp.style.setProperty('--glow', String(0.25 + m.glow * 0.75));
   }
   function go(p) {
-    const tutGoesOn = tutPlace === 'room' || tutPlace === p || (kids && tutPlace === 'orders' && (p === 'build' || p === 'test'));   // the beginners' walk crosses three places
+    // the room's tutorial goes on into the first place only from its last step ("לחצו על המכונה"); a child who leaves the room
+    // earlier through the path bar would carry his greeting into every place: it stops, and comes back next time in the room
+    const tutGoesOn = (tutPlace === 'room' && (p === 'room' || (tut && tut.step === 'go'))) || tutPlace === p || (kids && tutPlace === 'orders' && (p === 'build' || p === 'test'));   // the beginners' walk crosses three places
     if (tut && tut.step && !tutGoesOn) { tut.stop(); tut = null; }
     if (place === 'build' || place === 'test') { if (p !== 'build' && p !== 'test') bench.leave(); }
     if (room3 && p !== 'room') { room3.dispose(); room3 = null; }

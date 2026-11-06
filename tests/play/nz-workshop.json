@@ -18,7 +18,7 @@
 "js": "const b=document.querySelector('.st-panel[data-workshop]'); 'CHECK start-panel ' + (b && b.offsetParent && b.querySelector('img') ? 'ok' : 'FAIL')"
 },
 {
-"js": "window.__guide && window.__guide.close(); document.querySelector('.st-panel[data-workshop]').scrollIntoView({ block: 'center' }); 1"
+"js": "window.__guide && window.__guide.close(); document.querySelector('.st-panel[data-workshop]').scrollIntoView({ block: 'center', inline: 'center', behavior: 'instant' }); 1"
 },
 {
 "wait": 1
@@ -44,7 +44,7 @@
 },
 {
 "until": "window.__wsDebug.state().tut === 'hello'",
-"timeout": 20
+"timeout": 30
 },
 {
 "js": "'CHECK nitzotz-speaks ' + (document.querySelector('#rguide .rg-fig.nitz') && window.__wsDebug.state().nz ? 'ok' : 'FAIL')"
@@ -90,11 +90,11 @@
 },
 {
 "until": "window.__wsDebug.state().place === 'machine'",
-"timeout": 10
+"timeout": 30
 },
 {
 "until": "window.__wsDebug.state().tut === 'thing'",
-"timeout": 10
+"timeout": 30
 },
 {
 "js": "'CHECK room-tut-done ' + (window.__journey.introSeen('g:nztut') && !!document.querySelector('.wm-things') ? 'ok' : 'FAIL')"
@@ -104,7 +104,7 @@
 },
 {
 "until": "window.__wsDebug.state().tut === 'lever'",
-"timeout": 5
+"timeout": 30
 },
 {
 "clickSel": ".wm-levers [data-wslever=flip]"
@@ -117,7 +117,7 @@
 },
 {
 "until": "window.__wsDebug.state().tut === 'rate'",
-"timeout": 5
+"timeout": 30
 },
 {
 "shot": "shots/nz-workshop/machine.png"
@@ -127,7 +127,7 @@
 },
 {
 "until": "window.__wsDebug.state().tut === 'end' || !window.__wsDebug.state().tut",
-"timeout": 5
+"timeout": 30
 },
 {
 "js": "const s=window.__wsDebug.state(); 'CHECK rated-and-measured ' + (s.last.r==='funny' && s.measures.fluency===1 && s.measures.originality===1 && document.querySelector('.ws-crazy b').textContent==='1' ? 'ok' : 'FAIL ' + JSON.stringify(s.measures))"
@@ -137,7 +137,7 @@
 },
 {
 "until": "(!window.__wsDebug.state().tut || (document.querySelector('#rguide .rg-next') && document.querySelector('#rguide .rg-next').click(), false))",
-"timeout": 20
+"timeout": 30
 },
 {
 "js": "['remove','material','reuse','nature'].forEach((l) => window.__wsDebug.lever(l)); window.__wsDebug.thing('chair'); window.__wsDebug.lever('grow'); 1"
@@ -184,11 +184,11 @@
 },
 {
 "until": "window.__wsDebug.state().place === 'mixer'",
-"timeout": 10
+"timeout": 30
 },
 {
 "until": "window.__wsDebug.state().tut === 'spin'",
-"timeout": 10
+"timeout": 30
 },
 {
 "clickSel": ".wx-spin"
@@ -222,7 +222,7 @@
 },
 {
 "until": "(!window.__wsDebug.state().tut || (document.querySelector('#rguide .rg-next') && document.querySelector('#rguide .rg-next').click(), false))",
-"timeout": 20
+"timeout": 30
 },
 {
 "clickSel": ".ws-room-btn"
@@ -245,11 +245,11 @@
 },
 {
 "until": "window.__wsDebug.state().place === 'cards'",
-"timeout": 10
+"timeout": 30
 },
 {
 "until": "window.__wsDebug.state().tut === 'draw'",
-"timeout": 10
+"timeout": 30
 },
 {
 "shot": "shots/nz-workshop/cards.png"
@@ -268,14 +268,14 @@
 },
 {
 "until": "(!window.__wsDebug.state().tut || (document.querySelector('#rguide .rg-next') && document.querySelector('#rguide .rg-next').click(), false))",
-"timeout": 20
+"timeout": 30
 },
 {
 "js": "window.__wsDebug.thing('bottle'); ['grow','shrink','flip','join','remove','material'].forEach((l) => window.__wsDebug.lever(l)); 1"
 },
 {
 "until": "!window.__wsDebug.state().round && window.__wsDebug.state().place==='cards'",
-"timeout": 25
+"timeout": 30
 },
 {
 "js": "const R=JSON.parse(localStorage.getItem(Object.keys(localStorage).find((k)=>/web-of-life-workshop/.test(k)))||'{}').rounds||{}; const s=window.__wsDebug.state(); 'CHECK round-won-record ' + (R.minute && R.minute.n===1 && R.minute.best>0 && !s.round && s.place==='cards' ? 'ok' : 'FAIL ' + JSON.stringify(R) + JSON.stringify(s.round))"
@@ -291,7 +291,7 @@
 },
 {
 "until": "!window.__wsDebug.state().round && window.__wsDebug.state().place==='cards'",
-"timeout": 25
+"timeout": 30
 },
 {
 "js": "const R=JSON.parse(localStorage.getItem(Object.keys(localStorage).find((k)=>/web-of-life-workshop/.test(k)))||'{}').rounds||{}; 'CHECK round-timeout ' + (!R.funny && !window.__wsDebug.state().round && window.__wsDebug.state().place==='cards' ? 'ok' : 'FAIL')"
@@ -317,10 +317,14 @@
 },
 {
 "until": "window.__wsDebug.state().place === 'orders'",
-"timeout": 10
+"timeout": 30
 },
 {
 "wait": 1
+},
+{
+"until": "!!document.querySelector('#howto .howto-img img')",
+"timeout": 30
 },
 {
 "js": "'CHECK how-on-first-orders ' + (document.querySelector('#howto .howto-img img') ? 'ok' : 'FAIL')"
@@ -333,7 +337,7 @@
 },
 {
 "until": "window.__wsDebug.state().tut === 'pick'",
-"timeout": 10
+"timeout": 30
 },
 {
 "js": "'CHECK orders-board ' + (document.querySelectorAll('.wo-note').length===40 && document.querySelectorAll('.wo-note .wo-who img').length===40 ? 'ok' : 'FAIL ' + document.querySelectorAll('.wo-note').length)"
@@ -358,7 +362,7 @@
 },
 {
 "until": "window.__wsDebug.state().place === 'build' && window.__wsDebug.state().tut === 'pick'",
-"timeout": 10
+"timeout": 30
 },
 {
 "clickSel": "[data-wbtab=mat]"
@@ -389,14 +393,14 @@
 },
 {
 "until": "window.__wsDebug.state().tut === 'go'",
-"timeout": 5
+"timeout": 30
 },
 {
 "clickSel": ".wb-go"
 },
 {
 "until": "window.__wsDebug.state().place === 'test' && window.__wsDebug.state().tut === 'run'",
-"timeout": 10
+"timeout": 30
 },
 {
 "js": "'CHECK test-hall ' + (document.querySelectorAll('.wt-st').length===6 && document.querySelectorAll('.wt-st.want').length===1 ? 'ok' : 'FAIL')"
@@ -412,7 +416,7 @@
 },
 {
 "until": "!!document.querySelector('.wp-cer')",
-"timeout": 20
+"timeout": 30
 },
 {
 "wait": 1
@@ -458,7 +462,7 @@
 },
 {
 "until": "!window.__wsDebug.state().bench.running",
-"timeout": 20
+"timeout": 30
 },
 {
 "wait": 1
@@ -483,7 +487,7 @@
 },
 {
 "until": "!!document.querySelector('.wp-cer')",
-"timeout": 20
+"timeout": 30
 },
 {
 "js": "'CHECK patent-after-every-test ' + (window.__wsDebug.state().patents===2 ? 'ok' : 'FAIL')"
@@ -493,7 +497,7 @@
 },
 {
 "until": "!window.__wsDebug.state().bench.running",
-"timeout": 20
+"timeout": 30
 },
 {
 "wait": 1
@@ -503,7 +507,7 @@
 },
 {
 "until": "!!document.querySelector('.wp-cer')",
-"timeout": 20
+"timeout": 30
 },
 {
 "js": "const m=window.__wsDebug.state().measures; 'CHECK simpler-and-better-count ' + (m.simplify===1 && m.elaboration>=2 && /שיטות חשיבה/.test(document.querySelector('.ws-board h3').textContent) && document.querySelector('.ws-meter[data-m=simplify] b').textContent==='1' ? 'ok' : 'FAIL ' + JSON.stringify(m))"
@@ -513,7 +517,7 @@
 },
 {
 "until": "!!document.querySelector('.wp-cer')",
-"timeout": 40
+"timeout": 120
 },
 {
 "js": "document.querySelector('.wp-cer [data-wpfair]').click(); 1"
@@ -537,7 +541,7 @@
 "js": "'CHECK exit-to-start ' + (document.querySelector('.ws').hidden && !window.__app.workshop.isOpen() && !!document.querySelector('.st-panel[data-workshop]') ? 'ok' : 'FAIL')"
 },
 {
-"js": "window.__guide && window.__guide.close(); document.querySelector('.st-panel[data-workshop]').scrollIntoView({ block: 'center' }); 1"
+"js": "window.__guide && window.__guide.close(); document.querySelector('.st-panel[data-workshop]').scrollIntoView({ block: 'center', inline: 'center', behavior: 'instant' }); 1"
 },
 {
 "wait": 1

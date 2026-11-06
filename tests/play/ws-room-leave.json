@@ -1,0 +1,16 @@
+[{"wait": 4},
+{"js": "['stage:1','g:hubtut','g:album','g:learn','g:start:chat','g:start:howstages','g:start:settings'].forEach((k) => window.__journey.markIntro(k)); window.__journey.markTrained(); window.__guide && window.__guide.close(); window.__journey.unlockAll('2580'); window.dispatchEvent(new CustomEvent('wol-journey')); window.__app.bus.emit('ui:workshop'); 1"},
+{"until": "!!window.__wsDebug && window.__wsDebug.state().tut === 'hello'", "timeout": 120},
+{"clickSel": ".ws-path .wp-c[data-st=machine]"},
+{"until": "window.__wsDebug.state().place === 'machine'", "timeout": 30},
+{"wait": 2},
+{"js": "const s=window.__wsDebug.state(), t=(document.querySelector('#rguide .rg-txt')||{textContent:''}).textContent; 'CHECK room-greeting-stops ' + (s.tut !== 'hello' && s.tut !== 'board' && !/הנה אתם/.test(t) ? 'ok' : 'FAIL ' + s.tut + ' ' + t)"},
+{"js": "'CHECK machine-tutorial-starts ' + (window.__wsDebug.state().tut === 'thing' ? 'ok' : 'FAIL ' + window.__wsDebug.state().tut)"},
+{"js": "const b=[...document.querySelectorAll('#rguide .rg-act')].find((x)=>/סגור|סְגוֹר/.test(x.textContent)); if (b) b.click(); 'CHECK close-button ' + (b ? 'ok' : 'FAIL')"},
+{"wait": 1.5},
+{"js": "'CHECK bubble-closed-step-open ' + (!document.querySelector('#rguide:not([hidden]) .rg-wrap') && window.__wsDebug.state().tut === 'thing' ? 'ok' : 'FAIL')"},
+{"js": "document.querySelector('[data-wsthing=hat]').scrollIntoView({inline:'center',behavior:'instant'}); 1"},
+{"clickSel": "[data-wsthing=hat]"},
+{"until": "window.__wsDebug.state().tut === 'lever'", "timeout": 30},
+{"js": "'CHECK goes-on-after-close ' + (window.__wsDebug.state().tut === 'lever' ? 'ok' : 'FAIL')"}
+]
