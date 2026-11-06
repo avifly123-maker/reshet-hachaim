@@ -190,7 +190,7 @@ export function weeklyTutorial({ guide, sheet, force = false }) {
 
 // הסדנה של ניצוץ (1.4.4 set 3): ניצוץ leads these himself (speaker 'nitzotz', written only). One per place, each the
 // first time the child comes there; ws.state() → { place, thing, last, mix, round } (src/workshop/index.js).
-const nzRun = (KEY, guide, steps, onDone) => runGuided({ guide, steps, sayOpts: { speaker: 'nitzotz' },
+const nzRun = (KEY, guide, steps, onDone) => runGuided({ guide, steps, closeBtn: true, sayOpts: { speaker: 'nitzotz' },
   onEnd: (r) => { if (r !== 'abort') markIntro(KEY); if (onDone) onDone(r); } });
 export function nzRoomTutorial({ guide, ws, force = false, onDone }) {
   const KEY = 'g:nztut';

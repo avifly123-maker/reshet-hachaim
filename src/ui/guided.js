@@ -21,7 +21,7 @@ import { playMode } from '../core/journey.js';
 
 const LATER_MS = 15000;   // noSkip: "הבנתי" hides a waiting step's bubble for this long
 
-export function runGuided({ guide, steps, onEnd, skipLabel, noSkip = false, every = 300, sayOpts = null }) {
+export function runGuided({ guide, steps, onEnd, skipLabel, noSkip = false, closeBtn = false, every = 300, sayOpts = null }) {
   let i = -1, over = false, pending = null, poll = 0;
   const run = { step: null, stop: () => end('abort') };
   const skipText = () => skipLabel || (playMode() === 'kids' ? 'לְדַלֵּג עַל הַהַדְרָכָה' : 'לדלג על ההדרכה');
@@ -43,7 +43,10 @@ export function runGuided({ guide, steps, onEnd, skipLabel, noSkip = false, ever
     let ok = false; try { ok = !!(st.wait && st.wait()); } catch (e) { }
     if (ok) { next(); return; }   // done on their own already: on to the next one
     const opts = { ...(sayOpts || {}), modal: !!st.modal, place: st.place || (st.modal ? 'center' : 'corner') };
-    if (st.wait) opts.actions = noSkip ? [{ id: 'later', label: playMode() === 'kids' ? 'הָבַנְתִּי' : 'הבנתי', kind: 'quiet' }] : [{ id: 'skipall', label: skipText(), kind: 'quiet' }];
+    // closeBtn (6.11, Avi: "a close button, like רובו־דע"): a waiting step's bubble also has "סגור"; it steps aside and
+    // comes back after a while only if the step is still not done
+    if (st.wait && closeBtn && !noSkip) opts.actions = [{ id: 'later', label: playMode() === 'kids' ? 'סְגוֹר' : 'סגור', kind: 'primary' }, { id: 'skipall', label: skipText(), kind: 'quiet' }];
+    else if (st.wait) opts.actions = noSkip ? [{ id: 'later', label: playMode() === 'kids' ? 'הָבַנְתִּי' : 'הבנתי', kind: 'quiet' }] : [{ id: 'skipall', label: skipText(), kind: 'quiet' }];
     show(st, st.lines, opts);
     if (st.wait) {
       poll = setInterval(() => {
@@ -69,7 +72,7 @@ export function runGuided({ guide, steps, onEnd, skipLabel, noSkip = false, ever
       if (r === 'skipall') { end('skip'); return; }
       if (!st.wait) { next(); return; }
       // "הבנתי" (noSkip): the bubble steps aside, and comes back after a while if the step is still not done
-      const again = r === 'later' ? LATER_MS : 200;
+      const again = r === 'later' ? (closeBtn ? LATER_MS * 3 : LATER_MS) : 200;
       if (r !== 'none' && steps[i] === st) setTimeout(() => { if (!over && steps[i] === st && !pending) show(st, lines.slice(-1), opts); }, again);
     });
   }
