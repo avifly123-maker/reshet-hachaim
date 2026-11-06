@@ -3,8 +3,10 @@
 //   runTest(proto, test, min = PASS) → { score, pass, fail }   fail: the funny animation of a failure
 //   checkOrder(proto, order) → { ok, tests: [{ id, score, min, pass }], need: bool, nature: bool, missing: [what] }
 //   protoOk(proto) → a proto with known pieces only (an old save may hold a piece that no longer exists)
+//   autoFit(order|null, shape, nature|null) → the beginners' proto: their shape and idea from nature, with the material
+//     and up to two mechanisms ניצוץ picks so the order passes when it can ("ממציא צעיר", 6.11)
 // A proto: { shape, mat, add: [addon ids] (at most MAX_ADDONS, no repeats) }
-import { TESTS, TEST_IDS, shapeOf, materialOf, addonOf, MAX_ADDONS } from '../data/workshop/build-parts.js';
+import { TESTS, TEST_IDS, MATERIALS, ADDONS, shapeOf, materialOf, addonOf, MAX_ADDONS } from '../data/workshop/build-parts.js';
 import { UNITS, GAUGES } from '../data/workshop/gauges.js';
 
 export const PASS = 60;
@@ -57,4 +59,23 @@ export function reasons(proto, test) {
   const parts = [{ id: p.shape, kind: 'shape', v: shapeOf(p.shape).fx[test] || 0 }, { id: p.mat, kind: 'mat', v: materialOf(p.mat).fx[test] || 0 },
     ...p.add.map((a) => ({ id: a, kind: 'add', v: addonOf(a).fx[test] || 0 }))];
   return { plus: parts.filter((x) => x.v > 0).sort((a, b) => b.v - a.v), minus: parts.filter((x) => x.v < 0).sort((a, b) => a.v - b.v) };
+}
+
+// ── ממציא צעיר (6.11, Avi: the beginners choose only a shape and an idea from nature; ניצוץ adds the rest)
+// The material and up to two mechanisms that make the order pass, with the widest margin; with no order, plain wood.
+const MECHS = ADDONS.filter((a) => a.kind === 'mech').map((a) => a.id);
+const MECH_SETS = [[], ...MECHS.map((m) => [m]), ...MECHS.flatMap((m, i) => MECHS.slice(i + 1).map((n) => [m, n]))];
+const better = (a, b) => { for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return a[i] > b[i]; return false; };   // the first key that differs decides
+export function autoFit(order, shape, nature) {
+  const base = nature && addonOf(nature) ? [nature] : [];
+  if (!order) return protoOk({ shape, mat: 'wood', add: base });
+  let best = null, bestKey = null;
+  for (const m of MATERIALS) for (const set of MECH_SETS) {
+    if (base.length + set.length > MAX_ADDONS) continue;
+    const p = { shape, mat: m.id, add: [...base, ...set] }, r = checkOrder(p, order);
+    const margin = Math.min(...r.tests.map((t) => t.score - t.min));
+    const key = [r.ok ? 1 : 0, r.need ? 1 : 0, margin, -set.length];
+    if (!bestKey || better(key, bestKey)) { best = p; bestKey = key; }
+  }
+  return protoOk(best);
 }

@@ -58,8 +58,8 @@ export function createOffice(ctx) {
       return `<button type="button" class="wo-note lv${o.lv}${st.done ? ' done' : ''}${st.versions && st.versions.length && !st.done ? ' wip' : ''}" data-woopen="${o.id}" style="--r:${rot * 0.6}deg;--d:${(i % 12) * 0.03}s">
         <i class="wo-pin"></i><span class="wo-who z-${o.z}">${who(o)}</span>
         <span class="wo-txt"><b>${esc(T(o))}</b>
-          <span class="wo-tags"><em class="wo-zone z-${o.z}">${esc(zoneName(o.z))}</em><span class="wo-lv" title="${esc(LV[o.lv][0])}">${[1, 2, 3].map((k) => `<i class="${k <= o.lv ? 'on' : ''}"></i>`).join('')}</span>
-          <span class="wo-tst">${Object.keys(o.tests).map((t) => testSVG(t)).join('')}</span></span></span>
+          ${kids() ? '' : `<span class="wo-tags"><em class="wo-zone z-${o.z}">${esc(zoneName(o.z))}</em><span class="wo-lv" title="${esc(LV[o.lv][0])}">${[1, 2, 3].map((k) => `<i class="${k <= o.lv ? 'on' : ''}"></i>`).join('')}</span>
+          <span class="wo-tst">${Object.keys(o.tests).map((t) => testSVG(t)).join('')}</span></span>`}</span>
         ${st.done ? `<em class="wo-stamp">${W('בוצע!', 'בֻּצַּע!')}</em>` : ''}</button>`;
     }).join('');
     const done = list().filter((o) => (S[o.id] || {}).done).length;
@@ -71,9 +71,9 @@ export function createOffice(ctx) {
     if (!o) return '';
     return `<div class="wo-ticket" role="dialog"><div class="wo-tcard"><button type="button" class="wo-tx" data-woclose>${icon('close')}</button>
       <div class="wo-thead"><span class="wo-who big z-${o.z}">${who(o)}</span><div><small>${W('לקוח', 'לָקוֹחַ')}: ${esc(o.z === 'world' ? W('העולם שלנו', 'הָעוֹלָם שֶׁלָּנוּ') : (NATURE_CARDS.find((c) => c.id === o.who) || {})[kids() ? 'k' : 'n'] || '')}</small><h3>${esc(T(o))}</h3></div></div>
-      <div class="wo-tests">${Object.entries(o.tests).map(([t, min]) => { const X = TESTS.find((x) => x.id === t); return `<span>${testSVG(t)}<b>${esc(kids() ? X.k : X.n)}</b><small>${W('לפחות', 'לְפָחוֹת')} ${min}</small></span>`; }).join('')}</div>
+      ${kids() ? '' : `<div class="wo-tests">${Object.entries(o.tests).map(([t, min]) => { const X = TESTS.find((x) => x.id === t); return `<span>${testSVG(t)}<b>${esc(kids() ? X.k : X.n)}</b><small>${W('לפחות', 'לְפָחוֹת')} ${min}</small></span>`; }).join('')}</div>
       ${o.need ? `<p class="wo-must">${W('חייב להיות בו:', 'חַיָּב לִהְיוֹת בּוֹ:')} <b>${o.need.map((a) => esc(kids() ? addonOf(a).k : addonOf(a).n)).join(W(' או ', ' אוֹ '))}</b></p>` : ''}
-      <details class="wo-hint"><summary>${icon('bulb')} ${W('רמז מהטבע', 'רֶמֶז מֵהַטֶּבַע')}</summary><p>${esc(o.hint)}</p></details>
+      <details class="wo-hint"><summary>${icon('bulb')} ${W('רמז מהטבע', 'רֶמֶז מֵהַטֶּבַע')}</summary><p>${esc(o.hint)}</p></details>`}
       <button type="button" class="wo-go" data-wogo="${o.id}">${W('יאללה לבנות!', 'בּוֹנִים!')} ${icon('arrowL')}</button></div></div>`;
   }
   const orders = (main) => { main.innerHTML = ordersHTML(); };
