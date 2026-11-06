@@ -14,6 +14,7 @@ import { badgeHTML } from '../badge-art.js';
 import { partOfDay, skyColor } from './art.js';
 import { clamp01, esc, fmt, h, LAYER_TINT, mix, SEASON_ICON } from './helpers.js';
 import { icon } from './icons.js';
+import { clearLoadingFilm, showLoadingFilm, watchLoadingFilm } from '../loading-film.js';
 
 export function createApi(ctx) {
   const { root, emit, S, hud, missions, layersEl, tray, panel, toastsEl, hurtBar, hurtArrowsEl, expEl, hoverEl, ghost, hintEl, fxEl, coachRing,
@@ -36,6 +37,7 @@ export function createApi(ctx) {
     setTimeout(() => { b.remove(); bannerBusy = false; nextBanner(); }, 4200);
   }
 
+  let filmGone = 0;
   /* ================================================================ PUBLIC API */
   const ui = {
     setLoading(p, text) {
@@ -54,8 +56,13 @@ export function createApi(ctx) {
       box.innerHTML = '';
       list.forEach((a, i) => { const b = h('button', `btn ${a.primary || (i === 0 && a.primary !== false) ? 'primary' : 'soft'}`, esc(a.label), box); b.addEventListener('click', () => { ui.setLoadingActions(null); a.onClick && a.onClick(); }); });
     },
+    // a short film in a window above the bar (src/ui/loading-film.js): 'amazon' … 'savanna', 'lab', 'robolab', 'workshop'
+    setLoadingFilm(id) { clearTimeout(filmGone); if (id) showLoadingFilm(loadEl, id); else clearLoadingFilm(loadEl); },
+    // the first visit of a place: the whole film, then on (Promise; true when a film was watched)
+    watchLoadingFilm(id) { clearTimeout(filmGone); return watchLoadingFilm(loadEl, id); },
     hideLoading() {
       ui.setLoadingActions(null);
+      clearTimeout(filmGone); filmGone = setTimeout(() => { if (!loadEl.classList.contains('on')) clearLoadingFilm(loadEl); }, 900);   // after the fade
       loadEl.classList.add('off'); loadEl.classList.remove('on');
       clearInterval(tipTimer); tipTimer = 0;
     },

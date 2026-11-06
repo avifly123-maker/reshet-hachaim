@@ -1,0 +1,66 @@
+[
+{
+"wait": 4
+},
+{
+"js": "['stage:1','g:hubtut','g:album','g:learn','g:start:chat','g:start:howstages','g:start:settings'].forEach((k) => window.__journey.markIntro(k)); window.__journey.markTrained(); window.__journey.unlockAll && window.__journey.unlockAll(); window.__filmWatch = true; 1"
+},
+{
+"js": "window.__app.bus.emit('start:biome',{id:'desert'});1"
+},
+{
+"wait": 0.6
+},
+{
+"js": "const f=document.querySelector('.loading.on .ld-film'); 'CHECK film-shown ' + (f && f.querySelector('.film-front') && document.querySelector('.loading.has-film .film-skip') ? 'ok' : 'FAIL')"
+},
+{
+"js": "const g=document.querySelector('#rguide'); 'CHECK guide-hidden ' + (!g || getComputedStyle(g).visibility === 'hidden' ? 'ok' : 'FAIL')"
+},
+{
+"shot": "shots/films/loading.png"
+},
+{
+"clickSel": ".film-skip"
+},
+{
+"until": "!document.querySelector('.loading.on')",
+"timeout": 120
+},
+{
+"wait": 2
+},
+{
+"js": "'CHECK film-gone ' + (!document.querySelector('.ld-film') && !!window.__game ? 'ok' : 'FAIL')"
+},
+{
+"js": "window.__game && window.__game.exit ? window.__game.exit() : document.querySelector('[data-act=home], .tb-home') && document.querySelector('[data-act=home], .tb-home').click(); 1"
+},
+{
+"wait": 3
+},
+{
+"js": "window.__journey.unlockAll('2580'); window.__weekly.setDate(new Date(2026, 10, 1, 10)); window.__journey.markIntro('g:weekly'); window.dispatchEvent(new CustomEvent('wol-journey')); 1"
+},
+{
+"wait": 1
+},
+{
+"js": "try { window.__weeklyUI.openWeekly(document.querySelector('#ui .start'), {}); 'opened ' + !!document.querySelector('.wkv-sheet') } catch (e) { 'ERR ' + e.message + ' ' + (e.stack||'').slice(0,300) }"
+},
+{
+"wait": 3
+},
+{
+"js": "const f=document.querySelector('.wkv-card .wkv-film video'); 'CHECK weekly-film ' + (f ? 'ok' : 'FAIL ' + !!document.querySelector('.wkv-sheet') + ' ' + (document.querySelector('.wkv-card')||{className:'-'}).className + ' ' + !!(document.querySelector('.wkv-big')))"
+},
+{
+"js": "window.__guide && window.__guide.close(); 1"
+},
+{
+"wait": 1
+},
+{
+"shot": "shots/films/weekly.png"
+}
+]

@@ -9,7 +9,8 @@
 //              'photo' (a species photographed on the island: '*' = any species that has a microscope sample),
 //              'link' (a relation discovered: '*' = any relation of a species that has a research question),
 //              'event' (ids: island events lived), 'zone' (id: all regular missions of the zone done),
-//              'robot' (a robot built in the workshop), 'think' (a thinking-corner activity done: id)
+//              'robot' (a robot built in the workshop), 'think' (a thinking-corner activity done: id),
+//              'techcard' (1.4.4: a robot lab technology card earned: ids), 'patent' (1.4.4: n patents in Nitzotz's workshop)
 //   to.kind:   'tool' (an island tool upgrade: effect = { tool, zone?, key, value }), 'choice' (a new event choice:
 //              effect = { event, choice }), 'reveal' (links shown on the island: effect = { zone, links, mark? }),
 //              'measure' (effect = { what: 'notebook'|'quadrat'|'experiment' }), 'sample' (microscope samples marked
@@ -108,6 +109,8 @@ const S = {   // sources (docs/sources.md, section "חוטים")
   gazelle: 'https://www.timesofisrael.com/mountain-gazelles-under-serious-threat-urgent-action-needed-study/',
   inventors: 'src/data/inventions.js facts (docs/sources.md הממציאים)',
   robots: 'docs/sources.md הממציאים, robot workshop',
+  svcases: 'docs/sources.md, the savanna mysteries (old-grass, too-many-elephants)',
+  dcases: 'docs/sources.md, the desert mysteries (moving-sand, shrinking-oasis, lonely-acacias)',
 };
 const L = (f, k) => ({ f, k });
 
@@ -225,6 +228,40 @@ export const THREADS = [
     parts: ['zone:grove', 'research'], name: L('כביש ליד החורש', 'כְּבִישׁ לְיַד הַחֹרֶשׁ'),
     hint: L('כשיסללו כביש ליד החורש שלכם.', 'כְּשֶׁיִּסְלְלוּ כְּבִישׁ לְיַד הַחֹרֶשׁ שֶׁלָּכֶם.'),
     fact: 'Roads and fences cut mountain gazelle herds apart in Israel.', src: S.gazelle },
+  // 1.4.4 set 12: the desert's and the savanna's events point to their mysteries (docs/THREADS-1.4.4.md א)
+  { id: 'ev-svfire', mode: 'full', from: { kind: 'event', ids: ['sv_fire'] }, to: { kind: 'case', id: 'old-grass' },
+    parts: ['zone:savanna', 'research'], name: L('אחרי האש בסוואנה', 'אַחֲרֵי הָאֵשׁ בַּסַּוָּנָה'),
+    hint: L('כשתהיה שריפת עשב בסוואנה שלכם.', 'כְּשֶׁתִּהְיֶה שְׂרֵפַת עֵשֶׂב בַּסַּוָּנָה שֶׁלָּכֶם.'),
+    fact: 'Grass fires burn old dry grass and fresh green grass grows after them, which draws the grazers back.', src: S.svcases },
+  { id: 'ev-svdry', mode: 'full', from: { kind: 'event', ids: ['sv_drought'] }, to: { kind: 'case', id: 'too-many-elephants' },
+    parts: ['zone:savanna', 'research'], name: L('פילים ליד המים', 'פִּילִים לְיַד הַמַּיִם'),
+    hint: L('כשתהיה בצורת בסוואנה שלכם.', 'כְּשֶׁתִּהְיֶה בַּצֹּרֶת בַּסַּוָּנָה שֶׁלָּכֶם.'),
+    fact: 'In the dry season elephants gather near the remaining water and press hard on the trees around it.', src: S.svcases },
+  { id: 'ev-dstorm', mode: 'full', from: { kind: 'event', ids: ['d_storm'] }, to: { kind: 'case', id: 'moving-sand' },
+    parts: ['zone:desert', 'research'], name: L('החול שזז', 'הַחוֹל שֶׁזָּז'),
+    hint: L('כשתהיה סופת חול במדבר שלכם.', 'כְּשֶׁתִּהְיֶה סוּפַת חוֹל בַּמִּדְבָּר שֶׁלָּכֶם.'),
+    fact: 'Wind carries loose sand and buries young plants; plants and fences that slow the wind hold the sand.', src: S.dcases },
+  { id: 'ev-dheat', mode: 'full', from: { kind: 'event', ids: ['d_sharav'] }, to: { kind: 'case', id: 'shrinking-oasis' },
+    parts: ['zone:desert', 'research'], name: L('נווה המדבר בשרב', 'נְוֵה הַמִּדְבָּר בְּשָׁרָב'),
+    hint: L('כשיהיה שרב במדבר שלכם.', 'כְּשֶׁיִּהְיֶה שָׁרָב בַּמִּדְבָּר שֶׁלָּכֶם.'),
+    fact: 'In a heat wave more water evaporates and every animal comes to the oasis, so its water shrinks faster.', src: S.dcases },
+  { id: 'ev-dgraze', mode: 'full', from: { kind: 'event', ids: ['d_overgraze'] }, to: { kind: 'case', id: 'lonely-acacias' },
+    parts: ['zone:desert', 'research'], name: L('שיטים בלי צעירות', 'שִׁטִּים בְּלִי צְעִירוֹת'),
+    hint: L('כשיהיו יותר מדי רועים במדבר שלכם.', 'כְּשֶׁיִּהְיוּ יוֹתֵר מִדַּי רוֹעִים בַּמִּדְבָּר שֶׁלָּכֶם.'),
+    fact: 'When grazing is too heavy, young acacias are eaten before they grow, and only old trees are left.', src: S.dcases },
+  // 1.4.4 set 12: the robot lab and Nitzotz's workshop reach the islands (docs/THREADS-1.4.4.md ב)
+  { id: 'tc-drone', mode: 'full', from: { kind: 'techcard', ids: ['drone'] }, to: { kind: 'tool', id: 'drone' }, effect: { tool: 'drone', key: 'speed', value: 1.2 },
+    parts: ['robolab', 'zone:amazon'], name: L('רחפן מתוכנת', 'רַחְפָן מְתֻכְנָת'),
+    hint: L('קבלו את קלף הטכנולוגיה "רחפן" במעבדת הרובוטים.', 'קַבְּלוּ אֶת קְלַף הַטֶּכְנוֹלוֹגְיָה "רַחְפָן" בְּמַעְבֶּדֶת הָרוֹבּוֹטִים.'),
+    fact: 'Game logic: a child who programmed a drone flies the island drone better (planned routes are shorter than flying by eye).', src: S.robots },
+  { id: 'tc-camera', mode: 'full', from: { kind: 'techcard', ids: ['camera', 'echo'] }, to: { kind: 'tool', id: 'camera' }, effect: { tool: 'camera', key: 'night', value: 1.3 },
+    parts: ['robolab', 'zone:grove'], name: L('חיישנים לילה', 'חַיְשָׁנִים לַלַּיְלָה'),
+    hint: L('קבלו את קלף "מצלמה" או "הד" במעבדת הרובוטים.', 'קַבְּלוּ אֶת קְלַף "מַצְלֵמָה" אוֹ "הֵד" בְּמַעְבֶּדֶת הָרוֹבּוֹטִים.'),
+    fact: 'Camera traps with infrared light and sound sensors find animals at night, as the technology cards tell.', src: S.chameleon },
+  { id: 'patent-rescue', mode: 'full', from: { kind: 'patent', n: 1 }, to: { kind: 'tool', id: 'rescue' }, effect: { tool: 'rescue', key: 'speed', value: 1.15 },
+    parts: ['workshop', 'zone:amazon'], name: L('הפטנט יוצא לאי', 'הַפָּטֶנְט יוֹצֵא לָאִי'),
+    hint: L('קבלו פטנט ראשון בסדנה של ניצוץ.', 'קַבְּלוּ פָּטֶנְט רִאשׁוֹן בַּסַּדְנָה שֶׁל נִיצוֹץ.'),
+    fact: 'Game logic: an invention that passed every test is put to work; the rescue robot on the island gets it.', src: S.inventors },
   { id: 'zone-amazon', mode: 'full', from: { kind: 'zone', id: 'amazon' }, to: { kind: 'problem', ids: ['roof', 'color', 'lifevest'] },
     parts: ['zone:amazon', 'inventors'], name: L('ממציאים מהאמזונס', 'מַמְצִיאִים מֵהָאָמָזוֹנָס'),
     hint: L('השלימו את כל המשימות באמזונס.', 'הַשְׁלִימוּ אֶת כָּל הַמְּשִׂימוֹת בָּאָמָזוֹנָס.'),

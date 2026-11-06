@@ -711,6 +711,8 @@ Only the nursery gives "strong" young corals; they go onto the reef bigger and b
 - Wording: no "evolution"; the texts say "a fragment of a coral that stood the heat" (שבר של אלמוג שעמד בחום).
 
 ## חוטים (1.3.2, the threads between the parts: src/data/threads.js)
+- חוטים 1.4.4 (סט 12), מהמעבדות לאיים: `tc-drone` (חוקיות של המשחק: מי שתכנת רחפן מטיס טוב יותר את רחפן האי), `tc-camera` (מלכודות מצלמה עם אור אינפרא־אדום וחיישני קול מוצאות בעלי חיים בלילה: https://en.wikipedia.org/wiki/Camera_trap), `patent-rescue` (חוקיות של המשחק: המצאה שעברה את כל הבדיקות יוצאת לעבודה).
+- חוטים 1.4.4 (סט 12), מאירוע באי לתעלומה; העובדות הן של התעלומות עצמן, שמקורותיהן כבר בקובץ: `ev-svfire` (שריפת עשב מחדשת עשב ירוק שמושך את העדרים, התעלומה old-grass), `ev-svdry` (בעונה היבשה פילים מתקבצים ליד המים, too-many-elephants), `ev-dstorm` (רוח מזיזה חול וקוברת שתילים, moving-sand), `ev-dheat` (בשרב יותר אידוי ויותר שותים, shrinking-oasis), `ev-dgraze` (רעייה כבדה אוכלת את השיטים הצעירות, lonely-acacias).
 
 A thread rests on a fact that is already checked elsewhere in this file; what the thread changes in the game (a faster robot, a longer camera range, a new event choice) is game logic built on that fact, and is said so. Validated by `node tools/validate-threads.mjs`.
 - `sharkskin`: ridges along the flow, like shark skin denticles, cut friction by about 8% (Bechert et al. 1997, the lab section above); the underwater robot swims faster (game logic, as in 1.3.0).

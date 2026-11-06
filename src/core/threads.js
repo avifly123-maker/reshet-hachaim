@@ -83,7 +83,10 @@ function snap() {
   const photos = readPlayer(KEY.photos, null);
   for (const p of Array.isArray(photos) ? photos : []) { const sp = p && (p.sp || p.species); if (sp && !S0.ph[sp]) { S0.ph[sp] = 1; phChanged = true; } }
   if (phChanged) save();
-  snapV = { lab, cases, hubSolved, robots, zones, events, ph: S0.ph, used: S0.used };
+  // 1.4.4 set 12: the robot lab's technology cards and Nitzotz's patents (read only)
+  const rl = obj(readPlayer(KEY.robolab, null)), ws = obj(readPlayer(KEY.workshop, null));
+  const tc = obj(rl.tc), patents = Array.isArray(ws.patents) ? ws.patents.length : 0;
+  snapV = { lab, cases, hubSolved, robots, zones, events, ph: S0.ph, used: S0.used, tc, patents };
   snapT = now; snapK = pk(K);
   return snapV;
 }
@@ -115,6 +118,8 @@ function isMet(t, s) {
     case 'zone': return zoneDone(s, f.id);
     case 'robot': return s.robots.length > 0;
     case 'think': return !!(s.lab.think[f.id] && s.lab.think[f.id].done);
+    case 'techcard': return (f.ids || [f.id]).some((id) => !!s.tc[id]);   // 1.4.4: a technology card earned in the robot lab
+    case 'patent': return s.patents >= (f.n || 1);                        // 1.4.4: patents from Nitzotz's workshop
     default: return false;
   }
 }

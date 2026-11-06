@@ -5521,5 +5521,80 @@
   "h": "da347004ef83",
   "text": "אוֹרֵחַ נָדִיר בָּא לָגוּר בְּאַחַד הָאִיִּים שֶׁלָּכֶם! לְכוּ לְבַקֵּר אוֹתוֹ.",
   "ipa": "ʔoʁˈeaχ nadˈiʁ bˈa laɡˈuʁ beʔˈaχad haʔijˈim ʃelaχˈem! leχˈu levakˈeʁ ʔotˈo."
+ },
+ "th.tc-drone": {
+  "h": "ba7863330eec",
+  "text": "תִּכְנַתְתֶּם רַחֲפָן בְּמַעְבֶּדֶת הָרוֹבּוֹטִים. עַכְשָׁיו רַחֲפָן הַזְּרָעִים בָּאִי שֶׁלָּכֶם עָף מַהֵר יוֹתֵר!",
+  "ipa": "tiχnˈattem ʁaχafˈan bemaʔbˈedet haʁobotˈim. aχʃˈav ʁaχafˈan hazʁaʔˈim baʔˈi ʃelaχˈem ʔˈaf mahˈeʁ jotˈeʁ!"
+ },
+ "th.tc-drone.k": {
+  "h": "9051d989369b",
+  "text": "תִּכְנַתְתֶּם רַחְפָן בְּמַעְבֶּדֶת הָרוֹבּוֹטִים. עַכְשָׁו רַחְפַן הַזְּרָעִים בָּאִי שֶׁלָּכֶם עָף מַהֵר יוֹתֵר!",
+  "ipa": "tiχnˈattem ʁaχfˈan bemaʔbˈedet haʁobotˈim. aχʃˈav ʁaχfˈan hazʁaʔˈim baʔˈi ʃelaχˈem ʔˈaf mahˈeʁ jotˈeʁ!"
+ },
+ "th.tc-camera": {
+  "h": "749902bc9991",
+  "text": "לְמַדְתֶּם עַל חַיְישָׁנִים. מַצְלֶמַת הַשֶּׁטַח בָּאִי שֶׁלָּכֶם רוֹאָה עַכְשָׁיו טוֹב יוֹתֵר בַּלַּיְלָה.",
+  "ipa": "lemˈadtem ʔˈal χajjʃanˈim. matslemˈat haʃˈetaχ baʔˈi ʃelaχˈem ʁoʔˈa aχʃˈav tˈov jotˈeʁ balajlˈa."
+ },
+ "th.tc-camera.k": {
+  "h": "b44381b84697",
+  "text": "לְמַדְתֶּם עַל חַיְשָׁנִים. מַצְלֵמַת הַשָּׂטַח בָּאִי שֶׁלָּכֶם רוֹאָה עַכְשָׁו טוֹב יוֹתֵר בַּלַּיְלָה.",
+  "ipa": "lemˈadtem ʔˈal χajʃanˈim. matslemˈat hasatˈaχ baʔˈi ʃelaχˈem ʁoʔˈa aχʃˈav tˈov jotˈeʁ balajlˈa."
+ },
+ "th.patent-rescue": {
+  "h": "911e5e43b171",
+  "text": "קִיבַּלְתֶּם פָּטֶנְט אֵצֶל נִיצוֹץ! הַהַמְצָאָה יוֹצֵאת לָאִיִּים, וְרוֹבּוֹט הַהַצָּלָה עוֹבֵד מַהֵר יוֹתֵר.",
+  "ipa": "kibˈaltem patˈen ʔˈetsel nitsˈots! hahamtsaʔˈa jotsˈet laʔijˈim, veʁobˈot hahatsalˈa ʔovˈed mahˈeʁ jotˈeʁ."
+ },
+ "th.patent-rescue.k": {
+  "h": "9fa13e9a3fe3",
+  "text": "קִבַּלְתֶּם פָּטֶנְט אֵצֶל נִיצוֹץ! הַהַמְצָאָה יוֹצֵאת לָאִיִּים, וְרוֹבּוֹט הַהַצָּלָה עוֹבֵד מַהֵר יוֹתֵר.",
+  "ipa": "kibˈaltem patˈen ʔˈetsel nitsˈots! hahamtsaʔˈa jotsˈet laʔijˈim, veʁobˈot hahatsalˈa ʔovˈed mahˈeʁ jotˈeʁ."
+ },
+ "th.ev-svfire": {
+  "h": "c732c602e04c",
+  "text": "הָיְיתָה אֵשׁ בַּסַוָואנָה שֶׁלָּכֶם. בַּתַּעֲלוּמָה \"הָעֲדָרִים שֶׁלֹּא נִשְׁאָרִים\" תְּגַלּוּ מָה הָאֵשׁ עוֹשָׂה לָעֵשֶׂב.",
+  "ipa": "hajtˈa ʔˈeʃ basavˈana ʃelaχˈem. bataʔalumˈa haʔadaʁˈim ʃelˈo niʃʔaʁˈim teɡalˈu mˈa haʔˈeʃ ʔosˈa laʔˈesev."
+ },
+ "th.ev-svfire.k": {
+  "h": "c9f34b4492ec",
+  "text": "הָיְתָה אֵשׁ בַּסַּוָּנָה שֶׁלָּכֶם. בַּתַּעֲלוּמָה \"הָעֲדָרִים שֶׁלֹּא נִשְׁאָרִים\" תְּגַלּוּ מָה הָאֵשׁ עוֹשָׂה לָעֵשֶׂב.",
+  "ipa": "hajtˈa ʔˈeʃ basavanˈa ʃelaχˈem. bataʔalumˈa haʔadaʁˈim ʃelˈo niʃʔaʁˈim teɡalˈu mˈa haʔˈeʃ ʔosˈa laʔˈesev."
+ },
+ "th.ev-svdry": {
+  "h": "b2796738f1df",
+  "text": "בִּבְצוֹרַת הַפִּילִים מִתְקַבְּצִים לְיַד הַמַּיִם. זֹאת בְּדִיּוּק הַשְּׁאֵלָה בַּתַּעֲלוּמָה \"יוֹתֵר מִדַּי פִּילִים\".",
+  "ipa": "bivtsoʁˈat hapilˈim mitkabetsˈim lejˈad hamˈajim. zˈot bediˈuk haʃeʔelˈa bataʔalumˈa jotˈeʁ midˈaj pilˈim."
+ },
+ "th.ev-svdry.k": {
+  "h": "763ea5272539",
+  "text": "בַּבַּצֹּרֶת הַפִּילִים מִתְקַבְּצִים לְיַד הַמַּיִם. זֹאת בְּדִיּוּק הַשְּׁאֵלָה בַּתַּעֲלוּמָה \"יוֹתֵר מִדַּי פִּילִים\".",
+  "ipa": "babatsˈoʁet hapilˈim mitkabetsˈim lejˈad hamˈajim. zˈot bediˈuk haʃeʔelˈa bataʔalumˈa jotˈeʁ midˈaj pilˈim."
+ },
+ "th.ev-dstorm": {
+  "h": "064bffd7f596",
+  "text": "רְאִיתֶם סוּפַת חוֹל. בַּתַּעֲלוּמָה עַל הַחוֹל שֶׁקּוֹבֵר אֶת הַשְּׁתִילִים תִּמְצְאוּ אֵיךְ עוֹצְרִים אוֹתוֹ.",
+  "ipa": "ʁeʔˈitem sufˈat χˈol. bataʔalumˈa ʔˈal haχˈol ʃekovˈeʁ ʔˈet haʃtilˈim timtseʔˈu ʔˈejχ ʔotsʁˈim ʔotˈo."
+ },
+ "th.ev-dheat": {
+  "h": "0faddadd9edc",
+  "text": "בְּשָׁרָב כּוּלָּם בָּאִים לִשְׁתּוֹת. בַּתַּעֲלוּמָה עַל נְוֵוה הַמִּדְבָּר תְּגַלּוּ לָמָּה הַמַּיִם נֶעֱלָמִים.",
+  "ipa": "beʃaʁˈav kulˈam baʔˈim liʃtˈot. bataʔalumˈa ʔˈal nevˈe hamidbˈaʁ teɡalˈu lamˈa hamˈajim neʔelamˈim."
+ },
+ "th.ev-dheat.k": {
+  "h": "f2b0c2e111db",
+  "text": "בְּשָׁרָב כֻּלָּם בָּאִים לִשְׁתּוֹת. בַּתַּעֲלוּמָה עַל נְוֵה הַמִּדְבָּר תְּגַלּוּ לָמָּה הַמַּיִם נֶעֱלָמִים.",
+  "ipa": "beʃaʁˈav kulˈam baʔˈim liʃtˈot. bataʔalumˈa ʔˈal nevˈe hamidbˈaʁ teɡalˈu lamˈa hamˈajim neʔelamˈim."
+ },
+ "th.ev-dgraze": {
+  "h": "d7350499c57c",
+  "text": "יוֹתֵר מִדַּי רַעָיָיה בַּמִּדְבָּר שֶׁלָּכֶם. בַּתַּעֲלוּמָה עַל הַשִּׁיטִים תָּבִינוּ לְמָה אֵין שִׁיטִים צְעִירוֹת.",
+  "ipa": "jotˈeʁ midˈaj ʁeʔijˈa bamidbˈaʁ ʃelaχˈem. bataʔalumˈa ʔˈal haʃitˈim tavˈinu lamˈa ʔˈejn ʃitˈim tseʔiʁˈot."
+ },
+ "th.ev-dgraze.k": {
+  "h": "2f94ba5d5c1c",
+  "text": "יוֹתֵר מִדַּי רְעִיָּה בַּמִּדְבָּר שֶׁלָּכֶם. בַּתַּעֲלוּמָה עַל הַשִּׁטִּים תָּבִינוּ לָמָּה אֵין שִׁטִּים צְעִירוֹת.",
+  "ipa": "jotˈeʁ midˈaj ʁeʔijˈa bamidbˈaʁ ʃelaχˈem. bataʔalumˈa ʔˈal haʃitˈim tavˈinu lamˈa ʔˈejn ʃitˈim tseʔiʁˈot."
  }
 }

@@ -18,6 +18,7 @@ import { grant } from '../core/badges-store.js';
 import { svcGuide } from '../core/services.js';
 import { weeklyTutorial } from './tutorials.js';
 import { loadPack } from '../core/packs.js';
+import { filmEl, filmsReady } from './loading-film.js';
 
 const kids = () => playMode() === 'kids';
 const w = (o, vars) => { let s = kids() ? o.k : o.f; if (vars) for (const [k, v] of Object.entries(vars)) s = s.replace('{' + k + '}', v); return s; };
@@ -81,6 +82,8 @@ export function openWeekly(host, { emit, onClose } = {}) {
           <div class="wkv-days" aria-label="${esc(w(WEEK_UI.open))}">${days}</div>${status}<div class="wkv-act">${btn}</div></div></section>
       <div class="wkv-kinds">${recs}</div>
       <h5>${esc(w(WEEK_UI.guests))}</h5>${guests}${staff}</div>`;
+    // set 11: the event's short film in place of its big icon (when there is one)
+    filmsReady().then(() => { const card = layer.querySelector('.wkv-card'), big = card && card.querySelector('.wkv-big'); const f = big && filmEl('week-' + c.kind, 'wkv-film'); if (f) big.replaceWith(f); });
   }
   layer.addEventListener('click', (e) => {
     if (e.target.classList.contains('wkv-scrim')) { close(); return; }

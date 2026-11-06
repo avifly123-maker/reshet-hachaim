@@ -227,12 +227,23 @@ async function boot() {
   const backAction = (research) => (research && research.robolab && research.onExit
     ? { label: 'חזרה למעבדה', onClick: () => { ui.hideLoading(); research.onExit(); } }
     : { label: 'חזרה למסך הפתיחה', onClick: () => showStart() });
+  // set 11: every visit of a place shows its whole short film (about 10 s, Avi 6.11: "they are very beautiful"; a
+  // "דלג" button ends it) while its pack loads (src/ui/loading-film.js)
+  async function watchFilm(id, text) {
+    if (!id || !ui.watchLoadingFilm) return false;
+    ui.setLoading(0.01, text);
+    return ui.watchLoadingFilm(id);   // false: a test browser, or no film (then setLoadingFilm shows it while loading)
+  }
   async function loadBiome(id, save = null, research = null, training = false) {
     if (loading) return; loading = true;
     ui.hideStart();
     root.classList.toggle('kids', MODE === 'kids' && !research && !training);
     try {
       // the zone's pack: already in (chosen before, or loading since the click), or fetched now behind the loading screen
+      const film = research && research.robolab ? null : training ? null : id;   // set 11: a short film of the place
+      let watched = false;
+      if (film && !research) { loadPack(id).catch(() => { /* reported below */ }); watched = await watchFilm(film, 'מכינים את היער...'); }
+      if (!watched && ui.setLoadingFilm) ui.setLoadingFilm(film);
       if (!zoneOf(id) || !loadedPack('game')) { ui.setLoading(0.01, 'מכינים את היער...'); await Promise.all([loadPack(id), loadPack('game')]); }
     } catch (e) {
       console.error(e);
@@ -347,7 +358,7 @@ async function boot() {
     });
     // (1.4.3: a player who knows the lab hears once what is new in it: lab:news)
     // the first visit: רובו־דע's hands-on steps (turn the room, the "?" button, a station); the four cards stay on "?"
-    labP.then((L) => { labOpening = false; ui.hideLoading(); L.open(); setTimeout(() => { if (!L.isOpen()) return; if (labTut) return; labTut = labTutorial({ guide, lab: L }); if (labTut) journey.markIntro('g:lab:news'); else guide.intro('lab:news'); }, LAB_TUT_MS); }, (e) => { labOpening = false; labP = null; ui.hideLoading(); console.error(e); showStart(); });
+    Promise.all([labP, watchFilm('lab', 'פותחים את המעבדה...').then((w) => w || (ui.setLoadingFilm && ui.setLoadingFilm('lab')))]).then(([L]) => { labOpening = false; ui.hideLoading(); L.open(); setTimeout(() => { if (!L.isOpen()) return; if (labTut) return; labTut = labTutorial({ guide, lab: L }); if (labTut) journey.markIntro('g:lab:news'); else guide.intro('lab:news'); }, LAB_TUT_MS); }, (e) => { labOpening = false; labP = null; ui.hideLoading(); console.error(e); showStart(); });
   }
   bus.on('ui:research', () => { audio.start(); researchHub.open(); });
   // מעבדת הרובוטים (1.4.1): its own pack, opened from the science centre; leaving goes back to the start screen
@@ -359,7 +370,7 @@ async function boot() {
       enter3d: (desc) => { loadPack(desc.zone).catch(() => { /* reported by loadBiome */ }); loadBiome(desc.zone, desc.ownIsland ? readSave(desc.zone) : null, desc); },
       hasIsland: (zone) => { const sv = readSave(zone); return !!(sv && Array.isArray(sv.plants) && sv.plants.length); },
       leave3d: () => { if (game) { closeGame(); resetAutoQ(2); audio.setBiome(null); } } })));
-    robolabP.then((R) => { ui.hideLoading(); R.open(); }, (e) => { robolabP = null; ui.hideLoading(); console.error(e); showStart(); });
+    Promise.all([robolabP, watchFilm('robolab', 'פותחים את מעבדת הרובוטים...').then((w) => w || (ui.setLoadingFilm && ui.setLoadingFilm('robolab')))]).then(([R]) => { ui.hideLoading(); R.open(); }, (e) => { robolabP = null; ui.hideLoading(); console.error(e); showStart(); });
   }
   bus.on('ui:robolab', openRoboLab);
   // הסדנה של ניצוץ (1.4.4 set 3): its own pack, opened from the science centre; leaving goes back to the start screen
@@ -367,7 +378,7 @@ async function boot() {
     audio.start(); ui.hideStart();
     ui.setLoading && ui.setLoading(0.3, 'פותחים את הסדנה של ניצוץ...');
     workshopP = workshopP || loadPack('workshop').then((m) => (workshop = m.createWorkshop({ root, audio, kids: () => playerMode() === 'kids', onExit: () => { startDrawn = false; showStart(); } })));
-    workshopP.then((W) => { ui.hideLoading(); W.open(); }, (e) => { workshopP = null; ui.hideLoading(); console.error(e); showStart(); });
+    Promise.all([workshopP, watchFilm('workshop', 'פותחים את הסדנה של ניצוץ...').then((w) => w || (ui.setLoadingFilm && ui.setLoadingFilm('workshop')))]).then(([W]) => { ui.hideLoading(); W.open(); }, (e) => { workshopP = null; ui.hideLoading(); console.error(e); showStart(); });
   }
   bus.on('ui:workshop', openWorkshop);
   bus.on('audio:mute', ({ muted }) => { audio.setMuted(muted); writeDeviceRaw(K.sound, muted ? 'off' : 'on'); });   // remembered for the computer (1.3.2)
