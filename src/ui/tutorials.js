@@ -253,6 +253,20 @@ export function nzOrdersTutorial({ guide, ws, force = false, onDone }) {
   ], onDone);
 }
 
+// ממציא צעיר (6.11): the beginners' one walk, from the orders board: an order, a shape, an idea from nature, "לִבְדֹּק!"
+export function nzKidsTutorial({ guide, ws, force = false, onDone }) {
+  const KEY = 'g:nztut:kids';
+  if (!guide || !ws || (!force && introSeen(KEY))) return null;
+  const S = () => ws.state(), B = () => S().bench || { proto: { add: [] } };
+  return nzRun(KEY, guide, [
+    { id: 'pick', lines: L('nzkids:pick'), wait: () => !!(S().office && S().office.ticket) || S().place !== 'orders' },
+    { id: 'go', lines: L('nzkids:go'), wait: () => S().place === 'build' },
+    { id: 'shape', lines: L('nzkids:shape') },
+    { id: 'nature', lines: L('nzkids:nature'), wait: () => B().proto.add.length > 0 && S().place === 'build' && !!document.querySelector('.wb-go:not([disabled])') },
+    { id: 'check', lines: L('nzkids:check'), wait: () => S().place === 'test' },   // then the tests run by themselves: no bubble over them
+  ], onDone);
+}
+
 // אירוע השבוע: התקלה במעבדה והצנצנת (1.4.4 sets 5–6). קוּבִּי leads them in writing (no voice: kw.* lines).
 const kwRun = (KEY, guide, steps) => runGuided({ guide, steps, sayOpts: { speaker: 'kubi' }, onEnd: (r) => { if (r !== 'abort') markIntro(KEY); } });
 export function glitchTutorial({ guide, ev, force = false }) {

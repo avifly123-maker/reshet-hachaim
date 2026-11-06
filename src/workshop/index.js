@@ -35,7 +35,7 @@ import { icon } from '../ui/ui/icons.js';
 import { bindCarousel, showTile } from '../ui/carousel.js';
 import { howto, howtoSeen } from '../ui/howto.js';
 import { esc } from '../ui/ui/helpers.js';
-import { nzRoomTutorial, nzMachineTutorial, nzMixerTutorial, nzCardsTutorial, nzBuildTutorial, nzTestTutorial, nzOrdersTutorial } from '../ui/tutorials.js';
+import { nzRoomTutorial, nzMachineTutorial, nzMixerTutorial, nzCardsTutorial, nzBuildTutorial, nzTestTutorial, nzOrdersTutorial, nzKidsTutorial } from '../ui/tutorials.js';
 
 const PLACES = [
   { id: 'machine', n: 'מכונת הרעיונות', k: 'מְכוֹנַת הָרַעְיוֹנוֹת' },
@@ -60,6 +60,9 @@ const MEASURES = [
 const IDEA_PLACES = ['machine', 'mixer', 'cards'];
 const ROUTE = ['orders', 'build', 'test', 'patent'];
 const NEXT = { orders: 'build', build: 'test', test: 'patent' };
+// ממציא צעיר (6.11): the beginners walk three steps; the tests run by themselves after building
+const ROUTE_K = ['orders', 'build', 'patent'];
+const NEXT_K = { orders: 'build', build: 'patent', test: 'patent' };
 // "איך ממציאים?": the path in five pictures (the stations' own renders)
 const HOW = [
   { st: 'machine', f: ['מאיפה באים רעיונות?', 'במכונת הרעיונות, במערבל הטבע ובקלפי האילוץ ממציאים רעיונות. כל רעיון ממלא את הלוח של שיטות החשיבה.'],
@@ -70,7 +73,9 @@ const HOW = [
     k: ['2. בּוֹנִים', 'בּוֹחֲרִים צוּרָה, חֹמֶר וְרַעְיוֹן מֵהַטֶּבַע.'] },
   { st: 'test', f: ['3. בודקים באולם הבדיקות', 'מנהרת רוח, מיכל מים, תא חום, ארגז חול, מגדל נפילה ומד רעש. כל תחנה מודדת אם ההמצאה עומדת במה שהלקוח צריך. לא עבר? משפרים ובודקים שוב.'],
     k: ['3. בּוֹדְקִים', 'כָּל תַּחֲנָה בּוֹדֶקֶת אִם הַהַמְצָאָה עוֹבֶדֶת. לֹא עָבַר? מְשַׁפְּרִים!'] },
-  { st: 'patent', f: ['4. מקבלים פטנט', 'כשהגרסה עוברת את כל הבדיקות של ההזמנה, ניצוץ מחתים לכם תעודת פטנט: אישור שההמצאה שלכם. ואז ליריד הממציאים!'],
+  { st: 'build', kidsOnly: true, k: ['2. בּוֹנִים וּבוֹדְקִים', 'בּוֹחֲרִים צוּרָה וְרַעְיוֹן מֵהַטֶּבַע. נִיצוֹץ מוֹסִיף אֶת הַשְּׁאָר, וְהַבְּדִיקָה רָצָה לְבַד.'] },
+  { st: 'patent', kidsLast: true, k: ['3. מְקַבְּלִים תְּעוּדָה!', 'עָבַרְתֶּם אֶת הַבְּדִיקָה? נִיצוֹץ נוֹתֵן לָכֶם תְּעוּדָה!'] },
+  { st: 'patent', fullOnly: true, f: ['4. מקבלים פטנט', 'כשהגרסה עוברת את כל הבדיקות של ההזמנה, ניצוץ מחתים לכם תעודת פטנט: אישור שההמצאה שלכם. ואז ליריד הממציאים!'],
     k: ['4. פָּטֶנְט!', 'עָבַרְתֶּם הַכֹּל? מְקַבְּלִים תְּעוּדָה.'] },
 ];
 const RATE = [['works', 'עובד!', 'עוֹבֵד!'], ['funny', 'מצחיק', 'מַצְחִיק'], ['improve', 'שווה לשפר', 'שָׁוֶה לְשַׁפֵּר']];
@@ -157,15 +162,17 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
   function paintPath() {
     const n = el.querySelector('.ws-path'); if (!n) return;
     const nm = (id) => { const P = PLACES.find((x) => x.id === id); return P ? (kids ? P.k : P.n) : ''; };
-    const chip = (id, num) => `<button type="button" class="wp-c${place === id ? ' on' : ''}${NEXT[place] === id ? ' next' : ''}" data-st="${id}" title="${esc(nm(id))}">${stationSVG(id)}${num ? `<b>${num}</b>` : ''}<span>${esc(nm(id))}</span></button>`;
+    const R = kids ? ROUTE_K : ROUTE, NX = kids ? NEXT_K : NEXT;
+    const chip = (id, num) => `<button type="button" class="wp-c${place === id || (kids && id === 'build' && place === 'test') ? ' on' : ''}${NX[place] === id ? ' next' : ''}" data-st="${id}" title="${esc(nm(id))}">${stationSVG(id)}${num ? `<b>${num}</b>` : ''}<span>${esc(nm(id))}</span></button>`;
     n.innerHTML = `<span class="wp-grp wp-ideas"><em>${W('רעיונות', 'רַעְיוֹנוֹת')}</em>${IDEA_PLACES.map((id) => chip(id)).join('')}</span>
-      <span class="wp-grp wp-route">${ROUTE.map((id, i) => chip(id, i + 1)).join('<i class="wp-ar" aria-hidden="true"></i>')}</span>
+      <span class="wp-grp wp-route">${R.map((id, i) => chip(id, i + 1)).join('<i class="wp-ar" aria-hidden="true"></i>')}</span>
       <button type="button" class="wp-help" data-wshelp title="${W('איך ממציאים?', 'אֵיךְ מַמְצִיאִים?')}"><b>?</b><span>${W('איך ממציאים?', 'אֵיךְ מַמְצִיאִים?')}</span></button>`;
   }
   // the five pictures of the path; on the first visit to the orders board, and from the "?" in the top bar
   let howH = null;
   function showHow(force, then) {
-    const cards = HOW.map((h) => { const [title, text] = kids ? h.k : h.f; return { img: WS_ART.st[h.st] || '', title, text }; });
+    const list = HOW.filter((h) => (kids ? !h.fullOnly && h.st !== 'test' && !(h.st === 'build' && !h.kidsOnly) : !h.kidsOnly && !h.kidsLast));
+    const cards = list.map((h) => { const [title, text] = kids ? h.k : h.f; return { img: WS_ART.st[h.st] || '', title, text }; });
     if (howH) { howH.close(); howH = null; }
     const H = howH = howto(el, cards, { key: 'ws:path', force, title: W('איך ממציאים?', 'אֵיךְ מַמְצִיאִים?'), onClose: then,
       labels: kids ? { next: 'הַבָּא', done: 'מַתְחִילִים!', skip: 'דַּלְּגוּ' } : {} });
@@ -180,7 +187,8 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
     const lamp = el.querySelector('.ws-nzbox'); if (lamp) lamp.style.setProperty('--glow', String(0.25 + m.glow * 0.75));
   }
   function go(p) {
-    if (tut && tut.step && tutPlace !== 'room' && tutPlace !== p) { tut.stop(); tut = null; }
+    const tutGoesOn = tutPlace === 'room' || tutPlace === p || (kids && tutPlace === 'orders' && (p === 'build' || p === 'test'));   // the beginners' walk crosses three places
+    if (tut && tut.step && !tutGoesOn) { tut.stop(); tut = null; }
     if (place === 'build' || place === 'test') { if (p !== 'build' && p !== 'test') bench.leave(); }
     if (room3 && p !== 'room') { room3.dispose(); room3 = null; }
     if (howH && p !== place) { const H = howH; howH = null; try { H.close(); } catch (e) { } }
@@ -196,6 +204,7 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
     else if (p === 'machine') renderMachine();
     else if (p === 'mixer') M.innerHTML = mixerHTML();
     else if (p === 'cards') { hand = shuffle(cardsFor().slice()).slice(0, 5); M.innerHTML = cardsHTML(); }
+    else if (p === 'build' && kids && !orderId) { go('orders'); return; }   // ממציא צעיר: building starts from an order
     else if (p === 'build') bench.build(M);
     else if (p === 'test') bench.test(M);
     else if (p === 'orders') { office.orders(M); if (!howtoSeen('ws:path') && showHow(false, () => { if (open_ && place === 'orders') startTut(); })) return; }
@@ -231,7 +240,8 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
     const t = thing && thingOf(thing), L = leversNow();
     const outH = last ? `<div class="wm-out cat-${last.cat}${last.fun ? ' fun' : ''}"><span class="wm-cat">${catIcon(last.cat)}<small>${esc(kids ? CATS[last.cat].k : CATS[last.cat].n)}</small></span><p>${esc(T(last))}</p>${last.fun ? '<i class="wm-burst" aria-hidden="true"></i>' : ''}</div>`
       : `<div class="wm-out empty"><p>${esc(t ? W('עכשיו מושכים בידית!', 'עַכְשָׁו מוֹשְׁכִים בַּיָּדִית!') : W('בחרו חפץ מהמדף, והוא ייפול למכונה', 'בַּחֲרוּ חֵפֶץ מֵהַמַּדָּף'))}</p></div>`;
-    const rateH = last ? `<div class="wm-rate">${RATE.map(([r, f, k]) => `<button type="button" data-wsrate="${r}" class="st-${r}${last.r === r ? ' on' : ''}">${esc(W(f, k))}</button>`).join('')}${last.r === 'works' && !kids ? `<button type="button" class="wm-tobuild" data-wstobuild>${icon('arrowL')} ${W('לבנות את זה!', 'לִבְנוֹת!')}</button>` : ''}</div>` : '<div class="wm-rate"></div>';
+    const surp = `<button type="button" class="wm-surp" data-wssurp>${icon('sparkle')} ${W('הפתעה!', 'הַפְתָּעָה!')}</button>`;
+    const rateH = last ? `<div class="wm-rate">${surp}${RATE.map(([r, f, k]) => `<button type="button" data-wsrate="${r}" class="st-${r}${last.r === r ? ' on' : ''}">${esc(W(f, k))}</button>`).join('')}${last.r === 'works' && !kids ? `<button type="button" class="wm-tobuild" data-wstobuild>${icon('arrowL')} ${W('לבנות את זה!', 'לִבְנוֹת!')}</button>` : ''}</div>` : `<div class="wm-rate">${surp}</div>`;
     return `<div class="wm"><div class="wm-car"><button type="button" class="wm-carb prev" data-carb="-1" aria-label="${W('הקודם', 'הַקּוֹדֵם')}">${icon('arrowR')}</button>
         <div class="wm-shelf wm-things">${THINGS.map((x) => `<button type="button" data-wsthing="${x.id}" class="${thing === x.id ? 'on' : ''}"><span class="wm-ped">${thingSVG(x.id)}</span><small>${esc(kids ? x.k : x.n)}</small></button>`).join('')}</div>
         <button type="button" class="wm-carb next" data-carb="1" aria-label="${W('הבא', 'הַבָּא')}">${icon('arrowL')}</button></div>
@@ -248,6 +258,14 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
     const row = M.querySelector('.wm-things'); if (!row) return;
     if (x != null) row.scrollLeft = x; else requestAnimationFrame(() => showTile(row, row.querySelector('.on')));
     shelf = bindCarousel(M.querySelector('.wm-car'), row, { onArrow: () => sfx('click') });
+  }
+  // "הפתעה!": ניצוץ picks a thing and pulls a lever himself (any child stuck at the shelf gets an idea at once)
+  let surpT = 0;
+  function surprise() {
+    clearTimeout(surpT);
+    const L = leversNow(); if (!L.length) return;
+    thing = THINGS[Math.floor(Math.random() * THINGS.length)].id; last = null; sfx('wsInsert'); act('excited'); renderMachine();
+    surpT = setTimeout(() => { if (open_ && place === 'machine') pull(L[Math.floor(Math.random() * L.length)].id); }, 650);
   }
   function pull(lv) {
     const t = thingOf(thing), L = leverOf(lv); if (!t || !L || !leversNow().includes(L)) return;
@@ -409,6 +427,7 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
     if (d.wsroom != null) { sfx('click'); go('room'); return; }
     if (d.st) { sfx('click'); go(d.st); return; }
     if (d.carb) return;   // the shelf's arrows (carousel.js)
+    if (d.wssurp != null) { surprise(); return; }
     if (d.wshelp != null) { sfx('click'); showHow(true); return; }
     if (d.wsthing) { thing = d.wsthing; last = null; sfx('wsInsert'); act('hint'); renderMachine(); return; }
     if (d.wslever) { pull(d.wslever); return; }
@@ -431,7 +450,8 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
     if (tut && tut.step) return;
     const g = svcGuide(); if (!g) return;
     const ws = { state, face: (id) => { if (room3) room3.face(id); } }, onDone = (r) => { tut = null; if (open_ && r !== 'abort' && r !== 'skip') startTut(); };
-    const F = { room: nzRoomTutorial, machine: nzMachineTutorial, mixer: nzMixerTutorial, cards: nzCardsTutorial, build: nzBuildTutorial, test: nzTestTutorial, orders: nzOrdersTutorial }[place];
+    const F = kids ? { room: nzRoomTutorial, machine: nzMachineTutorial, mixer: nzMixerTutorial, cards: nzCardsTutorial, orders: nzKidsTutorial }[place]
+      : { room: nzRoomTutorial, machine: nzMachineTutorial, mixer: nzMixerTutorial, cards: nzCardsTutorial, build: nzBuildTutorial, test: nzTestTutorial, orders: nzOrdersTutorial }[place];
     tut = F ? F({ guide: g, ws, onDone }) : null; tutPlace = tut ? place : null;
   }
   function state() {
@@ -457,7 +477,7 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
     window.__wsDebug = { state, go: (p) => go(p), thing: (id) => { thing = id; last = null; if (place === 'machine') renderMachine(); }, lever: (id) => pull(id), rate: (r) => rate(r),
       spin: (sp, pb) => spin(sp, pb), trait: (t) => pickTrait(t), draw: (id) => draw(id), endRound: () => { if (round) round.t0 = Date.now() - round.sec * 1000 - 1; }, nz: (x) => act(x),
       order: (id) => { orderId = id; bench.resetRun(); }, proto: (p) => bench.setProto(p), runTests: (list) => bench.run(list),
-      face: (id) => { if (room3) room3.face(id); return !!room3; }, room: () => (room3 ? room3.state() : null) };
+      surprise: () => surprise(), face: (id) => { if (room3) room3.face(id); return !!room3; }, room: () => (room3 ? room3.state() : null) };
   } catch (e) { }
   return { open: openWs, close, isOpen: () => open_, state };
 }

@@ -2,11 +2,14 @@
 // four add-ons (mechanisms and ideas from nature, each with its album painting), names it with ניצוץ's funny names,
 // and takes it to the six stations, where it passes or fails in a short funny animation (src/workshop/proto3d.js).
 // With an order (office.js) the ticket rides along: what the client needs, which tests and how much, versions א', ב'…
+// ממציא צעיר (6.11, the beginners): two drawers only, a shape and one idea from nature; ניצוץ picks the material and the
+// mechanisms that fit the order (engine.js autoFit); "לִבְדֹּק!" runs the order's tests by itself in one go, a pass shows a
+// big sign without numbers, and the certificate follows.
 //   const B = createBench(ctx)   B.build(main) · B.test(main) · B.leave() · B.state()
 //   ctx: { kids, T, W, say(key), act(x), sfx(n), after(), go(place), order() → order|null, setOrder(id|null),
 //          onTests(results, proto), onPatent(order|null, proto, sc) }
 import { SHAPES, MATERIALS, ADDONS, TESTS, MAX_ADDONS, shapeOf, materialOf, addonOf } from '../data/workshop/build-parts.js';
-import { scores, checkOrder, protoOk, hasNature, PASS, unitOf, gaugeOf, reasons } from './engine.js';
+import { scores, checkOrder, protoOk, hasNature, PASS, unitOf, gaugeOf, reasons, autoFit } from './engine.js';
 import { readWs, saveProto, recordTests } from './progress.js';
 import { createStage } from './proto3d.js';
 import { shapeSVG, mechSVG, testSVG, clientSVG } from './art.js';
@@ -54,6 +57,7 @@ export function createBench(ctx) {
     if (!order) return '';
     const r = checkOrder(proto, order);
     const who = order.z === 'world' ? clientSVG(order.who) : (CARD_ART[order.who] ? `<img src="${CARD_ART[order.who]}" alt="">` : '');
+    if (kids()) return `<div class="wb-ticket kidt"><span class="wb-who">${who}</span><div class="wb-tk"><b>${esc(T(order))}</b></div></div>`;
     const steps = kids() ? [['need', 'הַצֹּרֶךְ', true], ['nature', 'רַעְיוֹן מֵהַטֶּבַע', r.nature], ['test', 'בְּדִיקָה', r.tests.every((t) => last[t.id] != null)]]
       : [['need', 'הצורך', true], ['nature', 'רעיון מהטבע', r.nature], ['need2', 'הלב של הרעיון', r.need], ['build', 'אב טיפוס', true], ['test', 'בדיקה', r.tests.every((t) => last[t.id] != null)], ['ok', 'עובר', r.ok && r.tests.every((t) => last[t.id] != null)]];
     return `<div class="wb-ticket"><span class="wb-who">${who}</span><div class="wb-tk"><b>${esc(T(order))}</b>
@@ -75,16 +79,20 @@ export function createBench(ctx) {
   }
   function buildHTML() {
     const order = ctx.order();
+    if (kids() && tab !== 'shape' && tab !== 'nature') tab = 'shape';
     if (!name) freshName();
     return `<div class="wb">${ticketHTML(order, null)}
       <div class="wb-row"><div class="wb-stagebox"><div class="wb-bench" aria-hidden="true"></div><canvas class="wb-stage"></canvas>
           <div class="wb-name"><b>${esc(name)}</b><button type="button" data-wbname title="${W('שם אחר', 'שֵׁם אַחֵר')}">${icon('undo')}</button></div>
-          <div class="wb-on">${proto.add.map((a) => `<button type="button" data-wbadd="${a}" title="${W('להוריד', 'לְהוֹרִיד')}">${esc(nm(addonOf(a)))} ${icon('close')}</button>`).join('')}<small>${proto.add.length}/${MAX_ADDONS}</small></div></div>
-        <div class="wb-drawer"><div class="wb-tabs">${[['shape', W('צורה', 'צוּרָה')], ['mat', W('חומר', 'חֹמֶר')], ['mech', W('מנגנונים', 'מַנְגְּנוֹנִים')], ['nature', W('מהטבע', 'מֵהַטֶּבַע')]].map(([id, n]) => `<button type="button" data-wbtab="${id}" class="${tab === id ? 'on' : ''}">${esc(n)}</button>`).join('')}</div>
+          <div class="wb-on"${kids() ? ' hidden' : ''}>${proto.add.map((a) => `<button type="button" data-wbadd="${a}" title="${W('להוריד', 'לְהוֹרִיד')}">${esc(nm(addonOf(a)))} ${icon('close')}</button>`).join('')}<small>${proto.add.length}/${MAX_ADDONS}</small></div></div>
+        <div class="wb-drawer"><div class="wb-tabs${kids() ? ' two' : ''}">${(kids() ? [['shape', '1. צוּרָה'], ['nature', '2. רַעְיוֹן מֵהַטֶּבַע']] : [['shape', W('צורה', 'צוּרָה')], ['mat', W('חומר', 'חֹמֶר')], ['mech', W('מנגנונים', 'מַנְגְּנוֹנִים')], ['nature', W('מהטבע', 'מֵהַטֶּבַע')]]).map(([id, n]) => `<button type="button" data-wbtab="${id}" class="${tab === id ? 'on' : ''}">${esc(n)}</button>`).join('')}</div>
           <div class="wb-items t-${tab}">${tilesHTML()}</div>
-          <button type="button" class="wb-go" data-wbgo>${W('לאולם הבדיקות!', 'לִבְדִיקָה!')} ${icon('arrowL')}</button></div></div></div>`;
+          <button type="button" class="wb-go" data-wbgo ${kids() && !hasNature(proto) ? 'disabled' : ''}>${W('לאולם הבדיקות!', 'לִבְדֹּק!')} ${icon('arrowL')}</button></div></div></div>`;
   }
+  const kidNature = () => proto.add.find((a) => addonOf(a).kind === 'nature') || null;
+  const kidFit = (shape, nature) => autoFit(ctx.order(), shape, nature);
   function build(main) {
+    if (kids()) { const fit = kidFit(proto.shape, kidNature()); if (protoKey(fit) !== protoKey(proto)) setProto(fit); }   // what ניצוץ picks fits this order
     mainEl = main; main.innerHTML = buildHTML(); mountStage(main.querySelector('.wb-stage'));
   }
   const repaintBuild = () => {
@@ -117,7 +125,16 @@ export function createBench(ctx) {
       <span class="wt-gv">${run ? `<b>${G.value}</b> ${esc(U)}` : W('עוד לא נמדד', 'עוֹד לֹא מָדַדְנוּ')}</span>
       <small>${W('הלקוח צריך', 'צָרִיךְ')} ${G.better === 'up' ? W('לפחות', 'לְפָחוֹת') : W('לכל היותר', 'לֹא יוֹתֵר מִ')} ${G.target} ${esc(U)}</small></div>`;
   }
+  // the beginners' test: the prototype alone on the big stage, the tests run by themselves, one sign at the end
+  function kidsTestHTML() {
+    const order = ctx.order(), done = Object.keys(last).length && !running;
+    return `<div class="wt kidtest">${ticketHTML(order, null)}
+      <div class="wt-row one"><div class="wt-stagebox"><canvas class="wt-stage"></canvas><div class="wt-verdict">${verdict ? verdict : ''}</div><div class="wt-pname">${esc(name)}</div></div></div>
+      <div class="wt-acts kid">${running ? `<b class="wt-kidrun">${testSVG(lastT || (order ? Object.keys(order.tests)[0] : 'drop'))} ${esc('בּוֹדְקִים…')}</b>`
+        : `<button type="button" class="wt-back" data-wtbuild>${icon('pencil')} ${done ? 'לְשַׁנּוֹת וְלִבְדֹּק שׁוּב' : 'חֲזָרָה לַבְּנִיָּה'}</button>${!done ? `<button type="button" class="wt-all" data-wtall>${icon('play')} לִבְדֹּק!</button>` : ''}`}</div></div>`;
+  }
   function testHTML() {
+    if (kids()) return kidsTestHTML();
     const order = ctx.order(), sc = last, need = order ? order.tests : null;
     const S = order ? (readWs().orders[order.id] || { versions: [] }) : null;
     const vers = S && S.versions.length ? `<div class="wt-vers">${S.versions.map((v, i) => `<span title="${HEB[i] || i + 1}"><b>${HEB[i] || i + 1}</b>${Object.keys(need).map((t) => `<i style="--h:${Math.round((v.sc[t] || 0))}%" class="${(v.sc[t] || 0) >= need[t] ? 'ok' : ''}"></i>`).join('')}</span>`).join('')}</div>` : '';
@@ -129,7 +146,12 @@ export function createBench(ctx) {
         <div class="wt-acts"><button type="button" class="wt-all" data-wtall ${running ? 'disabled' : ''}>${icon('play')} ${need ? W('הבדיקות של ההזמנה', 'לִבְדֹּק הַכֹּל') : W('כל שש הבדיקות', 'לִבְדֹּק הַכֹּל')}</button>
           <button type="button" class="wt-back" data-wtbuild>${icon('pencil')} ${W('לשפר', 'לְשַׁפֵּר')}</button></div>${vers}</div></div></div>`;
   }
-  function test(main) { mainEl = main; main.innerHTML = testHTML(); mountStage(main.querySelector('.wt-stage')); if (stage) stage.spin(true); }
+  function test(main) {
+    mainEl = main; if (kids()) { last = {}; verdict = null; lastT = null; }
+    main.innerHTML = testHTML(); mountStage(main.querySelector('.wt-stage')); if (stage) stage.spin(true);
+    const o = ctx.order();
+    if (kids() && o) setTimeout(() => { if (mainEl === main && !running && !Object.keys(last).length) run(Object.keys(o.tests)); }, 700);   // the beginners' tests start by themselves
+  }
   const repaintTest = () => {
     if (!mainEl || !mainEl.querySelector('.wt')) return;
     const keep = mainEl.querySelector('.wt-stage'); const tmp = document.createElement('div'); tmp.innerHTML = testHTML();
@@ -162,8 +184,12 @@ export function createBench(ctx) {
         verdict = `<b class="no">${W('עוד לא בדקתם: ', 'עוֹד לֹא בְּדַקְתֶּם: ')}${missing.map((t) => { const X = TESTS.find((x) => x.id === t); return esc(kids() ? X.k : X.n); }).join(W(', ', ', '))}</b>`;
         ctx.say('nz:react:ok'); repaintTest(); ctx.after(); return;
       }
-      if (r.ok) { verdict = `<b class="ok big">${W('ההזמנה מוכנה!', 'הַהַזְמָנָה מוּכָנָה!')}</b>`; repaintTest(); ctx.onPatent(order, proto, sc, name); return; }
-      verdict = `<b class="no">${!r.nature ? W('חסר רעיון מהטבע', 'חָסֵר רַעְיוֹן מֵהַטֶּבַע') : !r.need ? W('חסר הלב של הרעיון', 'חָסֵר חֵלֶק חָשׁוּב') : W('עוד לא. משפרים ובודקים שוב!', 'עוֹד לֹא. מְשַׁפְּרִים!')}</b>`;
+      if (r.ok) {
+        verdict = `<b class="ok big">${W('ההזמנה מוכנה!', 'הִצְלַחְתֶּם!')}</b>`; repaintTest();
+        if (kids()) { ctx.sfx('quizRight'); setTimeout(() => ctx.onPatent(order, proto, sc, name), 1100); } else ctx.onPatent(order, proto, sc, name);
+        return;
+      }
+      verdict = `<b class="no${kids() ? ' big' : ''}">${!r.nature ? W('חסר רעיון מהטבע', 'חָסֵר רַעְיוֹן מֵהַטֶּבַע') : !r.need ? W('חסר הלב של הרעיון', 'נַסּוּ רַעְיוֹן אַחֵר מֵהַטֶּבַע') : W('עוד לא. משפרים ובודקים שוב!', 'עוֹד לֹא. נְנַסֶּה צוּרָה אוֹ רַעְיוֹן אַחֵר!')}</b>`;
       ctx.say(fails >= 2 ? 'nz:react:improve' : 'nz:react:ok');
     } else {
       const passed = results.filter((r) => r.pass).length;
@@ -177,8 +203,13 @@ export function createBench(ctx) {
   function click(b) {
     const d = b.dataset;
     if (d.wbtab) { tab = d.wbtab; ctx.sfx('click'); repaintBuild(); return true; }
-    if (d.wbshape) { setProto({ ...proto, shape: d.wbshape }); freshName(); ctx.sfx('pop'); ctx.act('hint'); repaintBuild(); return true; }
+    if (d.wbshape) { setProto(kids() ? kidFit(d.wbshape, kidNature()) : { ...proto, shape: d.wbshape }); freshName(); ctx.sfx('pop'); ctx.act('hint'); repaintBuild(); return true; }
     if (d.wbmat) { setProto({ ...proto, mat: d.wbmat }); ctx.sfx('pop'); repaintBuild(); return true; }
+    if (d.wbadd && kids()) {   // the beginners: one idea from nature; picking another swaps it
+      const on = kidNature() === d.wbadd;
+      setProto(kidFit(proto.shape, on ? null : d.wbadd)); if (!on) { freshName(); ctx.sfx('pop'); ctx.act('idea'); } else ctx.sfx('click');
+      repaintBuild(); return true;
+    }
     if (d.wbadd) {
       const on = proto.add.includes(d.wbadd);
       if (!on && proto.add.length >= MAX_ADDONS) return true;

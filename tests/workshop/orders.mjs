@@ -2,7 +2,7 @@
 // (no idea from nature) never passes: checked without a screen over every prototype the build table can make.
 import { ORDERS } from '../../src/data/workshop/orders.js';
 import { SHAPES, MATERIALS, ADDONS, MAX_ADDONS, addonOf } from '../../src/data/workshop/build-parts.js';
-import { checkOrder, scores, gaugeOf, reasons, unitOf } from '../../src/workshop/engine.js';
+import { checkOrder, scores, gaugeOf, reasons, unitOf, autoFit } from '../../src/workshop/engine.js';
 import { GAUGES } from '../../src/data/workshop/gauges.js';
 import { NATURE_CARDS } from '../../src/data/workshop/nature-cards.js';
 
@@ -32,6 +32,13 @@ for (const o of ORDERS) {
   if (o.lv === 3 && smallest < 2) err(`${o.id}: level 3 is solved with one add-on`);
   if (checkOrder({ shape: 'box', mat: 'wood', add: [] }, o).ok) err(`${o.id}: a plain box passes`);
   stats.push(`${o.id}:${smallest}`);
+}
+// ממציא צעיר: every beginners' order can be won with one shape and one idea from nature (ניצוץ adds the rest), in two ways
+for (const o of ORDERS.filter((x) => x.lv === 1)) {
+  const ways = [];
+  for (const s of SHAPES) for (const a of ADDONS.filter((x) => x.kind === 'nature')) if (checkOrder(autoFit(o, s.id, a.id), o).ok) ways.push(s.id + '+' + a.id);
+  if (ways.length < 2) err(`${o.id}: the beginners have ${ways.length} way(s) with a shape and an idea from nature`);
+  if (checkOrder(autoFit(o, 'box', null), o).ok) err(`${o.id}: passes for the beginners without an idea from nature`);
 }
 // every test can be passed and failed
 for (const t of ['wind', 'water', 'heat', 'sand', 'drop', 'noise']) {

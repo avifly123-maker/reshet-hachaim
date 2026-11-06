@@ -554,3 +554,33 @@
 #ui.wol .ws-nzbox { box-shadow: inset 0 0 0 3px #9a6a32, inset 0 0 0 6px rgba(255, 150, 200, .35), 0 3px 0 rgba(30, 14, 4, .5); }
 /* a narrow table: the hand's cards closer and smaller, clear of the deck */
 @media (max-width: 1000px) { #ui.wol .wc-card { width: 104px; height: 160px; margin-inline-start: -46px; } #ui.wol .wc-deck { width: 78px; height: 112px; } #ui.wol .wc-card b { font-size: .8em; } }
+/* ── ממציא צעיר (6.11): the beginners' path. Big pictures and one vocalised line on the orders, two drawers at the build
+   table, the tests running by themselves on a big stage with one sign at the end, and ניצוץ's "הַפְתָּעָה!" in the machine */
+#ui.wol .wm-rate .wm-surp { display: flex; align-items: center; gap: 6px; min-height: 40px; padding: 4px 18px; border: 0; border-radius: 999px; transform: none; color: #fff !important;
+  background: linear-gradient(180deg, #f888b4, #d8487a); box-shadow: 0 4px 0 #8a2650; font-weight: 800; text-shadow: 0 1px 1px rgba(0, 0, 0, .28); }
+#ui.wol .wm-rate .wm-surp:hover { filter: brightness(1.08); transform: translateY(-2px); }
+#ui.wol .wm-rate .wm-surp .ic { width: 20px; height: 20px; }
+#ui.wol .ws.kids .wo-board { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+#ui.wol .ws.kids .wo-note { grid-template-columns: 120px 1fr; min-height: 140px; }
+#ui.wol .ws.kids .wo-note .wo-who { width: 120px; height: 120px; }
+#ui.wol .ws.kids .wo-note .wo-txt b { font-size: 1.3em; line-height: 1.45; }
+#ui.wol .ws.kids .wo-tcard h3 { font-size: 1.45em; line-height: 1.45; }
+#ui.wol .ws.kids .wo-go { min-height: 56px; font-size: 1.3em; padding-inline: 32px; }
+#ui.wol .ws.kids .wb-ticket.kidt { padding: 6px 12px; font-size: 1em; }
+#ui.wol .ws.kids .wb-ticket.kidt .wb-who { width: 60px; height: 60px; border-radius: 14px; }
+#ui.wol .ws.kids .wb-ticket.kidt b { font-size: 1.2em; line-height: 1.4; }
+#ui.wol .ws.kids .wb-tabs.two { grid-template-columns: 1fr 1fr; }
+#ui.wol .ws.kids .wb-tabs.two button { min-height: 44px; font-size: 1.1em; }
+#ui.wol .ws.kids .wb-tile { padding: 8px 4px 6px; } #ui.wol .ws.kids .wb-tile .wsa, #ui.wol .ws.kids .wb-tile img { width: 68px; height: 68px; }
+#ui.wol .ws.kids .wb-tile b { font-size: .95em; }
+#ui.wol .ws.kids .wb-go { min-height: 56px; font-size: 1.3em; }
+#ui.wol .wt.kidtest .wt-row.one { grid-template-columns: minmax(0, 1fr); }
+#ui.wol .wt.kidtest .wt-verdict { top: 50%; transform: translateY(-50%); }
+#ui.wol .wt.kidtest .wt-verdict b { font-size: 1.6em; padding: 10px 28px; border-radius: 22px; }
+#ui.wol .wt.kidtest .wt-verdict b.big { font-size: 2.6em; padding: 14px 40px; animation: ws-stamp .45s, ws-pop .6s .45s; }
+#ui.wol .wt-acts.kid { justify-content: center; gap: 14px; }
+#ui.wol .wt-acts.kid button { flex: 0 1 auto; min-height: 56px; padding-inline: 30px; font-size: 1.2em; }
+#ui.wol .wt-kidrun { display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 0 26px; border-radius: 999px; background: rgba(255, 250, 240, .9); color: #2a4a62; font-size: 1.25em; }
+#ui.wol .wt-kidrun .wsa { width: 46px; height: 46px; animation: ws-bob 1s ease-in-out infinite; }
+@media (max-height: 520px) { #ui.wol .ws.kids .wo-note { grid-template-columns: 90px 1fr; min-height: 110px; } #ui.wol .ws.kids .wo-note .wo-who { width: 90px; height: 90px; }
+  #ui.wol .ws.kids .wo-note .wo-txt b { font-size: 1.1em; } #ui.wol .wt-acts.kid button, #ui.wol .ws.kids .wb-go, #ui.wol .wt-kidrun { min-height: 44px; font-size: 1.05em; } #ui.wol .ws.kids .wb-tile .wsa, #ui.wol .ws.kids .wb-tile img { width: 52px; height: 52px; } }

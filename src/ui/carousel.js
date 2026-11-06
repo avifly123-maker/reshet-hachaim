@@ -16,7 +16,10 @@ export function bindCarousel(wrap, row, { onArrow = null, gap = 12 } = {}) {
     const one = first ? first.getBoundingClientRect().width + gap : 200;
     const page = Math.max(one, Math.floor(row.clientWidth / one) * one - one);   // most of a page, keeping one tile in view
     if (onArrow) onArrow(d);
+    const x0 = row.scrollLeft;
     row.scrollBy({ left: -d * page, behavior: 'smooth' });
+    // a busy machine may drop a smooth scroll (seen headless under load): if nothing moved, jump there at once
+    setTimeout(() => { if (Math.abs(row.scrollLeft - x0) < 2) row.scrollBy({ left: -d * page }); }, 700);
   };
   arrows.forEach((b) => b.addEventListener('click', click));
   row.addEventListener('scroll', paint, { passive: true });
