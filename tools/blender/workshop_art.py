@@ -175,8 +175,11 @@ def rivets(prefix, pts, mat, r=0.018):
 def studio(target=(0, 0, 0.6), cam=(2.2, -3.6, 1.9), lens=50, ground=0.0, ortho=None):
     sc = bpy.context.scene
     w = bpy.data.worlds.new('w'); sc.world = w; w.use_nodes = True
-    bg = w.node_tree.nodes['Background']; bg.inputs[0].default_value = (0.92, 0.86, 0.78, 1); bg.inputs[1].default_value = 0.22
-    for n, e, loc, col, size in (('key', 460, (-1.0, -2.2, 5.8), (1.0, 0.88, 0.74), 2.2), ('fill', 110, (3.4, -2.2, 2.2), (0.75, 0.85, 1.0), 3.5), ('rim', 380, (0.5, 3.2, 3.4), (1.0, 0.92, 0.8), 1.6)):
+    bg = w.node_tree.nodes['Background']; bg.inputs[0].default_value = (0.92, 0.86, 0.78, 1); bg.inputs[1].default_value = 0.2
+    # 6.11 hero lighting (Avi: "more light and colour, one world"): a warm key with a big soft shadow, a cool fill,
+    # a teal rim from behind on one side and a rose rim on the other, so every thing and station has a coloured edge
+    for n, e, loc, col, size in (('key', 460, (-1.0, -2.2, 5.8), (1.0, 0.86, 0.7), 2.8), ('fill', 100, (3.4, -2.2, 2.2), (0.75, 0.85, 1.0), 3.5),
+                                 ('rim', 900, (2.2, 2.6, 1.4), (0.3, 0.85, 1.0), 0.9), ('rim2', 650, (-2.6, 2.2, 1.2), (1.0, 0.42, 0.62), 0.8)):
         L = bpy.data.objects.new(n, bpy.data.lights.new(n, 'AREA')); _link(L)
         L.data.energy = e; L.data.size = size; L.data.color = col; L.location = loc
         if n != 'key':   # only the key light casts a shadow: a small, soft one under the model
