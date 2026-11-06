@@ -183,13 +183,13 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
     if (tut && tut.step && tutPlace !== 'room' && tutPlace !== p) { tut.stop(); tut = null; }
     if (place === 'build' || place === 'test') { if (p !== 'build' && p !== 'test') bench.leave(); }
     if (room3 && p !== 'room') { room3.dispose(); room3 = null; }
-    if (howH && p !== place) { const H = howH; howH = null; try { H.close(); } catch (e) { } }
-    place = p; if (p !== 'mixer') mix = null;
+    const leaving = place; place = p;
+    if (howH && p !== leaving) { const H = howH; howH = null; try { H.close(); } catch (e) { } }   // (after place changed: its onClose starts nothing here)
+    if (shelf && p !== 'machine') { shelf.dispose(); shelf = null; } if (p !== 'mixer') mix = null;
     el.dataset.place = p;
     if (p !== 'room' && open_ && !nz) startNz();
     el.querySelector('[data-wsroom]').hidden = p === 'room';
-    const P = PLACES.find((x) => x.id === p) || (p === 'fair' ? { n: 'יריד הממציאים', k: 'יְרִיד הַמַּמְצִיאִים' } : null);
-    void P; paintPath();
+    paintPath();
     const M = el.querySelector('.ws-main');
     M.dataset.place = p;
     if (p === 'room') roomView(M);
@@ -451,6 +451,8 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
   function close() {
     if (!open_) return; open_ = false;
     if (tut && tut.stop) tut.stop(); tut = null;
+    if (howH) { const H = howH; howH = null; try { H.close(); } catch (e) { } }
+    if (shelf) { shelf.dispose(); shelf = null; }
     bench.leave(); if (room3) { room3.dispose(); room3 = null; } stopNz(); el.hidden = true; el.innerHTML = '';
   }
   try {

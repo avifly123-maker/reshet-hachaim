@@ -525,7 +525,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   }
   function codeHTML(P) {
     return `<div class="rl-codeview">
-      <div class="rl-cvh"><button type="button" class="rl-cvback" data-mainhome>${icon('undo')}<span>${kids ? 'לַמַּעְבָּדָה' : 'חזרה למעבדה'}</span></button>
+      <div class="rl-cvh"><button type="button" class="rl-cvback" data-mainhome>${icon('back')}<span>${kids ? 'לַמַּעְבָּדָה' : 'חזרה למעבדה'}</span></button>
         <img src="${CODE_HERO}" alt="" draggable="false"><h2>${kids ? 'שִׁעוּרֵי תִּכְנוּת' : 'שיעורי תכנות'}</h2></div>
       <section class="rl-sec rl-lessons rl-chgrid">
         ${CHAPTERS.map((C) => { const ls = LESSONS.filter((q) => q.ch === C.n); if (!ls.length) return '';
@@ -539,7 +539,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     </div>`;
   }
   // the robot workshop's front picture (rendered in Blender: Kubi and three built robots), a door on the home (1.4.3):
-  // above the lessons once it is open; while it is still locked, small, at the end of the home (the lessons come first)
+  // since 6.11 one of the home's two big doors, beside "שיעורי תכנות" (codeHero); locked, it shows what opens it
   function wkHero() {
     const open_ = journeyOpen('robolab:workshop');
     return `<button type="button" class="rl-wkhero rl-wkbtn${open_ ? '' : ' locked'}" ${open_ ? 'data-workshop' : `disabled title="${esc(lockWords('robolab:workshop'))}"`}>

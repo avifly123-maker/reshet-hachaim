@@ -2,7 +2,7 @@
    a line in a list"). One palette for the whole game, loaded last (zz-). Every main button is a round pill in a living
    colour with white letters and a pressed edge underneath. What each colour means, everywhere:
      green  = go, do it, start          blue  = an ordinary action, open
-     orange = back, home, out           pink  = something fun or a surprise        purple = help, explain */
+     orange = back, home, out, a prize   pink  = something fun or a surprise        purple = help, explain */
 :root {
   --bt-green: linear-gradient(180deg, #5ccf82, #2a9a52); --bt-green-e: #1d6a38;
   --bt-blue: linear-gradient(180deg, #5cb0f2, #2a74c8); --bt-blue-e: #1a4a8a;
@@ -11,20 +11,20 @@
   --bt-purple: linear-gradient(180deg, #b49af4, #7a58d0); --bt-purple-e: #4a2f8a;
 }
 /* the shape every coloured button shares */
-#ui.wol :is(.lb-btn, .ls-go, .lt-go, .lt-back, .lb-back, .ws-back, .ws-room-btn, .wt-back, .wb-go, .wp-go, .wo-go, .wp-fairbtn, .rl-back, .rl-go, .st-go, .rs-go, .rs-ok),
+#ui.wol :is(.lb-btn, .ls-go, .lt-go, .lt-back, .lb-back, .lb-home, .ls-back, .lb-exit, .ws-back, .ws-room-btn, .wt-back, .wb-go, .wp-go, .wo-go, .wp-fairbtn, .rl-back, .rl-go, .st-go:not(.jv), .rs-go),
 #wol-learn.wol-learn .wl-btn, .wol-learn .wl-btn {
   border: 0 !important; border-radius: 999px !important; color: #fff !important; font-weight: 800; text-shadow: 0 1px 1px rgba(0, 0, 0, .28);
   background: var(--bt-c, var(--bt-blue)) !important; box-shadow: 0 4px 0 var(--bt-e, var(--bt-blue-e)), 0 7px 14px rgba(0, 0, 0, .22) !important;
   transition: transform .12s, filter .15s, box-shadow .12s;
 }
-#ui.wol :is(.lb-btn, .ls-go, .lt-go, .lt-back, .lb-back, .ws-back, .ws-room-btn, .wt-back, .wb-go, .wp-go, .wo-go, .wp-fairbtn, .rl-back, .rl-go, .st-go, .rs-go, .rs-ok):not(:disabled):hover,
+#ui.wol :is(.lb-btn, .ls-go, .lt-go, .lt-back, .lb-back, .lb-home, .ls-back, .lb-exit, .ws-back, .ws-room-btn, .wt-back, .wb-go, .wp-go, .wo-go, .wp-fairbtn, .rl-back, .rl-go, .st-go:not(.jv), .rs-go):not(:disabled):hover,
 #wol-learn.wol-learn .wl-btn:not(:disabled):hover, .wol-learn .wl-btn:not(:disabled):hover { filter: brightness(1.08); transform: translateY(-2px); }
-#ui.wol :is(.lb-btn, .ls-go, .lt-go, .lt-back, .lb-back, .ws-back, .ws-room-btn, .wt-back, .wb-go, .wp-go, .wo-go, .wp-fairbtn, .rl-back, .rl-go, .st-go, .rs-go, .rs-ok):not(:disabled):active,
+#ui.wol :is(.lb-btn, .ls-go, .lt-go, .lt-back, .lb-back, .lb-home, .ls-back, .lb-exit, .ws-back, .ws-room-btn, .wt-back, .wb-go, .wp-go, .wo-go, .wp-fairbtn, .rl-back, .rl-go, .st-go:not(.jv), .rs-go):not(:disabled):active,
 #wol-learn.wol-learn .wl-btn:not(:disabled):active, .wol-learn .wl-btn:not(:disabled):active { transform: translateY(3px); box-shadow: 0 1px 0 var(--bt-e, var(--bt-blue-e)) !important; }
-#ui.wol :is(.lb-btn, .ls-go, .lt-go, .wb-go, .wp-go, .wo-go, .wp-fairbtn, .rl-go, .st-go, .rs-go, .rs-ok):disabled, #wol-learn.wol-learn .wl-btn:disabled, .wol-learn .wl-btn:disabled { filter: grayscale(.7) opacity(.55); }
+#ui.wol :is(.lb-btn, .ls-go, .lt-go, .wb-go, .wp-go, .wo-go, .wp-fairbtn, .rl-go, .st-go:not(.jv), .rs-go):disabled, #wol-learn.wol-learn .wl-btn:disabled, .wol-learn .wl-btn:disabled { filter: grayscale(.7) opacity(.55); }
 /* the colours */
-#ui.wol :is(.ls-go, .lt-go, .wb-go, .wp-go, .wo-go, .rl-go, .st-go, .rs-go, .rs-ok), #wol-learn.wol-learn .wl-btn.go, .wol-learn .wl-btn.go { --bt-c: var(--bt-green); --bt-e: var(--bt-green-e); }
-#ui.wol :is(.lt-back, .lb-back, .ws-back, .ws-room-btn, .rl-back), #wol-learn.wol-learn .wl-btn.gold, .wol-learn .wl-btn.gold { --bt-c: var(--bt-orange); --bt-e: var(--bt-orange-e); }
+#ui.wol :is(.ls-go, .lt-go, .wb-go, .wp-go, .wo-go, .rl-go, .st-go:not(.jv), .rs-go), #wol-learn.wol-learn .wl-btn.go, .wol-learn .wl-btn.go { --bt-c: var(--bt-green); --bt-e: var(--bt-green-e); }
+#ui.wol :is(.lt-back, .lb-back, .lb-home, .ls-back, .lb-exit, .ws-back, .ws-room-btn, .rl-back), #wol-learn.wol-learn .wl-btn.gold, .wol-learn .wl-btn.gold { --bt-c: var(--bt-orange); --bt-e: var(--bt-orange-e); }
 #ui.wol .wp-fairbtn, #wol-learn.wol-learn .wl-btn.fun, .wol-learn .wl-btn.fun { --bt-c: var(--bt-pink); --bt-e: var(--bt-pink-e); }
 /* the corner music button and the game's round icon buttons keep their own look */
 /* the learning centre's "back" in its header */

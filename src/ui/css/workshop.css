@@ -515,15 +515,15 @@
 @media (max-height: 520px) { #ui.wol .wt-st { grid-template-columns: 44px 1fr 56px 24px; } #ui.wol .wt-st .wsa { width: 42px; height: 42px; } #ui.wol .wt-st b { font-size: .98em; } #ui.wol .wt-st small { display: none; } #ui.wol .wt-all, #ui.wol .wt-back { min-height: 40px; } }
 /* the patent office while it is empty: a pale certificate waiting, the four steps, a big way to the orders */
 #ui.wol .wp-empty { gap: 12px; }
-#ui.wol .wp-ghost { position: relative; flex: none; height: min(220px, 30vh); aspect-ratio: 4 / 3; border-radius: 10px; background: linear-gradient(#fffaf0, #f3e2bf); box-shadow: inset 0 0 0 8px #d8b06a, inset 0 0 0 11px #fff3da, 0 6px 14px rgba(0, 0, 0, .35); display: grid; place-items: center; transform: rotate(-2deg); opacity: .9; }
-#ui.wol .wp-ghost b { font-family: var(--serif); font-weight: 400; font-size: 1.5em; color: #a04f12; }
-#ui.wol .wp-ghost i { position: absolute; bottom: 10%; inset-inline-end: 12%; width: 54px; height: 54px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #ff8a7a, #c8302a 70%); box-shadow: 0 0 0 4px rgba(200, 48, 42, .35); opacity: .45; }
+#ui.wol .wpo-ghost { position: relative; flex: none; height: min(220px, 30vh); aspect-ratio: 4 / 3; border-radius: 10px; background: linear-gradient(#fffaf0, #f3e2bf); box-shadow: inset 0 0 0 8px #d8b06a, inset 0 0 0 11px #fff3da, 0 6px 14px rgba(0, 0, 0, .35); display: grid; place-items: center; transform: rotate(-2deg); opacity: .9; }
+#ui.wol .wpo-ghost b { font-family: var(--serif); font-weight: 400; font-size: 1.5em; color: #a04f12; }
+#ui.wol .wpo-ghost i { position: absolute; bottom: 10%; inset-inline-end: 12%; width: 54px; height: 54px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #ff8a7a, #c8302a 70%); box-shadow: 0 0 0 4px rgba(200, 48, 42, .35); opacity: .45; }
 #ui.wol .wp-steps4 { display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 16px; background: rgba(40, 22, 8, .55); }
 #ui.wol .wp-steps4 span { display: flex; flex-direction: column; align-items: center; gap: 2px; font-family: var(--serif); font-size: .9em; }
 #ui.wol .wp-steps4 .wsa { width: min(54px, 10vh); height: min(54px, 10vh); object-fit: contain; }
 #ui.wol .wp-empty p { margin: 0; }
-@media (max-height: 520px) { #ui.wol .wp-empty { gap: 6px; } #ui.wol .wp-ghost b { font-size: 1.1em; } #ui.wol .wp-ghost i { width: 30px; height: 30px; } #ui.wol .wp-go { min-height: 40px; font-size: 1em; } }
-#ui.wol .wp-go { display: flex; align-items: center; gap: 8px; min-height: 52px; padding: 6px 24px; border: 0; border-radius: 26px; background: linear-gradient(#ffcf6a, #e8952a); color: #3a2108 !important; font-weight: 900; font-size: 1.12em; box-shadow: 0 4px 0 #8a5418, 0 0 18px rgba(255, 200, 80, .5); }
+@media (max-height: 520px) { #ui.wol .wp-empty { gap: 6px; } #ui.wol .wpo-ghost b { font-size: 1.1em; } #ui.wol .wpo-ghost i { width: 30px; height: 30px; } #ui.wol .wp-go { min-height: 40px; font-size: 1em; } }
+#ui.wol .wp-go { display: flex; align-items: center; gap: 8px; min-height: 52px; padding: 6px 24px; font-size: 1.12em; }   /* colour: zz-buttons.css */
 #ui.wol .wp-fairbtn { min-height: 46px; padding: 6px 20px; font-size: 1.08em; border-radius: 23px; }
 /* 6.11 (Avi: "always more colour; the workshop as a chocolate-factory designer would make it, not extreme"): every lever
    its own sweet colour, each test station its own tint, the path in candy glass, rainbow meters on the board */

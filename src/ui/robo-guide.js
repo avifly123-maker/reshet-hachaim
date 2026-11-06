@@ -137,6 +137,7 @@ export function createGuide(root, { voice = null, nitzVoice = null, portrait = n
     synthTalk = Math.min(4, 0.9 + words(ln).length / 22);   // the mouth moves a little even without sound
     const vc = voiceOf(c);
     if (vc && ln.id && c.spokenI !== c.i) { c.spokenI = c.i; vc.say(ln.id).catch(() => { }); }
+    if (nitz && ln.id) { const sb = el.querySelector('.rg-say'); if (sb) { sb.hidden = true; if (vc) vc.has(ln.id).then((ok) => { if (ok && cur === c) sb.hidden = false; }, () => { }); } }   // ניצוץ: only lines that have a clip (6.11: some are still written only)
     const btn = el.querySelector('.rg-next, .rg-act:not(.quiet)');   // a quiet one ("לדלג על ההדרכה") is never the button a child presses by default try { btn && btn.focus({ preventScroll: true }); } catch (e) { }
   }
   // an element the child can see now (a ring around a removed or hidden one would float over nothing)

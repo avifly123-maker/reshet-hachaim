@@ -1024,3 +1024,14 @@ The hard challenges (ax5–7, gx5–7, rx5–7 in the zone files):
 - **Blackbirds eat mastic fruit and spread the seeds** (grove relation `disperses`, above).
 - **Crown-of-thorns starfish** prey on hard coral polyps; in outbreaks, divers remove them — https://en.wikipedia.org/wiki/Crown-of-thorns_starfish .
 - **Green turtles graze seagrass** (above); **morays and octopuses shelter in holes in the reef** (reef relations `shelter`, above).
+
+## שישה חפצים חדשים במכונת הרעיונות (6.11, src/data/workshop/ideas.js)
+
+- אוזני השועל במדבר (פנק) גדולות ומלאות כלי דם, ומפזרות חום מהגוף (Encyclopaedia Britannica, "fennec").
+- שערות הדבורה אוספות אבקה: גרגרי האבקה נדבקים לשערות המסועפות שעל גופה (Thorp 2000, "The collection of pollen by bees").
+- הגחלילית מאירה ב"אור קר": כמעט כל האנרגיה של התגובה הופכת לאור ולא לחום (Encyclopaedia Britannica, "bioluminescence").
+- פלומה של ציפורים שומרת אוויר חם בין הסיבים, ולכן מבודדת (Encyclopaedia Britannica, "down").
+- פרסות היעל קשות בשוליים ורכות במרכז, ונאחזות בסלע (רשות הטבע והגנים, "יעל נובי").
+- גומי טבעי מגיע מהמוהל הלבן (לטקס) של עץ הגומי Hevea brasiliensis, שגדל במקור ביער הגשם של האמזונס (Encyclopaedia Britannica, "rubber").
+- מטאטאי קש עשויים מסוג של דורה (broomcorn, Sorghum bicolor) (Encyclopaedia Britannica, "broomcorn").
+- מבנה של תאים משושים, כמו בחלת דבש, חזק מאוד ביחס למשקלו (Hales 2001, "The Honeycomb Conjecture").

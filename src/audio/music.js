@@ -3,7 +3,7 @@
 // their own sounds), the learning hub, the card games or the mysteries (Avi, 19.10).
 //
 //   const music = createMusic(audio);
-//   music.want('start' | 'lab' | null);   // every frame: what the screen on top would like (cheap when unchanged)
+//   music.want('start' | 'lab' | 'workshop' | null);   // every frame: what the screen on top would like (cheap when unchanged)
 //   music.setEnabled(b); music.enabled
 //
 // The pieces were composed for the game (tools/music/compose.py) and live in src/data/music.js, an asset module that is

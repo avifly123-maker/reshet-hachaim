@@ -184,7 +184,8 @@ function reached(st, m) { if (st.soon) return false; const need = isKids() ? st.
 // 6.11 (Avi): the code opens everything for the player who is playing now, not for every child on the computer (it
 // was one switch for the computer, and a parent could not keep the journey for the others). An old switch for the whole
 // computer becomes the current player's and is then gone.
-function moveOldAllOpen() { try { if (readDeviceRaw(KEY.allopen) === '1') { writePlayerRaw(KEY.allopen, '1'); removeDevice(KEY.allopen); } } catch (e) { /* no storage */ } }
+let movedAllOpen = false;
+function moveOldAllOpen() { if (movedAllOpen) return; movedAllOpen = true; try { if (readDeviceRaw(KEY.allopen) === '1') { writePlayerRaw(KEY.allopen, '1'); removeDevice(KEY.allopen); } } catch (e) { /* no storage */ } }
 export const allOpen = () => { moveOldAllOpen(); return readPlayerRaw(KEY.allopen) === '1'; };
 export function unlockAll(code) { if (String(code).trim() !== INSTRUCTOR_CODE) return false; writePlayerRaw(KEY.allopen, '1'); notify(); return true; }
 export function lockAgain() { removePlayer(KEY.allopen); notify(); }

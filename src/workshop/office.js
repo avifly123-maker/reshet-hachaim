@@ -89,7 +89,7 @@ export function createOffice(ctx) {
     const L = readWs().patents.slice().reverse();
     return `<div class="wp"><div class="wo-head"><h2>${W('משרד הפטנטים', 'מִשְׂרַד הַפָּטֶנְטִים')}</h2><button type="button" class="wp-fairbtn" data-wpfair ${L.length ? '' : 'disabled'}>${icon('sparkle')} ${W('ליריד הממציאים', 'לַיָּרִיד')}</button></div>
       ${L.length ? `<div class="wp-wall">${L.map((P) => `<button type="button" class="wp-item" data-wppick="${P.no}">${certHTML(P)}</button>`).join('')}</div>`
-      : `<div class="wp-empty"><div class="wp-ghost"><b>${W('תעודת פטנט', 'תְּעוּדַת פָּטֶנְט')}</b><i></i></div>
+      : `<div class="wp-empty"><div class="wpo-ghost"><b>${W('תעודת פטנט', 'תְּעוּדַת פָּטֶנְט')}</b><i></i></div>
         <p>${W('כאן תלויות התעודות של ההמצאות שלכם. ככה מקבלים אחת:', 'כָּאן יִהְיוּ הַתְּעוּדוֹת שֶׁלָּכֶם:')}</p>
         <div class="wp-steps4">${[['orders', 'בוחרים הזמנה', 'הַזְמָנָה'], ['build', 'בונים', 'בּוֹנִים'], ['test', 'בודקים', 'בּוֹדְקִים'], ['patent', 'תעודה!', 'תְּעוּדָה!']].map(([id, f, k], i) => `<span>${stationSVG(id)}${i + 1}. ${esc(W(f, k))}</span>`).join('')}</div>
         <button type="button" class="wp-go" data-woback>${icon('arrowL')} ${W('לבחור הזמנה', 'לִבְחֹר הַזְמָנָה')}</button></div>`}</div>`;

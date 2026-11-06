@@ -18,7 +18,7 @@ export function bindCarousel(wrap, row, { onArrow = null, gap = 12 } = {}) {
     if (onArrow) onArrow(d);
     const x0 = row.scrollLeft;
     row.scrollBy({ left: -d * page, behavior: 'smooth' });
-    setTimeout(() => { if (Math.abs(row.scrollLeft - x0) < 2) row.scrollBy({ left: -d * page }); }, 450);   // a busy (or slow) page may drop the smooth scroll
+    setTimeout(() => { if (Math.abs(row.scrollLeft - x0) < 2) row.scrollBy({ left: -d * page, behavior: 'instant' }); }, 450);   // a busy (or slow) page may drop the smooth scroll
   };
   arrows.forEach((b) => b.addEventListener('click', click));
   row.addEventListener('scroll', paint, { passive: true });

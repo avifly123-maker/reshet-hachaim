@@ -28,7 +28,7 @@ export function startBadgeToasts(root, audio) {
 #ui.wol .bdg-pop p{margin:0;max-width:22em;text-align:center;color:#e6dcbc;font-size:.95em}
 #ui.wol .bdg-pop .rays{position:absolute;left:50%;top:44%;width:22em;height:22em;margin:-11em 0 0 -11em;border-radius:50%;pointer-events:none;z-index:-1;
   background:repeating-conic-gradient(rgba(246,207,114,.16) 0 7deg,transparent 7deg 20deg);animation:bdg-rays 9s linear infinite;-webkit-mask:radial-gradient(circle,#000 30%,transparent 70%);mask:radial-gradient(circle,#000 30%,transparent 70%)}
-#ui.wol .bdg-pop.many{left:14px;top:auto;bottom:14px;transform:none;padding:.7em 1.1em .8em;animation:bdg-side .6s cubic-bezier(.2,1.4,.4,1) both}
+#ui.wol .bdg-pop.many{left:14px;top:auto;bottom:72px;transform:none;padding:.7em 1.1em .8em;animation:bdg-side .6s cubic-bezier(.2,1.4,.4,1) both}
 #ui.wol .bdg-pop.many.out{animation:bdg-sideout .35s ease-in both}
 #ui.wol .bdg-pop .bdg-two{display:flex;align-items:center;gap:.5em}
 #ui.wol .bdg-pop.many .bdg{--bs:5.2em}
