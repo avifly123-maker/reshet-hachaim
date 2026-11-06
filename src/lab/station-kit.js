@@ -135,6 +135,14 @@ function injectCss() {
 #ui.wol .ls-mcard small{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
 #ui.wol .ls-mcard small .ic{width:14px;height:14px}
 #ui.wol .ls-mcard.done{background:#f2f9ea;border-color:#8ab86a}
+/* 6.11 (Avi: colour and big buttons): every activity card has its own colour, a big round icon and a coloured edge */
+#ui.wol .ls-mcard{--c:#2f8ac8;min-height:64px;gap:12px;padding:10px 14px;border:0;box-shadow:0 4px 0 color-mix(in srgb,var(--c) 60%,#222),inset -7px 0 0 var(--c);background:linear-gradient(90deg,#fff,color-mix(in srgb,var(--c) 12%,#fff))}
+#ui.wol .ls-mcard:nth-child(4n+2){--c:#4f9a3a}#ui.wol .ls-mcard:nth-child(4n+3){--c:#d8891a}#ui.wol .ls-mcard:nth-child(4n){--c:#8a5cc8}
+#ui.wol .ls-mcard .ls-mic{width:50px;height:50px;border-radius:50%;background:var(--c);color:#fff;box-shadow:0 3px 0 color-mix(in srgb,var(--c) 60%,#222),inset 0 2px 0 rgba(255,255,255,.35)}
+#ui.wol .ls-mcard .ls-mic .ic{width:28px;height:28px}
+#ui.wol .ls-mcard b{font-size:1.15em;color:color-mix(in srgb,var(--c) 70%,#111)}
+@media (max-height:520px){#ui.wol .ls-mcard{min-height:48px;padding:6px 10px}#ui.wol .ls-mcard .ls-mic{width:38px;height:38px}#ui.wol .ls-mcard .ls-mic .ic{width:22px;height:22px}}
+#ui.wol .ls-mcard:hover .ls-mic{transform:scale(1.1) rotate(-6deg);transition:transform .2s}
 #ui.wol .ls-new{font-style:normal;padding:2px 8px;border-radius:999px;background:#e0a43a;color:#2a1a06}
 #ui.wol .ls-shelfpeek{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:6px 8px;border-radius:12px;background:rgba(255,255,255,.6)}
 #ui.wol .ls-shelfpeek img{width:30px;height:30px;border-radius:50%;object-fit:cover}

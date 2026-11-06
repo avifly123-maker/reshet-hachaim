@@ -34,6 +34,7 @@ import { wkStepOf } from './earn.js';
 import { CHASSIS as WK_CHASSIS, PARTS as WK_PARTS } from '../data/robolab/workshop.js';
 import { WK_HERO } from '../data/robolab/wk-hero.js';
 import { CODE_HERO } from '../data/robolab/code-hero.js';
+import { ISLAND_ART } from '../data/island-art.js';
 import { FAIL_LINES, GOAL_LINES, WIN_LINES, OOPS_LINES, FUN_LINES } from '../data/robolab/lines.js';
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -62,6 +63,8 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     return chOpen && (i === 0 || !!P.done[list[i - 1].id]);
   };
   // משימות באי שלי: the zones where this player has an island; open once chapter 4 (sensors) is well on its way
+  // 6.11 (Avi: pictures, not chips): every island is a tile with its own picture from the start screen
+  const islPic = (z) => (ISLAND_ART['c_' + z] ? `<span class="rl-pzimg z-${z}"><img src="${ISLAND_ART['c_' + z]}" alt="" draggable="false"></span>` : `<span class="rl-z z-${z}"></span>`);
   function islandsHTML(P) {
     if (!enter3d || !hasIsland) return '';
     // 1.4.3 set 5: they open at stage 9 (מהנדס). A player who had them open before (three chapter-4 lessons, the 1.4.1
@@ -74,7 +77,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     if (!zones.length) return `<section class="rl-sec">${head}<p class="rl-isl-note">${kids ? 'עוֹד אֵין לָכֶם אִי שָׁמוּר. בְּנוּ אִי בְּאַחַת הַסְּבִיבוֹת, וְהַכֵּלִים יָבוֹאוּ לַעֲבֹד בּוֹ.' : 'עוד אין לכם אי שמור. בנו אי באחת הסביבות, והכלים יבואו לעבוד בו.'}</p></section>`;
     const full = noRoom ? `<p class="rl-isl-note rl-noroom">${kids ? 'לֹא מָצָאנוּ מָקוֹם פָּנוּי לַמִּגְרָשׁ בָּאִי הַזֶּה. נַסּוּ אִי אַחֵר, אוֹ פַּנּוּ קְצָת מָקוֹם בֵּין הָעֵצִים.' : 'לא מצאנו מקום פנוי למגרש באי הזה. נסו אי אחר, או פנו קצת מקום בין העצים.'}</p>` : '';
     noRoom = false;
-    return `<section class="rl-sec">${head}${full}<p class="rl-isl-note">${kids ? 'בְּכָל פַּעַם מְשִׂימָה חֲדָשָׁה בֵּין הָעֵצִים שֶׁגִּדַּלְתֶּם.' : 'בכל פעם משימה חדשה בין העצים שגידלתם. מה שהכלים עושים כאן לא משנה את האי השמור.'}</p><div class="rl-pz">${zones.map((z) => `<button type="button" class="rl-pzb rl-islb" data-island="${z}"><span class="rl-z z-${z}"></span><b>${esc(kids ? ZONE_LOOK[z].shortK : ZONE_LOOK[z].short)}</b><small>${kids ? 'הָאִי שֶׁלִּי' : 'האי שלי'}</small></button>`).join('')}</div></section>`;
+    return `<section class="rl-sec">${head}${full}<p class="rl-isl-note">${kids ? 'בְּכָל פַּעַם מְשִׂימָה חֲדָשָׁה בֵּין הָעֵצִים שֶׁגִּדַּלְתֶּם.' : 'בכל פעם משימה חדשה בין העצים שגידלתם. מה שהכלים עושים כאן לא משנה את האי השמור.'}</p><div class="rl-pz">${zones.map((z) => `<button type="button" class="rl-pzb rl-islb rl-pzpic" data-island="${z}">${islPic(z)}<b>${esc(kids ? ZONE_LOOK[z].shortK : ZONE_LOOK[z].short)}</b><small>${kids ? 'הָאִי שֶׁלִּי' : 'האי שלי'}</small></button>`).join('')}</div></section>`;
   }
   // ארגז החול (1.4.3 set 5, stage 9): a robot of his garage (or the ready gardener) and a place: his island or the
   // zone's practice island. No mission: he programs, or drives with the arrows, and sees what the robot does there.
@@ -87,7 +90,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
       : `<span class="rl-sbr">${kids ? 'הָרוֹבּוֹט: הַגַּנָּן (רוֹבּוֹט מוּכָן). בַּסַּדְנָה בּוֹנִים רוֹבּוֹט מִשֶּׁלָּכֶם.' : 'הרובוט: הגנן (רובוט מוכן). בסדנה בונים רובוט משלכם.'}</span>`;
     const own = (z) => { try { return !!hasIsland && hasIsland(z); } catch (e) { return false; } };
     return `<section class="rl-sec rl-sbx">${head}<p class="rl-isl-note">${kids ? 'אֵין מְשִׂימָה. מְתַכְנְתִים אוֹ נוֹהֲגִים בַּחִצִּים, וְרוֹאִים מָה הָרוֹבּוֹט יוֹדֵעַ לַעֲשׂוֹת.' : 'אין משימה. מתכנתים או נוהגים בחיצים, ורואים מה הרובוט יודע לעשות. מה שקורה כאן לא משנה את האי השמור.'}</p>${sel}
-      <div class="rl-pz">${ZONE_IDS.map((z) => `<button type="button" class="rl-pzb rl-sbb" data-sandbox="${z}" data-sbown="${own(z) ? 1 : 0}"><span class="rl-z z-${z}"></span><b>${esc(kids ? ZONE_LOOK[z].shortK : ZONE_LOOK[z].short)}</b><small>${own(z) ? (kids ? 'הָאִי שֶׁלִּי' : 'האי שלי') : (kids ? 'שֶׁטַח מוּכָן' : 'שטח מוכן')}</small></button>`).join('')}</div></section>`;
+      <div class="rl-pz">${ZONE_IDS.map((z) => `<button type="button" class="rl-pzb rl-sbb rl-pzpic" data-sandbox="${z}" data-sbown="${own(z) ? 1 : 0}">${islPic(z)}<b>${esc(kids ? ZONE_LOOK[z].shortK : ZONE_LOOK[z].short)}</b><small>${own(z) ? (kids ? 'הָאִי שֶׁלִּי' : 'האי שלי') : (kids ? 'שֶׁטַח מוּכָן' : 'שטח מוכן')}</small></button>`).join('')}</div></section>`;
   }
   let sbRobot = 0;   // the robot chosen for the sandbox (an index into his garage)
   const stars = (n) => [0, 1, 2].map((k) => `<i class="${k < n ? 'on' : ''}">${icon('star')}</i>`).join('');

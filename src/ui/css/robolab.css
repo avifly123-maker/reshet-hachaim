@@ -496,3 +496,30 @@ body:has(#rguide .rg-wrap.kubi) .rl-say .rl-kubi { visibility: hidden; }
   #ui.wol .rl-chgrid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
   #ui.wol .rl-chgrid .rl-lvb { min-width: 48px; min-height: 48px; }
 }
+/* 6.11 (Avi: "pictures, big colourful buttons"): the islands of the missions and the sandbox are tiles with the island's
+   own picture; the garage's "הפתעה" is a big bright button */
+#ui.wol .rl-pzb.rl-pzpic { min-width: 0; flex: 1 1 130px; max-width: 200px; padding: 0 0 8px; overflow: hidden; border-radius: 16px; background: linear-gradient(#fffdf6, #f3ead2); box-shadow: 0 4px 0 rgba(0, 0, 0, .28), 0 0 0 2px rgba(255, 255, 255, .6); }
+#ui.wol .rl-pzimg { display: block; width: 100%; height: 78px; margin-bottom: 4px; background: radial-gradient(circle at 50% 70%, #bfe6f2, #6fb3d2 70%); }
+#ui.wol .rl-pzimg.z-desert { background: radial-gradient(circle at 50% 70%, #ffe7b8, #e0a85a 70%); } #ui.wol .rl-pzimg.z-savanna { background: radial-gradient(circle at 50% 70%, #ffe0a8, #d08a3a 70%); }
+#ui.wol .rl-pzimg.z-amazon { background: radial-gradient(circle at 50% 70%, #c8f0c0, #4fa86a 70%); } #ui.wol .rl-pzimg.z-grove { background: radial-gradient(circle at 50% 70%, #f0f0c0, #a8b85a 70%); }
+#ui.wol .rl-pzimg img { width: 100%; height: 100%; object-fit: contain; transition: transform .3s; filter: drop-shadow(0 4px 4px rgba(0, 0, 0, .3)); }
+#ui.wol .rl-pzb.rl-pzpic:not(:disabled):hover .rl-pzimg img { transform: scale(1.08) translateY(-2px); }
+#ui.wol .rl-pzb.rl-pzpic b { font-size: 1.05em; }
+#ui.wol .rl-gact { flex-wrap: wrap; gap: 8px; }
+#ui.wol .rl-gact .rl-gcount { flex: 1 0 100%; }
+#ui.wol .rl-gact button { min-height: 42px; padding: 6px 16px; border-radius: 21px; font-size: 1em; }
+#ui.wol .rl-gact button svg { width: 1.3em; height: 1.3em; }
+#ui.wol .rl-gact button[data-gsurp] { flex: 1; justify-content: center; background: linear-gradient(135deg, #ffd24a, #ff8a5a 60%, #ff6aa8); color: #3a1208 !important; font-size: 1.1em; box-shadow: 0 4px 0 #a8442a, 0 0 14px rgba(255, 150, 90, .55); }
+#ui.wol .rl-gact button[data-gsurp] svg { animation: rl-twinkle 1.8s ease-in-out infinite; }
+#ui.wol .rl-gact button[data-gsurp]:hover { transform: translateY(-2px) scale(1.03); }
+@keyframes rl-twinkle { 50% { transform: rotate(20deg) scale(1.25); } }
+@media (prefers-reduced-motion: reduce) { #ui.wol .rl-gact button[data-gsurp] svg { animation: none; } }
+/* the robot workshop's test tracks: ground swatches big enough to read as places */
+#ui.wol .wk-tbar { gap: 7px; }
+#ui.wol .wk-tbar button { min-height: 40px; padding: 4px 12px 4px 6px; border-radius: 14px; font-size: .98em; background: linear-gradient(#fffaf0, #eadfc6); box-shadow: 0 3px 0 #a8987a; }
+#ui.wol .wk-tbar button:not(:disabled):hover { transform: translateY(-2px); }
+#ui.wol .wk-tbar .wk-c { width: 28px; height: 28px; border-radius: 8px; }
+#ui.wol .wk-tbar .wk-save { min-height: 42px; padding: 4px 18px; font-size: 1.05em; background: linear-gradient(#4fc4b8, #2a8a80); color: #fff !important; box-shadow: 0 3px 0 #1a5a52; }
+@media (max-height: 560px) { #ui.wol .rl-heroes .rl-wkhero { aspect-ratio: 16 / 5.6; } #ui.wol .rl-heroes .rl-wkhero img { object-position: center 40%; } }
+/* the corner music button would sit on the robot lab's tiles (the workshop hides it the same way) */
+#ui.wol:has(> .rl:not([hidden])) > .mus-btn { display: none !important; }

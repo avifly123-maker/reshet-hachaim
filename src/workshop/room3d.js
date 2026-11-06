@@ -70,7 +70,7 @@ export function createRoom3d(host, { kids = false, names = {}, counts = {}, onPi
       const dir = v3.clone().sub(view.EYE), fwd = new THREE.Vector3(); cam.getWorldDirection(fwd);
       v3.project(cam);
       const inFront = dir.dot(fwd) > 0, sx = (v3.x * 0.5 + 0.5) * Wd, sy = (-v3.y * 0.5 + 0.5) * Hd;
-      const vis = inFront && sx > 72 && sx < Wd - 72 && sy > 10 && sy < Hd - 10;   // clear of the turning arrows at the sides
+      const vis = inFront && sx > 116 && sx < Wd - 116 && sy > 10 && sy < Hd - 10;   // the whole plaque clear of the turning arrows at the sides (6.11)
       b.style.transform = `translate(${Math.round(sx)}px, ${Math.round(sy)}px)`; b.classList.toggle('off', !vis);
       if (!vis) { const yawTo = wrap(yawOf(new THREE.Vector3(p[0], 0, p[2]), view.EYE) - view.S.yaw); (yawTo < 0 ? left : right).push(b.dataset.st); }
     }

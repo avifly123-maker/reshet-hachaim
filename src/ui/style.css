@@ -2,7 +2,7 @@
    Identity: a naturalist's field kit. Two materials only:
    – always-on chrome = dark canopy plates (chamfered corners, a double engraved rule, honey seed pins at the corners);
    – anything you open (menus, cards, dialogs) = herbarium paper with a pencil-ruled double border.
-   Display face: Suez One (titles, numbers). Text face: Rubik. Both embedded (fonts.css). */
+   Display face: Suez One (titles, numbers). Text face: Varela Round (6.11; Rubik before). Both embedded (fonts.css). */
 #ui.wol {
   --canopy: #11241a;
   --canopy2: #1b3626;
@@ -1399,7 +1399,12 @@
 #ui.wol .st-carb:hover { transform: scale(1.08); }
 #ui.wol .st-carb .ic { width: 26px; height: 26px; }
 #ui.wol .st-carb.prev { right: -14px; } #ui.wol .st-carb.next { left: -14px; }
-#ui.wol .st-cw.at0 .st-carb.prev, #ui.wol .st-cw.atEnd .st-carb.next, #ui.wol .st-cw.fits .st-carb { opacity: 0; pointer-events: none; }
+#ui.wol .st-cw.fits .st-carb { opacity: 0; pointer-events: none; }
+/* 6.11 (Avi: "arrows on both sides, so they see there is more"): both arrows stay, outside the tiles; at an end its arrow
+   only fades. The learning row shows half a tile more at its edge, so it reads as a row that goes on */
+#ui.wol .st-cw:not(.fits) { padding-inline: 36px; }
+#ui.wol .st-cw:not(.fits) .st-carb.prev { right: -6px; } #ui.wol .st-cw:not(.fits) .st-carb.next { left: -6px; }
+#ui.wol .st-cw.at0 .st-carb.prev, #ui.wol .st-cw.atEnd .st-carb.next { opacity: .35; pointer-events: none; }
 /* the learning centre */
 #ui.wol .st-learn2 { display: flex; flex-direction: column; gap: clamp(10px, 2vh, 18px); width: 100%; }
 #ui.wol .st-lbig2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(12px, 2vw, 24px); }
@@ -1417,10 +1422,17 @@
   box-shadow: 0 0 0 4px #e8b941, 0 0 0 7px #8a5a14, 0 6px 14px rgba(0, 0, 0, .45); }
 #ui.wol .st-medal:nth-child(2) { transform: translateY(-10px) scale(1.15); z-index: 1; }
 #ui.wol .st-medal img { width: 100%; height: 100%; object-fit: cover; }
-#ui.wol .st-lgrid.st-carrow { grid-auto-columns: calc((100% - 3 * 12px) / 4); gap: 12px; }
-@media (max-width: 1000px) { #ui.wol .st-lgrid.st-carrow { grid-auto-columns: calc((100% - 2 * 10px) / 3); gap: 10px; } }
+#ui.wol .st-lgrid.st-carrow { grid-auto-columns: calc((100% - 3 * 12px) / 3.5); gap: 12px; }
+@media (max-width: 1000px) { #ui.wol .st-lgrid.st-carrow { grid-auto-columns: calc((100% - 2 * 10px) / 2.5); gap: 10px; } }
 #ui.wol .st-lgrid.st-carrow button { min-height: 76px; }
 @media (max-height: 520px) { #ui.wol .st-lbig { min-height: 96px; padding: 8px 14px; } #ui.wol .st-lbig .st-lbt b { font-size: 1.25em; } #ui.wol .st-lbig .st-fan { height: 84px; } #ui.wol .st-medal { width: 50px; } #ui.wol .st-lgrid.st-carrow button { min-height: 60px; } }
 #ui.wol .st-learn2, #ui.wol .st-cw, #ui.wol .st-carrow { min-width: 0; max-width: 100%; }
 #ui.wol .st-pane[data-pane=learn], #ui.wol .st-pane[data-pane=sci] { min-width: 0; max-width: 100%; }
 #ui.wol .st-cw { width: 100%; contain: inline-size; }   /* (a row of columns would otherwise widen the whole start screen) */
+/* 6.11 (Avi: "a big empty space in the album and badges doors: bigger pictures"): the pictures fill their doors */
+#ui.wol .st-lbig { min-height: clamp(130px, 30vh, 250px); }
+#ui.wol .st-lbig .st-fan { width: 56%; height: clamp(110px, 27vh, 230px); }
+#ui.wol .st-lbig .st-fan img { width: 47%; }
+#ui.wol .st-lbig.bdg .st-medals { flex: 0 0 56%; }
+#ui.wol .st-lbig .st-medal { width: clamp(64px, 15vh, 128px); margin-inline: -12px; }
+@media (max-height: 520px) { #ui.wol .st-lbig { min-height: 110px; } #ui.wol .st-lbig .st-fan { display: block; height: 100px; } #ui.wol .st-lbig .st-medal { width: 62px; } }

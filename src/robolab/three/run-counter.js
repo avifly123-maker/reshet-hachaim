@@ -61,8 +61,8 @@ export function createRunCounter({ root, CS, level: L, kids = playerMode() === '
     g.direction = 'rtl'; g.textBaseline = 'middle';
     R.forEach(([name, val, col], i) => {
       const y = 9 + 11 + i * 22;
-      g.fillStyle = '#1d2c38'; g.font = '700 15px Heebo, Rubik, Arial, sans-serif'; g.textAlign = 'right'; g.fillText(name, W - 12, y);
-      if (val != null) { g.fillStyle = col; g.font = '800 19px Heebo, Rubik, Arial, sans-serif'; g.textAlign = 'left'; g.direction = 'ltr'; g.fillText(val, 14, y); g.direction = 'rtl'; }
+      g.fillStyle = '#1d2c38'; g.font = '700 15px wol-text, Arial, sans-serif'; g.textAlign = 'right'; g.fillText(name, W - 12, y);
+      if (val != null) { g.fillStyle = col; g.font = '800 19px wol-text, Arial, sans-serif'; g.textAlign = 'left'; g.direction = 'ltr'; g.fillText(val, 14, y); g.direction = 'rtl'; }
       else {   // the battery: a bar that empties (the drone and a built robot)
         const k = Math.max(0, Math.min(1, st.bat / st.batMax)), bw = 92, bx = 14;
         g.fillStyle = '#d9d2c0'; g.beginPath(); g.roundRect(bx, y - 6, bw, 12, 6); g.fill();

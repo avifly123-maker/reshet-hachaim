@@ -7,6 +7,7 @@
 // Each activity is a panel over the rendered room, with רובו־דע's voice on a strip at its foot (his face changes).
 // Facts are in docs/sources.md (the lab, "חושבים כמו חוקרים"). Progress: labProgress().think (src/lab/progress.js).
 // Badges: lab:fair, lab:float, lab:observe, lab:cause, and lab:thinker for all four (src/data/badges.js).
+import { LAB_ART } from '../data/lab-art.js';
 import { esc, icon } from '../ui/ui.js';
 import { thinkUpdate, thinkOf } from './progress.js';
 import { grant as grantBadge } from '../core/badges-store.js';
@@ -445,7 +446,8 @@ export function openThinkMenu(root, { only, onPick, robot, audio, onClose, title
   el.innerHTML = `<header class="lt-head"><div class="lt-ttl"><small>${kids ? M.small : 'המעבדה של רובו־דע'}</small><h2>${esc(title || (kids ? M.title : 'חושבים כמו חוקרים'))}</h2></div>
       <p class="lt-habit">${kids ? (only ? M.few : fmt(M.all, { n })) : only ? 'שני ניסויים קטנים מחכים כאן.' : `ארבעה ניסויים קטנים. בכל אחד לומדים הרגל אחד של חוקרים. מותר לטעות, ככה מגלים. (${n} מתוך ${THINK.length})`}</p><button class="lb-btn lt-back">${kids ? THINK_K.shell.back : 'חזרה לחדר'}</button></header>
     <div class="lt-body"><div class="lt-grid">${list.map((a) => { const r = thinkOf(a.id); const st = r.done ? 'done' : Object.keys(r).length ? 'mid' : '';
-      return `<button class="lt-mcard ${st}" data-a="${a.id}"><span class="lt-mic">${icon(a.ic)}</span><b>${esc(a.name)}</b><span>${esc(a.habit)}</span><small>${esc(a.where)}${st === 'done' ? ' · ' + icon('check') + (kids ? M.done : 'הושלם') : st === 'mid' ? ' · ' + (kids ? M.mid : 'בדרך') : ''}</small></button>`; }).join('')}</div></div>`;
+      const pic = LAB_ART.st[a.st === 'home' ? 'table' : a.st];
+      return `<button class="lt-mcard ${st} lt-${a.id}" data-a="${a.id}">${pic ? `<span class="lt-mpic"><img src="${pic}" alt="" draggable="false"></span>` : ''}<span class="lt-mic">${icon(a.ic)}</span><b>${esc(a.name)}</b><span>${esc(a.habit)}</span><small>${esc(a.where)}${st === 'done' ? ' · ' + icon('check') + (kids ? M.done : 'הושלם') : st === 'mid' ? ' · ' + (kids ? M.mid : 'בדרך') : ''}</small></button>`; }).join('')}</div></div>`;
   let alive = true;
   const close = () => { if (!alive) return; alive = false; el.remove(); onClose && onClose(); };
   el.querySelector('.lt-back').onclick = close;
@@ -626,6 +628,20 @@ function injectCss() {
 #ui.wol .lt-mcard small{display:inline-flex;align-items:center;gap:3px;margin-top:auto}
 #ui.wol .lt-mcard small .ic{width:14px;height:14px}
 #ui.wol .lt-mcard.done{background:#f2f9ea;border-color:#8ab86a}
+/* 6.11 (Avi: pictures and colour, not a list): every activity is a big card with its station's picture and its own colour */
+#ui.wol .lt-grid{grid-template-columns:repeat(auto-fit,minmax(min(170px,100%),1fr));gap:12px}
+#ui.wol .lt-mcard{--c:#4f8a3a;--ph:clamp(64px,20vh,170px);position:relative;padding:0 0 12px;overflow:hidden;border:0;border-radius:20px;box-shadow:0 5px 0 color-mix(in srgb,var(--c) 65%,#222),0 0 0 3px var(--c)}
+#ui.wol .lt-mcard>*:not(.lt-mpic){margin-inline:14px}
+#ui.wol .lt-mcard.lt-fair{--c:#4f9a3a}#ui.wol .lt-mcard.lt-float{--c:#2f8ac8}#ui.wol .lt-mcard.lt-observe{--c:#d8891a}#ui.wol .lt-mcard.lt-cause{--c:#8a5cc8}
+#ui.wol .lt-mpic{display:block;width:100%;height:var(--ph);margin:0 0 4px;overflow:hidden;background:var(--c)}
+#ui.wol .lt-mpic img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s}
+#ui.wol .lt-mcard:hover .lt-mpic img{transform:scale(1.06)}
+#ui.wol .lt-mcard .lt-mic{position:absolute;top:calc(var(--ph) - 26px);inset-inline-start:0;display:grid;place-items:center;width:48px;height:48px;border-radius:50%;background:var(--c);color:#fff;box-shadow:0 0 0 4px #fff,0 3px 6px rgba(0,0,0,.25)}
+#ui.wol .lt-mcard .lt-mic .ic{width:26px;height:26px}
+@media (max-height:520px){#ui.wol .lt-mcard>span:not(.lt-mic):not(.lt-mpic){display:none}#ui.wol .lt-mcard .lt-mic{width:40px;height:40px;top:calc(var(--ph) - 22px)}}
+#ui.wol .lt-mcard b{font-size:1.35em;color:color-mix(in srgb,var(--c) 70%,#111);padding-inline-start:52px}
+#ui.wol .lt-mcard small{padding:2px 10px;border-radius:10px;background:color-mix(in srgb,var(--c) 16%,#fff);color:color-mix(in srgb,var(--c) 75%,#111);font-weight:700}
+#ui.wol .lt-mcard.done{background:#fff}#ui.wol .lt-mcard.done small{background:#d8f0c8;color:#2f6a1e}
 #ui.wol .lt-mic{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:#263440;color:#ffd978}
 #ui.wol .lt-mic .ic{width:22px;height:22px}
 #ui.wol .lt-menu.few{inset:auto 12px 96px auto;width:min(520px,calc(100vw - 24px))}
