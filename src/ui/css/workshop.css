@@ -589,3 +589,6 @@
 #ui.wol .wt-kidrun .wsa { width: 46px; height: 46px; animation: ws-bob 1s ease-in-out infinite; }
 @media (max-height: 520px) { #ui.wol .ws.kids .wo-note { grid-template-columns: 90px 1fr; min-height: 110px; } #ui.wol .ws.kids .wo-note .wo-who { width: 90px; height: 90px; }
   #ui.wol .ws.kids .wo-note .wo-txt b { font-size: 1.1em; } #ui.wol .wt-acts.kid button, #ui.wol .ws.kids .wb-go, #ui.wol .wt-kidrun { min-height: 44px; font-size: 1.05em; } #ui.wol .ws.kids .wb-tile .wsa, #ui.wol .ws.kids .wb-tile img { width: 52px; height: 52px; } }
+
+/* a station the order does not ask for: quieter, but not see-through over the wall (6.11 final test) */
+#ui.wol .wt-st.dim { opacity: 1; filter: saturate(.35) brightness(.97); }
