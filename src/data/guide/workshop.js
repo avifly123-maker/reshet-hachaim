@@ -1,6 +1,7 @@
 // ניצוץ's words in his inventors' workshop (1.4.4 set 3). He speaks through the guide's bubbles (speaker 'nitzotz',
-// src/ui/robo-guide.js), written only, no voice (Avi, 4.11): ids start with "nz." (tools/check-sync.mjs does not ask
-// them for a recording). He is a character of an entrepreneur's enthusiasm (Avi, 5.11): eager, quick, makes up words,
+// src/ui/robo-guide.js). Since 6.11 he has a voice: Gemini TTS clips per id (tools/build-nitzotz-voice.py →
+// src/data/nitzotz-voice.js); a new line without a clip is shown written only. ids start with "nz." (tools/check-sync.mjs
+// does not ask them for a recording of רובו־דע). He is a character of an entrepreneur's enthusiasm (Avi, 5.11): eager, quick, makes up words,
 // loves crazy ideas, speaks in the masculine, and to the child in the plural. { id, f, k (full nikud), at?, expr? }
 // expr: happy | wow (he lights up) | think | proud | oops (a blown fuse) | excited | curious
 // Keys: nztut:* the hands-on tutorials (src/ui/tutorials.js); nz:react:* his reactions (one line is picked).

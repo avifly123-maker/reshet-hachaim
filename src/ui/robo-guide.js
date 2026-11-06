@@ -89,7 +89,7 @@ const CSS = `
 const SPEAKER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-export function createGuide(root, { voice = null, portrait = null } = {}) {
+export function createGuide(root, { voice = null, nitzVoice = null, portrait = null } = {}) {
   if (!document.getElementById(CSS_ID)) { const st = document.createElement('style'); st.id = CSS_ID; st.textContent = CSS; document.head.appendChild(st); }
   const el = document.createElement('div'); el.id = 'rguide'; el.hidden = true; root.appendChild(el);
   const queue = []; let cur = null, raf = 0, blinkT = 0, nextBlink = 2.5, last = 0, synthTalk = 0, tipTimer = 0;
@@ -104,11 +104,12 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
   const kubiArt = () => (kartP = kartP || import('../data/kubi-art.js').then((m) => { kart = m.KUBI_ART; if (cur && isKubi(cur)) render(); }, () => { }));
   const isKubi = (c) => !!(c && c.opts.speaker === 'kubi');
   // ניצוץ (1.4.4 set 2): the inventors' workshop's guide; portraits from the game's own model (src/data/nitzotz-art.js),
-  // his live face (src/ui/nitzotz-face.js), and no voice for now (Avi, 4.11: his bubbles are written only)
+  // his live face (src/ui/nitzotz-face.js) and, since 6.11, his own voice (nitzVoice: Gemini TTS lines; a line without a
+  // clip stays written only)
   let nart = null, nartP = null;
   const nitzArt = () => (nartP = nartP || import('../data/nitzotz-art.js').then((m) => { nart = m.NITZOTZ_ART; if (cur && isNitz(cur)) render(); }, () => { }));
   const isNitz = (c) => !!(c && c.opts.speaker === 'nitzotz');
-  const voiceOf = (c) => (c && c.opts.voice) || (isKubi(c) || isNitz(c) ? null : voice);
+  const voiceOf = (c) => (c && c.opts.voice) || (isNitz(c) ? nitzVoice : isKubi(c) ? null : voice);
   const kidsNow = () => playMode() === 'kids';
   const words = (ln) => (kidsNow() && ln.k ? ln.k : ln.f);
 
@@ -127,7 +128,7 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
       ${fig}
       <div class="rg-bub"><span class="rg-name">${name}</span><p class="rg-txt">${esc(words(ln))}</p>
         <div class="rg-foot">${c.lines.length > 1 ? `<span class="rg-dots">${c.lines.map((_, j) => `<i class="${j === c.i ? 'on' : ''}"></i>`).join('')}</span>` : '<span class="rg-dots"></span>'}
-          ${ln.id && !nitz && !String(ln.id).startsWith('kw.') ? `<button class="rg-say" data-g="say" aria-label="${kids ? 'לִשְׁמֹעַ שׁוּב' : 'לשמוע שוב'}" title="${kids ? 'לִשְׁמֹעַ שׁוּב' : 'לשמוע שוב'}">${SPEAKER}</button>` : ''}
+          ${ln.id && !String(ln.id).startsWith('kw.') ? `<button class="rg-say" data-g="say" aria-label="${kids ? 'לִשְׁמֹעַ שׁוּב' : 'לשמוע שוב'}" title="${kids ? 'לִשְׁמֹעַ שׁוּב' : 'לשמוע שוב'}">${SPEAKER}</button>` : ''}
           ${acts ? acts.map((a, j) => `<button class="rg-act${a.kind === 'primary' || (!a.kind && j === 0) ? ' primary' : ''}${a.kind === 'quiet' ? ' quiet' : ''}" data-act="${esc(a.id)}">${esc(a.label)}</button>`).join('')
             : `<button class="rg-next" data-g="next">${lastOne ? (c.opts.tip ? (kids ? 'הָבַנְתִּי' : 'הבנתי') : (kids ? 'סִיּוּם' : 'סיום')) : (kids ? 'הַבָּא' : 'הבא')}</button>`}
           ${!lastOne && !c.opts.tip ? `<button class="rg-skip" data-g="skip">${kids ? 'דַּלֵּג' : 'דלג'}</button>` : ''}

@@ -101,7 +101,9 @@ async function boot() {
   // מסע החוקר (1.3.2): the game opens stage by stage (core/journey.js); רובו־דע presents each new part and speaks
   journey.applyTextSize();
   const voice = createVoice(audio);
-  const guide = createGuide(root, { voice });
+  // ניצוץ's own voice (6.11: Gemini TTS lines, src/data/nitzotz-voice.js, loaded the first time he speaks)
+  const nitzVoice = createVoice(audio, { load: () => import('./data/nitzotz-voice.js').then((m) => m.NITZ_VOICE, () => ({})) });
+  const guide = createGuide(root, { voice, nitzVoice });
   // a stage was reached: its short scene (ui/stage-scenes.js, when present), then רובו־דע says what opened
   const stageMoment = (n) => {
     const scene = window.__stageScene ? Promise.resolve(window.__stageScene(n)).catch(() => { }) : Promise.resolve();

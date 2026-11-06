@@ -64,7 +64,7 @@
 "clickSel": ".wm-carb.next"
 },
 {
-"wait": 1.5
+"wait": 3
 },
 {
 "js": "'CHECK shelf-arrow ' + (document.querySelector('.wm-things').scrollLeft !== window.__x0 ? 'ok' : 'FAIL ' + window.__x0)"

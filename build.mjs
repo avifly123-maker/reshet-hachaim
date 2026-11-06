@@ -92,7 +92,7 @@ async function buildDesktop(outdir) {
   };
   // The generated picture tables (src/data/*.js written by tools/build-*.py) hold base64 data URIs; in the desktop build
   // each module is replaced by the same table with file paths, so a picture costs nothing until something shows it.
-  const ASSET_MODULES = /[\\/]src[\\/]data[\\/](?:robolab[\\/])?(panorama|ground-textures|card-art|thumbs|island-art|tree-shadow|logo|pack-art|source-art|lab-art|reef-backdrop|music|voice|kubi-voice|robo-art|frame-art|lab-items-art|tech-card-art|kubi-art|wk-icons|wk-hero|film-art)\.js$/;   // 1.4.3: the technology cards' paintings, קוּבִּי's portrait and the workshop's icons too
+  const ASSET_MODULES = /[\\/]src[\\/]data[\\/](?:robolab[\\/])?(panorama|ground-textures|card-art|thumbs|island-art|tree-shadow|logo|pack-art|source-art|lab-art|reef-backdrop|music|voice|kubi-voice|nitzotz-voice|robo-art|frame-art|lab-items-art|tech-card-art|kubi-art|wk-icons|wk-hero|film-art)\.js$/;   // 1.4.3: the technology cards' paintings, קוּבִּי's portrait and the workshop's icons too
   const assetPlugin = {
     name: 'asset-files',
     setup(b) {
