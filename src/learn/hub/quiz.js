@@ -3,6 +3,7 @@
 // quizNow() (the round in play, for the "שחקו שוב" button and the test hook) }.
 // Needs from ctx (index.js): $, main, S, save, sfx, later, go, played, updateChip, confetti. Rounds: quiz-build.js.
 import { TORAH, sourcesOn } from '../../core/edition.js';
+import { isOpen as journeyOpen } from '../../core/journey.js';
 import { grantSource, ownedSources } from '../../core/sources-store.js';
 import { CARD_ART } from '../../data/card-art.js';
 import { THUMBS } from '../../data/thumbs.js';
@@ -23,6 +24,10 @@ export function createQuiz(ctx) {
     const th = (b, id) => (THUMBS[b] || {})[id] || '';
     const ch = (grp, v, icon, title, sub) => `<button class="wl-choice${QS[grp] === v ? ' sel' : ''}" data-wl="pick" data-g="${grp}" data-v="${v}" aria-pressed="${QS[grp] === v}">
       <span class="wl-cic">${icon}</span><span><b>${title}</b>${sub ? `<small>${sub}</small>` : ''}</span></button>`;
+    // 6.11 final check: the desert and the savanna have their own questions (quiz-bank-desert/savanna.js); their places
+    // show once the journey opened them
+    const newZones = [['desert', 'fennec', 'מדבר', 'המדבר והנווה'], ['savanna', 'giraffe', 'סוואנה', 'הסוואנה האפריקנית']].filter(([z]) => { try { return journeyOpen('zone:' + z); } catch (e) { return false; } });
+    if (QS.biome !== 'both' && !['amazon', 'grove', 'reef', ...newZones.map((x) => x[0])].includes(QS.biome)) QS.biome = 'both';
     main.innerHTML = `<section class="wl-screen"><div class="wl-setup paper">
       <h2>חידון רשת החיים</h2>
       <div class="wl-step"><h3>1. בחרו רמה</h3><div class="wl-choices" style="--n:${torahQuiz ? 3 : 2}">
@@ -30,10 +35,11 @@ export function createQuiz(ctx) {
         ${ch('level', 'hard', IC.tree, 'מתקדמים', 'קשרים ברשת, קומות היער וטכנולוגיה')}
         ${torahQuiz ? ch('level', 'torah', IC_SCROLL, 'מן המקורות', 'פסוקים, מדרשים ופרק שירה') : ''}
       </div></div>
-      ${QS.level === 'torah' ? '' : `<div class="wl-step"><h3>2. בחרו מקום</h3><div class="wl-choices wl-places" style="--n:4">
+      ${QS.level === 'torah' ? '' : `<div class="wl-step"><h3>2. בחרו מקום</h3><div class="wl-choices wl-places" style="--n:${newZones.length ? 3 : 4}">
         ${ch('biome', 'amazon', CARD_ART.toucan ? `<img class="paint" src="${CARD_ART.toucan}" alt="" style="transform-origin:58% 36%">` : `<img src="${th('amazon', 'toucan')}" alt="">`, 'אמזונס', 'יער הגשם')}
         ${ch('biome', 'grove', CARD_ART.gazelle ? `<img class="paint" src="${CARD_ART.gazelle}" alt="" style="transform-origin:52% 32%">` : `<img src="${th('grove', 'jay')}" alt="">`, 'חורש', 'החורש הארץ-ישראלי')}
         ${ch('biome', 'reef', CARD_ART.clownfish ? `<img class="paint" src="${CARD_ART.clownfish}" alt="" style="transform-origin:50% 45%">` : IC.drop, 'שונית', 'שונית האלמוגים')}
+        ${newZones.map(([z, art, t, sub]) => ch('biome', z, CARD_ART[art] ? `<img class="paint" src="${CARD_ART[art]}" alt="">` : IC.globe, t, sub)).join('')}
         ${ch('biome', 'both', IC.globe, 'הכול', 'כל המקומות')}
       </div></div>`}
       <button class="wl-btn go" data-wl="start">יוצאים לדרך! ${IC.next}</button>

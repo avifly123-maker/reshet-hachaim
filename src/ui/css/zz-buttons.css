@@ -3,12 +3,12 @@
    colour with white letters and a pressed edge underneath. What each colour means, everywhere:
      green  = go, do it, start          blue  = an ordinary action, open
      orange = back, home, out, a prize   pink  = something fun or a surprise        purple = help, explain */
-:root {
-  --bt-green: linear-gradient(180deg, #5ccf82, #2a9a52); --bt-green-e: #1d6a38;
-  --bt-blue: linear-gradient(180deg, #5cb0f2, #2a74c8); --bt-blue-e: #1a4a8a;
-  --bt-orange: linear-gradient(180deg, #ffb45a, #ec7a1a); --bt-orange-e: #9a4e0a;
-  --bt-pink: linear-gradient(180deg, #f888b4, #d8487a); --bt-pink-e: #8a2650;
-  --bt-purple: linear-gradient(180deg, #b49af4, #7a58d0); --bt-purple-e: #4a2f8a;
+:root {   /* deep enough under the white letters (with their shadow) to read easily, still bright (6.11 final check) */
+  --bt-green: linear-gradient(180deg, #45c272, #1f8a45); --bt-green-e: #165f31;
+  --bt-blue: linear-gradient(180deg, #4aa3ee, #1f66b8); --bt-blue-e: #163f7a;
+  --bt-orange: linear-gradient(180deg, #fa9e3c, #d9660f); --bt-orange-e: #8a4208;
+  --bt-pink: linear-gradient(180deg, #f070a2, #c63a6c); --bt-pink-e: #7e2148;
+  --bt-purple: linear-gradient(180deg, #a88cf0, #6a48c0); --bt-purple-e: #42287e;
 }
 /* the shape every coloured button shares */
 #ui.wol :is(.lb-btn, .ls-go, .lt-go, .lt-back, .lb-back, .lb-home, .ls-back, .lb-exit, .ws-back, .ws-room-btn, .wt-back, .wb-go, .wp-go, .wo-go, .wp-fairbtn, .rl-back, .rl-go, .st-go:not(.jv), .rs-go),
