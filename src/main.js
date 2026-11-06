@@ -392,11 +392,11 @@ async function boot() {
   bus.on('music:toggle', ({ on }) => { music.setEnabled(on); ui.setToggles({ music: music.enabled }); });
   // which piece the screen on top would like: none in a forest, the learning hub, its games or the mysteries' centre
   const musicWanted = () => {
+    if (robolab && robolab.isOpen() && !loading) return 'lab';   // the robot lab shares the lab's music, in its lessons on the islands too (Avi, 6.11)
     if (game || loading) return null;
     if (hub && hub.isOpen()) return null;
     if ((lab && lab.isOpen()) || labOpening) return 'lab';
-    if (robolab && robolab.isOpen()) return 'lab';   // the robot lab shares the lab's music
-    if (workshop && workshop.isOpen()) return 'lab';
+    if (workshop && workshop.isOpen()) return 'workshop';   // ניצוץ's own light waltz (tools/music/compose.py)
     if (researchHub.isOpen()) return null;
     return ui.isStartShown() ? 'start' : null;
   };
@@ -516,7 +516,7 @@ async function boot() {
     const ts = window.__timeScale || 1;   // test hook (headless runs are slow)
     const dt = Math.min(clock.getDelta() * ts, 0.1 * ts);
     window.__frames = (window.__frames || 0) + 1;
-    const mw = musicWanted(); music.want(mw); ui.setMusicPlace(mw);
+    const mw = musicWanted(); music.want(mw); ui.setMusicPlace(game ? null : mw);   // no corner button over a robot lesson on an island
     t += dt;
     if (lab && lab.isOpen()) { if (!(hub && hub.isOpen())) { lab.update(dt); pipe.render(dt); } startDrawn = false; }   // the learning hub covers the lab: no need to draw the room under it
     else if (game && robolab && robolab.coversGame()) { /* the robot lab's home covers a kept lesson island: nothing to update or draw */ }

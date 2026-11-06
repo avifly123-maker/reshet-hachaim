@@ -1,4 +1,5 @@
-// Background music: one soft piece on the start screen, another in the lab of רובו־דע; none in the forests (they have
+// Background music: one soft piece on the start screen, another in the lab of רובו־דע and the robot lab (its lessons
+// too), a waltz in ניצוץ's workshop; none in the forests (they have
 // their own sounds), the learning hub, the card games or the mysteries (Avi, 19.10).
 //
 //   const music = createMusic(audio);

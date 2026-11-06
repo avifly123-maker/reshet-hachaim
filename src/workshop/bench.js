@@ -144,7 +144,7 @@ export function createBench(ctx) {
       if (stage) { stage.spin(false); await stage.play(t, pass); }
       last[t] = sc[t]; lastT = t; results.push({ id: t, score: sc[t], pass });
       verdict = pass ? `<b class="ok">${W('עבר!', 'עָבַר!')}</b>` : `<b class="no">${esc(kids() ? T0.failK : T0.failF)}</b>`;
-      ctx.sfx(pass ? 'good' : 'pop'); ctx.act(pass ? 'cheer' : (Math.random() < 0.4 ? 'fuse' : 'excited'));
+      ctx.sfx(pass ? 'wsPass' : 'wsFail'); ctx.act(pass ? 'cheer' : (Math.random() < 0.4 ? 'fuse' : 'excited'));
       repaintTest();
       await new Promise((r) => setTimeout(r, 650));
       if (stage) stage.show(proto);

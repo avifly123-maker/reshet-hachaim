@@ -458,3 +458,41 @@ body:has(#rguide .rg-wrap.kubi) .rl-say .rl-kubi { visibility: hidden; }
 #ui.wol .rl-gchip.wk-preset > span { font-family: var(--serif); font-size: 1.08em; font-weight: 400; }
 #ui.wol .wk-rob > button:first-child { display: grid; grid-template-columns: 44px 1fr; grid-template-rows: auto auto; column-gap: 8px; align-items: center; }
 #ui.wol .wk-robpic { grid-row: 1 / 3; width: 44px; height: 44px; object-fit: contain; }
+
+/* ===================================================== 6.11 (Avi): the home is two big picture doors; the lessons have their own screen */
+#ui.wol .rl-heroes { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 4px 0 14px; }
+#ui.wol .rl-heroes .rl-wkhero { margin: 0; aspect-ratio: 16 / 8.2; border-radius: 20px; box-shadow: 0 0 0 3px rgba(255, 214, 106, .55), 0 10px 26px rgba(0, 0, 0, .4); transition: transform .25s, box-shadow .25s; }
+#ui.wol .rl-heroes .rl-wkhero:not(.locked):hover { transform: translateY(-3px); box-shadow: 0 0 0 4px #ffd66a, 0 14px 32px rgba(0, 0, 0, .45); }
+#ui.wol .rl-heroes .rl-wkhero.locked { aspect-ratio: 16 / 8.2; margin-top: 0; }
+#ui.wol .rl-heroes .rl-wkt { inset-inline: 0; border-radius: 0; padding: 12px 18px 14px; background: linear-gradient(0deg, rgba(8, 20, 34, .92), rgba(8, 20, 34, .55) 70%, transparent); }
+#ui.wol .rl-heroes .rl-wkhero b { font-family: var(--serif); font-size: 1.55em; color: #ffd66a; text-shadow: 0 2px 6px rgba(0, 0, 0, .6); }
+#ui.wol .rl-heroes .rl-wkhero small { font-size: .95em; }
+#ui.wol .rl-codehero .rl-prog { position: relative; width: min(220px, 60%); height: 8px; margin-top: 6px; border-radius: 4px; background: rgba(255, 255, 255, .2); overflow: hidden; }
+#ui.wol .rl-codehero .rl-prog i { position: absolute; inset-block: 0; inset-inline-start: 0; border-radius: 4px; background: linear-gradient(90deg, #7fe0a0, #ffd66a); }
+#ui.wol .rl-codehero em { position: absolute; inset-inline-end: 16px; bottom: 14px; font-style: normal; font-weight: 800; font-size: 1.1em; color: #ffd66a; }
+#ui.wol .rl-more { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+#ui.wol .rl-more > .rl-sec { margin: 0; padding: 10px 14px 12px; border-radius: 18px; background: rgba(255, 255, 255, .05); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08); }
+#ui.wol .rl-more > .rl-sec:only-child { grid-column: 1 / -1; }
+/* the lessons screen */
+#ui.wol .rl-codeview { display: flex; flex-direction: column; gap: 12px; }
+#ui.wol .rl-cvh { position: relative; display: flex; align-items: center; gap: 14px; height: 92px; padding: 0 18px; border-radius: 20px; overflow: hidden; background: #14263a; box-shadow: 0 0 0 3px rgba(255, 214, 106, .45); }
+#ui.wol .rl-cvh img { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%; filter: brightness(.55) saturate(1.1); }
+#ui.wol .rl-cvh h2 { position: relative; z-index: 1; margin: 0; font-family: var(--serif); font-size: 1.9em; color: #ffd66a; text-shadow: 0 2px 8px rgba(0, 0, 0, .7); }
+#ui.wol .rl-cvback { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 18px; border: 0; border-radius: 24px; font: inherit; font-weight: 800; color: #1b2a12; background: linear-gradient(#ffe08a, #f2b84a); box-shadow: 0 3px 0 #b77d1d, 0 6px 14px rgba(0, 0, 0, .35); cursor: pointer; }
+#ui.wol .rl-cvback svg { width: 1.2em; height: 1.2em; }
+#ui.wol .rl-chgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; padding: 0; }
+#ui.wol .rl-chgrid .rl-ch { margin: 0; padding: 12px 14px; border-radius: 18px; background: linear-gradient(160deg, color-mix(in srgb, var(--cc) 30%, #16283c), #14263a 70%); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--cc) 60%, transparent), 0 6px 16px rgba(0, 0, 0, .3); }
+#ui.wol .rl-chgrid .rl-chh > b { width: 46px; height: 46px; font-size: 1.4em; border-radius: 14px; }
+#ui.wol .rl-chgrid .rl-chh strong { font-size: 1.12em; }
+#ui.wol .rl-chgrid .rl-chn { margin-inline-start: auto; align-self: flex-start; font-style: normal; font-weight: 800; color: #ffd66a; }
+#ui.wol .rl-chgrid .rl-lv { gap: 8px; }
+#ui.wol .rl-chgrid .rl-lvb { min-width: 58px; min-height: 58px; border-radius: 16px; font-size: 1.15em; }
+#ui.wol .rl-chgrid .rl-lvb:disabled b svg { width: .9em; height: .9em; opacity: .7; }
+@media (max-width: 860px), (max-height: 520px) {
+  #ui.wol .rl-heroes, #ui.wol .rl-more { gap: 10px; }
+  #ui.wol .rl-heroes .rl-wkhero b { font-size: 1.2em; }
+  #ui.wol .rl-heroes .rl-wkhero small { display: none; }
+  #ui.wol .rl-cvh { height: 66px; } #ui.wol .rl-cvh h2 { font-size: 1.4em; }
+  #ui.wol .rl-chgrid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+  #ui.wol .rl-chgrid .rl-lvb { min-width: 48px; min-height: 48px; }
+}

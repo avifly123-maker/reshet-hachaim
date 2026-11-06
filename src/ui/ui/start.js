@@ -21,6 +21,7 @@ import { esc } from './helpers.js';
 import { icon } from './icons.js';
 import { svcGuide } from '../../core/services.js';
 import { openChat } from '../robo-chat.js';
+import { bindCarousel } from '../carousel.js';
 
 export function createStart(ctx) {
   const { root, emit, S, toolbar, startEl } = ctx;
@@ -37,11 +38,11 @@ export function createStart(ctx) {
     startEl.innerHTML = `<div class="st-bg">${canopySVG('top')}${canopySVG('bottom')}<i class="st-shaft s1"></i><i class="st-shaft s2"></i><i class="st-tint"></i></div>
       ${S.logo ? `<div class="st-logo"><img src="${S.logo}" alt="בבא דע"></div>` : ''}
       <div class="st-corner"><div class="st-corner-row"><button class="st-who" aria-haspopup="dialog" aria-expanded="false" hidden></button>
-        <button class="st-time" aria-haspopup="dialog" hidden>${icon('hourglass')}<b></b></button>
-        <button class="st-week" aria-haspopup="dialog" hidden><span class="st-wkic">${hubIcon('week')}</span><b></b><i class="st-wkdot" aria-hidden="true"></i></button>
         <button class="st-gear" aria-haspopup="dialog" aria-label="הגדרות" title="הגדרות">${icon('gear')}</button>
         <button class="st-gear st-chat" aria-label="לדבר עם רובו־דע" title="לדבר עם רובו־דע">${icon('chat')}</button></div>
-        <button class="st-jbar" data-part="journey" aria-haspopup="dialog"></button></div>
+        <button class="st-jbar" data-part="journey" aria-haspopup="dialog"></button>
+        <div class="st-corner-row st-row2"><button class="st-week" aria-haspopup="dialog" hidden><span class="st-wkic">${hubIcon('week')}</span><b></b><i class="st-wkdot" aria-hidden="true"></i></button>
+        <button class="st-time" aria-haspopup="dialog" hidden>${icon('hourglass')}<b></b></button></div></div>
       <div class="st-pp-layer" hidden><div class="st-pp-scrim"></div><div class="st-pp paper" role="dialog" aria-modal="true" aria-label="מי משחק?"></div></div>
       <div class="st-inner v13">
       <header class="st-head"><div class="st-seal">${waxSeal(124)}</div>
@@ -68,7 +69,8 @@ export function createStart(ctx) {
         <div class="st-dots">${biomes.map((b, i) => `<button data-dot="${i}" aria-label="${esc(b.name)}"></button>`).join('')}</div>
       </section>
       <section class="st-pane" data-pane="sci">
-        <div class="st-big2">
+        <div class="st-cw"><button type="button" class="st-carb prev" data-carb="-1" aria-label="הקודם">${icon('arrowR')}</button>
+        <div class="st-big2 st-carrow">
           <button class="st-panel" data-research="1" data-part="research"><span class="st-pimg rs">${biomes.slice(0, 5).map((b) => `<img src="${isl(b.id)}" alt="" draggable="false">`).join('')}<i class="st-lens">${icon('search')}</i><i class="jv-curtain" aria-hidden="true"></i></span>
             <span class="st-ptext"><b>חוקרי הטבע</b><small>תעלומות בטבע: מודדים, משערים, מנסים ומאזנים. שלוש רמות, מחמש הסביבות.</small><em>${icon('arrowL')}לתעלומות</em><em class="jv-note"></em></span></button>
           <button class="st-panel" data-lab="1" data-part="lab"><span class="st-pimg lab">${ISLAND_ART.lab ? `<img src="${ISLAND_ART.lab}" alt="" draggable="false">` : ''}<i class="jv-curtain" aria-hidden="true"></i></span>
@@ -77,22 +79,26 @@ export function createStart(ctx) {
             <span class="st-ptext"><b>מעבדת הרובוטים</b><small>מתכננים, בונים ומפעילים: רובוט, רחפן ורובוט צולל בתוך הסביבות. שיעורים, חידות ותגים.</small><em>${icon('arrowL')}למעבדת הרובוטים</em><em class="jv-note"></em></span></button>
           <button class="st-panel" data-workshop="1" data-part="workshop"><span class="st-pimg nzw" aria-hidden="true">${NITZOTZ_ART.frames && NITZOTZ_ART.frames.wave ? `<img src="${NITZOTZ_ART.frames.wave}" alt="" draggable="false">` : ''}<i class="jv-curtain" aria-hidden="true"></i></span>
             <span class="st-ptext"><b>הסדנה של ניצוץ</b><small>מכונת רעיונות, מערבל הטבע וקלפי אילוץ. חושבים כמו ממציאים, וניצוץ מאיר יותר ויותר.</small><em>${icon('arrowL')}לסדנה</em><em class="jv-note"></em></span></button>
-        </div>
+        </div><button type="button" class="st-carb next" data-carb="1" aria-label="הבא">${icon('arrowL')}</button></div>
       </section>
       <section class="st-pane" data-pane="learn">
-        <div class="st-learnwrap">
-          <div class="st-fan">${fan.map((src, i) => `<img src="${src}" alt="" draggable="false" style="--k:${i - (fan.length - 1) / 2}">`).join('')}</div>
-          <div class="st-lgrid">
+        <div class="st-learn2">
+          <div class="st-lbig2">
+            <button class="st-lbig alb" data-learn="album" data-part="album"><span class="st-lbpic st-fan">${fan.map((src, i) => `<img src="${src}" alt="" draggable="false" style="--k:${i - (fan.length - 1) / 2}">`).join('')}</span>
+              <span class="st-lbt"><b>אלבום הקלפים</b><small>חבילות, סדרות ואוסף</small><small class="jv-note"></small></span></button>
+            <button class="st-lbig bdg" data-learn="badges" data-part="badges"><span class="st-lbpic st-medals">${CARD_ART['owl'] ? `<i class="st-medal"><img src="${CARD_ART['owl']}" alt="" draggable="false"></i>` : ''}${CARD_ART['toucan'] ? `<i class="st-medal"><img src="${CARD_ART['toucan']}" alt="" draggable="false"></i>` : ''}${CARD_ART['turtle'] ? `<i class="st-medal"><img src="${CARD_ART['turtle']}" alt="" draggable="false"></i>` : ''}</span>
+              <span class="st-lbt"><b>התגים שלי</b><small>תגים נדירים ומסגרות לקלפים</small><small class="jv-note"></small></span></button>
+          </div>
+          <div class="st-cw"><button type="button" class="st-carb prev" data-carb="-1" aria-label="הקודם">${icon('arrowR')}</button>
+          <div class="st-lgrid st-carrow">
             <button data-learn="home" data-part="learn">${tileIcon('learn', 'st-lic')}<span><b>מרכז הלמידה</b><small>כל המשחקים במקום אחד</small><small class="jv-note"></small></span></button>
-            <button data-learn="setup" data-part="quiz">${tileIcon('quiz', 'st-lic')}<span><b>חידון</b><small>שאלות על היער והשונית</small><small class="jv-note"></small></span></button>
-            <button data-learn="album" data-part="album">${tileIcon('album', 'st-lic')}<span><b>אלבום הקלפים</b><small>חבילות, סדרות ואוסף</small><small class="jv-note"></small></span></button>
+            <button data-learn="setup" data-part="quiz">${tileIcon('quiz', 'st-lic')}<span><b>חידון</b><small>שאלות על כל הסביבות</small><small class="jv-note"></small></span></button>
             <button data-learn="duel" data-part="duel">${tileIcon('strong', 'st-lic')}<span><b>מי חזק ברשת?</b><small>קלף מול קלף</small><small class="jv-note"></small></span></button>
             <button data-learn="keepforest" data-part="keepforest">${tileIcon('keep', 'st-lic')}<span><b>מחזיקים את הסביבה</b><small>משחק קלפים ואירועים</small><small class="jv-note"></small></span></button>
             <button data-learn="webpuzzle" data-part="webpuzzle">${tileIcon('thread', 'st-lic')}<span><b>חוט הקשר</b><small>מחברים את הרשת</small><small class="jv-note"></small></span></button>
             <button data-learn="inventors" data-part="inventors">${tileIcon('invent', 'st-lic')}<span><b>הממציאים</b><small>פותרים בעיות בעזרת הטבע</small><small class="jv-note"></small></span></button>
             <button data-learn="expedition" data-part="expedition">${tileIcon('dive', 'st-lic')}<span><b>משלחת לעומק</b><small>צוללים עם הקלפים לשונית</small><small class="jv-note"></small></span></button>
-            <button data-learn="badges" data-part="badges">${tileIcon('medal', 'st-lic')}<span><b>התגים שלי</b><small>תגים ומסגרות לקלפים</small><small class="jv-note"></small></span></button>
-          </div>
+          </div><button type="button" class="st-carb next" data-carb="1" aria-label="הבא">${icon('arrowL')}</button></div>
         </div>
       </section>
       </div>`;
@@ -125,6 +131,7 @@ export function createStart(ctx) {
     rsBtn.addEventListener('click', gate(rsBtn, () => emit('ui:research')));
     labBtn.addEventListener('click', gate(labBtn, () => emit('ui:lab')));
     const rlBtn = startEl.querySelector('[data-robolab]'); if (rlBtn) rlBtn.addEventListener('click', gate(rlBtn, () => emit('ui:robolab')));
+    startEl.querySelectorAll('.st-cw').forEach((car) => bindCarousel(car, car.querySelector('.st-carrow'), { onArrow: () => emit('ui:click') }));
     const wsBtn = startEl.querySelector('[data-workshop]'); if (wsBtn) wsBtn.addEventListener('click', gate(wsBtn, () => emit('ui:workshop')));
     // tabs
     const paintTab = () => {

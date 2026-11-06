@@ -350,3 +350,7 @@
   #ui.wol .jm-part .jm-dot { flex: none; width: 8px; height: 8px; }
   #ui.wol .jm-part span { overflow-wrap: normal; word-break: normal; }
 }
+/* 6.11 (Avi): the player chip and the weekly chip each have their own place: the week and the play time sit under the journey bar */
+#ui.wol .st-corner .st-who { flex: 0 1 auto; overflow: hidden; }
+#ui.wol .st-corner .st-row2 { gap: 8px; }
+#ui.wol .st-corner .st-row2:not(:has(> :not([hidden]))) { display: none; }

@@ -1383,3 +1383,44 @@
 #ui.wol .wkv-film .film-front { width: 100%; height: 100%; object-fit: cover; display: block; }
 /* nothing over a playing film (Avi, 6.11): רובו־דע's bubbles wait under it until the loading screen goes */
 #ui.wol:has(.loading.on.has-film) #rguide { visibility: hidden; }
+
+/* ===================================================== 6.11 (Avi): carousels on the start screen
+   the science centre's four places in one row (arrows when they do not fit), the learning centre's two big doors
+   (album, badges) over a row of the other games */
+#ui.wol .st-cw { position: relative; width: 100%; }
+#ui.wol .st-carrow { display: grid; grid-auto-flow: column; grid-template-columns: none; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: none; scroll-behavior: smooth; padding: 6px 4px 10px; }
+#ui.wol .st-carrow::-webkit-scrollbar { display: none; }
+#ui.wol .st-carrow > * { scroll-snap-align: start; }
+#ui.wol .st-big2.st-carrow { grid-auto-columns: calc((100% - 3 * clamp(14px, 2vw, 24px)) / 4); gap: clamp(14px, 2vw, 24px); }
+@media (max-width: 1100px) { #ui.wol .st-big2.st-carrow { grid-auto-columns: calc((100% - 2 * 14px) / 3); gap: 14px; } }
+@media (max-width: 760px) { #ui.wol .st-big2.st-carrow { grid-auto-columns: calc((100% - 14px) / 2); } }
+#ui.wol .st-carb { position: absolute; top: 50%; z-index: 4; display: grid; place-items: center; width: 52px; height: 52px; margin-top: -26px; border: 0; border-radius: 50%; cursor: pointer;
+  color: #3a2408; background: radial-gradient(circle at 35% 30%, #ffe9a6, #f0b33c 70%); box-shadow: 0 3px 0 #a86f15, 0 8px 18px rgba(0, 0, 0, .45); transition: transform .15s, opacity .2s; }
+#ui.wol .st-carb:hover { transform: scale(1.08); }
+#ui.wol .st-carb .ic { width: 26px; height: 26px; }
+#ui.wol .st-carb.prev { right: -14px; } #ui.wol .st-carb.next { left: -14px; }
+#ui.wol .st-cw.at0 .st-carb.prev, #ui.wol .st-cw.atEnd .st-carb.next, #ui.wol .st-cw.fits .st-carb { opacity: 0; pointer-events: none; }
+/* the learning centre */
+#ui.wol .st-learn2 { display: flex; flex-direction: column; gap: clamp(10px, 2vh, 18px); width: 100%; }
+#ui.wol .st-lbig2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(12px, 2vw, 24px); }
+#ui.wol .st-lbig { position: relative; width: 100%; max-width: none; justify-self: stretch; display: flex; align-items: center; gap: 14px; min-height: clamp(120px, 24vh, 190px); padding: 14px 22px; border: 0; border-radius: 20px; cursor: pointer; text-align: right; color: var(--chalk); overflow: hidden;
+  background: linear-gradient(140deg, #6a4420, #3a2410 70%); box-shadow: 0 0 0 3px rgba(255, 214, 106, .5), 0 10px 24px rgba(0, 0, 0, .4); transition: transform .2s, box-shadow .2s; }
+#ui.wol .st-lbig.bdg { background: linear-gradient(140deg, #2c4f6a, #182d40 70%); }
+#ui.wol .st-lbig:hover { transform: translateY(-3px); box-shadow: 0 0 0 4px #ffd66a, 0 14px 30px rgba(0, 0, 0, .45); }
+#ui.wol .st-lbig .st-lbt { min-width: 0; flex: 1; } #ui.wol .st-lbig .st-lbt b { display: block; font-family: var(--serif); font-size: 1.6em; color: #ffd66a; }
+#ui.wol .st-lbig .st-lbt small { display: block; font-size: .95em; color: #e6dcc6; }
+#ui.wol .st-lbpic { position: relative; flex: 0 0 44%; height: 100%; min-height: inherit; }
+#ui.wol .st-lbig .st-fan { display: block; position: relative; height: clamp(100px, 20vh, 160px); width: 46%; }
+#ui.wol .st-lbig .st-fan img { width: 42%; }
+#ui.wol .st-medals { display: flex; align-items: center; justify-content: center; gap: 0; }
+#ui.wol .st-medal { display: block; width: clamp(56px, 10vh, 92px); aspect-ratio: 1; margin-inline: -8px; border-radius: 50%; overflow: hidden; background: #f4d88a;
+  box-shadow: 0 0 0 4px #e8b941, 0 0 0 7px #8a5a14, 0 6px 14px rgba(0, 0, 0, .45); }
+#ui.wol .st-medal:nth-child(2) { transform: translateY(-10px) scale(1.15); z-index: 1; }
+#ui.wol .st-medal img { width: 100%; height: 100%; object-fit: cover; }
+#ui.wol .st-lgrid.st-carrow { grid-auto-columns: calc((100% - 3 * 12px) / 4); gap: 12px; }
+@media (max-width: 1000px) { #ui.wol .st-lgrid.st-carrow { grid-auto-columns: calc((100% - 2 * 10px) / 3); gap: 10px; } }
+#ui.wol .st-lgrid.st-carrow button { min-height: 76px; }
+@media (max-height: 520px) { #ui.wol .st-lbig { min-height: 96px; padding: 8px 14px; } #ui.wol .st-lbig .st-lbt b { font-size: 1.25em; } #ui.wol .st-lbig .st-fan { height: 84px; } #ui.wol .st-medal { width: 50px; } #ui.wol .st-lgrid.st-carrow button { min-height: 60px; } }
+#ui.wol .st-learn2, #ui.wol .st-cw, #ui.wol .st-carrow { min-width: 0; max-width: 100%; }
+#ui.wol .st-pane[data-pane=learn], #ui.wol .st-pane[data-pane=sci] { min-width: 0; max-width: 100%; }
+#ui.wol .st-cw { width: 100%; contain: inline-size; }   /* (a row of columns would otherwise widen the whole start screen) */

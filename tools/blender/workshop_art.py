@@ -312,6 +312,46 @@ def thing(id_):
     if id_ == 'ball':
         sphere('ball', 0.28, (0, 0, 0.28), stripes(['#f5f1e8', '#e0443a', '#f5f1e8', '#3f7fd0', '#f5f1e8', '#f2c443'], 'beach'), seg=48)
         return 0.42
+    # 6.11 (Avi: "more things on the shelf"): six more, in the same warm palette
+    if id_ == 'hat':   # a straw sun hat with a wide wavy brim and a red band
+        S_ = noisy('#e8c27a', '#d2a456', 140, 'straw')
+        lathe('brim', [(0, 0.06), (0.16, 0.06), (0.36, 0.035), (0.44, 0.0), (0.445, 0.015), (0.36, 0.055), (0.16, 0.08), (0, 0.08)], (0, 0, 0), S_)
+        lathe('crown', [(0, 0.06), (0.17, 0.06), (0.175, 0.2), (0.15, 0.27), (0.08, 0.3), (0, 0.305)], (0, 0, 0), S_)
+        lathe('band', [(0.172, 0.07), (0.182, 0.07), (0.18, 0.13), (0.17, 0.13)], (0, 0, 0), enamel('#d8402f', 'hatband'))
+        return 0.42
+    if id_ == 'cup':   # a round blue mug with cocoa inside and a ring handle
+        lathe('mug', [(0, 0), (0.15, 0), (0.17, 0.03), (0.175, 0.34), (0.16, 0.34), (0.155, 0.04), (0, 0.04)], (0, 0, 0), enamel('#3f7fd0', 'mug'))
+        cyl('cocoa', 0.156, 0.01, (0, 0, 0.29), pbsdf('cocoa', hexc('#6a3a1e'), rough=0.2), bevel=0)
+        torus('mhandle', 0.085, 0.024, (0.19, 0, 0.18), enamel('#3f7fd0', 'mug'), (math.pi / 2, 0.62 * math.pi, 0), arc=0.62)
+        sphere('dot1', 0.03, (0.07, -0.16, 0.22), enamel('#f5f1e8', 'mugdot'), (1, 0.3, 1)); sphere('dot2', 0.022, (-0.06, -0.165, 0.12), enamel('#f5f1e8', 'mugdot'), (1, 0.3, 1))
+        return 0.42
+    if id_ == 'torch':   # a flashlight lying on its side, its lens lit
+        R_ = enamel('#e0443a', 'torch'); Z = 0.125
+        cyl('tbody', 0.07, 0.42, (0, 0.05, Z), R_, (math.pi / 2, 0, 0), bevel=0.01)
+        lathe('thead', [(0, 0), (0.075, 0), (0.12, 0.13), (0.125, 0.15), (0, 0.15)], (0, -0.16, Z), STEEL()).rotation_euler = (math.pi / 2, 0, 0)
+        cyl('lens', 0.112, 0.012, (0, -0.315, Z), pbsdf('lens', (1, 0.9, 0.55), emit=(1, 0.85, 0.4), estr=2.2), (math.pi / 2, 0, 0), bevel=0)
+        box('tbtn', (0.05, 0.06, 0.03), (0, 0.0, Z + 0.075), enamel('#f2c443', 'tbtn'), 0.012)
+        for i in range(4): torus(f'grip{i}', 0.072, 0.006, (0, 0.1 + i * 0.04, Z), DARK(), (math.pi / 2, 0, 0))
+        return 0.4
+    if id_ == 'box':   # a cardboard box with its four flaps open
+        C_ = noisy('#c99a5a', '#b88848', 90, 'card')
+        box('cbox', (0.42, 0.34, 0.3), (0, 0, 0.15), C_, 0.012)
+        box('tape', (0.06, 0.345, 0.31), (0, 0, 0.15), pbsdf('tape', hexc('#e8d4a8'), rough=0.3), 0.004)
+        for s in (-1, 1):
+            box(f'fx{s}', (0.42, 0.012, 0.16), (0, s * 0.216, 0.366), C_, 0.004, (math.radians(-s * 35), 0, 0))
+            box(f'fy{s}', (0.012, 0.32, 0.14), (s * 0.253, 0, 0.36), C_, 0.004, (0, math.radians(s * 32), 0))
+        return 0.42
+    if id_ == 'broom':   # a wooden broom standing, a wide tied straw head with a red band
+        cyl('stick', 0.03, 0.75, (0, 0, 0.66), wood('#a8682e', 'stickw'), bevel=0.006)
+        sphere('knob', 0.04, (0, 0, 1.04), enamel('#d8402f', 'tie'))
+        lathe('bristle', [(0, 0), (0.3, 0), (0.27, 0.1), (0.15, 0.26), (0.06, 0.32), (0, 0.33)], (0, 0, 0), noisy('#e2b45a', '#b8862e', 260, 'bristle')).scale = (1, 0.42, 1)
+        torus('tie', 0.1, 0.022, (0, 0, 0.22), enamel('#d8402f', 'tie')).scale = (1, 0.5, 1)
+        return 0.55
+    if id_ == 'tyre':   # an old tyre standing on its edge, a white ring on its side and a round hole
+        RB = pbsdf('rubber', hexc('#34302c'), rough=0.8)
+        o = torus('tyre', 0.24, 0.1, (0, 0, 0.34), RB, (math.pi / 2, 0, 0.35), seg=64); o.scale = (1, 1, 0.8)
+        torus('wall', 0.235, 0.012, (0.027, -0.075, 0.34), pbsdf('wwall', hexc('#f2efe6'), rough=0.5), (math.pi / 2, 0, 0.35))
+        return 0.45
     return 0.5
 
 # ── the build table's pieces, the six test stations and the world's clients (small icons, fitted to the frame)
@@ -638,7 +678,7 @@ def _m():
 def _ml():
     P = idea_machine(with_lever=False, lever_only=True); studio((0.05, 0, 0.92), (1.7, -4.0, 1.8), 46)
     return P
-for _id in ('umbrella', 'chair', 'bottle', 'shoe', 'bucket', 'bag', 'ladder', 'pillow', 'spoon', 'ball'):
+for _id in ('umbrella', 'chair', 'bottle', 'shoe', 'bucket', 'bag', 'ladder', 'pillow', 'spoon', 'ball', 'hat', 'cup', 'torch', 'box', 'broom', 'tyre'):
     def _mk(i=_id):
         def f():
             thing(i); bpy.context.view_layer.update()

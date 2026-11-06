@@ -434,3 +434,121 @@
 #ui.wol .wr3-edgeb { pointer-events: auto; display: flex; align-items: center; gap: 4px; padding: 4px 10px; border: 0; border-radius: 12px; background: rgba(255, 246, 225, .9); color: #6a3e1c !important; font-family: var(--serif); font-size: .85em; box-shadow: 0 3px 0 rgba(40, 20, 6, .4); }
 #ui.wol .wr3-edgeb { position: absolute; bottom: 0; direction: rtl; } #ui.wol .wr3-edgeb.l { left: 0; } #ui.wol .wr3-edgeb.r { right: 0; }
 #ui.wol .wr3-edgeb .ic { width: 16px; height: 16px; }
+/* ── 6.11 (Avi: "clear, big, pretty; no lists"): the inventor's path in the top bar, a narrower side, the idea machine's
+   shelf as a carousel of big turning things, big lever buttons with pictures, bigger order notes and test stations */
+#ui.wol .ws-path { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 10px; }
+#ui.wol .wp-grp { display: flex; align-items: center; gap: 3px; padding: 2px 6px; border-radius: 14px; background: rgba(0, 0, 0, .22); box-shadow: inset 0 0 0 1px rgba(255, 210, 140, .25); }
+#ui.wol .wp-grp em { font-style: normal; font-size: .72em; color: #f0cfa0; margin-inline-end: 2px; white-space: nowrap; }
+#ui.wol .wp-c { position: relative; display: flex; align-items: center; gap: 4px; height: 38px; padding: 0 4px; border: 0; border-radius: 12px; background: none; color: #fff3da !important; transition: background .2s, transform .2s; }
+#ui.wol .wp-c .wsa { width: 34px; height: 34px; object-fit: contain; filter: drop-shadow(0 2px 0 rgba(0, 0, 0, .35)); transition: transform .2s; }
+#ui.wol .wp-c:hover .wsa { transform: translateY(-2px) scale(1.08); }
+#ui.wol .wp-c b { position: absolute; top: -3px; inset-inline-start: -2px; display: grid; place-items: center; width: 17px; height: 17px; border-radius: 50%; background: #ffd24a; color: #3a2108; font-size: .7em; box-shadow: 0 1px 0 #8a5418; }
+#ui.wol .wp-c span { display: none; font-family: var(--serif); font-size: .92em; white-space: nowrap; }
+#ui.wol .wp-c.on { padding-inline-end: 10px; background: linear-gradient(#ffc04a, #e8952a); color: #3a2108 !important; box-shadow: 0 2px 0 #8a5418; }
+#ui.wol .wp-c.on span { display: inline; }
+#ui.wol .wp-c.next::after { content: ''; position: absolute; inset: 2px; border-radius: 12px; box-shadow: 0 0 0 2px #ffd24a, 0 0 12px #ffc040; animation: ws-pulse 1.4s ease-in-out infinite; pointer-events: none; }
+#ui.wol .wp-ar { width: 0; height: 0; border-block: 6px solid transparent; border-inline-start: 8px solid #ffd24a; opacity: .75; }
+#ui.wol .wp-help { display: flex; align-items: center; gap: 5px; height: 34px; padding: 0 10px 0 4px; border: 0; border-radius: 17px; background: rgba(255, 240, 210, .16); color: #fff3da !important; font-size: .82em; white-space: nowrap; }
+#ui.wol .wp-help b { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: #ffd24a; color: #3a2108; font-size: 1.15em; box-shadow: 0 2px 0 #8a5418; }
+#ui.wol .ws-title p { white-space: nowrap; }
+@media (max-width: 1100px) { #ui.wol .ws-title p, #ui.wol .wp-help span, #ui.wol .wp-grp em { display: none; } #ui.wol .wp-help { padding: 0 4px; } }
+@media (max-width: 860px) { #ui.wol .ws-title { display: none; } #ui.wol .ws-path { gap: 5px; } #ui.wol .wp-c .wsa { width: 30px; height: 30px; } #ui.wol .wp-c.on span { font-size: .82em; } }
+/* a narrower side: the main work gets the room */
+#ui.wol .ws-body { grid-template-columns: minmax(150px, 18%) 1fr; }
+/* the shelf: a carousel of things on round pedestals; the chosen one turns slowly */
+#ui.wol .wm { grid-template-rows: auto minmax(0, 1fr) auto auto; grid-template-columns: minmax(0, 1fr); }
+#ui.wol .wm-car, #ui.wol .wm-stage, #ui.wol .wm-levers { min-width: 0; }
+#ui.wol .wm-car { position: relative; display: flex; align-items: center; gap: 6px; }
+#ui.wol .wm-car .wm-things { flex: 1; min-width: 0; display: grid; grid-auto-flow: column; grid-auto-columns: 96px; gap: 8px; justify-content: start; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding: 4px 6px 12px; }
+#ui.wol .wm-car .wm-things::-webkit-scrollbar { display: none; }
+#ui.wol .wm-car.fits .wm-things { justify-content: center; }
+#ui.wol .wm-car .wm-things::after { content: none; }
+#ui.wol .wm-car { padding-bottom: 6px; }
+#ui.wol .wm-car::after { content: ''; position: absolute; inset: auto 40px 0 40px; height: 10px; border-radius: 4px; background: linear-gradient(#7a4a20, #4a2a12); box-shadow: 0 3px 0 rgba(0, 0, 0, .3); }
+#ui.wol .wm-things button { width: auto; scroll-snap-align: start; gap: 3px; }
+#ui.wol .wm-ped { display: grid; place-items: center; width: 84px; height: 84px; border-radius: 50%; perspective: 300px;
+  background: radial-gradient(circle at 50% 38%, rgba(255, 240, 200, .5), rgba(255, 220, 150, .12) 60%, rgba(0, 0, 0, 0) 72%); box-shadow: inset 0 -10px 12px rgba(40, 20, 6, .25); transition: background .2s; }
+#ui.wol .wm-things button .wsa { width: 70px; height: 70px; }
+#ui.wol .wm-things button small { font-size: .98em; padding: 1px 10px; border-radius: 9px; background: rgba(40, 22, 8, .55); }
+#ui.wol .wm-things button:hover .wsa { transform: translateY(-4px) scale(1.06); }
+#ui.wol .wm-things button.on .wm-ped { background: radial-gradient(circle at 50% 40%, #fff3c0, #ffc94a 55%, rgba(255, 180, 40, 0) 74%); }
+#ui.wol .wm-things button.on .wsa { transform: none; animation: ws-turnY 3.2s ease-in-out infinite; filter: drop-shadow(0 0 10px #ffd24a) drop-shadow(0 4px 0 rgba(0, 0, 0, .3)); }
+#ui.wol .wm-things button.on small { background: #ffd24a; color: #3a2108; }
+@keyframes ws-turnY { 0%, 100% { transform: rotateY(-28deg) translateY(-4px); } 50% { transform: rotateY(28deg) translateY(-8px); } }
+#ui.wol .wm-carb { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 50%; background: linear-gradient(#ffcf6a, #e8952a); color: #3a2108 !important; box-shadow: 0 3px 0 #8a5418, 0 0 0 3px rgba(255, 240, 210, .35); }
+#ui.wol .wm-carb .ic { width: 22px; height: 22px; }
+#ui.wol .wm-car.fits .wm-carb { visibility: hidden; }
+#ui.wol .wm-car.at0 .wm-carb.prev, #ui.wol .wm-car.atEnd .wm-carb.next { opacity: .3; pointer-events: none; }
+/* the levers: big brass buttons with a picture of what they do */
+#ui.wol .wm-levers { gap: 6px; padding: 6px; }
+#ui.wol .wm-levers button { flex-direction: row; justify-content: center; gap: 7px; min-height: 52px; padding: 4px 6px; border-radius: 14px; font-size: .95em; line-height: 1.1; box-shadow: 0 4px 0 #8a5418, inset 0 2px 0 #ffe8a8; }
+#ui.wol .wm-levers button:not(:disabled):hover { transform: translateY(-2px); filter: brightness(1.06); }
+#ui.wol .wm-levers button:not(:disabled):active { transform: translateY(3px); box-shadow: 0 1px 0 #8a5418; }
+#ui.wol .wm-levers .lv-ic { flex: none; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: #5a3418; color: #ffd76a; box-shadow: inset 0 2px 4px rgba(0, 0, 0, .4); }
+#ui.wol .wm-levers .lv-ic .ic { display: block; width: 24px; height: 24px; }
+#ui.wol .wm-levers .lv-nature .lv-ic { background: #2f6a44; color: #b8f0c8; } #ui.wol .wm-levers .lv-join .lv-ic { background: #3a4f8a; color: #cfe0ff; }
+#ui.wol .wm-levers .lv-material .lv-ic { background: #8a3a5a; color: #ffd0e0; } #ui.wol .wm-levers .lv-reuse .lv-ic { background: #2f6a6a; color: #c8f4f0; }
+#ui.wol .wm-levers button.pulled .lv-ic { animation: ws-pop .45s; }
+#ui.wol .ws.kids .wm-levers button { min-height: 60px; font-size: 1.1em; }
+#ui.wol .wm-rate button { font-size: 1.05em; padding: 6px 16px; }
+@media (max-width: 1100px) { #ui.wol .wm-levers button { flex-direction: column; gap: 2px; font-size: .78em; min-height: 58px; } #ui.wol .wm-levers .lv-ic { width: 30px; height: 30px; } #ui.wol .wm-levers .lv-ic .ic { width: 20px; height: 20px; } }
+@media (max-height: 520px) { #ui.wol .wm-car .wm-things { grid-auto-columns: 78px; padding-bottom: 8px; } #ui.wol .wm-ped { width: 64px; height: 64px; } #ui.wol .wm-things button .wsa { width: 54px; height: 54px; } #ui.wol .wm-things button small { font-size: .82em; }
+  #ui.wol .wm-levers button { min-height: 46px; } #ui.wol .wm-carb { width: 34px; height: 34px; } }
+/* orders: bigger notes and pictures */
+#ui.wol .wo-board { grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 16px; }
+#ui.wol .wo-note { grid-template-columns: 96px 1fr; min-height: 118px; padding: 12px 12px 10px; }
+#ui.wol .wo-txt b { font-size: 1.16em; }
+#ui.wol .wo-filt button { font-size: 1em; padding: 4px 14px; }
+@media (max-height: 520px) { #ui.wol .wo-note { grid-template-columns: 76px 1fr; min-height: 96px; } #ui.wol .wo-txt b { font-size: 1.04em; } }
+/* the test hall: big station pictures, a big illustrated "run them all" */
+#ui.wol .wt-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+#ui.wol .wt-st { grid-template-columns: clamp(44px, 11vh, 88px) minmax(0, 1fr) minmax(70px, 36%) 34px; gap: 10px; border-radius: 16px; }
+#ui.wol .wt-st .wsa { width: 100%; height: auto; aspect-ratio: 1; max-height: 100%; filter: drop-shadow(0 3px 2px rgba(0, 0, 0, .2)); transition: transform .2s; }
+#ui.wol .wt-st:not(:disabled):hover .wsa { transform: scale(1.1) rotate(-4deg); }
+#ui.wol .wt-st b { font-size: 1.15em; } #ui.wol .wt-st small { font-size: .82em; }
+#ui.wol .wt-st strong { font-size: 1.1em; }
+#ui.wol .wt-bar { height: 13px; }
+#ui.wol .wt-all { min-height: 52px; font-size: 1.12em; border-radius: 16px; box-shadow: 0 4px 0 #1a4a30, 0 0 16px rgba(95, 208, 138, .5); }
+#ui.wol .wt-all .ic { width: 26px; height: 26px; padding: 4px; border-radius: 50%; background: rgba(255, 255, 255, .25); }
+#ui.wol .wt-all:not(:disabled):hover { filter: brightness(1.08); transform: translateY(-1px); }
+#ui.wol .wt-back { min-height: 52px; font-size: 1.05em; border-radius: 16px; }
+@media (max-height: 520px) { #ui.wol .wt-st { grid-template-columns: 44px 1fr 56px 24px; } #ui.wol .wt-st .wsa { width: 42px; height: 42px; } #ui.wol .wt-st b { font-size: .98em; } #ui.wol .wt-st small { display: none; } #ui.wol .wt-all, #ui.wol .wt-back { min-height: 40px; } }
+/* the patent office while it is empty: a pale certificate waiting, the four steps, a big way to the orders */
+#ui.wol .wp-empty { gap: 12px; }
+#ui.wol .wp-ghost { position: relative; flex: none; height: min(220px, 30vh); aspect-ratio: 4 / 3; border-radius: 10px; background: linear-gradient(#fffaf0, #f3e2bf); box-shadow: inset 0 0 0 8px #d8b06a, inset 0 0 0 11px #fff3da, 0 6px 14px rgba(0, 0, 0, .35); display: grid; place-items: center; transform: rotate(-2deg); opacity: .9; }
+#ui.wol .wp-ghost b { font-family: var(--serif); font-weight: 400; font-size: 1.5em; color: #a04f12; }
+#ui.wol .wp-ghost i { position: absolute; bottom: 10%; inset-inline-end: 12%; width: 54px; height: 54px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #ff8a7a, #c8302a 70%); box-shadow: 0 0 0 4px rgba(200, 48, 42, .35); opacity: .45; }
+#ui.wol .wp-steps4 { display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 16px; background: rgba(40, 22, 8, .55); }
+#ui.wol .wp-steps4 span { display: flex; flex-direction: column; align-items: center; gap: 2px; font-family: var(--serif); font-size: .9em; }
+#ui.wol .wp-steps4 .wsa { width: min(54px, 10vh); height: min(54px, 10vh); object-fit: contain; }
+#ui.wol .wp-empty p { margin: 0; }
+@media (max-height: 520px) { #ui.wol .wp-empty { gap: 6px; } #ui.wol .wp-ghost b { font-size: 1.1em; } #ui.wol .wp-ghost i { width: 30px; height: 30px; } #ui.wol .wp-go { min-height: 40px; font-size: 1em; } }
+#ui.wol .wp-go { display: flex; align-items: center; gap: 8px; min-height: 52px; padding: 6px 24px; border: 0; border-radius: 26px; background: linear-gradient(#ffcf6a, #e8952a); color: #3a2108 !important; font-weight: 900; font-size: 1.12em; box-shadow: 0 4px 0 #8a5418, 0 0 18px rgba(255, 200, 80, .5); }
+#ui.wol .wp-fairbtn { min-height: 46px; padding: 6px 20px; font-size: 1.08em; border-radius: 23px; }
+/* 6.11 (Avi: "always more colour; the workshop as a chocolate-factory designer would make it, not extreme"): every lever
+   its own sweet colour, each test station its own tint, the path in candy glass, rainbow meters on the board */
+#ui.wol .wp-ideas { background: linear-gradient(135deg, rgba(190, 70, 160, .5), rgba(120, 60, 190, .45)); box-shadow: inset 0 0 0 1.5px rgba(255, 190, 240, .5); }
+#ui.wol .wp-route { background: linear-gradient(135deg, rgba(30, 150, 140, .5), rgba(40, 110, 190, .45)); box-shadow: inset 0 0 0 1.5px rgba(170, 250, 240, .45); }
+#ui.wol .wm-levers button { --a: #ffcf6a; --b: #f0a93a; --sh: #8a5418; background: linear-gradient(var(--a), var(--b)); box-shadow: 0 4px 0 var(--sh), inset 0 2px 0 rgba(255, 255, 255, .55); }
+#ui.wol .wm-levers .lv-grow { --a: #ffd36a; --b: #f5a623; --sh: #8a5418; }
+#ui.wol .wm-levers .lv-shrink { --a: #ffb3c8; --b: #f0709a; --sh: #8a2a4e; }
+#ui.wol .wm-levers .lv-flip { --a: #b8e8ff; --b: #5cb8f0; --sh: #1f5a8a; }
+#ui.wol .wm-levers .lv-join { --a: #cdbaff; --b: #9a7cf0; --sh: #4a2f8a; }
+#ui.wol .wm-levers .lv-remove { --a: #ffc9a8; --b: #f08a5a; --sh: #8a3a18; }
+#ui.wol .wm-levers .lv-material { --a: #ffb8e0; --b: #e070b8; --sh: #7a2060; }
+#ui.wol .wm-levers .lv-reuse { --a: #a8f0e0; --b: #3cc4a8; --sh: #1a6a58; }
+#ui.wol .wm-levers .lv-nature { --a: #c8f0a0; --b: #6cc04a; --sh: #2f6a1e; }
+#ui.wol .wm-levers .lv-ic { background: rgba(255, 255, 255, .85); color: var(--sh); box-shadow: 0 2px 0 rgba(0, 0, 0, .18), inset 0 -2px 0 rgba(0, 0, 0, .08); }
+#ui.wol .wm-levers button:not(:disabled):hover .lv-ic { animation: ws-wiggle .5s; }
+@keyframes ws-wiggle { 30% { transform: rotate(-12deg) scale(1.08); } 65% { transform: rotate(10deg); } }
+#ui.wol .wm-ped { background: radial-gradient(circle at 50% 38%, rgba(255, 255, 255, .55), rgba(var(--pc, 255, 200, 120), .3) 58%, rgba(0, 0, 0, 0) 72%); }
+#ui.wol .wm-things button:nth-child(4n+1) { --pc: 255, 150, 200; } #ui.wol .wm-things button:nth-child(4n+2) { --pc: 140, 210, 255; }
+#ui.wol .wm-things button:nth-child(4n+3) { --pc: 170, 240, 150; } #ui.wol .wm-things button:nth-child(4n) { --pc: 255, 210, 110; }
+#ui.wol .wt-st { --tc: #5cb8f0; background: linear-gradient(90deg, #fff, color-mix(in srgb, var(--tc) 22%, #fff)); box-shadow: 0 3px 0 color-mix(in srgb, var(--tc) 70%, #333), inset -6px 0 0 var(--tc); }
+#ui.wol .wt-st[data-wtrun=wind] { --tc: #5cb8f0; } #ui.wol .wt-st[data-wtrun=water] { --tc: #3c9cd8; } #ui.wol .wt-st[data-wtrun=heat] { --tc: #f08a3a; }
+#ui.wol .wt-st[data-wtrun=sand] { --tc: #e0b050; } #ui.wol .wt-st[data-wtrun=drop] { --tc: #9a7cf0; } #ui.wol .wt-st[data-wtrun=noise] { --tc: #e070b8; }
+#ui.wol .wt-st.ok { background: linear-gradient(90deg, #f0fff4, #c8f0d4); } #ui.wol .wt-st.no { background: linear-gradient(90deg, #fff4f0, #fbd0c4); }
+#ui.wol .ws-meter:nth-of-type(1) u { background: linear-gradient(90deg, #ffe066, #ff9a2a); } #ui.wol .ws-meter:nth-of-type(2) u { background: linear-gradient(90deg, #ffb3c8, #e0507a); }
+#ui.wol .ws-meter:nth-of-type(3) u { background: linear-gradient(90deg, #cdbaff, #8a5cf0); } #ui.wol .ws-meter:nth-of-type(4) u { background: linear-gradient(90deg, #a8f0e0, #2fae8a); }
+#ui.wol .ws-meter:nth-of-type(5) u { background: linear-gradient(90deg, #b8e8ff, #3c9cd8); } #ui.wol .ws-meter:nth-of-type(6) u { background: linear-gradient(90deg, #c8f0a0, #5aa83a); }
+#ui.wol .ws-nzbox { box-shadow: inset 0 0 0 3px #9a6a32, inset 0 0 0 6px rgba(255, 150, 200, .35), 0 3px 0 rgba(30, 14, 4, .5); }

@@ -32,6 +32,8 @@ import { grant } from '../core/badges-store.js';
 import { K, readPlayer } from '../core/storage.js';
 import { svcGuide } from '../core/services.js';
 import { icon } from '../ui/ui/icons.js';
+import { bindCarousel, showTile } from '../ui/carousel.js';
+import { howto, howtoSeen } from '../ui/howto.js';
 import { esc } from '../ui/ui/helpers.js';
 import { nzRoomTutorial, nzMachineTutorial, nzMixerTutorial, nzCardsTutorial, nzBuildTutorial, nzTestTutorial, nzOrdersTutorial } from '../ui/tutorials.js';
 
@@ -52,6 +54,24 @@ const MEASURES = [
   { id: 'elaboration', n: 'משפרים גרסה', k: 'מְשַׁפְּרִים', d: 'גרסה חדשה שטובה בבירור מהקודמת' },
   { id: 'simplify', n: 'מפשטים', k: 'מְפַשְּׁטִים', d: 'פחות חלקים, והוא עדיין עובד' },
   { id: 'constraint', n: 'עם אילוץ', k: 'עִם כְּלָל', d: 'עמדתם בקלף אילוץ' },
+];
+// the inventor's path (6.11, Avi: "what do I do first, and where do ideas come from"): three places that make ideas,
+// then four steps in order, shown in the top bar on every screen of the workshop
+const IDEA_PLACES = ['machine', 'mixer', 'cards'];
+const ROUTE = ['orders', 'build', 'test', 'patent'];
+const NEXT = { orders: 'build', build: 'test', test: 'patent' };
+// "איך ממציאים?": the path in five pictures (the stations' own renders)
+const HOW = [
+  { st: 'machine', f: ['מאיפה באים רעיונות?', 'במכונת הרעיונות, במערבל הטבע ובקלפי האילוץ ממציאים רעיונות. כל רעיון ממלא את הלוח של שיטות החשיבה.'],
+    k: ['מֵאֵיפֹה בָּאִים רַעְיוֹנוֹת?', 'בַּמְּכוֹנָה, בַּמְּעַרְבֵּל וּבַקְּלָפִים מַמְצִיאִים רַעְיוֹנוֹת.'] },
+  { st: 'orders', f: ['1. בוחרים הזמנה', 'על לוח ההזמנות מחכות בעיות. בכל הזמנה כתוב מה הלקוח צריך, ואילו בדיקות ההמצאה צריכה לעבור.'],
+    k: ['1. בּוֹחֲרִים הַזְמָנָה', 'בְּכָל הַזְמָנָה יֵשׁ בְּעָיָה. בּוֹחֲרִים אַחַת.'] },
+  { st: 'build', f: ['2. בונים אב טיפוס', 'בשולחן הבנייה בוחרים צורה, חומר, מנגנון ורעיון מהטבע. אב טיפוס הוא הדגם הראשון של ההמצאה.'],
+    k: ['2. בּוֹנִים', 'בּוֹחֲרִים צוּרָה, חֹמֶר וְרַעְיוֹן מֵהַטֶּבַע.'] },
+  { st: 'test', f: ['3. בודקים באולם הבדיקות', 'מנהרת רוח, מיכל מים, תא חום, ארגז חול, מגדל נפילה ומד רעש. כל תחנה מודדת אם ההמצאה עומדת במה שהלקוח צריך. לא עבר? משפרים ובודקים שוב.'],
+    k: ['3. בּוֹדְקִים', 'כָּל תַּחֲנָה בּוֹדֶקֶת אִם הַהַמְצָאָה עוֹבֶדֶת. לֹא עָבַר? מְשַׁפְּרִים!'] },
+  { st: 'patent', f: ['4. מקבלים פטנט', 'כשהגרסה עוברת את כל הבדיקות של ההזמנה, ניצוץ מחתים לכם תעודת פטנט: אישור שההמצאה שלכם. ואז ליריד הממציאים!'],
+    k: ['4. פָּטֶנְט!', 'עָבַרְתֶּם הַכֹּל? מְקַבְּלִים תְּעוּדָה.'] },
 ];
 const RATE = [['works', 'עובד!', 'עוֹבֵד!'], ['funny', 'מצחיק', 'מַצְחִיק'], ['improve', 'שווה לשפר', 'שָׁוֶה לְשַׁפֵּר']];
 const LEVER_IC = { grow: 'M4 20h4M4 20v-4M20 4h-4M20 4v4M5 19l5-5M19 5l-5 5', shrink: 'M10 14H6M10 14v4M14 10h4M14 10V6M10 14l-5 5M14 10l5-5',
@@ -105,7 +125,7 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
     if (renderer) { renderer.dispose(); try { renderer.forceContextLoss(); } catch (e) { } renderer = null; }
     scene = null;
   }
-  const act = (x) => { if (nz) nz.set(x); if (room3) room3.act(x); };
+  const act = (x) => { if (nz) nz.set(x); if (room3) room3.act(x); if (x === 'fuse' || x === 'idea') sfx('wsZap'); };   // his spark is heard
 
   // ── his words: a bubble of the guide, his portrait and face (written only)
   const say = (key, opts = {}) => {
@@ -127,10 +147,30 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
   function shell() {
     el.innerHTML = `<header class="ws-top"><button type="button" class="ws-back" data-wsexit>${icon('home')}<span>${W('יציאה', 'יְצִיאָה')}</span></button>
         <div class="ws-title"><h1>${W('הסדנה של ניצוץ', 'הַסַּדְנָה שֶׁל נִיצוֹץ')}</h1><p>${W('חושבים כמו ממציאים', 'חוֹשְׁבִים כְּמוֹ מַמְצִיאִים')}</p></div>
-        <span class="ws-where"></span>
+        <nav class="ws-path" aria-label="הדרך של הממציא"></nav>
         <button type="button" class="ws-room-btn" data-wsroom hidden>${icon('arrowR')}<span>${W('לסדנה', 'לַסַּדְנָה')}</span></button></header>
       <div class="ws-body"><aside class="ws-side"><div class="ws-nzbox"><canvas class="ws-nz" aria-hidden="true"></canvas></div><div class="ws-board"></div><div class="ws-roundbar" hidden></div></aside>
         <main class="ws-main"></main></div>`;
+  }
+  // the inventor's path in the top bar: where ideas come from, then the four steps; the place you are in is lit and the
+  // next step glows
+  function paintPath() {
+    const n = el.querySelector('.ws-path'); if (!n) return;
+    const nm = (id) => { const P = PLACES.find((x) => x.id === id); return P ? (kids ? P.k : P.n) : ''; };
+    const chip = (id, num) => `<button type="button" class="wp-c${place === id ? ' on' : ''}${NEXT[place] === id ? ' next' : ''}" data-st="${id}" title="${esc(nm(id))}">${stationSVG(id)}${num ? `<b>${num}</b>` : ''}<span>${esc(nm(id))}</span></button>`;
+    n.innerHTML = `<span class="wp-grp wp-ideas"><em>${W('רעיונות', 'רַעְיוֹנוֹת')}</em>${IDEA_PLACES.map((id) => chip(id)).join('')}</span>
+      <span class="wp-grp wp-route">${ROUTE.map((id, i) => chip(id, i + 1)).join('<i class="wp-ar" aria-hidden="true"></i>')}</span>
+      <button type="button" class="wp-help" data-wshelp title="${W('איך ממציאים?', 'אֵיךְ מַמְצִיאִים?')}"><b>?</b><span>${W('איך ממציאים?', 'אֵיךְ מַמְצִיאִים?')}</span></button>`;
+  }
+  // the five pictures of the path; on the first visit to the orders board, and from the "?" in the top bar
+  let howH = null;
+  function showHow(force, then) {
+    const cards = HOW.map((h) => { const [title, text] = kids ? h.k : h.f; return { img: WS_ART.st[h.st] || '', title, text }; });
+    if (howH) { howH.close(); howH = null; }
+    const H = howH = howto(el, cards, { key: 'ws:path', force, title: W('איך ממציאים?', 'אֵיךְ מַמְצִיאִים?'), onClose: then,
+      labels: kids ? { next: 'הַבָּא', done: 'מַתְחִילִים!', skip: 'דַּלְּגוּ' } : {} });
+    if (H) act('explain');
+    return H;
   }
   function paintBoard() {
     const b = el.querySelector('.ws-board'); if (!b) return;
@@ -143,21 +183,22 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
     if (tut && tut.step && tutPlace !== 'room' && tutPlace !== p) { tut.stop(); tut = null; }
     if (place === 'build' || place === 'test') { if (p !== 'build' && p !== 'test') bench.leave(); }
     if (room3 && p !== 'room') { room3.dispose(); room3 = null; }
+    if (howH && p !== place) { const H = howH; howH = null; try { H.close(); } catch (e) { } }
     place = p; if (p !== 'mixer') mix = null;
     el.dataset.place = p;
     if (p !== 'room' && open_ && !nz) startNz();
     el.querySelector('[data-wsroom]').hidden = p === 'room';
     const P = PLACES.find((x) => x.id === p) || (p === 'fair' ? { n: 'יריד הממציאים', k: 'יְרִיד הַמַּמְצִיאִים' } : null);
-    el.querySelector('.ws-where').textContent = P ? (kids ? P.k : P.n) : '';
+    void P; paintPath();
     const M = el.querySelector('.ws-main');
     M.dataset.place = p;
     if (p === 'room') roomView(M);
-    else if (p === 'machine') M.innerHTML = machineHTML();
+    else if (p === 'machine') renderMachine();
     else if (p === 'mixer') M.innerHTML = mixerHTML();
     else if (p === 'cards') { hand = shuffle(cardsFor().slice()).slice(0, 5); M.innerHTML = cardsHTML(); }
     else if (p === 'build') bench.build(M);
     else if (p === 'test') bench.test(M);
-    else if (p === 'orders') office.orders(M);
+    else if (p === 'orders') { office.orders(M); if (!howtoSeen('ws:path') && showHow(false, () => { if (open_ && place === 'orders') startTut(); })) return; }
     else if (p === 'patent') office.patents(M);
     else if (p === 'fair') office.fair(M);
     startTut();
@@ -191,26 +232,38 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
     const outH = last ? `<div class="wm-out cat-${last.cat}${last.fun ? ' fun' : ''}"><span class="wm-cat">${catIcon(last.cat)}<small>${esc(kids ? CATS[last.cat].k : CATS[last.cat].n)}</small></span><p>${esc(T(last))}</p>${last.fun ? '<i class="wm-burst" aria-hidden="true"></i>' : ''}</div>`
       : `<div class="wm-out empty"><p>${esc(t ? W('עכשיו מושכים בידית!', 'עַכְשָׁו מוֹשְׁכִים בַּיָּדִית!') : W('בחרו חפץ מהמדף, והוא ייפול למכונה', 'בַּחֲרוּ חֵפֶץ מֵהַמַּדָּף'))}</p></div>`;
     const rateH = last ? `<div class="wm-rate">${RATE.map(([r, f, k]) => `<button type="button" data-wsrate="${r}" class="st-${r}${last.r === r ? ' on' : ''}">${esc(W(f, k))}</button>`).join('')}${last.r === 'works' && !kids ? `<button type="button" class="wm-tobuild" data-wstobuild>${icon('arrowL')} ${W('לבנות את זה!', 'לִבְנוֹת!')}</button>` : ''}</div>` : '<div class="wm-rate"></div>';
-    return `<div class="wm"><div class="wm-shelf wm-things">${THINGS.map((x) => `<button type="button" data-wsthing="${x.id}" class="${thing === x.id ? 'on' : ''}">${thingSVG(x.id)}<small>${esc(kids ? x.k : x.n)}</small></button>`).join('')}</div>
+    return `<div class="wm"><div class="wm-car"><button type="button" class="wm-carb prev" data-carb="-1" aria-label="${W('הקודם', 'הַקּוֹדֵם')}">${icon('arrowR')}</button>
+        <div class="wm-shelf wm-things">${THINGS.map((x) => `<button type="button" data-wsthing="${x.id}" class="${thing === x.id ? 'on' : ''}"><span class="wm-ped">${thingSVG(x.id)}</span><small>${esc(kids ? x.k : x.n)}</small></button>`).join('')}</div>
+        <button type="button" class="wm-carb next" data-carb="1" aria-label="${W('הבא', 'הַבָּא')}">${icon('arrowL')}</button></div>
       <div class="wm-stage"><div class="wm-machine${t ? ' fed' : ''}${pulled ? ' run' : ''}">${machineSVG(thing)}</div>${outH}</div>
-      <div class="wm-levers">${LEVERS.filter((l) => !kids || l.kids).map((l) => { const ok = L.includes(l) && !!t; return `<button type="button" data-wslever="${l.id}" class="${pulled === l.id ? 'pulled' : ''}" ${ok ? '' : 'disabled'}><i class="lv-stick" aria-hidden="true"><u></u></i>${lvIcon(l.id)}<span>${esc(kids ? l.k : l.n)}</span></button>`; }).join('')}</div>
+      <div class="wm-levers">${LEVERS.filter((l) => !kids || l.kids).map((l) => { const ok = L.includes(l) && !!t; return `<button type="button" data-wslever="${l.id}" class="lv-${l.id}${pulled === l.id ? ' pulled' : ''}" ${ok ? '' : 'disabled'}><i class="lv-ic">${lvIcon(l.id)}</i><span>${esc(kids ? l.k : l.n)}</span></button>`; }).join('')}</div>
       ${rateH}</div>`;
+  }
+  // the machine is painted again after every lever and rating: the shelf keeps where it was scrolled
+  let shelf = null;
+  function renderMachine(pulled = null) {
+    const M = el.querySelector('.ws-main'), old = M.querySelector('.wm-things'), x = old ? old.scrollLeft : null;
+    if (shelf) { shelf.dispose(); shelf = null; }
+    M.innerHTML = machineHTML(pulled);
+    const row = M.querySelector('.wm-things'); if (!row) return;
+    if (x != null) row.scrollLeft = x; else requestAnimationFrame(() => showTile(row, row.querySelector('.on')));
+    shelf = bindCarousel(M.querySelector('.wm-car'), row, { onArrow: () => sfx('click') });
   }
   function pull(lv) {
     const t = thingOf(thing), L = leverOf(lv); if (!t || !L || !leversNow().includes(L)) return;
     const out = t.out[lv]; if (!out) return;
     const r = addIdea({ at: 'machine', th: t.id, lv, cat: out.cat, fun: !!out.fun });
     last = { ...out, r: '', lv };
-    sfx('pop'); act(r.orig >= 2 ? 'idea' : out.fun ? 'excited' : 'explain');
-    el.querySelector('.ws-main').innerHTML = machineHTML(lv);
+    sfx('wsMachine'); act(r.orig >= 2 ? 'idea' : out.fun ? 'excited' : 'explain');
+    renderMachine(lv);
     after(); roundCheck();
   }
   function rate(r) {
     if (!last) return; last.r = r; rateLast(r);
-    sfx(r === 'works' ? 'good' : 'click');
+    sfx(r === 'works' ? 'wsPass' : 'click');
     act(r === 'works' ? 'cheer' : r === 'funny' ? (Math.random() < 0.35 ? 'fuse' : 'excited') : 'hint');
     say('nz:react:' + r);
-    el.querySelector('.ws-main').innerHTML = machineHTML();
+    renderMachine();
     after(); roundCheck();
   }
   // ── the nature mixer
@@ -264,7 +317,7 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
     const C = NATURE_CARDS.find((c) => c.id === mix.sp), P = problemOf(mix.pb), TL = TRIALS.find((x) => x.id === P.trial);
     mix.tr = tr; mix.fit = TL.good.includes(tr) ? 'good' : TL.ok.includes(tr) ? 'ok' : 'wild';
     addIdea({ at: 'mixer', sp: C.id, pb: P.id, tr, cat: P.cat, fit: mix.fit, zone: C.z, mine: mix.mine });
-    sfx(mix.fit === 'good' ? 'good' : 'pop'); act(mix.fit === 'good' ? 'cheer' : mix.fit === 'ok' ? 'hint' : 'idea');
+    sfx(mix.fit === 'good' ? 'wsPass' : 'pop'); act(mix.fit === 'good' ? 'cheer' : mix.fit === 'ok' ? 'hint' : 'idea');
     say('nz:react:' + mix.fit);
     el.querySelector('.ws-main').innerHTML = mixerHTML();
     after(); roundCheck();
@@ -355,7 +408,9 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
     if (d.wsexit != null) { close(); if (onExit) onExit(); return; }
     if (d.wsroom != null) { sfx('click'); go('room'); return; }
     if (d.st) { sfx('click'); go(d.st); return; }
-    if (d.wsthing) { thing = d.wsthing; last = null; sfx('click'); act('hint'); el.querySelector('.ws-main').innerHTML = machineHTML(); return; }
+    if (d.carb) return;   // the shelf's arrows (carousel.js)
+    if (d.wshelp != null) { sfx('click'); showHow(true); return; }
+    if (d.wsthing) { thing = d.wsthing; last = null; sfx('wsInsert'); act('hint'); renderMachine(); return; }
     if (d.wslever) { pull(d.wslever); return; }
     if (d.wsrate) { rate(d.wsrate); return; }
     if (d.wstobuild != null) { orderId = null; sfx('click'); go('build'); return; }
@@ -399,7 +454,7 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
     bench.leave(); if (room3) { room3.dispose(); room3 = null; } stopNz(); el.hidden = true; el.innerHTML = '';
   }
   try {
-    window.__wsDebug = { state, go: (p) => go(p), thing: (id) => { thing = id; last = null; if (place === 'machine') el.querySelector('.ws-main').innerHTML = machineHTML(); }, lever: (id) => pull(id), rate: (r) => rate(r),
+    window.__wsDebug = { state, go: (p) => go(p), thing: (id) => { thing = id; last = null; if (place === 'machine') renderMachine(); }, lever: (id) => pull(id), rate: (r) => rate(r),
       spin: (sp, pb) => spin(sp, pb), trait: (t) => pickTrait(t), draw: (id) => draw(id), endRound: () => { if (round) round.t0 = Date.now() - round.sec * 1000 - 1; }, nz: (x) => act(x),
       order: (id) => { orderId = id; bench.resetRun(); }, proto: (p) => bench.setProto(p), runTests: (list) => bench.run(list),
       face: (id) => { if (room3) room3.face(id); return !!room3; }, room: () => (room3 ? room3.state() : null) };

@@ -27,9 +27,9 @@ const pick = (arr) => arr[(Math.random() * arr.length) | 0];
 const fin = (x, d = 0) => (typeof x === 'number' && isFinite(x) ? x : d);
 
 const SFX_NAMES = ['click', 'hover', 'pickup', 'place', 'invalid', 'grow', 'select', 'discover', 'mission', 'event',
-  'remove', 'points', 'thunder', 'night', 'dawn', 'quizRight', 'quizWrong', 'pop'];
+  'remove', 'points', 'thunder', 'night', 'dawn', 'quizRight', 'quizWrong', 'pop', 'wsInsert', 'wsMachine', 'wsZap', 'wsPass', 'wsFail', 'wsStamp'];
 // minimum seconds between two plays of the same one-shot (prevents stacking when spammed)
-const MIN_GAP = { hover: 0.05, points: 0.06, click: 0.03, pop: 0.05, grow: 0.12, place: 0.05, thunder: 1.5, select: 0.04 };
+const MIN_GAP = { wsZap: 0.4, wsMachine: 0.5, wsInsert: 0.15, hover: 0.05, points: 0.06, click: 0.03, pop: 0.05, grow: 0.12, place: 0.05, thunder: 1.5, select: 0.04 };
 
 export function createAudio(options = {}) {
   let ac = null, offline = false, ready = false;
@@ -866,6 +866,40 @@ export function createAudio(options = {}) {
       noiseHit(v, t, bufB, 'lowpass', 300, 0.7, 0.3, 1.3, 0.12);
       let tt = t + 0.05;
       for (let i = 0; i < 14; i++) { const f = 380 + Math.random() * 520; tone(v, tt, f, f * (2.2 + Math.random()), 0.003, 0.05 + Math.random() * 0.04, 0.06 + Math.random() * 0.05); tt += 0.05 + Math.random() * 0.11; }
+    },
+    // הסדנה של ניצוץ (6.11, Avi: "sounds for the machine, putting things in, the tests, and his electric zap")
+    wsInsert(v, t) {                    // a thing slides down the hopper, clunks in, a little bell
+      noiseHit(v, t, bufW, 'bandpass', 2400, 2, 0.01, 0.18, 0.08, v.out, 700);
+      tone(v, t + 0.17, 180, 90, 0.003, 0.14, 0.3, 'triangle');
+      noiseHit(v, t + 0.17, bufB, 'lowpass', 500, 0.8, 0.002, 0.1, 0.25);
+      bell(v, t + 0.3, 1568, 0.05, 0.6);
+    },
+    wsMachine(v, t) {                   // the idea machine runs: clanks, a rising whirr, steam, and a ding when the idea comes out
+      const lp = vfilter(v, 'lowpass', 900, 0.8, v.out);
+      const g = vgain(v, 0, lp); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.12, t + 0.15); g.gain.setValueAtTime(0.12, t + 0.85); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.05); g.gain.setValueAtTime(0, t + 1.06);
+      const o = vosc(v, 'sawtooth', 70, t, t + 1.1, g); o.frequency.exponentialRampToValueAtTime(190, t + 0.9);
+      const o2 = vosc(v, 'triangle', 140, t, t + 1.1, g); o2.frequency.exponentialRampToValueAtTime(380, t + 0.9);
+      for (let i = 0; i < 6; i++) { tone(v, t + 0.06 + i * 0.13, 240 - i * 10, 120, 0.002, 0.06, 0.14, 'square', lp); noiseHit(v, t + 0.06 + i * 0.13, bufW, 'bandpass', 1800, 3, 0.002, 0.05, 0.06); }
+      noiseHit(v, t + 0.75, bufW, 'highpass', 3500, 0.7, 0.05, 0.35, 0.06);      // steam
+      bell(v, t + 1.0, 1318.5, 0.09, 0.9); bell(v, t + 1.08, 1975.5, 0.05, 0.8);
+    },
+    wsZap(v, t) {                       // ניצוץ's spark: a crackle and a quick electric zip
+      for (let i = 0; i < 10; i++) noiseHit(v, t + i * 0.018 + Math.random() * 0.01, bufW, 'bandpass', 3000 + Math.random() * 3000, 6, 0.001, 0.02, 0.09);
+      tone(v, t, 2400, 300, 0.002, 0.16, 0.07, 'square', vfilter(v, 'lowpass', 4200, 0.8, v.out));
+      tone(v, t + 0.17, 1760, 0, 0.003, 0.12, 0.05, 'triangle');
+    },
+    wsPass(v, t) {                      // a test passed: a bright little fanfare
+      [783.99, 987.77, 1318.5].forEach((f, i) => tone(v, t + i * 0.08, f, 0, 0.004, 0.32, 0.11, 'triangle'));
+      bell(v, t + 0.26, 2637, 0.04, 0.9);
+    },
+    wsFail(v, t) {                      // a test failed: a soft funny boing, never harsh
+      const o = tone(v, t, 300, 0, 0.01, 0.5, 0.14, 'triangle');
+      o.frequency.setValueAtTime(300, t); o.frequency.linearRampToValueAtTime(190, t + 0.12); o.frequency.linearRampToValueAtTime(240, t + 0.24); o.frequency.linearRampToValueAtTime(170, t + 0.45);
+    },
+    wsStamp(v, t) {                     // the patent's stamp on paper
+      tone(v, t, 140, 60, 0.002, 0.16, 0.42, 'sine');
+      noiseHit(v, t, bufP, 'bandpass', 900, 0.8, 0.002, 0.14, 0.3);
+      noiseHit(v, t + 0.04, bufW, 'highpass', 4000, 0.6, 0.01, 0.12, 0.04);
     },
   };
 

@@ -346,7 +346,7 @@ export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, gui
     }
     if (d.wdo) { if (d.wdo === 'set' || d.wdo === 'toggle') toggle(picked); else toggle(picked, d.wdo); return; }
     if (d.wtrack) { trial(d.wtrack); return; }
-    if (d.wsave != null) { if (saveRobot(cur)) { sfx('good'); renderAll(); } return; }
+    if (d.wsave != null) { if (saveRobot(cur)) { sfx('wsPass'); renderAll(); } return; }
     if (d.wpick) { const r = myRobots().find((q) => q.id === d.wpick); if (r) { cur = JSON.parse(JSON.stringify(r)); lastRun = null; delAsk = null; sfx('click'); renderAll(); rebuild(); } return; }
     if (d.wdel) { if (delAsk !== d.wdel) { delAsk = d.wdel; renderSide(); return; } deleteRobot(d.wdel); delAsk = null; if (cur.id === d.wdel) { const r = myRobots()[0]; cur = r ? JSON.parse(JSON.stringify(r)) : { id: 'r' + (++uid), name: w('רובוט 1', 'רוֹבּוֹט 1'), build: blank() }; rebuild(); } renderAll(); return; }
     if (d.wnew) {

@@ -33,6 +33,7 @@ import { addMission } from './progress.js';
 import { wkStepOf } from './earn.js';
 import { CHASSIS as WK_CHASSIS, PARTS as WK_PARTS } from '../data/robolab/workshop.js';
 import { WK_HERO } from '../data/robolab/wk-hero.js';
+import { CODE_HERO } from '../data/robolab/code-hero.js';
 import { FAIL_LINES, GOAL_LINES, WIN_LINES, OOPS_LINES, FUN_LINES } from '../data/robolab/lines.js';
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -90,6 +91,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   }
   let sbRobot = 0;   // the robot chosen for the sandbox (an index into his garage)
   const stars = (n) => [0, 1, 2].map((k) => `<i class="${k < n ? 'on' : ''}">${icon('star')}</i>`).join('');
+  let homeView = 'main';   // 'main': the two doors; 'code': the lessons screen
   function home() {
     clearTimeout(stageT);
     stopTut(); clearTimeout(talkT); speakGen++; kvoice.stop();
@@ -107,25 +109,8 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
         <div class="rl-count">${icon('star')}<b>${nDone}</b><small>${kids ? 'פְּתוּרִים' : 'פתורים'}</small></div></header>
       <div class="rl-scroll">
         <div class="rl-hello"><canvas class="rl-hkubi" aria-hidden="true"></canvas><button type="button" class="rl-introb" data-intro>${icon('play')}<span>${kids ? 'סִרְטוֹן הַפְּתִיחָה' : 'סרטון הפתיחה'}</span></button><p>${nDone ? (kids ? 'שׁוּב שָׁלוֹם! מַמְשִׁיכִים מֵאֵיפֹה שֶׁעָצַרְנוּ? בְּסַדְנַת הָעִצּוּב אֶפְשָׁר לְעַצֵּב אֶת הַכֵּלִים.' : 'שוב שלום! ממשיכים מאיפה שעצרנו? בסדנת העיצוב אפשר לעצב את הכלים שלכם.') : (kids ? 'שָׁלוֹם! אֲנִי קוּבִּי. כָּאן לוֹמְדִים לְתַכְנֵת רוֹבּוֹטִים, רַחְפָנִים וְצוֹלְלָנִים, שֶׁעוֹזְרִים לַטֶּבַע.' : 'שלום! אני קוּבִּי. כאן לומדים לתכנת רובוטים, רחפנים וצוללנים שעוזרים לטבע. מתחילים בשיעור הראשון.')}</p></div>
-        <div class="rl-cols">
-        <div class="rl-col rl-col-code">
-        <h2 class="rl-colh">${icon('lesson')}${kids ? 'שִׁעוּרֵי תִּכְנוּת' : 'שיעורי תכנות'}</h2>
-        <section class="rl-sec rl-lessons">
-          ${CHAPTERS.map((C) => { const ls = LESSONS.filter((q) => q.ch === C.n); if (!ls.length) return '';
-            return `<div class="rl-ch" style="--cc:${C.color}"><div class="rl-chh"><b>${C.n}</b><span><strong>${esc(T(C.title))}</strong><small>${esc(T(C.idea))}</small>${C.n > 1 && !journeyOpen('robolab:more') ? `<em class="rl-lock">${esc(lockWords('robolab:more'))}</em>` : ''}</span></div>
-            <div class="rl-lv">${ls.map((L, i) => { const ok = levelOpen(L, P), d = P.done[L.id];
-              return `<button type="button" class="rl-lvb${d ? ' done' : ''}" data-level="${L.id}" ${ok ? '' : 'disabled'} title="${esc(T(L.title))}"><span class="rl-z z-${L.zone}"></span><b>${i + 1}</b><span class="rl-st">${stars(d ? d.stars : 0)}</span></button>`; }).join('')}</div></div>`; }).join('')}
-        </section>
-        ${PUZZLES.length ? `<section class="rl-sec"><h2>${icon('puzzle')}${kids ? 'חִידוֹת' : 'חידות'}</h2><div class="rl-pz">${PUZZLES.map((L) => { const ok = levelOpen(L, P), d = P.done[L.id];
-          return `<button type="button" class="rl-pzb${d ? ' done' : ''}" data-level="${L.id}" ${ok ? '' : 'disabled'}><span class="rl-z z-${L.zone}"></span><b>${esc(T(L.title))}</b>${ok ? '' : `<small>${kids ? 'נִפְתָּח אַחֲרֵי שִׁעוּר ' : 'נפתח אחרי שיעור '}${L.after.replace('l', '').replace('-', '.')}</small>`}<span class="rl-st">${stars(d ? d.stars : 0)}</span></button>`; }).join('')}</div></section>` : ''}
-        </div>
-        <div class="rl-col rl-col-field">
-        <h2 class="rl-colh">${icon('home')}${kids ? 'סַדְנַת הָרוֹבּוֹט וְהַשֶּׁטַח' : 'סדנת הרובוט והשטח החי'}</h2>
-        ${wkHero()}
-        ${islandsHTML(P)}
-        ${sandboxHTML(P)}
-        </div>
-        </div>
+        ${homeView === 'code' ? codeHTML(P) : `<div class="rl-heroes">${codeHero(P)}${wkHero()}</div>
+        <div class="rl-more">${islandsHTML(P)}${sandboxHTML(P)}</div>`}
       </div></div>`;
     if (!P.seen.intro) showIntro();   // the opening film, once, on the first visit
   }
@@ -480,6 +465,8 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     if (b.dataset.home != null) { sfx('click'); home(); return; }
     if (b.dataset.intro != null) { sfx('click'); showIntro(); return; }
     if (b.dataset.workshop != null) { sfx('click'); openWs(); return; }
+    if (b.dataset.code != null) { sfx('click'); homeView = 'code'; home(); return; }
+    if (b.dataset.mainhome != null) { sfx('click'); homeView = 'main'; home(); return; }
     if (b.dataset.garage != null) { sfx('click'); if (garage) garage.close(); garage = openGarage(el, { kids, sfx, toolSound, guide: svcGuide(), voice: kvoice, onClose: () => { garage = null; checkRoboBadges(); } }); return; }
     if (b.dataset.level) { sfx('click'); openLevel(b.dataset.level); return; }
     if (b.dataset.run) { run(b.dataset.run); return; }
@@ -507,7 +494,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     if (garage) { garage.close(); garage = null; return; }      // סדנת העיצוב closes first
     if (intro) { intro.close(); return; }                       // the film
     if (cur && cur.mission) { home(); openWs('missions'); return; }      // a workshop mission goes back to the workshop
-    if (cur) home(); else { close(); if (onExit) onExit(); }
+    if (cur) home(); else if (homeView === 'code') { homeView = 'main'; home(); } else { close(); if (onExit) onExit(); }
   };
   window.addEventListener('keydown', onKey);
 
@@ -524,6 +511,30 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     grantTechCards();
     return workshop;
   }
+  // 6.11 (Avi): the home shows two big picture doors, the programming lessons and the robot workshop; the lessons open
+  // on their own screen (homeView 'code') instead of a long list beside the workshop
+  function codeHero(P) {
+    const n = LESSONS.filter((L) => P.done[L.id]).length;
+    return `<button type="button" class="rl-wkhero rl-codehero" data-code>
+      <img src="${CODE_HERO}" alt="" draggable="false"><span class="rl-wkt"><b>${kids ? 'שִׁעוּרֵי תִּכְנוּת' : 'שיעורי תכנות'}</b>
+      <small>${kids ? 'מְסַדְּרִים קֻבִּיּוֹת, וְהָרוֹבּוֹט יוֹצֵא לַדֶּרֶךְ' : 'מסדרים קוביות פקודה, והכלים יוצאים לעבוד באיים'}</small>
+      <span class="rl-prog"><i style="width:${Math.round(100 * n / Math.max(1, LESSONS.length))}%"></i></span><em>${n} / ${LESSONS.length}</em></span></button>`;
+  }
+  function codeHTML(P) {
+    return `<div class="rl-codeview">
+      <div class="rl-cvh"><button type="button" class="rl-cvback" data-mainhome>${icon('undo')}<span>${kids ? 'לַמַּעְבָּדָה' : 'חזרה למעבדה'}</span></button>
+        <img src="${CODE_HERO}" alt="" draggable="false"><h2>${kids ? 'שִׁעוּרֵי תִּכְנוּת' : 'שיעורי תכנות'}</h2></div>
+      <section class="rl-sec rl-lessons rl-chgrid">
+        ${CHAPTERS.map((C) => { const ls = LESSONS.filter((q) => q.ch === C.n); if (!ls.length) return '';
+          const dn = ls.filter((L) => P.done[L.id]).length;
+          return `<div class="rl-ch" style="--cc:${C.color}"><div class="rl-chh"><b>${C.n}</b><span><strong>${esc(T(C.title))}</strong><small>${esc(T(C.idea))}</small>${C.n > 1 && !journeyOpen('robolab:more') ? `<em class="rl-lock">${esc(lockWords('robolab:more'))}</em>` : ''}</span><i class="rl-chn">${dn}/${ls.length}</i></div>
+          <div class="rl-lv">${ls.map((L, i) => { const ok = levelOpen(L, P), d = P.done[L.id];
+            return `<button type="button" class="rl-lvb${d ? ' done' : ''}" data-level="${L.id}" ${ok ? '' : 'disabled'} title="${esc(T(L.title))}"><span class="rl-z z-${L.zone}"></span><b>${ok ? i + 1 : icon('lock')}</b><span class="rl-st">${stars(d ? d.stars : 0)}</span></button>`; }).join('')}</div></div>`; }).join('')}
+      </section>
+      ${PUZZLES.length ? `<section class="rl-sec rl-pzsec"><h2>${icon('puzzle')}${kids ? 'חִידוֹת' : 'חידות'}</h2><div class="rl-pz">${PUZZLES.map((L) => { const ok = levelOpen(L, P), d = P.done[L.id];
+        return `<button type="button" class="rl-pzb${d ? ' done' : ''}" data-level="${L.id}" ${ok ? '' : 'disabled'}><span class="rl-z z-${L.zone}"></span><b>${esc(T(L.title))}</b>${ok ? '' : `<small>${kids ? 'נִפְתָּח אַחֲרֵי שִׁעוּר ' : 'נפתח אחרי שיעור '}${L.after.replace('l', '').replace('-', '.')}</small>`}<span class="rl-st">${stars(d ? d.stars : 0)}</span></button>`; }).join('')}</div></section>` : ''}
+    </div>`;
+  }
   // the robot workshop's front picture (rendered in Blender: Kubi and three built robots), a door on the home (1.4.3):
   // above the lessons once it is open; while it is still locked, small, at the end of the home (the lessons come first)
   function wkHero() {
@@ -532,7 +543,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
       <img src="${WK_HERO}" alt="" draggable="false"><span class="rl-wkt"><b>${open_ ? '' : icon('lock')}${kids ? 'סַדְנַת הָרוֹבּוֹט' : 'סדנת הרובוט'}</b>
       <small>${esc(open_ ? (kids ? 'בּוֹנִים רוֹבּוֹט מֵחֲלָקִים, וּמְנַסִּים אוֹתוֹ בַּמַּסְלוּל' : 'בונים רובוט מחלקים, ומנסים אותו במסלול') : lockWords('robolab:workshop'))}</small></span></button>`;
   }
-  function openLab() { open = true; el.hidden = false; dropDrafts(); markSeen('home'); home(); grantTechCards(); }
+  function openLab() { homeView = 'main'; open = true; el.hidden = false; dropDrafts(); markSeen('home'); home(); grantTechCards(); }
   // the technology cards follow every step forward in the lab (a lesson, a mission, the workshop)
   window.addEventListener('wol-progress', (e) => { if (open && e.detail && e.detail.kind === 'robolab') grantTechCards(); });
   function close() { stopTut(); clearTimeout(talkT); clearTimeout(stageT); el.querySelectorAll(':scope > .rl-kubi').forEach((x) => x.remove()); open = false; speakGen++; kvoice.stop(); stopRun(); if (kcam) { kcam.dispose(); kcam = null; } if (garage) { garage.close(); garage = null; } if (workshop) { workshop.close(); workshop = null; } if (in3d) end3d(); if (map) { map.dispose(); map = null; } el.hidden = true; el.innerHTML = ''; }

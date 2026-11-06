@@ -302,6 +302,18 @@
 "timeout": 10
 },
 {
+"wait": 1
+},
+{
+"js": "'CHECK how-on-first-orders ' + (document.querySelector('#howto .howto-img img') ? 'ok' : 'FAIL')"
+},
+{
+"clickSel": "#howto [data-h=skip]"
+},
+{
+"wait": 1
+},
+{
 "until": "window.__wsDebug.state().tut === 'pick'",
 "timeout": 10
 },

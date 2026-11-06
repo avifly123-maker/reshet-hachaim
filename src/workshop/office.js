@@ -8,7 +8,7 @@
 import { ORDERS, orderOf } from '../data/workshop/orders.js';
 import { TESTS, addonOf } from '../data/workshop/build-parts.js';
 import { readWs, addPatent, setStars, markOrder } from './progress.js';
-import { clientSVG, testSVG } from './art.js';
+import { clientSVG, testSVG, stationSVG } from './art.js';
 import { CARD_ART } from '../data/card-art.js';
 import { NATURE_CARDS } from '../data/workshop/nature-cards.js';
 import { ROBO_ART } from '../data/robo-art.js';
@@ -89,7 +89,10 @@ export function createOffice(ctx) {
     const L = readWs().patents.slice().reverse();
     return `<div class="wp"><div class="wo-head"><h2>${W('משרד הפטנטים', 'מִשְׂרַד הַפָּטֶנְטִים')}</h2><button type="button" class="wp-fairbtn" data-wpfair ${L.length ? '' : 'disabled'}>${icon('sparkle')} ${W('ליריד הממציאים', 'לַיָּרִיד')}</button></div>
       ${L.length ? `<div class="wp-wall">${L.map((P) => `<button type="button" class="wp-item" data-wppick="${P.no}">${certHTML(P)}</button>`).join('')}</div>`
-      : `<div class="wp-empty">${testSVG('drop')}<p>${W('עוד אין פטנטים. אב טיפוס שעובר את הבדיקות מקבל כאן תעודה!', 'עוֹד אֵין פָּטֶנְטִים. אַב טִיפּוּס שֶׁעוֹבֵר בְּדִיקוֹת מְקַבֵּל תְּעוּדָה!')}</p></div>`}</div>`;
+      : `<div class="wp-empty"><div class="wp-ghost"><b>${W('תעודת פטנט', 'תְּעוּדַת פָּטֶנְט')}</b><i></i></div>
+        <p>${W('כאן תלויות התעודות של ההמצאות שלכם. ככה מקבלים אחת:', 'כָּאן יִהְיוּ הַתְּעוּדוֹת שֶׁלָּכֶם:')}</p>
+        <div class="wp-steps4">${[['orders', 'בוחרים הזמנה', 'הַזְמָנָה'], ['build', 'בונים', 'בּוֹנִים'], ['test', 'בודקים', 'בּוֹדְקִים'], ['patent', 'תעודה!', 'תְּעוּדָה!']].map(([id, f, k], i) => `<span>${stationSVG(id)}${i + 1}. ${esc(W(f, k))}</span>`).join('')}</div>
+        <button type="button" class="wp-go" data-woback>${icon('arrowL')} ${W('לבחור הזמנה', 'לִבְחֹר הַזְמָנָה')}</button></div>`}</div>`;
   }
   const patents = (main) => { main.innerHTML = patentsHTML(); };
 
@@ -122,7 +125,7 @@ export function createOffice(ctx) {
     if (order) markOrder(order.id, { done: true, patent: P.no });
     P.stars = judge(P).n; setStars(P.no, P.stars);
     ceremony = P;
-    ctx.sfx('quizRight'); ctx.act('cheer'); ctx.say('nz:react:patent');
+    ctx.sfx('wsStamp'); setTimeout(() => ctx.sfx('quizRight'), 260); ctx.act('cheer'); ctx.say('nz:react:patent');
     ctx.after();
     return P;
   }
