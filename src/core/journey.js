@@ -26,7 +26,7 @@
 //   allOpen() / unlockAll(code) / lockAgain()   the instructors' switch; INSTRUCTOR_CODE (Avi gives it to the instructors; docs/JOURNEY.md)
 // Events listened to: 'wol-badge' (a badge), 'wol-progress' (a mission, a lab activity, a solved mystery…) → check().
 import { rankOf } from '../game/rank.js';   // the island's rank (stage 6; game/rank.js has no three.js)
-import { K as KEY, zoneKey, saveKey, readPlayer, writePlayer, readPlayerRaw, readDeviceRaw, writeDeviceRaw, removeDevice, playerKey, playerMode as levelNow } from './storage.js';
+import { K as KEY, zoneKey, saveKey, readPlayer, writePlayer, readPlayerRaw, writePlayerRaw, removePlayer, readDeviceRaw, writeDeviceRaw, removeDevice, playerKey, playerMode as levelNow } from './storage.js';
 
 const K = KEY.journey;
 export const INSTRUCTOR_CODE = '2580';
@@ -181,9 +181,13 @@ function bestStage(s) {
 }
 function reached(st, m) { if (st.soon) return false; const need = isKids() ? st.kneed : st.need; if (!need) return true; return need.some((w) => Object.keys(w).every((k) => (m[k] || 0) >= w[k])); }
 
-export const allOpen = () => readDeviceRaw(KEY.allopen) === '1';
-export function unlockAll(code) { if (String(code).trim() !== INSTRUCTOR_CODE) return false; writeDeviceRaw(KEY.allopen, '1'); notify(); return true; }
-export function lockAgain() { removeDevice(KEY.allopen); notify(); }
+// 6.11 (Avi): the code opens everything for the player who is playing now, not for every child on the computer (it
+// was one switch for the computer, and a parent could not keep the journey for the others). An old switch for the whole
+// computer becomes the current player's and is then gone.
+function moveOldAllOpen() { try { if (readDeviceRaw(KEY.allopen) === '1') { writePlayerRaw(KEY.allopen, '1'); removeDevice(KEY.allopen); } } catch (e) { /* no storage */ } }
+export const allOpen = () => { moveOldAllOpen(); return readPlayerRaw(KEY.allopen) === '1'; };
+export function unlockAll(code) { if (String(code).trim() !== INSTRUCTOR_CODE) return false; writePlayerRaw(KEY.allopen, '1'); notify(); return true; }
+export function lockAgain() { removePlayer(KEY.allopen); notify(); }
 
 export function stageNow(m = metrics()) { let s = 1; for (const st of STAGES) if (reached(st, m)) s = st.n; else break; return Math.max(s, bestStage(store())); }
 
