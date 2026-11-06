@@ -1431,9 +1431,8 @@ def part_solar_hs():
     P = group('part_solar')
     _piston('so_post', (0, 0, 0), (0, 0, 0.17), 0.02, P)
     o = hs_block('so_frame', 0.48, 0.34, 0.025, 'trim', ch=0.008, parent=P, loc=(0, 0, 0.19), rot=(0.35, 0, 0))
-    for i in range(3):
-        for j in range(2):   # cells in rows (a grid of separate cells, never crossed lines)
-            hs_block('so_cell%d%d' % (i, j), 0.14, 0.14, 0.008, 'glass', ch=0.003, parent=P, loc=(-0.15 + i * 0.15, -0.075 * math.cos(0.35) + j * 0.15 * math.cos(0.35), 0.205 + (j - 0.5) * 0.15 * math.sin(0.35)), rot=(0.35, 0, 0))
+    for i in range(3):   # three long strips side by side: the gaps run one way only (a 3x2 grid made a plus where its gaps met; 6.11)
+        hs_block('so_cell%d' % i, 0.14, 0.29, 0.008, 'glass', ch=0.003, parent=P, loc=(-0.15 + i * 0.15, 0, 0.205), rot=(0.35, 0, 0))
     return P
 
 def part_fins_hs():
@@ -1517,7 +1516,7 @@ def _text_mesh(name, txt, h, slot, parent, loc, axes):
     return o
 def _decals(R, size):
     sx, sy, sz = WK_SIZE[size]
-    num = {'s': '12', 'm': '27', 'l': '45'}[size]
+    num = {'s': '12', 'm': '27', 'l': '38'}[size]   # (no 4: its strokes cross)
     zc = WK_BOTTOM + sz * 0.86
     for k_ in (-1, 1):
         x = k_ * (sx * 0.33 + 0.004)
