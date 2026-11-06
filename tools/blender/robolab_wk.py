@@ -1500,3 +1500,34 @@ PARTS.update({'head_dome': part_head_dome_hs, 'drone_pad': part_drone_pad_hs, 'w
     'sub_fin': part_sub_fin_hs, 'thruster': part_thruster_hs, 'sub_claw': part_sub_claw_hs, 'sub_lamp': part_sub_lamp_hs})
 GARAGE_PARTS = ['head_screen', 'head_dome', 'bin', 'drone_pad', 'water_tank', 'grabber', 'planter', 'antenna', 'beacon', 'solar', 'fin',
     'cam', 'spray', 'claw', 'sub_fin', 'sub_claw', 'sub_lamp', 'thruster']
+
+# ── round 14 (6.11, Avi: "details, light and colour"): the three workshop chassis get a cream number plate on each side
+# of the bay with dark digits, and an accent band at the foot of the bay. Slots only (the game paints by slot), so
+# sockets, names and sizes stay as they were. No cross shapes: digits only, no plus signs.
+from mathutils import Matrix as _Mx
+def _text_mesh(name, txt, h, slot, parent, loc, axes):
+    """a flat raised text as a mesh: axes = (text right, text up, outward normal) in the parent's frame"""
+    cu = bpy.data.curves.new(name + '_c', 'FONT'); cu.body = txt; cu.size = h; cu.align_x = 'CENTER'; cu.align_y = 'CENTER'; cu.extrude = 0.0025
+    co = bpy.data.objects.new(name + '_c', cu); _coll()[1].objects.link(co)
+    me = bpy.data.meshes.new_from_object(co); bpy.data.objects.remove(co, do_unlink=True)   # (the curve's own data: no depsgraph during the build)
+    me.materials.clear(); me.materials.append(mat(slot))
+    o = bpy.data.objects.new(name, me); _coll()[1].objects.link(o); o.parent = parent
+    r, u, n = (Vector(a) for a in axes)
+    o.matrix_basis = _Mx.Translation(Vector(loc)) @ _Mx((r, u, n)).transposed().to_4x4()
+    return o
+def _decals(R, size):
+    sx, sy, sz = WK_SIZE[size]
+    num = {'s': '12', 'm': '27', 'l': '45'}[size]
+    zc = WK_BOTTOM + sz * 0.86
+    for k_ in (-1, 1):
+        x = k_ * (sx * 0.33 + 0.004)
+        hs_block('wk%s_plate_%d' % (size, k_), 0.008, sy * 0.3, sz * 0.24, 'cream', ch=0.003, parent=R, loc=(x, -sy * 0.06, zc))
+        right = (0, -1, 0) if k_ < 0 else (0, 1, 0)
+        _text_mesh('wk%s_num_%d' % (size, k_), num, sz * 0.19, 'dark', R, (x + k_ * 0.0045, -sy * 0.06, zc - sz * 0.018), (right, (0, 0, 1), (k_, 0, 0)))
+        # a thin trim line round the plate
+        hs_block('wk%s_pline_%d' % (size, k_), 0.006, sy * 0.32, 0.01, 'accent', ch=0.002, parent=R, loc=(x, -sy * 0.06, zc + sz * 0.135))
+    # the band at the bay's foot
+    hs_block('wk%s_band' % size, sx * 0.69, sy * 0.65, 0.022, 'accent', ch=0.006, parent=R, loc=(0, sy * 0.1, WK_BOTTOM + sz * 0.725))
+    return R
+for _s in ('s', 'm', 'l'):
+    BASES['wk_' + _s] = (lambda s=_s: _decals(build_wk(s), s))
