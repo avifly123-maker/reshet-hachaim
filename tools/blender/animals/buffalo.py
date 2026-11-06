@@ -34,7 +34,7 @@ for sx, L in ((1, 'l'), (-1, 'r')):
 cat_muscles(blobs, bones, sh=(0.12, 0.18, 0.13), th=(0.12, 0.2, 0.15), sh_t=0.3, th_t=0.35)
 E = blob_ears(blobs, bones, base=(0.2, 1.05, 1.21), d=(1.0, -0.6, 0.18), H=0.23, w=0.1, t=0.014, tip=0.55, turn=10)   # big, drooping, under the horns (round 3: lower, so they show)
 
-COAT, COAT2, BELLY, BLACK, HORN, BOSS = srgb('#423c39'), srgb('#302b28'), srgb('#4e3e34'), srgb('#151312'), srgb('#4e4842'), srgb('#6c665e')
+COAT, COAT2, BELLY, BLACK, HORN, BOSS = srgb('#423c39'), srgb('#302b28'), srgb('#4e3e34'), srgb('#151312'), srgb('#36312d'), srgb('#5a534b')   # 6.11: darker horns and boss (they read as a pale blob)
 def paint(P, N, tag):
     x, y, z = P
     e = ear_paint(P, N, E)
@@ -53,7 +53,7 @@ boss = Part('boss', bone='head', color=BOSS); boss.add(*ellipsoid((0, 1.33, 1.16
 for sx in (1, -1):
     parts += eye_parts((sx * 0.13, 1.1, 1.26), 0.022, 'head', '#1a120c', (sx, 0.2, 0.5))
     hp = bez([(sx * 0.08, 1.34, 1.15), (sx * 0.36, 1.32, 1.1), (sx * 0.54, 1.04, 1.1), (sx * 0.6, 1.16, 1.2), (sx * 0.5, 1.3, 1.25)], 16)   # round 3: down below the eye, then up and in, tips lower
-    hv, hf = tube(hp, [0.088 * (1 - i / 15) ** 0.8 + 0.01 for i in range(16)], 10)
+    hv, hf = tube(hp, [0.1 * (1 - i / 15) ** 0.8 + 0.011 for i in range(16)], 10)   # 6.11: a little heavier
     parts.append(Part('horn', bone='head', color=HORN).add(hv, hf))
 nose = Part('nose', bone='head', color=srgb('#0e0c0c'))
 for sx in (1, -1): nose.add(*ellipsoid((sx * 0.055, 0.74, 1.53), (0.02, 0.015, 0.012), 8, 5))

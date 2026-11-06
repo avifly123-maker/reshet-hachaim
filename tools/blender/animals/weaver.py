@@ -21,8 +21,8 @@ def paint(P, N, tag):
     if (z > 0.1 and y < 0.104) or (z > 0.07 and 0.03 < y < 0.08 and N.z > 0.3): c = mix(c, MASK, 0.92)   # the black mask and throat, the crown stays yellow
     # the folded wings are real volume now (the kit's bird fold, coloured by wcol), not painted on the side
     return c
-def wcol(s, c, top): return mix(WDARK, WING, min(0.8, 0.06 + 0.7 * max(0.0, math.sin(s * 44)) ** 4)) if top else mix(YEL2, WING, 0.5)   # round 8: dark feathers, each edged in yellow-green (the weight stays under 1)
-def tcol(t, u, top): return mix(OLIVE, WDARK, 0.4 * t)
+def wcol(s, c, top): return mix(WDARK, WING, min(0.85, 0.08 + 0.8 * max(0.0, math.sin(s * 44)) ** 4 + 0.25 * c))   # 6.11: both faces dark feathers edged in yellow-green (the folded wing shows its underside)   # round 8: dark feathers, each edged in yellow-green (the weight stays under 1)
+def tcol(t, u, top): return mix(OLIVE, WDARK, 0.35 + 0.4 * t)
 
 parts = [];
 for sx, L in ((1, 'l'), (-1, 'r')):
@@ -33,7 +33,7 @@ for sx, L in ((1, 'l'), (-1, 'r')):
     parts += eye_parts((sx * 0.029, 0.096, 0.113), 0.0058, 'head', '#8a1a10', (sx, 0.2, 0.6))
 lp, lb = bird_legs((0.022, -0.04, 0.0), (0.026, -LEGH, 0.008), 0.032, srgb('#3a2c22'), 0.0045); parts += lp; bones += lb
 parts.append(beak_part((0, 0.086, 0.126), 0.034, 0.014, 0.013, srgb('#141210'), srgb('#2a2622'), curve=0.04))   # a thick seed-cracking cone
-parts.append(tail_fan((0, 0.004, -0.1), 0.09, 0.045, 0.07, tcol, droop=0.01))
+parts.append(tail_fan((0, 0.004, -0.1), 0.066, 0.05, 0.072, tcol, droop=0.012, notch=0.15))   # 6.11: a short, broad weaver's tail, not a stick
 
 blobs = organic(blobs, 31, 0.5)   # 1.11 (Avi): not mirrored clean parts
 names = [b[0] for b in bones]
