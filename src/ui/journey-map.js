@@ -94,7 +94,7 @@ export function openJourneyMap(host, { onPart, emit, onClose } = {}) {
           <span class="jm-bar"><i style="width:${Math.round(next.progress * 100)}%"></i></span>
           <small>${esc(next.need.join(t(', או ', ', אוֹ ')))}</small></div></div>`
       : `<div class="jm-next done"><span class="jm-nmed" style="--c:${STAGE_COLOR[6]}">${stageEmblem(6)}</span><div class="jm-ntxt"><b>${t('הגעתם לשלב האחרון. אתם מומחים!', 'הִגַּעְתֶּם לַשָּׁלָב הָאַחֲרוֹן. אַתֶּם מֻמְחִים!')}</b></div></div>`;
-    const note = st.allOpen ? t('מצב מדריכים: כל החלקים פתוחים במחשב הזה.', 'כָּל הַחֲלָקִים פְּתוּחִים בַּמַּחְשֵׁב הַזֶּה.')
+    const note = st.allOpen ? t('מצב מדריכים: כל החלקים פתוחים לשחקן הזה.', 'כָּל הַחֲלָקִים פְּתוּחִים לַשַּׂחְקָן הַזֶּה.')
       : st.legacy ? t('שיחקתם עוד לפני המסע, ולכן הכול פתוח לכם.', 'שִׂחַקְתֶּם עוֹד לִפְנֵי הַמַּסָּע, וְלָכֵן הַכֹּל פָּתוּחַ לָכֶם.') : '';
     el.dataset.stage = String(cur);
     el.innerHTML = `<div class="jm-bg" aria-hidden="true"></div>

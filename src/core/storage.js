@@ -35,7 +35,7 @@ export const K = {
   music: 'web-of-life-music',         // 'on' | 'off'                                                         audio/music.js
   sound: 'web-of-life-sound',         // 'off' when the sounds were turned off (1.3.2)                        main.js
   sources: 'web-of-life-sources',     // 'on' | 'off' – torah edition: show the sources                       core/edition.js
-  allopen: 'web-of-life-allopen',     // '1' – the instructors' switch (everything open)                      core/journey.js
+  allopen: 'web-of-life-allopen',     // '1' – the instructors' switch (everything open, for this player)                      core/journey.js
   playtime: 'web-of-life-playtime',   // { lim, day, s, extra } – the parents' daily play time (1.3.3)        core/playtime.js
   // per player
   howto: 'web-of-life-howto',         // { <cardKey>: 1 } – how-to cards already seen (per player since 1.3.2) ui/howto.js
@@ -68,7 +68,7 @@ export const KEYS = [
   { key: K.music, scope: D, kind: 'text' },
   { key: K.sound, scope: D, kind: 'text' },
   { key: K.sources, scope: D, kind: 'text' },
-  { key: K.allopen, scope: D, kind: 'text' },
+  { key: K.allopen, scope: P, kind: 'text' },   // 6.11: the instructors' and parents' code opens everything for one player
   { key: K.howto, scope: P, kind: 'json' },   // 1.3.2: each child sees the how-to cards (was one mark for the computer)
   { key: K.mode, scope: P, kind: 'text' },
   { key: K.coach, scope: P, kind: 'text' },

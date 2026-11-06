@@ -98,8 +98,8 @@ function rowHTML(id, o) {
   if (id === 'staff') {
     const open = J.allOpen();
     return `<details class="set-row set-staff" data-row="staff"${open ? ' open' : ''}><summary>${icon('sliders')}<span>למדריכים ולהורים</span>${icon('chevron', 'set-chev')}</summary>
-      ${open ? `<div class="set-staff-in"><p>${icon('check')}כל חלקי המשחק פתוחים במחשב הזה.</p><button class="btn soft" data-set="lock">לנעול שוב לפי המסע</button></div>`
-        : `<div class="set-staff-in"><label for="set-code">קוד מדריכים: פותח את כל המשחק במחשב הזה</label>
+      ${open ? `<div class="set-staff-in"><p>${icon('check')}כל חלקי המשחק פתוחים לשחקן הזה.</p><button class="btn soft" data-set="lock">לנעול שוב לפי המסע</button></div>`
+        : `<div class="set-staff-in"><label for="set-code">קוד מדריכים: פותח את כל המשחק לשחקן הזה בלבד</label>
         <div class="set-code"><input id="set-code" type="password" inputmode="numeric" autocomplete="off" maxlength="8" dir="ltr" aria-label="קוד מדריכים"><button class="btn primary" data-set="unlock">פתיחה</button></div>
         <p class="set-err" hidden>הקוד לא נכון</p></div>`}</details>`;
   }
@@ -200,8 +200,8 @@ export function openSettings(host, { emit, getMusic, getSound, setSound, getQual
   layer.innerHTML = `<div class="set-scrim"></div><div class="set-sheet paper" role="dialog" aria-modal="true" aria-label="${esc(t('הגדרות', 'הַגְדָּרוֹת'))}">
     <button class="pp-x set-x" data-x="1" aria-label="סגירה" title="סגירה">${icon('close')}</button>
     <h3 class="set-h">${icon('gear')}${t('הגדרות', 'הַגְדָּרוֹת')}</h3>
-    <div class="set-cols">${settingsRowsHTML({ rows: ['h:me', 'mode', 'text', 'voice', 'again'], getMusic, getSound, getQuality })}
-    ${settingsRowsHTML({ rows: ['h:pc', 'time', 'sources', 'sound', 'music', 'quality', 'staff'], getMusic, getSound, getQuality })}</div></div>`;
+    <div class="set-cols">${settingsRowsHTML({ rows: ['h:me', 'mode', 'text', 'voice', 'again', 'staff'], getMusic, getSound, getQuality })}
+    ${settingsRowsHTML({ rows: ['h:pc', 'time', 'sources', 'sound', 'music', 'quality'], getMusic, getSound, getQuality })}</div></div>`;
   host.appendChild(layer);
   const sheet = layer.querySelector('.set-sheet');
   bindSettingsRows(sheet, { emit, getMusic, getSound, setSound, getQuality, setQuality });
