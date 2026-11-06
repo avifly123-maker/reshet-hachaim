@@ -391,4 +391,6 @@ export const CSS_MAIN = `
 .wol-learn .wl-rsay{position:absolute;left:50%;top:-2.35em;z-index:4;white-space:nowrap;font-family:var(--serif);font-weight:700;font-size:1.05em;padding:.2em .9em;border-radius:99px;transform:translateX(-50%);pointer-events:none;animation:wl-say .6s .35s cubic-bezier(.3,1.6,.5,1) both;box-shadow:0 .3em .8em rgba(0,0,0,.3)}
 .wol-learn .wl-rsay.s-rare{background:linear-gradient(180deg,#ffe9a8,#e8a43a);color:#4a2c06}
 .wol-learn .wl-rsay.s-epic{background:linear-gradient(90deg,#f6cf72,#e79aab,#b9a8e0);color:#3a1630}
-.wol-learn .wl-rsay.s-tech{background:linear-gradient(180deg,#dbeaf0,#8cc3dc);color:#1f3f58}`;
+.wol-learn .wl-rsay.s-tech{background:linear-gradient(180deg,#dbeaf0,#8cc3dc);color:#1f3f58}
+/* six places (6.11: the desert and the savanna): on a low screen the choices are slimmer, so "יוצאים לדרך" stays in view */
+@media (max-height:620px){.wol-learn .wl-setup .wl-choice{min-height:3.2em;padding:.4em .8em}.wol-learn .wl-setup .wl-places .wl-choice small{display:none}.wol-learn .wl-setup .wl-step h3{margin:.2em 0}}`;

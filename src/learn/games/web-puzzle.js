@@ -237,6 +237,7 @@ const CSS = `
 .wp-tab{min-width:9em;padding:.55em 1.6em;border-radius:99px;font-weight:800;font-size:1.15em;background:rgba(246,240,220,.12);border:2px solid rgba(246,240,220,.25)!important;color:#f3ecd2;display:flex;align-items:center;justify-content:center;gap:.5em}
 .wp-tab.on{background:linear-gradient(180deg,#a2dc78,#5fae4a);border-color:#3f8a33!important;color:#10260b;box-shadow:0 4px 0 #2f6a26}
 .wp-tab small{font-size:.8em;opacity:.85}
+@media (max-width:900px){.wp-tabs{gap:.45em}.wp-tab{min-width:0;padding:.45em .9em;font-size:1em}}
 .wp-grid{width:min(52em,94%);border-radius:22px;padding:1.3em 1.4em;display:grid;grid-template-columns:repeat(6,1fr);gap:.9em}
 .wp-lvl{position:relative;aspect-ratio:1/1.05;border-radius:16px;background:#fbf6e5;border:2px solid var(--edge)!important;box-shadow:0 3px 0 var(--edge),0 6px 14px rgba(0,0,0,.15);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.25em;transition:transform .15s}
 .wp-lvl:hover:not(:disabled){transform:translateY(-3px)}

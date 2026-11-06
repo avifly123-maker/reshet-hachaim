@@ -100,8 +100,10 @@ echo "$out" | grep "\[pageerror\]\|JS ERROR\|UNTIL TIMEOUT\|NO ELEMENT" && fail 
 # track (stuck on sand with a hint, a step card only after the tutorial), wide wheels cross the sand, the garage; beginners;
 # and the technology cards (a drop-in after the step card, the album's tech tab, the zoom); set 4: the missions (the
 # missions tutorial, the robot on the bench goes to a mission in 3D, the count, a missing part's help, back to the workshop)
-# 1.4.4 set 0: the robot lab home has two sides; the inventors' robot workshop fits the screen with no scroll bar (inv-robots)
-for t in workshop:14 workshop-kids:5 techcards:7 workshop-missions:14 workshop-island:8 garage:10 stage9:5 sandbox:8 chat:20 inv-robots:7 weekly:11 nz-workshop:34 ws-path:11 allopen-player:6 ws-kids:11 nz-voice:3 weekly-events:13 weekly-det-race:12 drone-missions:6 hard-challenges:3 rare-badges:5 films:4; do
+# 1.4.4 set 0 (6.11: two big doors, lessons and the robot workshop); the inventors' robot workshop fits the screen with no scroll bar (inv-robots)
+# 6.11: the workshop's inventor path, how-to, shelf carousel and badge note (ws-path), the beginners' workshop (ws-kids), the
+# instructors' code opening everything for one player only (allopen-player)
+for t in workshop:14 workshop-kids:5 techcards:7 workshop-missions:14 workshop-island:8 garage:10 stage9:5 sandbox:8 chat:20 inv-robots:7 weekly:11 nz-workshop:34 ws-path:11 allopen-player:6 ws-kids:11 nz-voice:3 ws-room-leave:5 weekly-events:13 weekly-det-race:12 drone-missions:6 hard-challenges:3 rare-badges:5 films:4; do
   f=${t%%:*}; want=${t##*:}
   out=$(timeout 1200 python3 tools/play.py dist/index.html tests/play/$f.json 800 460 2>&1)
   n=$(echo "$out" | grep -c "CHECK .* ok")
