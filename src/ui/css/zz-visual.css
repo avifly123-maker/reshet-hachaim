@@ -1,0 +1,81 @@
+/* ── 6.11 visual pass, part 2 (Avi: "pictures, big colourful buttons with white letters, lively colour, our own style").
+   Loaded after zz-buttons.css. The palette (--bt-*) is defined there. */
+
+/* the start screen's level switch: two big pills; the chosen one is lit in its colour with white letters */
+#ui.wol .st-modes { gap: 6px; padding: 6px; border-radius: 999px; }
+#ui.wol .st-modes button { min-height: 50px; padding: 6px 22px 6px 18px; border-radius: 999px; }
+#ui.wol .st-modes button .ic { width: 30px; height: 30px; }
+#ui.wol .st-modes [data-mode][aria-checked="true"] { color: #fff; text-shadow: 0 1px 1px rgba(0, 0, 0, .28); }
+#ui.wol .st-modes [data-mode="kids"][aria-checked="true"] { background: var(--bt-orange); box-shadow: 0 3px 0 var(--bt-orange-e); }
+#ui.wol .st-modes [data-mode="full"][aria-checked="true"] { background: var(--bt-blue); box-shadow: 0 3px 0 var(--bt-blue-e); }
+#ui.wol .st-modes [data-mode][aria-checked="true"] b, #ui.wol .st-modes [data-mode][aria-checked="true"] small, #ui.wol .st-modes [data-mode][aria-checked="true"] .ic { color: #fff; }
+@media (max-height: 520px) {
+  #ui.wol .st-pane .st-modes { padding: 3px; margin-block: 0; } #ui.wol .st-pane .st-modes button { min-height: 36px; padding: 2px 18px; }
+  #ui.wol .st-modes button .ic { width: 24px; height: 24px; } #ui.wol .st-modes button b { font-size: 1.1em; } }
+
+/* ── the lab: choices and actions as colourful pills (the lab injects its own CSS at run time, so these rules carry one
+   class more: #ui.wol.wol) */
+#ui.wol.wol .lb-zooms button { min-height: 42px; padding: 6px 22px; border: 0; color: #fff; background: var(--bt-blue); box-shadow: 0 3px 0 var(--bt-blue-e); text-shadow: 0 1px 1px rgba(0, 0, 0, .28); font-size: 1.05em; }
+#ui.wol.wol .lb-zooms button.on { background: var(--bt-orange); box-shadow: 0 3px 0 var(--bt-orange-e); color: #fff; }
+#ui.wol.wol .ls .ls-soft { min-height: 40px; padding: 6px 16px; border: 0; color: #fff; background: var(--bt-blue); box-shadow: 0 3px 0 var(--bt-blue-e); text-shadow: 0 1px 1px rgba(0, 0, 0, .25); }
+#ui.wol.wol .ls-seg { gap: 6px; }
+#ui.wol.wol .ls-seg button { min-height: 36px; padding: 5px 14px; font-size: .95em; border: 2px solid #9cc8ea; background: #eaf5fd; color: #1a4a8a; }
+#ui.wol.wol .ls-seg button.on { border-color: transparent; background: var(--bt-green); color: #fff; box-shadow: 0 3px 0 var(--bt-green-e); text-shadow: 0 1px 1px rgba(0, 0, 0, .25); }
+#ui.wol.wol .ar-chip { min-height: 46px; font-size: .92em; border-color: #9cc8ea; background: linear-gradient(90deg, #fff, #eaf5fd); }
+#ui.wol.wol .ar-chip .ls-medal { width: 34px; height: 34px; }
+#ui.wol.wol .ar-chip.on { border-color: transparent; background: var(--bt-blue); color: #fff; box-shadow: 0 3px 0 var(--bt-blue-e); }
+#ui.wol.wol .aq-dn button { border: 0; color: #fff; background: var(--bt-blue); box-shadow: 0 3px 0 var(--bt-blue-e); }
+#ui.wol.wol .aq-dn button.on { background: linear-gradient(180deg, #3a4f6a, #1d2c40); color: #ffd978; box-shadow: 0 3px 0 #0e1620; }
+#ui.wol.wol .gs-tests button { border: 0; color: #fff; background: var(--bt-purple); box-shadow: 0 3px 0 var(--bt-purple-e); }
+#ui.wol.wol .cs-bar > button[data-mode] { min-height: 36px; border: 2px solid #b49af4; background: #f2edff; color: #4a2f8a; }
+#ui.wol.wol .cs-bar > button[data-mode].on { border-color: transparent; background: var(--bt-purple); color: #fff; box-shadow: 0 3px 0 var(--bt-purple-e); }
+#ui.wol.wol .cl2-zones button { min-height: 34px; padding: 4px 16px; }
+/* ראינו או חשבנו?: two big buttons on every sentence, "ראינו" blue with the binoculars, "חשבנו" purple with the bulb */
+#ui.wol.wol .lt-card { gap: 8px; padding: 8px 10px; border-radius: 14px; }
+#ui.wol.wol .lt-card > span { font-size: 1.04em; }
+#ui.wol.wol .lt-card button { min-height: 40px; padding: 5px 14px; border: 0; color: #fff; font-size: .95em; text-shadow: 0 1px 1px rgba(0, 0, 0, .25); }
+#ui.wol.wol .lt-card button .ic { width: 20px; height: 20px; }
+#ui.wol.wol .lt-card button[data-k="see"] { background: var(--bt-blue); box-shadow: 0 3px 0 var(--bt-blue-e); }
+#ui.wol.wol .lt-card button[data-k="think"] { background: var(--bt-purple); box-shadow: 0 3px 0 var(--bt-purple-e); }
+#ui.wol.wol .lt-card button:hover { filter: brightness(1.08); transform: translateY(-1px); }
+/* research questions: bigger pictures on every question */
+#ui.wol.wol .lb-q-list button { grid-template-columns: 54px 1fr; padding: 8px 10px; border-radius: 14px; }
+#ui.wol.wol .lb-q-list button img { width: 54px; height: 54px; box-shadow: 0 0 0 3px #fff, 0 2px 4px rgba(0, 0, 0, .25); }
+#ui.wol.wol .lb-q-list button span { font-size: 1em; }
+@media (max-height: 520px) {
+  #ui.wol.wol .lt-card button { min-height: 32px; padding: 3px 10px; } #ui.wol.wol .ls-seg button { min-height: 30px; padding: 3px 10px; }
+  #ui.wol.wol .lb-zooms button { min-height: 34px; padding: 4px 16px; } #ui.wol.wol .ar-chip { min-height: 38px; } }
+
+/* ── the learning centre's games (their CSS is injected as #wol-learn.wol-learn: one class more here) */
+/* the inventors: the big "test it" button is a green go; the themes are coloured round buttons; the problems are cards */
+#wol-learn.wol-learn.wol-learn .iv-test { color: #fff; background: var(--bt-green); box-shadow: 0 4px 0 var(--bt-green-e), 0 8px 16px rgba(0, 0, 0, .25); text-shadow: 0 1px 1px rgba(0, 0, 0, .28); }
+#wol-learn.wol-learn.wol-learn .iv-th { --c: #3c8ce0; min-height: 2.6em; font-size: .8em; background: color-mix(in srgb, var(--c) 30%, transparent); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--c) 70%, transparent); }
+#wol-learn.wol-learn.wol-learn .iv-th:nth-child(4n+2) { --c: #3aa860; } #wol-learn.wol-learn.wol-learn .iv-th:nth-child(4n+3) { --c: #e0508a; } #wol-learn.wol-learn.wol-learn .iv-th:nth-child(4n) { --c: #8a5cc8; }
+#wol-learn.wol-learn.wol-learn .iv-th .wl-ic { width: 1.7em; height: 1.7em; color: #fff; }
+#wol-learn.wol-learn.wol-learn .iv-th.on { background: var(--c); color: #fff; box-shadow: 0 3px 0 color-mix(in srgb, var(--c) 60%, #111); }
+#wol-learn.wol-learn.wol-learn .iv-th.on .wl-ic { color: #fff; }
+#wol-learn.wol-learn.wol-learn .iv-pbtn { min-height: 2.9em; border-radius: 999px; padding: .5em .9em; background: linear-gradient(90deg, rgba(92, 176, 242, .28), rgba(92, 176, 242, .1)); box-shadow: inset 0 0 0 1.5px rgba(150, 200, 250, .45); }
+#wol-learn.wol-learn.wol-learn .iv-pbtn:hover { background: linear-gradient(90deg, rgba(92, 176, 242, .42), rgba(92, 176, 242, .18)); }
+#wol-learn.wol-learn.wol-learn .iv-pbtn.on { background: var(--bt-orange); color: #fff; box-shadow: 0 3px 0 var(--bt-orange-e); text-shadow: 0 1px 1px rgba(0, 0, 0, .25); }
+#wol-learn.wol-learn.wol-learn .iv-pbtn.on .wl-ic { color: #fff; }
+
+/* ── the robot lab's run bar: every button its colour (go is green already) */
+#ui.wol .rl-run button[data-run="slow"] { color: #fff !important; background: var(--bt-blue) !important; box-shadow: 0 3px 0 var(--bt-blue-e) !important; border: 0; text-shadow: 0 1px 1px rgba(0, 0, 0, .25); }
+#ui.wol .rl-run button[data-again] { color: #fff !important; background: var(--bt-orange) !important; box-shadow: 0 3px 0 var(--bt-orange-e) !important; border: 0; text-shadow: 0 1px 1px rgba(0, 0, 0, .25); }
+#ui.wol .rl-run button[data-why] { color: #fff !important; background: var(--bt-purple) !important; box-shadow: 0 3px 0 var(--bt-purple-e) !important; border: 0; text-shadow: 0 1px 1px rgba(0, 0, 0, .25); }
+#ui.wol .rl-run button[data-why]:disabled { filter: grayscale(.7) opacity(.5); }
+#ui.wol .rl-run button[data-hint] { color: #3a2a00 !important; background: #f2c94c !important; box-shadow: 0 3px 0 #b88f16 !important; border: 0; }
+#ui.wol .rl-run button { border-radius: 999px !important; min-height: 40px; }
+@media (max-height: 520px) { #wol-learn.wol-learn.wol-learn .iv-pbtn { min-height: 2.3em; padding: .3em .8em; } }
+/* the learning centre's home: every card game tile in its own colour (its --tc tone), the icon bigger */
+#wol-learn.wol-learn .wl-gt { background: linear-gradient(160deg, color-mix(in srgb, var(--tc) 20%, #fffaf0), color-mix(in srgb, var(--tc) 38%, #f3e6c8)) !important; box-shadow: 0 4px 0 color-mix(in srgb, var(--tc) 70%, #222), 0 8px 16px rgba(0, 0, 0, .2) !important; border-color: transparent !important; }
+#wol-learn.wol-learn .wl-gt b { color: color-mix(in srgb, var(--tc) 55%, #111); }
+#wol-learn.wol-learn .wl-gt .wl-tic { transform: scale(1.18); }
+#wol-learn.wol-learn .wl-gt:hover { filter: brightness(1.05); }
+/* the lab's buttons by what they do: back and out orange, talking and help purple, the thinking corner pink, go green */
+#ui.wol .lb-btn.lb-home, #ui.wol .lb-btn.lb-exit, #ui.wol .lb-btn.ls-back { --bt-c: var(--bt-orange); --bt-e: var(--bt-orange-e); }
+#ui.wol .lb-btn.lb-talk, #ui.wol .lb-btn.lb-qbtn, #ui.wol .lb-btn.lb-hint { --bt-c: var(--bt-purple); --bt-e: var(--bt-purple-e); }
+#ui.wol .lb-btn.lb-think { --bt-c: var(--bt-pink); --bt-e: var(--bt-pink-e); }
+#ui.wol .lb-btn.lb-go, #ui.wol .lb-btn.lb-test, #ui.wol .lb-btn.lb-q-go { --bt-c: var(--bt-green); --bt-e: var(--bt-green-e); }
+/* the lab's top buttons on a narrow screen: one line each */
+@media (max-width: 900px) { #ui.wol .lb .lb-btn { white-space: nowrap; padding: 6px 12px; font-size: .9em; gap: 4px; } #ui.wol .lb .lb-btn .ic { width: 16px; height: 16px; } }
