@@ -2,6 +2,7 @@
 // earned. One at a time; a click or 5 seconds closes it. Listens to the 'wol-badge' event (src/core/badges-store.js).
 import { badgeHTML, BADGE_CSS } from './badge-art.js';
 import { badgeById } from '../data/badges.js';
+import { playerMode } from '../core/storage.js';
 
 export function startBadgeToasts(root, audio) {
   if (!document.getElementById('wol-badge-css')) {
@@ -14,6 +15,13 @@ export function startBadgeToasts(root, audio) {
 #ui.wol .bdg-pop h4{margin:0;font-family:var(--serif);font-size:1.15em;color:#f6cf72;letter-spacing:.02em}
 #ui.wol .bdg-pop .bdg{--bs:8.6em}
 #ui.wol .bdg-pop .bdg-med{animation:bdg-spin 1.1s .2s ease-out both}
+#ui.wol .bdg-pop.many{left:14px;top:auto;bottom:72px;transform:none;padding:.7em 1.1em .8em;animation:bdg-side .6s cubic-bezier(.2,1.4,.4,1) both}
+#ui.wol .bdg-pop.many.out{animation:bdg-sideout .35s ease-in both}
+#ui.wol .bdg-pop .bdg-two{display:flex;align-items:center;gap:.5em}
+#ui.wol .bdg-pop.many .bdg{--bs:5.2em}
+#ui.wol .bdg-pop .bdg-more{display:grid;place-items:center;min-width:3.2em;height:3.2em;padding:0 .4em;border-radius:1.6em;background:linear-gradient(#ffd76a,#e8952a);color:#3a2108;font-size:.95em;box-shadow:0 3px 0 #8a5418}
+@keyframes bdg-side{from{opacity:0;transform:translateY(40px) scale(.8)}to{opacity:1;transform:none}}
+@keyframes bdg-sideout{to{opacity:0;transform:translateY(20px)}}
 #ui.wol .bdg-pop p{margin:0;max-width:22em;text-align:center;color:#e6dcbc;font-size:.95em}
 #ui.wol .bdg-pop .rays{position:absolute;left:50%;top:44%;width:22em;height:22em;margin:-11em 0 0 -11em;border-radius:50%;pointer-events:none;z-index:-1;
   background:repeating-conic-gradient(rgba(246,207,114,.16) 0 7deg,transparent 7deg 20deg);animation:bdg-rays 9s linear infinite;-webkit-mask:radial-gradient(circle,#000 30%,transparent 70%);mask:radial-gradient(circle,#000 30%,transparent 70%)}
@@ -32,10 +40,19 @@ export function startBadgeToasts(root, audio) {
     if (busy || !queue.length) return;
     // a mission banner ("משימה הושלמה!") is showing: the badge waits until it is gone, so they never cover each other
     if (root.querySelector('.mission-banner') || document.querySelector('.ss')) { if (!waitT) waitT = setTimeout(() => { waitT = 0; next(); }, 300); return; }
-    const b = badgeById(queue.shift()); if (!b) { next(); return; }
+    // from 1.4.4 (Avi): many badges at once are one note in the corner: "קיבלתם N תגים!", the first two medallions, and
+    // the rest wait in "התגים שלי" (instead of a long row of drops one after another)
+    const ids = [...new Set(queue.splice(0))];
+    const list = ids.map(badgeById).filter(Boolean); if (!list.length) { next(); return; }
+    let html, many = false;
+    if (list.length === 1) { const b = list[0]; html = `<i class="rays"></i><h4>תג חדש!</h4>${badgeHTML(b)}<p>${b.how}</p>`; }
+    else {
+      many = true; const kids = playerMode() === 'kids', n = list.length;
+      html = `<h4>${kids ? `קִבַּלְתֶּם ${n} תָּגִים!` : `קיבלתם ${n} תגים!`}</h4><div class="bdg-two">${list.slice(0, 2).map((b) => badgeHTML(b)).join('')}${n > 2 ? `<b class="bdg-more">${kids ? `וְעוֹד ${n - 2}` : `ועוד ${n - 2}`}</b>` : ''}</div><p>${kids ? 'כֻּלָּם מְחַכִּים בַּ"תָּגִים שֶׁלִּי"' : 'כולם מחכים ב"התגים שלי"'}</p>`;
+    }
     busy = true;
-    const el = document.createElement('div'); el.className = 'bdg-pop'; el.setAttribute('role', 'status');
-    el.innerHTML = `<i class="rays"></i><h4>תג חדש!</h4>${badgeHTML(b)}<p>${b.how}</p>`;
+    const el = document.createElement('div'); el.className = 'bdg-pop' + (many ? ' many' : ''); el.setAttribute('role', 'status');
+    el.innerHTML = html;
     root.appendChild(el);
     try { audio && audio.play('mission'); } catch (e) { /* */ }
     try { window.__flourish && window.__flourish.badge(el); } catch (e) { /* */ }   // round sparks round the medallion (src/ui/flourish.js)
