@@ -1340,6 +1340,7 @@
   border-radius: 50%; border: 1.5px solid rgba(251, 246, 228, .55); background: rgba(14, 26, 20, .62); color: #fbf6e4; cursor: pointer; pointer-events: auto;
   box-shadow: 0 4px 12px rgba(0, 0, 0, .3); transition: background .2s, opacity .2s, transform .15s; }
 #ui.wol .mus-btn[hidden] { display: none; }
+#ui.wol:has(.set-layer) .mus-btn { display: none; }   /* the settings sheet has its own music switch (from 1.4.4) */
 #ui.wol .mus-btn .ic { width: 24px; height: 24px; }
 #ui.wol .mus-btn .ic .f { fill: rgba(251, 246, 228, .35); }
 #ui.wol .mus-btn:hover { background: rgba(14, 26, 20, .82); transform: scale(1.06); }

@@ -233,6 +233,7 @@ const CSS = `
 .wp-phead h1 .wl-ic{width:.9em;height:.9em;color:var(--amber)}
 .wp-phead p{margin-top:.45em;font-family:var(--serif);font-size:calc(1.15em * var(--tsr,1));color:#e2dcbd}
 .wp-tabs{display:flex;gap:.8em;justify-content:center}
+@media (max-width:900px){.wp-tabs{gap:.45em}.wp-tab{min-width:0;padding:.45em .9em;font-size:1em}}
 .wp-tab{min-width:9em;padding:.55em 1.6em;border-radius:99px;font-weight:800;font-size:1.15em;background:rgba(246,240,220,.12);border:2px solid rgba(246,240,220,.25)!important;color:#f3ecd2;display:flex;align-items:center;justify-content:center;gap:.5em}
 .wp-tab.on{background:linear-gradient(180deg,#a2dc78,#5fae4a);border-color:#3f8a33!important;color:#10260b;box-shadow:0 4px 0 #2f6a26}
 .wp-tab small{font-size:.8em;opacity:.85}
