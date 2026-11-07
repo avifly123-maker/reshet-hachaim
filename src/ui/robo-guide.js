@@ -33,7 +33,7 @@ const hushable = (opts, sc) => !opts.force && !opts.guided && !opts.modal && (op
 const CSS = `
 #ui #rguide { position: absolute; inset: 0; z-index: var(--z-guide); pointer-events: none; direction: rtl; font-family: var(--sans, sans-serif); }
 #ui #rguide.modal { pointer-events: auto; background: rgba(6, 14, 9, .55); animation: rg-fade .25s ease-out; }
-#ui #rguide .rg-wrap { position: absolute; right: max(12px, 2vw); bottom: max(10px, 2vh); display: flex; align-items: flex-end; gap: 10px; pointer-events: none; max-width: min(760px, calc(100vw - 24px)); }
+#ui #rguide .rg-wrap { position: absolute; z-index: 1; right: max(12px, 2vw); bottom: max(10px, 2vh); display: flex; align-items: flex-end; gap: 10px; pointer-events: none; max-width: min(760px, calc(100vw - 24px)); }
 #ui #rguide.center .rg-wrap { right: 50%; bottom: 50%; transform: translate(50%, 50%); }
 #ui #rguide .rg-fig { position: relative; flex: none; width: clamp(92px, 13vw, 150px); aspect-ratio: 200 / 240; animation: rg-bob 3.2s ease-in-out infinite; filter: drop-shadow(0 6px 10px rgba(0,0,0,.35)); }
 #ui #rguide .rg-fig svg, #ui #rguide .rg-fig img.rg-pic { position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -58,7 +58,8 @@ const CSS = `
 #ui #rguide .rg-say { background: transparent; color: #1f7f78; padding: 6px 8px; min-width: 42px; }
 #ui #rguide .rg-say svg { width: 22px; height: 22px; display: block; }
 #ui #rguide button:focus-visible { outline: 3px solid #e6a93c; outline-offset: 2px; }
-#ui #rguide .rg-ring { position: fixed; border-radius: 16px; pointer-events: none; box-shadow: 0 0 0 4px #ffd166, 0 0 0 9px rgba(255, 209, 102, .35), 0 0 24px 8px rgba(255, 209, 102, .5); animation: rg-pulse 1.4s ease-in-out infinite; transition: all .25s ease; }
+#ui #rguide .rg-ring { position: fixed; z-index: 0; border-radius: 16px; pointer-events: none; box-shadow: 0 0 0 4px #ffd166, 0 0 0 9px rgba(255, 209, 102, .35), 0 0 24px 8px rgba(255, 209, 102, .5); animation: rg-pulse 1.4s ease-in-out infinite; transition: all .25s ease; }
+#ui #rguide .rg-act.quiet { background: transparent; color: #6b6b52; text-decoration: underline; box-shadow: none; font-weight: 400; font-size: .9em; }
 #ui #rguide.tip .rg-bub { min-width: 200px; }
 @keyframes rg-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 @keyframes rg-talk { 0%,100% { rotate: 0deg; } 50% { rotate: -1.5deg; } }
@@ -94,14 +95,14 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
       <div class="rg-bub"><span class="rg-name">${kids ? 'רוֹבּוֹ־דַּע' : 'רובו־דע'}</span><p class="rg-txt">${esc(words(ln))}</p>
         <div class="rg-foot">${c.lines.length > 1 ? `<span class="rg-dots">${c.lines.map((_, j) => `<i class="${j === c.i ? 'on' : ''}"></i>`).join('')}</span>` : '<span class="rg-dots"></span>'}
           ${ln.id ? `<button class="rg-say" data-g="say" aria-label="${kids ? 'לִשְׁמֹעַ שׁוּב' : 'לשמוע שוב'}" title="${kids ? 'לִשְׁמֹעַ שׁוּב' : 'לשמוע שוב'}">${SPEAKER}</button>` : ''}
-          ${acts ? acts.map((a, j) => `<button class="rg-act${a.kind === 'primary' || (!a.kind && j === 0) ? ' primary' : ''}" data-act="${esc(a.id)}">${esc(a.label)}</button>`).join('')
+          ${acts ? acts.map((a, j) => `<button class="rg-act${a.kind === 'primary' || (!a.kind && j === 0) ? ' primary' : ''}${a.kind === 'quiet' ? ' quiet' : ''}" data-act="${esc(a.id)}">${esc(a.label)}</button>`).join('')
             : `<button class="rg-next" data-g="next">${lastOne ? (c.opts.tip ? (kids ? 'הָבַנְתִּי' : 'הבנתי') : (kids ? 'סִיּוּם' : 'סיום')) : (kids ? 'הַבָּא' : 'הבא')}</button>`}
           ${!lastOne && !c.opts.tip ? `<button class="rg-skip" data-g="skip">${kids ? 'דַּלֵּג' : 'דלג'}</button>` : ''}
           ${hushable(c.opts, c.scene) && !c.opts.hush ? `<button class="rg-act quiet rg-hush" data-g="hush" title="${kids ? 'רוֹבּוֹ־דַּע יְדַבֵּר רַק כְּשֶׁצָּרִיךְ' : 'רובו־דע ידבר רק כשצריך'}">${kids ? 'שֶׁקֶט, רוֹבּוֹ־דַּע' : 'שקט, רובו־דע'}</button>` : ''}</div></div></div>`;
     placeRing(ln.at); placeWrap();
     synthTalk = Math.min(4, 0.9 + words(ln).length / 22);   // the mouth moves a little even without sound
     if (voice && ln.id && c.spokenI !== c.i) { c.spokenI = c.i; voice.say(ln.id).catch(() => { }); }
-    const btn = el.querySelector('.rg-next, .rg-act'); try { btn && btn.focus({ preventScroll: true }); } catch (e) { }
+    const btn = el.querySelector('.rg-next, .rg-act:not(.quiet)'); try { btn && btn.focus({ preventScroll: true }); } catch (e) { }
   }
   // an element the child can see now (a ring around a removed or hidden one would float over nothing)
   function shown(t) {
@@ -113,10 +114,19 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
   function placeWrap() {
     const w = el.querySelector('.rg-wrap'); if (!w || !cur) return;
     w.style.bottom = '';
-    if (cur.scene !== 'game' || cur.opts.modal || cur.opts.place === 'center') return;
-    const tray = document.querySelector('#ui .tray'); if (!shown(tray)) return;
-    const top = tray.getBoundingClientRect().top; if (top <= 0 || top >= innerHeight) return;
-    w.style.bottom = Math.round(innerHeight - top + TRAY_GAP_PX) + 'px';
+    if (cur.opts.modal || cur.opts.place === 'center') return;
+    if (cur.scene === 'game') {
+      const tray = document.querySelector('#ui .tray');
+      const top = shown(tray) ? tray.getBoundingClientRect().top : 0;
+      if (top > 0 && top < innerHeight) w.style.bottom = Math.round(innerHeight - top + TRAY_GAP_PX) + 'px';
+    }
+    // from 1.4: the bubble never hides the thing it rings (small screens: a button at the bottom, a block low in a
+    // list); it moves up to sit just above it, when there is room
+    if (ringAt && shown(ringAt)) {
+      const r = ringAt.getBoundingClientRect(), b = w.getBoundingClientRect();
+      const over = r.left < b.right && r.right > b.left && r.top < b.bottom && r.bottom > b.top;
+      if (over && r.top - 10 > b.height) w.style.bottom = Math.round(innerHeight - r.top + 10) + 'px';
+    }
   }
   function placeRing(at) {
     const old = el.querySelector('.rg-ring'); if (old) old.remove();
@@ -126,14 +136,21 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
     ringAt = t; const r = t.getBoundingClientRect();
     const ring = document.createElement('i'); ring.className = 'rg-ring';
     ring.style.cssText = `left:${r.left - 6}px;top:${r.top - 6}px;width:${r.width + 12}px;height:${r.height + 12}px`;
-    el.appendChild(ring);
+    el.insertBefore(ring, el.firstChild);   // under the bubble (from 1.4.4: a highlight never covers the words)
   }
   function loop(now) {
     raf = requestAnimationFrame(loop);
     const dt = last ? Math.min(0.1, (now - last) / 1000) : 0; last = now;
     const fig = el.querySelector('.rg-fig'); if (!fig || !cur) return;
     // the ringed thing went away (a forest closed, a panel changed): the ring goes too
-    if (ringAt && now - ringCheck > RING_CHECK_MS) { ringCheck = now; if (!shown(ringAt)) placeRing(null); }
+    if (now - ringCheck > RING_CHECK_MS) {
+      ringCheck = now;
+      if (ringAt) { if (!shown(ringAt)) placeRing(null); }
+      else {   // from 1.4.4: a thing that shows a moment after its line still gets its ring, and the bubble moves off it
+        const at = cur.lines[cur.i] && cur.lines[cur.i].at, t = at && (typeof at === 'string' ? document.querySelector(at) : at);
+        if (shown(t)) { placeRing(at); placeWrap(); }
+      }
+    }
     const cv = fig.querySelector('canvas');
     blinkT += dt; let blink = 0;
     if (blinkT > nextBlink) { const k = (blinkT - nextBlink) / 0.16; blink = k < 1 ? Math.sin(k * Math.PI) : 0; if (k >= 1) { blinkT = 0; nextBlink = 2 + Math.random() * 3; } }
