@@ -471,6 +471,9 @@ export const MISSIONS = [
   { id: 'nest', title: 'לבדוק קן בצמרת', ask: 'רוצים לדעת אם יש ביצים בקן גבוה, בלי להבהיל את הציפורים.', tests: ['branch', 'quiet', 'glide'], art: 'grove:jay' },
   { id: 'snow', title: 'משלוח להר המושלג', ask: 'בחורף, תחנת המחקר בהר מכוסה שלג. צריך להביא לשם ציוד, במעלה סלע תלול.', tests: ['cold', 'carry', 'wall'], art: 'grove:hyrax' },
   { id: 'deep', title: 'מערה מתחת למים', ask: 'בשונית יש מערה חשוכה עם כניסה צרה. מה יש בפנים?', tests: ['swim', 'dark', 'gap'], art: 'reef:moray' },
+  // from 1.4.4 (Avi: "more, different missions"): two more from the islands of 1.3, each with three tests of its own
+  { id: 'canopy', title: 'זרעים לצמרת', ask: 'ביער הגשם רוצים לשתול זרעים גבוה על הענפים. צריך רובוט שנאחז בענף, נושא משא ומטפס.', tests: ['branch', 'carry', 'wall'], art: 'amazon:sloth' },
+  { id: 'turtles', title: 'ללוות צבים לים', ask: 'גורי צבים בוקעים בלילה על החוף. צריך רובוט שהולך בחול, רואה בחושך ושוחה איתם.', tests: ['sand', 'dark', 'swim'], art: 'reef:turtle' },
   { id: 'all', title: 'המבחן הגדול', ask: 'כל שתים עשרה הבדיקות. אין רובוט שמצליח בכולן. בכמה תצליחו?', tests: TRIALS.map((t) => t.id), art: 'reef:octopus', free: true },
 ];
 
