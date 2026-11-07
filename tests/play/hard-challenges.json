@@ -1,0 +1,54 @@
+[
+{
+"wait": 3
+},
+{
+"js": "['stage:1','g:hubtut','g:album','g:learn','g:start:chat','g:start:howstages','g:start:settings','g:weektut','g:journey'].forEach((k) => window.__journey.markIntro(k)); window.__journey.markTrained(); window.__guide && window.__guide.close(); window.__journey.unlockAll('2580'); try{localStorage.setItem('web-of-life-mode','full')}catch(e){}; window.__journey.setPlayMode && window.__journey.setPlayMode('full'); 1"
+},
+{
+"js": "window.__app.bus.emit('start:biome',{id:'reef'}); 1"
+},
+{
+"until": "window.__game && window.__game.biomeId==='reef' && window.__game.debug && window.__game.missions",
+"timeout": 120
+},
+{
+"wait": 3
+},
+{
+"js": "const W=window.__game; window.__guide && window.__guide.close(); const ms=W.missions.missions; ms.forEach(m=>{ if(!['rx5','rx6','rx7'].includes(m.id)) m.done=true; }); W.debug.unlockAll && W.debug.unlockAll(); const c=W.missions.current(); 'CUR '+(c&&c.id)"
+},
+{
+"js": "window.__guide && window.__guide.close(); [...document.querySelectorAll('button')].filter(b=>/^(דלגו|דלג)$/.test(b.textContent.trim())).forEach(b=>b.click()); 1"
+},
+{
+"wait": 2
+},
+{
+"js": "window.__guide && window.__guide.close(); window.__game.debug.ff && window.__game.debug.ff(20); 1"
+},
+{
+"wait": 10
+},
+{
+"js": "const W=window.__game; W.missions.tick(); const c=W.missions.current(); 'CHECK hard-challenge-current ' + (c && c.id==='rx5' && c.hard && c.started ? 'ok' : 'FAIL '+(c&&c.id)+' '+(c&&c.started))"
+},
+{
+"js": "const W=window.__game; const e=W.missions.events.find(x=>x.id==='r_x5'); 'CHECK hard-problem-queued ' + (e && e.fired ? 'ok' : 'FAIL fired '+(e&&e.fired))"
+},
+{
+"shot": "shots/drone-missions/hard1.png"
+},
+{
+"js": "window.__app.bus.emit('ui:missions'); 1"
+},
+{
+"wait": 1.5
+},
+{
+"js": "'CHECK hard-label ' + (/אתגר קשה/.test(document.body.textContent) ? 'ok' : 'FAIL')"
+},
+{
+"shot": "shots/drone-missions/hard2.png"
+}
+]

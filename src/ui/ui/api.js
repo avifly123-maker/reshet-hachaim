@@ -163,7 +163,7 @@ export function createApi(ctx) {
         const p = m.done ? 1 : clamp01(m.progress);
         // an expert mission (משימת מומחים): a gold tag, its badge, and a checklist of its parts
         const bd = m.expert ? badgesFor('mission:' + m.id)[0] : null;
-        const xp = m.expert ? `<div class="m-expert">${bd ? badgeHTML(bd, { cls: 'mini' }) : ''}<span><b>משימת מומחים</b><small>${bd ? 'הפרס: התג "' + esc(bd.name) + '"' : 'משימה קשה במיוחד'}</small></span></div>` : '';
+        const xp = m.expert ? `<div class="m-expert">${bd ? badgeHTML(bd, { cls: 'mini' }) : ''}<span><b>${m.hard ? 'אתגר קשה: קודם מבינים מה קרה' : 'משימת מומחים'}</b><small>${bd ? 'הפרס: התג "' + esc(bd.name) + '"' : 'משימה קשה במיוחד'}</small></span></div>` : '';
         const ck = m.checks && !m.done ? `<ul class="m-checks">${m.checks.map((c) => `<li class="${c.ok ? 'ok' : ''}"><i>${c.ok ? icon('check') : ''}</i><span>${esc(c.label)}${c.hold != null && !c.ok && c.hold > 0 ? ` <em>${c.hold}%</em>` : ''}</span></li>`).join('')}</ul>` : '';
         return `<li data-id="${esc(m.id)}" class="${m.done ? 'done' : ''}${m.expert ? ' expert' : ''}${S.openMission === m.id ? ' open' : ''}${hintsOpen.has(m.id) ? ' hint-open' : ''}">
           <div class="m-row"><span class="m-check" style="--p:${(p * 100).toFixed(1)}%">${m.done ? icon('check') : ''}</span><b>${esc(m.title)}</b><span class="m-pc">${m.done ? '' : Math.round(p * 100) + '%'}</span></div>

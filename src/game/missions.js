@@ -113,6 +113,7 @@ export function createMissions(W) {
       case 'kinds': return Math.min(1, W.aliveSpecies().length / q.count);
       case 'link': return W.linkDiscovered(q.from, q.to) ? 1 : 0;
       case 'calm': return Math.min(1, (W.simT - Math.max(S.lossT ?? -1e9, since)) / q.seconds);   // nobody withered or left hungry
+      case 'nightKinds': return Math.min(1, W.aliveSpecies().filter((id) => W.reg.byId.get(id)?.active === 'night').length / q.count);   // species active at night, alive now (from 1.4)
       case 'eventDone': { const e = events.find(x => x.id === q.event); if (!e || !e.resolved) return 0; return q.after ? Math.min(1, (W.simT - e.resolvedAt) / q.after) : 1; }   // after: and that long since
       case 'seasons': {   // whole seasons with at least `kinds` species alive all the time (falling below starts the count again)
         if (W.aliveSpecies().length < (q.kinds || 0)) { m.seasonsN = 0; m.lastSeason = W.season; return 0; }
@@ -219,7 +220,7 @@ export function createMissions(W) {
     const last = doneList[doneList.length - 1];
     if (last) out.push({ id: last.id, title: last.title, text: last.text, hint: last.hint, progress: 1, done: true, note: last.autoNote || '', expert: !!last.expert });
     const c = current();
-    if (c) out.push({ id: c.id, title: c.title, text: c.text, hint: c.hint, k: c.k, how: c.how || howTo(c), progress: c.progress, done: false, expert: !!c.expert, checks: checks(c),
+    if (c) out.push({ id: c.id, title: c.title, text: c.text, hint: c.hint, k: c.k, how: c.how || howTo(c), progress: c.progress, done: false, expert: !!c.expert, hard: !!c.hard, checks: checks(c),
       kind: c.goal?.type || '', sp: c.goal?.species || c.goal?.from || (c.goal?.tool ? 'tool:' + c.goal.tool : '') });   // kind + sp: the icon of the one-line mission (חוויה)
     const next = c && missions.find(m => m.after === c.id && (!m.expert || expertsOn()));
     if (next) out.push({ id: next.id, title: next.title, text: 'המשימה הבאה תיפתח אחרי שתסיימו את הנוכחית.', hint: '', progress: 0, done: false, locked: true, expert: !!next.expert });

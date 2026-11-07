@@ -735,3 +735,14 @@ the game (how often, how many, how strong) is game logic and is said so here. Ch
   every coral; where the reef was hurt (W.scars) a young coral is planted, one a night (two on the spawning night).
 - Not claimed: no numbers of eggs, larvae survival rates or fish counts from the studies appear in the game; the board
   numbers are the island's own.
+
+## אתגרי היער הקשים (מ־1.4.4)
+
+The hard challenges (ax5–7, gx5–7, rx5–7 in the zone files):
+- **Dart frogs and bromeliads:** adults carry tadpoles to "the water gathered in the throat of bromeliads", "the pools of water that accumulate in epiphytic plants" — https://en.wikipedia.org/wiki/Poison_dart_frog . Hummingbirds pollinate bromeliads, and bromeliads grow on trees (the zone's relations, Amazon section above).
+- **Fruit bats spread seeds at night** (Egyptian fruit bat and the Amazon's fruit bats, sections above; relation `disperses` cecropia).
+- **Anteaters eat ants** (Giant anteater line above); leafcutter ants cut leaves and farm a fungus (above).
+- **Honeybees pollinate the grove's flowers; barn owls hunt rodents and nest in boxes** (grove sections and the mystery `mice-owl` above).
+- **Blackbirds eat mastic fruit and spread the seeds** (grove relation `disperses`, above).
+- **Crown-of-thorns starfish** prey on hard coral polyps; in outbreaks, divers remove them — https://en.wikipedia.org/wiki/Crown-of-thorns_starfish .
+- **Green turtles graze seagrass** (above); **morays and octopuses shelter in holes in the reef** (reef relations `shelter`, above).

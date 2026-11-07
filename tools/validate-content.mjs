@@ -47,7 +47,7 @@ const GOAL_PARTS = {
   alive: ['species', 'count'], atMost: ['species', 'max'], fed: ['species', 'min'], did: ['stat', 'count'],
   toolSince: ['tool', 'count'], tool: ['tool', 'count'], young: ['species', 'min', 'count'], sownBy: ['species', 'by', 'count'],
   plantLight: ['species', 'min', 'count'], growTo: ['species', 'min', 'count'], pollinate: ['species', 'count'],
-  swimKinds: ['count'], kinds: ['count'], link: ['from', 'to'], calm: ['seconds'], eventDone: ['event'], seasons: ['count', 'kinds'],
+  swimKinds: ['count'], kinds: ['count'], link: ['from', 'to'], calm: ['seconds'], nightKinds: ['count'], eventDone: ['event'], seasons: ['count', 'kinds'],
   transplant: ['count'], scarHealed: ['count'], strongGrown: ['min', 'count'],   // the coral nursery (reef, 1.3.1)
 };
 const DID_STATS = ['uprooted', 'moved', 'letGo', 'reshaped'];
