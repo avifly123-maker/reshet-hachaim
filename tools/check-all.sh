@@ -56,6 +56,15 @@ out=$(timeout 900 python3 tools/play.py dist/index.html tests/play/training-skip
 echo "$out" | grep -q '"trained":true,"amazon":true' || fail "training field: skipping did not open the islands"
 echo "training field and tutorials OK"
 
+step "the refresh of 7.11 (from 1.4): instructors' code per player, inventors' robots, hard challenges, films"
+for t in allopen-player:6 inv-robots:6 hard-challenges:3 films:3; do
+  n=${t%%:*}; want=${t##*:}
+  out=$(timeout 1200 python3 tools/play.py dist/index.html tests/play/$n.json 800 460 2>&1)
+  ok=$(echo "$out" | grep -c "CHECK .* ok"); echo "$n: $ok/$want"
+  [ "$ok" -ge "$want" ] || { echo "$out" | grep "CHECK" | grep -v " ok"; fail "$n"; }
+  echo "$out" | grep "\[pageerror\]\|JS ERROR" && fail "$n: errors"
+done
+
 step "parents' play time"
 out=$(timeout 1200 python3 tools/check-playtime.py dist/index-torah.html shots/playtime 2>&1)
 echo "$out" | grep "^FAIL" ; echo "$out" | tail -1

@@ -1,9 +1,36 @@
-[{"wait": 4},
-{"js": "window.__journey.markIntro('stage:1'); window.__guide && window.__guide.close(); localStorage.setItem('web-of-life-allopen','1'); 1"},
-{"js": "'CHECK old-switch-moves-to-player ' + (window.__journey.state().allOpen && !localStorage.getItem('web-of-life-allopen') ? 'ok' : 'FAIL')"},
-{"js": "window.__journey.lockAgain(); const P=window.__profiles; window.__a=P.current().id || P.current(); 'CHECK locked ' + (!window.__journey.state().allOpen ? 'ok' : 'FAIL')"},
-{"js": "'CHECK wrong-code ' + (!window.__journey.unlockAll('1111') && !window.__journey.state().allOpen ? 'ok' : 'FAIL')"},
-{"js": "'CHECK opens-for-me ' + (window.__journey.unlockAll('2580') && window.__journey.state().allOpen ? 'ok' : 'FAIL')"},
-{"js": "const P=window.__profiles; const id=P.add('בודק', 'owl'); P.setCurrent(id.id || id); 'CHECK other-player-still-on-journey ' + (!window.__journey.state().allOpen ? 'ok' : 'FAIL ' + JSON.stringify(P.state()))"},
-{"js": "const P=window.__profiles; P.setCurrent(window.__a); 'CHECK back-to-me-open ' + (window.__journey.state().allOpen ? 'ok' : 'FAIL')"}
+[
+{
+"wait": 4
+},
+{
+"js": "window.__journey.markIntro('stage:1'); window.__guide && window.__guide.close(); localStorage.setItem('web-of-life-allopen','1'); setTimeout(() => location.reload(), 50); 1"
+},
+{
+"wait": 3
+},
+{
+"until": "!!window.__journey && !!window.__profiles",
+"timeout": 90
+},
+{
+"wait": 3
+},
+{
+"js": "'CHECK old-switch-moves-to-player ' + (window.__journey.state().allOpen && !localStorage.getItem('web-of-life-allopen') ? 'ok' : 'FAIL')"
+},
+{
+"js": "window.__journey.lockAgain(); const P=window.__profiles; window.__a=P.current().id || P.current(); 'CHECK locked ' + (!window.__journey.state().allOpen ? 'ok' : 'FAIL')"
+},
+{
+"js": "'CHECK wrong-code ' + (!window.__journey.unlockAll('1111') && !window.__journey.state().allOpen ? 'ok' : 'FAIL')"
+},
+{
+"js": "'CHECK opens-for-me ' + (window.__journey.unlockAll('2580') && window.__journey.state().allOpen ? 'ok' : 'FAIL')"
+},
+{
+"js": "const P=window.__profiles; const id=P.add('בודק', 'owl'); P.setCurrent(id.id || id); 'CHECK other-player-still-on-journey ' + (!window.__journey.state().allOpen ? 'ok' : 'FAIL ' + JSON.stringify(P.state()))"
+},
+{
+"js": "const P=window.__profiles; P.setCurrent(window.__a); 'CHECK back-to-me-open ' + (window.__journey.state().allOpen ? 'ok' : 'FAIL')"
+}
 ]

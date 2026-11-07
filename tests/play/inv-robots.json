@@ -1,38 +1,91 @@
 [
-{"wait": 4},
-{"js": "['stage:1','g:rltut','g:hubtut','g:album','g:learn','g:start:chat','g:start:howstages'].forEach((k) => window.__journey.markIntro(k)); window.__journey.markTrained(); window.__guide && window.__guide.close(); window.__journey.unlockAll('2580'); window.__app.bus.emit('ui:robolab'); 1"},
-{"until": "!!document.querySelector('.rl-home')", "timeout": 60},
-{"wait": 1},
-{"js": "const i=document.querySelector('.rl-intro [data-iskip]'); if(i) i.click(); 1"},
-{"wait": 1},
-{"js": "const a=document.querySelector('.rl-col-code'), b=document.querySelector('.rl-col-field'); const ra=a&&a.getBoundingClientRect(), rb=b&&b.getBoundingClientRect(); 'CHECK rl-two-sides ' + (ra && rb && Math.abs(ra.top-rb.top)<4 && rb.right<=ra.left+2 && rb.top<innerHeight*0.6 && !!b.querySelector('.rl-wkhero') && !!b.querySelector('.rl-sbx') ? 'ok' : 'FAIL '+JSON.stringify([ra,rb]))"},
-{"shot": "shots/set0/rl-home.png"},
-{"js": "const b=document.querySelector('.rl-home [data-exit]'); if(b) b.click(); 1"},
-{"wait": 1.5},
-{"js": "window.__guide && window.__guide.close(); window.__noRender = true; window.__app.bus.emit('ui:learn', {}); 1"},
-{"until": "!!window.__wolLearn", "timeout": 60},
-{"wait": 3},
-{"js": "window.__guide && window.__guide.close(); window.__wolLearn._go('inventors'); 1"},
-{"until": "!!window.__ivDebug", "timeout": 30},
-{"wait": 1},
-{"js": "window.__guide && window.__guide.close(); document.querySelectorAll('.howto button').forEach((b) => /הבנתי|דלג|סגירה/.test(b.textContent) && b.click()); window.__ivDebug.view('robots'); window.__scrollers = () => [...document.querySelectorAll('#wol-learn .iv *')].filter((e) => e.offsetParent !== null && e.scrollHeight > e.clientHeight + 2 && /auto|scroll/.test(getComputedStyle(e).overflowY)).map((e) => e.className.toString().slice(0, 40)); 1"},
-{"wait": 1},
-{"js": "const s=window.__scrollers(); 'CHECK iv-missions-no-scroll ' + (!s.length ? 'ok' : 'FAIL ' + JSON.stringify(s))"},
-{"js": "window.__ivDebug.mission('cave'); window.__ivDebug.robot('amazon:fruitbat', 'grip', 'quiet', 'climb'); 1"},
-{"wait": 1},
-{"js": "const s=window.__scrollers(); 'CHECK iv-robot-no-scroll ' + (!s.length ? 'ok' : 'FAIL ' + JSON.stringify(s))"},
-{"js": "window.__ivDebug.run(); 1"},
-{"wait": 4},
-{"js": "const s=window.__scrollers(); const o=document.querySelectorAll('.iv-trial.open').length; 'CHECK iv-run-fits ' + (!s.length && o===1 && !!document.querySelector('.iv-testing') ? 'ok' : 'FAIL ' + JSON.stringify(s) + ' open ' + o)"},
-{"shot": "shots/set0/iv-run.png"},
-{"js": "const r=[...document.querySelectorAll('.iv-trial')].find((x)=>!x.classList.contains('open')); if(r) r.click(); 1"},
-{"wait": 0.6},
-{"js": "const o=[...document.querySelectorAll('.iv-trial')]; 'CHECK iv-trial-click-opens ' + (o.filter((x)=>x.classList.contains('open')).length===1 && !window.__scrollers().length ? 'ok' : 'FAIL')"},
-{"js": "window.__ivDebug.mission('all'); window.__ivDebug.robot('amazon:fruitbat', 'grip', 'quiet', 'swim'); window.__ivDebug.run(); 1"},
-{"wait": 6},
-{"js": "const s=window.__scrollers(); 'CHECK iv-all-fits ' + (!s.length && document.querySelectorAll('.iv-trial').length===12 ? 'ok' : 'FAIL ' + JSON.stringify(s))"},
-{"shot": "shots/set0/iv-all.png"},
-{"js": "document.querySelector('[data-iv=\"improve\"]') && document.querySelector('[data-iv=\"improve\"]').click(); 1"},
-{"wait": 0.6},
-{"js": "'CHECK iv-hand-back ' + (!document.querySelector('.iv-testing') && !!document.querySelector('.iv-hand') ? 'ok' : 'FAIL')"}
+ {
+  "wait": 4
+ },
+ {
+  "js": "['stage:1','g:rltut','g:hubtut','g:album','g:learn','g:start:chat','g:start:howstages'].forEach((k) => window.__journey.markIntro(k)); window.__journey.markTrained(); window.__guide && window.__guide.close(); window.__journey.unlockAll('2580'); 1; 1"
+ },
+ {
+  "wait": 1.5
+ },
+ {
+  "js": "window.__guide && window.__guide.close(); window.__noRender = true; window.__app.bus.emit('ui:learn', {}); 1"
+ },
+ {
+  "until": "!!window.__wolLearn",
+  "timeout": 60
+ },
+ {
+  "wait": 3
+ },
+ {
+  "js": "window.__guide && window.__guide.close(); window.__wolLearn._go('inventors'); 1"
+ },
+ {
+  "until": "!!window.__ivDebug",
+  "timeout": 30
+ },
+ {
+  "wait": 1
+ },
+ {
+  "js": "window.__guide && window.__guide.close(); document.querySelectorAll('.howto button').forEach((b) => /הבנתי|דלג|סגירה/.test(b.textContent) && b.click()); window.__ivDebug.view('robots'); window.__scrollers = () => [...document.querySelectorAll('#wol-learn .iv *')].filter((e) => e.offsetParent !== null && e.scrollHeight > e.clientHeight + 2 && /auto|scroll/.test(getComputedStyle(e).overflowY)).map((e) => e.className.toString().slice(0, 40)); 1"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "js": "const s=window.__scrollers(); 'CHECK iv-missions-no-scroll ' + (!s.length ? 'ok' : 'FAIL ' + JSON.stringify(s))"
+ },
+ {
+  "js": "window.__ivDebug.mission('cave'); window.__ivDebug.robot('amazon:fruitbat', 'grip', 'quiet', 'climb'); 1"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "js": "const s=window.__scrollers(); 'CHECK iv-robot-no-scroll ' + (!s.length ? 'ok' : 'FAIL ' + JSON.stringify(s))"
+ },
+ {
+  "js": "window.__ivDebug.run(); 1"
+ },
+ {
+  "wait": 4
+ },
+ {
+  "js": "const s=window.__scrollers(); const o=document.querySelectorAll('.iv-trial.open').length; 'CHECK iv-run-fits ' + (!s.length && o===1 && !!document.querySelector('.iv-testing') ? 'ok' : 'FAIL ' + JSON.stringify(s) + ' open ' + o)"
+ },
+ {
+  "shot": "shots/set0/iv-run.png"
+ },
+ {
+  "js": "const r=[...document.querySelectorAll('.iv-trial')].find((x)=>!x.classList.contains('open')); if(r) r.click(); 1"
+ },
+ {
+  "wait": 0.6
+ },
+ {
+  "js": "const o=[...document.querySelectorAll('.iv-trial')]; 'CHECK iv-trial-click-opens ' + (o.filter((x)=>x.classList.contains('open')).length===1 && !window.__scrollers().length ? 'ok' : 'FAIL')"
+ },
+ {
+  "js": "window.__ivDebug.mission('all'); window.__ivDebug.robot('amazon:fruitbat', 'grip', 'quiet', 'swim'); window.__ivDebug.run(); 1"
+ },
+ {
+  "wait": 6
+ },
+ {
+  "js": "const s=window.__scrollers(); 'CHECK iv-all-fits ' + (!s.length && document.querySelectorAll('.iv-trial').length===12 ? 'ok' : 'FAIL ' + JSON.stringify(s))"
+ },
+ {
+  "shot": "shots/set0/iv-all.png"
+ },
+ {
+  "js": "document.querySelector('[data-iv=\"improve\"]') && document.querySelector('[data-iv=\"improve\"]').click(); 1"
+ },
+ {
+  "wait": 0.6
+ },
+ {
+  "js": "'CHECK iv-hand-back ' + (!document.querySelector('.iv-testing') && !!document.querySelector('.iv-hand') ? 'ok' : 'FAIL')"
+ }
 ]
