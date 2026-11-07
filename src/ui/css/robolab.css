@@ -508,3 +508,35 @@ body:has(#rguide .rg-wrap.kubi) .rl-say .rl-kubi { visibility: hidden; }
 @media (max-height: 560px) { #ui.wol .rl-heroes .rl-wkhero { aspect-ratio: 16 / 5.6; } #ui.wol .rl-heroes .rl-wkhero img { object-position: center 40%; } }
 /* the corner music button would sit on the robot lab's tiles (the workshop hides it the same way) */
 #ui.wol:has(> .rl:not([hidden])) > .mus-btn { display: none !important; }
+
+/* 7.11 (Avi): hints and first-time concept cards in the lessons (src/robolab/hints.js). A box at the top of the field
+   that stays open while the child edits; the blocks are shown as small chips in their family's colour. */
+#ui.wol .rl-hintbox { position: absolute; top: 10px; inset-inline-end: 12px; z-index: 6; width: min(420px, calc(100% - 24px)); max-height: calc(100% - 20px); display: flex; flex-direction: column; overflow: hidden; box-sizing: border-box;
+  padding: 10px 14px 10px; border-radius: 16px; background: #fffbea; color: #22302a; box-shadow: 0 0 0 3px #f2c94c, 0 8px 22px rgba(0, 0, 0, .35); font-size: calc(1em * var(--ts, 1)); line-height: 1.45; pointer-events: auto; animation: rh-in .25s ease-out; }
+#ui.wol .rl-hintbox.concept { background: #eef6ff; box-shadow: 0 0 0 3px #5aa0e6, 0 8px 22px rgba(0, 0, 0, .35); }
+#ui.wol .rl-hintbox[hidden] { display: none; }
+#ui.wol .rl-hintbox header, #ui.wol .rl-hintbox footer { flex: none; }
+#ui.wol .rl-hintbox .rh-body { flex: 1 1 auto; min-height: 0; overflow: auto; }
+#ui.wol .rl-hintbox header b { font-size: 1.08em; color: #1d2c38; }
+#ui.wol .rl-hintbox .rh-body p { margin: 6px 0 0; font-weight: 600; }
+#ui.wol .rl-hintbox .rh-body p.rh-sub { font-weight: 500; opacity: .8; font-size: .95em; }
+#ui.wol .rl-hintbox .rh-row { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-top: 8px; }
+#ui.wol .rl-hintbox .rh-row > b { flex-basis: 100%; font-size: .9em; color: #48606e; display: flex; align-items: center; gap: 4px; }
+#ui.wol .rl-hintbox .rh-row > b svg { width: 18px; height: 18px; }
+#ui.wol .rl-hintbox .rh-b { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 9px; color: #fff; font-weight: 700; font-size: .9em; background: #3b82c4; box-shadow: 0 2px 0 rgba(0, 0, 0, .18); }
+#ui.wol .rl-hintbox .rh-b i { font-style: normal; display: inline-flex; } #ui.wol .rl-hintbox .rh-b svg { width: 16px; height: 16px; }
+#ui.wol .rl-hintbox .f-move { background: #3b82c4; } #ui.wol .rl-hintbox .f-act { background: #3f9a4a; } #ui.wol .rl-hintbox .f-control { background: #e08a2b; }
+#ui.wol .rl-hintbox .f-event { background: #c99a0e; } #ui.wol .rl-hintbox .f-mine { background: #8a5cc4; } #ui.wol .rl-hintbox .f-count { background: #c4504a; }
+#ui.wol .rl-hintbox .f-team { background: #2a9a9a; } #ui.wol .rl-hintbox .f-fun { background: #d66aa8; }
+#ui.wol .rl-hintbox .rh-grp { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 4px; border-radius: 11px; background: rgba(224, 138, 43, .12); }
+#ui.wol .rl-hintbox .rh-in { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 4px; padding-inline-start: 14px; border-inline-start: 3px solid rgba(224, 138, 43, .55); }
+#ui.wol .rl-hintbox .rh-else { font-size: .85em; font-weight: 700; color: #8a5a20; }
+#ui.wol .rl-hintbox .rh-more { font-weight: 800; color: #8a7a50; padding: 0 4px; }
+#ui.wol .rl-hintbox footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px; }
+#ui.wol .rl-hintbox footer button { min-height: 38px; padding: 4px 16px; border: 0; border-radius: 999px; font: inherit; font-weight: 800; color: #fff; cursor: pointer; }
+#ui.wol .rl-hintbox .rh-next { background: var(--bt-blue, #2f7fd0); } #ui.wol .rl-hintbox .rh-close { background: var(--bt-orange, #e8873a); }
+#ui.wol .rl-run .rl-hintbtn.nudge { animation: rh-nudge 1.2s ease-in-out infinite; }
+#ui.wol .rl.in3d .rl-hintbox { pointer-events: auto; max-height: calc(100% - 118px); }
+@keyframes rh-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+@keyframes rh-nudge { 0%, 100% { box-shadow: 0 0 0 0 rgba(242, 201, 76, .9); } 50% { box-shadow: 0 0 0 8px rgba(242, 201, 76, 0); } }
+@media (max-height: 520px) { #ui.wol .rl.in3d .rl-hintbox { max-height: calc(100% - 20px); z-index: 8; } #ui.wol .rl-hintbox { padding: 8px 10px; font-size: calc(.88em * var(--ts, 1)); } #ui.wol .rl-hintbox footer { margin-top: 6px; } #ui.wol .rl-hintbox footer button { min-height: 34px; } }

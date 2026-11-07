@@ -64,6 +64,7 @@
 #ui.wol .rl-run button[data-again] { color: #fff !important; background: var(--bt-orange) !important; box-shadow: 0 3px 0 var(--bt-orange-e) !important; border: 0; text-shadow: 0 1px 1px rgba(0, 0, 0, .25); }
 #ui.wol .rl-run button[data-why] { color: #fff !important; background: var(--bt-purple) !important; box-shadow: 0 3px 0 var(--bt-purple-e) !important; border: 0; text-shadow: 0 1px 1px rgba(0, 0, 0, .25); }
 #ui.wol .rl-run button[data-why]:disabled { filter: grayscale(.7) opacity(.5); }
+#ui.wol .rl-run button[data-hint] { color: #3a2a00 !important; background: #f2c94c !important; box-shadow: 0 3px 0 #b88f16 !important; border: 0; }
 #ui.wol .rl-run button { border-radius: 999px !important; min-height: 40px; }
 @media (max-height: 520px) { #wol-learn.wol-learn.wol-learn .iv-pbtn { min-height: 2.3em; padding: .3em .8em; } }
 /* the learning centre's home: every card game tile in its own colour (its --tc tone), the icon bigger */

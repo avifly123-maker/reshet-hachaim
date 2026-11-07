@@ -22,6 +22,7 @@ import { BLOCKS } from './engine/blocks.js';
 import { createVoice } from '../audio/voice.js';
 import { createEditor } from './ui/editor.js';
 import { icon } from './ui/icons.js';
+import { hintsFor, conceptHTML } from './hints.js';   // 7.11 (Avi): a hint button, and a written card the first time a concept comes
 import { isOpen as journeyOpen, lockWords, introSeen } from '../core/journey.js';
 import { roboProgress, markSolved, addFun, markSeen, addIsland, dropDrafts } from './progress.js';
 import { grantTechCards } from './tech.js';
@@ -255,7 +256,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     stopTut();
     const news = newsFor(L);
     stopRun(); if (map) map.dispose();
-    cur = L; lastRun = null; driveN = 0; drives = 0;
+    cur = L; lastRun = null; driveN = 0; drives = 0; hintN = 0; fails = 0;
     el.classList.toggle('in3d', !!api); root.classList.toggle('rl3d', !!api);
     if (api) { try { audio && audio.setBiome && audio.setBiome(L.zone); } catch (e) { } }
     const zw = ZONE_WORD[L.zone] || ZONE_WORD.grove;
@@ -266,12 +267,13 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
       <div class="rl-say"><canvas class="rl-kubi" aria-hidden="true"></canvas><p>${news.chapter ? `<span class="rl-chi">${esc(T(news.chapter))}</span> ` : ''}${(L.say || []).map((s) => esc(T(s))).join(' ')}${news.blocks.map((b) => `<span class="rl-newb"><i>${BLOCKS[b].emo || icon(BLOCKS[b].icon)}</i><b>${kids ? 'חָדָשׁ' : 'חדש'}</b> ${esc(T(BLOCK_INTRO[b]))}</span>`).join('')}</p></div>
       <div class="rl-body">
         <div class="rl-ed"></div>
-        <div class="rl-stage"><canvas class="rl-map"></canvas><div class="rl-msg" hidden></div>
+        <div class="rl-stage"><canvas class="rl-map"></canvas><div class="rl-msg" hidden></div><div class="rl-hintbox" hidden></div>
           <div class="rl-run">
             <button type="button" class="rl-go" data-run="normal">${icon('play')}<span>${kids ? 'הַפְעֵל' : 'הפעל'}</span></button>
             <button type="button" data-run="slow">${icon('slow')}<span>${kids ? 'לְאַט' : 'לאט'}</span></button>
             <button type="button" data-again>${icon('again')}<span>${kids ? 'מֵהַהַתְחָלָה' : 'מההתחלה'}</span></button>
             <button type="button" data-why disabled>${icon('why')}<span>${kids ? 'מָה קָרָה?' : 'מה קרה?'}</span></button>
+            ${L.sandbox ? '' : `<button type="button" class="rl-hintbtn" data-hint>${icon('hint')}<span>${kids ? 'רֶמֶז' : 'רמז'}</span></button>`}
             ${(L.blocks || []).includes('add') ? `<span class="rl-ctr" title="${kids ? 'הַמּוֹנֶה' : 'המונה'}">🔢 <b>0</b></span>` : ''}
             ${api ? `<button type="button" data-view>${icon('eye')}<span>${viewWord(1)}</span></button>` : ''}
           </div>${L.sandbox ? driveHTML(L) : ''}</div>
@@ -287,12 +289,15 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     kcam = kubiCam(el.querySelector('.rl-kubi'));
     kubiDo = (what, sec = 0) => { if (!kcam) return; if (what) kcam.set(what); if (sec > 0) kcam.talk(true, sec); };
     queueTut(L);
+    // a concept met for the first time: its written card (no voice), once per player, after קוּבִּי's words (below)
+    const cx = !L.sandbox && L.concept && !roboProgress().seen['cx:' + L.concept] ? conceptHTML(L.concept, kids) : null;
+    if (cx) markSeen('cx:' + L.concept);
     clearTimeout(talkT); talkT = setTimeout(() => {
       if (!open || cur !== L) return; kubiDo('explain');
       const sec = Math.min(9, 1.2 + (el.querySelector('.rl-say p') || { textContent: '' }).textContent.length / 16), t0 = performance.now();
       stageKubi(true);   // 1.4.2 (Avi, 1.11): he steps forward, big, while he explains the lesson
       speak([...(news.chapter ? ['kc_' + L.ch] : []), 'kl_' + L.id, ...news.blocks.map((b) => 'kb_' + b)], sec)
-        .then(() => { if (cur === L) stageKubi(false, Math.max(1200, sec * 1000 - (performance.now() - t0) + 600)); });
+        .then(() => { if (cur === L) { const wait = Math.max(1200, sec * 1000 - (performance.now() - t0) + 600); stageKubi(false, wait); if (cx) setTimeout(() => { if (cur === L && open) showBox(cx, 'concept'); }, wait + 300); } });
     }, 700);
   }
   const CONCEPT = {
@@ -304,6 +309,23 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
 
   function msg(html, kind) { const m = el.querySelector('.rl-msg'); if (!m) return; m.className = 'rl-msg ' + (kind || ''); m.innerHTML = html; m.hidden = false; }
   function hideMsg() { const m = el.querySelector('.rl-msg'); if (m) m.hidden = true; }
+  // ── hints (7.11): three per level from hints.js, one more with every press; the box stays open while the child edits
+  let hintN = 0, fails = 0;
+  function showBox(h, kind, more) {
+    const box = el.querySelector('.rl-hintbox'); if (!box) return;
+    box.className = 'rl-hintbox ' + (kind || '');
+    box.innerHTML = `<header><b>${kind === 'concept' ? '📘' : '💡'} ${esc(h.title)}</b></header><div class="rh-body">${h.html}</div>
+      <footer>${more ? `<button type="button" class="rh-next" data-hintnext>${kids ? 'עוֹד רֶמֶז' : 'עוד רמז'}</button>` : ''}<button type="button" class="rh-close" data-hintclose>${kids ? 'סְגֹר' : 'סגור'}</button></footer>`;
+    box.hidden = false;
+  }
+  function hint() {
+    if (!cur) return;
+    const H = hintsFor(cur, kids); if (!H.length) return;
+    const i = Math.min(hintN, H.length - 1); hintN = i + 1;
+    sfx('click'); kubiDo('explain', 2);
+    showBox(H[i], 'hint', hintN < H.length);
+    const b = el.querySelector('[data-hint]'); if (b) b.classList.remove('nudge');
+  }
   function stopRun() { if (map) map.stop(); if (ed) ed.light(null); }
 
   let runs = 0;
@@ -344,6 +366,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
         if (!r.error) kubiDo('think');
         { const key = r.error ? (FAIL_LINES[r.error.code] ? r.error.code : 'any') : (GOAL_LINES[r.why] ? r.why : 'any'); speak([(r.error ? 'kf_' : 'kg_') + key.replace(':', '_') + '_' + (Math.abs(seedN) % why.length)], 2.5); }
         msg(esc(T(pick(why, seedN))) + vtxt + (cur.mission ? missionHelp(r) : ''), 'fail');
+        if (++fails >= 2) { const hb = el.querySelector('[data-hint]'); if (hb) hb.classList.add('nudge'); }   // stuck: the hint button glows
       }
     } });
   }
@@ -477,6 +500,8 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     if (b.dataset.drive) { drive(b.dataset.drive); return; }
     if (b.dataset.sandbox) { sfx('click'); openSandbox(b.dataset.sandbox, b.dataset.sbown === '1'); return; }
     if (b.dataset.why != null) { why(); return; }
+    if (b.dataset.hint != null || b.dataset.hintnext != null) { hint(); return; }
+    if (b.dataset.hintclose != null) { const x = el.querySelector('.rl-hintbox'); if (x) x.hidden = true; sfx('click'); return; }
     if (b.dataset.view != null) {   // the eye: the whole field → from above → close to the tool → the whole field
       if (in3d && in3d.api) { viewMode = (viewMode + 1) % 3; in3d.api.frame(viewMode); const sp = b.querySelector('span'); if (sp) sp.textContent = viewWord((viewMode + 1) % 3); sfx('click'); }
       return;

@@ -1,0 +1,91 @@
+[
+ {
+  "wait": 4
+ },
+ {
+  "js": "window.__guide && window.__guide.close(); window.__journey.unlockAll('2580'); ['g:rltut','g:rltut:loop','g:rltut:ev'].forEach(k=>window.__journey.markIntro(k)); window.__errs=[]; window.addEventListener('error',e=>window.__errs.push(String(e.message))); window.__app.bus.emit('ui:robolab'); 1"
+ },
+ {
+  "until": "!!document.querySelector('.rl-home')",
+  "timeout": 60
+ },
+ {
+  "js": "window.__guide && window.__guide.close(); window.__rlDebug.open('l2-1', true); 1"
+ },
+ {
+  "until": "!!document.querySelector('.rl-hintbox:not([hidden])')",
+  "timeout": 45
+ },
+ {
+  "js": "const b=document.querySelector('.rl-hintbox'); 'CHECK concept-card ' + (b.classList.contains('concept') && b.textContent.includes('לולאה') && b.querySelector('.rh-b') ? 'ok' : 'FAIL ' + b.className)"
+ },
+ {
+  "shot": "shots/rl-hint-concept.png"
+ },
+ {
+  "clickSel": "#ui .rl-hintbox [data-hintclose]"
+ },
+ {
+  "wait": 0.5
+ },
+ {
+  "js": "'CHECK concept-closed ' + (document.querySelector('.rl-hintbox').hidden ? 'ok' : 'FAIL')"
+ },
+ {
+  "clickSel": "#ui .rl-run [data-hint]"
+ },
+ {
+  "wait": 0.6
+ },
+ {
+  "js": "const b=document.querySelector('.rl-hintbox'); 'CHECK hint-1 ' + (!b.hidden && b.classList.contains('hint') && b.textContent.includes('1') && b.querySelector('[data-hintnext]') ? 'ok' : 'FAIL')"
+ },
+ {
+  "clickSel": "#ui .rl-hintbox [data-hintnext]"
+ },
+ {
+  "wait": 0.6
+ },
+ {
+  "js": "const b=document.querySelector('.rl-hintbox'); 'CHECK hint-2-blocks ' + (b.textContent.includes('2') && b.querySelectorAll('.rh-b').length >= 1 ? 'ok' : 'FAIL')"
+ },
+ {
+  "clickSel": "#ui .rl-hintbox [data-hintnext]"
+ },
+ {
+  "wait": 0.6
+ },
+ {
+  "js": "const b=document.querySelector('.rl-hintbox'); 'CHECK hint-3-last ' + (b.textContent.includes('3') && !b.querySelector('[data-hintnext]') && b.querySelector('.rh-in') ? 'ok' : 'FAIL')"
+ },
+ {
+  "shot": "shots/rl-hint-3.png"
+ },
+ {
+  "clickSel": "#ui .rl-pal .rl-blk[data-add=fwd]"
+ },
+ {
+  "wait": 0.6
+ },
+ {
+  "js": "'CHECK stays-while-editing ' + (!document.querySelector('.rl-hintbox').hidden ? 'ok' : 'FAIL')"
+ },
+ {
+  "js": "window.__rlDebug.open('l2-2', true); 1"
+ },
+ {
+  "wait": 1.5
+ },
+ {
+  "js": "window.__rlDebug.open('l2-1', true); 1"
+ },
+ {
+  "wait": 1.5
+ },
+ {
+  "js": "'CHECK concept-once ' + (document.querySelector('.rl-hintbox').hidden ? 'ok' : 'FAIL')"
+ },
+ {
+  "js": "'CHECK no-errors ' + (!window.__errs.length ? 'ok' : 'FAIL ' + window.__errs.join(' | '))"
+ }
+]

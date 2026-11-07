@@ -24,6 +24,8 @@ raw=$(node tests/robolab/build.mjs 2>&1); code=$?; out=$(echo "$raw" | grep -v -
 [ $code -ne 0 ] && { echo "$out"; fail "workshop engine"; }
 raw=$(node tests/robolab/drone-missions.mjs 2>&1); code=$?; out=$(echo "$raw" | grep -v -i "warning\|Reparsing\|trace-warnings\|module type"); echo "$(echo "$out" | tail -1)"
 [ $code -ne 0 ] && { echo "$out"; fail "drone missions"; }
+raw=$(node tests/robolab/hints.mjs 2>&1); code=$?; out=$(echo "$raw" | grep -v -i "warning\|Reparsing\|trace-warnings\|module type"); echo "$(echo "$out" | tail -1)"
+[ $code -ne 0 ] && { echo "$out"; fail "robot lab hints"; }
 # 1.4.4 set 9: the rare badges and their medallions and frames
 raw=$(node tests/badges/rare.mjs 2>&1); code=$?; out=$(echo "$raw" | grep -v -i "warning\|Reparsing\|trace-warnings\|module type"); echo "$(echo "$out" | tail -1)"
 [ $code -ne 0 ] && { echo "$out"; fail "rare badges"; }
@@ -103,7 +105,7 @@ echo "$out" | grep "\[pageerror\]\|JS ERROR\|UNTIL TIMEOUT\|NO ELEMENT" && fail 
 # 1.4.4 set 0 (6.11: two big doors, lessons and the robot workshop); the inventors' robot workshop fits the screen with no scroll bar (inv-robots)
 # 6.11: the workshop's inventor path, how-to, shelf carousel and badge note (ws-path), the beginners' workshop (ws-kids), the
 # instructors' code opening everything for one player only (allopen-player)
-for t in workshop:14 workshop-kids:5 techcards:7 workshop-missions:14 workshop-island:8 garage:10 stage9:5 sandbox:8 chat:20 inv-robots:7 weekly:11 nz-workshop:34 ws-path:11 allopen-player:6 ws-kids:11 nz-voice:3 ws-room-leave:5 weekly-events:13 weekly-det-race:12 drone-missions:6 hard-challenges:3 rare-badges:5 films:4; do
+for t in workshop:14 workshop-kids:5 techcards:7 workshop-missions:14 workshop-island:8 garage:10 stage9:5 sandbox:8 chat:20 inv-robots:7 weekly:11 nz-workshop:34 ws-path:11 allopen-player:6 ws-kids:11 nz-voice:3 ws-room-leave:5 robolab-hints:8 weekly-events:13 weekly-det-race:12 drone-missions:6 hard-challenges:3 rare-badges:5 films:4; do
   f=${t%%:*}; want=${t##*:}
   out=$(timeout 1200 python3 tools/play.py dist/index.html tests/play/$f.json 800 460 2>&1)
   n=$(echo "$out" | grep -c "CHECK .* ok")
