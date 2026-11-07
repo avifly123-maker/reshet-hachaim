@@ -6,6 +6,7 @@
 // Frames for the album cards open when a player has enough badges of a group (FRAMES).
 // `torah: true` (a group, a badge, a frame): the torah edition only, shown while "מקורות ופסוקים" is on (src/learn/hub/).
 
+import { RARE_BADGES } from './rare-badges.js';   // from 1.4.4
 export const BADGE_GROUPS = [
   { id: 'amazon', name: 'יער הגשם של האמזונס', short: 'אמזונס', col: '#2f7a4a', col2: '#e8c050' },
   { id: 'grove', name: 'החורש הארץ־ישראלי', short: 'חורש', col: '#8a6a2a', col2: '#e8202a' },
@@ -13,6 +14,7 @@ export const BADGE_GROUPS = [
   { id: 'lab', name: 'הממציאים והמעבדה', short: 'מעבדה', col: '#5a4a8a', col2: '#f6cf72' },
   { id: 'deep', name: 'משלחת לעומק', short: 'משלחת', col: '#163a5a', col2: '#6fd0ff' },
   { id: 'research', name: 'חוקרי הטבע', short: 'חוקרים', col: '#3a5a2a', col2: '#f6cf72' },
+  { id: 'rare', name: 'תגים למצטיינים', short: 'מצטיינים', col: '#3a3a4a', col2: '#e8c050' },   // from 1.4.4: metal medallions (src/data/rare-badges.js)
   // torah edition only (hidden in the general edition and while "מקורות ופסוקים" is off)
   { id: 'sources', name: 'מה הפסוק מלמד?', short: 'מקורות', col: '#7a5420', col2: '#f6dfa0', torah: true },
 ];
@@ -41,14 +43,6 @@ export const BADGES = [
   { id: 'b_rx5', group: 'reef', art: 'starfish', name: 'מצילי האלמוגים', how: 'אתגר קשה "כוכבי ים על האלמוגים" בשונית', earn: 'mission:rx5' },
   { id: 'b_rx6', group: 'reef', art: 'seagrass', name: 'שדה לצבים', how: 'אתגר קשה "הצבים רעבים" בשונית', earn: 'mission:rx6' },
   { id: 'b_rx7', group: 'reef', art: 'moray', name: 'בוני מחסות', how: 'אתגר קשה "בלי מחבוא" בשונית', earn: 'mission:rx7' },
-  { id: 'b_dx1', group: 'desert', art: 'dorcas', name: 'מחדש השיטים', how: 'משימת מומחים "שיטות חדשות" במדבר', earn: 'mission:dx1' },
-  { id: 'b_dx2', group: 'desert', art: 'retama', name: 'עוצר החול', how: 'משימת מומחים "סופה בדרך" במדבר', earn: 'mission:dx2' },
-  { id: 'b_dx3', group: 'desert', art: 'ibex', name: 'מביא המים', how: 'משימת מומחים "יעלים רחוק מהמעיין" במדבר', earn: 'mission:dx3' },
-  { id: 'b_dx4', group: 'desert', art: 'eagleowl', name: 'שומר הלילה של המדבר', how: 'משימת מומחים "רשת של לילה" במדבר', earn: 'mission:dx4' },
-  { id: 'b_sx1', group: 'savanna', art: 'redoat', name: 'מחדש המרעה', how: 'משימת מומחים "אחרי האש" בסוואנה', earn: 'mission:sx1' },
-  { id: 'b_sx2', group: 'savanna', art: 'elephant', name: 'מאזן הפילים', how: 'משימת מומחים "פילים ועצים" בסוואנה', earn: 'mission:sx2' },
-  { id: 'b_sx3', group: 'savanna', art: 'zebra', name: 'מסדר הרעייה', how: 'משימת מומחים "סדר הרעייה" בסוואנה', earn: 'mission:sx3' },
-  { id: 'b_sx4', group: 'savanna', art: 'baobab', name: 'שומר הסוואנה', how: 'משימת מומחים "יציבה בכל עונה" בסוואנה', earn: 'mission:sx4' },
   // ── הממציאים (src/learn/games/inventors.js) and the lab
   { id: 'b_inv1', group: 'lab', art: 'reefshark', name: 'הפטנט הראשון', how: 'ממציאים המצאה ראשונה במשחק "הממציאים"', earn: 'inv:first' },
   { id: 'b_inv5', group: 'lab', art: 'owl', name: 'ממציא חרוץ', how: 'חמש המצאות שונות ב"הממציאים"', earn: 'inv:five' },
@@ -137,6 +131,7 @@ export const BADGES = [
   { id: 'b_rh_thrift', group: 'research', art: 'agouti', name: 'חוקר חסכן', how: 'פותרים תעלומה בתקציב קטן, בלי לבזבז', earn: 'research:thrift' },
   { id: 'b_rh_book', group: 'research', art: 'blackbird', name: 'מחברת של חוקר', how: 'במחברת: פוסלים השערה אחת לפחות ובוחרים השערה, והתעלומה נפתרת', earn: 'research:notebook' },
   { id: 'b_rh_order', group: 'research', art: 'tortoise', name: 'צעד אחר צעד', how: 'מודדים וכותבים השערה לפני הרעיון הראשון, ופותרים', earn: 'research:order' },
+  ...RARE_BADGES,   // from 1.4.4
 ];
 
 // card frames for the album: a group's frame opens with `need` of its badges ('all': badges of any group)
@@ -150,6 +145,13 @@ export const FRAMES = [
   { id: 'silver', name: 'כסף של חוקרי הטבע', need: 2, group: 'research' },
   { id: 'sources', name: 'קלף עתיק', need: 2, group: 'sources', torah: true },
   { id: 'gold', name: 'זהב', need: 12, group: 'all' },
+  // from 1.4.4: more frames from Blender (tools/blender/medals.py)
+  { id: 'pearl', name: 'צדף ופנינה', need: 8, group: 'reef' },
+  { id: 'bloom', name: 'פריחה', need: 30, group: 'all' },
+  { id: 'bronze', name: 'ענף דפנה מנחושת', need: 1, group: 'rare' },
+  { id: 'silverlaurel', name: 'ענף דפנה מכסף', need: 5, group: 'rare' },
+  { id: 'goldlaurel', name: 'ענף דפנה מזהב', need: 12, group: 'rare' },
+  { id: 'crystal', name: 'בדולח', need: 15, group: 'rare' },
 ];
 
 export const badgeById = (id) => BADGES.find((b) => b.id === id) || null;

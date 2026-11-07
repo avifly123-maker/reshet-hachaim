@@ -2,7 +2,7 @@
 // the other), the badges screen with its zoom, the frames screen, and the settings window (torah edition switch).
 // Exports: createHomeScreens(ctx) → { renderHome, bzoom, openSettings, renderBadges, renderFrames }.
 // Needs from ctx (index.js): main, modal, S, sfx, locked, srcOn, collection, MODE, opensLeft (packs.js).
-import { chosenFrame, openFrames, ownedBadges } from '../../core/badges-store.js';
+import { chosenFrame, openFrames, ownedBadges, checkRare } from '../../core/badges-store.js';
 import { sourcesOn } from '../../core/edition.js';
 import { PARTS as JPARTS, lockInfo } from '../../core/journey.js';
 import { BADGES, BADGE_GROUPS, FRAMES } from '../../data/badges.js';
@@ -16,7 +16,7 @@ import { cardHTML } from './card-html.js';
 import { CARD, spOf } from './cards.js';
 
 // the hub's icons (src/ui/icons-hub.js): the tile of each badge group
-const BGROUP_IC = { amazon: 'amazon', grove: 'grove', reef: 'reef', lab: 'invent', deep: 'dive', research: 'research', sources: 'scroll' };
+const BGROUP_IC = { amazon: 'amazon', grove: 'grove', reef: 'reef', lab: 'invent', deep: 'dive', research: 'research', sources: 'scroll', rare: 'medal' };
 
 export function createHomeScreens(ctx) {
   const { main, modal, S, sfx, locked, srcOn, collection } = ctx;
@@ -113,6 +113,7 @@ export function createHomeScreens(ctx) {
 
   /* ── the badges (תגים); the frames they open have their own screen (1.3.2), linked from here */
   function renderBadges() {
+    try { checkRare(); } catch (e) { }   // 1.4.4 set 9: a player who already earned one before this version gets it now
     const own = ownedBadges();
     const frV = locked('frames');
     main.innerHTML = `<section class="wl-screen wl-badges">

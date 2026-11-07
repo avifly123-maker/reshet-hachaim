@@ -1,0 +1,63 @@
+[
+ {
+  "wait": 4
+ },
+ {
+  "js": "['stage:1','g:hubtut','g:album','g:learn','g:badges','g:frames','g:start:chat','g:start:howstages','g:start:settings'].forEach((k) => window.__journey.markIntro(k)); window.__journey.markTrained(); window.__guide && window.__guide.close(); window.__journey.unlockAll('2580'); 1"
+ },
+ {
+  "js": "window.__noRender = true; window.__app.bus.emit('ui:learn', { screen: 'badges' }); 1"
+ },
+ {
+  "until": "!!document.querySelector('#wol-learn:not([hidden]) .bdg')",
+  "timeout": 60
+ },
+ {
+  "js": "'CHECK rare-none-at-start ' + (window.__badges.groupCount('rare') === 0 ? 'ok' : 'FAIL')"
+ },
+ {
+  "wait": 2
+ },
+ {
+  "js": "window.__guide && window.__guide.close(); const r=document.querySelectorAll('#wol-learn .bdg.rare'); 'CHECK rare-shown-locked ' + (r.length === 17 && document.querySelectorAll('#wol-learn .bdg.rare.got').length === 0 ? 'ok' : 'FAIL ' + r.length)"
+ },
+ {
+  "js": "const s=document.querySelector('#wol-learn .bdg.rare'); s && s.scrollIntoView(); 1"
+ },
+ {
+  "shot": "shots/badges/rare-locked.png"
+ },
+ {
+  "js": "window.__badges.grant('mission:ax1'); window.__badges.grant('mission:gx1'); window.__badges.grant('mission:rx1'); 'CHECK three-islands-bronze ' + (window.__badges.ownedBadges().r_three ? 'ok' : 'FAIL ' + Object.keys(window.__badges.ownedBadges()).join(','))"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "js": "document.querySelectorAll('.bdg-pop button').forEach((b)=>b.click()); window.__app.bus.emit('ui:learn', { screen: 'badges' }); 1"
+ },
+ {
+  "wait": 2
+ },
+ {
+  "js": "const g=document.querySelector('#wol-learn .bdg.rare:not(.locked) .bdg-metal'); 'CHECK earned-medal-drawn ' + (g && g.naturalWidth > 100 ? 'ok' : 'FAIL')"
+ },
+ {
+  "js": "const s=document.querySelector('#wol-learn .bdg.rare'); s && s.scrollIntoView({block:'center'}); 1"
+ },
+ {
+  "shot": "shots/badges/rare-one.png"
+ },
+ {
+  "js": "window.__app.bus.emit('ui:learn', { screen: 'frames' }); 1"
+ },
+ {
+  "wait": 2
+ },
+ {
+  "js": "'CHECK frames-listed ' + (document.querySelector('#wol-learn .wl-frame.fr-bronze:not([disabled])') && document.querySelector('#wol-learn .wl-frame.fr-crystal[disabled]') ? 'ok' : 'FAIL')"
+ },
+ {
+  "shot": "shots/badges/frames.png"
+ }
+]
