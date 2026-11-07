@@ -190,10 +190,11 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
     // the room's tutorial goes on into the first place only from its last step ("לחצו על המכונה"); a child who leaves the room
     // earlier through the path bar would carry his greeting into every place: it stops, and comes back next time in the room
     const tutGoesOn = (tutPlace === 'room' && (p === 'room' || (tut && tut.step === 'go'))) || tutPlace === p || (kids && tutPlace === 'orders' && (p === 'build' || p === 'test'));   // the beginners' walk crosses three places
-    if (tut && tut.step && !tutGoesOn) { tut.stop(); tut = null; }
     if (place === 'build' || place === 'test') { if (p !== 'build' && p !== 'test') bench.leave(); }
     if (room3 && p !== 'room') { room3.dispose(); room3 = null; }
     const leaving = place; place = p;
+    // stopped only after `place` changed: a stop that ends the run calls onDone → startTut(), which must see the new place
+    if (tut && tut.step && !tutGoesOn) { const T = tut; tut = null; T.stop(); }
     if (howH && p !== leaving) { const H = howH; howH = null; try { H.close(); } catch (e) { } }   // (after place changed: its onClose starts nothing here)
     if (shelf && p !== 'machine') { shelf.dispose(); shelf = null; } if (p !== 'mixer') mix = null;
     el.dataset.place = p;
