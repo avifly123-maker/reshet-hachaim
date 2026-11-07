@@ -1349,3 +1349,27 @@
 #ui.wol.has-modal .mus-btn { display: none; }
 #ui.wol .km-row[data-a="music"] .ic { color: #8a5aa8; }
 #ui.wol .km-row[data-a="music"].off .ic { color: #8a6e5c; }
+
+/* ===================================================== LOADING: the place's short film (1.4.4 set 11, src/ui/loading-film.js) */
+#ui.wol .loading .film { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .9s ease; }
+#ui.wol .loading .film.on { opacity: 1; }
+#ui.wol .loading .film-back { position: absolute; inset: -6%; width: 112%; height: 112%; object-fit: cover; filter: blur(28px) saturate(1.15) brightness(.5); }
+#ui.wol .loading .film-frame { position: absolute; left: 50%; top: 7%; transform: translateX(-50%); width: min(62vw, 92vh); aspect-ratio: 16 / 9;
+  border-radius: 18px; overflow: hidden; box-shadow: 0 0 0 3px rgba(233, 214, 150, .75), 0 0 0 9px rgba(15, 33, 24, .55), 0 22px 60px rgba(0, 0, 0, .55); }
+#ui.wol .loading .film-front { width: 100%; height: 100%; object-fit: cover; display: block; }
+#ui.wol .loading.has-film .ld-inner { margin-top: min(42vw, 62vh); }
+#ui.wol .loading.has-film .ld-inner .emblem, #ui.wol .loading.has-film .ld-title { display: none; }
+#ui.wol .loading.has-film .ld-tip { margin-top: .9em; text-shadow: 0 1px 3px #000; }
+#ui.wol .loading .film-frame, #ui.wol .loading .film-back { transition: opacity .6s ease; }
+#ui.wol .loading .film.dip .film-frame, #ui.wol .loading .film.dip .film-back { opacity: 0; }
+#ui.wol .loading .film-skip { position: absolute; pointer-events: auto; left: calc(50% - min(31vw, 46vh) + 14px); top: calc(7% + 12px); z-index: 2; min-height: 40px; padding: .35em 1.1em; }
+#ui.wol .loading.has-film .ld-logo { bottom: auto; top: 14px; left: auto; right: 16px; transform: none; height: 40px; padding: 6px 10px; z-index: 1; }
+/* the weekly event's film in its card (set 11) */
+#ui.wol .wkv-film { position: relative; flex: 0 0 auto; width: min(34%, 260px); aspect-ratio: 16 / 9; align-self: center; opacity: 0; transition: opacity .8s; }
+#ui.wol .wkv-film.on { opacity: 1; }
+#ui.wol .wkv-film .film-back { display: none; }
+#ui.wol .wkv-film .film-frame { position: absolute; inset: 0; border-radius: 12px; overflow: hidden; box-shadow: 0 0 0 2px rgba(120, 90, 40, .35), 0 6px 16px rgba(0, 0, 0, .25); transition: opacity .6s; }
+#ui.wol .wkv-film.dip .film-frame { opacity: 0; }
+#ui.wol .wkv-film .film-front { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* nothing over a playing film (Avi, 6.11): רובו־דע's bubbles wait under it until the loading screen goes */
+#ui.wol:has(.loading.on.has-film) #rguide { visibility: hidden; }

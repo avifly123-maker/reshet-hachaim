@@ -215,12 +215,22 @@ async function boot() {
   }
   // research = a mystery of חוקרי הטבע (src/research/): the zone's full content, the case's own island, no save
   // training = שטח האימונים (1.3.3): the grove's pack, an empty field with a stream, רובו־דע's steps, no save
+  // from 1.4.4: every visit of a place shows its whole short film (about 10 s; a "דלג" button ends it) while its pack loads
+  async function watchFilm(id, text) {
+    if (!id || !ui.watchLoadingFilm) return false;
+    ui.setLoading(0.01, text);
+    return ui.watchLoadingFilm(id);   // false: a test browser, or no film (then setLoadingFilm shows it while loading)
+  }
   async function loadBiome(id, save = null, research = null, training = false) {
     if (loading) return; loading = true;
     ui.hideStart();
     root.classList.toggle('kids', MODE === 'kids' && !research && !training);
     try {
       // the zone's pack: already in (chosen before, or loading since the click), or fetched now behind the loading screen
+      const film = training ? null : id;   // from 1.4.4: a short film of the place (src/ui/loading-film.js)
+      let watched = false;
+      if (film && !research) { loadPack(id).catch(() => { /* reported below */ }); watched = await watchFilm(film, 'מכינים את היער...'); }
+      if (!watched && ui.setLoadingFilm) ui.setLoadingFilm(film);
       if (!zoneOf(id) || !loadedPack('game')) { ui.setLoading(0.01, 'מכינים את היער...'); await Promise.all([loadPack(id), loadPack('game')]); }
     } catch (e) {
       console.error(e);
@@ -334,7 +344,7 @@ async function boot() {
       return lab;
     });
     // the first visit: רובו־דע's hands-on steps (turn the room, the "?" button, a station); the four cards stay on "?"
-    labP.then((L) => { labOpening = false; ui.hideLoading(); L.open(); setTimeout(() => { if (!L.isOpen()) return; if (labTut) return; labTut = labTutorial({ guide, lab: L }); }, LAB_TUT_MS); }, (e) => { labOpening = false; labP = null; ui.hideLoading(); console.error(e); showStart(); });
+    Promise.all([labP, watchFilm('lab', 'פותחים את המעבדה...').then((w) => w || (ui.setLoadingFilm && ui.setLoadingFilm('lab')))]).then(([L]) => { labOpening = false; ui.hideLoading(); L.open(); setTimeout(() => { if (!L.isOpen()) return; if (labTut) return; labTut = labTutorial({ guide, lab: L }); }, LAB_TUT_MS); }, (e) => { labOpening = false; labP = null; ui.hideLoading(); console.error(e); showStart(); });
   }
   bus.on('ui:research', () => { audio.start(); researchHub.open(); });
   bus.on('audio:mute', ({ muted }) => { audio.setMuted(muted); writeDeviceRaw(K.sound, muted ? 'off' : 'on'); });   // remembered for the computer (1.3.2)

@@ -1,0 +1,36 @@
+[
+ {
+  "wait": 4
+ },
+ {
+  "js": "['stage:1','g:hubtut','g:album','g:learn','g:start:chat','g:start:howstages','g:start:settings'].forEach((k) => window.__journey.markIntro(k)); window.__journey.markTrained(); window.__journey.unlockAll && window.__journey.unlockAll(); window.__filmWatch = true; 1"
+ },
+ {
+  "js": "window.__app.bus.emit('start:biome',{id:'grove'});1"
+ },
+ {
+  "wait": 0.6
+ },
+ {
+  "js": "const f=document.querySelector('.loading.on .ld-film'); 'CHECK film-shown ' + (f && f.querySelector('.film-front') && document.querySelector('.loading.has-film .film-skip') ? 'ok' : 'FAIL')"
+ },
+ {
+  "js": "const g=document.querySelector('#rguide'); 'CHECK guide-hidden ' + (!g || getComputedStyle(g).visibility === 'hidden' ? 'ok' : 'FAIL')"
+ },
+ {
+  "shot": "shots/films/loading.png"
+ },
+ {
+  "js": "const b=document.querySelector('.film-skip'); if (b) b.click(); 1"
+ },
+ {
+  "until": "!document.querySelector('.loading.on')",
+  "timeout": 120
+ },
+ {
+  "wait": 2
+ },
+ {
+  "js": "'CHECK film-gone ' + (!document.querySelector('.ld-film') && !!window.__game ? 'ok' : 'FAIL')"
+ }
+]
