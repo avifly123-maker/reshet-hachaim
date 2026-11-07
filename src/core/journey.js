@@ -22,6 +22,7 @@
 //   playMode() / setPlayMode(m)         'experience' | 'full'   (beginners always play their own simple mode)
 //   textSize() / setTextSize(s)         'normal' | 'large' | 'xlarge'   (applies a class on <html>, see applyTextSize)
 //   voiceOn() / setVoice(on)            רובו־דע speaks his lines (src/audio/voice.js)
+//   guideQuiet() / setGuideQuiet(on)    1.4.2 (Avi, 1.11): רובו־דע speaks only when needed (no tips in a forest; robo-guide.js)
 //   allOpen() / unlockAll(code) / lockAgain()   the instructors' switch; INSTRUCTOR_CODE (Avi gives it to the instructors; docs/JOURNEY.md)
 // Events listened to: 'wol-badge' (a badge), 'wol-progress' (a mission, a lab activity, a solved mystery…) → check().
 import { rankOf } from '../game/rank.js';   // the island's rank (stage 6; game/rank.js has no three.js)
@@ -266,6 +267,8 @@ export function setTextSize(t) { const s = store(); s.text = t; save(s); applyTe
 export function applyTextSize() { try { const r = document.documentElement; r.classList.remove('ts-normal', 'ts-large', 'ts-xlarge'); r.classList.add('ts-' + textSize()); } catch (e) { } }
 export const voiceOn = () => store().voice !== false;
 export function setVoice(on) { const s = store(); s.voice = !!on; save(s); }
+export const guideQuiet = () => store().quiet === true;
+export function setGuideQuiet(on) { const s = store(); s.quiet = !!on; save(s); }
 
 // a player switch, a reset: forget the in-memory copy (the next read comes from that player's storage)
 export function reload() { mem = null; applyTextSize(); }

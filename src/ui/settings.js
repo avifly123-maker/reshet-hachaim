@@ -62,6 +62,10 @@ function rowHTML(id, o) {
     const on = J.voiceOn();
     return `<button class="set-row set-tog" data-row="voice" data-set="voice" role="switch" aria-checked="${on}"><span class="set-lab">${icon(on ? 'sound' : 'mute')}<span><b>${t('הקול של רובו־דע', 'הַקּוֹל שֶׁל רוֹבּוֹ־דַּע')}</b><small>${t('הוא מקריא את מה שהוא אומר', 'הוּא מַקְרִיא אֶת מָה שֶׁהוּא אוֹמֵר')}</small></span></span>${sw(on)}</button>`;
   }
+  if (id === 'guide') {   // 1.4.2 (Avi, 1.11): רובו־דע speaks only when needed
+    const on = !J.guideQuiet();
+    return `<button class="set-row set-tog" data-row="guide" data-set="guide" role="switch" aria-checked="${on}"><span class="set-lab">${icon('help')}<span><b>${t('רובו־דע נותן טיפים', 'רוֹבּוֹ־דַּע נוֹתֵן טִיפִּים')}</b><small>${t('כבוי: הוא מדבר רק כשצריך', 'כָּבוּי: הוּא מְדַבֵּר רַק כְּשֶׁצָּרִיךְ')}</small></span></span>${sw(on)}</button>`;
+  }
   if (id === 'h:me') return `<p class="set-sub" data-row="h:me">${t('לשחקן', 'לַשַּׂחְקָן')}</p>`;
   if (id === 'h:pc') return `<p class="set-sub" data-row="h:pc">${t('למחשב הזה (לכל השחקנים)', 'לַמַּחְשֵׁב הַזֶּה')}</p>`;
   if (id === 'sound') {
@@ -106,7 +110,7 @@ function rowHTML(id, o) {
   return '';
 }
 
-export function settingsRowsHTML({ rows = ['mode', 'text', 'voice'], ...o } = {}) {
+export function settingsRowsHTML({ rows = ['mode', 'text', 'voice', 'guide'], ...o } = {}) {
   return `<div class="set-rows">${rows.map((r) => rowHTML(r, o)).join('')}</div>`;
 }
 
@@ -170,6 +174,7 @@ export function bindSettingsRows(el, opts = {}) {
     if (k === 'mode') { J.setPlayMode(b.dataset.v); after('mode'); }
     else if (k === 'text') { J.setTextSize(b.dataset.v); after('text'); }
     else if (k === 'voice') { const on = !J.voiceOn(); J.setVoice(on); if (!on) { try { window.__app && window.__app.voice && window.__app.voice.stop(); } catch (er) { } } after('voice'); }
+    else if (k === 'guide') { J.setGuideQuiet(!J.guideQuiet()); after('guide'); }
     else if (k === 'sound') { const on = !(o.getSound ? o.getSound() : true); if (o.setSound) o.setSound(on); setTimeout(() => after('sound'), 0); }
     else if (k === 'quality') { if (o.setQuality) o.setQuality(b.dataset.v); setTimeout(() => after('quality'), 0); }
     else if (k === 'sources') { setSourcesOn(!sourcesOn()); if (o.emit) o.emit('sources:toggle', { on: sourcesOn() }); after('sources'); }
@@ -206,7 +211,7 @@ export function openSettings(host, { emit, getMusic, getSound, setSound, getQual
   layer.innerHTML = `<div class="set-scrim"></div><div class="set-sheet paper" role="dialog" aria-modal="true" aria-label="${esc(t('הגדרות', 'הַגְדָּרוֹת'))}">
     <button class="pp-x set-x" data-x="1" aria-label="סגירה" title="סגירה">${icon('close')}</button>
     <h3 class="set-h">${icon('gear')}${t('הגדרות', 'הַגְדָּרוֹת')}</h3>
-    <div class="set-cols">${settingsRowsHTML({ rows: ['h:me', 'mode', 'text', 'voice', 'again', 'staff'], getMusic, getSound, getQuality })}
+    <div class="set-cols">${settingsRowsHTML({ rows: ['h:me', 'mode', 'text', 'voice', 'guide', 'again', 'staff'], getMusic, getSound, getQuality })}
     ${settingsRowsHTML({ rows: ['h:pc', 'time', 'sources', 'sound', 'music', 'quality'], getMusic, getSound, getQuality })}</div></div>`;
   host.appendChild(layer);
   const sheet = layer.querySelector('.set-sheet');
