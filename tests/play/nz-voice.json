@@ -5,7 +5,7 @@
 {"js": "const b=document.querySelector('#rguide .rg-say'); 'CHECK voiced-line-has-say-again ' + (b && !b.hidden && b.offsetParent ? 'ok' : 'FAIL')"},
 {"js": "document.querySelector('#rguide .rg-say').click(); 1"},
 {"wait": 1},
-{"js": "window.__guide.close(); window.__guide.say([{ id: 'nz.r.record.1', f: 'שיא חדש!', k: 'שִׂיא חָדָשׁ!' }], { speaker: 'nitzotz' }); 1"},
+{"js": "window.__guide.close(); window.__guide.say([{ id: 'nz.none.1', f: 'שיא חדש!', k: 'שִׂיא חָדָשׁ!' }], { speaker: 'nitzotz' }); 1"},
 {"wait": 3},
 {"js": "const b=document.querySelector('#rguide .rg-say'); 'CHECK unvoiced-line-no-say-again ' + (!b || b.hidden ? 'ok' : 'FAIL')"},
 {"js": "window.__guide.close(); 'CHECK no-errors ' + (!window.__errs.length ? 'ok' : 'FAIL ' + window.__errs.join(' | '))"}
