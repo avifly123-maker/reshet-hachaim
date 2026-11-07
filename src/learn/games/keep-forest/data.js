@@ -1,4 +1,4 @@
-// מחזיקים את היער – the fixed numbers and small helpers: the three places and their rows (the reef has rows of its own),
+// מחזיקים את הסביבה – the fixed numbers and small helpers: the three places and their rows (the reef has rows of its own),
 // which row a species grows in (layerRow), bird / insect / fish sets (tools that double their threads), the devices of
 // each place (toolOk), the vitality needed for stars (STAR_T), deck sizes; rnd, shuffle, dn (definite name), mid (מים
 // on land, מחסה at the reef), and every real relation between two species of a place (linksFor, cached per place).

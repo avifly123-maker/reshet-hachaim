@@ -1,4 +1,4 @@
-// מחזיקים את היער – the events nature brings (EV: name, story, what the forest needs, the owl's tip, per place; gentle
+// מחזיקים את הסביבה – the events nature brings (EV: name, story, what the forest needs, the owl's tip, per place; gentle
 // wording, nature is not an enemy), the challenges of each place (no drought at the reef: hunters instead) and the line
 // under each tool card in the hand (TOOL_FX).
 // Exports: EV, challengesFor, TOOL_FX. Needs nothing.

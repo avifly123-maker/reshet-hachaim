@@ -1,4 +1,4 @@
-// מחזיקים את היער – the board's rules: which row a card goes to and which slots are legal, the gold threads between
+// מחזיקים את הסביבה – the board's rules: which row a card goes to and which slots are legal, the gold threads between
 // cards and the totals (light, water / shelter, threads, vitality), the rarity powers (keystone, rare bonus), whether the
 // forest is ready for an event (check) and which card wilts (weakest).
 // Gives K: rowOfCard, slotRow, healthy, rowSlots, legal, totals, isKey, keyCharged, rareReady, rareGain, keystone,
