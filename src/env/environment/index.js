@@ -22,6 +22,7 @@
 //   controls.js      overlay, gaps, isPlaceable, quality, dispose
 //   tree-shadows.js  soft painted tree shadows
 //   common.js, textures.js, palettes.js: constants, procedural textures, colour keyframes
+import { setCloudTex } from '../cloud-shade.js';
 import * as THREE from 'three';
 import { makeRng, makeNoise2D } from '../../core/util.js';
 import { Q, MAX_SCORCH, C, V3, R } from './common.js';
@@ -69,6 +70,7 @@ export function createEnvironment(pipeline, biomeId = 'amazon', { quality = 'med
 
   const noiseTex = track(makeTileNoiseTexture(256, seed + 3));
   const puffTex = track(makePuffTexture(128, seed + 5));
+  setCloudTex(noiseTex);   // 1.4.4 set 10: cloud shadows read the island's own tiling noise (src/env/cloud-shade.js)
 
   // Shared uniforms (same objects referenced by many materials)
   const U = {

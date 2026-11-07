@@ -4,6 +4,7 @@
 // wind / wetness / vitality / scorch GLSL into a standard material).
 // Needs: three, core/util.js.
 import * as THREE from 'three';
+import { cloudPatch } from '../cloud-shade.js';
 import { smoothstep } from '../../core/util.js';
 
 export const R = 38;
@@ -49,6 +50,7 @@ export function patchMaterial(mat, key, uniforms, { vertexPre = '', vertexBegin 
       .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n' + fragEmissive)
       .replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>\n' + fragNormal);
     if (cards) shader.fragmentShader = shader.fragmentShader.replace('#include <normal_fragment_begin>', '#include <normal_fragment_begin>\nnormal = normalize(vNormal);');
+    cloudPatch(shader);   // 1.4.4 set 10: passing cloud shadows
   };
   mat.customProgramCacheKey = () => 'env-' + key;
   return mat;

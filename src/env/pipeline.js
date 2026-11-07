@@ -97,10 +97,18 @@ export function createPipeline(canvas, { quality = 'medium' } = {}) {
     if (tier.grade) {
       gradePass = new ShaderPass(GradeShader);
       gradePass.uniforms.uAspect.value = w / h;
+      applyGrade();
       composer.addPass(gradePass);
     }
   }
 
+  // 1.4.4 set 10: the grade follows the hour (the island's update calls setGrade): cool blue shadows at night, warm
+  // gold in the evening, a fresh morning; only where the grade pass runs (the high tier)
+  const GRADE = { lift: new THREE.Color(0.0, 0.004, 0.012), gain: new THREE.Color(1.015, 1.0, 0.975), sat: 1.06 };
+  function applyGrade() {
+    if (!gradePass) return;
+    gradePass.uniforms.uLift.value.copy(GRADE.lift); gradePass.uniforms.uGain.value.copy(GRADE.gain); gradePass.uniforms.uSaturation.value = GRADE.sat;
+  }
   function disposeComposer() {
     if (!composer) return;
     for (const p of composer.passes) p.dispose && p.dispose();
@@ -133,6 +141,7 @@ export function createPipeline(canvas, { quality = 'medium' } = {}) {
     // shadowEvery > 1 redraws the sun's shadow map only every n-th frame (auto-quality's first, invisible step on slow PCs);
     // the stale map stays consistent with its own light matrix, so shadows just update at a lower rate
     shadowEvery: 1, _frame: 0,
+    setGrade({ lift, gain, sat } = {}) { if (lift) GRADE.lift.copy(lift); if (gain) GRADE.gain.copy(gain); if (sat != null) GRADE.sat = sat; applyGrade(); },
     render(dt = 0.016) {
       if (renderer.shadowMap.enabled) {
         renderer.shadowMap.autoUpdate = false;

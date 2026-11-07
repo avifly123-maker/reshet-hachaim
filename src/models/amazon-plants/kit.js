@@ -2,6 +2,8 @@
 // The shader-driven plant material (makeUniforms, makePlantMaterials; the custom attributes are described below),
 // the geometry builder GB, primitives (orient, place, sweep, leafBlade, blob, bead, octa, starFlower) and shared
 // tree parts (trunkGeo, branchCurve, barkCol, leafCol, seedlingGeo). Exports these and V3, TAU.
+import { cloudPatch } from '../../env/cloud-shade.js';
+import { leafLightPatch } from '../leaf-light.js';
 import * as THREE from 'three';
 import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
 import { clamp, lerp, jitterColor } from '../../core/util.js';
@@ -18,7 +20,7 @@ export const TAU = Math.PI * 2;
 const PLANT_DECL = `
 attribute vec4 aC; attribute vec4 aF; attribute vec3 aP; attribute float aS;
 uniform float uHealth, uLeafShow, uBloom, uFruit, uLate, uTime, uFlutter, uDroop, uStretch, uH; uniform vec2 uBend;
-varying float vLeaf; varying float vRank; varying float vGlow; varying float vY;
+varying float vLeaf; varying float vRank; varying float vGlow; varying float vY; varying float vAO;
 `;
 const PLANT_VERT = `
 #include <begin_vertex>
@@ -38,12 +40,14 @@ const PLANT_VERT = `
   if (aF.z >= 0.0) { float ls = clamp((uLate - aF.z) / 0.3, 0.0, 1.0); transformed = aP + (transformed - aP) * ls; }
   transformed.y += (uStretch - 1.0) * aS;
   vY = transformed.y;
+  // 1.4.4 set 10: shade low in the crown and where the stem meets the ground
+  vAO = aF.x > 0.5 ? mix(0.7, 1.0, clamp(cc.y / max(uH, 0.3) * 1.1, 0.0, 1.0)) : mix(0.6, 1.0, smoothstep(0.0, 0.3, transformed.y));
   float hy = max(transformed.y, 0.0) / uH; transformed.xz += uBend * hy * hy * uH;
 }
 `;
 const PLANT_FRAG_DECL = `
 uniform float uHealth, uUnder, uGlow; uniform vec3 uUnderCol, uGlowCol;
-varying float vLeaf; varying float vRank; varying float vGlow;
+varying float vLeaf; varying float vRank; varying float vGlow; varying float vAO;
 `;
 const CLIP_DECL = `
 uniform float uClip; varying float vY;
@@ -54,6 +58,7 @@ if (vY > uClip) discard;
 `;
 const PLANT_FRAG = `
 #include <color_fragment>
+diffuseColor.rgb *= vAO;
 if (vLeaf > 0.5) {
   float sk = 1.0 - uHealth;
   float r2 = fract(vRank * 7.31 + 0.13);
@@ -87,6 +92,8 @@ function plantOBC(shader) {
     .replace('#include <color_fragment>', PLANT_FRAG)
     .replace('#include <normal_fragment_begin>', NORMAL_FIX)
     .replace('#include <emissivemap_fragment>', PLANT_EMIT);
+  cloudPatch(shader);   // 1.4.4 set 10: passing cloud shadows (src/env/cloud-shade.js)
+  leafLightPatch(shader, 'step(0.5, vLeaf) * step(vLeaf, 2.5)');   // and light through the leaves (src/models/leaf-light.js)
 }
 function depthOBC(shader) {
   Object.assign(shader.uniforms, this.userData.u);

@@ -410,7 +410,9 @@ export function createReefEnvironment(pipeline, { quality = 'medium', seed = 5 }
     vertexShader: /* glsl */`attribute float aRnd; uniform float uTime, uPx, uNight; varying float vA; varying float vG;
       void main(){ vec3 p = position; p.x += sin(uTime * 0.13 + aRnd * 40.0) * 1.4; p.z += cos(uTime * 0.11 + aRnd * 33.0) * 1.4; p.y += sin(uTime * 0.2 + aRnd * 12.0) * 0.6;
         vG = step(0.55, aRnd) * uNight * (0.55 + 0.45 * sin(uTime * 3.0 + aRnd * 80.0));
-        vA = 0.18 + vG; vec4 mv = modelViewMatrix * vec4(p, 1.0); gl_PointSize = (0.05 + 0.08 * aRnd + vG * 0.12) * uPx / -mv.z; gl_Position = projectionMatrix * mv; }`,
+        vA = 0.18 + vG;
+        if (aRnd < 0.35) { float fall = mod(uTime * (0.07 + aRnd * 0.25) + aRnd * 57.0, 6.0); p.y += 3.0 - fall; vA *= smoothstep(0.0, 1.0, fall) * smoothstep(6.0, 5.0, fall) * 1.4; }   // 1.4.4 set 10: "marine snow", slowly sinking
+        vec4 mv = modelViewMatrix * vec4(p, 1.0); gl_PointSize = (0.05 + 0.08 * aRnd + vG * 0.12) * uPx / -mv.z; gl_Position = projectionMatrix * mv; }`,
     fragmentShader: /* glsl */`varying float vA; varying float vG; void main(){ vec2 d = gl_PointCoord - 0.5; float r = length(d); if (r > 0.5) discard;
       vec3 c = mix(vec3(0.85, 0.95, 0.9), vec3(0.35, 0.85, 1.0), clamp(vG * 2.0, 0.0, 1.0)); gl_FragColor = vec4(c * smoothstep(0.5, 0.0, r) * vA, 1.0); }`,
   }));
