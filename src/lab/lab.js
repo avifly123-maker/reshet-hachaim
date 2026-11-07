@@ -35,6 +35,7 @@ import { openGrow, openSeeds } from './greenhouse.js';
 import { openCollection, openSort, openClues, collectionCount, shelfPeek } from './cabinet.js';
 // the look-around room (19.10): a panorama from the room's centre, turning, and the robot's walks to the stations
 import { createRoomView, yawOf } from './room-view.js';
+import { openChat } from '../ui/robo-chat.js';   // from 1.4.3: the talk of the whole game
 
 const STATION_INFO = {
   home: { name: 'החדר', ic: 'home' },
@@ -790,6 +791,7 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
   }
   // ── talking with רובו־דע: questions the child picks; his answers depend on what was already done
   const TALK = {
+    more: { q: 'בוא נדבר על עוד דברים', a: () => '', e: 'happy' },   // the talk of the whole game (src/ui/robo-chat.js)
     who: { q: 'מי אתה?', a: () => 'אני רובו־דע, הרובוט של המעבדה. אני עוזר לחוקרים צעירים: מראה איפה לחפש, שואל שאלות, ולפעמים גם מתבלבל. אבל אני אף פעם לא מגלה את התשובה. אותה אתם מוצאים!', e: 'happy' },
     what: { q: 'מה עושים כאן?', a: () => 'במיקרוסקופ מגדילים דגימות ומחפשים סודות קטנים. בשולחן הממציאים פותרים בעיות בעזרת היצורים, ובונים רובוטים. באטלס נרשם כל מה שגיליתם. ובאקווריום, בחממה ובארון האוסף יש ניסויים קטנים: חושבים כמו חוקרים!', e: 'curious' },
     next: { q: 'מה כדאי לי לעשות עכשיו?', a: () => {
@@ -852,7 +854,9 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
       <div class="lb-qs">${Object.entries(TALK).map(([k, t]) => `<button data-q="${k}">${esc(kids ? TALK_K.q[k] : t.q)}</button>`).join('')}</div><div class="lb-pv lb-chat-pv" aria-live="polite"></div>`;
     panels.appendChild(talkEl);
     talkEl.querySelector('.lb-back').onclick = () => { talkEl.remove(); talkEl = null; };
-    talkEl.querySelectorAll('[data-q]').forEach((b) => b.onclick = () => { const k = b.dataset.q, t = TALK[k]; audio && audio.play('click'); robot.wave(); say(kids ? KA[k]() : t.a(), t.e); });
+    talkEl.querySelectorAll('[data-q]').forEach((b) => b.onclick = () => { const k = b.dataset.q, t = TALK[k]; audio && audio.play('click');
+      if (k === 'more') { talkEl.remove(); talkEl = null; openChat({ place: 'lab' }); return; }
+      robot.wave(); say(kids ? KA[k]() : t.a(), t.e); });
     say(kids ? TALK_K.open : 'שאלו אותי מה שתרצו. כלומר... מה שכתוב על הכפתורים.', 'happy');
   }
 

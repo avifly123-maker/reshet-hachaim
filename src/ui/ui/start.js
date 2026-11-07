@@ -17,6 +17,8 @@ import { openSettings } from '../settings.js';
 import { canopySVG, VINE, waxSeal } from './art.js';
 import { esc } from './helpers.js';
 import { icon } from './icons.js';
+import { svcGuide } from '../../core/services.js';
+import { openChat } from '../robo-chat.js';
 
 export function createStart(ctx) {
   const { root, emit, S, toolbar, startEl } = ctx;
@@ -34,7 +36,8 @@ export function createStart(ctx) {
       ${S.logo ? `<div class="st-logo"><img src="${S.logo}" alt="בבא דע"></div>` : ''}
       <div class="st-corner"><div class="st-corner-row"><button class="st-who" aria-haspopup="dialog" aria-expanded="false" hidden></button>
         <button class="st-time" aria-haspopup="dialog" hidden>${icon('hourglass')}<b></b></button>
-        <button class="st-gear" aria-haspopup="dialog" aria-label="הגדרות" title="הגדרות">${icon('gear')}</button></div>
+        <button class="st-gear" aria-haspopup="dialog" aria-label="הגדרות" title="הגדרות">${icon('gear')}</button>
+        <button class="st-gear st-chat" aria-label="לדבר עם רובו־דע" title="לדבר עם רובו־דע">${icon('chat')}</button></div>
         <button class="st-jbar" data-part="journey" aria-haspopup="dialog"></button></div>
       <div class="st-pp-layer" hidden><div class="st-pp-scrim"></div><div class="st-pp paper" role="dialog" aria-modal="true" aria-label="מי משחק?"></div></div>
       <div class="st-inner v13">
@@ -208,7 +211,9 @@ export function createStart(ctx) {
     const openMap = () => { emit('ui:click'); map = openJourneyMap(root, { emit, onPart: goPart, onClose: () => { map = null; try { jbar.focus({ preventScroll: true }); } catch (e) { } } }); };
     jbar.addEventListener('click', openMap);
     S.openJourneyMap = openMap;
-    const gear = startEl.querySelector('.st-gear');
+    const gear = startEl.querySelector('.st-gear:not(.st-chat)');
+    // 1.4.3: a talk with רובו־דע (src/ui/robo-chat.js)
+    startEl.querySelector('.st-chat').addEventListener('click', () => { emit('ui:click'); openChat({ place: 'start' }); });
     // the parents' play time (1.3.3): the chip shows what is left today (ui/playtime-ui.js paints it) and opens the settings
     const ptChip = startEl.querySelector('.st-time');
     if (ptChip) ptChip.addEventListener('click', () => gear.click());

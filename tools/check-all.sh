@@ -60,7 +60,7 @@ step "rare badges (data)"
 out=$(node tests/badges/rare.mjs 2>&1 | grep -v -i "warning\|reparsing\|trace-warn\|module type"); echo "$out" | tail -1; echo "$out" | tail -1 | grep -q "^rare badges ok" || fail "rare badges"
 
 step "the refresh of 7.11 (from 1.4): instructors' code per player, inventors' robots, hard challenges, films"
-for t in allopen-player:6 inv-robots:6 hard-challenges:3 films:3 rare-badges:5; do
+for t in allopen-player:6 inv-robots:6 hard-challenges:3 films:3 rare-badges:5 chat:19; do
   n=${t%%:*}; want=${t##*:}
   out=$(timeout 1200 python3 tools/play.py dist/index.html tests/play/$n.json 800 460 2>&1)
   ok=$(echo "$out" | grep -c "CHECK .* ok"); echo "$n: $ok/$want"

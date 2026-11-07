@@ -74,6 +74,10 @@ export const HUB_ICONS = {
   reef: '<path d="M7.5 21h9"/><path d="M12 21v-6.2c0-2.6-3.3-3.4-3.3-6.6V5.4M12 14.8c0-2.4 3.4-3 3.4-6.2V6.4M8.7 9.4c-2.2 0-3.6-1.3-3.6-3.9M15.4 10.2c2 0 3.5-1.1 3.5-3.5"/>'
     + '<circle cx="8.7" cy="4.4" r="1.1" fill="currentColor" stroke="none"/><circle cx="15.4" cy="5.3" r="1.1" fill="currentColor" stroke="none"/><circle cx="5.1" cy="4.5" r="1" fill="currentColor" stroke="none"/><circle cx="18.9" cy="5.6" r="1" fill="currentColor" stroke="none"/>',
   zones: '<circle class="f" cx="12" cy="8.2" r="4.6"/><circle cx="12" cy="8.2" r="4.6"/><circle cx="8" cy="15" r="4.6"/><circle cx="16" cy="15" r="4.6"/>',
+  // a talk with רובו־דע (1.4.3): a speech bubble with his two eyes
+  chat: '<path class="f" d="M5.5 4.5h13A2.5 2.5 0 0 1 21 7v7a2.5 2.5 0 0 1-2.5 2.5h-7.2L7 20v-3.5H5.5A2.5 2.5 0 0 1 3 14V7a2.5 2.5 0 0 1 2.5-2.5z"/>'
+    + '<path d="M5.5 4.5h13A2.5 2.5 0 0 1 21 7v7a2.5 2.5 0 0 1-2.5 2.5h-7.2L7 20v-3.5H5.5A2.5 2.5 0 0 1 3 14V7a2.5 2.5 0 0 1 2.5-2.5z"/>'
+    + '<circle cx="9" cy="10.6" r="1.4" fill="currentColor" stroke="none"/><circle cx="15" cy="10.6" r="1.4" fill="currentColor" stroke="none"/>',
   // technology cards: a small robot head with one antenna
   robot: '<rect class="f" x="4.5" y="7.5" width="15" height="11.5" rx="3.6"/><rect x="4.5" y="7.5" width="15" height="11.5" rx="3.6"/>'
     + '<path d="M12 7.5V5"/><circle cx="12" cy="3.6" r="1.3"/><circle cx="9.3" cy="13" r="1.4" fill="currentColor" stroke="none"/><circle cx="14.7" cy="13" r="1.4" fill="currentColor" stroke="none"/>'
