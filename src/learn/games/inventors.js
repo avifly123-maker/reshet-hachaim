@@ -268,6 +268,33 @@ function injectCss() {
 @media (max-height:660px){.wol-learn .iv-rtop{flex-direction:row;gap:.6em;justify-content:center}.wol-learn .iv-rbody{font-size:.42em}.wol-learn .iv-rcol{gap:.25em}.wol-learn .iv-robot .iv-test{font-size:1em;padding:.45em 1.1em}.wol-learn .iv-robot .iv-mod{font-size:.9em}.wol-learn .iv-rname{font-size:1.1em}}
 .wol-learn .iv-rmini{display:none;width:2em;height:2em;border-radius:50%;object-fit:cover;vertical-align:middle;margin-inline-end:.35em;box-shadow:0 0 0 .12em #7ff0ff}
 @media (max-height:500px){.wol-learn .iv-rbody,.wol-learn .iv-robot .iv-steps{display:none}.wol-learn .iv-rmini{display:inline-block}.wol-learn .iv-robot .iv-test{font-size:.95em;padding:.4em 1em}.wol-learn .iv-mod{padding:.25em .6em}.wol-learn .iv-mgrid{grid-template-columns:repeat(auto-fill,minmax(12em,1fr));gap:.35em}.wol-learn .iv-mhead p{display:none}.wol-learn .iv-why{font-size:calc(.8em * var(--tsr,1))}.wol-learn .iv-trial{padding:.3em .6em}}
+/* 1.4.4 set 0 (Avi: "in the robot workshop you have to scroll and you do not see everything; no scroll bars"): the robot
+   stands beside its name, the tests are short rows with one open at a time, and everything fits the screen */
+.wol-learn .iv-rmain{grid-template-columns:minmax(15em,19em) 1fr}
+.wol-learn .iv-robot{overflow:hidden;justify-content:space-evenly;gap:.4em;padding:.7em .8em}
+.wol-learn .iv-rtop{flex-direction:row;align-items:center;justify-content:center;gap:.6em;width:100%}
+.wol-learn .iv-rbody{font-size:.62em;flex:none}
+.wol-learn .iv-rcol{align-items:flex-start;min-width:0}
+.wol-learn .iv-rname{font-size:1.12em;text-align:start}
+.wol-learn .iv-bt{font-size:.82em;color:#cfc6a8}
+.wol-learn .iv-steps{justify-content:flex-start}.wol-learn .iv-steps button{padding:.3em .75em}
+.wol-learn .iv-mods{gap:.3em}
+.wol-learn .iv-robot .iv-test{padding:.55em 1.3em;font-size:1.05em}
+.wol-learn .iv-trials{gap:.3em}
+.wol-learn .iv-trial{padding:.3em .7em;grid-template-columns:1.6em minmax(5em,8em) 1fr auto;cursor:pointer}
+.wol-learn .iv-trial:not(.pending):hover{background:rgba(246,240,220,.12)}
+.wol-learn .iv-trial.open{background:rgba(246,240,220,.14);box-shadow:inset 0 0 0 1px rgba(127,240,255,.35);cursor:default}
+.wol-learn .iv-trials.many{display:grid;grid-template-columns:1fr 1fr;grid-auto-flow:row dense;gap:.3em}
+.wol-learn .iv-trials.many .iv-trial>b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wol-learn .iv-trials.many .iv-trial{grid-template-columns:1.4em minmax(3.5em,6em) 1fr auto;font-size:.88em}
+.wol-learn .iv-trials.many .iv-trial.open{grid-column:1 / -1}
+/* while the robot is tested the cards are not needed (the child goes back to them with "לשפר את הרובוט"): the hand folds
+   away so the whole test fits, and the mission's long question folds into its title and tests */
+.wol-learn .iv-testing .iv-handbar,.wol-learn .iv-testing .iv-hand,.wol-learn .iv-choosing .iv-handbar,.wol-learn .iv-choosing .iv-hand{display:none}
+@media (max-height:520px){.wol-learn .iv-trials.many{gap:.2em}.wol-learn .iv-trials.many .iv-trial{padding:.15em .5em;font-size:.8em}.wol-learn .iv-trials.many .iv-trial .wl-ic{width:1.2em;height:1.2em}.wol-learn .iv-testing .iv-radio{padding:.35em .6em}.wol-learn .iv-testing .iv-radio p{font-size:.9em;line-height:1.3}}
+.wol-learn .iv-testing .iv-mhead p{display:none}
+@media (max-height:660px){.wol-learn .iv-rbody{font-size:.42em}.wol-learn .iv-robot{gap:.3em;padding:.5em .6em}}
+@media (max-height:500px){.wol-learn .iv-rbody{display:block;font-size:.34em}.wol-learn .iv-rmini{display:none}.wol-learn .iv-robot .iv-steps{display:flex}.wol-learn .iv-steps button{padding:.2em .6em;font-size:.9em}.wol-learn .iv-rmain{grid-template-columns:minmax(13em,16em) 1fr}}
 `).replace(/\.wol-learn/g, '#wol-learn.wol-learn');
   document.head.appendChild(st);
 }
@@ -303,7 +330,7 @@ export function mountInventors(root, ctx, opts = {}) {
   let pid = (PLIST.find((p) => p.id === opts.problem) || PLIST.find((p) => waiting()(p.id)) || PLIST.find((p) => !ST.solved[p.id]) || PLIST[0]).id;
   let theme = (PLIST.find((p) => p.id === pid) || PLIST[0]).theme;
   let slots = [null, null], filter = 'all', result = null, failsHere = 0, hintAsk = 0, alive = true;
-  const R = { mission: null, picking: false, n: 2, body: null, mods: [], pickFor: null, run: null, done: null, nudge: '' };
+  const R = { mission: null, picking: false, n: 2, body: null, mods: [], pickFor: null, run: null, done: null, nudge: '', openT: -1 };
   const offs = [];
   const on = (t, ev, fn) => { t.addEventListener(ev, fn); offs.push(() => t.removeEventListener(ev, fn)); };
   const later = (fn, ms) => ctx.later(() => { if (alive) fn(); }, ms);
@@ -603,7 +630,10 @@ export function mountInventors(root, ctx, opts = {}) {
         <div class="tl">${m.free ? `<span>${I.gear}${m.tests.length}</span>` : m.tests.map((id) => `<span>${I[testOf(id).icon] || I.flask}${esc(testOf(id).title)}</span>`).join('')}</div></div>
         ${R.run && !R.done ? '' : `<button data-iv="pickm">${ui('משימה אחרת', 'change')}</button>`}</div>`;
       let body;
-      if (R.run) body = `<div class="iv-trials">${R.run.map((r) => `<div class="iv-trial${R.done ? '' : ' pending'}">${I[r.tl.icon] || I.flask}<b>${esc(r.tl.title)}</b><span class="bar"><i${R.done ? ` style="width:${r.sc}%"` : ''}></i></span><span class="lv ${r.lv}">${kids ? U.lv[r.lv] : { win: 'עבר', half: 'בקושי', fail: 'לא עבר' }[r.lv]}</span><small>${esc(r.line)}</small>${whyHTML(r)}</div>`).join('')}</div>` + summaryHTML();
+      // 1.4.4 set 0 (Avi: "no scroll bars, see everything"): each test is one short row; the details (what happened, what
+      // helped, what was missing) open for one test at a time: the hardest one first, any other with a click on its row
+      if (R.run) { const oi = openTrialIx();
+        body = `<div class="iv-trials${R.run.length > 4 ? ' many' : ''}">${R.run.map((r, i) => `<div class="iv-trial${R.done ? '' : ' pending'}${R.done && i === oi ? ' open' : ''}" data-iv="trial" data-i="${i}">${I[r.tl.icon] || I.flask}<b>${esc(r.tl.title)}</b><span class="bar"><i${R.done ? ` style="width:${r.sc}%"` : ''}></i></span><span class="lv ${r.lv}">${kids ? U.lv[r.lv] : { win: 'עבר', half: 'בקושי', fail: 'לא עבר' }[r.lv]}</span>${R.done && i === oi ? `<small>${esc(r.line)}</small>${whyHTML(r)}` : ''}</div>`).join('')}</div>` + summaryHTML(); }
       else if (R.pickFor) body = `<div class="iv-plan"><h3>${I.gear}${kids ? esc(U.pickTrait.replace('{name}', nm(R.pickFor))) : `איזו תכונה לקחת מ${esc(R.pickFor.name)}?`}</h3><div class="iv-row">${traits(R.pickFor).map((t) => `<button class="iv-mod" data-iv="trait" data-t="${t}">${esc(TRAIT[t])}</button>`).join('')}</div></div>`;
       else body = `<div class="iv-radio">${face(R.nudge ? 'think' : 'happy')}<p><b>${ui('רובו־דע:', 'robo')}</b> ${esc(R.nudge || sayStep)} ${R.body ? ui('יותר תכונות: יותר יכולות, אבל גם יותר משקל.', 'more') : ''}</p></div>`;
       bench = head + body;
@@ -638,12 +668,19 @@ export function mountInventors(root, ctx, opts = {}) {
     if (!settle) { settle = true; later(() => { shownOnce = true; }, 400); }
     const solved = PLIST.filter((p) => ST.solved[p.id]).length;
     // the hub's screens rise in once (wl-rise); a re-render after a click must not rise again (it flickered)
-    root.innerHTML = `<section class="wl-screen iv${kids ? ' kids' : ''}${shownOnce ? ' still' : ''}">
+    root.innerHTML = `<section class="wl-screen iv${kids ? ' kids' : ''}${shownOnce ? ' still' : ''}${view === 'robots' && R.run ? ' iv-testing' : ''}${view === 'robots' && (!R.mission || R.picking) ? ' iv-choosing' : ''}">
       <div class="iv-top"><div class="iv-tabs"><button class="iv-ptab${view === 'problems' ? ' on' : ''}" data-iv="view" data-v="problems">${I.bulb}${ui('בעיות להמציא', 'problems')}</button><button class="iv-rtab${view === 'robots' ? ' on' : ''}" data-iv="view" data-v="robots" aria-pressed="${view === 'robots'}">${I.robot}${ui('סדנת הרובוטים', 'robots')}</button></div>
         <span class="iv-score">${I.check}${ui(`${solved} מתוך ${PLIST.length} המצאות`, 'score', { n: solved, all: PLIST.length })}</span></div>
       ${view === 'problems' ? problemsHTML() : robotsHTML()}</section>`;
   }
-  const resetRun = () => { R.run = null; R.done = null; };
+  const resetRun = () => { R.run = null; R.done = null; R.openT = -1; };
+  // the test whose details are open: the one the child clicked, else the hardest failed one, else the first
+  const openTrialIx = () => {
+    if (!R.run) return -1;
+    if (R.openT >= 0 && R.openT < R.run.length) return R.openT;
+    let k = -1; R.run.forEach((r, i) => { if (r.lv !== 'win' && (k < 0 || r.sc < R.run[k].sc)) k = i; });
+    return k < 0 ? 0 : k;
+  };
   function onClick(e) {
     const t = e.target.closest('[data-iv]'); if (!t || !alive) return;
     const a = t.dataset.iv;
@@ -666,6 +703,7 @@ export function mountInventors(root, ctx, opts = {}) {
     if (a === 'hint') { hintAsk = Math.min(3, hintStage() + 1); if (result && result !== 'busy' && result.level === 'win') result = null; render(); return; }
     // robots
     if (R.run && !R.done && a !== 'view' && a !== 'filter') return;   // the tests are running
+    if (a === 'trial') { if (R.done) { R.openT = +t.dataset.i; render(); } return; }
     if (a === 'mission') { R.mission = t.dataset.m; R.picking = false; R.nudge = ''; resetRun(); ctx.sfx('click'); render(); return; }
     if (a === 'pickm') { R.picking = true; resetRun(); render(); return; }
     if (a === 'step') { const s = +t.dataset.s; R.pickFor = null; R.nudge = ''; if (s === 0) R.picking = true; else if (s === 1 && R.mission) { R.picking = false; R.body = null; resetRun(); } else R.picking = false; render(); return; }
