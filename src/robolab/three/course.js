@@ -7,6 +7,7 @@
 //   const C = createCourse(ctx, L)      ctx: { W, env, scene, reg, markers, spawnPlant, spawnAnimal, zone }
 //   C.reset()  C.play(trace, { speed, onStep, onEnd })  C.stop()  C.isPlaying()  C.update(rdt)  C.view()  C.dispose()
 import * as THREE from 'three';
+import { disposeOwned } from '../../core/util.js';
 import { makeWorld } from '../engine/world.js';
 import { SIGNALS } from '../engine/blocks.js';
 import { levelsOf } from '../engine/level.js';
@@ -158,7 +159,7 @@ export function createCourse(ctx, L) {
     // (a shared geometry or material that is used again is simply sent to the GPU again by three.js)
     for (const o of [...itemRoot.children]) {
       itemRoot.remove(o);
-      o.traverse((m) => { if (m.geometry) m.geometry.dispose(); const mats = Array.isArray(m.material) ? m.material : m.material ? [m.material] : []; for (const x of mats) { if (x.map) x.map.dispose(); x.dispose(); } });
+      disposeOwned(o);   // 1.4.4 stability: only what the items made (the glow and the shared stone stay)
     }
     for (const p of spawned) { try { W.removeEntity(p); } catch (e) { } }
     spawned = []; fires = [];
@@ -169,6 +170,7 @@ export function createCourse(ctx, L) {
   let vAnimals = new Map(), traps = [], glows = [];
   const S_HERD = new Map();   // item index → the herd's animals
   const glowMat = new THREE.SpriteMaterial({ map: (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'); const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(255,240,170,1)'); gr.addColorStop(0.35, 'rgba(255,150,40,.75)'); gr.addColorStop(1, 'rgba(255,60,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); const t = new THREE.CanvasTexture(c); return t; })(), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true });
+  glowMat.userData.shared = true; glowMat.map.userData.shared = true;   // shared by the traps of every reset; freed on dispose
   function makeTrap() {   // a camera trap on a short post: a green box, a lens, a red lamp that flashes on a signal
     const g = new THREE.Group(), post = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 1.1, 8), new THREE.MeshStandardMaterial({ color: '#5a4630', roughness: 0.9 }));
     post.position.y = 0.55; g.add(post);
@@ -426,6 +428,6 @@ export function createCourse(ctx, L) {
     setFar: (f) => { const o = toolObjs.robot; if (o && o.userData.eyes) o.userData.eyes.set(f); },
     robotAt: () => (tools.robot ? new THREE.Vector3(wx(tools.robot.x), ground(wx(tools.robot.x), wz(tools.robot.y)), wz(tools.robot.y)) : null), span: Math.max(Wd, H) * CS,
     info: () => ({ built: !!(toolObjs.robot && toolObjs.robot.userData.built), cells: FC.clears.length }),   // tests
-    dispose: () => { gone = true; stop(); RC.dispose(); clearItems(); FC.dispose(); if (env.clearScatter) env.clearScatter([]); for (const e of keep) { try { W.removeEntity(e); } catch (err) { } } scene.remove(root); root.traverse((o) => { if (o.geometry) o.geometry.dispose(); }); },
+    dispose: () => { gone = true; stop(); RC.dispose(); clearItems(); FC.dispose(); if (env.clearScatter) env.clearScatter([]); for (const e of keep) { try { W.removeEntity(e); } catch (err) { } } scene.remove(root); disposeOwned(root); glowMat.map.dispose(); glowMat.dispose(); },   // 1.4.4 stability: the field's own materials too, never the cached part geometry
   };
 }

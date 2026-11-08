@@ -65,10 +65,22 @@ export function makeBus() {
 // Material cache so many instances share one material (important for performance).
 const _matCache = new Map();
 export function cachedMaterial(key, factory) {
-  if (!_matCache.has(key)) _matCache.set(key, factory());
+  if (!_matCache.has(key)) { const m = factory(); m.userData.shared = true; _matCache.set(key, m); }   // shared: disposeOwned leaves it
   return _matCache.get(key);
 }
 
+// 1.4.4 stability set: free what an owner built (a lesson's field, a screen's scene), never what is shared. Whoever makes a
+// shared thing marks it userData.shared = true (a cache's geometry, a module-level or cached material, a shared texture);
+// everything else under root is the owner's: its geometries, materials and their textures are freed once each.
+export function disposeOwned(root) {
+  const seen = new Set();
+  const free = (x) => { if (!x || seen.has(x) || (x.userData && x.userData.shared)) return false; seen.add(x); return true; };
+  root.traverse((o) => {
+    if (o.geometry && free(o.geometry)) o.geometry.dispose();
+    const ms = Array.isArray(o.material) ? o.material : o.material ? [o.material] : [];
+    for (const m of ms) if (free(m)) { for (const v of Object.values(m)) if (v && v.isTexture && free(v)) v.dispose(); m.dispose(); }
+  });
+}
 // Drop (and free) the cached materials whose key starts with prefix – a zone pack calls this when its zone closes.
 export function releaseMaterials(prefix) {
   for (const [k, m] of [..._matCache]) if (k.startsWith(prefix)) { disposeDeep(m); _matCache.delete(k); }

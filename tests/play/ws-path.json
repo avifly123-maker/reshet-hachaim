@@ -113,7 +113,13 @@
 "js": "'CHECK patent-to-orders ' + (window.__wsDebug.state().place==='orders' ? 'ok' : 'FAIL')"
 },
 {
-"js": "document.querySelectorAll('.bdg-pop').forEach((b)=>b.remove()); ['b_ax1','b_ax2','b_ax3','b_ax4'].forEach((id)=>window.dispatchEvent(new CustomEvent('wol-badge',{detail:id}))); 1"
+"js": "document.querySelectorAll('.bdg-pop').forEach((b)=>b.click()); 1"
+},
+{
+"wait": 0.8
+},
+{
+"js": "['b_ax1','b_ax2','b_ax3','b_ax4'].forEach((id)=>window.dispatchEvent(new CustomEvent('wol-badge',{detail:id}))); 1"
 },
 {
 "wait": 1.5

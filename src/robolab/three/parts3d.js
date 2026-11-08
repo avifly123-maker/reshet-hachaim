@@ -21,6 +21,7 @@ export function geo(key, m) {
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.BufferAttribute(P, 3)); g.setAttribute('normal', new THREE.BufferAttribute(N, 3)); g.setIndex(new THREE.BufferAttribute(idx, 1));
   g.computeBoundingSphere();
+  g.userData.shared = true;   // cached for every tool and screen: a field's or a screen's cleanup must not free it
   geoCache.set(key, g); return g;
 }
 // the slots' looks; body / trim / accent take the player's paint

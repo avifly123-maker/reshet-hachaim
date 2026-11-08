@@ -1,0 +1,87 @@
+[
+{
+"wait": 4
+},
+{
+"js": "window.__journey.markIntro('stage:1'); window.__guide && window.__guide.close(); window.__journey.unlockAll('2580'); window.__app.bus.emit('quality',{q:'medium'}); 1"
+},
+{
+"wait": 2
+},
+{
+"js": "window.__lf = { start: (() => { const r = window.__app.pipe.renderer, m = r.info.memory; return { g: m.geometries, t: m.textures, sc: window.__app.pipe.scene.children.length }; })() }; 1"
+},
+{
+"js": "window.__failLoadAt = 'env'; window.__app.loadBiome('grove'); 1"
+},
+{
+"until": "!!document.querySelector('.loading-actions button, [data-loadact], .ld-actions button') || /השתבש/.test(document.body.innerText)",
+"timeout": 240
+},
+{
+"wait": 1.5
+},
+{
+"js": "window.__lf['env'] = Object.assign((() => { const r = window.__app.pipe.renderer, m = r.info.memory; return { g: m.geometries, t: m.textures, sc: window.__app.pipe.scene.children.length }; })(), { game: !!window.__app.game, msg: /השתבש/.test(document.body.innerText) }); JSON.stringify(window.__lf['env'])"
+},
+{
+"js": "const b = [...document.querySelectorAll('button')].find(x => /חזרה למסך הפתיחה/.test(x.textContent)); if (b) b.click(); 1"
+},
+{
+"wait": 2
+},
+{
+"js": "window.__failLoadAt = 'warm'; window.__app.loadBiome('grove'); 1"
+},
+{
+"until": "!!document.querySelector('.loading-actions button, [data-loadact], .ld-actions button') || /השתבש/.test(document.body.innerText)",
+"timeout": 240
+},
+{
+"wait": 1.5
+},
+{
+"js": "window.__lf['warm'] = Object.assign((() => { const r = window.__app.pipe.renderer, m = r.info.memory; return { g: m.geometries, t: m.textures, sc: window.__app.pipe.scene.children.length }; })(), { game: !!window.__app.game, msg: /השתבש/.test(document.body.innerText) }); JSON.stringify(window.__lf['warm'])"
+},
+{
+"js": "const b = [...document.querySelectorAll('button')].find(x => /חזרה למסך הפתיחה/.test(x.textContent)); if (b) b.click(); 1"
+},
+{
+"wait": 2
+},
+{
+"js": "window.__failLoadAt = 'parts'; window.__app.loadBiome('grove'); 1"
+},
+{
+"until": "!!document.querySelector('.loading-actions button, [data-loadact], .ld-actions button') || /השתבש/.test(document.body.innerText)",
+"timeout": 240
+},
+{
+"wait": 1.5
+},
+{
+"js": "window.__lf['parts'] = Object.assign((() => { const r = window.__app.pipe.renderer, m = r.info.memory; return { g: m.geometries, t: m.textures, sc: window.__app.pipe.scene.children.length }; })(), { game: !!window.__app.game, msg: /השתבש/.test(document.body.innerText) }); JSON.stringify(window.__lf['parts'])"
+},
+{
+"js": "const b = [...document.querySelectorAll('button')].find(x => /חזרה למסך הפתיחה/.test(x.textContent)); if (b) b.click(); 1"
+},
+{
+"wait": 2
+},
+{
+"js": "const a = window.__lf.start; 'CHECK load-fail-clean ' + (['env','warm','parts'].every(k => { const b = window.__lf[k]; return b && b.msg && !b.game && b.g - a.g <= 3 && b.t - a.t <= 2 && b.sc === a.sc; }) ? 'ok' : 'FAIL ' + JSON.stringify(window.__lf))"
+},
+{
+"js": "window.__app.loadBiome('grove'); 1"
+},
+{
+"until": "!!window.__app.game && !!window.__game",
+"timeout": 300
+},
+{
+"wait": 2
+},
+{
+"js": "'CHECK load-after-fail ' + (window.__app.game && window.__game.plants ? 'ok' : 'FAIL')"
+}
+]

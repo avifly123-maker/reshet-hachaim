@@ -99,5 +99,34 @@
 },
 {
 "js": "'CHECK svfilm-skip ' + (!document.querySelector('#ui .svf') && window.__svFilm.t < 0 ? 'ok' : 'FAIL')"
+},
+{
+"until": "window.__svFilm && window.__svFilm.t < 0 && !document.querySelector('#ui .svf')",
+"timeout": 200
+},
+{
+"click": [
+400,
+300
+]
+},
+{
+"wait": 1
+},
+{
+"js": "const b = document.querySelector('[data-a=svfilm]'); b.click(); const k = document.querySelector('#ui .svf .svf-skip'); if (k) k.click(); setTimeout(() => { document.querySelector('[data-a=svfilm]').click(); }, 700); 1"
+},
+{
+"until": "window.__svFilm && window.__svFilm.t > 2",
+"timeout": 120
+},
+{
+"js": "const k = document.querySelector('#ui .svf .svf-skip'); if (k) k.click(); 1"
+},
+{
+"wait": 4
+},
+{
+"js": "'CHECK svfilm-music-stops ' + (window.__svFilm.music === 0 ? 'ok' : 'FAIL ' + window.__svFilm.music + ' still playing')"
 }
 ]

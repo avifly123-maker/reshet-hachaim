@@ -58,6 +58,7 @@ const waterTex = () => canvasTex('water', 256, (g, s) => {
 });
 
 const STONE = new THREE.MeshStandardMaterial({ color: '#8f8a80', roughness: 0.9, flatShading: true });
+STONE.userData.shared = true;   // one for every field
 // a mesh laid on the ground over a cell: a plane of n×n segments whose points follow the island (and a shape of our own)
 function layOn(w, d, n, at, ground, up, shape = null) {
   const g = new THREE.PlaneGeometry(w, d, n, n); g.rotateX(-Math.PI / 2);

@@ -56,6 +56,7 @@ export function createSavannaFilm({ W, env, imv, camera, audio, pipe = null }) {
   if (!document.getElementById(CSS_ID)) { const st = document.createElement('style'); st.id = CSS_ID; st.textContent = CSS; document.head.appendChild(st); }
   const root = document.getElementById('ui');
   let run = null;   // the film that is playing
+  let musicOn = 0;   // music sources playing now (tests: window.__svFilm.music must fall back to 0 after a film)
 
   // ─────────────────────────────────── the places (from the island itself, so they follow its layout)
   function places() {
@@ -212,13 +213,14 @@ export function createSavannaFilm({ W, env, imv, camera, audio, pipe = null }) {
 
     // ── the music (once, through the music bus: the sound switch silences it too)
     let src = null, gain = null, startAt = null;
+    let live = true;   // 1.4.4 stability: this film's own run (a slow music load must not start in a newer film)
     const ac = audio && audio.ready ? audio.context : null;
     if (ac && readMusicPref() && audio.musicOut && ac.state === 'running') {
       import('../../data/music.js').then((m) => fetch(m.MUSIC.savanna.src)).then((r) => r.arrayBuffer())
         .then((ab) => new Promise((res, rej) => { const p = ac.decodeAudioData(ab, res, rej); if (p && p.catch) p.catch(rej); }))
         .then((buf) => {
-          if (!run || run.done) return;
-          src = ac.createBufferSource(); gain = ac.createGain(); src.buffer = buf;
+          if (!live || !run || run.done) return;
+          src = ac.createBufferSource(); musicOn++; src.onended = () => { musicOn--; }; gain = ac.createGain(); src.buffer = buf;
           src.connect(gain); gain.connect(audio.musicOut());
           gain.gain.value = 1; src.start(ac.currentTime, Math.max(0, run.t));   // starts where the film is (normally at 0)
         }).catch((e) => console.warn('[svfilm] music', e));
@@ -287,6 +289,7 @@ export function createSavannaFilm({ W, env, imv, camera, audio, pipe = null }) {
     const finish = (how) => {
       if (!run || run.done) return; run.done = true;
       if (how !== 'exit') { try { imv.exit(); } catch (e) { } return; }   // imv.exit calls back with 'exit'
+      live = false;
       try { if (src && gain && ac) { const t0 = ac.currentTime; gain.gain.cancelScheduledValues(t0); gain.gain.setValueAtTime(gain.gain.value, t0); gain.gain.linearRampToValueAtTime(0, t0 + 1.2); src.stop(t0 + 1.3); } } catch (e) { }
       for (const a of actors) { try { a.v.dispose ? a.v.dispose() : a.o.removeFromParent(); } catch (e) { } }
       for (const p of plants) { try { p.dispose ? p.dispose() : p.object.removeFromParent(); } catch (e) { } }
@@ -313,7 +316,7 @@ export function createSavannaFilm({ W, env, imv, camera, audio, pipe = null }) {
     });
     try {
       window.__svFilm = { get t() { return run ? run.t : -1; }, get actors() { return run ? run.actors.length : 0; }, places: P, length: FILM_LEN,
-        fix(step) { if (run) { run.fixed = step; run.budget = 0; } }, step(k = 1) { if (run) run.budget += k; }, get budget() { return run ? run.budget : -1; } };
+        fix(step) { if (run) { run.fixed = step; run.budget = 0; } }, step(k = 1) { if (run) run.budget += k; }, get budget() { return run ? run.budget : -1; }, get music() { return musicOn; } };
     } catch (e) { }
     return true;
   }

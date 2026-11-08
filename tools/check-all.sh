@@ -103,11 +103,12 @@ echo "$out" | grep "\[pageerror\]\|JS ERROR\|UNTIL TIMEOUT\|NO ELEMENT" && fail 
 # and the technology cards (a drop-in after the step card, the album's tech tab, the zoom); set 4: the missions (the
 # missions tutorial, the robot on the bench goes to a mission in 3D, the count, a missing part's help, back to the workshop)
 # 1.4.4 set 0 (6.11: two big doors, lessons and the robot workshop); the inventors' robot workshop fits the screen with no scroll bar (inv-robots)
+# stability set (8.11): a lesson field frees its own materials (robolab-course-leak), a load that fails halfway frees what it built (load-fail)
 # 6.11: the workshop's inventor path, how-to, shelf carousel and badge note (ws-path), the beginners' workshop (ws-kids), the
 # instructors' code opening everything for one player only (allopen-player)
 # 8.11 (Avi): the science centre without arrows, the workshop door picture, its goal card with the next step, "what is done
 # here and why", the thinking methods that flash when they grow and their sheet (ws-clear)
-for t in workshop:14 workshop-kids:5 techcards:7 workshop-missions:14 workshop-island:8 garage:10 stage9:5 sandbox:8 chat:20 inv-robots:7 weekly:11 nz-workshop:34 ws-path:11 allopen-player:6 ws-kids:11 nz-voice:3 ws-room-leave:5 robolab-hints:8 ws-clear:7 weekly-events:13 weekly-det-race:12 drone-missions:6 hard-challenges:3 rare-badges:5 films:4; do
+for t in workshop:14 workshop-kids:5 techcards:7 workshop-missions:14 workshop-island:8 garage:10 stage9:5 sandbox:8 chat:20 inv-robots:7 weekly:11 nz-workshop:34 ws-path:11 allopen-player:6 ws-kids:11 nz-voice:3 ws-room-leave:5 robolab-hints:8 ws-clear:7 weekly-events:13 weekly-det-race:12 drone-missions:6 hard-challenges:3 rare-badges:5 films:4 robolab-course-leak:3 load-fail:2; do
   f=${t%%:*}; want=${t##*:}
   out=$(timeout 1200 python3 tools/play.py dist/index.html tests/play/$f.json 800 460 2>&1)
   n=$(echo "$out" | grep -c "CHECK .* ok")
@@ -151,12 +152,12 @@ n=$(echo "$out" | grep -c "CHECK .* ok")
 echo "$out" | grep "CHECK .* FAIL" && fail "savanna devices: a check failed"
 echo "$out" | grep "\[pageerror\]\|JS ERROR\|UNTIL TIMEOUT\|NO ELEMENT" && fail "savanna devices: errors"
 [ "$n" = 4 ] || fail "savanna devices: $n of 4 checks"
-# the savanna's opening film (1.4.2): it plays once, the cast is on the island, it ends, the clock comes back, its button, skip
+# the savanna's opening film (1.4.2): it plays once, the cast is on the island, it ends, the clock comes back, its button, skip, a fast replay leaves no music playing (stability set)
 out=$(timeout 1500 python3 tools/play.py dist/index.html tests/play/savanna-film.json 800 460 2>&1)
 n=$(echo "$out" | grep -c "CHECK .* ok")
 echo "$out" | grep "CHECK .* FAIL" && fail "savanna film: a check failed"
 echo "$out" | grep "\[pageerror\]\|JS ERROR\|UNTIL TIMEOUT\|NO ELEMENT" && fail "savanna film: errors"
-[ "$n" = 7 ] || fail "savanna film: $n of 7 checks"
+[ "$n" = 8 ] || fail "savanna film: $n of 8 checks"
 # the savanna's late rains (1.4.3, Avi: "in the drought mission it rains"): no rain while the drought lasts, a shower after it
 out=$(timeout 1200 python3 tools/play.py dist/index.html tests/play/savanna-drought.json 800 460 2>&1)
 n=$(echo "$out" | grep -c "CHECK .* ok")
@@ -170,7 +171,7 @@ n=$(echo "$out" | grep -c "CHECK .* ok")
 echo "$out" | grep "CHECK .* FAIL" && fail "savanna herds: a check failed"
 echo "$out" | grep "\[pageerror\]\|JS ERROR\|UNTIL TIMEOUT\|NO ELEMENT" && fail "savanna herds: errors"
 [ "$n" = 9 ] || fail "savanna herds: $n of 9 checks"
-echo "training field and tutorials OK (robot lab tutorial 8/8, desert tutorial 6/6, savanna tutorial 8/8, savanna devices 4/4, savanna film 7/7, savanna drought 2/2, savanna herds 9/9)"
+echo "training field and tutorials OK (robot lab tutorial 8/8, desert tutorial 6/6, savanna tutorial 8/8, savanna devices 4/4, savanna film 8/8, savanna drought 2/2, savanna herds 9/9)"
 
 step "parents' play time"
 out=$(timeout 1200 python3 tools/check-playtime.py dist/index-torah.html shots/playtime 2>&1)
