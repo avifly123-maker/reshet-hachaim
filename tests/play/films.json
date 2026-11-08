@@ -28,7 +28,8 @@
 "timeout": 120
 },
 {
-"wait": 2
+"until": "!document.querySelector('.ld-film')",
+"timeout": 30
 },
 {
 "js": "'CHECK film-gone ' + (!document.querySelector('.ld-film') && !!window.__game ? 'ok' : 'FAIL')"
