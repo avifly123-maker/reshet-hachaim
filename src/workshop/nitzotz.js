@@ -38,6 +38,7 @@ function materials() {
     contact: new THREE.MeshStandardMaterial({ color: '#2a2624', roughness: 0.6 }),
     glove: new THREE.MeshStandardMaterial({ color: '#fbf9f3', roughness: 0.62 }),
     cuff: new THREE.MeshStandardMaterial({ color: '#f1ebdd', roughness: 0.58 }),
+    arm: new THREE.MeshStandardMaterial({ color: '#ffc414', roughness: 0.38, emissive: '#a86a00', emissiveIntensity: 0.35 }),
   };
   M.shell.onBeforeCompile = (sh) => {
     sh.fragmentShader = sh.fragmentShader.replace('#include <opaque_fragment>', `
@@ -74,11 +75,11 @@ export function createNitzotz({ size = 1, sparks = true } = {}) {
   root.scale.setScalar(size);
 
   // ── the face: a canvas behind the glass, a little curved back at its sides
-  const cv = document.createElement('canvas'); cv.width = 256; cv.height = 200;
+  const cv = document.createElement('canvas'); cv.width = 512; cv.height = 400;   // 8.11: sharp at a big size
   const cx = cv.getContext('2d');
   const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace;
-  const fg = new THREE.PlaneGeometry(0.4, 0.3125, 12, 1);
-  { const p = fg.attributes.position; for (let i = 0; i < p.count; i++) { const x = p.getX(i); p.setZ(i, -x * x * 1.4); } fg.computeVertexNormals(); }
+  const fg = new THREE.PlaneGeometry(0.56, 0.44, 14, 1);   // 8.11: a bigger face, the film's
+  { const p = fg.attributes.position; for (let i = 0; i < p.count; i++) { const x = p.getX(i); p.setZ(i, -x * x * 1.1); } fg.computeVertexNormals(); }
   const face = new THREE.Mesh(fg, new THREE.MeshBasicMaterial({ map: tex, transparent: true, toneMapped: false, depthWrite: false }));
   face.renderOrder = 4;
   if (faceAt) { face.position.fromArray(faceAt.at); face.position.z -= 0.012; faceAt.parent.add(face); }
@@ -86,6 +87,45 @@ export function createNitzotz({ size = 1, sparks = true } = {}) {
   const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(), color: WARM.clone(), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false }));
   halo.renderOrder = 6; halo.scale.setScalar(1.1);
   if (heartAt) { halo.position.fromArray(heartAt.at); heartAt.parent.add(halo); }
+  // the arms (8.11, Avi: "the film's ניצוץ is much nicer"): thin yellow bendy arms from the sides of the bulb to the
+  // gloves' cuffs, as in the film. One tube each, its rings moved every frame along a curve (no new geometry per frame).
+  const ARM_N = 16, ARM_S = 8, ARM_R = 0.022;
+  const arms = [];
+  if (J.bulb && J.hand_l && J.hand_r) for (const [sx, hand] of [[-1, J.hand_l], [1, J.hand_r]]) {
+    const g = new THREE.BufferGeometry(), n = (ARM_N + 1) * ARM_S;
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(n * 3), 3)); g.setAttribute('normal', new THREE.BufferAttribute(new Float32Array(n * 3), 3));
+    const idx = [];
+    for (let i = 0; i < ARM_N; i++) for (let k = 0; k < ARM_S; k++) { const a = i * ARM_S + k, b = i * ARM_S + (k + 1) % ARM_S, c = (i + 1) * ARM_S + (k + 1) % ARM_S, d = (i + 1) * ARM_S + k; idx.push(a, d, b, b, d, c); }
+    g.setIndex(idx);
+    const mesh = new THREE.Mesh(g, M.arm); mesh.frustumCulled = false; mesh.castShadow = true; mesh.name = 'arm'; root.add(mesh); meshes.push(mesh);
+    const sh = new THREE.Object3D(); sh.position.set(sx * 0.205, 0.33, -0.01); J.bulb.add(sh);   // the shoulder: on the glass, low on its side
+    const wr = new THREE.Object3D(); wr.position.set(0, -0.07, 0); hand.add(wr);                   // the wrist, inside the cuff
+    arms.push({ g, sh, wr, sx });
+  }
+  const _a = new THREE.Vector3(), _b = new THREE.Vector3(), _c1 = new THREE.Vector3(), _c2 = new THREE.Vector3(), _p = new THREE.Vector3(), _t = new THREE.Vector3(), _nn = new THREE.Vector3(), _bb = new THREE.Vector3(), _ref = new THREE.Vector3(0, 0, 1);
+  function bez(t, o) { const u = 1 - t; return o.set(0, 0, 0).addScaledVector(_a, u * u * u).addScaledVector(_c1, 3 * u * u * t).addScaledVector(_c2, 3 * u * t * t).addScaledVector(_b, t * t * t); }
+  function drawArms() {
+    if (!arms.length) return;
+    root.updateMatrixWorld(true);
+    for (const A of arms) {
+      root.worldToLocal(A.sh.getWorldPosition(_a)); root.worldToLocal(A.wr.getWorldPosition(_b));
+      const L = _a.distanceTo(_b);
+      _c1.copy(_a).add(_t.set(A.sx * L * 0.42, -L * 0.12, 0));   // out to the side and a little down, then up into the glove
+      _c2.copy(_b).add(_t.set(A.sx * L * 0.05, -L * 0.42, 0));
+      const P = A.g.attributes.position.array, N = A.g.attributes.normal.array;
+      for (let i = 0; i <= ARM_N; i++) {
+        const t = i / ARM_N; bez(t, _p); bez(Math.min(1, t + 0.02), _t); _t.sub(bez(Math.max(0, t - 0.02), _nn)).normalize();
+        _nn.crossVectors(_t, _ref).normalize(); _bb.crossVectors(_t, _nn);
+        const r = ARM_R * (1 - 0.18 * t);
+        for (let k = 0; k < ARM_S; k++) {
+          const q = (k / ARM_S) * Math.PI * 2, cs = Math.cos(q), sn = Math.sin(q), o = (i * ARM_S + k) * 3;
+          const nx = _nn.x * cs + _bb.x * sn, ny = _nn.y * cs + _bb.y * sn, nz = _nn.z * cs + _bb.z * sn;
+          N[o] = nx; N[o + 1] = ny; N[o + 2] = nz; P[o] = _p.x + nx * r; P[o + 1] = _p.y + ny * r; P[o + 2] = _p.z + nz * r;
+        }
+      }
+      A.g.attributes.position.needsUpdate = true; A.g.attributes.normal.needsUpdate = true;
+    }
+  }
   // the smoke of a blown fuse: a few grey puffs
   const smoke = [];
   for (let i = 0; i < 5; i++) {
@@ -102,7 +142,7 @@ export function createNitzotz({ size = 1, sparks = true } = {}) {
 
   // ── state
   let mood = 'happy', talking = false, mouth = 0, blink = 0, blinkT = 2.5, lookX = 0, lookY = 0, lookTX = 0, lookTY = 0;
-  let act = null, actT = 0, t = 0, light = 1, lightT = 1, faceDirty = true, faceT = 0;
+  let act = null, actT = 0, t = 0, light = 1, lightT = 1, faceDirty = true, faceT = 1;   // (faceT 1: the face is drawn on the very first update)
   const ACT_LEN = { idea: 1.6, explain: 2.4, hint: 2.2, cheer: 2.0, fuse: 2.6, wave: 2.0, excited: 1.8 };
   const MOOD_OF = { idea: 'idea', explain: 'happy', hint: 'think', cheer: 'proud', fuse: 'fuse', wave: 'happy', excited: 'excited' };
   const LIGHT_OF = { happy: 1.15, think: 0.9, bored: 0.4, wow: 1.25, proud: 1.3, idea: 1.5, excited: 1.35, fuse: 0 };
@@ -157,11 +197,11 @@ export function createNitzotz({ size = 1, sparks = true } = {}) {
     // the light: eased towards its target; the heart, the filament and the halo follow it
     light += (lightT - light) * Math.min(1, dt * (lightT > light ? 14 : 5));
     const L = Math.max(0, light);
-    M.core.opacity = Math.min(0.6, 0.05 + L * 0.2);
-    M.shell.emissiveIntensity = 0.14 + Math.min(1.6, L) * 0.4;   // the glass itself glows warm with his light
+    M.core.opacity = Math.min(0.3, Math.max(0, L - 1.05) * 0.5);   // 8.11: no ball inside at rest (the film's bulb is light); a warm heart when he lights up
+    M.shell.emissiveIntensity = 0.06 + Math.min(1.6, L) * 0.16 + Math.max(0, L - 1.1) * 0.6;   // the glass itself glows warm with his light
     M.core.color.copy(DIM).lerp(L > 1 ? HOT : WARM, Math.min(1, L > 1 ? (L - 1) * 1.6 : L));
     M.filament.color.copy(DIM).lerp(WARM, Math.min(1, L));
-    halo.material.opacity = Math.min(0.8, L * 0.28); halo.scale.setScalar(0.5 + L * 0.28);
+    halo.material.opacity = Math.min(0.42, 0.1 + Math.max(0, L - 1) * 0.5); halo.scale.setScalar(0.5 + L * 0.28);   // 8.11: clear glass at rest (the film's), a glow when he lights up
     // the sparks: a few a second while he glows
     if (SN) {
       spawnT -= dt;
@@ -184,13 +224,14 @@ export function createNitzotz({ size = 1, sparks = true } = {}) {
     if (mood === 'fuse') faceDirty = true;
     if (faceDirty && faceT > 1 / 30) { faceT = 0; drawNitzotzFace(cx, cv.width, cv.height, { mood, talking, mouth, blink, lookX, lookY, t }); tex.needsUpdate = true; faceDirty = false; }
     face.material.opacity = mood === 'fuse' && light < 0.3 ? 0.65 : 1;
+    drawArms();
   }
 
   function dispose() {
     for (const m of Object.values(M)) m.dispose();
     face.geometry.dispose(); face.material.dispose(); tex.dispose();
     halo.material.dispose(); for (const S of smoke) S.s.material.dispose();
-    sGeo.dispose(); sMat.dispose();
+    sGeo.dispose(); sMat.dispose(); for (const A of arms) A.g.dispose();
     root.removeFromParent();
   }
   update(0);

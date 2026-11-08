@@ -21,6 +21,8 @@ import { esc } from './helpers.js';
 import { icon } from './icons.js';
 import { svcGuide } from '../../core/services.js';
 import { openChat } from '../robo-chat.js';
+import { WS_DOOR } from '../../data/workshop-door-art.js';
+import { drawNitzotzFace } from '../nitzotz-face.js';
 import { bindCarousel } from '../carousel.js';
 
 export function createStart(ctx) {
@@ -69,17 +71,16 @@ export function createStart(ctx) {
         <div class="st-dots">${biomes.map((b, i) => `<button data-dot="${i}" aria-label="${esc(b.name)}"></button>`).join('')}</div>
       </section>
       <section class="st-pane" data-pane="sci">
-        <div class="st-cw"><button type="button" class="st-carb prev" data-carb="-1" aria-label="הקודם">${icon('arrowR')}</button>
-        <div class="st-big2 st-carrow">
+        <div class="st-big2 st-sci4">
           <button class="st-panel" data-research="1" data-part="research"><span class="st-pimg rs">${biomes.slice(0, 5).map((b) => `<img src="${isl(b.id)}" alt="" draggable="false">`).join('')}<i class="st-lens">${icon('search')}</i><i class="jv-curtain" aria-hidden="true"></i></span>
             <span class="st-ptext"><b>חוקרי הטבע</b><small>תעלומות בטבע: מודדים, משערים, מנסים ומאזנים. שלוש רמות, מחמש הסביבות.</small><em>${icon('arrowL')}לתעלומות</em><em class="jv-note"></em></span></button>
           <button class="st-panel" data-lab="1" data-part="lab"><span class="st-pimg lab">${ISLAND_ART.lab ? `<img src="${ISLAND_ART.lab}" alt="" draggable="false">` : ''}<i class="jv-curtain" aria-hidden="true"></i></span>
             <span class="st-ptext"><b>המעבדה של רובו־דע</b><small>מיקרוסקופ, שולחן ממציאים ואטלס. ממציאים בעזרת הטבע ומשדרגים את הכלים.</small><em>${icon('arrowL')}למעבדה</em><em class="jv-note"></em></span></button>
           <button class="st-panel" data-robolab="1" data-part="robolab"><span class="st-pimg rlb${ISLAND_ART.robolab ? ' pic' : ''}" aria-hidden="true">${ISLAND_ART.robolab ? `<img src="${ISLAND_ART.robolab}" alt="" draggable="false">` : '<i class="rlb-bot"></i><i class="rlb-drone"></i><i class="rlb-blocks"></i>'}<i class="jv-curtain" aria-hidden="true"></i></span>
             <span class="st-ptext"><b>מעבדת הרובוטים</b><small>מתכננים, בונים ומפעילים: רובוט, רחפן ורובוט צולל בתוך הסביבות. שיעורים, חידות ותגים.</small><em>${icon('arrowL')}למעבדת הרובוטים</em><em class="jv-note"></em></span></button>
-          <button class="st-panel" data-workshop="1" data-part="workshop"><span class="st-pimg nzw" aria-hidden="true">${NITZOTZ_ART.frames && NITZOTZ_ART.frames.wave ? `<img src="${NITZOTZ_ART.frames.wave}" alt="" draggable="false">` : ''}<i class="jv-curtain" aria-hidden="true"></i></span>
+          <button class="st-panel" data-workshop="1" data-part="workshop"><span class="st-pimg nzw" aria-hidden="true"><img class="nzw-room" src="${WS_DOOR}" alt="" draggable="false">${NITZOTZ_ART.frames && NITZOTZ_ART.frames.wave ? `<i class="nzw-glow"></i><span class="nzw-fig"><img class="nzw-nz" src="${NITZOTZ_ART.frames.wave}" alt="" draggable="false">${NITZOTZ_ART.screen ? `<canvas class="nzw-face" width="256" height="200" style="left:${NITZOTZ_ART.screen.x * 100}%;top:${NITZOTZ_ART.screen.y * 100}%;width:${NITZOTZ_ART.screen.w * 100}%;height:${NITZOTZ_ART.screen.h * 100}%"></canvas>` : ''}</span>` : ''}<i class="jv-curtain" aria-hidden="true"></i></span>
             <span class="st-ptext"><b>הסדנה של ניצוץ</b><small>מכונת רעיונות, מערבל הטבע וקלפי אילוץ. חושבים כמו ממציאים, וניצוץ מאיר יותר ויותר.</small><em>${icon('arrowL')}לסדנה</em><em class="jv-note"></em></span></button>
-        </div><button type="button" class="st-carb next" data-carb="1" aria-label="הבא">${icon('arrowL')}</button></div>
+        </div>
       </section>
       <section class="st-pane" data-pane="learn">
         <div class="st-learn2">
@@ -131,6 +132,7 @@ export function createStart(ctx) {
     rsBtn.addEventListener('click', gate(rsBtn, () => emit('ui:research')));
     labBtn.addEventListener('click', gate(labBtn, () => emit('ui:lab')));
     const rlBtn = startEl.querySelector('[data-robolab]'); if (rlBtn) rlBtn.addEventListener('click', gate(rlBtn, () => emit('ui:robolab')));
+    startEl.querySelectorAll('.nzw-face').forEach((c) => { try { drawNitzotzFace(c.getContext('2d'), c.width, c.height, { mood: 'happy' }); } catch (e) { } });   // ניצוץ's smile on the workshop's door
     startEl.querySelectorAll('.st-cw').forEach((car) => bindCarousel(car, car.querySelector('.st-carrow'), { onArrow: () => emit('ui:click') }));
     const wsBtn = startEl.querySelector('[data-workshop]'); if (wsBtn) wsBtn.addEventListener('click', gate(wsBtn, () => emit('ui:workshop')));
     // tabs

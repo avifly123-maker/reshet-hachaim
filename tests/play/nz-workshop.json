@@ -510,7 +510,7 @@
 "timeout": 30
 },
 {
-"js": "const m=window.__wsDebug.state().measures; 'CHECK simpler-and-better-count ' + (m.simplify===1 && m.elaboration>=2 && /שיטות חשיבה/.test(document.querySelector('.ws-board h3').textContent) && document.querySelector('.ws-meter[data-m=simplify] b').textContent==='1' ? 'ok' : 'FAIL ' + JSON.stringify(m))"
+"js": "const m=window.__wsDebug.state().measures; 'CHECK simpler-and-better-count ' + (m.simplify===1 && m.elaboration>=2 && /שיטות החשיבה/.test(document.querySelector('.ws-board h3').textContent) && document.querySelector('.ws-meter[data-m=simplify] b').textContent==='1' ? 'ok' : 'FAIL ' + JSON.stringify(m))"
 },
 {
 "js": "window.__guide && window.__guide.close(); document.querySelectorAll('.wp-cer [data-woback]').forEach((b)=>b.click()); window.__wsDebug.order(null); window.__wsDebug.go('test'); window.__wsDebug.proto({ shape: 'dome', mat: 'wood', add: ['scales', 'fan', 'spring'] }); window.__wsDebug.runTests(['water', 'wind', 'heat', 'sand', 'drop', 'noise']); 1"

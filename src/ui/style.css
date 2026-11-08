@@ -1390,6 +1390,10 @@
 #ui.wol .st-carrow { display: grid; grid-auto-flow: column; grid-template-columns: none; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: none; scroll-behavior: smooth; padding: 6px 4px 10px; }
 #ui.wol .st-carrow::-webkit-scrollbar { display: none; }
 #ui.wol .st-carrow > * { scroll-snap-align: start; }
+/* the science centre: its four places side by side, with no arrows (Avi, 8.11: all four fit on the screen) */
+#ui.wol .st-big2.st-sci4 { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(10px, 1.8vw, 24px); }
+@media (max-width: 640px) { #ui.wol .st-big2.st-sci4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 1000px) { #ui.wol .st-sci4 .st-ptext em { white-space: nowrap; font-size: .86em; padding-inline: 10px; } }
 #ui.wol .st-big2.st-carrow { grid-auto-columns: calc((100% - 3 * clamp(14px, 2vw, 24px)) / 4); gap: clamp(14px, 2vw, 24px); }
 @media (max-width: 1100px) { #ui.wol .st-big2.st-carrow { grid-auto-columns: calc((100% - 2 * 14px) / 3); gap: 14px; } }
 @media (max-width: 760px) { #ui.wol .st-big2.st-carrow { grid-auto-columns: calc((100% - 14px) / 2); } }

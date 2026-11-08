@@ -389,8 +389,13 @@
 #ui.wol .wf-judge .wf-star { grid-column: 3; grid-row: 1 / 3; width: 22px; height: 22px; }
 #ui.wol .wf-judge.on { background: #fff6cc; } #ui.wol .wf-judge.on .wf-star { background: #ffc81a; animation: ws-pop .6s .4s both; }
 /* the start screen's panel */
-#ui.wol .st-pimg.nzw { position: relative; display: grid; place-items: center; background: radial-gradient(60% 70% at 50% 45%, #ffe9a8, #f0b052 60%, #a8642a 100%); }
-#ui.wol .st-pimg.nzw img { width: auto !important; height: 92% !important; object-fit: contain !important; }
+#ui.wol .st-pimg.nzw { position: relative; display: block; background: #6a4a2a; }
+/* 8.11: the door is the workshop itself (a Blender view of the room), with ניצוץ waving from its rug */
+#ui.wol .st-pimg.nzw img.nzw-room { position: absolute; inset: 0; width: 100% !important; height: 100% !important; object-fit: cover !important; object-position: center 60%; }
+#ui.wol .st-pimg.nzw .nzw-glow { position: absolute; left: 50%; bottom: -6%; width: 62%; height: 84%; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(closest-side, rgba(255, 236, 150, .95), rgba(255, 196, 80, .55) 55%, rgba(255, 170, 60, 0)); }
+#ui.wol .st-pimg.nzw .nzw-fig { position: absolute; left: 50%; bottom: 3%; height: 72%; transform: translateX(-50%); }
+#ui.wol .st-pimg.nzw .nzw-face { position: absolute; }
+#ui.wol .st-pimg.nzw img.nzw-nz { display: block; position: static; width: auto !important; height: 100% !important; object-fit: contain !important; filter: drop-shadow(0 4px 6px rgba(0, 0, 0, .45)); }
 @media (prefers-reduced-motion: reduce) { #ui.wol .ws *, #ui.wol .ws *::before, #ui.wol .ws *::after { animation: none !important; transition: none !important; } }
 
 /* the music button sits in the corner of the screen; inside the workshop it would cover the buttons */
@@ -454,7 +459,7 @@
 @media (max-width: 1100px) { #ui.wol .ws-title p, #ui.wol .wp-help span, #ui.wol .wp-grp em { display: none; } #ui.wol .wp-help { padding: 0 4px; } }
 @media (max-width: 860px) { #ui.wol .ws-title { display: none; } #ui.wol .ws-path { gap: 5px; } #ui.wol .wp-c .wsa { width: 30px; height: 30px; } #ui.wol .wp-c.on span { font-size: .82em; } }
 /* a narrower side: the main work gets the room */
-#ui.wol .ws-body { grid-template-columns: minmax(150px, 18%) 1fr; }
+#ui.wol .ws-body { grid-template-columns: minmax(196px, 22%) 1fr; }   /* 8.11: room for the methods' names and the "why" card */
 /* the shelf: a carousel of things on round pedestals; the chosen one turns slowly */
 #ui.wol .wm { grid-template-rows: auto minmax(0, 1fr) auto auto; grid-template-columns: minmax(0, 1fr); }
 #ui.wol .wm-car, #ui.wol .wm-stage, #ui.wol .wm-levers { min-width: 0; }
@@ -548,9 +553,6 @@
 #ui.wol .wt-st[data-wtrun=wind] { --tc: #5cb8f0; } #ui.wol .wt-st[data-wtrun=water] { --tc: #3c9cd8; } #ui.wol .wt-st[data-wtrun=heat] { --tc: #f08a3a; }
 #ui.wol .wt-st[data-wtrun=sand] { --tc: #e0b050; } #ui.wol .wt-st[data-wtrun=drop] { --tc: #9a7cf0; } #ui.wol .wt-st[data-wtrun=noise] { --tc: #e070b8; }
 #ui.wol .wt-st.ok { background: linear-gradient(90deg, #f0fff4, #c8f0d4); } #ui.wol .wt-st.no { background: linear-gradient(90deg, #fff4f0, #fbd0c4); }
-#ui.wol .ws-meter:nth-of-type(1) u { background: linear-gradient(90deg, #ffe066, #ff9a2a); } #ui.wol .ws-meter:nth-of-type(2) u { background: linear-gradient(90deg, #ffb3c8, #e0507a); }
-#ui.wol .ws-meter:nth-of-type(3) u { background: linear-gradient(90deg, #cdbaff, #8a5cf0); } #ui.wol .ws-meter:nth-of-type(4) u { background: linear-gradient(90deg, #a8f0e0, #2fae8a); }
-#ui.wol .ws-meter:nth-of-type(5) u { background: linear-gradient(90deg, #b8e8ff, #3c9cd8); } #ui.wol .ws-meter:nth-of-type(6) u { background: linear-gradient(90deg, #c8f0a0, #5aa83a); }
 #ui.wol .ws-nzbox { box-shadow: inset 0 0 0 3px #9a6a32, inset 0 0 0 6px rgba(255, 150, 200, .35), 0 3px 0 rgba(30, 14, 4, .5); }
 /* a narrow table: the hand's cards closer and smaller, clear of the deck */
 @media (max-width: 1000px) { #ui.wol .wc-card { width: 104px; height: 160px; margin-inline-start: -46px; } #ui.wol .wc-deck { width: 78px; height: 112px; } #ui.wol .wc-card b { font-size: .8em; } }
@@ -592,3 +594,75 @@
 
 /* a station the order does not ask for: quieter, but not see-through over the wall (6.11 final test) */
 #ui.wol .wt-st.dim { opacity: 1; filter: saturate(.35) brightness(.97); }
+
+/* ── 8.11 (Avi: "the measures are small, at the side and unclear; it is not clear what you do there and why") */
+/* each thinking method has its colour and icon */
+#ui.wol .m-fluency { --mc: #f08a1a; --mc2: #ffe066; } #ui.wol .m-flexibility { --mc: #d8467a; --mc2: #ffb3c8; } #ui.wol .m-originality { --mc: #7a4ce0; --mc2: #cdbaff; }
+#ui.wol .m-elaboration { --mc: #23a07c; --mc2: #a8f0e0; } #ui.wol .m-simplify { --mc: #2f8ccc; --mc2: #b8e8ff; } #ui.wol .m-constraint { --mc: #4f9a30; --mc2: #c8f0a0; }
+/* the board under ניצוץ: a head that opens the sheet, then a row per method: icon, name, count, and its bar underneath */
+#ui.wol .ws-board { display: flex; flex-direction: column; gap: 3px; padding: 6px 8px 7px; font-size: calc(.84em * var(--ts, 1)); }
+#ui.wol .ws-bhead { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 0 2px 2px; border: 0; background: none; cursor: pointer; color: inherit; }
+#ui.wol .ws-bhead h3 { margin: 0; font-size: 1.08em; color: #a04f12; }
+#ui.wol .ws-bhead b { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: #ffd24a; color: #3a2108; box-shadow: 0 2px 0 #b07a18; font-size: .95em; }
+#ui.wol .ws-meter { position: relative; display: grid; grid-template-columns: 24px 1fr auto; grid-template-rows: auto 7px; column-gap: 6px; row-gap: 2px; align-items: center; margin: 0; padding: 3px 5px; border: 0; border-radius: 9px; background: rgba(255, 255, 255, .55); cursor: pointer; color: #4a2a0c; text-align: right; font: inherit; }
+#ui.wol .ws-meter:hover { background: #fff; }
+#ui.wol .ws-meter em { grid-row: 1 / 3; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--mc); color: #fff; box-shadow: 0 2px 0 rgba(0, 0, 0, .2); }
+#ui.wol .ws-meter em .ic { width: 15px; height: 15px; }
+#ui.wol .ws-meter span { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#ui.wol .ws-meter b { min-width: 1.6em; padding: 0 5px; border-radius: 8px; background: var(--mc); color: #fff; text-align: center; font-size: .92em; }
+#ui.wol .ws-meter i { grid-column: 2 / 4; height: 7px; border-radius: 5px; background: #ead8b6; overflow: hidden; }
+#ui.wol .ws-meter u { display: block; height: 100%; border-radius: 5px; background: linear-gradient(90deg, var(--mc2), var(--mc)); box-shadow: none; transition: width .6s cubic-bezier(.3, 1.4, .5, 1); }
+#ui.wol .ws-meter.up { animation: wsMUp 1.6s ease-out; }
+@keyframes wsMUp { 0% { background: #fff; box-shadow: 0 0 0 0 var(--mc); } 15% { box-shadow: 0 0 0 4px var(--mc); transform: scale(1.05); } 100% { box-shadow: 0 0 0 0 transparent; transform: none; } }
+#ui.wol .ws-plus { position: absolute; inset-inline-start: 34px; top: -4px; text-decoration: none; font-weight: 900; color: var(--mc); text-shadow: 0 0 4px #fff, 0 0 2px #fff; pointer-events: none; animation: wsPlus 1.8s ease-out forwards; }
+@keyframes wsPlus { 0% { opacity: 0; transform: translateY(6px) scale(.8); } 20% { opacity: 1; transform: translateY(-4px) scale(1.25); } 100% { opacity: 0; transform: translateY(-22px); } }
+/* "what is done here, and why": a card under ניצוץ; in the room it is the workshop's goal with the next step */
+#ui.wol .ws-why { padding: 7px 9px; border-radius: 12px; background: #fffbea; box-shadow: 0 3px 0 #b88a3a, inset 0 0 0 1.5px #f0d890; color: #3a2108; font-size: calc(.82em * var(--ts, 1)); line-height: 1.35; }
+#ui.wol .ws-why p { margin: 0; } #ui.wol .ws-why p + p { margin-top: 3px; }
+#ui.wol .ws-why b { color: #b0500e; }
+#ui.wol .ws-why.goal { display: flex; flex-direction: column; gap: 6px; padding: 9px 10px 10px; font-size: calc(.9em * var(--ts, 1)); }
+#ui.wol .ws-why.goal h3 { margin: 0; font-size: 1.15em; color: #a04f12; }
+#ui.wol .ws-gnums { display: flex; flex-wrap: wrap; gap: 4px; }
+#ui.wol .ws-gnums span { padding: 1px 8px; border-radius: 10px; background: #f6e6c0; font-size: .92em; } #ui.wol .ws-gnums b { color: #a04f12; }
+#ui.wol .ws-gnext { display: flex; align-items: center; gap: 6px; width: 100%; padding: 5px 10px 5px 6px; border: 0 !important; border-radius: 16px !important; color: #fff !important; text-align: right; cursor: pointer;
+  background: var(--bt-green) !important; box-shadow: 0 4px 0 var(--bt-green-e), 0 6px 12px rgba(0, 0, 0, .2) !important; text-shadow: 0 1px 1px rgba(0, 0, 0, .3); font-weight: 800; animation: wsNext 2.4s ease-in-out infinite; }
+#ui.wol .ws-gnext .wsa { flex: none; width: 38px; height: 38px; border-radius: 10px; background: rgba(255, 255, 255, .9); }
+#ui.wol .ws-gnext span { flex: 1; display: flex; flex-direction: column; line-height: 1.15; font-size: 1.05em; } #ui.wol .ws-gnext small { font-weight: 600; opacity: .9; font-size: .78em; }
+#ui.wol .ws-gnext .ic { flex: none; width: 20px; height: 20px; }
+@keyframes wsNext { 0%, 100% { transform: none; } 50% { transform: translateY(-2px); filter: brightness(1.08); } }
+/* the sheet of the six methods */
+#ui.wol .ws-mb { position: absolute; inset: 0; z-index: 30; display: grid; place-items: center; padding: 14px; background: rgba(30, 16, 4, .55); animation: wsMbIn .25s ease-out; }
+@keyframes wsMbIn { from { opacity: 0; } to { opacity: 1; } }
+#ui.wol .ws-mbin { display: flex; flex-direction: column; gap: 10px; width: min(980px, 100%); max-height: 100%; overflow: auto; padding: 14px 16px 12px; border-radius: 20px; background: linear-gradient(#fffaf0, #f6e7c8); box-shadow: 0 6px 0 #8a5a2a, 0 18px 40px rgba(0, 0, 0, .4); color: #3a2108; }
+#ui.wol .ws-mbin header { text-align: center; } #ui.wol .ws-mbin h2 { margin: 0; color: #a04f12; font-size: 1.5em; } #ui.wol .ws-mbin header p { margin: 2px 0 0; }
+#ui.wol .ws-mgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+#ui.wol .ws-mt { display: grid; grid-template-columns: 46px 1fr; column-gap: 9px; align-content: start; padding: 10px 11px; border-radius: 14px; background: #fff; box-shadow: 0 3px 0 color-mix(in srgb, var(--mc) 55%, #6a4a2a), inset 0 -4px 0 color-mix(in srgb, var(--mc2) 60%, #fff); }
+#ui.wol .ws-mt > em { grid-row: 1 / 3; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; background: var(--mc); color: #fff; box-shadow: 0 3px 0 rgba(0, 0, 0, .2); }
+#ui.wol .ws-mt > em .ic { width: 28px; height: 28px; }
+#ui.wol .ws-mt h3 { margin: 0; color: var(--mc); font-size: 1.15em; } #ui.wol .ws-mt p { margin: 2px 0 0; font-size: .9em; line-height: 1.35; }
+#ui.wol .ws-mlv { grid-column: 1 / 3; display: grid; grid-template-columns: auto auto 1fr; align-items: center; gap: 6px; margin-top: 7px; }
+#ui.wol .ws-mlv b { padding: 0 8px; border-radius: 9px; background: var(--mc); color: #fff; } #ui.wol .ws-mlv span { font-weight: 700; font-size: .9em; }
+#ui.wol .ws-mlv i { height: 8px; border-radius: 5px; background: #eee0c6; overflow: hidden; } #ui.wol .ws-mlv u { display: block; height: 100%; background: linear-gradient(90deg, var(--mc2), var(--mc)); }
+#ui.wol .ws-mwhere { grid-column: 1 / 3; display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-top: 7px; }
+#ui.wol .ws-mwhere small { font-weight: 700; }
+#ui.wol .ws-mwhere button { display: flex; align-items: center; gap: 4px; padding: 2px 9px 2px 3px; border: 0; border-radius: 14px; background: #f3e6cc; color: #3a2108; font: inherit; font-size: .88em; font-weight: 700; cursor: pointer; box-shadow: 0 2px 0 #c8a878; }
+#ui.wol .ws-mwhere button:hover { background: #ffe9b8; } #ui.wol .ws-mwhere .wsa { width: 26px; height: 26px; }
+#ui.wol .ws-mclose { align-self: center; min-height: 42px; padding: 0 26px; border: 0 !important; border-radius: 999px !important; color: #fff !important; font-weight: 800; cursor: pointer; background: var(--bt-orange) !important; box-shadow: 0 4px 0 var(--bt-orange-e) !important; }
+@media (max-width: 900px) { #ui.wol .ws-mgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-height: 520px) {
+  #ui.wol .ws-mbin { padding: 8px 10px; gap: 6px; } #ui.wol .ws-mbin h2 { font-size: 1.2em; } #ui.wol .ws-mbin header p { display: none; }
+  #ui.wol .ws-mgrid { gap: 6px; } #ui.wol .ws-mt { padding: 6px 8px; grid-template-columns: 34px 1fr; } #ui.wol .ws-mt > em { width: 34px; height: 34px; } #ui.wol .ws-mt > em .ic { width: 20px; height: 20px; }
+  #ui.wol .ws-mt p { font-size: .82em; } #ui.wol .ws-mlv, #ui.wol .ws-mwhere { margin-top: 4px; } #ui.wol .ws-mclose { min-height: 34px; }
+  #ui.wol .ws-side { gap: 5px; } #ui.wol .ws-nzbox { min-height: 64px; flex-basis: 64px; }
+  #ui.wol .ws-board { font-size: calc(.76em * var(--ts, 1)); gap: 1px; padding: 4px 6px 5px; } #ui.wol .ws-bhead b { width: 18px; height: 18px; }
+  #ui.wol .ws-meter { padding: 1px 3px; grid-template-columns: 19px 1fr auto; grid-template-rows: auto 3px; row-gap: 1px; } #ui.wol .ws-meter i { height: 3px; }
+  #ui.wol .ws-meter em { width: 19px; height: 19px; } #ui.wol .ws-meter em .ic { width: 12px; height: 12px; }
+  #ui.wol .ws-crazy { margin-top: 2px; padding: 2px 6px; }
+  #ui.wol .ws-why { font-size: calc(.74em * var(--ts, 1)); padding: 4px 7px; line-height: 1.28; } #ui.wol .ws-why.goal { gap: 4px; padding: 6px 8px 7px; }
+  #ui.wol .ws-why.goal h3 { font-size: 1.05em; } #ui.wol .ws-gnext { padding: 3px 8px 3px 4px; } #ui.wol .ws-gnext .wsa { width: 28px; height: 28px; }
+}
+/* 8.11: the side is wider now (the methods and the "why" card); on a narrow screen the orders board keeps its two columns */
+@media (max-width: 900px) { #ui.wol .wo-board, #ui.wol .ws.kids .wo-board { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; } }
+/* a narrow screen: the side gives back room to the main work (the build table's shapes must stay in view) */
+@media (max-width: 900px) { #ui.wol .ws-body { grid-template-columns: minmax(166px, 20%) 1fr; } #ui.wol .ws-why { font-size: calc(.72em * var(--ts, 1)); }
+  #ui.wol .wb-items { grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 5px; } #ui.wol .ws.kids .wb-tile .wsa, #ui.wol .ws.kids .wb-tile img { width: 54px; height: 54px; } }

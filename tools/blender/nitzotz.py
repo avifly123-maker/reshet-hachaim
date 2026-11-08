@@ -43,22 +43,25 @@ def _lathe(name, prof, slot, parent, seg=64, cap_top=False, cap_bot=False):
     return _mk(name, bm, slot, parent=parent)
 
 def _bulb_profile():
-    """the classic bulb: a round top (radius .30 round z .44), a soft waist down to the neck (radius .13 at z .12)"""
+    """8.11 (Avi: "the film's ניצוץ is much nicer"): the film's bulb (art/films/workshop.webm), a tall pear: a big round
+    top (radius .31 round z .53) that runs down in a smooth S into a long narrowing neck (radius .135 at z .12)"""
+    R, cz, zN, rN = 0.31, 0.53, 0.12, 0.135
     pts = []
-    R, cz = 0.30, 0.44
-    rEnd = R * math.cos(math.asin((0.27 - cz) / R))   # where the waist meets the sphere
-    # from the neck up the waist (a smooth curve), then round the sphere to the top
-    for k in range(9):
-        t = k / 8
-        r = 0.13 + (rEnd - 0.13) * (1 - math.cos(t * math.pi / 2)) ** 1.15
-        z = 0.12 + t * 0.15
+    # the round top, from the equator up (a quarter circle), and below the equator a little further round the sphere
+    a0 = -0.62   # radians below the equator where the sphere hands over to the neck
+    zJ, rJ = cz + R * math.sin(a0), R * math.cos(a0)
+    # the neck: a smooth curve from (rN, zN) up to the joint, tangent to the sphere there (a cubic Hermite in r(z))
+    slope = -math.tan(a0)   # dr/dz of the sphere at the joint (r grows going up while below the equator)
+    n = 16
+    for k in range(n):
+        u = k / n; z = zN + (zJ - zN) * u
+        h00, h10, h01, h11 = 2*u**3 - 3*u**2 + 1, u**3 - 2*u**2 + u, -2*u**3 + 3*u**2, u**3 - u**2
+        r = h00 * rN + h10 * (zJ - zN) * 0.0 + h01 * rJ + h11 * (zJ - zN) * slope
         pts.append((r, z))
-    a0 = math.asin((0.27 - cz) / R) if abs((0.27 - cz) / R) <= 1 else -math.pi / 2
-    n = 30
-    for k in range(1, n + 1):
-        a = a0 + (math.pi / 2 - a0) * k / n
+    m = 34
+    for k in range(m + 1):
+        a = a0 + (math.pi / 2 - a0) * k / m
         pts.append((max(0.0, R * math.cos(a)), cz + R * math.sin(a)))
-    # smooth the joint: the waist's last point meets the sphere where both radii agree
     return pts
 
 def _glove(name, side, parent):
@@ -71,12 +74,12 @@ def _glove(name, side, parent):
         if rot: e.rotation = rot
         return e
     s = 1 if side == 'r' else -1
-    e = el((0, 0, 0.01), 0.14, 'ELLIPSOID', (0.6, 0.36, 0.56)); e.stiffness = 2.2        # the palm, a puffy mitten
-    for (x, ln) in ((-0.043, 0.046), (0.0, 0.054), (0.043, 0.048)):                     # three short fingers, a little apart
+    e = el((0, 0, 0.012), 0.16, 'ELLIPSOID', (0.66, 0.38, 0.58)); e.stiffness = 2.2       # the palm, a puffy mitten (8.11: bigger, the film's)
+    for (x, ln, tilt) in ((-0.066, 0.05, -0.12), (-0.022, 0.062, -0.04), (0.022, 0.064, 0.04), (0.064, 0.052, 0.12)):   # four fingers, spread a little
         for k in range(4):
-            e = el((x * (1 + k * 0.1), 0.0, 0.06 + k * ln / 3), 0.036 - k * 0.0015); e.stiffness = 2.6
-    for k in range(3):                                                                  # a short thumb, low and to the inside
-        e = el((s * (0.06 + k * 0.016), -0.014, -0.02 + k * 0.014), 0.034 - k * 0.002); e.stiffness = 2.8
+            e = el((x + tilt * k * 0.03, 0.0, 0.075 + k * ln / 3), 0.034 - k * 0.0012); e.stiffness = 2.6
+    for k in range(3):                                                                  # a thumb, low and out to the side
+        e = el((s * (0.085 + k * 0.022), -0.016, -0.006 + k * 0.02), 0.035 - k * 0.002); e.stiffness = 2.8
     e = el((0, 0, -0.055), 0.1, 'ELLIPSOID', (0.56, 0.42, 0.5)); e.stiffness = 2.0      # the wrist, down into the cuff
     dg = _dg()   # the robolab scene's own depsgraph (the context's scene is another one when headless)
     me = bpy.data.meshes.new_from_object(ob.evaluated_get(dg))
@@ -86,7 +89,7 @@ def _glove(name, side, parent):
     me.materials.append(mat('glove'))
     o = bpy.data.objects.new(name, me); _coll()[1].objects.link(o); o.parent = parent
     # the rolled cuff: a fat ring round the wrist
-    bm = bmesh.new(); R, r, seg, rseg = 0.052, 0.019, 40, 12
+    bm = bmesh.new(); R, r, seg, rseg = 0.062, 0.024, 40, 12   # 8.11: a fatter rolled cuff
     rings = []
     for i in range(seg):
         a = 2 * math.pi * i / seg
@@ -102,7 +105,7 @@ def _glove(name, side, parent):
             k = (j + 1) % rseg
             bm.faces.new((A[j], B[j], B[k], A[k]))
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
-    _mk(name + '_cuff', bm, 'cuff', parent=parent, loc=(0, 0, -0.08))
+    _mk(name + '_cuff', bm, 'cuff', parent=parent, loc=(0, 0, -0.085))
     return o
 
 def nz_build():
@@ -114,9 +117,9 @@ def nz_build():
     bulb = _nz_joint('bulb', root, (0, 0, 0.16))
     # the glass, the warm heart inside it, the filament on two wires
     _lathe('nz_shell', _bulb_profile(), 'shell', bulb, seg=72)
-    sph = bmesh.new(); bmesh.ops.create_uvsphere(sph, u_segments=40, v_segments=20, radius=0.12)
+    sph = bmesh.new(); bmesh.ops.create_uvsphere(sph, u_segments=32, v_segments=16, radius=0.075)
     bmesh.ops.scale(sph, vec=(1, 0.8, 1.05), verts=sph.verts)
-    _mk('nz_core', sph, 'core', parent=bulb, loc=(0, 0.07, 0.42))
+    _mk('nz_core', sph, 'core', parent=bulb, loc=(0, 0.08, 0.36))
     # the filament: a small coil across, between the tips of two wires
     bm = bmesh.new(); pts = []
     turns, L, rr = 7, 0.16, 0.012
@@ -131,20 +134,20 @@ def nz_build():
     bm = bmesh.new(); _tube(bm, [Vector((0, 0.05, 0.06)), Vector((0, 0.05, 0.16))], 0.012, 12)   # the glass stem
     _mk('nz_stem', bm, 'shell', parent=bulb)
     # the brass collar at the neck, the threaded base, the dark ring and the contact at the bottom
-    _lathe('nz_collar', [(0.128, 0.07), (0.142, 0.085), (0.142, 0.12), (0.13, 0.135)], 'brass', bulb, seg=56)
+    _lathe('nz_collar', [(0.128, 0.07), (0.145, 0.085), (0.145, 0.12), (0.133, 0.135)], 'thread', bulb, seg=56)
     thr = []
     for k in range(5 * 12 + 1):   # a thread: the radius swells and shrinks five times on the way down
         z = 0.07 - k * (0.15 / 60)
         thr.append((0.118 + 0.012 * (0.5 + 0.5 * math.cos(k / 12 * 2 * math.pi)), z))
     _lathe('nz_base', list(reversed(thr)), 'thread', bulb, seg=56)
     _lathe('nz_ring', [(0.075, -0.115), (0.108, -0.096), (0.112, -0.082)], 'contact', bulb, seg=48)
-    _lathe('nz_tip', [(0.0, -0.13), (0.035, -0.128), (0.05, -0.118), (0.076, -0.114)], 'brass', bulb, seg=40, cap_bot=False)
-    face = bpy.data.objects.new('S:face', None); _coll()[1].objects.link(face); face.parent = bulb; face.location = (0, -0.235, 0.45)
+    _lathe('nz_tip', [(0.0, -0.13), (0.035, -0.128), (0.05, -0.118), (0.076, -0.114)], 'contact', bulb, seg=40, cap_bot=False)
+    face = bpy.data.objects.new('S:face', None); _coll()[1].objects.link(face); face.parent = bulb; face.location = (0, -0.245, 0.53)
     face.empty_display_size = 0.15
-    halo = bpy.data.objects.new('S:heart', None); _coll()[1].objects.link(halo); halo.parent = bulb; halo.location = (0, 0.0, 0.43)
+    halo = bpy.data.objects.new('S:heart', None); _coll()[1].objects.link(halo); halo.parent = bulb; halo.location = (0, 0.0, 0.48)
     # the two gloves float beside him, a little in front, palms turned in
     for sx, side in ((-1, 'l'), (1, 'r')):
-        h = _nz_joint('hand_' + side, root, (sx * 0.43, -0.08, 0.36))
+        h = _nz_joint('hand_' + side, root, (sx * 0.5, -0.08, 0.42))
         h.rotation_euler = Euler((math.radians(-10), math.radians(sx * -18), math.radians(sx * 12)))
         _glove('nz_glove_' + side, side, h)
     return {'objects': len([o for o in bpy.data.objects if o.name.startswith('nz_') or o.name.startswith('J:')])}

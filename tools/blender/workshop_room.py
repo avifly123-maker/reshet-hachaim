@@ -1,7 +1,7 @@
 # הסדנה של ניצוץ as a room to look around in (5.11, Avi: "a 3D room like the lab, Nitzotz moving around in it, the
 # machines, a table for the constraint cards, baked in Blender"). Built and rendered headless in the container
 # (pip install --break-system-packages bpy==5.2.2):
-#   python3 tools/blender/workshop_room.py <outdir> [width=2048] [samples=48]
+#   python3 tools/blender/workshop_room.py <outdir> [width=2048] [samples=48] [persp | door]
 # A round workshop, 5.2 m across the floor's radius: the seven places stand on a ring round the middle, facing it, each
 # the same model as its picture in the game (workshop_art.py station()). Riveted teal walls over a wooden wainscot (the
 # wall of the old screen), three tall windows with daylight, a beamed ceiling with five lamps, copper pipes, shelves of
@@ -193,6 +193,12 @@ def main():
         for yaw in (-90, 0, 90, 180):
             cam.rotation_euler = (math.radians(82), 0, math.radians(-yaw))
             g['render'](os.path.join(out, f'look_{yaw}.png'), 800, 460, samples)
+        return
+    if len(args) > 3 and args[3] == 'door':   # the picture on the workshop's door in the start screen (8.11, Avi: the old one was not nice)
+        # from the back of the room, by the entrance, looking at the windows: the machines on both sides, the cards table in front
+        cd.type = 'PERSP'; cd.sensor_fit = 'HORIZONTAL'; cd.angle = math.radians(78)
+        cam.location = (0.35, -3.55, 1.75); cam.rotation_euler = (math.radians(80), 0, math.radians(-4))
+        g['render'](os.path.join(out, 'door.png'), w, round(w * 0.62), samples)
         return
     g['render'](os.path.join(out, 'room_pano.png'), w, w // 2, samples)
     json.dump(info, open(os.path.join(out, 'room.json'), 'w'), indent=1)

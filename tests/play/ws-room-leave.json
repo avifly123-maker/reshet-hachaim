@@ -1,6 +1,7 @@
 [{"wait": 4},
 {"js": "['stage:1','g:hubtut','g:album','g:learn','g:start:chat','g:start:howstages','g:start:settings'].forEach((k) => window.__journey.markIntro(k)); window.__journey.markTrained(); window.__guide && window.__guide.close(); window.__journey.unlockAll('2580'); window.dispatchEvent(new CustomEvent('wol-journey')); window.__app.bus.emit('ui:workshop'); 1"},
 {"until": "!!window.__wsDebug && window.__wsDebug.state().tut === 'hello'", "timeout": 120},
+{"wait": 1.5},
 {"clickSel": ".ws-path .wp-c[data-st=machine]"},
 {"until": "window.__wsDebug.state().place === 'machine'", "timeout": 30},
 {"wait": 2},

@@ -16,12 +16,12 @@ import { THINGS, LEVERS, CATS, thingOf, leverOf } from '../data/workshop/ideas.j
 import { PROBLEMS, problemOf } from '../data/workshop/mixer.js';
 import { CONSTRAINTS, constraintOf } from '../data/workshop/constraints.js';
 import { NATURE_CARDS } from '../data/workshop/nature-cards.js';
-import { orderOf } from '../data/workshop/orders.js';
+import { ORDERS, orderOf } from '../data/workshop/orders.js';
 import { TRIALS, TRAIT } from '../data/inventions.js';
 import { TRAIT_K } from '../data/inventions-kids.js';
 import { CARD_ART } from '../data/card-art.js';
 import { ZONE_LOOK } from '../data/zones.js';
-import { readWs, addIdea, rateLast, roundDone, measures, earned, crazyBox } from './progress.js';
+import { readWs, addIdea, rateLast, roundDone, measures, earned, crazyBox, orderState } from './progress.js';
 import { thingSVG, stationSVG, machineSVG, blenderSVG, catIcon, clockSVG } from './art.js';
 import { WS_ART } from '../data/workshop-art.js';
 import { createBench } from './bench.js';
@@ -46,15 +46,37 @@ const PLACES = [
   { id: 'test', n: 'אולם הבדיקות', k: 'אוּלַם הַבְּדִיקוֹת' },
   { id: 'patent', n: 'משרד הפטנטים', k: 'מִשְׂרַד הַפָּטֶנְטִים' },
 ];
-// התנסות בשיטות חשיבה (5.11, Avi: present the measures as thinking methods a child tries, not as grades)
+// התנסות בשיטות חשיבה (5.11, Avi: present the measures as thinking methods a child tries, not as grades). 8.11 (Avi: "the
+// measures are small, at the side and unclear"): each method has its icon and colour, a sentence of what it means, the places
+// where it is practised, and a level; the board opens into a big sheet of the six (showMethods), and a method that grows flashes
 const MEASURES = [
-  { id: 'fluency', n: 'הרבה רעיונות', k: 'הַרְבֵּה רַעְיוֹנוֹת', d: 'לחשוב על הרבה רעיונות בלי לעצור' },
-  { id: 'flexibility', n: 'מכמה כיוונים', k: 'מִכַּמָּה כִּוּוּנִים', d: 'רעיונות מסוגים שונים' },
-  { id: 'originality', n: 'רעיון מפתיע', k: 'רַעְיוֹן מַפְתִּיעַ', d: 'שילוב שעוד לא ניסיתם' },
-  { id: 'elaboration', n: 'משפרים גרסה', k: 'מְשַׁפְּרִים', d: 'גרסה חדשה שטובה בבירור מהקודמת' },
-  { id: 'simplify', n: 'מפשטים', k: 'מְפַשְּׁטִים', d: 'פחות חלקים, והוא עדיין עובד' },
-  { id: 'constraint', n: 'עם אילוץ', k: 'עִם כְּלָל', d: 'עמדתם בקלף אילוץ' },
+  { id: 'fluency', n: 'הרבה רעיונות', k: 'הַרְבֵּה רַעְיוֹנוֹת', d: 'כמה שיותר רעיונות, בלי לעצור ובלי לשפוט. כל רעיון במכונה או במערבל נספר.', dk: 'הַרְבֵּה רַעְיוֹנוֹת, בְּלִי לַעֲצֹר.',
+    where: ['machine', 'mixer'], ic: 'M7 10a3.2 3.2 0 1 1 .1 0M17 10a3.2 3.2 0 1 1 .1 0M12 7a3.2 3.2 0 1 1 .1 0M7 15v4M17 15v4M12 12v7' },
+  { id: 'flexibility', n: 'מכמה כיוונים', k: 'מִכַּמָּה כִּוּוּנִים', d: 'רעיונות מסוגים שונים: להגדיל, להפוך, לחבר, לקחת מהטבע. כל סוג חדש נספר.', dk: 'רַעְיוֹנוֹת מִסּוּגִים שׁוֹנִים.',
+    where: ['machine'], ic: 'M12 13L5 6M5 6h4M5 6v4M12 13l7-7M19 6h-4M19 6v4M12 13v7' },
+  { id: 'originality', n: 'רעיון מפתיע', k: 'רַעְיוֹן מַפְתִּיעַ', d: 'שילוב שעוד לא ניסיתם, או רעיון רחוק ומפתיע.', dk: 'רַעְיוֹן שֶׁעוֹד לֹא נִסִּיתֶם.',
+    where: ['mixer', 'machine'], ic: 'M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.6 6.7 19.4l1.2-6L3.4 9.3l6-.7z' },
+  { id: 'elaboration', n: 'משפרים גרסה', k: 'מְשַׁפְּרִים', d: 'לוקחים רעיון ומשפרים אותו: גרסה חדשה שעוברת את הבדיקות טוב יותר מהקודמת.', dk: 'גִּרְסָה חֲדָשָׁה, טוֹבָה יוֹתֵר.',
+    where: ['build', 'test'], ic: 'M4 19h5v-5h5V9h5V4' },
+  { id: 'simplify', n: 'מפשטים', k: 'מְפַשְּׁטִים', d: 'אותה המצאה עם פחות חלקים, והיא עדיין עוברת את הבדיקות.', dk: 'פָּחוֹת חֲלָקִים, וְזֶה עוֹבֵד.',
+    where: ['build', 'test'], ic: 'M4 5h16l-6 7v6l-4 2v-8z' },
+  { id: 'constraint', n: 'עם אילוץ', k: 'עִם כְּלָל', d: 'ממציאים גם כשיש כלל קשה: קלף אילוץ שמגביל אתכם.', dk: 'מַמְצִיאִים עִם כְּלָל קָשֶׁה.',
+    where: ['cards'], ic: 'M5 5h14v14H5zM8.5 12l2.5 2.5 4.5-5' },
 ];
+const mIcon = (x) => `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${x.ic}"/></svg>`;
+// what is done in each place, and why (8.11, Avi: "it is still not clear what you do there and why"): a card under ניצוץ
+const WHY = {
+  machine: { f: ['בוחרים חפץ ומושכים ידית: מגדילים, הופכים, מחברים...', 'כל שינוי קטן הוא רעיון חדש. ממציאים מתחילים מהרבה רעיונות.'], k: ['בּוֹחֲרִים חֵפֶץ וּמוֹשְׁכִים יָדִית.', 'כָּל שִׁנּוּי הוּא רַעְיוֹן חָדָשׁ.'] },
+  mixer: { f: ['מערבבים בעל חיים או צמח עם בעיה, ורואים מה יוצא.', 'בטבע כבר יש פתרונות. ממציאים לומדים מהם.'], k: ['מְעַרְבְּבִים חַיָּה אוֹ צֶמַח עִם בְּעָיָה.', 'בַּטֶּבַע כְּבָר יֵשׁ פִּתְרוֹנוֹת.'] },
+  cards: { f: ['קלף אילוץ נותן משימה עם כלל קשה, ושעון.', 'כלל קשה מכריח לחשוב אחרת, ושם נולדים רעיונות טובים.'], k: ['קְלָף נוֹתֵן כְּלָל קָשֶׁה.', 'כְּלָל קָשֶׁה עוֹזֵר לַחְשֹׁב אַחֶרֶת.'] },
+  orders: { f: ['על הלוח מחכות בעיות של לקוחות. בוחרים הזמנה אחת.', 'להמצאה טובה יש מטרה: לפתור בעיה אמיתית.'], k: ['בּוֹחֲרִים הַזְמָנָה אַחַת.', 'הַמְצָאָה טוֹבָה פּוֹתֶרֶת בְּעָיָה.'] },
+  build: { f: ['בונים אב טיפוס: צורה, חומר, מנגנון ורעיון מהטבע.', 'כך רואים את הרעיון בעיניים, ואפשר לבדוק אותו.'], k: ['בּוֹנִים אֶת הַהַמְצָאָה.', 'רוֹאִים אֶת הָרַעְיוֹן, וּבוֹדְקִים אוֹתוֹ.'] },
+  test: { f: ['שש תחנות בודקות אם ההמצאה עומדת במה שהלקוח צריך.', 'בדיקה שלא עברה מלמדת מה לשפר. כך מתקדמים.'], k: ['בּוֹדְקִים אִם הַהַמְצָאָה עוֹבֶדֶת.', 'לֹא עָבַר? מְשַׁפְּרִים וּמְנַסִּים שׁוּב.'] },
+  patent: { f: ['גרסה שעברה את כל הבדיקות מקבלת תעודת פטנט.', 'הפטנט אומר: ההמצאה שלכם. אחר כך מציגים אותה ביריד.'], k: ['מְקַבְּלִים תְּעוּדָה עַל הַהַמְצָאָה.', 'הַתְּעוּדָה אוֹמֶרֶת: זֶה שֶׁלָּכֶם!'] },
+  fair: { f: ['שלושה שופטים מסתכלים על הפטנטים שלכם.', 'ממציאים מציגים את מה שעשו ושומעים מה אחרים חושבים.'], k: ['מַצִּיגִים אֶת הַהַמְצָאוֹת.', 'שׁוֹמְעִים מָה אֲחֵרִים חוֹשְׁבִים.'] },
+};
+// the next step of the inventor's path, from the order in hand (the room's goal card)
+const STEP_WORD = { orders: ['לבחור הזמנה', 'לִבְחֹר הַזְמָנָה'], build: ['לבנות את ההמצאה', 'לִבְנוֹת'], test: ['לבדוק את ההמצאה', 'לִבְדֹּק'], patent: ['לקבל פטנט', 'לְקַבֵּל תְּעוּדָה'] };
 // the inventor's path (6.11, Avi: "what do I do first, and where do ideas come from"): three places that make ideas,
 // then four steps in order, shown in the top bar on every screen of the workshop
 const IDEA_PLACES = ['machine', 'mixer', 'cards'];
@@ -138,7 +160,7 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
     const g = svcGuide(); const L = g && g.lines(key); if (!L || !L.length) return;
     g.tip(L[Math.floor(Math.random() * L.length)], { speaker: 'nitzotz', ms: 3800, ...opts });
   };
-  function after() { for (const e of earned()) grant(e); paintBoard(); }
+  function after() { for (const e of earned()) grant(e); paintBoard(); if (place === 'room') paintWhy(); }
 
   // the set 4 places
   const ctx = { kids: () => kids, T, W, say, act, sfx, after, go: (p) => go(p), order: () => (orderId ? orderOf(orderId) : null), setOrder: (id) => { orderId = id; bench.resetRun(); },
@@ -154,7 +176,7 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
         <div class="ws-title"><h1>${W('הסדנה של ניצוץ', 'הַסַּדְנָה שֶׁל נִיצוֹץ')}</h1><p>${W('חושבים כמו ממציאים', 'חוֹשְׁבִים כְּמוֹ מַמְצִיאִים')}</p></div>
         <nav class="ws-path" aria-label="הדרך של הממציא"></nav>
         <button type="button" class="ws-room-btn" data-wsroom hidden>${icon('arrowR')}<span>${W('לסדנה', 'לַסַּדְנָה')}</span></button></header>
-      <div class="ws-body"><aside class="ws-side"><div class="ws-nzbox"><canvas class="ws-nz" aria-hidden="true"></canvas></div><div class="ws-board"></div><div class="ws-roundbar" hidden></div></aside>
+      <div class="ws-body"><aside class="ws-side"><div class="ws-nzbox"><canvas class="ws-nz" aria-hidden="true"></canvas></div><div class="ws-why" hidden></div><div class="ws-board"></div><div class="ws-roundbar" hidden></div></aside>
         <main class="ws-main"></main></div>`;
   }
   // the inventor's path in the top bar: where ideas come from, then the four steps; the place you are in is lit and the
@@ -179,12 +201,57 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
     if (H) act('explain');
     return H;
   }
+  let lastM = null;   // the values at the last paint: a method that grew flashes with its "+"
+  const levelWord = (v, lv) => (!v ? W('עוד לא ניסיתם', 'עוֹד לֹא') : lv < 0.34 ? W('מתחילים', 'מַתְחִילִים') : lv < 0.67 ? W('מתאמנים', 'מִתְאַמְּנִים') : W('מומחים!', 'מֻמְחִים!'));
   function paintBoard() {
     const b = el.querySelector('.ws-board'); if (!b) return;
-    const m = measures();
-    b.innerHTML = `<h3>${W('התנסות בשיטות חשיבה', 'שִׁיטוֹת חֲשִׁיבָה')}</h3>${MEASURES.map((x) => `<div class="ws-meter" data-m="${x.id}" title="${esc(x.d)}"><span>${esc(kids ? x.k : x.n)}</span><i><u style="width:${Math.round(m.level[x.id] * 100)}%"></u></i><b>${m[x.id]}</b></div>`).join('')}
+    const m = measures(), up = lastM ? MEASURES.filter((x) => m[x.id] > lastM[x.id]).map((x) => [x.id, m[x.id] - lastM[x.id]]) : [];
+    lastM = m;
+    b.innerHTML = `<button type="button" class="ws-bhead" data-wsmethods><h3>${W('שיטות החשיבה שלי', 'שִׁיטוֹת הַחֲשִׁיבָה שֶׁלִּי')}</h3><b>?</b></button>
+      ${MEASURES.map((x) => `<button type="button" class="ws-meter m-${x.id}" data-m="${x.id}" data-wsmethods title="${esc(kids ? x.dk : x.d)}"><em>${mIcon(x)}</em><span>${esc(kids ? x.k : x.n)}</span><b>${m[x.id]}</b><i><u style="width:${Math.max(m[x.id] ? 6 : 0, Math.round(m.level[x.id] * 100))}%"></u></i></button>`).join('')}
       <button type="button" class="ws-crazy" data-wscrazy>${icon('sparkle')}${W('תיבת השיגעונות', 'תֵּבַת הַשִּׁגְעוֹנוֹת')} <b>${crazyBox().length}</b></button>`;
+    for (const [id, n] of up) { const r = b.querySelector(`.ws-meter[data-m=${id}]`); if (!r) continue; r.classList.add('up'); const f = document.createElement('s'); f.className = 'ws-plus'; f.textContent = '+' + n; r.appendChild(f); setTimeout(() => { r.classList.remove('up'); f.remove(); }, 1900); }
     const lamp = el.querySelector('.ws-nzbox'); if (lamp) lamp.style.setProperty('--glow', String(0.25 + m.glow * 0.75));
+  }
+  // the sheet of the six methods: what each means, where it is practised (the places are buttons), how far the child got
+  function showMethods() {
+    closeMethods();
+    const m = measures(), nm = (id) => { const P = PLACES.find((x) => x.id === id); return P ? (kids ? P.k : P.n) : ''; };
+    const d = document.createElement('div'); d.className = 'ws-mb'; d.setAttribute('role', 'dialog');
+    d.innerHTML = `<div class="ws-mbin"><header><h2>${W('שש שיטות חשיבה של ממציאים', 'שֵׁשׁ שִׁיטוֹת חֲשִׁיבָה')}</h2><p>${W('כל שיטה שמתרגלים מאירה את ניצוץ. לחצו על מקום כדי לתרגל בו.', 'כָּל שִׁיטָה מְאִירָה אֶת נִיצוֹץ.')}</p></header>
+      <div class="ws-mgrid">${MEASURES.map((x) => `<div class="ws-mt m-${x.id}" data-m="${x.id}"><em>${mIcon(x)}</em><h3>${esc(kids ? x.k : x.n)}</h3><p>${esc(kids ? x.dk : x.d)}</p>
+        <div class="ws-mlv"><b>${m[x.id]}</b><span>${levelWord(m[x.id], m.level[x.id])}</span><i><u style="width:${Math.max(m[x.id] ? 6 : 0, Math.round(m.level[x.id] * 100))}%"></u></i></div>
+        <div class="ws-mwhere"><small>${W('מתרגלים ב:', 'אֵיפֹה?')}</small>${x.where.filter((w) => !(kids && w === 'test')).map((w) => `<button type="button" data-st="${w}">${stationSVG(w)}<span>${esc(nm(w))}</span></button>`).join('')}</div></div>`).join('')}</div>
+      <button type="button" class="ws-mclose" data-wsmclose>${W('חזרה לסדנה', 'חֲזָרָה')}</button></div>`;
+    el.appendChild(d); act('explain');
+  }
+  function closeMethods() { const d = el.querySelector('.ws-mb'); if (d) d.remove(); }
+  // under ניצוץ in every place: what is done here, and why
+  function paintWhy() {
+    const c = el.querySelector('.ws-why'); if (!c) return;
+    const w = WHY[place];
+    if (place === 'room') { c.hidden = false; c.innerHTML = goalHTML(); return; }
+    if (!w) { c.hidden = true; c.innerHTML = ''; return; }
+    const [here, why] = kids ? w.k : w.f;
+    c.hidden = false; c.className = 'ws-why';
+    c.innerHTML = `<p><b>${W('מה עושים כאן?', 'מָה עוֹשִׂים כָּאן?')}</b> ${esc(here)}</p><p><b>${W('למה?', 'לָמָּה?')}</b> ${esc(why)}</p>`;
+  }
+  // the room's goal card: what the workshop is for, how far the child got, and the next step on the path
+  function nextStep() {
+    if (!orderId) return 'orders';
+    const S = orderState(orderId), O = orderOf(orderId), V = S.versions[S.versions.length - 1];
+    if (S.done) return 'orders';
+    if (!V) return 'build';
+    const pass = O && Object.keys(O.tests).every((t) => V.sc[t] != null && V.sc[t] >= O.tests[t]);
+    return pass ? 'patent' : kids ? 'build' : 'test';
+  }
+  function goalHTML() {
+    const S = readWs(), done = Object.values(S.orders).filter((x) => x.done).length, nx = nextStep();
+    const c = el.querySelector('.ws-why'); if (c) c.className = 'ws-why goal';
+    return `<h3>${W('מה עושים בסדנה?', 'מָה עוֹשִׂים בַּסַּדְנָה?')}</h3>
+      <p>${W('פותרים הזמנות של לקוחות מהעולם ומהאיים: ממציאים רעיונות, בונים, בודקים ומקבלים פטנט.', 'פּוֹתְרִים בְּעָיוֹת: מַמְצִיאִים, בּוֹנִים, בּוֹדְקִים וּמְקַבְּלִים תְּעוּדָה.')}</p>
+      <div class="ws-gnums"><span><b>${done}</b>/${ORDERS.length} ${W('הזמנות', 'הַזְמָנוֹת')}</span><span><b>${S.patents.length}</b> ${W('פטנטים', 'תְּעוּדוֹת')}</span><span><b>${S.n.ideas}</b> ${W('רעיונות', 'רַעְיוֹנוֹת')}</span></div>
+      <button type="button" class="ws-gnext" data-st="${nx}">${stationSVG(nx)}<span><small>${W('הצעד הבא', 'עַכְשָׁיו')}</small>${esc(kids ? STEP_WORD[nx][1] : STEP_WORD[nx][0])}</span>${icon('arrowL')}</button>`;
   }
   function go(p) {
     // the room's tutorial goes on into the first place only from its last step ("לחצו על המכונה"); a child who leaves the room
@@ -200,7 +267,7 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
     el.dataset.place = p;
     if (p !== 'room' && open_ && !nz) startNz();
     el.querySelector('[data-wsroom]').hidden = p === 'room';
-    paintPath();
+    paintPath(); paintWhy(); closeMethods();
     const M = el.querySelector('.ws-main');
     M.dataset.place = p;
     if (p === 'room') roomView(M);
@@ -419,7 +486,7 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
     const list = crazyBox().slice(-12).reverse();
     const M = el.querySelector('.ws-main');
     M.innerHTML = `<div class="ws-box"><h3>${icon('sparkle')} ${W('תיבת השיגעונות', 'תֵּבַת הַשִּׁגְעוֹנוֹת')}</h3>${list.length ? `<div class="ws-boxgrid">${list.map((x) => { const t = x.at === 'machine' && thingOf(x.th); const o = t && t.out[x.lv]; return o ? `<div class="wm-out fun"><span class="wm-cat">${thingSVG(t.id)}</span><p>${esc(T(o))}</p></div>` : ''; }).join('')}</div>` : `<p>${W('עוד ריק. כל רעיון שתסמנו "מצחיק" נכנס לכאן.', 'עוֹד רֵיק.')}</p>`}</div>`;
-    M.dataset.place = 'box'; place = 'box'; el.querySelector('[data-wsroom]').hidden = false;
+    M.dataset.place = 'box'; place = 'box'; paintWhy(); el.querySelector('[data-wsroom]').hidden = false;
   }
 
   // ── clicks
@@ -442,7 +509,9 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
     if (d.wscard) { draw(d.wscard); return; }
     if (d.wsshuffle != null) { sfx('click'); hand = shuffle(cardsFor().slice()).slice(0, 5); el.querySelector('.ws-main').innerHTML = cardsHTML(); return; }
     if (d.wsstop != null) { round = null; paintRound(); go('cards'); return; }
-    if (d.wscrazy != null) { sfx('click'); showCrazy(); return; }
+    if (d.wscrazy != null) { sfx('click'); closeMethods(); showCrazy(); return; }
+    if (d.wsmethods != null) { sfx('click'); showMethods(); return; }
+    if (d.wsmclose != null) { sfx('click'); closeMethods(); return; }
     if (bench.click(b)) return;
     if (office.click(b)) return;
   });
@@ -460,7 +529,7 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
   function state() {
     const w = readWs();
     return { place, thing, last: last && { cat: last.cat, r: last.r, lv: last.lv }, mix: mix && { ...mix }, round: round && { id: round.card.id, ...roundProgress(), done: round.done }, ideas: w.n.ideas, measures: measures(w), tut: tut && tut.step, nz: nz ? { mood: nz.mood, action: nz.action, light: nz.light } : room3 ? { room: true } : null,
-      order: orderId, bench: bench.state(), office: office.state(), patents: w.patents.length, hand: hand.map((c) => c.id) };
+      order: orderId, bench: bench.state(), office: office.state(), patents: w.patents.length, hand: hand.map((c) => c.id), methods: !!el.querySelector('.ws-mb'), why: (el.querySelector('.ws-why:not([hidden])') || {}).textContent || '', next: nextStep() };
   }
 
   function openWs() {

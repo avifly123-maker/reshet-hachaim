@@ -87,7 +87,8 @@
 "timeout": 150
 },
 {
-"wait": 1
+"until": "(() => { const w = window.__rlDebug.wk(); return !!(w && w.done && w.done['wm-gr-5']) && !!document.querySelector('.rl-msg [data-wsback]'); })()",
+"timeout": 30
 },
 {
 "js": "const r=window.__rlDebug.last(); const w=window.__rlDebug.wk(); 'CHECK island-mission-done ' + (r && r.ok && w.done['wm-gr-5'] ? 'ok' : 'FAIL '+JSON.stringify([r,w.done]))"
