@@ -41,7 +41,8 @@
 "js": "const d=window.__game.debug; let r='none'; for (let x=-20;x<=20 && r==='none';x+=3) for (let z=-20;z<=20;z+=3) { const v=d.place('redoat',x,z); if (typeof v!=='string') { r='at '+x+','+z; break; } } r"
 },
 {
-"wait": 1
+"until": "window.__game.debug.savannaTut().step !== 'plant'",
+"timeout": 15
 },
 {
 "js": "'CHECK savanna-tut-waits-plant ' + (window.__game.debug.savannaTut().step === 'weaver' ? 'ok' : 'FAIL ' + window.__game.debug.savannaTut().step)"
@@ -75,7 +76,8 @@
 "clickSel": "#ui .speed button[data-s='3']"
 },
 {
-"until": "window.__game.debug.savannaTut().step === 'end'", "timeout": 6
+"until": "window.__game.debug.savannaTut().step === 'end'",
+"timeout": 6
 },
 {
 "js": "'CHECK savanna-tut-waits-speed ' + (window.__game.debug.savannaTut().step === 'end' ? 'ok' : 'FAIL ' + window.__game.debug.savannaTut().step)"
