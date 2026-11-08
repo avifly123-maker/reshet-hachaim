@@ -18,9 +18,9 @@ r186, esbuild → one offline HTML; Electron for Windows and macOS. Repo `avifly
   same version). Note: `main` already holds the 1.4.1 merge (PR 13), so it is not the children's build.
 - **1.4 is a separate install for testers only** ("רשת החיים – המסע הגדול", `desktop/builder-1.4.json`). Work branch
   `claude/1.4.4`. 1.4.4 is complete (plan `docs/PLAN-1.4.4.md`); the stability set after the architecture review is
-  `docs/PLAN-1.4.4-STABILITY.md` (its progress list says where it stands). Nothing from 1.4 goes into the children's
+  `docs/PLAN-1.4.4-STABILITY.md` (done 8.11: sets 0–5, set 6 dropped by Avi, full check green; installers rebuilt as 1.4.4). Nothing from 1.4 goes into the children's
   build until Avi orders it; then that version is built with builder-torah.json's appId and installs over 1.3.3.
-- **Next, after the stability set:** Avi decides the version number (likely 1.4.5) and when 1.4 reaches the children;
+- **Next:** Avi decides when 1.4 reaches the children;
   replace רובו־דע's voice with a Gemini TTS voice (969 clips; method in HISTORY, 7.11); more animal rounds (3 of 10–15).
 - **Open bug:** a tester saw the whole Amazon island vanish after it opened (29.10); not reproduced headless. Ask for a
   photo of the F strip (last error, GL context, visible meshes) before guessing.
