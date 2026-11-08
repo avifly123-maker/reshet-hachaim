@@ -2,7 +2,7 @@
 // (BIOME.year, src/data/savanna.js). From the day and the time of day this gives the season, how far into it we are, and
 // two smooth numbers the other parts read: wet (1 in the rains, fading over the first part of the dry season) and dryK
 // (0 in the rains, rising to 1 as the dry season goes on). The year turns slowly, so nothing jumps at midnight.
-import { clamp, smoothstep } from '../../core/util.js';
+import { clamp, smoothstep } from '../../core/math.js';
 
 export function seasonAt(day, dayFrac, year = { wet: 3, dry: 3 }) {
   const Y = year.wet + year.dry, d = (((day - 1) % Y) + Y) % Y + clamp(dayFrac);

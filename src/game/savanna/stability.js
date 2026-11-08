@@ -5,7 +5,7 @@
 // back raises it again. One simple number 0..1 for the child's bar, and `recovered` counts the comebacks (missions).
 //   createStability() → { sample(v), value, recovered, low, save(), load(o) }
 //   v = { grass: 0..1, grazers: n, trees: n, predators: n, kinds: n }
-import { clamp } from '../../core/util.js';
+import { clamp } from '../../core/math.js';
 
 const KEYS = ['grass', 'grazers', 'trees', 'predators'];
 export function createStability() {
