@@ -18,6 +18,7 @@ import { NATURE_CARDS } from '../data/workshop/nature-cards.js';
 import { icon } from '../ui/ui/icons.js';
 import { esc } from '../ui/ui/helpers.js';
 
+import { svcQuality } from '../core/services.js';
 const HEB = ['א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'ז׳', 'ח׳'];
 // ניצוץ's names: the shape in its joined form + what the nature idea is + a playful ending (no adjectives: no gender trouble)
 const SHAPE_JOIN = { box: ['קופסת', 'קֻפְסַת'], ball: ['כדור', 'כַּדּוּר'], tube: ['צינור', 'צִנּוֹר'], cone: ['חץ', 'חֵץ'], plate: ['משטח', 'מִשְׁטַח'], dome: ['כיפת', 'כִּפַּת'] };
@@ -46,7 +47,7 @@ export function createBench(ctx) {
 
   function mountStage(cv) {
     if (stage) { stage.dispose(); stage = null; }
-    const Q = (() => { try { return (window.__app && window.__app.quality) || 'medium'; } catch (e) { return 'medium'; } })();
+    const Q = svcQuality();
     stage = createStage(cv, { weak: Q === 'min' || Q === 'low' });
     if (stage) stage.show(proto);
   }

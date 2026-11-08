@@ -14,6 +14,7 @@ import * as THREE from 'three';
 import { clamp } from '../../core/util.js';
 import { late } from './common.js';
 
+import { svc } from '../../core/services.js';
 export function createEvents(ctx) {
   const { W, missions, audio, ui, rig, reg, alive, amb, light, spawnPlant, env, spacingOK, findSpotNear,
     randomPlaceSpot, spawnAnimal } = ctx;
@@ -187,13 +188,13 @@ export function createEvents(ctx) {
     for (const id of m.reward?.unlock || []) { unlock(id, false); names.push(reg.byId.get(id)?.name); }
     audio.play('mission');
     // a card pack for two missions out of every three (not every one – packs should stay special)
-    if (!m.expert && !W.training && missions.doneCount % 3 !== 0) { try { window.__wolLearn?.grantPack(1); } catch (e) { } }
+    if (!m.expert && !W.training && missions.doneCount % 3 !== 0) { try { svc('learn')?.grantPack(1); } catch (e) { } }
     const badges = W.research || W.training ? [] : grantBadge('mission:' + m.id);   // an expert mission gives a badge (תג), not a pack
     // torah edition: a mission from the sources gives its source card for the album ("מן המקורות")
     let srcText = '';
     if (m.reward?.source) { const card = SOURCE_CARDS.find(c => c.id === m.reward.source); if (card && grantSource(card.id)) srcText = ' · קלף מקור חדש באלבום: ' + card.title; }
     ui.missionDone({ title: m.title, note: m.autoNote || '', rewardText: `+${m.reward?.points || 0} נקודות חיים${names.length ? ' · נפתחו: ' + names.join(', ') : ''}${srcText}${badges.length ? ' · תג חדש: ' + badges.map(b => b.name).join(', ') : ''}` });
-    try { const g = m.goal || {}; const sid = [g.from, g.id, g.species, g.to].find((x) => typeof x === 'string' && reg.byId.has(x) && reg.byId.get(x).kind === 'animal'); window.__flourish && window.__flourish.mission(sid); } catch (e) { }   // area I: an animal from the mission celebrates
+    try { const g = m.goal || {}; const sid = [g.from, g.id, g.species, g.to].find((x) => typeof x === 'string' && reg.byId.has(x) && reg.byId.get(x).kind === 'animal'); svc('flourish') && svc('flourish').mission(sid); } catch (e) { }   // area I: an animal from the mission celebrates
     refreshTray();
     if (W.experiment) W._saveAfterExperiment = true; else saveGame(true);
     if (!W.research) saveProgress();

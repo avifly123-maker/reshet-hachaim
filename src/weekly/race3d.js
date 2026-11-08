@@ -13,6 +13,7 @@ import { wkLook } from '../data/robolab/workshop-look.js';
 import { SEGMENTS } from '../data/weekly/race.js';
 import { SEG_W } from './race-model.js';
 
+import { svcQuality } from '../core/services.js';
 const CS = 2.4, TICK = 0.2;
 // each island's look: its ground, the grass at the lane's margins, its trees
 const LOOK = {
@@ -57,7 +58,7 @@ function makeTree(look, r) {
 }
 
 export function createRace3D(canvas, { level, segs, kids = false }) {
-  const Q = (() => { try { return (window.__app && window.__app.quality) || 'medium'; } catch (e) { return 'medium'; } })();
+  const Q = svcQuality();
   const weak = Q === 'min' || Q === 'low';
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: !weak, alpha: false });
   renderer.setPixelRatio(Math.min(weak ? 1 : 1.5, window.devicePixelRatio || 1));

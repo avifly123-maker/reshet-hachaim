@@ -30,7 +30,7 @@ import { createRoom3d, roomReady, prepareSmallPano } from './room3d.js';
 import { introSeen } from '../core/journey.js';
 import { grant } from '../core/badges-store.js';
 import { K, readPlayer } from '../core/storage.js';
-import { svcGuide } from '../core/services.js';
+import { svcGuide, svcQuality } from '../core/services.js';
 import { icon } from '../ui/ui/icons.js';
 import { bindCarousel, showTile } from '../ui/carousel.js';
 import { howto, howtoSeen } from '../ui/howto.js';
@@ -123,7 +123,7 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
   let nz = null, renderer = null, scene = null, cam = null, raf = 0, lastT = 0, lastDraw = 0;
   function startNz() {
     const cv = el.querySelector('.ws-nz'); if (!cv || nz) return;
-    const Q = (() => { try { return (window.__app && window.__app.quality) || 'medium'; } catch (e) { return 'medium'; } })();
+    const Q = svcQuality();
     const weak = Q === 'min' || Q === 'low';
     try { renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: !weak, alpha: true }); } catch (e) { return; }
     renderer.setPixelRatio(Math.min(weak ? 1 : 1.5, window.devicePixelRatio || 1));
@@ -292,7 +292,7 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
   function roomView(M) {
     if (room3) { room3.dispose(); room3 = null; }
     if (roomReady()) {
-      const Q = (() => { try { return (window.__app && window.__app.quality) || 'medium'; } catch (e) { return 'medium'; } })();
+      const Q = svcQuality();
       const names = Object.fromEntries(PLACES.map((P) => [P.id, kids ? P.k : P.n]));
       room3 = createRoom3d(M, { kids, names, counts: roomBadges(), quality: Q, onPick: (id) => { if (open_ && place === 'room') { sfx('click'); go(id); } } });
       if (room3) { el.classList.add('room3'); if (!introSeen('g:nztut')) room3.face('machine'); return; }
@@ -536,7 +536,7 @@ export function createWorkshop({ root, audio = null, kids: kidsOpt = false, onEx
     kids = typeof kidsOpt === 'function' ? !!kidsOpt() : !!kidsOpt;
     open_ = true; el.hidden = false; place = 'room'; thing = null; last = null; mix = null; round = null; orderId = null;
     el.classList.toggle('kids', kids);
-    try { const Q = window.__app && window.__app.quality; if (Q === 'min' || Q === 'low') prepareSmallPano(); } catch (e) { }
+    try { const Q = svcQuality(); if (Q === 'min' || Q === 'low') prepareSmallPano(); } catch (e) { }
     shell(); paintBoard(); go('room'); if (!room3) startNz();   // in the 3D room ניצוץ lives in the room: his side window starts when the child leaves it
     setTimeout(() => { if (open_ && nz) nz.set('wave'); }, 600);
   }

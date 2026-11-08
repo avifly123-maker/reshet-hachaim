@@ -17,7 +17,7 @@ import { TORAH } from '../core/edition.js';
 import { BABA_DA_LOGO } from '../data/logo.js';
 import { STAGE_LINES } from '../data/guide-lines.js';
 import { mountMapThreads } from './threads-ui.js';
-import { svcGuide } from '../core/services.js';
+import { svcGuide, svc } from '../core/services.js';
 
 const kids = () => J.playMode() === 'kids';
 const t = (f, k) => (kids() ? k : f);
@@ -137,7 +137,7 @@ export function openJourneyMap(host, { onPart, emit, onClose } = {}) {
   async function replay(n) {
     if (busy) return; busy = true; click();
     el.classList.add('replaying');
-    try { if (typeof window.__stageScene === 'function') await Promise.resolve(window.__stageScene(n)).catch(() => { }); } catch (e) { }
+    try { const play = svc('stageScene'); if (typeof play === 'function') await Promise.resolve(play(n)).catch(() => { }); } catch (e) { }
     el.classList.remove('replaying');
     const g = svcGuide();
     try { if (g) await g.say(STAGE_LINES[n] || [], { modal: true, place: 'center' }); } catch (e) { }

@@ -18,6 +18,7 @@ import { toolLook, setToolLook } from './progress.js';
 import { earned, earnState, earnWords } from './earn.js';
 import { icon } from './ui/icons.js';
 
+import { svcQuality } from '../core/services.js';
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const TOOLS = [['robot', { f: 'רובוט', k: 'רוֹבּוֹט' }], ['drone', { f: 'רחפן', k: 'רַחְפָן' }], ['sub', { f: 'צוללן', k: 'צוֹלְלָן' }]];
 const PAINT_ROWS = [['body', { f: 'גוף', k: 'גּוּף' }], ['trim', { f: 'פסים', k: 'פַּסִּים' }], ['accent', { f: 'קישוטים', k: 'קִשּׁוּטִים' }]];
@@ -47,7 +48,7 @@ export function openGarage(host, { kids = false, sfx = () => { }, toolSound = nu
   // GPU's shaders, and old ones no longer pile up), draws at most 30 times a second and not while hidden, and the part
   // tiles are drawn one at a time on a small canvas of their own (they used to be drawn all at once, each by resizing
   // the big preview twice: a surprise that changed the colours redrew every tile in one go and froze the screen)
-  const Q = (() => { try { return (window.__app && window.__app.quality) || 'medium'; } catch (e) { return 'medium'; } })();
+  const Q = svcQuality();
   const weak = Q === 'min' || Q === 'low';
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: !weak, alpha: true, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(weak ? 1 : Q === 'medium' ? 1.25 : 1.75, window.devicePixelRatio || 1));

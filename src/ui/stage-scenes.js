@@ -22,6 +22,7 @@
 // Every scene ends with the stage's name and the Baba Da logo. Weak computers ('min' / 'low' quality) get fewer pixels
 // and fewer things. No human figures, no cross shapes (the sparkles are round), no text inside the 3D.
 import * as THREE from 'three';
+import { decodePart } from '../models/packed-geo.js';   // the packed robot geometry (one decoder for every screen)
 import { ISLAND_ART } from '../data/island-art.js';
 import { CARD_ART } from '../data/card-art.js';
 import { BABA_DA_LOGO } from '../data/logo.js';
@@ -32,7 +33,7 @@ import { makeRng } from '../core/util.js';
 import { toolProp } from '../world/props.js';
 import { drawRoboFace } from './robo-face.js';
 import { stageEmblem, STAGE_COLOR } from './journey-map.js';
-import { svcApp } from '../core/services.js';
+import { svcApp, setService } from '../core/services.js';
 
 // ───────────────────────────────────────── small helpers
 const clamp01 = (x) => (x < 0 ? 0 : x > 1 ? 1 : x);
@@ -259,19 +260,7 @@ function boxOf(obj) { obj.updateMatrixWorld(true); return new THREE.Box3().setFr
 
 // ───────────────────────────────────────── רובו־דע (the lab's robot, decoded like src/lab/lab.js)
 let ROBOT_DATA = null;
-const b64 = (s) => { const bin = atob(s); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; };
 const robotGeo = new Map();   // decoded once per visit to a scene, freed with the scene
-function decodePart(e) {
-  const g = new THREE.BufferGeometry();
-  const q = new Int16Array(b64(e.p).buffer); const n = q.length / 3; const P = new Float32Array(n * 3);
-  for (let i = 0; i < n; i++) for (let k = 0; k < 3; k++) P[3 * i + k] = e.o[k] + (q[3 * i + k] + 32767) * e.s[k];
-  g.setAttribute('position', new THREE.BufferAttribute(P, 3));
-  if (e.n) { const nn = new Int8Array(b64(e.n).buffer); const N = new Float32Array(nn.length); for (let i = 0; i < nn.length; i++) N[i] = nn[i] / 127; g.setAttribute('normal', new THREE.BufferAttribute(N, 3)); }
-  if (e.uv) { const uu = new Uint16Array(b64(e.uv).buffer); const U = new Float32Array(uu.length); for (let i = 0; i < uu.length; i++) U[i] = uu[i] / 65535; g.setAttribute('uv', new THREE.BufferAttribute(U, 2)); }
-  g.setIndex(new THREE.BufferAttribute(new Uint16Array(b64(e.i).buffer), 1));
-  if (!e.n) g.computeVertexNormals();
-  return g;
-}
 async function robotData() {
   if (ROBOT_DATA) return ROBOT_DATA;
   try { ROBOT_DATA = (await import('../data/lab-robot.js')).LAB_ROBOT || null; } catch (e) { console.warn('stage scene: robot', e); }
@@ -1082,6 +1071,7 @@ export function playStageScene(n, opts = {}) {
   return promise;
 }
 
-window.__stageScene = (n, opts) => playStageScene(n, opts);
+window.__stageScene = (n, opts) => playStageScene(n, opts);   // the tests' handle (info, stop, seek below)
+setService('stageScene', window.__stageScene);
 window.__stageScene.stop = () => { if (running) running.finish(); };
 window.__stageScene.seek = (x) => { if (running) running.seek(x); };   // tools/record-scenes.py

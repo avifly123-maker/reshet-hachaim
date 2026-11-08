@@ -19,6 +19,7 @@
 //   tech.roboAt(vec3)                       רובו־דע's next bubble points at a spot in the world: he flies there
 //   tech.removed(p), tech.dispose()
 import * as THREE from 'three';
+import { decodePart } from '../models/packed-geo.js';   // the packed robot geometry (one decoder for every screen)
 import { drawRoboFace } from '../ui/robo-face.js';
 import { toolDef } from '../game/tool-defs.js';
 import { DESERT_TECH_IDS, desertModel, createDesertTech } from './desert-tech.js';   // 1.4: drip line, fog net, sand fence
@@ -815,18 +816,6 @@ export function createTech(ctx) {
 // facing the camera; his visor shows the guide's face (src/ui/robo-face.js), and his mouth moves while the bubble talks.
 // pointAt(vec3) (an injured animal, a device just placed): his next bubble sends him there.
 // Hidden: invisible and not updated at all (one cheap check per frame).
-const b64 = (s) => { const bin = atob(s); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; };
-function decodePart(e) {   // the packed geometry of tools/build-lab.py (same format as src/lab/lab.js reads)
-  const g = new THREE.BufferGeometry();
-  const q = new Int16Array(b64(e.p).buffer); const n = q.length / 3; const P = new Float32Array(n * 3);
-  for (let i = 0; i < n; i++) for (let k = 0; k < 3; k++) P[3 * i + k] = e.o[k] + (q[3 * i + k] + 32767) * e.s[k];
-  g.setAttribute('position', new THREE.BufferAttribute(P, 3));
-  if (e.n) { const nn = new Int8Array(b64(e.n).buffer); const N = new Float32Array(nn.length); for (let i = 0; i < nn.length; i++) N[i] = nn[i] / 127; g.setAttribute('normal', new THREE.BufferAttribute(N, 3)); }
-  if (e.uv) { const uu = new Uint16Array(b64(e.uv).buffer); const U = new Float32Array(uu.length); for (let i = 0; i < uu.length; i++) U[i] = uu[i] / 65535; g.setAttribute('uv', new THREE.BufferAttribute(U, 2)); }
-  g.setIndex(new THREE.BufferAttribute(new Uint16Array(b64(e.i).buffer), 1));
-  if (!e.n) g.computeVertexNormals();
-  return g;
-}
 function createIslandRobo({ W, scene, camera, rig }) {
   let root = null, loading = null, failed = false, M = null, groups = null, faceCv = null, faceTex = null;
   let shown = false, t0 = 0, openedAt = 0, faceKey = '', faceT = 0, blinkT = 2, blink = 0;

@@ -8,7 +8,7 @@ import { TECH_BY } from '../data/robolab/tech-cards.js';
 // 1.4.3 closing: the technology card's face (and its paintings) load only when the first card is shown
 let TC = null, tcLoad = null;
 const loadTC = () => tcLoad || (tcLoad = import('./tech-card.js').then((m) => { TC = m; }));
-import { svcGuide } from '../core/services.js';
+import { svcGuide, svc } from '../core/services.js';
 import { playerMode } from '../core/storage.js';
 
 export function startBadgeToasts(root, audio) {
@@ -79,7 +79,7 @@ export function startBadgeToasts(root, audio) {
     el.innerHTML = html;
     root.appendChild(el);
     try { audio && audio.play('mission'); } catch (e) { /* */ }
-    try { window.__flourish && window.__flourish.badge(el); } catch (e) { /* */ }   // round sparks round the medallion (src/ui/flourish.js)
+    try { svc('flourish') && svc('flourish').badge(el); } catch (e) { /* */ }   // round sparks round the medallion (src/ui/flourish.js)
     let done = false;
     const close = () => { if (done) return; done = true; el.classList.add('out'); setTimeout(() => { el.remove(); busy = false; next(); }, 360); };
     el.addEventListener('click', close); setTimeout(close, 5200);

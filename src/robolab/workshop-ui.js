@@ -31,6 +31,7 @@ import { roboProgress } from './progress.js';
 import { ZONE_LOOK } from '../data/zones.js';
 import { missionPic, statIcon } from './mission-art.js';
 import { CARD_ART } from '../data/card-art.js';
+import { svcQuality } from '../core/services.js';
 const MISSION_ZONES = ['amazon', 'grove', 'reef', 'desert', 'savanna'];
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -74,7 +75,7 @@ export function openWorkshop(host, { kids = false, sfx = () => { }, onClose, gui
   // game's quality (a weak computer gets fewer pixels, no smoothing of edges and no grain), keeps one set of materials
   // for every rebuild (a new part no longer makes the GPU compile its shaders again), draws only while something moves
   // (the turntable, a drag, a part dropping in) at most 30 times a second, and nothing while it is hidden
-  const Q = (() => { try { return (window.__app && window.__app.quality) || 'medium'; } catch (e) { return 'medium'; } })();
+  const Q = svcQuality();
   const weak = Q === 'min' || Q === 'low';
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: !weak, alpha: true, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(weak ? 1 : Q === 'medium' ? 1.25 : 1.75, window.devicePixelRatio || 1));

@@ -5,6 +5,7 @@
 // aquarium. The child moves between stations; the microscope and the inventors table open their own panels.
 // Fully offline: the pictures and the robot are inside the game (src/data/lab-art.js, src/data/lab-robot.js).
 import * as THREE from 'three';
+import { decodePart } from '../models/packed-geo.js';   // the packed robot geometry (one decoder for every screen)
 import { esc, icon } from '../ui/ui.js';
 import { LAB_ART } from '../data/lab-art.js';
 import { LAB_ROBOT } from '../data/lab-robot.js';
@@ -36,7 +37,7 @@ import { openGrow, openSeeds } from './greenhouse.js';
 import { openCollection, openSort, openClues, collectionCount, shelfPeek } from './cabinet.js';
 // the look-around room (19.10): a panorama from the room's centre, turning, and the robot's walks to the stations
 import { createRoomView, yawOf } from './room-view.js';
-import { svcGuide, svcApp } from '../core/services.js';
+import { svcGuide, svcApp, svc } from '../core/services.js';
 
 const STATION_INFO = {
   home: { name: 'החדר', ic: 'home' },
@@ -74,19 +75,7 @@ const wrapA = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 const ORDER = ['home', 'scope', 'table', 'aquarium', 'greenhouse', 'cabinet', 'atlas'];
 const IMG_ASPECT = 16 / 9;
 
-// ───────────────────────────────────────── decoding the packed robot (tools/build-lab.py)
-const b64 = (s) => { const bin = atob(s); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; };
-function decodePart(e) {
-  const g = new THREE.BufferGeometry();
-  const q = new Int16Array(b64(e.p).buffer); const n = q.length / 3; const P = new Float32Array(n * 3);
-  for (let i = 0; i < n; i++) for (let k = 0; k < 3; k++) P[3 * i + k] = e.o[k] + (q[3 * i + k] + 32767) * e.s[k];
-  g.setAttribute('position', new THREE.BufferAttribute(P, 3));
-  if (e.n) { const nn = new Int8Array(b64(e.n).buffer); const N = new Float32Array(nn.length); for (let i = 0; i < nn.length; i++) N[i] = nn[i] / 127; g.setAttribute('normal', new THREE.BufferAttribute(N, 3)); }
-  if (e.uv) { const uu = new Uint16Array(b64(e.uv).buffer); const U = new Float32Array(uu.length); for (let i = 0; i < uu.length; i++) U[i] = uu[i] / 65535; g.setAttribute('uv', new THREE.BufferAttribute(U, 2)); }
-  g.setIndex(new THREE.BufferAttribute(new Uint16Array(b64(e.i).buffer), 1));
-  if (!e.n) g.computeVertexNormals();
-  return g;
-}
+// the packed robot is decoded by src/models/packed-geo.js (decodePart)
 
 // ───────────────────────────────────────── the face on the visor (a canvas: eyes, blinks, a smile, talking)
 function makeFace() {
@@ -768,7 +757,7 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     robot.root.visible = true; updateFishVisible();
     // warm up the other pictures in the background
     setTimeout(() => ORDER.forEach(texOf), 300);
-    try { window.__flourish && window.__flourish.labDoors(); } catch (e) { }   // 1.3.2: the doors part as the child comes in (src/ui/flourish.js)
+    try { svc('flourish') && svc('flourish').labDoors(); } catch (e) { }   // 1.3.2: the doors part as the child comes in (src/ui/flourish.js)
     if (!greeted) { greeted = true; setTimeout(() => { robot.wave(); say(kids ? ROOM_K.hello : 'שלום! אני רובו־דע. כאן במעבדה מגלים איך הטבע עובד, וממציאים בעזרתו. במה נתחיל?', 'happy'); }, 600); }
     else { setTimeout(() => robot.wave(), 700); say(kids ? ROOM_K.back : 'ברוכים השבים למעבדה!', 'happy'); }
   }

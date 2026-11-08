@@ -32,7 +32,7 @@ import './ui/flourish.js';   // window.__flourish: short flourishes (a part open
 // Zones (biomes): the start screen draws them from the registry (data/zones.js); a zone's content and species models
 // arrive in its pack – { zone: { data, plants, animals }, release() } – loaded when the zone is chosen (core/packs.js).
 const zoneOf = (id) => { const m = loadedPack(id); return m ? m.zone : null; };
-import { setService } from './core/services.js';
+import { setService, svc } from './core/services.js';
 import { logError, lastErrors } from './core/log.js';   // 1.4.4 stability set: failures written down, never swallowed
 
 // Beginners (ages 6–8): a small set of species, short missions, no events, two tools.
@@ -95,6 +95,7 @@ async function boot() {
   // until the hub is in, window.__wolLearn forwards what the game may ask of it (a card pack won in a forest);
   // createLearningHub replaces it with the real one
   window.__wolLearn = { open: () => getHub().then((h) => h.open()), close: () => hub && hub.close(), isOpen: () => !!hub && hub.isOpen(), grantPack: (n) => getHub().then((h) => h.grantPack(n), (e) => console.error(e)) };
+  setService('learn', window.__wolLearn);   // the game reaches the hub through core/services.js
   const audio = createAudio();
   const music = createMusic(audio);   // soft music on the start screen and in the lab only (see musicWanted below)
   ui.setToggles({ music: music.enabled });
@@ -107,7 +108,7 @@ async function boot() {
   const guide = createGuide(root, { voice, nitzVoice });
   // a stage was reached: its short scene (ui/stage-scenes.js, when present), then רובו־דע says what opened
   const stageMoment = (n) => {
-    const scene = window.__stageScene ? Promise.resolve(window.__stageScene(n)).catch(() => { }) : Promise.resolve();
+    const scene = svc('stageScene') ? Promise.resolve(svc('stageScene')(n)).catch(() => { }) : Promise.resolve();
     return scene.then(() => guide.say(STAGE_LINES[n] || [], { key: 'stage:' + n, modal: true, place: 'center' }))
       .then((r) => { try { window.dispatchEvent(new CustomEvent('wol-stage-done', { detail: { stage: n, result: r } })); } catch (e) { } return r; });
   };
@@ -391,7 +392,7 @@ async function boot() {
   const playtime = startPlaytime({ root, kids: () => playerMode() === 'kids',
     onLock: () => { audio.setMuted(true); if (game) { try { bus.emit('ui:save'); } catch (e) { } } },
     onUnlock: () => { audio.setMuted(readDeviceRaw(K.sound) === 'off'); } });
-  window.__ptCheck = () => playtime.check();
+  window.__ptCheck = () => playtime.check(); setService('playtimeCheck', window.__ptCheck);
   bus.on('music:toggle', ({ on }) => { music.setEnabled(on); ui.setToggles({ music: music.enabled }); });
   // which piece the screen on top would like: none in a forest, the learning hub, its games or the mysteries' centre
   const musicWanted = () => {

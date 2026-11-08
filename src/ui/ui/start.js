@@ -19,7 +19,7 @@ import { openSettings } from '../settings.js';
 import { canopySVG, VINE, waxSeal } from './art.js';
 import { esc } from './helpers.js';
 import { icon } from './icons.js';
-import { svcGuide } from '../../core/services.js';
+import { svcGuide, svc } from '../../core/services.js';
 import { openChat } from '../robo-chat.js';
 import { WS_DOOR } from '../../data/workshop-door-art.js';
 import { drawNitzotzFace } from '../nitzotz-face.js';
@@ -245,7 +245,7 @@ export function createStart(ctx) {
     // the parents' play time (1.3.3): the chip shows what is left today (ui/playtime-ui.js paints it) and opens the settings
     const ptChip = startEl.querySelector('.st-time');
     if (ptChip) ptChip.addEventListener('click', () => gear.click());
-    try { window.__ptCheck && window.__ptCheck(); } catch (e) { }
+    try { svc('playtimeCheck') && svc('playtimeCheck')(); } catch (e) { }
     gear.addEventListener('click', () => {
       emit('ui:click'); gear.setAttribute('aria-expanded', 'true');
       openSettings(startEl, { emit, getMusic: () => S.toggles.music !== false,
@@ -258,7 +258,7 @@ export function createStart(ctx) {
     // listen once (the start screen is drawn again after every visit)
     if (!S.jListen) {
       S.jListen = true;
-      const onStart = () => startEl.classList.contains('on') && !root.classList.contains('ingame') && !root.querySelector('.rs-hub.on') && !(window.__wolLearn && window.__wolLearn.isOpen && window.__wolLearn.isOpen());
+      const onStart = () => startEl.classList.contains('on') && !root.classList.contains('ingame') && !root.querySelector('.rs-hub.on') && !(svc('learn') && svc('learn').isOpen && svc('learn').isOpen());
       // the first visit of a player: רובו־דע presents the journey bar (after his hello, which main.js queues first)
       S.journeyIntro = () => { clearTimeout(S.jIntroT); S.jIntroT = setTimeout(() => { if (onStart() && svcGuide()) svcGuide().intro('journey', { modal: true }); }, 1500); };
       addEventListener('wol-journey', () => { if (S.paintJourney) S.paintJourney(); S.journeyIntro(); });
