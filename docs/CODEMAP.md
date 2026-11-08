@@ -19,14 +19,14 @@ npm run check                     # every check (≈15 min); npm run check:quick
 | Folder | What lives there |
 |---|---|
 | `src/main.js` | Start-up: creates the renderer, UI, audio, voice, guide; opens forests, the hub, the lab, mysteries; the stage moments of the journey. |
-| `src/core/` | Small shared services without UI. `storage.js` (every save key, per player or per device), `profiles.js` (up to six players), `journey.js` (מסע החוקר: stages and which parts are open), `threads.js` (links between parts), `badges-store.js`, `sources-store.js`, `edition.js`, `packs.js` (lazy loading), `util.js`. |
+| `src/core/` | Small shared services without UI. `storage.js` (reading and writing saves; the key list itself is `storage-keys.js`, re-exported), `profiles.js` (up to six players), `journey.js` (מסע החוקר: stages and which parts are open), `threads.js` (links between parts), `badges-store.js`, `sources-store.js`, `edition.js`, `packs.js` (lazy loading), `services.js` (how parts reach each other: `svcGuide`, `svcApp`, `svc(name)`, `svcQuality`; `window.__*` is for tests only), `log.js` (`logError`: failures written down, last 20 kept, shown in the F strip), `math.js` (numbers only: rng, clamp, noise; usable by pure engines), `util.js` (three.js helpers incl. `disposeOwned`, re-exports math.js). |
 | `src/game/game/` | One forest while it runs: world state, placing and dragging, ecology, events, missions glue, saving, the update loop, dispose. `index.js` builds one `ctx` and adds the parts in order (`addPart`). |
 | `src/game/savanna/` | The savanna's systems (1.4.2): `seasons.js` (rains and dry season), `grass.js` (the grass map: height, green, burnt; grazing bands; fire fuel), `herds.js` (the migration), `pop.js` (1.4.3: the resident herds as numbers: grass, water, births, hunger, hunters; the child's animals are each herd's heart), both drawn by `src/world/herd-crowd.js` (the Blender models many times over through `@three.ez/instanced-mesh`, `crowdSource` in src/models/rigged.js; how many by the quality tier), `stability.js` (the meter; a press on its bar lists the herds), all pure and tested by `tests/savanna/systems.mjs`; `index.js` ties them to the island (a part of createGame, `ctx.savanna`, `W.savanna`); `film.js` is the opening film (about 26 s in the engine with the zone's Blender animals, shown once per player, key `g:svfilm`, a button under the toolbar; music `tools/music/savanna_film.py` → `MUSIC.savanna`; test `tests/play/savanna-film.json`; video `tools/record-savanna-film.py`). The look is `src/env/environment/savanna-look.js`; the bigger island is `K` in `env/environment/common.js`. |
 | `src/game/` | Around the forest: `training.js` (שטח האימונים, the first field, 1.3.3), `desert-tutorial.js` (the desert's first visit, 1.4.1), `tools.js` + `tool-defs.js` (devices), `missions.js`, `report.js`, `tour.js` (through an animal's eyes), `after.js` with `visitors.js`, `photos.js`, `challenges.js`, `rank.js` (after the missions), `fieldcam.js`. |
 | `src/world/` | 3D things that live in a forest: plants, animals and their behaviour, the camera, effects, props, `tech.js` (the six new technologies and רובו־דע on the island). |
 | `src/sim/` | Light map and species rules. |
 | `src/env/` | The renderer pipeline and the environment: `environment/` (sky, sun and moon, weather, ground, water, island edge…, one file per part), `reef.js`. |
-| `src/models/` | Procedural plant and animal models per zone (folders, one file per family), the Blender-rigged animals (`rigged.js`), reef models. |
+| `src/models/` | Procedural plant and animal models per zone (folders, one file per family), the Blender-rigged animals (`rigged.js`), reef models, `packed-geo.js` (the one decoder of רובו־דע's packed geometry). |
 | `src/ui/ui/` | The overlay UI: start screen, HUD, tray, toolbar, missions panel, species card, toasts. `src/ui/ui.js` re-exports it. |
 | `src/ui/` | Other screens and pieces: `robo-guide.js` (רובו־דע's bubbles), `robo-chat.js` (1.4.3: a talk with him anywhere; words in `src/data/guide/chat.js`), `settings.js`, `journey-map.js`, `threads-ui.js`, `stage-scenes.js` (the stage films), `flourish.js`, `howto.js`, `guided.js` + `tutorials.js` (hands-on tutorials, 1.3.3), `badge-toast.js`, `css/` (one stylesheet per area; `00-layers.css` = the layer order). |
 | `src/learn/hub/` | מרכז הלמידה: album, packs, quiz, sets, badges and frames screens, navigation. |
@@ -48,7 +48,7 @@ npm run check                     # every check (≈15 min); npm run check:quick
 
 ## How to…
 
-- **Add a save:** add the key to `K` and `KEYS` in `src/core/storage.js` (per player or per device) and use
+- **Add a save:** add the key to `K` and `KEYS` in `src/core/storage-keys.js` (per player or per device) and use
   `readPlayer` / `writePlayer` (or the device ones). Never rename an existing key. `validate-storage` checks it.
 - **Add something that floats over the screen:** give it a layer from `src/ui/css/00-layers.css` (`var(--z-…)`), not a number.
 - **Add a line for רובו־דע:** in `src/data/guide/<area>.js`, `{ id, f, k }` with full nikud in `k`; run
@@ -68,3 +68,13 @@ npm run check                     # every check (≈15 min); npm run check:quick
 - **Keep the layers in step:** `node tools/check-sync.mjs` (part of check-all) compares the journey table in docs/JOURNEY.md with journey.js, checks that every guide line is voiced and points at something that exists, that every tech card can be earned, six workshop missions per zone, and that every zone is in the journey and the beginners' set. Add a rule there when a new part must match another one.
 - **Long sessions:** `python3 tools/check-leaks.py dist/index-torah.html 3` opens and closes every island, the robot lab and the lab in rounds and fails if the heap, geometries, textures or DOM nodes grow (about 15 minutes; run it before a release, it is not in check-all).
 - **Change a big screen safely:** take regression shots before and after (`python3 tools/regress.py dist/index.html shots/regress/<name>`, then `--compare`), and run `npm run check`.
+
+## Boundaries (1.4.4 stability set)
+
+`tools/check-bounds.mjs` runs in check-all: the pure engines (`src/robolab/engine/`, `src/research/model.js` and
+`runner.js`, `src/sim/species.js`, the savanna's grass/herds/pop/seasons/stability, the weekly models, `src/workshop/engine.js`,
+`src/core/storage-keys.js`) never reach three.js or the UI; `src/core/` has no import cycle; one area imports another only
+through its `index.js` or a module listed in `SHARED` there; product code never reads a `window.__*` it did not set. The
+rules behind it: `docs/RULES-CODE.md`. A new pure engine: add it to `PURE`; a deliberate reuse across areas: add it to
+`SHARED` with a reason.
+

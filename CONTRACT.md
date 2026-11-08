@@ -1,3 +1,5 @@
+> **Historical (1.0 to 1.2):** the first architecture contract. The current map of the code is `docs/CODEMAP.md`, the code rules are `docs/RULES-CODE.md`.
+
 # רשת החיים (Web of Life) — architecture & module contract
 
 A 3D ecosystem-building game for Haredi children (approx. grades 3–6), part of the Baba Da annual theme
