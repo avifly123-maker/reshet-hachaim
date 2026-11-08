@@ -15,7 +15,10 @@ const REVERSE_NAMES = {
 
 export function relKey(from, to, type) { return `${from}>${to}>${type}`; }
 
-export function buildRegistry(biome) {
+// 1.4.4 stability set: the zone's content (src/data/<zone>.js) stays exactly as written; the game works on its own
+// copies of the species, with the derived fields on them (tests/sim/registry.mjs). reg.biome is that runtime biome.
+export function buildRegistry(content) {
+  const biome = { ...content, species: content.species.map((s) => ({ ...s })) };
   const byId = new Map();
   for (const s of biome.species) byId.set(s.id, s);
   const isPlant = (id) => PLANT_KINDS.has(byId.get(id)?.kind);
@@ -68,7 +71,7 @@ export function buildRegistry(biome) {
     s.eaters = eatersOf(s.id);
     s.diet2 = dietOf(s.id);
     s.groupSize = s.groupSize || [1, 1];
-    if (!s._maxScaled) { s.maxCount = Math.ceil((s.maxCount || 6) * 1.3); s._maxScaled = true; }   // more room to plant (+30%)
+    s.maxCount = Math.ceil((s.maxCount || 6) * 1.3);   // more room to plant (+30%), on the runtime copy only
     s.cost = s.cost || 10;
   }
   return { biome, byId, edges, out, inc, panelRelations, isPlant, seasonName: (s) => SEASON_NAMES[s] || '' };

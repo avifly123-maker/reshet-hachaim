@@ -40,6 +40,7 @@ import { createFieldCam } from '../fieldcam.js';
 import { createTour } from '../tour.js';
 import { START_POINTS } from '../../data/common.js';
 import { clamp, makeRng, disposeOwned } from '../../core/util.js';
+import { logError } from '../../core/log.js';
 import { createFieldReport } from '../report.js';
 import { createResearchSession } from '../../research/session.js';
 import { zoneWord, setPlace } from '../../core/place.js';
@@ -81,12 +82,12 @@ export async function createGame(opts) {
 // tests only (tests/play/load-fail.json): window.__failLoadAt = 'env' | 'warm' | 'parts' makes the next load fail there
 function failAt(stage) { if (window.__failLoadAt === stage) { window.__failLoadAt = null; throw new Error('test: the load failed at ' + stage); } }
 
-async function buildGame(undo, { pipe, ui, audio, bus, biome, plantBuilders, animalBuilders, zoneEnv = null, quality, onExit, save = null, research = null, training = false }) {
+async function buildGame(undo, { pipe, ui, audio, bus, biome: content, plantBuilders, animalBuilders, zoneEnv = null, quality, onExit, save = null, research = null, training = false }) {
   const scene = pipe.scene, camera = pipe.camera, canvas = pipe.renderer.domElement;
   const before = new Set(scene.children);   // whatever the load adds to the scene goes again if it fails (runs last)
   undo.push(() => { for (const o of [...scene.children]) if (!before.has(o)) { scene.remove(o); disposeOwned(o); } });
-  setPlace(training ? 'field' : biome.id);
-  const reg = buildRegistry(biome);
+  setPlace(training ? 'field' : content.id);
+  const reg = buildRegistry(content), biome = reg.biome;   // the game's own copy of the zone (the content stays as written)
   const W = {
     biome, biomeId: biome.id, reg, plantBuilders, animalBuilders,
     plants: [], animals: [], fires: [], resprouters: RESPROUTERS,
@@ -154,13 +155,13 @@ async function buildGame(undo, { pipe, ui, audio, bus, biome, plantBuilders, ani
         const v = isP ? plantBuilders[sp.id]({ seed: 11, rng: makeRng(11), hostHeight: 8, hostRadius: 0.4 }) : animalBuilders[sp.id]({ seed: 11, rng: makeRng(11) });
         if (isP) { v.setGrowth(1); v.setBloom(1); v.setFruit(1); v.setNightGlow(1); }
         stage.add(v.object); temp.push(v);
-      } catch (e) { }
+      } catch (e) { logError('warm', sp.id, e); }   // a model that cannot be built is written down; the forest goes on
     }
     scene.add(stage);
-    try { const r = pipe.renderer; if (r.compileAsync && r.extensions && r.extensions.has('KHR_parallel_shader_compile')) await r.compileAsync(scene, camera); else r.compile(scene, camera); } catch (e) { try { pipe.renderer.compile(scene, camera); } catch (e2) { } }
+    try { const r = pipe.renderer; if (r.compileAsync && r.extensions && r.extensions.has('KHR_parallel_shader_compile')) await r.compileAsync(scene, camera); else r.compile(scene, camera); } catch (e) { logError('warm', 'compileAsync', e); try { pipe.renderer.compile(scene, camera); } catch (e2) { logError('warm', 'compile', e2); } }
     ui.setLoading(0.8, 'מכינים את הצמחים ובעלי החיים...');
     await tick0();
-    try { pipe.render(0.016); } catch (e) { }    // also builds the shadow shaders
+    try { pipe.render(0.016); } catch (e) { logError('warm', 'render', e); }    // also builds the shadow shaders
     scene.remove(stage);
     // keep these warm-up models (off-scene) for the whole visit: they hold the compiled shader programs of parts that
     // live plants keep hidden until their season (flowers, fruit) – disposing them would free the programs, and the

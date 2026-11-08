@@ -32,6 +32,9 @@ raw=$(node tests/badges/rare.mjs 2>&1); code=$?; out=$(echo "$raw" | grep -v -i 
 # set 4: missions made from the child's own island, on the saved islands of every version and on made-up islands
 raw=$(node tests/robolab/island-missions.mjs 2>&1); code=$?; out=$(echo "$raw" | grep -v -i "warning\|Reparsing\|trace-warnings"); echo "$(echo "$out" | tail -1)"
 [ $code -ne 0 ] && { echo "$out"; fail "island missions"; }
+# stability set (8.11): the species registry leaves the zones' content as written and gives the same answer every time
+raw=$(node tests/sim/registry.mjs 2>&1); code=$?; out=$(echo "$raw" | grep -v -i "warning\|Reparsing\|trace-warnings\|module type"); echo "$(echo "$out" | tail -1)"
+[ $code -ne 0 ] && { echo "$out"; fail "species registry"; }
 # 1.4.2: the savanna's systems (seasons, grass, grazing order, fire, herds, stability) without the game
 raw=$(node tests/savanna/systems.mjs 2>&1); code=$?; out=$(echo "$raw" | grep -v -i "warning\|Reparsing\|trace-warnings"); echo "savanna systems: $(echo "$out" | tail -1)"
 [ $code -ne 0 ] && { echo "$out"; fail "savanna systems"; }
@@ -108,7 +111,7 @@ echo "$out" | grep "\[pageerror\]\|JS ERROR\|UNTIL TIMEOUT\|NO ELEMENT" && fail 
 # instructors' code opening everything for one player only (allopen-player)
 # 8.11 (Avi): the science centre without arrows, the workshop door picture, its goal card with the next step, "what is done
 # here and why", the thinking methods that flash when they grow and their sheet (ws-clear)
-for t in workshop:14 workshop-kids:5 techcards:7 workshop-missions:14 workshop-island:8 garage:10 stage9:5 sandbox:8 chat:20 inv-robots:7 weekly:11 nz-workshop:34 ws-path:11 allopen-player:6 ws-kids:11 nz-voice:3 ws-room-leave:5 robolab-hints:8 ws-clear:7 weekly-events:13 weekly-det-race:12 drone-missions:6 hard-challenges:3 rare-badges:5 films:4 robolab-course-leak:3 load-fail:2; do
+for t in workshop:14 workshop-kids:5 techcards:7 workshop-missions:14 workshop-island:8 garage:10 stage9:5 sandbox:8 chat:20 inv-robots:7 weekly:11 nz-workshop:34 ws-path:11 allopen-player:6 ws-kids:11 nz-voice:3 ws-room-leave:5 robolab-hints:8 ws-clear:7 weekly-events:13 weekly-det-race:12 drone-missions:6 hard-challenges:3 rare-badges:5 films:4 robolab-course-leak:3 load-fail:3; do
   f=${t%%:*}; want=${t##*:}
   out=$(timeout 1200 python3 tools/play.py dist/index.html tests/play/$f.json 800 460 2>&1)
   n=$(echo "$out" | grep -c "CHECK .* ok")

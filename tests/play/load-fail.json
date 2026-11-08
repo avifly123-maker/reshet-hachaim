@@ -72,6 +72,9 @@
 "js": "const a = window.__lf.start; 'CHECK load-fail-clean ' + (['env','warm','parts'].every(k => { const b = window.__lf[k]; return b && b.msg && !b.game && b.g - a.g <= 3 && b.t - a.t <= 2 && b.sc === a.sc; }) ? 'ok' : 'FAIL ' + JSON.stringify(window.__lf))"
 },
 {
+"js": "const L = window.__app.lastErrors().filter(x => x.area === 'load'); 'CHECK load-fail-logged ' + (L.length >= 3 && L.every(x => /test: the load failed/.test(x.msg)) ? 'ok' : 'FAIL ' + JSON.stringify(L))"
+},
+{
 "js": "window.__app.loadBiome('grove'); 1"
 },
 {

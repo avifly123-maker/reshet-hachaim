@@ -5,6 +5,7 @@
 // Shared state it reads or changes: ctx.tools, ctx.report, ctx.coachStep.
 import * as THREE from 'three';
 import { zoneKey, saveKey, writePlayer } from '../../core/storage.js';
+import { logError } from '../../core/log.js';
 
 export function createSave(ctx) {
   const { biome, W, missions, alive, ui, audio, on, addStump, buildRoad, reg, spawnPlant, spawnAnimal, randomPlaceSpot } = ctx;
@@ -13,7 +14,7 @@ export function createSave(ctx) {
   const SAVE_KEY = zoneKey(biome.id);   // per player (core/storage.js)
   function saveProgress() {
     if (W.training) return;   // the training field writes nothing into the grove's progress
-    try { writePlayer(SAVE_KEY, { unlocked: [...W.unlocked], done: missions.missions.filter(m => m.done).map(m => m.id), discovered: [...W.discovered], placed: [...W.everPlaced], quiz: [...W.quizDone] }); } catch (e) { }
+    try { writePlayer(SAVE_KEY, { unlocked: [...W.unlocked], done: missions.missions.filter(m => m.done).map(m => m.id), discovered: [...W.discovered], placed: [...W.everPlaced], quiz: [...W.quizDone] }); } catch (e) { logError('save', 'progress', e); }
   }
 
   // ─────────────────────────────────────────── save / restore the whole ecosystem

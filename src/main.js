@@ -33,6 +33,7 @@ import './ui/flourish.js';   // window.__flourish: short flourishes (a part open
 // arrive in its pack – { zone: { data, plants, animals }, release() } – loaded when the zone is chosen (core/packs.js).
 const zoneOf = (id) => { const m = loadedPack(id); return m ? m.zone : null; };
 import { setService } from './core/services.js';
+import { logError, lastErrors } from './core/log.js';   // 1.4.4 stability set: failures written down, never swallowed
 
 // Beginners (ages 6–8): a small set of species, short missions, no events, two tools.
 function kidsBiome(base) {
@@ -248,7 +249,7 @@ async function boot() {
       if (!watched && ui.setLoadingFilm) ui.setLoadingFilm(film);
       if (!zoneOf(id) || !loadedPack('game')) { ui.setLoading(0.01, 'מכינים את היער...'); await Promise.all([loadPack(id), loadPack('game')]); }
     } catch (e) {
-      console.error(e);
+      logError('load', id + ':pack', e);
       ui.setLoading(0, 'משהו השתבש בטעינה. אפשר לחזור למסך הפתיחה ולנסות שוב.');
       ui.setLoadingActions([backAction(research)]);
       loading = false; return;
@@ -269,7 +270,7 @@ async function boot() {
       ui.hideLoading();
       resetAutoQ(2);
     } catch (e) {
-      console.error(e);
+      logError('load', id, e);
       closeGame();
       const hasSave = !research && !training && (!!save || !!readSave(id));
       ui.setLoading(0, hasSave ? 'משהו השתבש בטעינה של היער השמור. אפשר לחזור, או להתחיל יער חדש.' : 'משהו השתבש בטעינה. אפשר לחזור למסך הפתיחה ולנסות שוב.');
@@ -415,12 +416,12 @@ async function boot() {
         const v = isP ? W.plantBuilders[sp.id]({ seed: 11, rng: makeRng(11), hostHeight: 8, hostRadius: 0.4 }) : W.animalBuilders[sp.id]({ seed: 11, rng: makeRng(11) });
         if (isP) { v.setGrowth(1); v.setBloom(1); v.setFruit(1); v.setNightGlow(1); }
         stage.add(v.object); temp.push(v);
-      } catch (e) { }
+      } catch (e) { logError('warm', sp.id, e); }
     }
     scene.add(stage);
     const g = game;
     const finish = () => {
-      if (game === g) { try { pipe.render(0.016); } catch (e) { } }   // also builds the shadow shaders
+      if (game === g) { try { pipe.render(0.016); } catch (e) { logError('warm', 'render', e); } }   // also builds the shadow shaders
       scene.remove(stage);
       if (game !== g) { for (const v of temp) { try { v.dispose(); } catch (e) { } } return; }   // the forest was closed meanwhile
       // the new set keeps the freshly compiled programs alive (see game.js), the old set can go
@@ -431,7 +432,7 @@ async function boot() {
     const r = pipe.renderer;
     if (r.compileAsync && r.extensions && r.extensions.has('KHR_parallel_shader_compile')) {
       r.compileAsync(scene, camera).then(finish, finish);
-    } else { try { r.compile(scene, camera); } catch (e) { } finish(); }
+    } else { try { r.compile(scene, camera); } catch (e) { logError('warm', 'compile', e); } finish(); }
   }
   function applyQuality(q, remember) {
     quality = q; if (remember) writeDeviceRaw(K.quality, q);
@@ -542,7 +543,7 @@ async function boot() {
     let bin = ''; const u = new Uint8Array(out.buffer); for (let i = 0; i < u.length; i += 0x8000) bin += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000));
     return btoa(bin);
   };
-  window.__app = { bus, ui, audio, music, pipe, voice, guide, journey, loadBiome, researchHub, get quality() { return quality; }, openLab: () => openLab(), openCase: (id, opts) => { let C = caseById(id); if (C && opts && opts.tutorial) C = { ...C, tutorial: true }; if (C) loadBiome(C.zone, null, C); }, get game() { return game; }, get workshop() { return workshop; } };
+  window.__app = { bus, ui, audio, music, pipe, voice, guide, journey, loadBiome, lastErrors, researchHub, get quality() { return quality; }, openLab: () => openLab(), openCase: (id, opts) => { let C = caseById(id); if (C && opts && opts.tutorial) C = { ...C, tutorial: true }; if (C) loadBiome(C.zone, null, C); }, get game() { return game; }, get workshop() { return workshop; } };
   setService('app', window.__app);   // the parts read it through src/core/services.js; window.__app stays for the test tools
 }
 
