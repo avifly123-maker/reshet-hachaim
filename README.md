@@ -10,13 +10,15 @@
 
 ## הורדה
 
-**הגרסה החדשה: 1.3.3, רשת החיים – המסע.** היא נמצאת בעמוד [Releases](https://github.com/avifly123-maker/reshet-hachaim/releases/latest). מהגרסה הזאת יש מהדורה אחת: המקורות נמצאים בה, ומתג בהגדרות מדליק ומכבה אותם. המשחק נפתח שלב אחרי שלב (מסע החוקר), הרובוט רובו־דע מסביר כל חלק בקולו, וההורים יכולים להגביל את זמן המשחק ביום. יש שם שלושה קבצים:
+**הגרסה שהילדים משחקים: 1.3.3, רשת החיים – המסע.** היא נמצאת בעמוד [Releases](https://github.com/avifly123-maker/reshet-hachaim/releases/latest). מהגרסה הזאת יש מהדורה אחת: המקורות נמצאים בה, ומתג בהגדרות מדליק ומכבה אותם. המשחק נפתח שלב אחרי שלב (מסע החוקר), הרובוט רובו־דע מסביר כל חלק בקולו, וההורים יכולים להגביל את זמן המשחק ביום. יש שם שלושה קבצים:
 
 | קובץ | מה זה |
 | --- | --- |
 | `reshet-hachaim-hamasa-setup-1.3.3.exe` | התקנה ל־Windows (עולה על הגרסאות הקודמות ושומרת הכול) |
 | `reshet-hachaim-hamasa-mac-1.3.3.zip` | למק מכל סוג (במק עם שבב של אפל הוא רץ דרך Rosetta, שהמק מתקין לבד) |
 | `reshet-hachaim-hamasa-1.3.3.html` | המשחק כולו בקובץ אחד, נפתח בדפדפן Chrome או Edge בלי התקנה |
+
+**הקוד שבעמוד הזה הוא כבר של 1.4.4, "רשת החיים – המסע הגדול".** מ־11.11.2026 הענף הראשי הוא 1.4.4. היא גרסה לבודקים בלבד, מותקנת בנפרד ולא דורסת את 1.3.3, ולכן היא לא מופיעה בעמוד Releases. הקוד של 1.3.3 שמור בתג [v1.3.3](https://github.com/avifly123-maker/reshet-hachaim/tree/v1.3.3). מה נכנס ל־1.4: [CHANGELOG](CHANGELOG.md).
 
 **הסדרה 1.2 (המהדורה הכללית):** הגרסה האחרונה שלה היא **1.2.3**, בעמוד [v1.2.3](https://github.com/avifly123-maker/reshet-hachaim/releases/tag/v1.2.3), עם שבעה קבצים: Windows ומק בשתי המהדורות, ודף רשת.
 
@@ -31,6 +33,8 @@
 מה חדש בכל גרסה: [CHANGELOG](CHANGELOG.md).
 
 ## מה יש במשחק
+
+**מגרסה 1.4 (לבודקים): המסע הגדול.** חמש סביבות: לאמזונס, לחורש ולשונית נוספו המדבר והסוואנה האפריקאית. מסע של 9 שלבים פותח את המשחק צעד אחרי צעד. במרכז המדע יש עכשיו גם מעבדת רובוטים, שבה בונים ומתכנתים רובוט עם קוּבִּי, וסדנת ממציאים של ניצוץ. נוספו גם אתגרים שבועיים. לכל חלק יש הדרכה מעשית בפעם הראשונה.
 
 **מגרסה 1.3: חוקרי הטבע.** סביבה שלישית, שונית האלמוגים של אילת. 13 תעלומות שבהן הילד מסתכל, מודד, מנחש, מנסה ומסיק. מעבדה של הרובוט רובו־דע, עם ממציאים, סדנת רובוטים, מיקרוסקופ וארון אוסף. תגים, מסגרות, משחקים חדשים ומוזיקה. הפירוט ב־[CHANGELOG](CHANGELOG.md).
 
@@ -78,8 +82,11 @@ npm install
 node build.mjs                      # → dist/index.html (single offline file, general edition)
 node build.mjs --edition=torah      # → dist/index-torah.html
 node build.mjs --desktop            # → desktop/app/ (core + per-zone packs, served as app://game/)
-bash tools/pack-torah.sh            # the release: one edition, "רשת החיים – המסע"
+bash tools/pack-torah.sh            # the children's release: one edition, "רשת החיים – המסע"
+bash tools/pack-1.4.sh              # the testers' install, "רשת החיים – המסע הגדול" (desktop/builder-1.4.json)
 ```
+
+Branches: `main` is 1.4.4 (since 11.11.2026). The children's release 1.3.3 lives on tag `v1.3.3` and branch `claude/1.3.3-refresh2`; build and fix it from there. 1.4 installs beside 1.3.3 under its own appId; it reaches the children only when it is built with `builder-torah.json`'s appId. The code map is `docs/CODEMAP.md`, the code rules `docs/RULES-CODE.md`.
 
 Since 1.3.2 there is one edition, "רשת החיים – המסע" (the torah build with the sources switch). `tools/pack-torah.sh` builds it for the desktop, makes the Windows installer (`electron-builder --win nsis --x64 --config builder-torah.json`), the Mac zip (Intel, signed ad hoc with `rcodesign`, zipped by `tools/zip-mac-app.py` so the symlinks survive) and the one-file html, and writes the three release files (the names in the table above) with their SHA-256 sums into `release-files/<version>/`. The release steps for the owner are in `docs/RELEASE.md`.
 
@@ -108,7 +115,9 @@ python3 tools/check-old-saves.py desktop/app                  # saves from 1.0.0
 | `tools/blender/` | Blender Python: `animal_kit.py` + `animal_kit_hd.py` and one spec per animal (33: 31 animals and two bees), the session bridge, panoramas, ground textures (see `tools/blender/README.md`) |
 | `tools/build-*.py` | pack `art/` into the `src/data/*.js` modules |
 | `desktop/` | Electron shell (`main.js`, `preload.js`, PDF export) and installer configs |
-| `CONTRACT.md` | the architecture and module contract |
+| `src/core/` | services without UI: storage, profiles, journey, badges, weekly events, error log, math, the services registry |
+| `src/research/`, `src/lab/`, `src/robolab/`, `src/workshop/`, `src/weekly/` | the science centre: mysteries, רובו־דע's lab, the robot lab (pure engine in `engine/`), ניצוץ's workshop, weekly events (1.4) |
+| `docs/CODEMAP.md` | the full map of the code and "how to add…" (`CONTRACT.md` is the older 1.0 contract) |
 
 The animals are built in Blender from Python specs: one smooth body from blended shapes (an SDF union with fillets), body plans by family, a neck, three-joint legs with hooves or paws, eyes with lids and a mouth, fur / feather / scale relief and colour baked into textures, an armature with field-based skin weights, and baked action clips (idle, walk with a stance / swing gait, run, eat, sleep, fly with a folding upstroke, climb, hang…). `tools/build-rigged.py` packs them into compact base64 modules that `src/models/rigged.js` turns into three.js skinned meshes.
 
