@@ -22,10 +22,11 @@
 //   playMode() / setPlayMode(m)         'experience' | 'full'   (beginners always play their own simple mode)
 //   textSize() / setTextSize(s)         'normal' | 'large' | 'xlarge'   (applies a class on <html>, see applyTextSize)
 //   voiceOn() / setVoice(on)            רובו־דע speaks his lines (src/audio/voice.js)
+//   guideQuiet() / setGuideQuiet(on)    1.4.2 (Avi, 1.11): רובו־דע speaks only when needed (no tips in a forest; robo-guide.js)
 //   allOpen() / unlockAll(code) / lockAgain()   the instructors' switch; INSTRUCTOR_CODE (Avi gives it to the instructors; docs/JOURNEY.md)
 // Events listened to: 'wol-badge' (a badge), 'wol-progress' (a mission, a lab activity, a solved mystery…) → check().
 import { rankOf } from '../game/rank.js';   // the island's rank (stage 6; game/rank.js has no three.js)
-import { K as KEY, zoneKey, saveKey, readPlayer, writePlayer, readPlayerRaw, readDeviceRaw, writeDeviceRaw, removeDevice, playerKey, playerMode as levelNow } from './storage.js';
+import { K as KEY, zoneKey, saveKey, readPlayer, writePlayer, readPlayerRaw, writePlayerRaw, removePlayer, readDeviceRaw, writeDeviceRaw, removeDevice, playerKey, playerMode as levelNow } from './storage.js';
 
 const K = KEY.journey;
 export const INSTRUCTOR_CODE = '2580';
@@ -43,7 +44,7 @@ export const PARTS = {
   quiz: { stage: 2, name: 'החידון', kname: 'הַחִידוֹן', where: 'hub' },
   learn: { stage: 2, name: 'מרכז הלמידה', kname: 'מֶרְכַּז הַלְּמִידָה', where: 'start' },
   webpuzzle: { stage: 3, name: 'חוט הקשר', kname: 'חוּט הַקֶּשֶׁר', where: 'hub' },
-  keepforest: { stage: 3, name: 'מחזיקים את היער', kname: 'מַחֲזִיקִים אֶת הַיַּעַר', where: 'hub' },
+  keepforest: { stage: 3, name: 'מחזיקים את הסביבה', kname: 'מַחֲזִיקִים אֶת הַסְּבִיבָה', where: 'hub' },
   badges: { stage: 3, name: 'התגים שלי', kname: 'הַתָּגִים שֶׁלִּי', where: 'hub' },
   'zone:reef': { stage: 4, name: 'השונית', kname: 'הַשּׁוּנִית', where: 'start' },
   science: { stage: 4, name: 'המרכז המדעי', kname: 'הַמֶּרְכָּז הַמַּדָּעִי', where: 'start' },
@@ -65,9 +66,20 @@ export const PARTS = {
   experts: { stage: 6, name: 'משימות המומחים', kname: 'מְשִׂימוֹת הַמֻּמְחִים', where: 'zone' },
   // 1.4: the desert, a hard zone, opens at the expert stage (docs/PLAN-1.4.md section 3)
   'zone:desert': { stage: 6, v14: true, name: 'המדבר', kname: 'הַמִּדְבָּר', where: 'start' },
-  // 1.4.1: מעבדת הרובוטים opens at stage 6 with its first chapter; the other chapters and the puzzles at stage 7
-  robolab: { stage: 6, v14: true, name: 'מעבדת הרובוטים', kname: 'מַעְבֶּדֶת הָרוֹבּוֹטִים', where: 'start' },
-  'robolab:more': { stage: 7, v14: true, name: 'שאר שיעורי התכנות והחידות', kname: 'שְׁאָר שִׁעוּרֵי הַתִּכְנוּת וְהַחִידוֹת', where: 'robolab' },
+  // 1.4.2 (Avi, 30.10: "a spread journey", docs/PLAN-1.4.2.md): each high stage opens one new experience. Stage 7 opens
+  // the savanna and the robot lab's first chapter, stage 8 the other chapters and the puzzles (and, from 1.4.4, ניצוץ's
+  // inventors' workshop), stage 9 (1.4.3) the robot workshop, the missions on the player's own island and the sandbox.
+  'zone:savanna': { stage: 7, v14: true, name: 'הסוואנה', kname: 'הַסָּוַאנָה', where: 'start' },
+  robolab: { stage: 7, v14: true, name: 'מעבדת הרובוטים', kname: 'מַעְבֶּדֶת הָרוֹבּוֹטִים', where: 'start' },
+  'robolab:more': { stage: 8, v14: true, name: 'שאר שיעורי התכנות והחידות', kname: 'שְׁאָר שִׁעוּרֵי הַתִּכְנוּת וְהַחִידוֹת', where: 'robolab' },
+  // 1.4.4 (Avi, 4.11): אירוע השבוע opens at stage 8 too, all four kinds (core/weekly.js)
+  weekly: { stage: 8, v14: true, name: 'אירוע השבוע', kname: 'אֵירוּעַ הַשָּׁבוּעַ', where: 'start' },
+  // 1.4.4: ניצוץ's inventors' workshop (src/workshop/), in the science centre
+  workshop: { stage: 8, v14: true, name: 'הסדנה של ניצוץ', kname: 'הַסַּדְנָה שֶׁל נִיצוֹץ', where: 'start' },
+  // 1.4.3 set 5: stage 9 opens the robot workshop, the missions on the player's own island and the sandbox
+  'robolab:workshop': { stage: 9, v14: true, name: 'סדנת הרובוט', kname: 'סַדְנַת הָרוֹבּוֹט', where: 'robolab' },
+  'robolab:island': { stage: 9, v14: true, name: 'משימות באי שלי', kname: 'מְשִׂימוֹת בָּאִי שֶׁלִּי', where: 'robolab' },
+  'robolab:sandbox': { stage: 9, v14: true, name: 'ארגז החול', kname: 'אַרְגַּז הַחוֹל', where: 'robolab' },
 };
 
 // need: a list of ways (any one is enough). Keys: missions (done in all zones), badges (owned), lab (lab activities).
@@ -76,7 +88,7 @@ export const PARTS = {
 // "missions or badges" was one road). Each stage now asks for several things together, among them the part that the
 // stage before opened: the album's cards, a card game, the lab, the reef, a mystery, an invention, an island's rank.
 // Keys: missions (all zones), amazon / grove / reef (missions in that zone), cards (in the album), cardgame (חוט הקשר or
-// מחזיקים את היער played), lab (lab activities), solved (mysteries healed), invent (inventions and inventors' problems
+// מחזיקים את הסביבה played), lab (lab activities), solved (mysteries healed), invent (inventions and inventors' problems
 // solved), rank (the best island rank reached: 0 = the first, 3 = the last; RANKS in game/rank.js).
 export const STAGES = [
   { n: 1, id: 'observer', name: 'מתבונן', kname: 'מִתְבּוֹנֵן', need: null, kneed: null },
@@ -90,9 +102,12 @@ export const STAGES = [
   // of 1.4). Then `soon` goes, the new keys get their counters in metrics(), and the stage opens its parts:
   //   7 מתכנת: 6 desert missions, 12 programming lessons (code), a mystery solved in the desert or the savanna (solvedNew)
   //   8 יזם: 10 robot missions (robot), a desert island at the second rank (drank), two inventions (invent)
-  // 1.4.1 (Avi, 29.10): stage 7 opens now with the robot lab's first chapter; more parts join it in later rounds
-  { n: 7, id: 'programmer', name: 'מתכנת', kname: 'מְתַכְנֵת', need: [{ desert: 6, code: 6 }], kneed: [{ desert: 3, code: 4 }] },
-  { n: 8, id: 'entrepreneur', name: 'יזם', kname: 'יַזָּם', soon: true, need: [{ robot: 10, drank: 1, invent: 2 }], kneed: [{ robot: 5, drank: 1, invent: 1 }] },
+  // 1.4.2 (Avi, 30.10, the spread journey): 7 asks for the desert (its changes and its water prepare the savanna),
+  // 8 for the savanna and the programming lessons of stage 7, 9 (soon until 1.4.3) for robot missions and inventions
+  { n: 7, id: 'programmer', name: 'מתכנת', kname: 'מְתַכְנֵת', need: [{ desert: 6, invent: 2 }], kneed: [{ desert: 3, invent: 1 }] },
+  { n: 8, id: 'entrepreneur', name: 'יזם', kname: 'יַזָּם', need: [{ savanna: 6, code: 6 }], kneed: [{ savanna: 3, code: 4 }] },
+  // 1.4.3 set 5 (docs/PLAN-1.4.3.md "שלב 9"): the savanna's missions, lessons from several chapters, and the lab
+  { n: 9, id: 'engineer', name: 'מהנדס', kname: 'מְהַנְדֵּס', need: [{ savanna: 12, code: 18, codech: 5, lab: 10 }], kneed: [{ savanna: 6, code: 10, codech: 3, lab: 6 }] },
 ];
 // the last stage a child can reach in this version (the soon ones are only shown on the map)
 export const LAST = STAGES.filter((st) => !st.soon).length;
@@ -101,8 +116,10 @@ export const LAST = STAGES.filter((st) => !st.soon).length;
 const isKids = () => levelNow() === 'kids';
 
 // ─────────────────────────────── what the child has done (read from the game's own saves)
-import { ZONE_IDS as ZONES } from '../data/zones.js';
+import { ZONE_IDS as ZONES, ALL_ZONE_IDS } from '../data/zones.js';
 export { ZONES };   // the zones whose saves count (core/threads.js reads the same)
+// missions are counted in every zone, also one still in the works (the testers' savanna counts for stage 8)
+const COUNTED = ALL_ZONE_IDS;
 // the missions done in a zone: what its save says now, joined with what this store remembers (a new forest, or the other
 // level, overwrites web-of-life-<zone>.done; a mission done once still counts)
 function doneIn(z, kept) {
@@ -114,7 +131,7 @@ function doneIn(z, kept) {
 export function metrics() {
   let missions = 0; const per = {};
   const kept = (readPlayer(K, null) || {}).done;
-  for (const z of ZONES) { per[z] = doneIn(z, kept).size; missions += per[z]; }
+  for (const z of COUNTED) { per[z] = doneIn(z, kept).size; missions += per[z]; }
   const b = readPlayer(KEY.badges, {}); const badges = b && b.own ? Object.keys(b.own).length : 0;
   const L = readPlayer(KEY.lab, {}) || {};
   const n = (o) => (o && typeof o === 'object' ? Object.keys(o).length : 0);
@@ -126,7 +143,9 @@ export function metrics() {
   const used = ((readPlayer(K, null) || {}).used) || {};
   const cardgame = (used.webpuzzle ? 1 : 0) + (used.keepforest ? 1 : 0);
   const RB = readPlayer(KEY.robolab, {}) || {}; const code = n(RB.done);   // robot-lab levels solved (1.4.1)
-  const m = { missions, amazon: per.amazon, grove: per.grove, reef: per.reef, desert: per.desert, badges, lab, cases, solved, cards, cardgame, invent: n(L.inventions) + n(L.solved), code };
+  // the chapters with a solved lesson (1.4.3 set 5: lesson ids are l<chapter>-<n>; puzzles and missions do not count)
+  const codech = new Set(Object.keys(RB.done || {}).map((id) => (/^l(\d+)-/.exec(id) || [])[1]).filter(Boolean)).size;
+  const m = { missions, amazon: per.amazon, grove: per.grove, reef: per.reef, desert: per.desert, savanna: per.savanna, badges, lab, cases, solved, cards, cardgame, invent: n(L.inventions) + n(L.solved), code, codech };
   // the island rank reads the forests' saves: only when a stage asks for it (check() runs often)
   let rank = null;
   Object.defineProperty(m, 'rank', { enumerable: true, get() {
@@ -162,9 +181,14 @@ function bestStage(s) {
 }
 function reached(st, m) { if (st.soon) return false; const need = isKids() ? st.kneed : st.need; if (!need) return true; return need.some((w) => Object.keys(w).every((k) => (m[k] || 0) >= w[k])); }
 
-export const allOpen = () => readDeviceRaw(KEY.allopen) === '1';
-export function unlockAll(code) { if (String(code).trim() !== INSTRUCTOR_CODE) return false; writeDeviceRaw(KEY.allopen, '1'); notify(); return true; }
-export function lockAgain() { removeDevice(KEY.allopen); notify(); }
+// 6.11 (Avi): the code opens everything for the player who is playing now, not for every child on the computer (it
+// was one switch for the computer, and a parent could not keep the journey for the others). An old switch for the whole
+// computer becomes the current player's and is then gone.
+let movedAllOpen = false;
+function moveOldAllOpen() { if (movedAllOpen) return; movedAllOpen = true; try { if (readDeviceRaw(KEY.allopen) === '1') { writePlayerRaw(KEY.allopen, '1'); removeDevice(KEY.allopen); } } catch (e) { /* no storage */ } }
+export const allOpen = () => { moveOldAllOpen(); return readPlayerRaw(KEY.allopen) === '1'; };
+export function unlockAll(code) { if (String(code).trim() !== INSTRUCTOR_CODE) return false; writePlayerRaw(KEY.allopen, '1'); notify(); return true; }
+export function lockAgain() { removePlayer(KEY.allopen); notify(); }
 
 export function stageNow(m = metrics()) { let s = 1; for (const st of STAGES) if (reached(st, m)) s = st.n; else break; return Math.max(s, bestStage(store())); }
 
@@ -183,7 +207,7 @@ export function state() {
   return { stage, stageId: st.id, name: kids ? st.kname : st.name, metrics: m, next, legacy: !!s.legacy, allOpen: allOpen(), kids };
 }
 // the words of one thing still missing ('' when it is done)
-const ZONE_IN = { amazon: ['באמזונס', 'בָּאָמָזוֹנָס'], grove: ['בחורש', 'בַּחֹרֶשׁ'], reef: ['בשונית', 'בַּשּׁוּנִית'], desert: ['במדבר', 'בַּמִּדְבָּר'] };
+const ZONE_IN = { amazon: ['באמזונס', 'בָּאָמָזוֹנָס'], grove: ['בחורש', 'בַּחֹרֶשׁ'], reef: ['בשונית', 'בַּשּׁוּנִית'], desert: ['במדבר', 'בַּמִּדְבָּר'], savanna: ['בסוואנה', 'בַּסָּוַאנָה'] };
 const RANK_WORDS = [null, ['אי אחד בדרגה השנייה (כמו חורש פורח)', 'אִי אֶחָד בַּדַּרְגָּה הַשְּׁנִיָּה (כְּמוֹ חֹרֶשׁ פּוֹרֵחַ)'],
   ['אי אחד בדרגה השלישית (כמו חורש עבות)', 'אִי אֶחָד בַּדַּרְגָּה הַשְּׁלִישִׁית (כְּמוֹ חֹרֶשׁ עָבוֹת)'], ['אי אחד בדרגה הרביעית', 'אִי אֶחָד בַּדַּרְגָּה הָרְבִיעִית']];
 function needWord(k, n, have, kids) {
@@ -194,10 +218,11 @@ function needWord(k, n, have, kids) {
   if (k === 'badges') return left === 1 ? w('עוד תג אחד', 'עוֹד תָּג אֶחָד') : w(`עוד ${left} תגים`, `עוֹד ${left} תָּגִים`);
   if (k === 'lab') return left === 1 ? w('עוד גילוי אחד במעבדה', 'עוֹד גִּלּוּי אֶחָד בַּמַּעְבָּדָה') : w(`עוד ${left} גילויים במעבדה`, `עוֹד ${left} גִּלּוּיִים בַּמַּעְבָּדָה`);
   if (k === 'cards') return left === 1 ? w('עוד קלף אחד באלבום', 'עוֹד קְלָף אֶחָד בָּאַלְבּוֹם') : w(`עוד ${left} קלפים באלבום`, `עוֹד ${left} קְלָפִים בָּאַלְבּוֹם`);
-  if (k === 'cardgame') return w('משחק קלפים אחד (חוט הקשר או מחזיקים את היער)', 'מִשְׂחַק קְלָפִים אֶחָד (חוּט הַקֶּשֶׁר אוֹ מַחֲזִיקִים אֶת הַיַּעַר)');
+  if (k === 'cardgame') return w('משחק קלפים אחד (חוט הקשר או מחזיקים את הסביבה)', 'מִשְׂחַק קְלָפִים אֶחָד (חוּט הַקֶּשֶׁר אוֹ מַחֲזִיקִים אֶת הַסְּבִיבָה)');
   if (k === 'solved') return left === 1 ? w('תעלומה פתורה אחת', 'תַּעֲלוּמָה פְּתוּרָה אַחַת') : w(`עוד ${left} תעלומות פתורות`, `עוֹד ${left} תַּעֲלוּמוֹת פְּתוּרוֹת`);
   if (k === 'invent') return left === 1 ? w('המצאה אחת', 'הַמְצָאָה אַחַת') : w(`עוד ${left} המצאות`, `עוֹד ${left} הַמְצָאוֹת`);
   if (k === 'code') return left === 1 ? w('עוד שיעור אחד במעבדת הרובוטים', 'עוֹד שִׁעוּר אֶחָד בְּמַעְבֶּדֶת הָרוֹבּוֹטִים') : w(`עוד ${left} שיעורים במעבדת הרובוטים`, `עוֹד ${left} שִׁעוּרִים בְּמַעְבֶּדֶת הָרוֹבּוֹטִים`);
+  if (k === 'codech') return left === 1 ? w('שיעור בעוד פרק אחד של מעבדת הרובוטים', 'שִׁעוּר בְּעוֹד פֶּרֶק אֶחָד שֶׁל מַעְבֶּדֶת הָרוֹבּוֹטִים') : w(`שיעורים בעוד ${left} פרקים של מעבדת הרובוטים`, `שִׁעוּרִים בְּעוֹד ${left} פְּרָקִים שֶׁל מַעְבֶּדֶת הָרוֹבּוֹטִים`);
   if (k === 'rank') return w(...(RANK_WORDS[Math.min(3, n)] || RANK_WORDS[1]));
   return '';
 }
@@ -253,7 +278,7 @@ export function check() {
   const s = store(), before = JSON.stringify(s);
   // remember every mission done so far (the zone's save may be overwritten by a new forest or the other level)
   const kept = s.done && typeof s.done === 'object' ? s.done : {};
-  for (const z of ZONES) kept[z] = [...doneIn(z, kept)];
+  for (const z of COUNTED) kept[z] = [...doneIn(z, kept)];
   s.done = kept;
   const m = metrics(), best = bestStage(s); const out = [];
   for (const st of STAGES) {
@@ -280,6 +305,8 @@ export function setTextSize(t) { const s = store(); s.text = t; save(s); applyTe
 export function applyTextSize() { try { const r = document.documentElement; r.classList.remove('ts-normal', 'ts-large', 'ts-xlarge'); r.classList.add('ts-' + textSize()); } catch (e) { } }
 export const voiceOn = () => store().voice !== false;
 export function setVoice(on) { const s = store(); s.voice = !!on; save(s); }
+export const guideQuiet = () => store().quiet === true;
+export function setGuideQuiet(on) { const s = store(); s.quiet = !!on; save(s); }
 
 // a player switch, a reset: forget the in-memory copy (the next read comes from that player's storage)
 export function reload() { mem = null; applyTextSize(); }
@@ -290,5 +317,5 @@ if (typeof window !== 'undefined') {
   const later = () => setTimeout(() => { try { check(); } catch (e) { console.error(e); } }, CHECK_DELAY_MS);
   window.addEventListener('wol-badge', later);
   window.addEventListener('wol-progress', later);
-  window.__journey = { state, isOpen, trained, markTrained, check, metrics, markUsed, playMode, setPlayMode, unlockAll, lockAgain, reload, PARTS, STAGES, LAST };
+  window.__journey = { state, isOpen, lockWords, trained, markTrained, check, metrics, markUsed, playMode, setPlayMode, unlockAll, lockAgain, reload, markIntro, introSeen, PARTS, STAGES, LAST };
 }

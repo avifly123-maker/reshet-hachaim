@@ -711,6 +711,8 @@ Only the nursery gives "strong" young corals; they go onto the reef bigger and b
 - Wording: no "evolution"; the texts say "a fragment of a coral that stood the heat" (שבר של אלמוג שעמד בחום).
 
 ## חוטים (1.3.2, the threads between the parts: src/data/threads.js)
+- חוטים 1.4.4 (סט 12), מהמעבדות לאיים: `tc-drone` (חוקיות של המשחק: מי שתכנת רחפן מטיס טוב יותר את רחפן האי), `tc-camera` (מלכודות מצלמה עם אור אינפרא־אדום וחיישני קול מוצאות בעלי חיים בלילה: https://en.wikipedia.org/wiki/Camera_trap), `patent-rescue` (חוקיות של המשחק: המצאה שעברה את כל הבדיקות יוצאת לעבודה).
+- חוטים 1.4.4 (סט 12), מאירוע באי לתעלומה; העובדות הן של התעלומות עצמן, שמקורותיהן כבר בקובץ: `ev-svfire` (שריפת עשב מחדשת עשב ירוק שמושך את העדרים, התעלומה old-grass), `ev-svdry` (בעונה היבשה פילים מתקבצים ליד המים, too-many-elephants), `ev-dstorm` (רוח מזיזה חול וקוברת שתילים, moving-sand), `ev-dheat` (בשרב יותר אידוי ויותר שותים, shrinking-oasis), `ev-dgraze` (רעייה כבדה אוכלת את השיטים הצעירות, lonely-acacias).
 
 A thread rests on a fact that is already checked elsewhere in this file; what the thread changes in the game (a faster robot, a longer camera range, a new event choice) is game logic built on that fact, and is said so. Validated by `node tools/validate-threads.mjs`.
 - `sharkskin`: ridges along the flow, like shark skin denticles, cut friction by about 8% (Bechert et al. 1997, the lab section above); the underwater robot swims faster (game logic, as in 1.3.0).
@@ -734,6 +736,7 @@ A thread rests on a fact that is already checked elsewhere in this file; what th
 - `ev-fire`: dry vegetation is the fuel of summer fires (KKL, above). `ev-heat`: warm water bleaches corals; clean water helps Eilat's corals stand it (the reef, above). `ev-dry`: dart frogs raise tadpoles in rainwater held by bromeliads (Amazon, above). `ev-road`: roads and fences cut gazelle herds (the mystery "הצבאים נעלמים", above).
 - `zone-amazon`, `zone-grove`, `zone-reef`: the three problems of each zone are real inventions learned from its creatures (הממציאים, above): water lily, morpho, kapok; barn owl, hedgehog, tortoise; reef shark, clownfish, octopus.
 - `zone-desert` (1.4): a Namib darkling beetle catches fog on its back (Parker & Lawrence 2001, Nature 414: 33); the desert ant navigates by the sun and counts steps, and AntBot (CNRS 2019) navigates the same way: https://www.cnrs.fr/en/press/first-walking-robot-moves-without-gps ; desert scorpion armour with bumps resists sand erosion (Han et al. 2012, Langmuir): https://phys.org/news/2012-01-scorpions-scientists-tougher-surfaces-machinery.html . Alt routes: cactus spines collect fog (Ju et al. 2012, Nature Communications 3: 1247, Opuntia microdasys); honeybees navigate by the sun and tell the direction in their dance; parrotfish teeth are woven crystals, among the hardest biominerals.
+- `zone-savanna` (1.4.2): termite mounds and the Eastgate Centre, Harare (https://en.wikipedia.org/wiki/Eastgate_Centre); cows painted with zebra stripes got fewer fly bites (Kojima et al. 2019, PLOS ONE 14: e0223447); the Festo Bionic Handling Assistant modelled on the elephant's trunk (2010). Alt routes: white surfaces reflect sunlight; white horses attract fewer horse-flies (Horváth et al. 2010, J. Exp. Biol. 213: 1643); octopus-inspired soft arm (Laschi et al. 2012).
 - `robot-out`: the robot of the workshop going out to the island is game logic.
 
 ## Technologies on the island (1.3.2, area G: src/game/tool-defs.js TECH_DEFS, src/world/tech.js)
@@ -780,3 +783,255 @@ the game (how often, how many, how strong) is game logic and is said so here. Ch
   every coral; where the reef was hurt (W.scars) a young coral is planted, one a night (two on the spawning night).
 - Not claimed: no numbers of eggs, larvae survival rates or fish counts from the studies appear in the game; the board
   numbers are the island's own.
+
+## הסוואנה (1.4.2)
+
+Species (src/data/savanna.js; every fact text of a species leans on its sources):
+- שיטה סוככנית (Umbrella thorn acacia (Vachellia tortilis)): https://en.wikipedia.org/wiki/Vachellia_tortilis ; https://www.britannica.com/plant/acacia
+- באובב (African baobab (Adansonia digitata)): https://en.wikipedia.org/wiki/Adansonia_digitata ; https://www.britannica.com/plant/baobab
+- שיטת הקוצים השורקים (Whistling thorn (Vachellia drepanolobium)): https://en.wikipedia.org/wiki/Vachellia_drepanolobium ; https://www.britannica.com/plant/whistling-thorn
+- עשב השיבולת האדום (Red oat grass (Themeda triandra)): https://en.wikipedia.org/wiki/Themeda_triandra ; https://www.britannica.com/place/savanna
+- עשב כוכב (Star grass / couch grass (Cynodon dactylon)): https://en.wikipedia.org/wiki/Cynodon_dactylon ; https://www.britannica.com/plant/Bermuda-grass
+- עץ הנקניקיות (Sausage tree (Kigelia africana)): https://en.wikipedia.org/wiki/Kigelia ; https://www.britannica.com/plant/sausage-tree
+- פיקוס השקמה (Sycamore fig (Ficus sycomorus)): https://en.wikipedia.org/wiki/Ficus_sycomorus ; https://www.britannica.com/plant/sycamore-fig
+- מרולה (Marula (Sclerocarya birrea)): https://en.wikipedia.org/wiki/Sclerocarya_birrea ; https://www.britannica.com/plant/marula
+- דום (Doum palm (Hyphaene thebaica)): https://en.wikipedia.org/wiki/Hyphaene_thebaica ; https://www.britannica.com/plant/doum-palm
+- פפירוס (Papyrus (Cyperus papyrus)): https://en.wikipedia.org/wiki/Cyperus_papyrus ; https://www.britannica.com/plant/papyrus-plant
+- תל טרמיטים (Termite mound (Macrotermes)): https://en.wikipedia.org/wiki/Mound-building_termites ; https://www.britannica.com/animal/termite
+- זברה (Plains zebra (Equus quagga)): https://en.wikipedia.org/wiki/Plains_zebra ; https://en.wikipedia.org/wiki/Grazing_succession
+- גנו (Blue wildebeest (Connochaetes taurinus)): https://en.wikipedia.org/wiki/Blue_wildebeest ; https://www.britannica.com/animal/wildebeest
+- אימפלה (Impala (Aepyceros melampus)): https://en.wikipedia.org/wiki/Impala ; https://www.britannica.com/animal/impala
+- ג׳ירפה (Giraffe (Giraffa camelopardalis)): https://en.wikipedia.org/wiki/Giraffe ; https://www.britannica.com/animal/giraffe
+- פיל אפריקאי (African bush elephant (Loxodonta africana)): https://en.wikipedia.org/wiki/African_bush_elephant ; https://en.wikipedia.org/wiki/Ecosystem_engineer
+- אריה (Lion (Panthera leo)): https://en.wikipedia.org/wiki/Lion ; https://www.britannica.com/animal/lion
+- תנין היאור (Nile crocodile (Crocodylus niloticus)): https://en.wikipedia.org/wiki/Nile_crocodile ; https://www.britannica.com/animal/Nile-crocodile
+- אורג (Village weaver (Ploceus cucullatus)): https://en.wikipedia.org/wiki/Village_weaver ; https://www.britannica.com/animal/weaver-bird
+- תאו אפריקאי (African buffalo (Syncerus caffer)): https://en.wikipedia.org/wiki/African_buffalo ; https://www.britannica.com/animal/Cape-buffalo
+- צבוע מנומר (Spotted hyena (Crocuta crocuta)): https://en.wikipedia.org/wiki/Spotted_hyena ; https://www.britannica.com/animal/spotted-hyena
+- בבון (Olive baboon (Papio anubis)): https://en.wikipedia.org/wiki/Olive_baboon ; https://www.britannica.com/animal/baboon
+
+Systems and missions:
+- Seasons: East African savannas have a wet season and a dry season; the grass greens with the rains and dries, and the
+  herds follow the green grass (https://en.wikipedia.org/wiki/Serengeti_migration ; more than a million wildebeest move
+  each year, https://www.britannica.com/place/Serengeti-National-Park).
+- Grazing order (grazing succession): zebras eat the tall coarse stems, wildebeest the leafy middle, smaller antelopes
+  the short regrowth (Bell 1971, Scientific American 225: 86–93; https://en.wikipedia.org/wiki/Grazing_succession).
+  Buffalo are bulk grazers of tall coarse grass and open the sward (https://en.wikipedia.org/wiki/African_buffalo).
+- Fire: savanna grasses regrow from the roots after fire, and the fresh shoots draw grazers; park managers burn small
+  patches on purpose (https://en.wikipedia.org/wiki/Fire_ecology ; https://www.sanparks.org/parks/kruger/conservation/scientific/key_issues/fire.php).
+- Elephants as engineers: they push over and debark trees, eat saplings and open space for grass; without elephants (and
+  fire) bushes spread (bush encroachment, https://en.wikipedia.org/wiki/Bush_encroachment); too many in one place
+  destroy the trees (https://en.wikipedia.org/wiki/African_bush_elephant#Ecology).
+- Lion and spotted hyena compete for the same prey and chase each other off kills; which wins depends on numbers
+  (https://en.wikipedia.org/wiki/Spotted_hyena#Interspecific_predatory_relationships). Shown gently in the game.
+
+Mysteries (src/research/cases):
+- `thorny-plain` (beginners): bush encroachment where elephants no longer pass; elephants or cutting reopen the plain
+  (Bush encroachment, above; elephants as engineers, above).
+- `old-grass` (middle): years without fire leave a thick layer of old dry grass that shades the new shoots and is poor
+  food; a small fire, or bulk grazers (buffalo), open it (Fire ecology and grazing succession, above).
+- `too-many-elephants` (advanced): artificial water points keep elephants near them all year and raise their impact on
+  trees; Kruger closed many of its water points for this reason (Smit, Grant & Devereux 2007, Biological Conservation
+  136: 85–99), and transfrontier corridors let elephants move between parks
+  (https://en.wikipedia.org/wiki/Great_Limpopo_Transfrontier_Park).
+
+Devices (src/world/desert-tech.js):
+- Beehive fences: elephants avoid bees; hives hung on a wire between posts kept elephants out of farms in Kenya (King,
+  Douglas-Hamilton & Vollrath 2011, African Journal of Ecology 49: 431; https://elephantsandbees.com).
+- Solar pumps fill troughs from boreholes in African parks so animals have water in the dry season (e.g. Hwange,
+  https://en.wikipedia.org/wiki/Hwange_National_Park); too many water points keep elephants in one area (Smit et al.
+  2007, above).
+- The fire tower: as in the grove (1.3.2), a fire seen early stays small.
+
+Lab and inventors:
+- Zebra stripes are black and white hairs on a dark skin; horse-flies land much less on striped coats (Caro et al. 2019,
+  PLOS ONE 14: e0210831). Cows painted with zebra stripes got far fewer fly bites (Kojima et al. 2019, PLOS ONE 14:
+  e0223447). White horses attract fewer horse-flies than dark ones (Horváth et al. 2010, J. Exp. Biol. 213: 1643).
+- Termite mounds are full of tunnels and pores that move air through the nest; the Eastgate Centre in Harare (Mick
+  Pearce, 1996) uses passive ventilation inspired by them (https://en.wikipedia.org/wiki/Eastgate_Centre).
+- The elephant's trunk has no bones and lifts both logs and small leaves; Festo's Bionic Handling Assistant (2010) is a
+  soft robot arm modelled on it (https://www.festo.com/group/en/cms/10241.htm). Octopus-inspired soft arm: Laschi et
+  al. 2012, Advanced Robotics 26: 709.
+- Elephants flap their ears to cool the blood in the many vessels there (https://en.wikipedia.org/wiki/Elephant#Ears).
+- The giraffe's long prehensile tongue and tough lips strip acacia leaves between the thorns
+  (https://en.wikipedia.org/wiki/Giraffe#Feeding). Weaver nests hang at the tips of thin branches, the entrance below,
+  out of reach of snakes (https://en.wikipedia.org/wiki/Village_weaver).
+- חוטים: `zone-savanna` (1.4.2): the termite mound (Eastgate Centre), the zebra (Kojima et al. 2019) and the elephant
+  (Bionic Handling Assistant) taught real inventions (see above).
+
+קלפי טכנולוגיה (1.4.3, `src/data/robolab/tech-cards.js`):
+- The golden wheel spider (Carparachne aureoflava) of the Namib folds its legs and cartwheels down dunes to escape
+  (Henschel 1990, J. Arachnology; https://en.wikipedia.org/wiki/Carparachne_aureoflava).
+- Nymphs of the planthopper Issus coleoptratus have interlocking gears between the hind legs that keep both legs
+  jumping together (Burrows & Sutton 2013, Science 341: 1254).
+- Bees see ultraviolet light; many flowers have UV nectar guides (https://en.wikipedia.org/wiki/Nectar_guide).
+- Bats find insects by echolocation, calls mostly above human hearing; ultrasonic distance sensors use the same echo
+  timing (https://en.wikipedia.org/wiki/Animal_echolocation).
+- Camels have broad padded feet that spread their weight on sand (https://en.wikipedia.org/wiki/Camel#Biology).
+- Flies' halteres (small knobbed organs in place of hind wings) sense rotation like a gyroscope
+  (https://en.wikipedia.org/wiki/Halteres).
+- Hummingbirds hover with wingbeats of about 50 to 80 per second (https://en.wikipedia.org/wiki/Hummingbird#Flight).
+- Most bony fish control depth with a gas-filled swim bladder (https://en.wikipedia.org/wiki/Swim_bladder).
+- Squirrels bury nuts and forget some, which grow into trees (scatter hoarding:
+  https://en.wikipedia.org/wiki/Hoarding_(animal_behavior)).
+- Kilobots: 1,024 small robots that arrange themselves into shapes (Rubenstein, Cornejo & Nagpal 2014, Science 345:
+  795). Snake robots for pipes and rubble: https://en.wikipedia.org/wiki/Snakebot.
+- Mars rovers ride six wheels on a rocker-bogie suspension that climbs over rocks without tipping
+  (https://en.wikipedia.org/wiki/Rocker-bogie). Desert ants find the way home with tiny brains
+  (https://en.wikipedia.org/wiki/Cataglyphis). The elephant trunk arm: see "Lab and inventors" above.
+
+## המעבדה, 1.4.3 (set 6: the lab's desert and savanna content, src/lab/samples.js, src/data/inventions.js, clue-cases.js, observe-cases.js, src/data/lab-questions.js)
+- Elephant skin: a network of micro-cracks holds 5 to 10 times more water than a flat surface, and cools by slow
+  evaporation; elephants have no sweat glands (Martins et al. 2018, Nature Communications 9: 3865).
+- Acacia: the bipinnate leaf is made of very small leaflets; stomata close in the midday heat to keep water
+  (https://en.wikipedia.org/wiki/Vachellia_tortilis; https://en.wikipedia.org/wiki/Stoma).
+- Weaver nests: the male winds strips of grass round a twig and ties real knots with beak and feet (Collias & Collias
+  1964, Evolution of nest-building in the weaverbirds; https://en.wikipedia.org/wiki/Ploceidae).
+- Papyrus: the stem is full of air spaces (aerenchyma) that carry air down to the roots in the mud; in the past its
+  stems were made into writing sheets (https://en.wikipedia.org/wiki/Cyperus_papyrus; https://en.wikipedia.org/wiki/Aerenchyma).
+- Fog-basking beetles: on foggy mornings beetles of the Namib stand head-down into the wind, drops gather on the bumps
+  of the back and roll to the mouth (Parker & Lawrence 2001, Nature 414: 33).
+- Saltbush (Atriplex): salt bladders, hairs that fill with salt and burst, leave a white crust; the plant gets rid of
+  extra salt this way (https://en.wikipedia.org/wiki/Atriplex; Kiani-Pouya et al. 2017, Plant Cell Environ. 40: 1900).
+- Sandgrouse: the male's belly feathers have coiled barbules that hold water; he soaks them and carries water to the
+  chicks (Cade & Maclean 1967, The Condor 69: 323; Mueller & Gibson 2023, J. R. Soc. Interface 20: 20230510).
+- Giraffe legs: tight skin and fascia keep blood from pooling in the legs; NASA researchers studied it for pressure
+  suits (Hargens et al. 1987, Nature 329: 59; https://en.wikipedia.org/wiki/Giraffe#Circulatory_system).
+- Termites digest wood with the help of microbes in the gut (Warnecke et al. 2007, Nature 450: 560); mound termites
+  also grow a fungus in the nest. Air moves through the mound's tunnels and changes the nest's air (Turner 2001,
+  "On the mound of Macrotermes michaelseni").
+- Saharan silver ant (Cataglyphis bombycina): prism-shaped hairs reflect sunlight and help heat leave the body, so it
+  forages at midday (Shi et al. 2015, Science 349: 298).
+- The "Jerboa" robot of the University of Pennsylvania, a hopping two-legged robot with a tail (Brill et al. 2015,
+  ICRA); jerboas hop on long hind legs and turn suddenly to escape (https://en.wikipedia.org/wiki/Jerboa).
+- Clue and observe cases: zebras have one hoof on each leg and often dust-bathe; wildebeest, impala and buffalo have
+  cloven hooves (https://en.wikipedia.org/wiki/Zebra; https://en.wikipedia.org/wiki/Even-toed_ungulate). Lions keep
+  their claws pulled in while walking, so their tracks show no claw marks, while hyena tracks do; lions have a dark
+  tail tuft and rest up to about 20 hours a day (https://en.wikipedia.org/wiki/Lion). Impala leap up to about 3 m
+  high and 10 m long, and both graze and browse (https://en.wikipedia.org/wiki/Impala). Scorpions shed their skin to
+  grow, and the exoskeleton, the shed one too, glows blue-green under UV light (Liu et al. 2024, Spectrochim. Acta A
+  316: 124309). Uromastyx lizards are dark when cold and turn paler as they warm (https://en.wikipedia.org/wiki/Uromastyx).
+  Elephants cover themselves with mud and dust against the sun and insects (Martins 2018 above).
+- Camel feet: wide pads spread the weight on sand (https://en.wikipedia.org/wiki/Camel#Biology).
+
+## השיחה עם רובו־דע (1.4.3, src/data/guide/chat.js)
+- The arowana jumps out of the water to take insects from branches (https://en.wikipedia.org/wiki/Osteoglossum_bicirrhosum).
+- Sloths come down from the tree about once a week (https://en.wikipedia.org/wiki/Sloth).
+- Kapok trees reach 60 to 70 m (https://en.wikipedia.org/wiki/Ceiba_pentandra).
+- Hoopoe nestlings squirt a foul-smelling liquid at intruders (https://en.wikipedia.org/wiki/Hoopoe#Breeding).
+- Oaks live for hundreds of years; jays bury acorns and forget some, which grow into oaks
+  (https://en.wikipedia.org/wiki/Eurasian_jay).
+- Spur-thighed tortoises hibernate in winter (https://en.wikipedia.org/wiki/Spur-thighed_tortoise).
+- Parrotfish sleep in a mucus cocoon (Grutter et al. 2011, Biology Letters 7: 292).
+- Corals are animals, colonies of tiny polyps; clownfish live among anemone tentacles unharmed
+  (https://en.wikipedia.org/wiki/Coral; https://en.wikipedia.org/wiki/Amphiprioninae).
+- Jerboas get most of their water from their food (https://en.wikipedia.org/wiki/Jerboa).
+- A thirsty camel can drink about 100 litres at once (https://en.wikipedia.org/wiki/Camel#Biology).
+- Desert annuals' seeds wait in the soil for years and sprout soon after rain (https://en.wikipedia.org/wiki/Desert_ecology).
+- The giraffe's tongue is about 45 to 50 cm long and dark (https://en.wikipedia.org/wiki/Giraffe).
+- An elephant eats up to about 150 kg of plants a day (https://en.wikipedia.org/wiki/African_bush_elephant).
+- Hummingbird hearts beat up to about 1,200 times a minute (https://en.wikipedia.org/wiki/Hummingbird#Metabolism).
+- About two million flowers are visited for a pound of honey (https://en.wikipedia.org/wiki/Honey#Production).
+- The word "robot" comes from the Czech "robota" (work, forced labour); it was first used in Karel Čapek's play R.U.R.
+  (1920), and his brother Josef suggested it (https://en.wikipedia.org/wiki/Robot#Etymology).
+- Octopuses change colour within a fraction of a second (https://en.wikipedia.org/wiki/Cephalopod_camouflage).
+- הממציאים, "רגליים שלא מתנפחות" (1.11.2026): העור ההדוק ברגלי הג׳ירפה ותחבושת הלחץ הקשיחה של פרנק שו משנות השבעים: https://www.medi.de/en/products/highlights/circaid-adjustable-compression/giraffes/ (וגם חליפת BioSuit של MIT בהשראת הג׳ירפה). ההליכה ושרירי השוק: ידע רפואי כללי.
+
+## הסדנה של ניצוץ (1.4.4 set 3, src/data/workshop/, src/workshop/progress.js)
+
+- **Four measures of creative thinking** (fluency, flexibility, originality, elaboration): the four scores of the Torrance Tests of Creative Thinking (E. P. Torrance, 1966; built on J. P. Guilford's divergent thinking, 1950). The workshop counts them gently, never as a test: fluency = ideas, flexibility = kinds of idea (ideas.js CATS), originality = a pair never tried before, more for a far lever or a wild trait, elaboration = "worth improving" and one thing turned at least three ways.
+- **The levers of the idea machine** (grow, shrink, flip, join, remove a part, change the material, use it differently, like nature): the SCAMPER checklist (B. Eberle, 1971, from A. Osborn's idea checklist, 1953), told in children's words, plus a nature lever (biomimicry).
+- **Constraints help creativity**: P. D. Stokes, "Creativity from Constraints" (2005); a round keeps only the child's own record.
+- **"כמו בטבע" facts in ideas.js:** pine cones open when dry and close when wet (Dawson, Vincent & Rocca, Nature 1997); the Namib desert beetle collects fog drops on its bumpy back (Parker & Lawrence, Nature 2001; also in the lab, `fogcatch`); a camel's wide padded feet spread its weight on sand; termite mounds move air through their tunnels (Turner & Soar 2008; `airtunnels`); a chameleon's tail wraps round branches; the honeycomb's hexagon cells give strength with little wax (Hales, the honeycomb conjecture, 2001); a hummingbird's long bill reaches deep into flowers; a hedgehog's spines absorb the blow of a fall (Vincent & Owers, J. Zool. 1986); a kangaroo carries its young in a front pouch.
+- **The nature mixer** scores a trait by the robot workshop's tests (src/data/inventions.js TRIALS, already sourced in "הממציאים"); the cards' traits come from the album cards (traitsOf).
+
+## שולחן הבנייה, אולם הבדיקות והזמנות העבודה (1.4.4 set 4, src/data/workshop/build-parts.js, orders.js)
+
+The test hall's numbers are game logic (a simple sum, like the robot workshop's `statsOf`); the ideas from nature behind the add-ons and the orders are real:
+- **Shark skin** (`sharkskin`, orders ship, umbrella): the denticles (tiny tooth-like scales) of fast sharks reduce drag; riblet films on ships and planes copy them (Dean & Bhushan, Phil. Trans. R. Soc. A 2010).
+- **Owl feathers** (`softwing`, orders train, library, sloth): serrated leading edges and soft fringes make owl flight nearly silent (Graham 1934; Jaworski & Peake, J. Fluid Mech. 2020). The 500-series Shinkansen pantograph copied them (Eiji Nakatsu), and quiet fan blades with "owl wing" edges are sold today (ebm-papst FE2owlet).
+- **Termite mound tunnels** (`airtunnels`, orders office, owlbox, waterhole, shade): mound tunnels move and exchange air; the Eastgate Centre in Harare was designed after them (Turner & Soar 2008).
+- **Victoria's ribs** (`ribs`): the giant water lily's leaf floats and carries weight thanks to a branching network of deep ribs (Box et al., Science Advances 2022).
+- **Fog beetle** (`fogcatch`, order school): Namib beetles collect fog drops on their bumpy backs (Parker & Lawrence, Nature 2001); fog nets for villages and schools use the same idea.
+- **Camel's foot** (`widefoot`): a camel's wide, padded feet spread its weight on sand.
+- **Octopus suckers** (`suction`, orders window, tent, weaver): grip on wet and rough surfaces; suction grippers copy them (Tramacere et al. 2013).
+- **Fennec ears** (`bigears`): large thin ears full of blood vessels give off heat (Maloiy et al. 1982; the general pattern: hot-climate animals have larger ears).
+- **Honeycomb** (`honeycomb`): hexagon cells give strength with little material; honeycomb panels are used in helmets, planes and packaging.
+- **Hedgehog spines** (`spines`): absorb the blow of a fall (Vincent & Owers, J. Zool. 1986); helmet liners have been designed after them.
+- **Tortoise shell, crocodile scales** (`shell`, `scales`): hard plates (scutes, osteoderms) protect, and overlapping scales shed water.
+- **Cat's eyes** (`reflect`, orders road, turtles, seaturtle): a cat's eyes shine back in headlights (the tapetum lucidum); the road reflectors called "cat's eyes" (Percy Shaw, 1934) were named and inspired by them.
+- **Firefly light** (`glow`): cold light, almost no heat (bioluminescence).
+- **Scorpion glow** (`uvglow`, order bank): scorpions glow blue-green under ultraviolet light (Stachel et al. 1999); banknotes carry marks that show only under such light.
+- **Beehive fences** (`buzz`, order elephants): elephants avoid the sound and stings of bees; beehive fences protect farms in Kenya (King, Douglas-Hamilton & Vollrath, Afr. J. Ecol. 2011).
+
+### הזמנות חדשות (5.11 בערב, אבי: חמש מהעולם וחמש מהאיים)
+
+- טורבינת רוח שקטה (turbine): השוליים המשוננים בקצה הקדמי של כנף התנשמת שולטים בזרימת האוויר ומנמיכים רעש; החוקרים מציעים זאת לכנפי טורבינות רוח ולרחפנים. Rao et al., Bioinspiration & Biomimetics 2017; https://www.sciencedaily.com/releases/2017/07/170704093621.htm
+- אורות נגד אריות (lionlights): ריצ׳רד טורר מקניה התקין נורות מהבהבות סביב הדיר, והאריות חושבים שמישהו מסתובב עם פנס ומתרחקים. היום המערכת בשימוש באלפי משקים. https://www.wipo.int/web/wipo-magazine/articles/lion-lights-shedding-light-on-wildlife-protection-in-africa-63983 , https://www.epo.org/en/news-events/european-inventor-award/meet-the-finalists/richard-turere
+- תיבות קינון לתוכי ארה (macaw): פרויקט טמבופטה בפרו תולה תיבות קינון מעץ ומצינורות פלסטיק, והתוכים מקננים בהן כמו בחורים טבעיים. Olah et al., Journal for Nature Conservation 22 (2014) 176–185; https://conservationevidencejournal.com/individual-study/110
+- משתלת אלמוגים צפה (nursery): באילת גידלו אלפי שברי אלמוגים ענפים במשתלה צפה בעומק 6 מטרים, ואחר כך שתלו אותם בשונית. Shafir, Van Rijn, Rinkevich, Marine Biology 149 (2006); https://cris.huji.ac.il/en/publications/steps-in-the-construction-of-underwater-coral-nursery-an-essentia/
+- תחנת אוטובוס (busstop): מרכז איסטגייט בהרארה מתקרר בזרימת אוויר במנהרות, בהשראת תל הטרמיטים (כמו בהזמנה office שכבר כאן).
+- חבילה מרחפן (dronebox), כיסא גלגלים בחוף (beachchair), אופניים בלילה (bikelight), קיפודים בבריכה (pondramp), שוקת לקטה (sandgrouse): בעיות יומיומיות; הרעיון מהטבע בכל אחת כבר מתועד למעלה (חלת דבש, כף רגל של גמל, עיני חתול וגחלילית, צלעות ויקטוריה ופתי יניקה, אוזני הפנק).
+- המספרים של הלקוח (src/data/workshop/gauges.js) הם מודל פשוט בכוונה: קו ישר מהציון של התחנה. הם לא מדידה אמיתית, הם עוזרים לילד לדמיין מה הציון אומר.
+
+## התקלה במעבדה (1.4.4 set 5, src/data/weekly/glitch.js)
+
+Each creature's home is its album card's zone (sourced with the cards). The needs on the screen:
+- **Sea** (clownfish, parrotfish, octopus, green turtle, jellyfish, sea star): marine animals of the Red Sea reef live only in salt water; river and waterhole water is fresh.
+- **Wet forest** (poison dart frog, toucan, sloth, morpho, kinkajou, howler monkey, heliconia): Amazon rainforest species that need the year-round rain and humidity of the forest (dart frogs dry out quickly outside it).
+- **Desert** (fennec, jerboa, yellow scorpion, darkling beetle, uromastyx, sand cat): built for heat, dryness and sand (the fennec's and the jerboa's burrows in sand, the sand cat's furred paws).
+- **Grass** (zebra, wildebeest, impala, African buffalo): grazers of the open savanna grasslands.
+- **Oak** (Eurasian jay): caches thousands of acorns in autumn for the winter (Bossema, Behaviour 1979), and so plants oak woods.
+- **Mediterranean** (cyclamen, crown anemone, common oak): plants of the Mediterranean grove, growing in the rainy winter and resting in the dry summer.
+The "what is missing there" lines are general facts about each zone (fresh water, a long dry summer, little rain, no oak trees, no open grassland).
+
+## הצנצנת הסגורה (1.4.4 set 6, src/data/weekly/jar.js, src/weekly/jar-model.js)
+
+- **Closed worlds can last:** David Latimer's bottle garden was sealed in 1972 and lived for decades on light alone; sealed "ecospheres" of algae, shrimp and bacteria were developed from NASA's closed-system research (Folsome & Hanson 1986).
+- **The circle:** producers (plants, algae) make food and oxygen from light; consumers (grazers, hunters) use oxygen and make waste; decomposers and filter feeders (fungi, darkling beetles, hermit crabs, sponges, clams) return the waste to the soil or water as nutrients. A sealed jar fails when one part of the circle is missing or too big.
+- **Size matters:** a mouse, an agouti or a jerboa needs far more air and food than a jar can make (game logic: weight 3).
+- The model's numbers are game logic; the roles of the creatures are real (fungi decompose, darkling beetles eat dead plant matter, sea urchins graze algae, sea stars hunt grazers, sponges and clams filter water).
+
+## הבלש של השבוע (1.4.4 set 7, src/data/weekly/detective.js)
+
+The cases reuse the facts of "מי השאיר את זה?" above (porcupine quills and digging, barn owl feathers, tapir toes, fox tracks with claws, cats' hidden claws, parrotfish beak and sand, the sea urchin's mouth, green turtle and seagrass). New in the week's cases:
+- **Indian crested porcupine:** active at night, in the den by day; it can "rattle the hollow quills at the base of its tail" as a warning — https://en.wikipedia.org/wiki/Indian_crested_porcupine .
+- **Barn owl:** does "not hoot", it gives "an eerie, long-drawn-out shriek"; nocturnal, hunts by hearing in darkness; conceals itself by day — https://en.wikipedia.org/wiki/Western_barn_owl .
+- **Tapir:** "largely nocturnal and crepuscular"; four toes on the front feet, three on the hind; spread, hoofed toes — https://en.wikipedia.org/wiki/Tapir .
+- **Howler monkey:** famous for howls "heard from a distance through dense rain forest"; males call at dawn and through the day; eats mainly top-canopy leaves, with fruit, buds and flowers — https://en.wikipedia.org/wiki/Howler_monkey . Toucans are mainly fruit eaters — https://en.wikipedia.org/wiki/Toucan ; the South American coati forages on the ground for fruit and invertebrates — https://en.wikipedia.org/wiki/South_American_coati .
+- **Parrotfish:** some species "secrete a mucus cocoon, particularly at night"; they rasp algae from coral with a beak of fused teeth and excrete the ground rock as sand — https://en.wikipedia.org/wiki/Parrotfish . Surgeonfish graze algae — https://en.wikipedia.org/wiki/Acanthuridae .
+- **Fennec fox:** mostly active at night; digs dens in sand; large ears "listen for underground prey"; communicates "by barking, purring, yapping and squeaking" — https://en.wikipedia.org/wiki/Fennec_fox . Jerboas hop on long hind legs — https://en.wikipedia.org/wiki/Jerboa .
+- **African bush elephant:** eats grasses, leaves and bark; uproots trees; "infrasonic rumbles can travel vast distances" — https://en.wikipedia.org/wiki/African_bush_elephant . African buffalo is mainly a grazer — https://en.wikipedia.org/wiki/African_buffalo ; the giraffe browses leaves of tall trees — https://en.wikipedia.org/wiki/Giraffe .
+- **Village weaver:** a woven nest of grass and leaf strips "with a downward-facing entrance", hung from a branch; "large noisy colonies", eight to a hundred nests in one tree — https://en.wikipedia.org/wiki/Village_weaver .
+- The night-camera photos are the cards' own paintings shown dark green; the sound waves are drawings (no recordings).
+
+## מירוץ הרובוטים (1.4.4 set 7, src/data/weekly/race.js)
+
+No facts about nature: the course, the cells and the robots' numbers are the robot lab's game rules (engine/world.js, engine/build.js).
+
+## משימות רחפן ואתגרי היער הקשים (1.4.4 set 8)
+
+The drone missions (src/data/robolab/lessons-9.js):
+- **Heat cameras:** "humans and other warm-blooded animals become easily visible against their environment in day or night"; warm objects stand out against cooler backgrounds — https://en.wikipedia.org/wiki/Thermography . Reptiles and scorpions are ectotherms (their body takes the temperature of their surroundings), so at night they hardly stand out — https://en.wikipedia.org/wiki/Ectotherm .
+- **Camera traps** photograph animals when a sensor detects them passing — https://en.wikipedia.org/wiki/Camera_trap . The signal to a drone is game logic.
+- **Keeping distance from a herd:** a review found that drone altitude, speed and approach distance significantly influence how wildlife responds, and recommends keeping distance — Penny et al. 2025, "Impact of Drone Disturbances on Wildlife: A Review", Drones 9, 311, https://doi.org/10.3390/drones9040311 (the two cells are game logic).
+
+The hard challenges (ax5–7, gx5–7, rx5–7 in the zone files):
+- **Dart frogs and bromeliads:** adults carry tadpoles to "the water gathered in the throat of bromeliads", "the pools of water that accumulate in epiphytic plants" — https://en.wikipedia.org/wiki/Poison_dart_frog . Hummingbirds pollinate bromeliads, and bromeliads grow on trees (the zone's relations, Amazon section above).
+- **Fruit bats spread seeds at night** (Egyptian fruit bat and the Amazon's fruit bats, sections above; relation `disperses` cecropia).
+- **Anteaters eat ants** (Giant anteater line above); leafcutter ants cut leaves and farm a fungus (above).
+- **Honeybees pollinate the grove's flowers; barn owls hunt rodents and nest in boxes** (grove sections and the mystery `mice-owl` above).
+- **Blackbirds eat mastic fruit and spread the seeds** (grove relation `disperses`, above).
+- **Crown-of-thorns starfish** prey on hard coral polyps; in outbreaks, divers remove them — https://en.wikipedia.org/wiki/Crown-of-thorns_starfish .
+- **Green turtles graze seagrass** (above); **morays and octopuses shelter in holes in the reef** (reef relations `shelter`, above).
+
+## שישה חפצים חדשים במכונת הרעיונות (6.11, src/data/workshop/ideas.js)
+
+- אוזני השועל במדבר (פנק) גדולות ומלאות כלי דם, ומפזרות חום מהגוף (Encyclopaedia Britannica, "fennec").
+- שערות הדבורה אוספות אבקה: גרגרי האבקה נדבקים לשערות המסועפות שעל גופה (Thorp 2000, "The collection of pollen by bees").
+- הגחלילית מאירה ב"אור קר": כמעט כל האנרגיה של התגובה הופכת לאור ולא לחום (Encyclopaedia Britannica, "bioluminescence").
+- פלומה של ציפורים שומרת אוויר חם בין הסיבים, ולכן מבודדת (Encyclopaedia Britannica, "down").
+- פרסות היעל קשות בשוליים ורכות במרכז, ונאחזות בסלע (רשות הטבע והגנים, "יעל נובי").
+- גומי טבעי מגיע מהמוהל הלבן (לטקס) של עץ הגומי Hevea brasiliensis, שגדל במקור ביער הגשם של האמזונס (Encyclopaedia Britannica, "rubber").
+- מטאטאי קש עשויים מסוג של דורה (broomcorn, Sorghum bicolor) (Encyclopaedia Britannica, "broomcorn").
+- מבנה של תאים משושים, כמו בחלת דבש, חזק מאוד ביחס למשקלו (Hales 2001, "The Honeycomb Conjecture").

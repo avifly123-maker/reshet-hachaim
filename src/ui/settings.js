@@ -63,6 +63,10 @@ function rowHTML(id, o) {
     const on = J.voiceOn();
     return `<button class="set-row set-tog" data-row="voice" data-set="voice" role="switch" aria-checked="${on}"><span class="set-lab">${icon(on ? 'sound' : 'mute')}<span><b>${t('הקול של רובו־דע', 'הַקּוֹל שֶׁל רוֹבּוֹ־דַּע')}</b><small>${t('הוא מקריא את מה שהוא אומר', 'הוּא מַקְרִיא אֶת מָה שֶׁהוּא אוֹמֵר')}</small></span></span>${sw(on)}</button>`;
   }
+  if (id === 'guide') {   // 1.4.2 (Avi, 1.11): רובו־דע speaks only when needed
+    const on = !J.guideQuiet();
+    return `<button class="set-row set-tog" data-row="guide" data-set="guide" role="switch" aria-checked="${on}"><span class="set-lab">${icon('help')}<span><b>${t('רובו־דע נותן טיפים', 'רוֹבּוֹ־דַּע נוֹתֵן טִיפִּים')}</b><small>${t('כבוי: הוא מדבר רק כשצריך', 'כָּבוּי: הוּא מְדַבֵּר רַק כְּשֶׁצָּרִיךְ')}</small></span></span>${sw(on)}</button>`;
+  }
   if (id === 'h:me') return `<p class="set-sub" data-row="h:me">${t('לשחקן', 'לַשַּׂחְקָן')}</p>`;
   if (id === 'h:pc') return `<p class="set-sub" data-row="h:pc">${t('למחשב הזה (לכל השחקנים)', 'לַמַּחְשֵׁב הַזֶּה')}</p>`;
   if (id === 'sound') {
@@ -99,15 +103,15 @@ function rowHTML(id, o) {
   if (id === 'staff') {
     const open = J.allOpen();
     return `<details class="set-row set-staff" data-row="staff"${open ? ' open' : ''}><summary>${icon('sliders')}<span>למדריכים ולהורים</span>${icon('chevron', 'set-chev')}</summary>
-      ${open ? `<div class="set-staff-in"><p>${icon('check')}כל חלקי המשחק פתוחים במחשב הזה.</p><button class="btn soft" data-set="lock">לנעול שוב לפי המסע</button></div>`
-        : `<div class="set-staff-in"><label for="set-code">קוד מדריכים: פותח את כל המשחק במחשב הזה</label>
+      ${open ? `<div class="set-staff-in"><p>${icon('check')}כל חלקי המשחק פתוחים לשחקן הזה.</p><button class="btn soft" data-set="lock">לנעול שוב לפי המסע</button></div>`
+        : `<div class="set-staff-in"><label for="set-code">קוד מדריכים: פותח את כל המשחק לשחקן הזה בלבד</label>
         <div class="set-code"><input id="set-code" type="password" inputmode="numeric" autocomplete="off" maxlength="8" dir="ltr" aria-label="קוד מדריכים"><button class="btn primary" data-set="unlock">פתיחה</button></div>
         <p class="set-err" hidden>הקוד לא נכון</p></div>`}</details>`;
   }
   return '';
 }
 
-export function settingsRowsHTML({ rows = ['mode', 'text', 'voice'], ...o } = {}) {
+export function settingsRowsHTML({ rows = ['mode', 'text', 'voice', 'guide'], ...o } = {}) {
   return `<div class="set-rows">${rows.map((r) => rowHTML(r, o)).join('')}</div>`;
 }
 
@@ -129,10 +133,14 @@ export function bindSettingsRows(el, opts = {}) {
   el._setOpts = opts;
   if (el._setBound) return;
   el._setBound = true;
+  // 1.4.4 set 0 (Avi: "it says wrong before there is a code"): a press on the button, or Enter, with nothing typed asks for
+  // the code instead of calling it wrong, and does not count as a try
+  const emptyCode = (inp, err) => { if (err) { err.textContent = 'הקלידו את הקוד ואז לחצו אישור'; err.hidden = false; } try { inp.focus({ preventScroll: true }); } catch (e) { } };
   const tryUnlock = () => {
     const inp = el.querySelector('#set-code'); if (!inp) return;
     const err = el.querySelector('.set-err');
     if (Date.now() < codeWaitUntil) { inp.value = ''; if (err) { err.textContent = 'נסו שוב בעוד חצי דקה'; err.hidden = false; } return; }
+    if (!inp.value.trim()) { emptyCode(inp, err); return; }   // 1.4.4 set 0 (Avi): an empty field is not a wrong code
     const ok = J.unlockAll(inp.value); inp.value = '';
     if (!ok) {
       codeWrong++; if (codeWrong >= CODE_TRIES) { codeWrong = 0; codeWaitUntil = Date.now() + CODE_WAIT_MS; }
@@ -144,8 +152,10 @@ export function bindSettingsRows(el, opts = {}) {
   };
   const tryTime = () => {
     const inp = el.querySelector('#set-pcode'); if (!inp || ptPending == null) return;
-    const err = el.querySelector('.set-perr'); const v = inp.value; inp.value = '';
-    if (Date.now() < ptWaitUntil) { if (err) { err.textContent = 'נסו שוב בעוד חצי דקה'; err.hidden = false; } return; }
+    const err = el.querySelector('.set-perr');
+    if (Date.now() < ptWaitUntil) { inp.value = ''; if (err) { err.textContent = 'נסו שוב בעוד חצי דקה'; err.hidden = false; } return; }
+    if (!inp.value.trim()) { emptyCode(inp, err); return; }
+    const v = inp.value; inp.value = '';
     if (!PT.setLimit(ptPending, v)) {
       ptWrong++; if (ptWrong >= CODE_TRIES) { ptWrong = 0; ptWaitUntil = Date.now() + CODE_WAIT_MS; }
       if (err) { err.textContent = Date.now() < ptWaitUntil ? 'הקוד לא נכון. נסו שוב בעוד חצי דקה' : 'הקוד לא נכון'; err.hidden = false; }
@@ -165,6 +175,7 @@ export function bindSettingsRows(el, opts = {}) {
     if (k === 'mode') { J.setPlayMode(b.dataset.v); after('mode'); }
     else if (k === 'text') { J.setTextSize(b.dataset.v); after('text'); }
     else if (k === 'voice') { const on = !J.voiceOn(); J.setVoice(on); if (!on) { try { svcApp() && svcApp().voice && svcApp().voice.stop(); } catch (er) { } } after('voice'); }
+    else if (k === 'guide') { J.setGuideQuiet(!J.guideQuiet()); after('guide'); }
     else if (k === 'sound') { const on = !(o.getSound ? o.getSound() : true); if (o.setSound) o.setSound(on); setTimeout(() => after('sound'), 0); }
     else if (k === 'quality') { if (o.setQuality) o.setQuality(b.dataset.v); setTimeout(() => after('quality'), 0); }
     else if (k === 'sources') { setSourcesOn(!sourcesOn()); if (o.emit) o.emit('sources:toggle', { on: sourcesOn() }); after('sources'); }
@@ -201,8 +212,8 @@ export function openSettings(host, { emit, getMusic, getSound, setSound, getQual
   layer.innerHTML = `<div class="set-scrim"></div><div class="set-sheet paper" role="dialog" aria-modal="true" aria-label="${esc(t('הגדרות', 'הַגְדָּרוֹת'))}">
     <button class="pp-x set-x" data-x="1" aria-label="סגירה" title="סגירה">${icon('close')}</button>
     <h3 class="set-h">${icon('gear')}${t('הגדרות', 'הַגְדָּרוֹת')}</h3>
-    <div class="set-cols">${settingsRowsHTML({ rows: ['h:me', 'mode', 'text', 'voice', 'again'], getMusic, getSound, getQuality })}
-    ${settingsRowsHTML({ rows: ['h:pc', 'time', 'sources', 'sound', 'music', 'quality', 'staff'], getMusic, getSound, getQuality })}</div></div>`;
+    <div class="set-cols">${settingsRowsHTML({ rows: ['h:me', 'mode', 'text', 'voice', 'guide', 'again', 'staff'], getMusic, getSound, getQuality })}
+    ${settingsRowsHTML({ rows: ['h:pc', 'time', 'sources', 'sound', 'music', 'quality'], getMusic, getSound, getQuality })}</div></div>`;
   host.appendChild(layer);
   const sheet = layer.querySelector('.set-sheet');
   bindSettingsRows(sheet, { emit, getMusic, getSound, setSound, getQuality, setQuality });

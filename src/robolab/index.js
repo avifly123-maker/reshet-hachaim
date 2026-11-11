@@ -10,27 +10,43 @@ import { levelsOf } from './engine/level.js';
 import { createMap } from './ui/map.js';
 import { createRoboSession } from './three/session.js';
 import { openGarage } from './garage.js';
+import { openWorkshop } from './workshop-ui.js';   // 1.4.3: סדנת הרובוט (building from parts, the test track)
 import { kubiCam } from './ui/kubi-cam.js';
 import { checkRoboBadges } from './badges.js';
 import { ZONE_IDS, ZONE_LOOK } from '../data/zones.js';
 import { BLOCK_INTRO, CHAPTER_INTRO } from '../data/robolab/kubi-lines.js';
 import { playIntro } from './intro.js';
-import { robolabTutorial, robolabEventTutorial } from '../ui/tutorials.js';   // hands-on: the editor and the run, then events
+import { robolabTutorial, robolabEventTutorial, robolabLoopTutorial, missionRunTutorial, sandboxTutorial, droneMissionTutorial } from '../ui/tutorials.js';   // hands-on: the editor and the run, the loop, then events
 import { svcGuide } from '../core/services.js';
 import { BLOCKS } from './engine/blocks.js';
 import { createVoice } from '../audio/voice.js';
 import { createEditor } from './ui/editor.js';
 import { icon } from './ui/icons.js';
+import { hintsFor, conceptHTML } from './hints.js';   // 7.11 (Avi): a hint button, and a written card the first time a concept comes
 import { isOpen as journeyOpen, lockWords, introSeen } from '../core/journey.js';
-import { roboProgress, markSolved, addFun, markSeen, addIsland, draftOf, saveDraft } from './progress.js';
+import { roboProgress, markSolved, addFun, markSeen, addIsland, dropDrafts } from './progress.js';
+import { grantTechCards } from './tech.js';
+import { MISSION_BY, missionLevel, missionBuild } from './missions.js';
+import { planLevel } from './engine/plan.js';
+import { checkBuild } from './engine/build.js';   // the sandbox takes only a robot that keeps the rules
+import { levelOf } from './engine/level.js';   // 1.4.3 set 4: the workshop's missions
+import { addMission } from './progress.js';
+import { wkStepOf } from './earn.js';
+import { CHASSIS as WK_CHASSIS, PARTS as WK_PARTS } from '../data/robolab/workshop.js';
+import { WK_HERO } from '../data/robolab/wk-hero.js';
+import { CODE_HERO } from '../data/robolab/code-hero.js';
+import { ISLAND_ART } from '../data/island-art.js';
 import { FAIL_LINES, GOAL_LINES, WIN_LINES, OOPS_LINES, FUN_LINES } from '../data/robolab/lines.js';
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const pick = (arr, seed) => arr[Math.abs(seed | 0) % arr.length];
-const ZONE_WORD = { grove: { f: 'חורש', k: 'חֹרֶשׁ' }, amazon: { f: 'אמזונס', k: 'אָמָזוֹנַס' }, reef: { f: 'שונית', k: 'שׁוּנִית' }, desert: { f: 'מדבר', k: 'מִדְבָּר' } };
+let viewMode = 0;   // the eye button's camera view (0 the whole field, 1 from above, 2 close to the tool)
+const VIEW_WORDS = [['כל המגרש', 'כָּל הַמִּגְרָשׁ'], ['מלמעלה', 'מִלְמַעְלָה'], ['קרוב לכלי', 'קָרוֹב לַכְּלִי']];
+const ZONE_WORD = { grove: { f: 'חורש', k: 'חֹרֶשׁ' }, amazon: { f: 'אמזונס', k: 'אָמָזוֹנַס' }, reef: { f: 'שונית', k: 'שׁוּנִית' }, desert: { f: 'מדבר', k: 'מִדְבָּר' }, savanna: { f: 'סוואנה', k: 'סָוַאנָה' } };
 
 export function createRoboLab({ root, audio, kids = false, onExit, enter3d = null, leave3d = null, hasIsland = null }) {
   const T = (o) => (o ? (kids && o.k ? o.k : o.f) : '');
+  const viewWord = (m) => (kids ? VIEW_WORDS[m][1] : VIEW_WORDS[m][0]);
   const el = document.createElement('div');
   el.className = 'rl'; el.hidden = true; el.setAttribute('dir', 'rtl');
   root.appendChild(el);
@@ -42,32 +58,47 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     const list = L.puzzle ? PUZZLES : LESSONS.filter((q) => q.ch === L.ch);
     const i = list.indexOf(L);
     if (L.puzzle) return !L.after || !!P.done[L.after];
-    if (L.ch > 1 && !journeyOpen('robolab:more')) return false;   // chapter 2 and on: stage 7 of מסע החוקר
+    if (L.ch > 1 && !journeyOpen('robolab:more')) return false;   // chapter 2 and on: stage 8 of מסע החוקר (1.4.2)
     const prevCh = Math.max(0, ...LESSONS.filter((q) => q.ch < L.ch).map((q) => q.ch));   // the chapter before that has lessons
     const chOpen = !prevCh || LESSONS.filter((q) => q.ch === prevCh).filter((q) => P.done[q.id]).length >= 3;
     return chOpen && (i === 0 || !!P.done[list[i - 1].id]);
   };
   // משימות באי שלי: the zones where this player has an island; open once chapter 4 (sensors) is well on its way
+  // 6.11 (Avi: pictures, not chips): every island is a tile with its own picture from the start screen
+  const islPic = (z) => (ISLAND_ART['c_' + z] ? `<span class="rl-pzimg z-${z}"><img src="${ISLAND_ART['c_' + z]}" alt="" draggable="false"></span>` : `<span class="rl-z z-${z}"></span>`);
   function islandsHTML(P) {
     if (!enter3d || !hasIsland) return '';
-    const open = LESSONS.filter((q) => q.ch === 4 && P.done[q.id]).length >= 3;
+    // 1.4.3 set 5: they open at stage 9 (מהנדס). A player who had them open before (three chapter-4 lessons, the 1.4.1
+    // rule) or already went out to his island keeps them (seen.islKeep is set once, the first time this version looks)
+    if (!P.seen.isl9) { if (LESSONS.filter((q) => q.ch === 4 && P.done[q.id]).length >= 3) markSeen('islKeep'); markSeen('isl9'); P.seen.isl9 = 1; P.seen.islKeep = roboProgress().seen.islKeep; }
+    const open = journeyOpen('robolab:island') || !!P.seen.islKeep || P.isl > 0;
     const zones = ZONE_IDS.filter((z) => { try { return hasIsland(z); } catch (e) { return false; } });
     const head = `<h2>${icon('home')}${kids ? 'מְשִׂימוֹת בָּאִי שֶׁלִּי' : 'משימות באי שלי'}</h2>`;
-    if (!open) return `<section class="rl-sec">${head}<p class="rl-isl-note">${kids ? 'נִפְתָּח אַחֲרֵי שְׁלוֹשָׁה שִׁעוּרִים בְּפֶרֶק 4. אָז הָרוֹבּוֹט יֵצֵא לַעֲבֹד בָּאִיִּים שֶׁבְּנִיתֶם!' : 'נפתח אחרי שלושה שיעורים בפרק 4. אז הכלים יצאו לעבוד באיים שבניתם בעצמכם!'}</p></section>`;
+    if (!open) return `<section class="rl-sec">${head}<p class="rl-isl-note">${esc(lockWords('robolab:island'))}. ${kids ? 'אָז הָרוֹבּוֹט יֵצֵא לַעֲבֹד בָּאִיִּים שֶׁבְּנִיתֶם!' : 'אז הכלים יצאו לעבוד באיים שבניתם בעצמכם!'}</p></section>`;
     if (!zones.length) return `<section class="rl-sec">${head}<p class="rl-isl-note">${kids ? 'עוֹד אֵין לָכֶם אִי שָׁמוּר. בְּנוּ אִי בְּאַחַת הַסְּבִיבוֹת, וְהַכֵּלִים יָבוֹאוּ לַעֲבֹד בּוֹ.' : 'עוד אין לכם אי שמור. בנו אי באחת הסביבות, והכלים יבואו לעבוד בו.'}</p></section>`;
     const full = noRoom ? `<p class="rl-isl-note rl-noroom">${kids ? 'לֹא מָצָאנוּ מָקוֹם פָּנוּי לַמִּגְרָשׁ בָּאִי הַזֶּה. נַסּוּ אִי אַחֵר, אוֹ פַּנּוּ קְצָת מָקוֹם בֵּין הָעֵצִים.' : 'לא מצאנו מקום פנוי למגרש באי הזה. נסו אי אחר, או פנו קצת מקום בין העצים.'}</p>` : '';
     noRoom = false;
-    return `<section class="rl-sec">${head}${full}<p class="rl-isl-note">${kids ? 'בְּכָל פַּעַם מְשִׂימָה חֲדָשָׁה בֵּין הָעֵצִים שֶׁגִּדַּלְתֶּם.' : 'בכל פעם משימה חדשה בין העצים שגידלתם. מה שהכלים עושים כאן לא משנה את האי השמור.'}</p><div class="rl-pz">${zones.map((z) => `<button type="button" class="rl-pzb rl-islb" data-island="${z}"><span class="rl-z z-${z}"></span><b>${esc(kids ? ZONE_LOOK[z].shortK : ZONE_LOOK[z].short)}</b><small>${kids ? 'הָאִי שֶׁלִּי' : 'האי שלי'}</small></button>`).join('')}</div></section>`;
+    return `<section class="rl-sec">${head}${full}<p class="rl-isl-note">${kids ? 'בְּכָל פַּעַם מְשִׂימָה חֲדָשָׁה בֵּין הָעֵצִים שֶׁגִּדַּלְתֶּם.' : 'בכל פעם משימה חדשה בין העצים שגידלתם. מה שהכלים עושים כאן לא משנה את האי השמור.'}</p><div class="rl-pz">${zones.map((z) => `<button type="button" class="rl-pzb rl-islb rl-pzpic" data-island="${z}">${islPic(z)}<b>${esc(kids ? ZONE_LOOK[z].shortK : ZONE_LOOK[z].short)}</b><small>${kids ? 'הָאִי שֶׁלִּי' : 'האי שלי'}</small></button>`).join('')}</div></section>`;
   }
+  // ארגז החול (1.4.3 set 5, stage 9): a robot of his garage (or the ready gardener) and a place: his island or the
+  // zone's practice island. No mission: he programs, or drives with the arrows, and sees what the robot does there.
+  function sandboxHTML(P) {
+    if (!enter3d) return '';
+    const head = `<h2>${icon('play')}${kids ? 'אַרְגַּז הַחוֹל' : 'ארגז החול'}</h2>`;
+    if (!journeyOpen('robolab:sandbox')) return `<section class="rl-sec rl-sbx">${head}<p class="rl-isl-note">${esc(lockWords('robolab:sandbox'))}. ${kids ? 'שָׁם אֵין מְשִׂימָה: מְשַׂחֲקִים עִם הָרוֹבּוֹט כְּמוֹ שֶׁרוֹצִים.' : 'שם אין משימה: משחקים עם הרובוט כמו שרוצים.'}</p></section>`;
+    const robots = P.robots.length ? P.robots : [];
+    const sel = robots.length ? `<label class="rl-sbr">${kids ? 'הָרוֹבּוֹט:' : 'הרובוט:'} <select data-sbrobot>${robots.map((r, i) => `<option value="${i}"${i === sbRobot ? ' selected' : ''}>${esc(r.name || (kids ? 'רוֹבּוֹט' : 'רובוט') + ' ' + (i + 1))}</option>`).join('')}</select></label>`
+      : `<span class="rl-sbr">${kids ? 'הָרוֹבּוֹט: הַגַּנָּן (רוֹבּוֹט מוּכָן). בַּסַּדְנָה בּוֹנִים רוֹבּוֹט מִשֶּׁלָּכֶם.' : 'הרובוט: הגנן (רובוט מוכן). בסדנה בונים רובוט משלכם.'}</span>`;
+    const own = (z) => { try { return !!hasIsland && hasIsland(z); } catch (e) { return false; } };
+    return `<section class="rl-sec rl-sbx">${head}<p class="rl-isl-note">${kids ? 'אֵין מְשִׂימָה. מְתַכְנְתִים אוֹ נוֹהֲגִים בַּחִצִּים, וְרוֹאִים מָה הָרוֹבּוֹט יוֹדֵעַ לַעֲשׂוֹת.' : 'אין משימה. מתכנתים או נוהגים בחיצים, ורואים מה הרובוט יודע לעשות. מה שקורה כאן לא משנה את האי השמור.'}</p>${sel}
+      <div class="rl-pz">${ZONE_IDS.map((z) => `<button type="button" class="rl-pzb rl-sbb rl-pzpic" data-sandbox="${z}" data-sbown="${own(z) ? 1 : 0}">${islPic(z)}<b>${esc(kids ? ZONE_LOOK[z].shortK : ZONE_LOOK[z].short)}</b><small>${own(z) ? (kids ? 'הָאִי שֶׁלִּי' : 'האי שלי') : (kids ? 'שֶׁטַח מוּכָן' : 'שטח מוכן')}</small></button>`).join('')}</div></section>`;
+  }
+  let sbRobot = 0;   // the robot chosen for the sandbox (an index into his garage)
   const stars = (n) => [0, 1, 2].map((k) => `<i class="${k < n ? 'on' : ''}">${icon('star')}</i>`).join('');
-  // drafts: written a moment after each change, and at once when the lesson is left or the window closes
-  let draftT = 0, draftDirty = false;
-  function queueDraft() { if (!cur || cur.ownIsland) return; draftDirty = true; clearTimeout(draftT); draftT = setTimeout(flushDraft, 400); }
-  function flushDraft() { clearTimeout(draftT); if (!draftDirty || !cur || !ed || cur.ownIsland) return; draftDirty = false; try { saveDraft(cur.id, ed.program()); } catch (e) { console.error(e); } }
-  window.addEventListener('beforeunload', flushDraft);
-  window.addEventListener('pagehide', flushDraft);
+  let homeView = 'main';   // 'main': the two doors; 'code': the lessons screen
   function home() {
-    flushDraft(); stopTut(); clearTimeout(talkT); speakGen++; kvoice.stop();
+    clearTimeout(stageT);
+    stopTut(); clearTimeout(talkT); speakGen++; kvoice.stop();
     requestAnimationFrame(helloKubi);   // קוּבִּי greets once the home is drawn
     stopRun(); if (map) { map.dispose(); map = null; } ed = null; cur = null;
     // the island stays loaded behind the home (Avi, 29.10: no waiting between lessons): the next lesson in the same zone
@@ -82,15 +113,8 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
         <div class="rl-count">${icon('star')}<b>${nDone}</b><small>${kids ? 'פְּתוּרִים' : 'פתורים'}</small></div></header>
       <div class="rl-scroll">
         <div class="rl-hello"><canvas class="rl-hkubi" aria-hidden="true"></canvas><button type="button" class="rl-introb" data-intro>${icon('play')}<span>${kids ? 'סִרְטוֹן הַפְּתִיחָה' : 'סרטון הפתיחה'}</span></button><p>${nDone ? (kids ? 'שׁוּב שָׁלוֹם! מַמְשִׁיכִים מֵאֵיפֹה שֶׁעָצַרְנוּ? בְּסַדְנַת הָעִצּוּב אֶפְשָׁר לְעַצֵּב אֶת הַכֵּלִים.' : 'שוב שלום! ממשיכים מאיפה שעצרנו? בסדנת העיצוב אפשר לעצב את הכלים שלכם.') : (kids ? 'שָׁלוֹם! אֲנִי קוּבִּי. כָּאן לוֹמְדִים לְתַכְנֵת רוֹבּוֹטִים, רַחְפָנִים וְצוֹלְלָנִים, שֶׁעוֹזְרִים לַטֶּבַע.' : 'שלום! אני קוּבִּי. כאן לומדים לתכנת רובוטים, רחפנים וצוללנים שעוזרים לטבע. מתחילים בשיעור הראשון.')}</p></div>
-        <section class="rl-sec"><h2>${icon('lesson')}${kids ? 'שִׁעוּרִים' : 'שיעורים'}</h2>
-          ${CHAPTERS.map((C) => { const ls = LESSONS.filter((q) => q.ch === C.n); if (!ls.length) return '';
-            return `<div class="rl-ch" style="--cc:${C.color}"><div class="rl-chh"><b>${C.n}</b><span><strong>${esc(T(C.title))}</strong><small>${esc(T(C.idea))}</small>${C.n > 1 && !journeyOpen('robolab:more') ? `<em class="rl-lock">${esc(lockWords('robolab:more'))}</em>` : ''}</span></div>
-            <div class="rl-lv">${ls.map((L, i) => { const ok = levelOpen(L, P), d = P.done[L.id];
-              return `<button type="button" class="rl-lvb${d ? ' done' : ''}" data-level="${L.id}" ${ok ? '' : 'disabled'} title="${esc(T(L.title))}"><span class="rl-z z-${L.zone}"></span><b>${i + 1}</b><span class="rl-st">${stars(d ? d.stars : 0)}</span></button>`; }).join('')}</div></div>`; }).join('')}
-        </section>
-        ${islandsHTML(P)}
-        ${PUZZLES.length ? `<section class="rl-sec"><h2>${icon('puzzle')}${kids ? 'חִידוֹת' : 'חידות'}</h2><div class="rl-pz">${PUZZLES.map((L) => { const ok = levelOpen(L, P), d = P.done[L.id];
-          return `<button type="button" class="rl-pzb${d ? ' done' : ''}" data-level="${L.id}" ${ok ? '' : 'disabled'}><span class="rl-z z-${L.zone}"></span><b>${esc(T(L.title))}</b>${ok ? '' : `<small>${kids ? 'נִפְתָּח אַחֲרֵי שִׁעוּר ' : 'נפתח אחרי שיעור '}${L.after.replace('l', '').replace('-', '.')}</small>`}<span class="rl-st">${stars(d ? d.stars : 0)}</span></button>`; }).join('')}</div></section>` : ''}
+        ${homeView === 'code' ? codeHTML(P) : `<div class="rl-heroes">${codeHero(P)}${wkHero()}</div>
+        <div class="rl-more">${islandsHTML(P)}${sandboxHTML(P)}</div>`}
       </div></div>`;
     if (!P.seen.intro) showIntro();   // the opening film, once, on the first visit
   }
@@ -108,8 +132,25 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   // Without a 3D host (tests of the screen alone, a failed load) the flat map is the fallback.
   let in3d = null;          // { api } while a lesson's island is open
   let garage = null;        // סדנת העיצוב while open (garage.js)
+  let workshop = null;      // 1.4.3: סדנת הרובוט while open (workshop-ui.js)
   let kubiDo = () => { };   // what קוּבִּי does (his window in the lesson's strip)
   let kcam = null;
+  // 1.4.2 (Avi, 1.11: "קוּבִּי is tiny, like a sample"): when he explains a lesson or cheers a win he comes forward, big,
+  // at the side of the field (the same window, grown: css .rl-kubi.stage), and goes back to his corner after. A click on
+  // him sends him back at once.
+  let stageT = 0;
+  function stageKubi(on, afterMs = 0) {
+    clearTimeout(stageT);
+    const c = el.querySelector('.rl-kubi'); if (!c) return;
+    // the strip clips and transforms its children: on stage the canvas moves to the lab's own layer, and comes back after
+    const set = (v) => {
+      if (!c.isConnected) return;   // the lesson closed meanwhile
+      const home = el.querySelector('.rl-say');
+      if (v && c.parentNode !== el) el.appendChild(c); else if (!v && home && c.parentNode !== home) home.insertBefore(c, home.firstChild);
+      c.classList.toggle('stage', v); requestAnimationFrame(() => { if (kcam && kcam.resize) kcam.resize(); });
+    };
+    if (on) set(true); else if (afterMs > 0) stageT = setTimeout(() => set(false), afterMs); else set(false);
+  }
   // קוּבִּי's voice (recorded lines, src/data/kubi-voice.js; tools/voice/kubi-lines.mjs lists them). Without a file
   // for a line he still "talks" for a while, so his mouth goes with the words on the screen.
   const kvoice = createVoice(audio, { load: () => import('../data/kubi-voice.js').then((m) => m.KUBI_VOICE) });
@@ -127,8 +168,8 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     if (kcam) { if (any) kcam.talk(false); else if (fallbackSec > 0) kcam.talk(true, fallbackSec); }
   }
   function openLevel(id, { flat = false } = {}) {
-    const L = ALL_LEVELS.find((q) => q.id === id); if (!L) return;
-    flushDraft(); stopTut();
+    const L = id && typeof id === 'object' ? id : ALL_LEVELS.find((q) => q.id === id); if (!L) return;   // a workshop mission comes as a level
+    stopTut();
     if (enter3d && !flat) {
       if (in3d && in3d.zone === L.zone && !in3d.own && in3d.api) { stopRun(); in3d.api.rebuild(L, { quick: true }); mountLevel(L, in3d.api); return; }
       if (in3d) end3d();
@@ -149,7 +190,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   // among his trees, a mission made for it (three/island-level.js). Nothing is saved back to his island.
   function openIsland(zone) {
     if (!enter3d) return;
-    flushDraft(); stopTut();
+    stopTut();
     if (in3d && in3d.own && in3d.zone === zone && in3d.api) { const nL = in3d.api.newIsland(); if (nL) { in3d.api.rebuild(nL, { quick: true }); mountLevel(nL, in3d.api); } return; }
     if (in3d) end3d();
     stopRun(); if (map) { map.dispose(); map = null; }
@@ -176,6 +217,7 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   // what קוּבִּי says first: the chapter's idea on its first lesson, and the blocks this player has not met yet (two at most)
   function newsFor(L) {
     const P = roboProgress(), out = { chapter: null, blocks: [] };
+    if (L.sandbox) return out;   // ארגז החול: the robot's own blocks, nothing to present
     if (!L.puzzle && !P.seen['ch:' + L.ch] && CHAPTER_INTRO[L.ch]) { out.chapter = CHAPTER_INTRO[L.ch]; markSeen('ch:' + L.ch); }
     for (const b of L.blocks || []) if (BLOCK_INTRO[b] && !P.seen['b:' + b] && out.blocks.length < 2) { out.blocks.push(b); markSeen('b:' + b); }
     return out;
@@ -185,51 +227,61 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
   const countHats = (prog) => { let n = 0; const walk = (xs) => (xs || []).forEach((nd) => { if (BLOCKS[nd.b] && BLOCKS[nd.b].kind === 'hat') n++; walk(nd.body); walk(nd.then); walk(nd.else); });
     for (const k of ['robot', 'drone', 'sub']) walk(prog[k]); return n + (prog.on || []).length; };   // handlers live in prog.on
   const countAll = (prog) => { let n = 0; const walk = (xs) => (xs || []).forEach((nd) => { n++; walk(nd.body); walk(nd.then); walk(nd.else); }); for (const k of ['robot', 'drone', 'sub']) walk(prog[k]); return n; };
-  const tutState = () => { const p = ed ? ed.program() : {}; return { level: cur && cur.id, blocks: ed ? countAll(p) : 0, runs, hats: ed ? countHats(p) : 0 }; };
+  // loops: "חזור" / "עד ש" blocks in the program; inLoop: blocks placed inside one (the loop tutorial, 1.4.2)
+  const countLoops = (prog) => { let n = 0, inside = 0; const walk = (xs) => (xs || []).forEach((nd) => { if (nd.body && BLOCKS[nd.b] && BLOCKS[nd.b].kind !== 'hat') { n++; inside += nd.body.length; } walk(nd.body); walk(nd.then); walk(nd.else); }); for (const k of ['robot', 'drone', 'sub']) walk(prog[k]); return { n, inside }; };
+  const tutState = () => { const p = ed ? ed.program() : {}; const lp = ed ? countLoops(p) : { n: 0, inside: 0 }; return { level: cur && cur.id, blocks: ed ? countAll(p) : 0, runs, hats: ed ? countHats(p) : 0, loops: lp.n, inLoop: lp.inside, drives }; };
   function stopTut() { clearTimeout(tutT); if (tut) { const t = tut; tut = null; t.stop(); } }
   function queueTut(L) {
     clearTimeout(tutT);
-    if (L.ownIsland) return;
+    if (L.ownIsland && !L.sandbox) return;
     const hasHat = (L.blocks || []).some((b) => BLOCKS[b] && BLOCKS[b].kind === 'hat');
+    const hasLoop = (L.blocks || []).includes('repeat');
     tutT = setTimeout(() => {
       if ((tut && tut.step) || intro || cur !== L) return;
       const g = svcGuide(); if (!g) return;
       const rl = { state: tutState };
-      tut = robolabTutorial({ guide: g, rl }) || (hasHat ? robolabEventTutorial({ guide: g, rl }) : null);
+      tut = L.sandbox ? sandboxTutorial({ guide: g, rl, voice: kvoice })   // ארגז החול: drive, then the program it made
+        : L.mission ? missionRunTutorial({ guide: g, rl, voice: kvoice })   // a workshop mission: קוּבִּי on the robot that went out
+        : L.ch === 9 && hasHat ? droneMissionTutorial({ guide: g, rl })   // 1.4.4 set 8: the drone's field jobs
+        : robolabTutorial({ guide: g, rl }) || (hasLoop ? robolabLoopTutorial({ guide: g, rl }) : null) || (hasHat ? robolabEventTutorial({ guide: g, rl }) : null);
+      // one voice at a time (closing review): a tutorial ends קוּבִּי's lesson lines; his own tutorials cut his current
+      // line themselves (the same voice), רובו־דע's need it stopped here
+      if (tut) { speakGen++; if (!L.sandbox && !L.mission) kvoice.stop(); }
     }, 2600);
   }
   function maxbUpdate() { const m = el.querySelector('.rl-maxb b'); if (!m || !ed || !cur) return; const n = countBlocks(ed.program()); m.textContent = n; m.parentNode.classList.toggle('full', !!cur.maxBlocks && n >= cur.maxBlocks); }
   function mountLevel(L, api) {
-    flushDraft(); stopTut();
+    viewMode = 0;   // a new lesson starts with the whole field in view
+    clearTimeout(stageT); el.querySelectorAll(':scope > .rl-kubi').forEach((x) => x.remove());   // קוּבִּי left on stage by the lesson before
+    stopTut();
     const news = newsFor(L);
     stopRun(); if (map) map.dispose();
-    cur = L; lastRun = null;
+    cur = L; lastRun = null; driveN = 0; drives = 0; hintN = 0; fails = 0;
     el.classList.toggle('in3d', !!api); root.classList.toggle('rl3d', !!api);
     if (api) { try { audio && audio.setBiome && audio.setBiome(L.zone); } catch (e) { } }
     const zw = ZONE_WORD[L.zone] || ZONE_WORD.grove;
     el.innerHTML = `<div class="rl-level z-${L.zone}">
-      <header class="rl-top"><button type="button" class="rl-back" data-home>${icon('home')}<span>${kids ? 'לַמַּעְבָּדָה' : 'למעבדה'}</span></button>
-        <div class="rl-title"><h1>${esc(T(L.title))}</h1><p>${esc(T(zw))}${L.concept && conceptWord(L.concept).f ? ' · ' + esc(T(conceptWord(L.concept))) : ''}</p></div>
+      <header class="rl-top">${L.mission ? `<button type="button" class="rl-back" data-wsback>${icon('robot')}<span>${kids ? 'לַסַּדְנָה' : 'לסדנה'}</span></button>` : `<button type="button" class="rl-back" data-home>${icon('home')}<span>${kids ? 'לַמַּעְבָּדָה' : 'למעבדה'}</span></button>`}
+        <div class="rl-title"><h1>${esc(T(L.title))}</h1><p>${esc(T(zw))}${L.concept && conceptWord(L.concept).f ? ' · ' + esc(T(conceptWord(L.concept))) : ''}${L.robotName ? ' · ' + icon('robot') + ' ' + esc(L.robotName) : ''}</p></div>
         <div class="rl-goalbar">${L.maxBlocks ? `<span class="rl-maxb" title="${kids ? 'מֻתָּר עַד' : 'מותר עד'} ${L.maxBlocks}">🧱 <b>0</b> / ${L.maxBlocks}</span>` : ''}${L.par ? `<span class="rl-par">${icon('star')}${icon('star')}${icon('star')} ${kids ? 'עַד' : 'עד'} <b>${L.par}</b> ${kids ? 'בְּלוֹקִים' : 'בלוקים'}</span>` : ''}</div></header>
       <div class="rl-say"><canvas class="rl-kubi" aria-hidden="true"></canvas><p>${news.chapter ? `<span class="rl-chi">${esc(T(news.chapter))}</span> ` : ''}${(L.say || []).map((s) => esc(T(s))).join(' ')}${news.blocks.map((b) => `<span class="rl-newb"><i>${BLOCKS[b].emo || icon(BLOCKS[b].icon)}</i><b>${kids ? 'חָדָשׁ' : 'חדש'}</b> ${esc(T(BLOCK_INTRO[b]))}</span>`).join('')}</p></div>
       <div class="rl-body">
         <div class="rl-ed"></div>
-        <div class="rl-stage"><canvas class="rl-map"></canvas><div class="rl-msg" hidden></div>
+        <div class="rl-stage"><canvas class="rl-map"></canvas><div class="rl-msg" hidden></div><div class="rl-hintbox" hidden></div>
           <div class="rl-run">
             <button type="button" class="rl-go" data-run="normal">${icon('play')}<span>${kids ? 'הַפְעֵל' : 'הפעל'}</span></button>
             <button type="button" data-run="slow">${icon('slow')}<span>${kids ? 'לְאַט' : 'לאט'}</span></button>
             <button type="button" data-again>${icon('again')}<span>${kids ? 'מֵהַהַתְחָלָה' : 'מההתחלה'}</span></button>
             <button type="button" data-why disabled>${icon('why')}<span>${kids ? 'מָה קָרָה?' : 'מה קרה?'}</span></button>
+            ${L.sandbox ? '' : `<button type="button" class="rl-hintbtn" data-hint>${icon('hint')}<span>${kids ? 'רֶמֶז' : 'רמז'}</span></button>`}
             ${(L.blocks || []).includes('add') ? `<span class="rl-ctr" title="${kids ? 'הַמּוֹנֶה' : 'המונה'}">🔢 <b>0</b></span>` : ''}
-            ${api ? `<button type="button" data-view aria-label="${kids ? 'לְהַחֲזִיר אֶת הַמַּבָּט' : 'להחזיר את המבט'}">${icon('eye')}</button>` : ''}
-          </div></div>
+            ${api ? `<button type="button" data-view>${icon('eye')}<span>${viewWord(1)}</span></button>` : ''}
+          </div>${L.sandbox ? driveHTML(L) : ''}</div>
       </div></div>`;
-    ed = createEditor(el.querySelector('.rl-ed'), { lesson: L, kids, onFull: () => { sfx('invalid'); const m = el.querySelector('.rl-maxb'); if (m) { m.classList.remove('full'); void m.offsetWidth; m.classList.add('full'); } }, onChange: () => { maxbUpdate(); lastRun = null; el.querySelector('[data-why]').disabled = true; if (map && !map.isPlaying()) map.reset(); hideMsg(); queueDraft(); } });
-    // the child's own unfinished program comes back (a draft), else a puzzle's program to fix
-    const draft = L.ownIsland ? null : draftOf(L.id);
-    if (draft) { try { ed.set({ ...draft, defs: { ...(L.defs0 || {}), ...(draft.defs || {}) } }); } catch (e) { console.error(e); } }
-    else if (L.start0) ed.set({ ...L.start0, defs: { ...(L.defs0 || {}), ...(L.start0.defs || {}) } });
-    draftDirty = false; maxbUpdate();
+    ed = createEditor(el.querySelector('.rl-ed'), { lesson: L, kids, onFull: () => { sfx('invalid'); const m = el.querySelector('.rl-maxb'); if (m) { m.classList.remove('full'); void m.offsetWidth; m.classList.add('full'); } }, onChange: () => { maxbUpdate(); lastRun = null; if (!driving) driveN = 0; el.querySelector('[data-why]').disabled = true; if (map && !map.isPlaying()) map.reset(); hideMsg(); } });
+    // a lesson always opens fresh (Avi, 2.11): empty, or a puzzle's program to fix; the stars stay in the progress
+    if (L.start0) ed.set({ ...L.start0, defs: { ...(L.defs0 || {}), ...(L.start0.defs || {}) } });
+    maxbUpdate();
     if (api) { map = stage3d(api); el.querySelector('.rl-map').remove(); }
     else { map = createMap(el.querySelector('.rl-map'), L, L.zone); requestAnimationFrame(() => map && map.redraw()); }
     // קוּבִּי explains the lesson from his corner of the strip (kubi-cam.js); later his voice says the words
@@ -237,17 +289,43 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     kcam = kubiCam(el.querySelector('.rl-kubi'));
     kubiDo = (what, sec = 0) => { if (!kcam) return; if (what) kcam.set(what); if (sec > 0) kcam.talk(true, sec); };
     queueTut(L);
-    clearTimeout(talkT); talkT = setTimeout(() => { if (!open || cur !== L) return; kubiDo('explain'); speak([...(news.chapter ? ['kc_' + L.ch] : []), 'kl_' + L.id, ...news.blocks.map((b) => 'kb_' + b)], Math.min(9, 1.2 + (el.querySelector('.rl-say p') || { textContent: '' }).textContent.length / 16)); }, 700);
+    // a concept met for the first time: its written card (no voice), once per player, after קוּבִּי's words (below)
+    const cx = !L.sandbox && L.concept && !roboProgress().seen['cx:' + L.concept] ? conceptHTML(L.concept, kids) : null;
+    if (cx) markSeen('cx:' + L.concept);
+    clearTimeout(talkT); talkT = setTimeout(() => {
+      if (!open || cur !== L) return; kubiDo('explain');
+      const sec = Math.min(9, 1.2 + (el.querySelector('.rl-say p') || { textContent: '' }).textContent.length / 16), t0 = performance.now();
+      stageKubi(true);   // 1.4.2 (Avi, 1.11): he steps forward, big, while he explains the lesson
+      speak([...(news.chapter ? ['kc_' + L.ch] : []), 'kl_' + L.id, ...news.blocks.map((b) => 'kb_' + b)], sec)
+        .then(() => { if (cur === L) { const wait = Math.max(1200, sec * 1000 - (performance.now() - t0) + 600); stageKubi(false, wait); if (cx) setTimeout(() => { if (cur === L && open) showBox(cx, 'concept'); }, wait + 300); } });
+    }, 700);
   }
   const CONCEPT = {
     step: { f: 'סדר פעולות', k: 'סֵדֶר פְּעֻלּוֹת' }, turn: { f: 'פניות', k: 'פְּנִיּוֹת' }, path: { f: 'מסלול', k: 'מַסְלוּל' }, order: { f: 'קודם ואחר כך', k: 'קֹדֶם וְאַחַר כָּךְ' },
     sub: { f: 'רובוט צוללן', k: 'רוֹבּוֹט צוֹלְלָן' }, drone: { f: 'רחפן', k: 'רַחְפָן' }, loop: { f: 'לולאה', k: 'לוּלָאָה' }, nested: { f: 'לולאה בתוך לולאה', k: 'לוּלָאָה בְּתוֹךְ לוּלָאָה' },
-    function: { f: 'בלוק משלי', k: 'בְּלוֹק מִשֶּׁלִּי' }, cond: { f: 'תנאי', k: 'תְּנַאי' }, event: { f: 'אירוע', k: 'אֵרוּעַ' }, counter: { f: 'מונה', k: 'מוֹנֶה' }, team: { f: 'עבודת צוות', k: 'עֲבוֹדַת צֶוֶת' }, puzzle: { f: 'חידה', k: 'חִידָה' },
+    function: { f: 'בלוק משלי', k: 'בְּלוֹק מִשֶּׁלִּי' }, cond: { f: 'תנאי', k: 'תְּנַאי' }, event: { f: 'אירוע', k: 'אֵרוּעַ' }, counter: { f: 'מונה', k: 'מוֹנֶה' }, team: { f: 'עבודת צוות', k: 'עֲבוֹדַת צֶוֶת' }, puzzle: { f: 'חידה', k: 'חִידָה' }, mission: { f: 'משימה בסדנה', k: 'מְשִׂימָה בַּסַּדְנָה' },
   };
   const conceptWord = (c) => CONCEPT[c] || { f: '', k: '' };
 
   function msg(html, kind) { const m = el.querySelector('.rl-msg'); if (!m) return; m.className = 'rl-msg ' + (kind || ''); m.innerHTML = html; m.hidden = false; }
   function hideMsg() { const m = el.querySelector('.rl-msg'); if (m) m.hidden = true; }
+  // ── hints (7.11): three per level from hints.js, one more with every press; the box stays open while the child edits
+  let hintN = 0, fails = 0;
+  function showBox(h, kind, more) {
+    const box = el.querySelector('.rl-hintbox'); if (!box) return;
+    box.className = 'rl-hintbox ' + (kind || '');
+    box.innerHTML = `<header><b>${kind === 'concept' ? '📘' : '💡'} ${esc(h.title)}</b></header><div class="rh-body">${h.html}</div>
+      <footer>${more ? `<button type="button" class="rh-next" data-hintnext>${kids ? 'עוֹד רֶמֶז' : 'עוד רמז'}</button>` : ''}<button type="button" class="rh-close" data-hintclose>${kids ? 'סְגֹר' : 'סגור'}</button></footer>`;
+    box.hidden = false;
+  }
+  function hint() {
+    if (!cur) return;
+    const H = hintsFor(cur, kids); if (!H.length) return;
+    const i = Math.min(hintN, H.length - 1); hintN = i + 1;
+    sfx('click'); kubiDo('explain', 2);
+    showBox(H[i], 'hint', hintN < H.length);
+    const b = el.querySelector('[data-hint]'); if (b) b.classList.remove('nudge');
+  }
   function stopRun() { if (map) map.stop(); if (ed) ed.light(null); }
 
   let runs = 0;
@@ -272,10 +350,12 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     }, onEnd: () => {
       ed.light(null);
       el.querySelector('[data-why]').disabled = false;
+      if (cur.sandbox) { driveN = r.trace.length; sandboxEnd(r); return; }
       if (r.ok) {
+        if (cur.mission) { winMission(r); return; }
         const { first } = cur.ownIsland ? { first: !!addIsland() } : markSolved(cur.id, r.stars, r.blocks);
         setTimeout(checkRoboBadges, 1200);   // after the win message (the badge toast comes on its own)
-        kubiDo('cheer'); speak(['kw_' + (Math.abs(seedN) % WIN_LINES.length)], 2);
+        kubiDo('cheer'); stageKubi(true); speak(['kw_' + (Math.abs(seedN) % WIN_LINES.length)], 2).then(() => stageKubi(false, 2600));
         msg(`<div class="rl-win"><span class="rl-st big">${stars(r.stars)}</span><b>${esc(T(pick(WIN_LINES, seedN)))}</b><small>${r.variants > 1 ? (kids ? `עָבַד בְּכָל ${r.variants} הַגִּרְסָאוֹת · ` : `עבד בכל ${r.variants} הגרסאות · `) : ''}${r.blocks} ${kids ? 'בְּלוֹקִים' : 'בלוקים'}${r.stars < 3 && cur.par ? ' · ' + esc(T({ f: 'אפשר גם ב־' + cur.par, k: 'אֶפְשָׁר גַּם בְּ־' + cur.par })) : ''}</small>
           <span class="rl-winb"><button type="button" data-next>${kids ? 'לַשִּׁעוּר הַבָּא' : 'לשיעור הבא'}</button><button type="button" data-stay>${kids ? 'לְנַסּוֹת שׁוּב' : 'לנסות שוב'}</button></span></div>`, 'win');
         sfx(first ? 'mission' : 'pop');
@@ -285,7 +365,8 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
         const vtxt = r.variants > 1 ? `<p class="rl-var">${kids ? `בָּדַקְנוּ אֶת הַתָּכְנִית בְּ־${r.variants} גִּרְסָאוֹת שֶׁל הַמָּקוֹם. בַּגִּרְסָה ${r.variant + 1} הִיא לֹא הִצְלִיחָה.` : `בדקנו את התוכנית ב־${r.variants} גרסאות של המקום. בגרסה ${r.variant + 1} היא לא הצליחה.`}</p>` : '';
         if (!r.error) kubiDo('think');
         { const key = r.error ? (FAIL_LINES[r.error.code] ? r.error.code : 'any') : (GOAL_LINES[r.why] ? r.why : 'any'); speak([(r.error ? 'kf_' : 'kg_') + key.replace(':', '_') + '_' + (Math.abs(seedN) % why.length)], 2.5); }
-        msg(esc(T(pick(why, seedN))) + vtxt, 'fail');
+        msg(esc(T(pick(why, seedN))) + vtxt + (cur.mission ? missionHelp(r) : ''), 'fail');
+        if (++fails >= 2) { const hb = el.querySelector('[data-hint]'); if (hb) hb.classList.add('nudge'); }   // stuck: the hint button glows
       }
     } });
   }
@@ -303,17 +384,128 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     const last = [...r.trace].reverse().find((e) => e.nid); if (last) ed.light(last.nid);
   }
 
+  // ── 1.4.3 set 4: the workshop's missions. The child takes a robot from the workshop (the one on the bench) to a
+  // mission on its zone's island; the run uses its parts (src/robolab/missions.js). Back to the workshop after it.
+  let wkNewStep = 0;
+  function openMission(id, robot, island = false) {
+    const M = MISSION_BY[id]; if (!M || !robot || !robot.build) return;
+    if (M.template) { openTemplate(M, robot, !!island); return; }
+    if (workshop) { workshop.close(); workshop = null; }
+    openLevel({ ...missionLevel(M, JSON.parse(JSON.stringify(robot.build))), robotName: robot.name || '' });
+  }
+  // a template mission (island-missions.js): its island loads (his own when he asked for it: nothing is saved back,
+  // or the zone's practice island), and the field and story are made there from what grows on it. If his island
+  // cannot give it now, the same mission opens on the practice island, with words that say why
+  let wkNote = null, lastTplDesc = null;
+  function openTemplate(M, robot, island) {
+    if (!enter3d || !robot || !robot.build) return;
+    if (workshop) { workshop.close(); workshop = null; }
+    stopTut(); if (in3d) end3d();
+    stopRun(); if (map) { map.dispose(); map = null; }
+    cur = null; el.hidden = true;
+    in3d = { zone: M.zone, api: null, own: !!island };
+    const desc = lastTplDesc = { robolab: true, ownIsland: !!island, zone: M.zone, level: null, id: 'robolab:' + M.id + (island ? ':own' : ''),
+      templateMission: { id: M.id, tpl: M.tpl, shape: M.shape, build: JSON.parse(JSON.stringify(robot.build)), name: robot.name || '', step: Math.max(M.step, wkStepOf()), seed: 1 + (Date.now() % 997), island: !!island },
+      makeSession: (ctx) => createRoboSession(ctx, desc),
+      attach: (api) => { if (!in3d || !open) { if (leave3d) leave3d(); return; } in3d.api = api; el.hidden = false; root.classList.add('rl3d'); mountLevel(api.level, api); if (wkNote) { msg(esc(T(wkNote)), 'why'); wkNote = null; } },
+      detach: () => { root.classList.remove('rl3d'); },
+      onExit: () => { in3d = null; root.classList.remove('rl3d'); el.hidden = false;
+        if (desc.noMission && island) {   // his island cannot give this mission now: it opens on the practice island
+          wkNote = { f: 'האי שלכם עוד לא מתאים למשימה הזאת (חסרים בו הצמחים או בעלי החיים שהיא צריכה, או מקום פנוי). היא נפתחת בשטח המוכן. כשתגדלו באי עוד צמחים ובעלי חיים, נסו שוב.', k: 'הָאִי שֶׁלָּכֶם עוֹד לֹא מַתְאִים לַמְּשִׂימָה הַזֹּאת. הִיא נִפְתַּחַת בַּשֶּׁטַח הַמּוּכָן. גַּדְּלוּ בָּאִי עוֹד צְמָחִים וּבַעֲלֵי חַיִּים, וְנַסּוּ שׁוּב.' };
+          home(); openTemplate(M, robot, false); return; }
+        home(); openWs('missions'); } };
+    enter3d(desc);
+  }
+  function openSandbox(zone, island) {
+    if (!enter3d || !journeyOpen('robolab:sandbox')) return;
+    const P = roboProgress(), R0 = P.robots[sbRobot] || P.robots[0];
+    // a saved robot that breaks a rule (a part clicked on the bench, not finished) does not go out: the gardener does
+    const robot = R0 && R0.build && checkBuild(R0.build).ok ? R0 : { name: kids ? 'הַגַּנָּן' : 'הגנן', build: missionBuild('gardener') };
+    if (workshop) { workshop.close(); workshop = null; }
+    stopTut(); if (in3d) end3d();
+    stopRun(); if (map) { map.dispose(); map = null; }
+    cur = null; el.hidden = true;
+    in3d = { zone, api: null, own: !!island };
+    const desc = { robolab: true, ownIsland: !!island, zone, level: null, id: 'robolab:sandbox:' + zone + (island ? ':own' : ''),
+      sandbox: { build: JSON.parse(JSON.stringify(robot.build)), name: robot.name || '', step: Math.max(1, wkStepOf()), seed: 1 + (Date.now() % 997), island: !!island },
+      makeSession: (ctx) => createRoboSession(ctx, desc),
+      attach: (api) => { if (!in3d || !open) { if (leave3d) leave3d(); return; } in3d.api = api; el.hidden = false; root.classList.add('rl3d'); mountLevel(api.level, api); markSeen('sandbox'); if (wkNote) { msg(esc(T(wkNote)), 'why'); wkNote = null; } },
+      detach: () => { root.classList.remove('rl3d'); },
+      onExit: () => { in3d = null; root.classList.remove('rl3d'); el.hidden = false;
+        if (desc.noMission && island) { wkNote = { f: 'לא מצאנו מקום פנוי לשטח באי שלכם. ארגז החול נפתח בשטח המוכן.', k: 'לֹא מָצָאנוּ מָקוֹם בָּאִי שֶׁלָּכֶם. אַרְגַּז הַחוֹל נִפְתָּח בַּשֶּׁטַח הַמּוּכָן.' }; home(); openSandbox(zone, false); return; }
+        home(); } };
+    enter3d(desc);
+  }
+  // the sandbox's end of a run: what the robot did, in a few words (no stars, nothing to win or lose)
+  const SB_DID = [['fwd', 'נסע', 'נָסַע', 'צעדים', 'צְעָדִים'], ['pick', 'קטף', 'קָטַף', 'פירות', 'פֵּרוֹת'], ['plant', 'שתל', 'שָׁתַל', 'זרעים', 'זְרָעִים'], ['water', 'השקה', 'הִשְׁקָה', 'צמחים', 'צְמָחִים'],
+    ['photo', 'צילם', 'צִלֵּם', 'תמונות', 'תְּמוּנוֹת'], ['push', 'דחף', 'דָּחַף', 'סלעים', 'סְלָעִים'], ['lift', 'הרים', 'הֵרִים', 'ענפים', 'עֲנָפִים'], ['pollen', 'האביק', 'הֶאֱבִיק', 'פרחים', 'פְּרָחִים'], ['drop', 'הגיש', 'הִגִּישׁ', 'ארוחות', 'אֲרוּחוֹת']];
+  function sandboxEnd(r) {
+    const n = (a) => r.trace.filter((e) => (a === 'fwd' ? (e.a === 'fwd' || e.a === 'back') : e.a === a && e.item != null)).length;
+    const did = SB_DID.map(([a, v, vk, w, wk]) => [n(a), kids ? vk : v, kids ? wk : w]).filter((q) => q[0] > 0);
+    const name = cur.robotName || (kids ? 'הָרוֹבּוֹט' : 'הרובוט');
+    const line = did.length ? `${esc(name)} ${did.map(([k, v, w]) => `${v} ${k === 1 ? (kids ? 'פַּעַם אַחַת' : 'פעם אחת') : k + ' ' + w}`).join(', ')}.` : (kids ? 'הָרוֹבּוֹט עוֹד לֹא עָשָׂה כְּלוּם. נַסּוּ חֵץ!' : 'הרובוט עוד לא עשה כלום. נסו חץ, או בלוק בתוכנית.');
+    const why = r.error ? `<p class="rl-var">${esc(T(pick(FAIL_LINES[r.error.code] || FAIL_LINES.any, seedN)))}</p>` : '';
+    msg(`<div class="rl-sbend"><b>${line}</b>${why}</div>`, 'why');
+  }
+  // free driving: every arrow or tool button is one more block at the end of the program, and only that step plays
+  let driveN = 0, drives = 0, driving = false;
+  // the driving buttons on the field: the four moves and what the robot's parts can do
+  function driveHTML(L) {
+    const mv = [['fwd', 'fwd'], ['left', 'left'], ['right', 'right'], ['back', 'back']];
+    const acts = (L.acts || []).filter((b) => BLOCKS[b]);
+    return `<div class="rl-drive" role="group" aria-label="${kids ? 'נְהִיגָה' : 'נהיגה'}"><b>${kids ? 'נְהִיגָה:' : 'נהיגה:'}</b>${mv.map(([b, ic]) => `<button type="button" data-drive="${b}" title="${esc(T(BLOCKS[b]))}" aria-label="${esc(T(BLOCKS[b]))}">${icon(ic)}</button>`).join('')}${acts.length ? '<i></i>' : ''}${acts.map((b) => `<button type="button" class="act" data-drive="${b}" title="${esc(T(BLOCKS[b]))}">${icon(BLOCKS[b].icon || b)}<span>${esc(T(BLOCKS[b]))}</span></button>`).join('')}</div>`;
+  }
+  function drive(b) {
+    if (!cur || !cur.sandbox || !ed || (map && map.isPlaying())) return;
+    const prog = ed.program(); prog.robot = [...(prog.robot || []), { b }];
+    driving = true; try { ed.set(prog); } finally { driving = false; }   // an edit by hand (not an arrow) starts the drive from the start again
+    const r = runLevel(levelsOf(cur), ed.program()); lastRun = r; drives++;
+    const from = driveN && driveN <= r.trace.length ? driveN : 0;
+    if (r.trace.length === from) { if (r.error) sandboxEnd(r); return; }
+    hideMsg(); toolSound('robot', 0.35);
+    map.play(r.trace, { speed: 'normal', from, onStep: (e) => { ed.light(e.nid); if (e.a === 'fail') { sfx('invalid'); kubiDo('surprised'); } },
+      onEnd: () => { ed.light(null); driveN = r.trace.length; if (r.error) sandboxEnd(r); } });
+  }
+  function winMission(r) {
+    const { first, was, now } = addMission(cur.id, r.stars, cur.robotName, wkStepOf);
+    if (now > was) wkNewStep = now;
+    setTimeout(checkRoboBadges, 1200);
+    kubiDo('cheer'); speak(['kw_' + (Math.abs(seedN) % WIN_LINES.length)], 2);
+    msg(`<div class="rl-win"><span class="rl-st big">${stars(r.stars)}</span><b>${esc(T(cur.end || pick(WIN_LINES, seedN)))}</b><small>${r.variants > 1 ? (kids ? `עָבַד בְּכָל ${r.variants} הַגִּרְסָאוֹת · ` : `עבד בכל ${r.variants} הגרסאות · `) : ''}${r.blocks} ${kids ? 'בְּלוֹקִים' : 'בלוקים'}${now > was ? ' · ' + (kids ? `שָׁלָב ${now} נִפְתַּח בַּסַּדְנָה!` : `שלב ${now} נפתח בסדנה!`) : ''}</small>
+      <span class="rl-winb"><button type="button" data-wsback>${kids ? 'לַסַּדְנָה' : 'לסדנה'}</button><button type="button" data-stay>${kids ? 'לְנַסּוֹת שׁוּב' : 'לנסות שוב'}</button></span></div>`, 'win');
+    sfx(first ? 'mission' : 'pop');
+  }
+  // after a failed mission run: the parts that would have helped (as on the test track), and the way back to the workshop
+  function missionHelp(r) {
+    const ALLP = { ...WK_CHASSIS, ...WK_PARTS }, need = ((r.error && r.error.need) || []).filter((p) => ALLP[p]).slice(0, 5);
+    return (need.length ? `<p class="rl-var">${kids ? 'מָה יָכוֹל לַעֲזֹר: ' : 'מה יכול לעזור: '}${need.map((p) => esc(T(ALLP[p]))).join(', ')}</p>` : '')
+      + (r.error && r.error.need ? `<p><button type="button" class="rl-wsfix" data-wsback>${icon('robot')}${kids ? 'לְשַׁפֵּר אֶת הָרוֹבּוֹט בַּסַּדְנָה' : 'לשפר את הרובוט בסדנה'}</button></p>` : '');
+  }
+
+  el.addEventListener('change', (e) => { const q = e.target.closest('[data-sbrobot]'); if (q) sbRobot = +q.value || 0; });
   el.addEventListener('click', (e) => {
+    if (e.target.classList && e.target.classList.contains('rl-kubi') && e.target.classList.contains('stage')) { stageKubi(false); return; }   // back to his corner
     const b = e.target.closest('button'); if (!b || !el.contains(b) || b.disabled) return;
+    if (b.dataset.wsback != null) { sfx('click'); home(); openWs('missions'); return; }
     if (b.dataset.exit != null) { close(); if (onExit) onExit(); return; }
     if (b.dataset.home != null) { sfx('click'); home(); return; }
     if (b.dataset.intro != null) { sfx('click'); showIntro(); return; }
-    if (b.dataset.garage != null) { sfx('click'); if (garage) garage.close(); garage = openGarage(el, { kids, sfx, toolSound, onClose: () => { garage = null; checkRoboBadges(); } }); return; }
+    if (b.dataset.workshop != null) { sfx('click'); openWs(); return; }
+    if (b.dataset.code != null) { sfx('click'); homeView = 'code'; home(); return; }
+    if (b.dataset.mainhome != null) { sfx('click'); homeView = 'main'; home(); return; }
+    if (b.dataset.garage != null) { sfx('click'); if (garage) garage.close(); garage = openGarage(el, { kids, sfx, toolSound, guide: svcGuide(), voice: kvoice, onClose: () => { garage = null; checkRoboBadges(); } }); return; }
     if (b.dataset.level) { sfx('click'); openLevel(b.dataset.level); return; }
     if (b.dataset.run) { run(b.dataset.run); return; }
-    if (b.dataset.again != null) { stopRun(); hideMsg(); map.reset(); return; }
+    if (b.dataset.again != null) { stopRun(); hideMsg(); map.reset(); driveN = 0; return; }
+    if (b.dataset.drive) { drive(b.dataset.drive); return; }
+    if (b.dataset.sandbox) { sfx('click'); openSandbox(b.dataset.sandbox, b.dataset.sbown === '1'); return; }
     if (b.dataset.why != null) { why(); return; }
-    if (b.dataset.view != null) { if (in3d && in3d.api) in3d.api.frame(); return; }
+    if (b.dataset.hint != null || b.dataset.hintnext != null) { hint(); return; }
+    if (b.dataset.hintclose != null) { const x = el.querySelector('.rl-hintbox'); if (x) x.hidden = true; sfx('click'); return; }
+    if (b.dataset.view != null) {   // the eye: the whole field → from above → close to the tool → the whole field
+      if (in3d && in3d.api) { viewMode = (viewMode + 1) % 3; in3d.api.frame(viewMode); const sp = b.querySelector('span'); if (sp) sp.textContent = viewWord((viewMode + 1) % 3); sfx('click'); }
+      return;
+    }
     if (b.dataset.stay != null) { hideMsg(); map.reset(); return; }
     if (b.dataset.island) { sfx('click'); openIsland(b.dataset.island); return; }
     if (b.dataset.next != null && cur && cur.ownIsland) { openIsland(cur.zone); return; }
@@ -326,18 +518,67 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     if (!open || e.key !== 'Escape') return;
     e.preventDefault();
     if (in3d && !in3d.api) return;                              // a lesson's island is still loading
+    if (workshop) { workshop.close(); workshop = null; return; }  // סדנת הרובוט closes first
     if (garage) { garage.close(); garage = null; return; }      // סדנת העיצוב closes first
     if (intro) { intro.close(); return; }                       // the film
-    if (cur) home(); else { close(); if (onExit) onExit(); }
+    if (cur && cur.mission) { home(); openWs('missions'); return; }      // a workshop mission goes back to the workshop
+    if (cur) home(); else if (homeView === 'code') { homeView = 'main'; home(); } else { close(); if (onExit) onExit(); }
   };
   window.addEventListener('keydown', onKey);
 
-  function openLab() { open = true; el.hidden = false; markSeen('home'); home(); }
-  function close() { flushDraft(); stopTut(); clearTimeout(talkT); open = false; speakGen++; kvoice.stop(); stopRun(); if (kcam) { kcam.dispose(); kcam = null; } if (garage) { garage.close(); garage = null; } if (in3d) end3d(); if (map) { map.dispose(); map = null; } el.hidden = true; el.innerHTML = ''; }
+  // the robot workshop (1.4.3): its first visit also gives the workshop's first technology cards (shown after its step card)
+  function openWs(tab = null) {
+    if (workshop) workshop.close();
+    markSeen('workshop');
+    const st = wkNewStep, note = wkNote; wkNewStep = 0; wkNote = null;
+    const islands = enter3d && hasIsland ? ZONE_IDS.filter((z) => { try { return hasIsland(z); } catch (e) { return false; } }) : [];
+    // 1.4.4 set 0: the home under the workshop is put away while it is open (קוּבִּי's window on it stops drawing)
+    el.classList.add('wk-open');
+    workshop = openWorkshop(el, { kids, sfx, guide: svcGuide(), voice: kvoice, newStep: st, tab, note, islands, onMission: (id, robot, island) => openMission(id, robot, island), onClose: () => { workshop = null; el.classList.remove('wk-open'); } });
+    const wclose = workshop.close; workshop.close = () => { el.classList.remove('wk-open'); return wclose(); };
+    grantTechCards();
+    return workshop;
+  }
+  // 6.11 (Avi): the home shows two big picture doors, the programming lessons and the robot workshop; the lessons open
+  // on their own screen (homeView 'code') instead of a long list beside the workshop
+  function codeHero(P) {
+    const n = LESSONS.filter((L) => P.done[L.id]).length;
+    return `<button type="button" class="rl-wkhero rl-codehero" data-code>
+      <img src="${CODE_HERO}" alt="" draggable="false"><span class="rl-wkt"><b>${kids ? 'שִׁעוּרֵי תִּכְנוּת' : 'שיעורי תכנות'}</b>
+      <small>${kids ? 'מְסַדְּרִים קֻבִּיּוֹת, וְהָרוֹבּוֹט יוֹצֵא לַדֶּרֶךְ' : 'מסדרים קוביות פקודה, והכלים יוצאים לעבוד באיים'}</small>
+      <span class="rl-prog"><i style="width:${Math.round(100 * n / Math.max(1, LESSONS.length))}%"></i></span><em>${n} / ${LESSONS.length}</em></span></button>`;
+  }
+  function codeHTML(P) {
+    return `<div class="rl-codeview">
+      <div class="rl-cvh"><button type="button" class="rl-cvback" data-mainhome>${icon('back')}<span>${kids ? 'לַמַּעְבָּדָה' : 'חזרה למעבדה'}</span></button>
+        <img src="${CODE_HERO}" alt="" draggable="false"><h2>${kids ? 'שִׁעוּרֵי תִּכְנוּת' : 'שיעורי תכנות'}</h2></div>
+      <section class="rl-sec rl-lessons rl-chgrid">
+        ${CHAPTERS.map((C) => { const ls = LESSONS.filter((q) => q.ch === C.n); if (!ls.length) return '';
+          const dn = ls.filter((L) => P.done[L.id]).length;
+          return `<div class="rl-ch" style="--cc:${C.color}"><div class="rl-chh"><b>${C.n}</b><span><strong>${esc(T(C.title))}</strong><small>${esc(T(C.idea))}</small>${C.n > 1 && !journeyOpen('robolab:more') ? `<em class="rl-lock">${esc(lockWords('robolab:more'))}</em>` : ''}</span><i class="rl-chn">${dn}/${ls.length}</i></div>
+          <div class="rl-lv">${ls.map((L, i) => { const ok = levelOpen(L, P), d = P.done[L.id];
+            return `<button type="button" class="rl-lvb${d ? ' done' : ''}" data-level="${L.id}" ${ok ? '' : 'disabled'} title="${esc(T(L.title))}"><span class="rl-z z-${L.zone}"></span><b>${ok ? i + 1 : icon('lock')}</b><span class="rl-st">${stars(d ? d.stars : 0)}</span></button>`; }).join('')}</div></div>`; }).join('')}
+      </section>
+      ${PUZZLES.length ? `<section class="rl-sec rl-pzsec"><h2>${icon('puzzle')}${kids ? 'חִידוֹת' : 'חידות'}</h2><div class="rl-pz">${PUZZLES.map((L) => { const ok = levelOpen(L, P), d = P.done[L.id];
+        return `<button type="button" class="rl-pzb${d ? ' done' : ''}" data-level="${L.id}" ${ok ? '' : 'disabled'}><span class="rl-z z-${L.zone}"></span><b>${esc(T(L.title))}</b>${ok ? '' : `<small>${kids ? 'נִפְתָּח אַחֲרֵי שִׁעוּר ' : 'נפתח אחרי שיעור '}${L.after.replace('l', '').replace('-', '.')}</small>`}<span class="rl-st">${stars(d ? d.stars : 0)}</span></button>`; }).join('')}</div></section>` : ''}
+    </div>`;
+  }
+  // the robot workshop's front picture (rendered in Blender: Kubi and three built robots), a door on the home (1.4.3):
+  // since 6.11 one of the home's two big doors, beside "שיעורי תכנות" (codeHero); locked, it shows what opens it
+  function wkHero() {
+    const open_ = journeyOpen('robolab:workshop');
+    return `<button type="button" class="rl-wkhero rl-wkbtn${open_ ? '' : ' locked'}" ${open_ ? 'data-workshop' : `disabled title="${esc(lockWords('robolab:workshop'))}"`}>
+      <img src="${WK_HERO}" alt="" draggable="false"><span class="rl-wkt"><b>${open_ ? '' : icon('lock')}${kids ? 'סַדְנַת הָרוֹבּוֹט' : 'סדנת הרובוט'}</b>
+      <small>${esc(open_ ? (kids ? 'בּוֹנִים רוֹבּוֹט מֵחֲלָקִים, וּמְנַסִּים אוֹתוֹ בַּמַּסְלוּל' : 'בונים רובוט מחלקים, ומנסים אותו במסלול') : lockWords('robolab:workshop'))}</small></span></button>`;
+  }
+  function openLab() { homeView = 'main'; open = true; el.hidden = false; dropDrafts(); markSeen('home'); home(); grantTechCards(); }
+  // the technology cards follow every step forward in the lab (a lesson, a mission, the workshop)
+  window.addEventListener('wol-progress', (e) => { if (open && e.detail && e.detail.kind === 'robolab') grantTechCards(); });
+  function close() { stopTut(); clearTimeout(talkT); clearTimeout(stageT); el.querySelectorAll(':scope > .rl-kubi').forEach((x) => x.remove()); open = false; speakGen++; kvoice.stop(); stopRun(); if (kcam) { kcam.dispose(); kcam = null; } if (garage) { garage.close(); garage = null; } if (workshop) { workshop.close(); workshop = null; } if (in3d) end3d(); if (map) { map.dispose(); map = null; } el.hidden = true; el.innerHTML = ''; }
   const R = {
     open: openLab, close, isOpen: () => open,
     coversGame: () => open && !!in3d && !!in3d.api && !el.classList.contains('in3d'),   // (while it loads, or closes for lack of room, the game runs its own update)   // the home over a kept island (main.js skips it)
-    dispose: () => { close(); window.removeEventListener('keydown', onKey); window.removeEventListener('beforeunload', flushDraft); window.removeEventListener('pagehide', flushDraft); el.remove(); },
+    dispose: () => { close(); window.removeEventListener('keydown', onKey); el.remove(); },
   };
   // headless tests
   window.__rlDebug = {
@@ -345,10 +586,26 @@ export function createRoboLab({ root, audio, kids = false, onExit, enter3d = nul
     open: (id, flat) => (id ? openLevel(id, { flat: !!flat }) : home()),
     in3d: () => !!(in3d && in3d.api),
     island: (z) => openIsland(z), prog: () => ed && ed.program(), cur: () => cur && cur.id, playing: () => !!(map && map.isPlaying()), level: () => cur && { id: cur.id, rows: cur.map.rows, items: cur.items, kind: cur.kind },
-    garage: () => { if (garage) garage.close(); garage = openGarage(el, { kids, sfx, onClose: () => { garage = null; } }); return true; },
+    workshopState: () => (workshop ? workshop.state() : null),
+    mission: (id, spec, flat, island) => { const M = MISSION_BY[id]; if (!M) return false; const b = missionBuild(spec || (M.ways ? M.ways[0].robot : 'gardener')); if (M.template) { openTemplate(M, { name: 'test', build: b }, !!island); return true; } if (flat) { if (workshop) { workshop.close(); workshop = null; } openLevel({ ...missionLevel(M, b), robotName: 'test' }, { flat: true }); } else openMission(id, { name: 'test', build: b }); return true; },
+    solveMission: (i = 0) => { if (!cur || !cur.mission || !ed) return null; ed.set((MISSION_BY[cur.id].ways ? MISSION_BY[cur.id] : cur).ways[i].prog); run('fast'); return lastRun && { ok: lastRun.ok, stars: lastRun.stars }; },
+    wk: () => roboProgress().wk,
+    tplInfo: () => lastTplDesc && { id: lastTplDesc.id, own: lastTplDesc.ownIsland, noMission: !!lastTplDesc.noMission },
+    edset: (prog) => { if (ed) ed.set(prog); return !!ed; },
+    autoplan: (speed = 'fast') => { if (!cur || !ed || !cur.build) return null; const r = planLevel(levelOf(cur), cur.build.robot); if (!r) return false; ed.set(r.prog); run(speed); return r.prog.robot.length; },
+    field: () => (in3d && in3d.api && in3d.api.course && in3d.api.course.info ? in3d.api.course.info() : null),
+    sandbox: (z, own = false) => openSandbox(z, own), drive: (b) => drive(b),
+    sb: () => ({ on: !!(cur && cur.sandbox), drives, driveN, acts: cur && cur.acts, blocks: cur && cur.blocks, items: cur && cur.items ? cur.items.map((it) => it.t) : [], prog: ed ? (ed.program().robot || []).map((n) => n.b) : [], playing: !!(map && map.isPlaying()), msg: (el.querySelector('.rl-msg:not([hidden])') || {}).textContent || '' }),
+    counter: () => (in3d && in3d.api && in3d.api.course && in3d.api.course.counter ? in3d.api.course.counter() : null),
+    look: (x, y, d = 9) => { const C = in3d && in3d.api && in3d.api.course, rig = window.__game && window.__game.debug && window.__game.debug.rig; if (!C || !rig) return false; const t = C.cellPos(x, y); rig.goTo(t, t.clone().add({ x: d * 0.15, y: d * 0.7, z: d * 0.7 }), 0.05); return true; },
+    workshop: () => openWs(),
+    wkSnap: (px, ry) => (workshop && workshop.snap ? workshop.snap(px, ry) : null),
+    garage: (tut = false) => { if (garage) garage.close(); garage = openGarage(el, { kids, sfx, guide: tut ? svcGuide() : null, voice: kvoice, onClose: () => { garage = null; } }); return true; },
+    gar: () => (garage ? garage.state() : null),
     solve: (id, i = 0) => { const L = ALL_LEVELS.find((q) => q.id === id); if (!L) return null; if (!(in3d && in3d.api && cur && cur.id === id)) openLevel(id, { flat: true }); ed.set({ ...L.solutions[i], defs: { ...(L.defs0 || {}), ...(L.solutions[i].defs || {}) } }); run('fast'); return lastRun && { ok: lastRun.ok, stars: lastRun.stars }; },
     run: (speed = 'fast') => run(speed), last: () => lastRun && { ok: lastRun.ok, stars: lastRun.stars, why: lastRun.why, error: lastRun.error },
     levels: () => ALL_LEVELS.map((q) => q.id),
+    stars: (id) => ((roboProgress().done[id] || {}).stars | 0),
   };
   return R;
 }

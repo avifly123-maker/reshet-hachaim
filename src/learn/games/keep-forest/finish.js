@@ -1,4 +1,4 @@
-// מחזיקים את היער – the end of a run (stars by vitality, the saved best, a pack for the first three stars, the summary
+// מחזיקים את הסביבה – the end of a run (stars by vitality, the saved best, a pack for the first three stars, the summary
 // box with a tip when the run was lost) and "איך משחקים?", the illustrated rules (shown the first time and from the ?).
 // Gives K: thresholds, starsFor, finish, showHow, hideHow.
 // Takes from K: ctx, root, kids, $, Y, totals, ST, save, esc, ROWSH.

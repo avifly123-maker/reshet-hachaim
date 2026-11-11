@@ -10,13 +10,19 @@
 //              key: shown once per player (core/journey.js markIntro / introSeen); force: show again anyway
 //              modal: dim the screen behind (a new part being presented); actions: buttons on the last bubble
 //   guide.intro(part, opts)       the lines of src/data/guide-lines.js GUIDE[part], once per player
+//   opts.speaker: 'nitzotz' (1.4.4) ניצוץ, the inventors' workshop's guide: his portrait, his live face, written only.
+//   opts.speaker: 'kubi' (1.4.3)   קוּבִּי says these lines (the robot lab's own teacher): his portrait with his live
+//                                 face (src/ui/kubi-face.js), his name, and opts.voice (his voice) if given. Both
+//                                 speak through this one queue, so רובו־דע and קוּבִּי never speak together.
 //   guide.tip(line, opts)         one bubble that closes by itself after a while (no buttons but a close)
 //   guide.close(match?), guide.isOpen()   close everything, or only one request (its promise, or { key }), or the
 //                                          requests made in a place ({ scene: 'game' }); a dropped request resolves 'abort'
 //   guide.setScene('game'|'app')          main.js: a forest runs / no forest (requests remember where they were made)
 // Several requests wait in a queue: one bubble set at a time. Everything is RTL; the figure sits at the bottom right.
 import { drawRoboFace, ROBO_SVG, VISOR } from './robo-face.js';
-import { introSeen, markIntro, playMode } from '../core/journey.js';
+import { introSeen, markIntro, playMode, guideQuiet, setGuideQuiet } from '../core/journey.js';
+import { drawKubiFace } from './kubi-face.js';
+import { drawNitzotzFace } from './nitzotz-face.js';
 import { GUIDE } from '../data/guide-lines.js';
 import { setService } from '../core/services.js';
 
@@ -26,10 +32,15 @@ const TRAY_GAP_PX = 8;        // in a forest a tip sits this far above the tray 
 const WAVE_MS = 2600;         // he waves at the start of a set of bubbles
 const NEXT_SET_MS = 250;      // a breath before the next request in the queue
 const TIP_MS = 9000;          // a tip closes by itself after this (opts.ms changes it)
+// 1.4.2 (Avi, 1.11: "he talks all the time"): the quiet switch (journey.js guideQuiet, the settings row 'guide', and
+// the "שקט" button on his bubbles in a forest). Quiet: tips and forest bubbles that nobody asked for are dropped; what the
+// child asks for (force), hands-on tutorials (guided) and presentations of a new part (modal) still come.
+const HUSH = { f: 'בסדר, אדבר רק כשצריך. אפשר להחזיר בהגדרות.', k: 'בְּסֵדֶר, אֲדַבֵּר רַק כְּשֶׁצָּרִיךְ. אֶפְשָׁר לְהַחְזִיר בַּהַגְדָּרוֹת.' };
+const hushable = (opts, sc) => !opts.force && !opts.guided && !opts.modal && (opts.tip || sc === 'game');
 const CSS = `
 #ui #rguide { position: absolute; inset: 0; z-index: var(--z-guide); pointer-events: none; direction: rtl; font-family: var(--sans, sans-serif); }
 #ui #rguide.modal { pointer-events: auto; background: rgba(6, 14, 9, .55); animation: rg-fade .25s ease-out; }
-#ui #rguide .rg-wrap { position: absolute; right: max(12px, 2vw); bottom: max(10px, 2vh); display: flex; align-items: flex-end; gap: 10px; pointer-events: none; max-width: min(760px, calc(100vw - 24px)); }
+#ui #rguide .rg-wrap { position: absolute; z-index: 1; right: max(12px, 2vw); bottom: max(10px, 2vh); display: flex; align-items: flex-end; gap: 10px; pointer-events: none; max-width: min(760px, calc(100vw - 24px)); }
 #ui #rguide.center .rg-wrap { right: 50%; bottom: 50%; transform: translate(50%, 50%); }
 #ui #rguide .rg-fig { position: relative; flex: none; width: clamp(92px, 13vw, 150px); aspect-ratio: 200 / 240; animation: rg-bob 3.2s ease-in-out infinite; filter: drop-shadow(0 6px 10px rgba(0,0,0,.35)); }
 #ui #rguide .rg-fig svg, #ui #rguide .rg-fig img.rg-pic { position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -55,8 +66,18 @@ const CSS = `
 #ui #rguide .rg-say { background: transparent; color: #1f7f78; padding: 6px 8px; min-width: 42px; }
 #ui #rguide .rg-say svg { width: 22px; height: 22px; display: block; }
 #ui #rguide button:focus-visible { outline: 3px solid #e6a93c; outline-offset: 2px; }
-#ui #rguide .rg-ring { position: fixed; border-radius: 16px; pointer-events: none; box-shadow: 0 0 0 4px #ffd166, 0 0 0 9px rgba(255, 209, 102, .35), 0 0 24px 8px rgba(255, 209, 102, .5); animation: rg-pulse 1.4s ease-in-out infinite; transition: all .25s ease; }
+#ui #rguide .rg-ring { position: fixed; z-index: 0; border-radius: 16px; pointer-events: none; box-shadow: 0 0 0 4px #ffd166, 0 0 0 9px rgba(255, 209, 102, .35), 0 0 24px 8px rgba(255, 209, 102, .5); animation: rg-pulse 1.4s ease-in-out infinite; transition: all .25s ease; }
 #ui #rguide.tip .rg-bub { min-width: 200px; }
+#ui #rguide .rg-fig.kubi { width: clamp(80px, 11vw, 118px); height: auto; position: relative; }
+#ui #rguide .rg-fig.kubi .rg-fr { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; }
+#ui #rguide .rg-fig.kubi .rg-fr.on { opacity: 1; }
+#ui #rguide .rg-fig.kubi .rg-kface { position: absolute; }
+#ui #rguide .rg-wrap.kubi .rg-name { color: #e8873a; }
+#ui #rguide .rg-fig.nitz { width: clamp(84px, 11vw, 124px); height: auto; position: relative; filter: drop-shadow(0 0 10px rgba(255, 214, 120, .55)); }
+#ui #rguide .rg-fig.nitz .rg-fr { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; }
+#ui #rguide .rg-fig.nitz .rg-fr.on { opacity: 1; }
+#ui #rguide .rg-fig.nitz .rg-kface { position: absolute; }
+#ui #rguide .rg-wrap.nitz .rg-name { color: #c88a1a; }
 @keyframes rg-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 @keyframes rg-talk { 0%,100% { rotate: 0deg; } 50% { rotate: -1.5deg; } }
 @keyframes rg-pulse { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
@@ -68,7 +89,7 @@ const CSS = `
 const SPEAKER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-export function createGuide(root, { voice = null, portrait = null } = {}) {
+export function createGuide(root, { voice = null, nitzVoice = null, portrait = null } = {}) {
   if (!document.getElementById(CSS_ID)) { const st = document.createElement('style'); st.id = CSS_ID; st.textContent = CSS; document.head.appendChild(st); }
   const el = document.createElement('div'); el.id = 'rguide'; el.hidden = true; root.appendChild(el);
   const queue = []; let cur = null, raf = 0, blinkT = 0, nextBlink = 2.5, last = 0, synthTalk = 0, tipTimer = 0;
@@ -78,6 +99,17 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
   let pic = portrait, art = null;
   // his rendered portraits (src/data/robo-art.js, made from the lab's model): loaded the first time he appears
   const artP = import('../data/robo-art.js').then((m) => { art = m.ROBO_ART; if (cur) render(); }, () => { });
+  // קוּבִּי's portraits (src/data/kubi-art.js), loaded the first time he speaks here
+  let kart = null, kartP = null;
+  const kubiArt = () => (kartP = kartP || import('../data/kubi-art.js').then((m) => { kart = m.KUBI_ART; if (cur && isKubi(cur)) render(); }, () => { }));
+  const isKubi = (c) => !!(c && c.opts.speaker === 'kubi');
+  // ניצוץ (1.4.4 set 2): the inventors' workshop's guide; portraits from the game's own model (src/data/nitzotz-art.js),
+  // his live face (src/ui/nitzotz-face.js) and, since 6.11, his own voice (nitzVoice: Gemini TTS lines; a line without a
+  // clip stays written only)
+  let nart = null, nartP = null;
+  const nitzArt = () => (nartP = nartP || import('../data/nitzotz-art.js').then((m) => { nart = m.NITZOTZ_ART; if (cur && isNitz(cur)) render(); }, () => { }));
+  const isNitz = (c) => !!(c && c.opts.speaker === 'nitzotz');
+  const voiceOf = (c) => (c && c.opts.voice) || (isNitz(c) ? nitzVoice : isKubi(c) ? null : voice);
   const kidsNow = () => playMode() === 'kids';
   const words = (ln) => (kidsNow() && ln.k ? ln.k : ln.f);
 
@@ -86,17 +118,26 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
     const ln = c.lines[c.i]; const lastOne = c.i === c.lines.length - 1; const kids = kidsNow();
     el.className = (c.opts.modal ? 'modal ' : '') + (c.opts.place === 'center' ? 'center ' : '') + (c.opts.tip ? 'tip' : '');
     const acts = lastOne && c.opts.actions && c.opts.actions.length ? c.opts.actions : null;
-    el.innerHTML = `<div class="rg-wrap" role="dialog" aria-live="polite" aria-label="רובו־דע">
-      <div class="rg-fig${art ? ' art' : ''}">${art ? Object.entries(art.frames).map(([k, src]) => `<img class="rg-fr" data-fr="${k}" src="${src}" alt="" draggable="false">`).join('') : `${pic ? `<img class="rg-pic" src="${pic}" alt="">` : ROBO_SVG}<canvas width="512" height="256"></canvas>`}</div>
-      <div class="rg-bub"><span class="rg-name">${kids ? 'רוֹבּוֹ־דַּע' : 'רובו־דע'}</span><p class="rg-txt">${esc(words(ln))}</p>
+    const kubi = isKubi(c); if (kubi && !kart) kubiArt();
+    const nitz = isNitz(c); if (nitz && !nart) nitzArt();
+    const fig = nitz ? (nart ? `<div class="rg-fig nitz" style="aspect-ratio:${nart.w}/${nart.h}">${Object.entries(nart.frames).map(([k, src]) => `<img class="rg-fr" data-fr="${k}" src="${src}" alt="" draggable="false">`).join('')}<canvas class="rg-kface" width="256" height="200" style="left:${nart.screen.x * 100}%;top:${nart.screen.y * 100}%;width:${nart.screen.w * 100}%;height:${nart.screen.h * 100}%"></canvas></div>` : '<div class="rg-fig nitz"></div>')
+      : kubi ? (kart ? `<div class="rg-fig kubi" style="aspect-ratio:${kart.w}/${kart.h}">${Object.entries(kart.frames).map(([k, src]) => `<img class="rg-fr" data-fr="${k}" src="${src}" alt="" draggable="false">`).join('')}<canvas class="rg-kface" width="256" height="184" style="left:${kart.screen.x * 100}%;top:${kart.screen.y * 100}%;width:${kart.screen.w * 100}%;height:${kart.screen.h * 100}%"></canvas></div>` : '<div class="rg-fig kubi"></div>')
+      : `<div class="rg-fig${art ? ' art' : ''}">${art ? Object.entries(art.frames).map(([k, src]) => `<img class="rg-fr" data-fr="${k}" src="${src}" alt="" draggable="false">`).join('') : `${pic ? `<img class="rg-pic" src="${pic}" alt="">` : ROBO_SVG}<canvas width="512" height="256"></canvas>`}</div>`;
+    const name = nitz ? (kids ? 'נִיצוֹץ' : 'ניצוץ') : kubi ? 'קוּבִּי' : (kids ? 'רוֹבּוֹ־דַּע' : 'רובו־דע');
+    el.innerHTML = `<div class="rg-wrap${kubi ? ' kubi' : ''}${nitz ? ' nitz' : ''}" role="dialog" aria-live="polite" aria-label="${name}">
+      ${fig}
+      <div class="rg-bub"><span class="rg-name">${name}</span><p class="rg-txt">${esc(words(ln))}</p>
         <div class="rg-foot">${c.lines.length > 1 ? `<span class="rg-dots">${c.lines.map((_, j) => `<i class="${j === c.i ? 'on' : ''}"></i>`).join('')}</span>` : '<span class="rg-dots"></span>'}
-          ${ln.id ? `<button class="rg-say" data-g="say" aria-label="${kids ? 'לִשְׁמֹעַ שׁוּב' : 'לשמוע שוב'}" title="${kids ? 'לִשְׁמֹעַ שׁוּב' : 'לשמוע שוב'}">${SPEAKER}</button>` : ''}
+          ${ln.id && !String(ln.id).startsWith('kw.') ? `<button class="rg-say" data-g="say" aria-label="${kids ? 'לִשְׁמֹעַ שׁוּב' : 'לשמוע שוב'}" title="${kids ? 'לִשְׁמֹעַ שׁוּב' : 'לשמוע שוב'}">${SPEAKER}</button>` : ''}
           ${acts ? acts.map((a, j) => `<button class="rg-act${a.kind === 'primary' || (!a.kind && j === 0) ? ' primary' : ''}${a.kind === 'quiet' ? ' quiet' : ''}" data-act="${esc(a.id)}">${esc(a.label)}</button>`).join('')
             : `<button class="rg-next" data-g="next">${lastOne ? (c.opts.tip ? (kids ? 'הָבַנְתִּי' : 'הבנתי') : (kids ? 'סִיּוּם' : 'סיום')) : (kids ? 'הַבָּא' : 'הבא')}</button>`}
-          ${!lastOne && !c.opts.tip ? `<button class="rg-skip" data-g="skip">${kids ? 'דַּלֵּג' : 'דלג'}</button>` : ''}</div></div></div>`;
+          ${!lastOne && !c.opts.tip ? `<button class="rg-skip" data-g="skip">${kids ? 'דַּלֵּג' : 'דלג'}</button>` : ''}
+          ${hushable(c.opts, c.scene) && !c.opts.hush ? `<button class="rg-act quiet rg-hush" data-g="hush" title="${kids ? 'רוֹבּוֹ־דַּע יְדַבֵּר רַק כְּשֶׁצָּרִיךְ' : 'רובו־דע ידבר רק כשצריך'}">${kids ? 'שֶׁקֶט, רוֹבּוֹ־דַּע' : 'שקט, רובו־דע'}</button>` : ''}</div></div></div>`;
     placeRing(ln.at); placeWrap();
     synthTalk = Math.min(4, 0.9 + words(ln).length / 22);   // the mouth moves a little even without sound
-    if (voice && ln.id && c.spokenI !== c.i) { c.spokenI = c.i; voice.say(ln.id).catch(() => { }); }
+    const vc = voiceOf(c);
+    if (vc && ln.id && c.spokenI !== c.i) { c.spokenI = c.i; vc.say(ln.id).catch(() => { }); }
+    if (nitz && ln.id) { const sb = el.querySelector('.rg-say'); if (sb) { sb.hidden = true; if (vc) vc.has(ln.id).then((ok) => { if (ok && cur === c) sb.hidden = false; }, () => { }); } }   // ניצוץ: only lines that have a clip (6.11: some are still written only)
     const btn = el.querySelector('.rg-next, .rg-act:not(.quiet)');   // a quiet one ("לדלג על ההדרכה") is never the button a child presses by default try { btn && btn.focus({ preventScroll: true }); } catch (e) { }
   }
   // an element the child can see now (a ring around a removed or hidden one would float over nothing)
@@ -133,23 +174,47 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
     ringAt = t; const r = t.getBoundingClientRect();
     const ring = document.createElement('i'); ring.className = 'rg-ring';
     ring.style.cssText = `left:${r.left - 6}px;top:${r.top - 6}px;width:${r.width + 12}px;height:${r.height + 12}px`;
-    el.appendChild(ring);
+    el.insertBefore(ring, el.firstChild);   // under the bubble (Avi, 5.11: a highlight never covers the words)
   }
   function loop(now) {
     raf = requestAnimationFrame(loop);
     const dt = last ? Math.min(0.1, (now - last) / 1000) : 0; last = now;
     const fig = el.querySelector('.rg-fig'); if (!fig || !cur) return;
     // the ringed thing went away (a forest closed, a panel changed): the ring goes too
-    if (ringAt && now - ringCheck > RING_CHECK_MS) { ringCheck = now; if (!shown(ringAt)) placeRing(null); }
+    if (now - ringCheck > RING_CHECK_MS) {
+      ringCheck = now;
+      if (ringAt) { if (!shown(ringAt)) placeRing(null); }
+      else {   // 5.11: a thing that shows a moment after its line (a list drawn after a spin) still gets its ring, and the bubble moves off it
+        const at = cur.lines[cur.i] && cur.lines[cur.i].at, t = at && (typeof at === 'string' ? document.querySelector(at) : at);
+        if (shown(t)) { placeRing(at); placeWrap(); }
+      }
+    }
     const cv = fig.querySelector('canvas');
     blinkT += dt; let blink = 0;
     if (blinkT > nextBlink) { const k = (blinkT - nextBlink) / 0.16; blink = k < 1 ? Math.sin(k * Math.PI) : 0; if (k >= 1) { blinkT = 0; nextBlink = 2 + Math.random() * 3; } }
     synthTalk = Math.max(0, synthTalk - dt);
-    const vl = voice && voice.speaking ? voice.level() : 0;
-    const talk = vl > 0 ? vl : (synthTalk > 0 && !(voice && voice.speaking) ? (0.5 + 0.5 * Math.sin(now / 70)) * 0.6 : 0);
+    const vc = voiceOf(cur);
+    const vl = vc && vc.speaking ? vc.level() : 0;
+    const talk = vl > 0 ? vl : (synthTalk > 0 && !(vc && vc.speaking) ? (0.5 + 0.5 * Math.sin(now / 70)) * 0.6 : 0);
     el.querySelector('.rg-fig').classList.toggle('talk', talk > 0.05);
     const ln = cur.lines[cur.i] || {};
     const expr = ln.expr || (cur.i === 0 ? 'happy' : 'normal');
+    if (isNitz(cur)) {   // ניצוץ: he waves on the first bubble, lights up for a "wow", and his face is drawn live
+      const kf = fig.querySelector('.rg-kface'); if (!kf) return;
+      const want = expr === 'wow' ? 'idea' : cur.i === 0 && !cur.opts.tip && (now - cur.t0) < WAVE_MS ? 'wave' : 'idle';
+      if (fig.dataset.on !== want) { fig.dataset.on = want; fig.querySelectorAll('.rg-fr').forEach((im) => im.classList.toggle('on', im.dataset.fr === want)); }
+      const mood = { happy: 'happy', wow: 'idea', oops: 'fuse', curious: 'happy', think: 'think', proud: 'proud', bored: 'bored', excited: 'excited' }[expr] || 'happy';
+      drawNitzotzFace(kf.getContext('2d'), kf.width, kf.height, { mood, talking: talk > 0.05, mouth: Math.min(1, talk), blink, t: now / 1000 });
+      return;
+    }
+    if (isKubi(cur)) {   // קוּבִּי: the wave frame on the first bubble of a set, his live face on the screen
+      const kf = fig.querySelector('.rg-kface'); if (!kf) return;
+      const want = cur.i === 0 && !cur.opts.tip && (now - cur.t0) < WAVE_MS ? 'wave' : 'idle';
+      if (fig.dataset.on !== want) { fig.dataset.on = want; fig.querySelectorAll('.rg-fr').forEach((im) => im.classList.toggle('on', im.dataset.fr === want)); }
+      const mood = { happy: 'happy', wow: 'wow', oops: 'oops', curious: 'normal', think: 'think' }[expr] || 'normal';
+      drawKubiFace(kf.getContext('2d'), kf.width, kf.height, { mood, talking: talk > 0.05, mouth: Math.min(1, talk), blink });
+      return;
+    }
     if (cv) { drawRoboFace(cv.getContext('2d'), expr, blink, talk); return; }
     // the rendered portraits: he waves on the first bubble of a set, blinks, and his mouth follows the voice
     const pose = cur.i === 0 && !cur.opts.tip && (now - cur.t0) < WAVE_MS ? 'wave' : 'idle';
@@ -161,7 +226,7 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
   function finish(result) {
     const c = cur; if (!c) return;
     cur = null; clearTimeout(tipTimer);
-    if (voice) voice.stop();
+    const vcs = voiceOf(c); if (vcs) vcs.stop();
     if (c.opts.key && result !== 'abort') markIntro(c.opts.key);
     el.hidden = true; el.innerHTML = ''; el.className = ''; cancelAnimationFrame(raf); raf = 0;   // no '.modal' left on a hidden guide (others ask for #rguide.modal)
     try { c.opts.onClose && c.opts.onClose(result); } catch (e) { console.error(e); }
@@ -178,8 +243,13 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
     if (!cur) return;
     const a = e.target.closest('[data-act]'); if (a) { finish(a.dataset.act); return; }
     const g = e.target.closest('[data-g]'); if (!g) { if (e.target === el && cur.opts.modal) { /* a click outside does nothing: the child chooses */ } return; }
-    if (g.dataset.g === 'say') { const ln = cur.lines[cur.i]; if (voice && ln.id) voice.say(ln.id); synthTalk = 2; return; }
+    if (g.dataset.g === 'say') { const ln = cur.lines[cur.i], vc = voiceOf(cur); if (vc && ln.id) vc.say(ln.id); synthTalk = 2; return; }
     if (g.dataset.g === 'skip') { finish('skip'); return; }
+    if (g.dataset.g === 'hush') {   // quiet from now on: drop the waiting tips too, and say once where it comes back
+      setGuideQuiet(true);
+      for (let i = queue.length - 1; i >= 0; i--) if (hushable(queue[i].opts, queue[i].scene)) { const q = queue.splice(i, 1)[0]; try { q.resolve('quiet'); } catch (er) { } }
+      finish('skip'); say([HUSH], { tip: true, force: true, hush: true, ms: 4500 }); return;
+    }
     if (g.dataset.g === 'next') { if (cur.i < cur.lines.length - 1) { cur.i++; render(); } else finish('done'); }
   });
   addEventListener('keydown', (e) => {
@@ -192,6 +262,7 @@ export function createGuide(root, { voice = null, portrait = null } = {}) {
   function say(lines, opts = {}) {
     lines = (lines || []).filter((l) => l && (l.f || l.k)); if (!lines.length) return Promise.resolve('none');
     if (opts.key && !opts.force && introSeen(opts.key)) return Promise.resolve('seen');
+    if (guideQuiet() && hushable(opts, opts.scene || scene)) return Promise.resolve('quiet');
     if (opts.key && (queue.some((q) => q.opts.key === opts.key) || (cur && cur.opts.key === opts.key))) return Promise.resolve('queued');
     const item = { lines, opts, resolve: null, scene: opts.scene || scene };
     const p = new Promise((resolve) => { item.resolve = resolve; });

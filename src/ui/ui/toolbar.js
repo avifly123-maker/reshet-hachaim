@@ -1,4 +1,4 @@
-// The toolbar: home, the satchel menu (home, help, coach, save, daily report, view all, and the settings: the journey
+// The toolbar (1.4.3: and a talk with רובו־דע, src/ui/robo-chat.js): home, the satchel menu (home, help, coach, save, daily report, view all, and the settings: the journey
 // rows, sounds, music, sources, picture quality), the journal, light map and web toggles; and the round music switch.
 // Exports: createToolbar(ctx) → { qWrap, kitBtn, setKit, paintToggles, musicBtn, markReport }.
 // Needs from ctx (index.js and the parts made before it): root, emit, S, toolbar.
@@ -46,6 +46,7 @@ export function createToolbar(ctx) {
       </div>
     </div>
     <button class="tb" data-a="journal" data-tip="יומן השדה">${icon('book')}</button>
+    <button class="tb tb-chat" data-a="chat" data-tip="לדבר עם רובו־דע">${icon('chat')}</button>
     <span class="tb-gap"></span>
     <button class="tb tg" data-a="lightmap" data-tip="מפת אור">${icon('lightmap')}<span class="tb-lab">מפת אור</span></button>
     <button class="tb tg" data-a="web" data-tip="הצג את כל הקשרים">${icon('web')}<span class="tb-lab">רשת החיים</span></button>`;
@@ -64,6 +65,7 @@ export function createToolbar(ctx) {
     else if (a === 'help') emit('ui:help');
     else if (a === 'coach') emit('ui:coach');
     else if (a === 'journal') emit('ui:journal');
+    else if (a === 'chat') emit('ui:chat');
     else if (a === 'save') emit('ui:save');
     else if (a === 'report') emit('ui:report');
     else if (a === 'reset') emit('view:reset');

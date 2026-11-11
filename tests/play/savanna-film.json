@@ -1,0 +1,132 @@
+[
+{
+"wait": 3
+},
+{
+"js": "window.__guide && window.__guide.close(); window.__journey.unlockAll('2580'); window.__journey.markTrained(); 1"
+},
+{
+"wait": 1
+},
+{
+"js": "window.__app.bus.emit('start:biome', { id: 'savanna' }); 1"
+},
+{
+"until": "window.__game && window.__game.savanna && window.__game.debug",
+"timeout": 300
+},
+{
+"js": "window.__app.bus.emit('quality',{q:'medium'}); 1"
+},
+{
+"until": "window.__svFilm && window.__svFilm.t > 0",
+"timeout": 60
+},
+{
+"js": "'CHECK svfilm-plays ' + (window.__game.viewMode === 'film' && window.__game.speed === 0 ? 'ok' : 'FAIL ' + window.__game.viewMode)"
+},
+{
+"js": "'CHECK svfilm-cast ' + (window.__svFilm.actors >= 40 ? 'ok' : 'FAIL ' + window.__svFilm.actors)"
+},
+{
+"shot": "shots/svf-1.png"
+},
+{
+"until": "window.__svFilm.t > 6",
+"timeout": 120
+},
+{
+"shot": "shots/svf-2.png"
+},
+{
+"until": "window.__svFilm.t > 10.5",
+"timeout": 120
+},
+{
+"shot": "shots/svf-3.png"
+},
+{
+"until": "window.__svFilm.t > 15",
+"timeout": 120
+},
+{
+"shot": "shots/svf-4.png"
+},
+{
+"until": "window.__svFilm.t > 19.6",
+"timeout": 120
+},
+{
+"shot": "shots/svf-5.png"
+},
+{
+"until": "window.__svFilm.t > 24.2",
+"timeout": 120
+},
+{
+"shot": "shots/svf-6.png"
+},
+{
+"until": "window.__svFilm.t < 0",
+"timeout": 120
+},
+{
+"until": "!document.querySelector('#ui .svf') && !document.querySelector('#ui.imv-film')",
+"timeout": 20
+},
+{
+"js": "'CHECK svfilm-ends ' + (!document.querySelector('#ui .svf') && !document.querySelector('#ui.imv-film') ? 'ok' : 'FAIL')"
+},
+{
+"js": "'CHECK svfilm-seen ' + (window.__journey.introSeen('g:svfilm') ? 'ok' : 'FAIL')"
+},
+{
+"js": "'CHECK svfilm-clock ' + (window.__game.speed > 0 && !window.__game.viewMode ? 'ok' : 'FAIL ' + window.__game.speed)"
+},
+{
+"js": "const b=document.querySelector('#ui .tb[data-a=svfilm]'); b && b.click(); 'CHECK svfilm-button ' + (b ? 'ok' : 'FAIL')"
+},
+{
+"until": "window.__svFilm && window.__svFilm.t > 1",
+"timeout": 60
+},
+{
+"js": "document.querySelector('#ui .svf-skip').click(); 1"
+},
+{
+"until": "!document.querySelector('#ui .svf') && window.__svFilm.t < 0",
+"timeout": 20
+},
+{
+"js": "'CHECK svfilm-skip ' + (!document.querySelector('#ui .svf') && window.__svFilm.t < 0 ? 'ok' : 'FAIL')"
+},
+{
+"until": "window.__svFilm && window.__svFilm.t < 0 && !document.querySelector('#ui .svf')",
+"timeout": 200
+},
+{
+"click": [
+400,
+300
+]
+},
+{
+"wait": 1
+},
+{
+"js": "const b = document.querySelector('[data-a=svfilm]'); b.click(); const k = document.querySelector('#ui .svf .svf-skip'); if (k) k.click(); setTimeout(() => { document.querySelector('[data-a=svfilm]').click(); }, 700); 1"
+},
+{
+"until": "window.__svFilm && window.__svFilm.t > 2",
+"timeout": 120
+},
+{
+"js": "const k = document.querySelector('#ui .svf .svf-skip'); if (k) k.click(); 1"
+},
+{
+"wait": 4
+},
+{
+"js": "'CHECK svfilm-music-stops ' + (window.__svFilm.music === 0 ? 'ok' : 'FAIL ' + window.__svFilm.music + ' still playing')"
+}
+]

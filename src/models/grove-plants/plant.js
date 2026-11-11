@@ -4,7 +4,7 @@
 // CONTRACT.md §3. Needs: kit.js, woody.js, herbs.js.
 import * as THREE from 'three';
 import { makeRng, clamp, lerp, smoothstep } from '../../core/util.js';
-import { V3, Col, UP, TAU, SEASON_INDEX, patchShader, makeUniforms, kf } from './kit.js';
+import { V3, Col, UP, TAU, SEASON_INDEX, SEASON_SPAN, patchShader, makeUniforms, kf } from './kit.js';
 import { WOODY, buildWoody } from './woody.js';
 import { buildSage, buildRockrose, buildCyclamen, buildAnemone, buildMushroom } from './herbs.js';
 
@@ -103,7 +103,7 @@ export function makePlantFrom(id, S, getG, opts = {}, prefix = 'plant-') {
   const root = new THREE.Group(); object.add(root);
   const rotY = irng() * TAU; root.rotation.y = rotY;
   const sizeJ = irng.range(0.93, 1.07);
-  const tint = new Col(1, 1, 1).multiplyScalar(irng.range(0.94, 1.06)); tint.g *= irng.range(0.97, 1.03);
+  const tint = new Col(1, 1, 1).multiplyScalar(irng.range(0.91, 1.08)); tint.g *= irng.range(0.96, 1.04); tint.r *= irng.range(0.94, 1.05);   // 1.4.4 set 10: a little more difference between trees of one kind
   const shared = {
     uTime: { value: 0 }, uWind: { value: 0.3 }, uPhase: { value: irng() * 100 }, uH: { value: Math.max(0.3, info.H) }, uR: { value: Math.max(0.2, info.crownR) },
     uSway: { value: S.sway }, uFlutter: { value: S.flutter * Math.max(0.3, info.H) * 0.06 }, uSquash: { value: S.squash },
@@ -199,7 +199,7 @@ export function makePlantFrom(id, S, getG, opts = {}, prefix = 'plant-') {
     setSeason(season, frac = 0) {
       const i = SEASON_INDEX[season];
       if (i === undefined) return; // amazon / null season: keep current look
-      st.y = ((i + clamp(frac ?? 0, 0, 0.999)) / 4) % 1; refresh();
+      st.y = ((i + clamp(frac ?? 0, 0, 0.999) * (SEASON_SPAN[season] || 1)) / 4) % 1; refresh();
     },
     setBloom(b) { st.bloom = b == null ? null : clamp(b); refresh(); },
     setFruit(f) { st.fruit = f == null ? null : clamp(f); refresh(); },

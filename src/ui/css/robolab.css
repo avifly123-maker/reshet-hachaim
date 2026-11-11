@@ -33,7 +33,7 @@
 #ui.wol .rl-lvb:disabled, #ui.wol .rl-pzb:disabled { opacity: .38; cursor: default; filter: grayscale(.6); }
 #ui.wol .rl-lvb:not(:disabled):hover, #ui.wol .rl-pzb:not(:disabled):hover { transform: translateY(-2px); }
 #ui.wol .rl-z { position: absolute; top: 5px; inset-inline-start: 5px; width: 9px; height: 9px; border-radius: 50%; background: #7a9a4a; }
-#ui.wol .rl-z.z-amazon { background: #2f7d4a; } #ui.wol .rl-z.z-reef { background: #2fa3b8; } #ui.wol .rl-z.z-desert { background: #d8a85a; }
+#ui.wol .rl-z.z-amazon { background: #2f7d4a; } #ui.wol .rl-z.z-reef { background: #2fa3b8; } #ui.wol .rl-z.z-desert { background: #d8a85a; } #ui.wol .rl-z.z-savanna { background: #b8862e; }
 #ui.wol .rl-st { display: inline-flex; gap: 1px; }
 #ui.wol .rl-st i { color: #c9d3da; display: inline-flex; } #ui.wol .rl-st i svg { width: .85em; height: .85em; }
 #ui.wol .rl-st i.on { color: #f5b82e; }
@@ -120,6 +120,7 @@
 
 /* the start screen's panel (science centre tab): a small drawn scene instead of a picture, until the opening film */
 #ui.wol .st-pimg.rlb { position: relative; background: radial-gradient(90% 90% at 60% 30%, #2a5f8a, #14314a); overflow: hidden; }
+#ui.wol .st-pimg.rlb.pic::before { display: none; }
 #ui.wol .st-pimg.rlb::before { content: ''; position: absolute; inset: 0; opacity: .25; background-image: linear-gradient(#9cc8e8 1px, transparent 1px), linear-gradient(90deg, #9cc8e8 1px, transparent 1px); background-size: 18px 18px; }
 #ui.wol .rlb-bot { position: absolute; left: 22%; bottom: 16%; width: 30%; aspect-ratio: 1.1; border-radius: 22%; background: #f5f1e8; box-shadow: inset 0 -8px 0 #d8d0bd, 0 6px 0 #2b2b2b; }
 #ui.wol .rlb-bot::before { content: ''; position: absolute; inset: 16% 16% 46%; border-radius: 14%; background: #e8873a; }
@@ -161,8 +162,35 @@
 #ui.wol .rl-gchip { display: inline-flex; align-items: center; gap: 4px; padding: 6px 11px; border: 0; border-radius: 10px; background: #e3dccb; color: #1d2c38 !important; font-weight: 700; font-size: .88em; }
 #ui.wol .rl-gchip.on { background: #e8873a; color: #fff !important; box-shadow: 0 2px 0 #9a4f22; }
 #ui.wol .rl-gchip.locked { opacity: .55; cursor: default; flex-direction: column; align-items: flex-start; gap: 0; }
+#ui.wol .rl-gchip.wk-tile { flex-direction: column; justify-content: flex-start; width: 86px; min-height: 92px; padding: 4px 4px 6px; gap: 2px; text-align: center; line-height: 1.15; font-size: .8em; background: linear-gradient(180deg, #f1ebdc, #ddd4c0); }
+#ui.wol .rl-gchip.wk-tile .wk-pic { width: 62px; height: 62px; object-fit: contain; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .25)); }
+#ui.wol .rl-gchip.wk-tile.on { background: linear-gradient(180deg, #f2a35f, #e8873a); }
+#ui.wol .rl-gchip.wk-tile.pick { box-shadow: 0 0 0 3px #2fb3c0; }
+#ui.wol .wk-chead { display: flex; align-items: center; gap: 8px; }
+#ui.wol .wk-bigpic { width: 76px; height: 76px; object-fit: contain; flex: none; filter: drop-shadow(0 3px 3px rgba(0, 0, 0, .25)); }
+#ui.wol .wk-stepcard li { display: flex; align-items: center; gap: 8px; }
+#ui.wol .wk-lipic { width: 34px; height: 34px; object-fit: contain; flex: none; }
 #ui.wol .rl-gchip.locked svg { width: .9em; height: .9em; }
 #ui.wol .rl-gchip small { font-weight: 400; font-size: .78em; }
+/* 1.4.3 set 4: the design garage's part tiles (each part drawn from its own mesh), the info strip, surprise / reset */
+#ui.wol .rl-gchip.rl-gtile { position: relative; flex-direction: column; justify-content: flex-start; width: 88px; min-height: 96px; padding: 4px 4px 6px; gap: 2px; text-align: center; line-height: 1.15; font-size: .8em; background: linear-gradient(180deg, #f1ebdc, #ddd4c0); transition: transform .12s; }
+#ui.wol .rl-gchip.rl-gtile:not([disabled]):hover { transform: translateY(-2px); }
+#ui.wol .rl-gtile .rl-gpic { width: 64px; height: 64px; object-fit: contain; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .25)); }
+#ui.wol .rl-gtile span.rl-gpic svg { width: 30px; height: 30px; opacity: .5; }
+#ui.wol .rl-gchip.rl-gtile.on { background: linear-gradient(180deg, #f2a35f, #e8873a); }
+#ui.wol .rl-gchip.rl-gtile.pick { box-shadow: 0 0 0 3px #2fb3c0; }
+#ui.wol .rl-gchip.rl-gtile.locked { align-items: center; }
+#ui.wol .rl-gtile.locked .rl-gpic { filter: grayscale(1) brightness(.85); opacity: .55; }
+#ui.wol .rl-gtile .rl-glock { position: absolute; top: 4px; inset-inline-start: 4px; display: flex; padding: 3px; border-radius: 50%; background: #5c6f7c; color: #fff; }
+#ui.wol .rl-gtile .rl-glock svg { width: 12px; height: 12px; }
+#ui.wol .rl-gcount { flex: 1; font-size: .8em; color: #d6e6f2; }
+#ui.wol .rl-ginfo { position: absolute; top: 10px; inset-inline: 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; padding: 7px 11px; border-radius: 12px; background: rgba(245, 241, 232, .94); color: #1d2c38; font-size: .86em; pointer-events: none; animation: rlGinfo .25s ease-out; }
+#ui.wol .rl-ginfo i { font-style: normal; font-weight: 700; padding: 1px 8px; border-radius: 8px; background: #2fa39a; color: #fff; }
+@keyframes rlGinfo { from { opacity: 0; transform: translateY(-6px); } }
+#ui.wol .rl-gact { display: flex; align-items: center; gap: 6px; }
+#ui.wol .rl-gact button { display: flex; align-items: center; gap: 5px; padding: 5px 10px; border: 0; border-radius: 11px; background: rgba(245, 241, 232, .9); color: #1d2c38 !important; font-weight: 700; font-size: .85em; box-shadow: 0 2px 0 rgba(0, 0, 0, .25); }
+#ui.wol .rl-gact button[data-gsurp] { background: #ffc72e; }
+#ui.wol .rl-gact svg { width: 1em; height: 1em; }
 #ui.wol .rl-gsw { display: flex; flex-wrap: wrap; gap: 6px; }
 #ui.wol .rl-sw { width: 30px; height: 30px; padding: 0; border: 3px solid #fff; border-radius: 50%; background: var(--sw); box-shadow: 0 1px 3px rgba(0, 0, 0, .35); }
 #ui.wol .rl-sw.on { outline: 3px solid #e8873a; outline-offset: 1px; }
@@ -231,3 +259,284 @@
 @keyframes rl-no { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 #ui.wol .rl-maxb { display: inline-flex; gap: 4px; align-items: center; padding: 2px 10px; border-radius: 12px; background: #ffffff1c; font-weight: 700; }
 #ui.wol .rl-maxb.full { background: #e8873a; color: #fff; }
+/* סדנת הרובוט (1.4.3, workshop-ui.js): the garage of robots, the parts by family with their cards, the robot's numbers,
+   the rules it breaks and the test track. RTL; on small screens the side panel and the robot share the width */
+#ui.wol .rl-gbtn.locked { opacity: .55; background: #5c6f7c; box-shadow: none; }
+#ui.wol .rl-wk .rl-gbody { grid-template-columns: minmax(280px, 40%) 1fr; }
+#ui.wol .rl-wk .rl-gside { position: relative; }
+#ui.wol .wk-main { min-height: 0; display: grid; grid-template-rows: minmax(110px, 1fr) auto auto auto; gap: 6px; }
+#ui.wol .wk-name { position: absolute; top: 8px; inset-inline-start: 10px; width: 9em; padding: 4px 8px; border: 0; border-radius: 8px; background: rgba(255, 255, 255, .88); color: #1d2c38; font-weight: 700; font-family: inherit; direction: rtl; }
+#ui.wol .wk-note { margin: 0 0 6px; font-size: .86em; color: #4a5a68; }
+#ui.wol .wk-more { margin: 8px 0 0; font-size: .82em; color: #6a5a40; display: flex; align-items: center; gap: 4px; }
+#ui.wol .wk-more svg { width: 1em; height: 1em; }
+#ui.wol .wk-h { display: block; margin: 8px 0 4px; color: #6a5a40; }
+#ui.wol .wk-fams { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+#ui.wol .wk-fams button { padding: 4px 9px; border: 0; border-radius: 9px; background: #e3dccb; color: #1d2c38; font-weight: 700; font-size: .84em; }
+#ui.wol .wk-fams button.on { background: #2fa39a; color: #fff; }
+#ui.wol .rl-gchip.pick { outline: 3px solid #2fa39a; outline-offset: 1px; }
+#ui.wol .wk-card { position: absolute; inset-inline: 0; bottom: 0; max-height: 62%; overflow: auto; padding: 10px 12px 12px; border-radius: 14px; background: #fffaf0; color: #1d2c38; box-shadow: 0 -4px 14px rgba(0, 0, 0, .25); }
+#ui.wol .wk-card h3 { margin: 0 0 4px; font-size: 1.05em; }
+#ui.wol .wk-card p { margin: 3px 0; font-size: .88em; line-height: 1.35; }
+#ui.wol .wk-x { position: absolute; top: 6px; inset-inline-end: 6px; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%; background: #e3dccb; display: grid; place-items: center; }
+#ui.wol .wk-good { color: #2f7a3a; } #ui.wol .wk-bad { color: #a8452a; } #ui.wol .wk-help { color: #4a5a68; font-size: .86em; }
+#ui.wol .wk-nums { color: #6a5a40; font-size: .8em !important; }
+#ui.wol .wk-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+#ui.wol .wk-btns button, #ui.wol .wk-stepcard button { padding: 6px 12px; border: 0; border-radius: 10px; background: #e8873a; color: #fff; font-weight: 700; box-shadow: 0 2px 0 #9a4f22; }
+#ui.wol .wk-btns button.on { background: #2fa39a; box-shadow: 0 2px 0 #1d6b65; }
+#ui.wol .wk-on { color: #2f7a3a; font-weight: 700; }
+#ui.wol .wk-robots { display: flex; flex-direction: column; gap: 5px; }
+#ui.wol .wk-rob { display: flex; gap: 4px; }
+#ui.wol .wk-rob > button:first-child { flex: 1; display: flex; flex-direction: column; align-items: flex-start; padding: 6px 10px; border: 0; border-radius: 10px; background: #e3dccb; color: #1d2c38; text-align: start; }
+#ui.wol .wk-rob.on > button:first-child { background: #2fa39a; color: #fff; }
+#ui.wol .wk-rob small { font-size: .78em; opacity: .85; }
+#ui.wol .wk-del { min-width: 34px; padding: 0 8px; border: 0; border-radius: 10px; background: #e3dccb; color: #a8452a; font-weight: 700; }
+#ui.wol .wk-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 3px 12px; padding: 6px 10px; border-radius: 12px; background: rgba(8, 20, 32, .45); font-size: .84em; }
+#ui.wol .wk-stat { display: grid; grid-template-columns: 4.6em 1fr; align-items: center; gap: 6px; }
+#ui.wol .wk-stat i { height: 8px; border-radius: 4px; background: rgba(255, 255, 255, .18); overflow: hidden; }
+#ui.wol .wk-stat u { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, #e8873a, #ffc72e); text-decoration: none; transition: width .4s; }
+#ui.wol .wk-stat.up u { background: linear-gradient(90deg, #3fae5a, #9be37a); animation: wk-flash 1.2s ease-out; }
+#ui.wol .wk-stat.down u { background: linear-gradient(90deg, #c9483a, #f08a5a); animation: wk-flash 1.2s ease-out; }
+@keyframes wk-flash { 0% { filter: brightness(1.8); } 100% { filter: none; } }
+#ui.wol .wk-stat small { grid-column: 2; font-size: .82em; opacity: .85; }
+#ui.wol .wk-mass { grid-column: 1 / -1; margin: 0; opacity: .85; }
+#ui.wol .wk-probs p { margin: 0; padding: 4px 10px; border-radius: 9px; background: #f6d9c8; color: #8a3a20; font-size: .86em; display: flex; align-items: center; gap: 5px; }
+#ui.wol .wk-probs svg { width: 1em; height: 1em; }
+#ui.wol .wk-track { padding: 6px 10px; padding-inline-end: 58px; border-radius: 12px; background: #f5f1e8; color: #1d2c38; }   /* the music button sits at the bottom left */
+#ui.wol .wk-tbar { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
+#ui.wol .wk-tbar button { padding: 4px 9px; border: 0; border-radius: 9px; background: #e3dccb; color: #1d2c38; font-weight: 700; font-size: .84em; }
+#ui.wol .wk-tbar .wk-save { margin-inline-start: auto; background: #2fa39a; color: #fff; }
+#ui.wol .wk-run { margin-top: 5px; font-size: .86em; }
+#ui.wol .wk-run p { margin: 3px 0 0; }
+#ui.wol .wk-strip { display: flex; gap: 3px; }   /* RTL: the robot starts on the right */
+#ui.wol .wk-c { flex: 1; height: 26px; border-radius: 6px; display: grid; place-items: center; background: #d9cfb6; }
+#ui.wol .wk-c.c-s { background: #f0d9a0; } #ui.wol .wk-c.c-m { background: #9c7a52; } #ui.wol .wk-c.c-h { background: linear-gradient(170deg, #e6d2a6 40%, #c9b48a); }
+#ui.wol .wk-c.c-n { background: linear-gradient(#d9cfb6 30%, #a8784a 30%, #a8784a 70%, #d9cfb6 70%); } #ui.wol .wk-c.c-w { background: #9fd6e6; }
+#ui.wol .wk-c.bot { outline: 2px solid #e8873a; } #ui.wol .wk-c svg { width: 20px; height: 20px; color: #1d2c38; }
+#ui.wol .wk-steps { position: absolute; inset: 0; z-index: 3; display: grid; place-items: center; background: rgba(8, 20, 32, .55); }
+#ui.wol .wk-steps[hidden] { display: none; }
+#ui.wol .wk-stepcard { width: min(640px, 92%); max-height: 90%; display: flex; flex-direction: column; padding: 12px 16px; border-radius: 16px; background: #fffaf0; color: #1d2c38; direction: rtl; }
+/* the list scrolls, the button stays in view; two columns of parts when there is room */
+#ui.wol .wk-stepcard ul { flex: 1; min-height: 0; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 2px 12px; list-style: none; padding: 0 !important; }
+#ui.wol .wk-stepcard > button { align-self: flex-start; flex: none; }
+#ui.wol .wk-stepcard h3 { margin: 0 0 6px; } #ui.wol .wk-stepcard ul { margin: 6px 0 10px; padding-inline-start: 1.1em; font-size: .9em; } #ui.wol .wk-stepcard li { margin: 3px 0; }
+
+/* the robot workshop's door on the lab's home (1.4.3): its rendered front picture with the name over it */
+#ui.wol .rl-wkhero { position: relative; display: block; width: 100%; margin: 0 0 12px; padding: 0; border: 0; border-radius: 16px; overflow: hidden; cursor: pointer; aspect-ratio: 1600 / 560; background: #1d3b5e; box-shadow: 0 6px 18px rgba(0, 0, 0, .35); }
+#ui.wol .rl-wkhero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 62%; transition: transform .5s; }
+#ui.wol .rl-wkhero:hover img { transform: scale(1.03); }
+#ui.wol .rl-wkhero .rl-wkt { position: absolute; inset-inline-start: 0; bottom: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 10px 16px 12px; border-start-end-radius: 16px; background: linear-gradient(90deg, rgba(10, 24, 40, .82), rgba(10, 24, 40, .55)); color: #fff; text-align: start; }
+#ui.wol .rl-wkhero b { display: inline-flex; align-items: center; gap: 6px; font-size: 1.25em; }
+#ui.wol .rl-wkhero b svg { width: 1em; height: 1em; }
+#ui.wol .rl-wkhero small { font-size: .85em; opacity: .9; }
+#ui.wol .rl-wkhero.locked { cursor: default; aspect-ratio: 1600 / 380; margin-top: 8px; } #ui.wol .rl-wkhero.locked img { filter: grayscale(.7) brightness(.7); }
+/* 1.4.3 set 4: the workshop's missions tab (workshop-ui.js renderMissions) and the way back to it from a mission */
+#ui.wol .rl-z.z-savanna { background: #c0782a; }
+#ui.wol .wk-mz .wk-h { display: flex; align-items: center; gap: 6px; }
+#ui.wol .wk-mz .wk-h .rl-z { position: static; width: 11px; height: 11px; }
+#ui.wol .wk-ml { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 5px; }
+#ui.wol .wk-mis { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-height: 44px; padding: 6px 9px; border: 0; border-radius: 10px; background: #e3dccb; color: #1d2c38; font-weight: 700; text-align: start; }
+#ui.wol .wk-mis.done { background: #d6ecd2; }
+#ui.wol .wk-mis.pick { outline: 3px solid #2fa39a; outline-offset: 1px; }
+#ui.wol .wk-mis:disabled { opacity: .6; }
+#ui.wol .wk-mis svg { width: 1em; height: 1em; }
+#ui.wol .wk-mis small { font-weight: 400; font-size: .76em; color: #6a5a40; }
+#ui.wol .wk-mst { display: flex; gap: 1px; font-style: normal; }
+#ui.wol .wk-mst u { color: #c9bfa8; } #ui.wol .wk-mst u.on { color: #e8a83a; }
+#ui.wol .wk-go { display: inline-flex; align-items: center; gap: 6px; }
+#ui.wol .wk-go svg { width: 1.1em; height: 1.1em; }
+#ui.wol .rl-wsfix { display: inline-flex; align-items: center; gap: 6px; margin-top: 4px; padding: 6px 12px; border: 0; border-radius: 10px; background: #2fa39a; color: #fff; font-weight: 700; }
+#ui.wol .rl-wsfix svg { width: 1.1em; height: 1.1em; }
+/* one קוּבִּי at a time: while he speaks in the guide's bubble, his window in the lesson strip steps aside */
+body:has(#rguide .rg-wrap.kubi) .rl-say .rl-kubi { visibility: hidden; }
+/* סדנת העיצוב: קוּבִּי's bubble sits over the preview, so the part tiles and the colours stay free to press */
+#ui:has(.rl-garage) #rguide:not(.center) .rg-wrap { right: auto; left: 12px; max-width: calc(52vw - 24px); }
+/* ארגז החול (1.4.3 set 5): the robot choice on the home, the driving buttons over the field, the end words */
+#ui.wol .rl-sbr { display: inline-flex; align-items: center; gap: 6px; margin: 0 0 8px; font-size: .9em; }
+#ui.wol .rl-sbr select { font: inherit; padding: 3px 8px; border-radius: 8px; border: 1px solid #b9b0a0; background: #fffdf7; color: #1d2c38; }
+#ui.wol .rl-drive { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 5px; margin-top: 6px; padding: 6px 8px; border-radius: 14px; background: rgba(8, 20, 32, .62); pointer-events: auto; align-self: center; }
+#ui.wol .rl-drive > b { color: #ffd66a; font-size: .85em; margin-inline-end: 2px; }
+#ui.wol .rl-drive > i { width: 1px; align-self: stretch; background: rgba(255, 255, 255, .25); margin: 0 3px; }
+#ui.wol .rl-drive button { display: flex; align-items: center; gap: 4px; min-width: 38px; height: 36px; justify-content: center; padding: 0 8px; border: 0; border-radius: 10px; background: #3b82c4; color: #fff !important; font-weight: 700; font-size: .82em; box-shadow: 0 2px 0 #24557f; }
+#ui.wol .rl-drive button.act { background: #3f9a4a; box-shadow: 0 2px 0 #23602b; }
+#ui.wol .rl-drive button:active { transform: translateY(1px); box-shadow: none; }
+#ui.wol .rl-drive svg { width: 18px; height: 18px; }
+#ui.wol .rl-sbend b { display: block; line-height: 1.4; }
+
+/* 1.4.2: קוּבִּי comes forward, big, while he explains a lesson or cheers (index.js stageKubi) */
+#ui.wol .rl-kubi.stage { position: absolute; inset-inline-start: auto; left: 14px; top: auto; bottom: 74px; width: clamp(150px, 19vw, 240px); height: clamp(170px, 34vh, 290px); z-index: 30; pointer-events: auto; cursor: pointer;
+  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, .35)); animation: rlk-in .35s ease-out; }
+@keyframes rlk-in { from { transform: translateY(24px) scale(.85); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { #ui.wol .rl-kubi.stage { animation: none; } }
+/* 1.4.3 closing (the tour at 800x460): on a low screen the run row and the sandbox's driving row wrap inside their
+   column instead of running off the left edge, the eye button keeps its icon only, and the words strip is tall
+   enough for קוּבִּי's window, so he does not hang over the blocks */
+@media (max-height: 520px) {
+  #ui.wol .rl.in3d .rl-run { flex-wrap: wrap; max-width: 100%; }
+  #ui.wol .rl-run [data-view] span { display: none; }
+  #ui.wol .rl-drive { max-width: 100%; gap: 3px; padding: 4px 6px; margin-top: 4px; }
+  #ui.wol .rl-drive button { min-width: 32px; height: 32px; padding: 0 6px; font-size: .78em; }
+  #ui.wol .rl-drive svg { width: 16px; height: 16px; }
+  #ui.wol .rl-say { min-height: 62px; }
+}
+
+/* 1.4.4 set 0 (Avi: "the robot workshop and the advanced part sit under the lessons and nobody sees them"): the home has
+   two sides next to each other, each scrolling on its own: the programming lessons (and the puzzles) on the right, the
+   robot workshop and the work in the live field (missions on his island, the sandbox) on the left */
+#ui.wol .rl-home .rl-scroll { display: flex; flex-direction: column; overflow: hidden; padding-bottom: 8px; }
+#ui.wol .rl-home .rl-hello { flex: none; }
+@media (max-height: 520px) { #ui.wol .rl-home .rl-hello { padding: 2px 10px; margin-bottom: 6px; } #ui.wol .rl-home .rl-hello p { font-size: .85em; } }
+/* 1.4.4 set 0: while the robot workshop is open the home under it is put away (its קוּבִּי stops drawing) */
+#ui.wol .rl.wk-open > .rl-home { display: none; }
+/* 5.11 (Avi: "the robot workshop and the missions look like lists: make them visual, bigger and more colourful") */
+#ui.wol .rl-wk .wk-side { font-size: 1.04em; }
+#ui.wol .rl-gtabs button { padding: 9px 10px; font-size: 1.02em; font-family: var(--serif); }
+#ui.wol .rl-gtabs button svg { width: 1.25em; height: 1.25em; }
+#ui.wol .rl-gtabs button[aria-selected="true"] { box-shadow: 0 3px 0 #b8a888; }
+#ui.wol .wk-mzones { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
+#ui.wol .wk-mzones button { display: flex; align-items: center; gap: 5px; padding: 3px 10px 3px 4px; border: 0; border-radius: 20px; background: #e3dccb; color: #1d2c38 !important; font-weight: 700; font-family: var(--serif); box-shadow: 0 2px 0 #b8a888; }
+#ui.wol .wk-mzones button img { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 2px var(--zc, #e8873a); }
+#ui.wol .wk-mzones button svg { width: 18px; height: 18px; margin-inline-start: 4px; color: #e8873a; }
+#ui.wol .wk-mzones button small { font-family: system-ui, sans-serif; font-weight: 700; font-size: .72em; opacity: .7; }
+#ui.wol .wk-mzones button.on { background: var(--zc, #e8873a); color: #fff !important; box-shadow: 0 2px 0 rgba(0, 0, 0, .3); }
+#ui.wol .wk-mzones button.on svg { color: #fff; }
+#ui.wol .wk-mzh { display: flex; align-items: center; gap: 7px; margin: 10px 0 5px; font-family: var(--serif); font-size: 1.08em; color: var(--zc); }
+#ui.wol .wk-mzh img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 2.5px var(--zc); }
+#ui.wol .wk-ml { grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 7px; }
+#ui.wol .wk-mis { position: relative; align-items: center; justify-content: flex-start; gap: 3px; min-height: 0; padding: 6px 6px 7px; border-radius: 14px; text-align: center; background: linear-gradient(180deg, #fffaf0 0 55%, color-mix(in srgb, var(--zc) 22%, #fffaf0)); box-shadow: 0 3px 0 color-mix(in srgb, var(--zc) 55%, #6a5a40), inset 0 0 0 2px color-mix(in srgb, var(--zc) 35%, transparent); transition: transform .15s; }
+#ui.wol .wk-mis:not([disabled]):hover { transform: translateY(-2px); }
+#ui.wol .wk-mis .wk-mpic { width: 54px; height: 54px; filter: drop-shadow(0 2px 1px rgba(40, 20, 6, .25)); }
+#ui.wol .wk-mis .wk-mt { font-family: var(--serif); font-weight: 400; font-size: .98em; line-height: 1.15; }
+#ui.wol .wk-mis.done { background: linear-gradient(180deg, #f2fbef 0 55%, #cfeec6); }
+#ui.wol .wk-mis.pick { box-shadow: 0 0 0 3px #2fa39a, 0 3px 0 #1d6b65; }
+#ui.wol .wk-mis.locked { filter: grayscale(.85); opacity: .62; }
+#ui.wol .wk-mis .wk-mst { display: flex; gap: 2px; } #ui.wol .wk-mis .wk-mst u svg { width: 15px; height: 15px; }
+#ui.wol .wk-mis .wk-own { position: absolute; top: 5px; inset-inline-start: 6px; width: 22px; height: 22px; border-radius: 50%; background: #2fa39a; color: #fff; display: grid; place-items: center; }
+#ui.wol .wk-mis .wk-own svg { width: 13px; height: 13px; }
+#ui.wol .wk-mlock { display: flex; align-items: center; gap: 3px; font-size: .78em; font-weight: 700; color: #6a5a40; }
+#ui.wol .wk-mlock svg { width: 12px; height: 12px; }
+#ui.wol .wk-mhead { padding: 4px 6px; border-radius: 12px; background: color-mix(in srgb, var(--zc) 16%, #fffaf0); }
+#ui.wol .wk-mhead .wk-mpic { width: 64px; height: 64px; flex: none; }
+#ui.wol .wk-mhead h3 { font-family: var(--serif); font-weight: 400; font-size: 1.25em !important; }
+#ui.wol .wk-card p { font-size: .95em; }
+#ui.wol .wk-card .wk-go { font-size: 1.05em; padding: 9px 16px; }
+#ui.wol .rl-gchip.wk-tile { width: 96px; min-height: 104px; font-size: .86em; }
+#ui.wol .rl-gchip.wk-tile .wk-pic { width: 70px; height: 70px; }
+#ui.wol .wk-fams button { padding: 6px 12px; font-size: .92em; font-family: var(--serif); font-weight: 400; border-radius: 12px; box-shadow: 0 2px 0 #b8a888; }
+#ui.wol .wk-fams button.on { box-shadow: 0 2px 0 #1d6b65; }
+#ui.wol .wk-stats { font-size: .92em; }
+#ui.wol .wk-stat { grid-template-columns: 6.2em 1fr; }
+#ui.wol .wk-stat > span { display: flex; align-items: center; gap: 4px; }
+#ui.wol .wk-sic { width: 17px; height: 17px; flex: none; }
+#ui.wol .wk-stat.s-speed .wk-sic { color: #7cd0ff; } #ui.wol .wk-stat.s-force .wk-sic { color: #ffb04a; } #ui.wol .wk-stat.s-precision .wk-sic { color: #ff8ab0; }
+#ui.wol .wk-stat.s-battery .wk-sic { color: #7cf0a0; } #ui.wol .wk-stat.s-lift .wk-sic { color: #ffd24a; }
+#ui.wol .wk-stat i { height: 10px; border-radius: 5px; }
+#ui.wol .wk-tbar b { font-family: var(--serif); font-weight: 400; font-size: 1.05em; }
+#ui.wol .wk-tbar button { display: flex; align-items: center; gap: 4px; padding: 5px 10px; font-size: .9em; border-radius: 11px; box-shadow: 0 2px 0 #b8a888; }
+#ui.wol .wk-tbar .wk-c { flex: none; width: 16px; height: 16px; border-radius: 5px; box-shadow: inset 0 0 0 1.5px rgba(0, 0, 0, .25); }
+#ui.wol .wk-c.c-g { background: #d9cfb6; }
+#ui.wol .wk-rob > button:first-child { padding: 8px 12px; font-family: var(--serif); font-size: 1.02em; }
+#ui.wol .wk-h { font-family: var(--serif); font-size: 1.05em; }
+#ui.wol .wk-mzones { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: thin; padding-bottom: 3px; }
+#ui.wol .wk-mzones button { flex: none; }
+#ui.wol .rl-gchip.wk-preset { width: 104px; }
+#ui.wol .rl-gchip.wk-preset.locked { filter: grayscale(.8); opacity: .6; }
+#ui.wol .rl-gchip.wk-preset > span { font-family: var(--serif); font-size: 1.08em; font-weight: 400; }
+#ui.wol .wk-rob > button:first-child { display: grid; grid-template-columns: 44px 1fr; grid-template-rows: auto auto; column-gap: 8px; align-items: center; }
+#ui.wol .wk-robpic { grid-row: 1 / 3; width: 44px; height: 44px; object-fit: contain; }
+
+/* ===================================================== 6.11 (Avi): the home is two big picture doors; the lessons have their own screen */
+#ui.wol .rl-heroes { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 4px 0 14px; }
+#ui.wol .rl-heroes .rl-wkhero { margin: 0; aspect-ratio: 16 / 8.2; border-radius: 20px; box-shadow: 0 0 0 3px rgba(255, 214, 106, .55), 0 10px 26px rgba(0, 0, 0, .4); transition: transform .25s, box-shadow .25s; }
+#ui.wol .rl-heroes .rl-wkhero:not(.locked):hover { transform: translateY(-3px); box-shadow: 0 0 0 4px #ffd66a, 0 14px 32px rgba(0, 0, 0, .45); }
+#ui.wol .rl-heroes .rl-wkhero.locked { aspect-ratio: 16 / 8.2; margin-top: 0; }
+#ui.wol .rl-heroes .rl-wkt { inset-inline: 0; border-radius: 0; padding: 12px 18px 14px; background: linear-gradient(0deg, rgba(8, 20, 34, .92), rgba(8, 20, 34, .55) 70%, transparent); }
+#ui.wol .rl-heroes .rl-wkhero b { font-family: var(--serif); font-size: 1.55em; color: #ffd66a; text-shadow: 0 2px 6px rgba(0, 0, 0, .6); }
+#ui.wol .rl-heroes .rl-wkhero small { font-size: .95em; }
+#ui.wol .rl-codehero .rl-prog { position: relative; width: min(220px, 60%); height: 8px; margin-top: 6px; border-radius: 4px; background: rgba(255, 255, 255, .2); overflow: hidden; }
+#ui.wol .rl-codehero .rl-prog i { position: absolute; inset-block: 0; inset-inline-start: 0; border-radius: 4px; background: linear-gradient(90deg, #7fe0a0, #ffd66a); }
+#ui.wol .rl-codehero em { position: absolute; inset-inline-end: 16px; bottom: 14px; font-style: normal; font-weight: 800; font-size: 1.1em; color: #ffd66a; }
+#ui.wol .rl-more { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+#ui.wol .rl-more > .rl-sec { margin: 0; padding: 10px 14px 12px; border-radius: 18px; background: rgba(255, 255, 255, .05); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08); }
+#ui.wol .rl-more > .rl-sec:only-child { grid-column: 1 / -1; }
+/* the lessons screen */
+#ui.wol .rl-codeview { display: flex; flex-direction: column; gap: 12px; }
+#ui.wol .rl-cvh { position: relative; display: flex; align-items: center; gap: 14px; height: 92px; padding: 0 18px; border-radius: 20px; overflow: hidden; background: #14263a; box-shadow: 0 0 0 3px rgba(255, 214, 106, .45); }
+#ui.wol .rl-cvh img { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%; filter: brightness(.55) saturate(1.1); }
+#ui.wol .rl-cvh h2 { position: relative; z-index: 1; margin: 0; font-family: var(--serif); font-size: 1.9em; color: #ffd66a; text-shadow: 0 2px 8px rgba(0, 0, 0, .7); }
+#ui.wol .rl-cvback { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 18px; border: 0; border-radius: 24px; font: inherit; font-weight: 800; color: #1b2a12; background: linear-gradient(#ffe08a, #f2b84a); box-shadow: 0 3px 0 #b77d1d, 0 6px 14px rgba(0, 0, 0, .35); cursor: pointer; }
+#ui.wol .rl-cvback svg { width: 1.2em; height: 1.2em; }
+#ui.wol .rl-chgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; padding: 0; }
+#ui.wol .rl-chgrid .rl-ch { margin: 0; padding: 12px 14px; border-radius: 18px; background: linear-gradient(160deg, color-mix(in srgb, var(--cc) 30%, #16283c), #14263a 70%); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--cc) 60%, transparent), 0 6px 16px rgba(0, 0, 0, .3); }
+#ui.wol .rl-chgrid .rl-chh > b { width: 46px; height: 46px; font-size: 1.4em; border-radius: 14px; }
+#ui.wol .rl-chgrid .rl-chh strong { font-size: 1.12em; }
+#ui.wol .rl-chgrid .rl-chn { margin-inline-start: auto; align-self: flex-start; font-style: normal; font-weight: 800; color: #ffd66a; }
+#ui.wol .rl-chgrid .rl-lv { gap: 8px; }
+#ui.wol .rl-chgrid .rl-lvb { min-width: 58px; min-height: 58px; border-radius: 16px; font-size: 1.15em; }
+#ui.wol .rl-chgrid .rl-lvb:disabled b svg { width: .9em; height: .9em; opacity: .7; }
+@media (max-width: 860px), (max-height: 520px) {
+  #ui.wol .rl-heroes, #ui.wol .rl-more { gap: 10px; }
+  #ui.wol .rl-heroes .rl-wkhero b { font-size: 1.2em; }
+  #ui.wol .rl-heroes .rl-wkhero small { display: none; }
+  #ui.wol .rl-cvh { height: 66px; } #ui.wol .rl-cvh h2 { font-size: 1.4em; }
+  #ui.wol .rl-chgrid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+  #ui.wol .rl-chgrid .rl-lvb { min-width: 48px; min-height: 48px; }
+}
+/* 6.11 (Avi: "pictures, big colourful buttons"): the islands of the missions and the sandbox are tiles with the island's
+   own picture; the garage's "הפתעה" is a big bright button */
+#ui.wol .rl-pzb.rl-pzpic { min-width: 0; flex: 1 1 130px; max-width: 200px; padding: 0 0 8px; overflow: hidden; border-radius: 16px; background: linear-gradient(#fffdf6, #f3ead2); box-shadow: 0 4px 0 rgba(0, 0, 0, .28), 0 0 0 2px rgba(255, 255, 255, .6); }
+#ui.wol .rl-pzimg { display: block; width: 100%; height: 78px; margin-bottom: 4px; background: radial-gradient(circle at 50% 70%, #bfe6f2, #6fb3d2 70%); }
+#ui.wol .rl-pzimg.z-desert { background: radial-gradient(circle at 50% 70%, #ffe7b8, #e0a85a 70%); } #ui.wol .rl-pzimg.z-savanna { background: radial-gradient(circle at 50% 70%, #ffe0a8, #d08a3a 70%); }
+#ui.wol .rl-pzimg.z-amazon { background: radial-gradient(circle at 50% 70%, #c8f0c0, #4fa86a 70%); } #ui.wol .rl-pzimg.z-grove { background: radial-gradient(circle at 50% 70%, #f0f0c0, #a8b85a 70%); }
+#ui.wol .rl-pzimg img { width: 100%; height: 100%; object-fit: contain; transition: transform .3s; filter: drop-shadow(0 4px 4px rgba(0, 0, 0, .3)); }
+#ui.wol .rl-pzb.rl-pzpic:not(:disabled):hover .rl-pzimg img { transform: scale(1.08) translateY(-2px); }
+#ui.wol .rl-pzb.rl-pzpic b { font-size: 1.05em; }
+#ui.wol .rl-gact { flex-wrap: wrap; gap: 8px; }
+#ui.wol .rl-gact .rl-gcount { flex: 1 0 100%; }
+#ui.wol .rl-gact button { min-height: 42px; padding: 6px 16px; border-radius: 21px; font-size: 1em; }
+#ui.wol .rl-gact button svg { width: 1.3em; height: 1.3em; }
+#ui.wol .rl-gact button[data-gsurp] { flex: 1; justify-content: center; background: linear-gradient(135deg, #ffd24a, #ff8a5a 60%, #ff6aa8); color: #3a1208 !important; font-size: 1.1em; box-shadow: 0 4px 0 #a8442a, 0 0 14px rgba(255, 150, 90, .55); }
+#ui.wol .rl-gact button[data-gsurp] svg { animation: rl-twinkle 1.8s ease-in-out infinite; }
+#ui.wol .rl-gact button[data-gsurp]:hover { transform: translateY(-2px) scale(1.03); }
+@keyframes rl-twinkle { 50% { transform: rotate(20deg) scale(1.25); } }
+@media (prefers-reduced-motion: reduce) { #ui.wol .rl-gact button[data-gsurp] svg { animation: none; } }
+/* the robot workshop's test tracks: ground swatches big enough to read as places */
+#ui.wol .wk-tbar { gap: 7px; }
+#ui.wol .wk-tbar button { min-height: 40px; padding: 4px 12px 4px 6px; border-radius: 14px; font-size: .98em; background: linear-gradient(#fffaf0, #eadfc6); box-shadow: 0 3px 0 #a8987a; }
+#ui.wol .wk-tbar button:not(:disabled):hover { transform: translateY(-2px); }
+#ui.wol .wk-tbar .wk-c { width: 28px; height: 28px; border-radius: 8px; }
+#ui.wol .wk-tbar .wk-save { min-height: 42px; padding: 4px 18px; font-size: 1.05em; background: linear-gradient(#4fc4b8, #2a8a80); color: #fff !important; box-shadow: 0 3px 0 #1a5a52; }
+@media (max-height: 560px) { #ui.wol .rl-heroes .rl-wkhero { aspect-ratio: 16 / 5.6; } #ui.wol .rl-heroes .rl-wkhero img { object-position: center 40%; } }
+/* the corner music button would sit on the robot lab's tiles (the workshop hides it the same way) */
+#ui.wol:has(> .rl:not([hidden])) > .mus-btn { display: none !important; }
+
+/* 7.11 (Avi): hints and first-time concept cards in the lessons (src/robolab/hints.js). A box at the top of the field
+   that stays open while the child edits; the blocks are shown as small chips in their family's colour. */
+#ui.wol .rl-hintbox { position: absolute; top: 10px; inset-inline-end: 12px; z-index: 6; width: min(420px, calc(100% - 24px)); max-height: calc(100% - 20px); display: flex; flex-direction: column; overflow: hidden; box-sizing: border-box;
+  padding: 10px 14px 10px; border-radius: 16px; background: #fffbea; color: #22302a; box-shadow: 0 0 0 3px #f2c94c, 0 8px 22px rgba(0, 0, 0, .35); font-size: calc(1em * var(--ts, 1)); line-height: 1.45; pointer-events: auto; animation: rh-in .25s ease-out; }
+#ui.wol .rl-hintbox.concept { background: #eef6ff; box-shadow: 0 0 0 3px #5aa0e6, 0 8px 22px rgba(0, 0, 0, .35); }
+#ui.wol .rl-hintbox[hidden] { display: none; }
+#ui.wol .rl-hintbox header, #ui.wol .rl-hintbox footer { flex: none; }
+#ui.wol .rl-hintbox .rh-body { flex: 1 1 auto; min-height: 0; overflow: auto; }
+#ui.wol .rl-hintbox header b { font-size: 1.08em; color: #1d2c38; }
+#ui.wol .rl-hintbox .rh-body p { margin: 6px 0 0; font-weight: 600; }
+#ui.wol .rl-hintbox .rh-body p.rh-sub { font-weight: 500; opacity: .8; font-size: .95em; }
+#ui.wol .rl-hintbox .rh-row { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-top: 8px; }
+#ui.wol .rl-hintbox .rh-row > b { flex-basis: 100%; font-size: .9em; color: #48606e; display: flex; align-items: center; gap: 4px; }
+#ui.wol .rl-hintbox .rh-row > b svg { width: 18px; height: 18px; }
+#ui.wol .rl-hintbox .rh-b { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 9px; color: #fff; font-weight: 700; font-size: .9em; background: #3b82c4; box-shadow: 0 2px 0 rgba(0, 0, 0, .18); }
+#ui.wol .rl-hintbox .rh-b i { font-style: normal; display: inline-flex; } #ui.wol .rl-hintbox .rh-b svg { width: 16px; height: 16px; }
+#ui.wol .rl-hintbox .f-move { background: #3b82c4; } #ui.wol .rl-hintbox .f-act { background: #3f9a4a; } #ui.wol .rl-hintbox .f-control { background: #e08a2b; }
+#ui.wol .rl-hintbox .f-event { background: #c99a0e; } #ui.wol .rl-hintbox .f-mine { background: #8a5cc4; } #ui.wol .rl-hintbox .f-count { background: #c4504a; }
+#ui.wol .rl-hintbox .f-team { background: #2a9a9a; } #ui.wol .rl-hintbox .f-fun { background: #d66aa8; }
+#ui.wol .rl-hintbox .rh-grp { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 4px; border-radius: 11px; background: rgba(224, 138, 43, .12); }
+#ui.wol .rl-hintbox .rh-in { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 4px; padding-inline-start: 14px; border-inline-start: 3px solid rgba(224, 138, 43, .55); }
+#ui.wol .rl-hintbox .rh-else { font-size: .85em; font-weight: 700; color: #8a5a20; }
+#ui.wol .rl-hintbox .rh-more { font-weight: 800; color: #8a7a50; padding: 0 4px; }
+#ui.wol .rl-hintbox footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px; }
+#ui.wol .rl-hintbox footer button { min-height: 38px; padding: 4px 16px; border: 0; border-radius: 999px; font: inherit; font-weight: 800; color: #fff; cursor: pointer; }
+#ui.wol .rl-hintbox .rh-next { background: var(--bt-blue, #2f7fd0); } #ui.wol .rl-hintbox .rh-close { background: var(--bt-orange, #e8873a); }
+#ui.wol .rl-run .rl-hintbtn.nudge { animation: rh-nudge 1.2s ease-in-out infinite; }
+#ui.wol .rl.in3d .rl-hintbox { pointer-events: auto; max-height: calc(100% - 118px); }
+@keyframes rh-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+@keyframes rh-nudge { 0%, 100% { box-shadow: 0 0 0 0 rgba(242, 201, 76, .9); } 50% { box-shadow: 0 0 0 8px rgba(242, 201, 76, 0); } }
+@media (max-height: 520px) { #ui.wol .rl.in3d .rl-hintbox { max-height: calc(100% - 20px); z-index: 8; } #ui.wol .rl-hintbox { padding: 8px 10px; font-size: calc(.88em * var(--ts, 1)); } #ui.wol .rl-hintbox footer { margin-top: 6px; } #ui.wol .rl-hintbox footer button { min-height: 34px; } }

@@ -50,10 +50,26 @@ export const ZONES = {
       'בנו מדבר חי, שמרו על כל טיפה – וגלו את רשת החיים במקום הכי יבש.',
     palette: ['#7a4a22', '#d8a85a', '#3a8a8a'],
   },
+  // 1.4.2: the African savanna (src/data/savanna.js, docs/PLAN-1.4.2.md). Complete since 1.11 (validate-zones lists nothing).
+  // A future zone in the works gets `wip: true`: it is left out of ZONE_IDS (the start screen, the album, the quiz, the card
+  // games) while its saves and packs work (ALL_ZONE_IDS); `node tools/validate-zones.mjs <zone>` lists what it still lacks.
+  savanna: {
+    id: 'savanna',
+    name: 'הסוואנה האפריקאית',
+    subtitle: 'הכול משתנה',
+    intro:
+      'בסוואנה יש עונה של גשמים ועונה של יובש. בעונת הגשמים העשב ירוק וגבוה, ועדרים גדולים של זברות וגנו מגיעים לאכול. ' +
+      'ביובש העשב מצהיב, בורות המים מתכווצים, והעדרים ממשיכים בדרכם. פילים, ג\'ירפות ואריות חיים כאן יחד. ' +
+      'בנו סוואנה חזקה, שתחזור לאיזון אחרי כל שינוי – וגלו את רשת החיים של המישור הגדול.',
+    palette: ['#6a4a1e', '#c8a24a', '#d86a2a'],
+  },
 };
 
-// The order of the zones everywhere (start screen, album tabs, quiz, card games).
-export const ZONE_IDS = Object.keys(ZONES);
+// The order of the zones everywhere (start screen, album tabs, quiz, card games). A zone in the works (`wip`) is not in it.
+export const ZONE_IDS = Object.keys(ZONES).filter((z) => !ZONES[z].wip);
+// every zone, also the ones in the works: their saves, storage keys and packs (core/storage.js, core/packs.js)
+export const ALL_ZONE_IDS = Object.keys(ZONES);
+export const isWip = (id) => !!(ZONES[id] && ZONES[id].wip);
 
 // How a zone is named and coloured outside its own island: short name (with nikud for beginners), "in the …" phrase,
 // the album / badge colour, the animal that celebrates a mission (flourish.js), the small animals that decorate a
@@ -63,6 +79,7 @@ export const ZONE_LOOK = {
   grove: { short: 'חורש', shortK: 'חֹרֶשׁ', inside: 'בחורש הארץ-ישראלי', color: '#9a7a2e', mascot: 'hoopoe', decor: 'butterfly', sea: false },
   reef: { short: 'שונית', shortK: 'שׁוּנִית', inside: 'בשונית האלמוגים של אילת', color: '#1f8ab0', mascot: 'clownfish', decor: 'butterflyfish', sea: true },
   desert: { short: 'מדבר', shortK: 'מִדְבָּר', inside: 'במדבר', color: '#b07a32', mascot: 'fennec', decor: 'hawkmoth', sea: false },
+  savanna: { short: 'סוואנה', shortK: 'סָוַאנָה', inside: 'בסוואנה האפריקאית', color: '#c0782a', mascot: 'elephant', decor: 'weaver', sea: false },
 };
 export const zoneShort = (id) => (ZONE_LOOK[id] || {}).short || '';
 

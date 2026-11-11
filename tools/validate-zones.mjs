@@ -14,7 +14,11 @@ process.removeAllListeners('warning');
 
 const { ZONES, ZONE_IDS, ZONE_LOOK } = await imp('src/data/zones.js');
 const only = process.argv[2];
+// a zone still in the works (`wip` in data/zones.js) is checked only when it is asked for by name: the full run (and
+// check-all) stays green while it is built, and `node tools/validate-zones.mjs <zone>` lists what it still lacks
 const ids = only ? [only] : ZONE_IDS;
+const wip = only ? [] : Object.keys(ZONES).filter((z) => ZONES[z].wip);
+if (wip.length) console.log(`validate-zones: in the works, not checked here: ${wip.join(', ')} (node tools/validate-zones.mjs <zone>)`);
 const errors = [];
 const bad = (z, msg) => errors.push(`${z}: ${msg}`);
 

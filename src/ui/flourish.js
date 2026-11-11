@@ -20,7 +20,7 @@ import { current as currentPlayer } from '../core/profiles.js';
 import { loadPack, loadedPack } from '../core/packs.js';
 import { makeRng } from '../core/util.js';
 import { ZONE_IDS, ZONE_LOOK } from '../data/zones.js';
-import { svcApp } from '../core/services.js';
+import { svcApp, setService } from '../core/services.js';
 
 const reduced = () => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } };
 const host = () => document.getElementById('ui') || document.body;
@@ -233,4 +233,5 @@ async function mission(speciesId, opts = {}) {
   }
 }
 
-window.__flourish = { part, tile, sparks, badge, thread, labDoors, mission };
+window.__flourish = { part, tile, sparks, badge, thread, labDoors, mission };   // the tests' handle
+setService('flourish', window.__flourish);   // the game's way in (core/services.js)

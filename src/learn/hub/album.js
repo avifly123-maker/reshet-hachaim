@@ -16,6 +16,11 @@ import { IC, KEYS_LAND, OPEN_PER_DAY, RARITY_GEMS, RARITY_MORE, RARITY_NAMES, ST
 import { IC_GEM, IC_KEY, cardHTML, gems } from './card-html.js';
 import { CARD, CARDS, IC_SCROLL, SETS, SET_BY, SET_WHERE, activeSets, setsOf } from './cards.js';
 import { ZONE_IDS, ZONE_LOOK } from '../../data/zones.js';
+import { TECH_CARDS, TECH_BY } from '../../data/robolab/tech-cards.js';
+import { ownedTechCards } from '../../robolab/progress.js';
+import { techCardHTML, techZoomHTML, ensureTechCSS } from '../../ui/tech-card.js';
+import { isOpen } from '../../core/journey.js';
+import { playerMode } from '../../core/storage.js';
 
 export function createAlbum(ctx) {
   const { main, modal, S, sfx, toast, srcOn, collection, ownsIn, setProg, checkSets } = ctx;
@@ -77,11 +82,17 @@ export function createAlbum(ctx) {
     const srcCards = (list = SOURCE_CARDS) => list.map((c) => sourceCardHTML(c, !!own[c.id], n++)).join('');
     // the source cards, set by set (SOURCE_SETS): a small heading for each set
     const srcBySets = () => SETS.filter((st) => st.src).map((st) => secHTML(esc(st.name), st.cards.filter((c) => own[c.id]).length, st.cards.length, st.col, esc(st.sub), 'sub') + srcCards(st.cards)).join('');
+    // 1.4.3: the technology cards of the robot lab, a series of their own (shown once the robot lab is open on the journey)
+    const techOn = isOpen('robolab'), tOwn = techOn ? ownedTechCards() : {}, tKids = playerMode() === 'kids';
+    if (techOn) ensureTechCSS();
+    const techSec = () => (techOn ? secHTML('מעבדת הרובוטים', TECH_CARDS.filter((c) => tOwn[c.id]).length, TECH_CARDS.length, '#2c5f8f', 'קלפי טכנולוגיה: רובוטים והרעיונות שמאחוריהם') + TECH_CARDS.map((c) => techCardHTML(c, { own: !!tOwn[c.id], kids: tKids, attrs: `data-wl="tzoom" data-t="${c.id}"` })).join('') : '');
     let body;
     if (curSet) body = curSet.src ? srcCards(curSet.cards) : cards(curSet.cards);
+    else if (filter === 'tech' && techOn) { const l = CARDS.filter((c) => inPart(c, 'tech')); body = secHTML('כלים בטבע', l.filter((c) => S.owned[c.id]).length, l.length, '#2c5f8f') + cards(l) + techSec(); }
     else if (filter === 'src') body = secHTML('קלפי מקור', srcHave, SOURCE_CARDS.length, '#b8892e', 'סיפורים ופסוקים על הבריאה') + srcBySets();
     else if (filter === 'all') {
       body = ALBUM_PARTS.map(([v, t, col]) => { const l = CARDS.filter((c) => inPart(c, v)); return secHTML(t, l.filter((c) => S.owned[c.id]).length, l.length, col) + cards(l); }).join('');
+      body += techSec();
       if (srcOn()) body += secHTML('מן המקורות', srcHave, SOURCE_CARDS.length, '#b8892e', 'סיפורים ופסוקים על הבריאה') + srcBySets();
     } else body = cards(CARDS.filter((c) => inPart(c, filter)));
     const TAB_IC = { all: 'zones', tech: 'robot', src: 'scroll', ...Object.fromEntries(ZONE_IDS.map((z) => [z, z])) };
@@ -132,6 +143,15 @@ export function createAlbum(ctx) {
       <span class="wl-sci">${own ? (IC[c.icon] || IC_SCROLL) : IC_SCROLL}</span>
       <b>${own ? esc(c.title) : 'קלף מקור'}</b><small>${own ? esc(c.ref) : esc(EARN_TEXT[c.earn] || '')}</small></button>`;
   }
+  // a technology card, big, with what it is and an idea from nature (src/ui/tech-card.js)
+  function tzoom(id) {
+    const c = TECH_BY.get(id); if (!c) return;
+    const kids = playerMode() === 'kids';
+    if (!ownedTechCards()[id]) { toast(`${IC.quest}<span>${esc(kids ? 'אֶת הַקְּלָף הַזֶּה מְקַבְּלִים בְּמַעְבֶּדֶת הָרוֹבּוֹטִים' : 'את הקלף הזה מקבלים במעבדת הרובוטים')}</span>`, 3200); return; }
+    sfx('select'); ensureTechCSS();
+    modal.innerHTML = `<div class="wl-mtext paper wl-tcwin">${techZoomHTML(c, { kids })}<button class="wl-btn" data-wl="close">${icon('close')}סגירה</button></div>`;
+    modal.hidden = false;
+  }
   function szoom(id) {
     const c = SOURCE_CARDS.find((x) => x.id === id); if (!c) return;
     if (!ownedSources()[id]) { toast(`${IC.quest}<span>${esc(EARN_TEXT[c.earn] || 'את הקלף הזה עוד לא קיבלתם')}</span>`, 3200); return; }
@@ -163,13 +183,13 @@ export function createAlbum(ctx) {
         <button class="wl-btn" data-wl="close">${icon('close')}סגירה</button></div>`;
     modal.hidden = false;
   }
-  // what a rare / very rare card can do in "מחזיקים את היער" (agreeing with the species)
+  // what a rare / very rare card can do in "מחזיקים את הסביבה" (agreeing with the species)
   function powerHTML(c) {
     if (c.type !== 'species' || (c.rarity !== 'epic' && c.rarity !== 'rare')) return '';
     const id = c.sp.id, it = gw(id, 'אותו', 'אותה', 'אותם', 'אותן');
     const txt = c.rarity === 'epic'
-      ? `<b>מין מפתח:</b> הרבה יצורים צריכים ${it}. במשחק "מחזיקים את היער" ${gw(id, 'הוא שומר', 'היא שומרת', 'הם שומרים', 'הן שומרות')} על היער פעם אחת, כשהיער לא מוכן לאירוע.`
-      : `<b>בונוס קטן:</b> במשחק "מחזיקים את היער", אם ${gw(id, 'הוא מתחבר', 'היא מתחברת', 'הם מתחברים', 'הן מתחברות')} בחוט זהב כשמניחים ${it} – עוד נקודת חִיּוּת אחת.`;
+      ? `<b>מין מפתח:</b> הרבה יצורים צריכים ${it}. במשחק "מחזיקים את הסביבה" ${gw(id, 'הוא שומר', 'היא שומרת', 'הם שומרים', 'הן שומרות')} על הסביבה פעם אחת, כשהיא לא מוכנה לאירוע.`
+      : `<b>בונוס קטן:</b> במשחק "מחזיקים את הסביבה", אם ${gw(id, 'הוא מתחבר', 'היא מתחברת', 'הם מתחברים', 'הן מתחברות')} בחוט זהב כשמניחים ${it} – עוד נקודת חִיּוּת אחת.`;
     return `<div class="wl-mpow r-${c.rarity}"><span class="wl-powi">${c.rarity === 'epic' ? IC_KEY : IC.star}</span><span>${txt}</span></div>`;
   }
   // "מה רואים על הקלף?" – one big example card with numbered markers + a numbered legend
@@ -182,7 +202,7 @@ export function createAlbum(ctx) {
       ['badge', 'איפה הוא גר', '<b class="wl-badge b-amazon">אמזונס</b> <b class="wl-badge b-grove">חורש</b> <b class="wl-badge b-reef">שונית</b> – יער הגשם, החורש שלנו או שונית האלמוגים של אילת. <b class="wl-badge b-tech">טכנולוגיה</b> – כלי שעוזר לשמור על הטבע.'],
       ['kind', 'מה הוא', 'עץ, שיח, פרח, בעל חיים, פטרייה...'],
       ['gems', 'יהלומי נדירות', `כמה קשה למצוא את הקלף בחבילות: <span class="wl-lr c">${dia(1)} נפוץ</span><span class="wl-lr r">${dia(2)} נדיר</span><span class="wl-lr e">${dia(3)} נדיר מאוד</span><span class="wl-lr t"><span class="wl-gems">${gems('tech')}</span> כלי טכנולוגי</span>`],
-      ['x-power', 'נדירות במשחק', `<span class="wl-lp e"><b>נדיר מאוד = מין מפתח.</b> כוח מיוחד במשחק "מחזיקים את היער": שומר על היער פעם אחת.</span><span class="wl-lp r"><b>נדיר:</b> בונוס קטן – עוד נקודת חִיּוּת אחת.</span>`],
+      ['x-power', 'נדירות במשחק', `<span class="wl-lp e"><b>נדיר מאוד = מין מפתח.</b> כוח מיוחד במשחק "מחזיקים את הסביבה": שומר על הסביבה פעם אחת.</span><span class="wl-lp r"><b>נדיר:</b> בונוס קטן – עוד נקודת חִיּוּת אחת.</span>`],
       ['stats', 'שלושה מספרים', `${STAT_ICON.light} <b>אור</b> – כמה אור הוא צריך. ${STAT_ICON.water} <b>מים</b> – כמה מים ולחות (בקלפי השונית במקומם ${STAT_ICON.shelter} <b>מחסה</b> – כמה בית הוא נותן לאחרים). ${STAT_ICON.links} <b>קשרים</b> – עם כמה יצורים יש לו קשר ברשת. מ-1 עד 5.`],
       ['fact', 'הידעת?', 'משפט קצר ומעניין על היצור.'],
       ['rar', 'נדירות במילים', 'גם צבע המסגרת מספר: ירוק – נפוץ, זהב – נדיר, אדום-סגול – נדיר מאוד, כחול – טכנולוגיה.'],
@@ -210,5 +230,5 @@ export function createAlbum(ctx) {
     place(); requestAnimationFrame(place);
   }
   function closeModal() { modal.hidden = true; modal.innerHTML = ''; }
-  return { renderAlbum, showSets, onResize, szoom, zoom, cardLegend, closeModal };
+  return { renderAlbum, showSets, onResize, szoom, tzoom, zoom, cardLegend, closeModal };
 }

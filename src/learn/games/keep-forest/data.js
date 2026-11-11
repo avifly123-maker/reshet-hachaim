@@ -1,4 +1,4 @@
-// מחזיקים את היער – the fixed numbers and small helpers: the three places and their rows (the reef has rows of its own),
+// מחזיקים את הסביבה – the fixed numbers and small helpers: the three places and their rows (the reef has rows of its own),
 // which row a species grows in (layerRow), bird / insect / fish sets (tools that double their threads), the devices of
 // each place (toolOk), the vitality needed for stars (STAR_T), deck sizes; rnd, shuffle, dn (definite name), mid (מים
 // on land, מחסה at the reef), and every real relation between two species of a place (linksFor, cached per place).
@@ -10,14 +10,14 @@ import { defName, dietVerb, joinObj, relVerb } from '../../../data/common.js';
 // vitality gained, said in words (no plus sign anywhere: it reads as a cross): "עוד נקודת חִיּוּת" / "עוד 3 נקודות חִיּוּת"
 export const moreLife = (n) => (n === 1 ? 'עוד נקודת חִיּוּת' : `עוד ${n} נקודות חִיּוּת`);
 
-export const BIOMES = ['amazon', 'grove', 'reef', 'desert'];
-export const BNAME = { amazon: 'אמזונס', grove: 'חורש', reef: 'שונית', desert: 'מדבר' };
+export const BIOMES = ['amazon', 'grove', 'reef', 'desert', 'savanna'];
+export const BNAME = { amazon: 'אמזונס', grove: 'חורש', reef: 'שונית', desert: 'מדבר', savanna: 'סוואנה' };
 export const ROWS = ['חופה', 'קומת ביניים', 'קרקע'];
 export const ROW_SHORT = ['חופה', 'ביניים', 'קרקע'];
 // the reef has its own three rows: shallow water (corals that love light), the slope, the sea floor
 export const ROWS_REEF = ['מים רדודים', 'מדרון השונית', 'קרקעית'];
 export const ROW_SHORT_REEF = ['רדודים', 'מדרון', 'קרקעית'];
-export const ROW_SUB = { amazon: ['עצים גבוהים ומטפסים', 'דקלים ושיחים', 'שרכים, פטריות ומים'], grove: ['עצי החורש', 'שיחים', 'פרחים ופטריות'], reef: ['אלמוגים שאוהבים הרבה אור', 'אלמוגים רכים ומניפות ים', 'עשב ים, אצות וספוגים'], desert: ['עצים וקקטוסים גבוהים', 'שיחים', 'צמחים קטנים וקרום האדמה'] };
+export const ROW_SUB = { amazon: ['עצים גבוהים ומטפסים', 'דקלים ושיחים', 'שרכים, פטריות ומים'], grove: ['עצי החורש', 'שיחים', 'פרחים ופטריות'], reef: ['אלמוגים שאוהבים הרבה אור', 'אלמוגים רכים ומניפות ים', 'עשב ים, אצות וספוגים'], desert: ['עצים וקקטוסים גבוהים', 'שיחים', 'צמחים קטנים וקרום האדמה'], savanna: ['העצים הבודדים', 'עשב גבוה ושיחים', 'עשב קצר, תלים ומים'] };
 // the desert keeps an oasis alive: its rows are the tall trees, the shrubs and the ground
 export const ROWS_DESERT = ['עצים גבוהים', 'קומת השיחים', 'קרקע'];
 export const ROW_SHORT_DESERT = ['עצים', 'שיחים', 'קרקע'];
@@ -26,6 +26,13 @@ const OASIS = [[/עצי החופה/g, 'העצים הגבוהים'], [/בקומת
   [/(?<![א-ת])ביניים(?![א-ת])/g, 'שיחים'], [/בחופה/g, 'בקומת העצים'], [/(?<![א-ת])חופה(?![א-ת])/g, 'עצים'], [/שומר היער/g, 'שומר הנווה'],
   [/(?<![א-ת])(ו?(?:כש|ש|מ)?)היער(?![א-ת])/g, '$1נווה המדבר'], [/(?<![א-ת])(ו?[בל])יער(?![א-ת])/g, '$1נווה המדבר'], [/(?<![א-ת])יער(?![א-ת])/g, 'נווה מדבר']];
 export const oasisWords = (t) => OASIS.reduce((s, [a, b]) => s.replace(a, b), t);
+// 1.4.2: the savanna keeps a plain alive (המישור, masculine like היער): its rows are the lonely trees, the tall grass, the ground
+export const ROWS_SAVANNA = ['העצים הבודדים', 'עשב גבוה', 'קרקע ומים'];
+export const ROW_SHORT_SAVANNA = ['עצים', 'עשב', 'קרקע'];
+const PLAIN = [[/עצי החופה/g, 'העצים הבודדים'], [/בקומת הביניים/g, 'בעשב הגבוה'], [/קומת הביניים/g, 'העשב הגבוה'], [/בביניים/g, 'בעשב'],
+  [/(?<![א-ת])ביניים(?![א-ת])/g, 'עשב'], [/בחופה/g, 'בקומת העצים'], [/(?<![א-ת])חופה(?![א-ת])/g, 'עצים'], [/שומר היער/g, 'שומר המישור'],
+  [/(?<![א-ת])(ו?(?:כש|ש|מ)?)היער(?![א-ת])/g, '$1המישור'], [/(?<![א-ת])(ו?[בל])יער(?![א-ת])/g, '$1מישור'], [/(?<![א-ת])יער(?![א-ת])/g, 'מישור']];
+export const plainWords = (t) => PLAIN.reduce((s, [a, b]) => s.replace(a, b), t);
 const LAYER_ROW = { emergent: 0, canopy: 0, understory: 1, floor: 2, water: 2, shallow: 0, open: 0, slope: 1, sand: 2 };
 // a few reef species get a row of their own in this game, so every row has a few fixed cards (all of these do live there)
 const KF_ROW = { 'reef:brain': 1, 'reef:seaanemone': 1, 'reef:sponge': 2, 'reef:algae': 2 };
@@ -38,7 +45,7 @@ export const FISH = new Set(['clownfish', 'parrotfish', 'surgeonfish', 'cleaner'
 const LAND_TWIN = new Set(['drone', 'camera', 'weather']);
 export const toolOk = (c, b) => (c.tool.zones ? c.tool.zones.includes(b) : !(b === 'reef' && LAND_TWIN.has(c.tool.id)));
 // the desert's own devices in the hand (drip, fog net, sand fence) and its starter devices
-export const STARTER_TOOLS = { reef: ['tool:buoy', 'tool:nursery', 'tool:rov'], desert: ['tool:drip', 'tool:sandfence', 'tool:seeddrone'] };
+export const STARTER_TOOLS = { reef: ['tool:buoy', 'tool:nursery', 'tool:rov'], desert: ['tool:drip', 'tool:sandfence', 'tool:seeddrone'], savanna: ['tool:watergen', 'tool:camera', 'tool:seeddrone'] };
 export const starterTools = (b) => STARTER_TOOLS[b] || ['tool:watergen', 'tool:listener', 'tool:seeddrone'];
 // vitality needed at the end: [1 star (= the forest held on), 2 stars, 3 stars]. Below the first one the run is lost.
 export const STAR_T = { full: [10, 15, 21], kids: [6, 10, 15] }; // raised with the rarity powers (keystones + rare bonus), see sim()

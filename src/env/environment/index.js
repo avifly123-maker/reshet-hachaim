@@ -22,9 +22,11 @@
 //   controls.js      overlay, gaps, isPlaceable, quality, dispose
 //   tree-shadows.js  soft painted tree shadows
 //   common.js, textures.js, palettes.js: constants, procedural textures, colour keyframes
+import { setCloudTex } from '../cloud-shade.js';
 import * as THREE from 'three';
 import { makeRng, makeNoise2D } from '../../core/util.js';
-import { Q, MAX_SCORCH, C, V3, R } from './common.js';
+import { Q, MAX_SCORCH, C, V3, setIslandScale, islandScaleOf } from './common.js';
+import * as COMMON from './common.js';
 import { makeTileNoiseTexture, makePuffTexture } from './textures.js';
 import { createTerrain } from './terrain.js';
 import { createGround } from './ground.js';
@@ -54,12 +56,15 @@ import { createTreeShadows } from './tree-shadows.js';
 // with its coral models, so the other zones and the start screen never load it).
 // river / bare (1.3.3, the training field): a stream on a grove island, and bare soil with very little ground cover
 export function createEnvironment(pipeline, biomeId = 'amazon', { quality = 'medium', seed = 1, impostorTrees = null, zoneEnv = null, river = false, bare = false } = {}) {
+  setIslandScale(islandScaleOf(zoneEnv ? null : biomeId));   // 1.4.2: the savanna's bigger island (common.js); 1 for the rest
   if (zoneEnv) return zoneEnv(pipeline, { quality, seed });
   if (biomeId === 'reef') throw new Error('the reef environment comes with the reef pack (zone.env)');
   // 1.4: the desert uses the grove's dry-land parts with its own look (isDesert; colours and shapes in desert-look.js)
+  // 1.4.2: so does the savanna (isSavanna; savanna-look.js), on a bigger island with a river and waterholes
   const isDesert = biomeId === 'desert';
-  const isAmazon = biomeId !== 'grove' && !isDesert;
-  const biome = isAmazon ? 'amazon' : isDesert ? 'desert' : 'grove';
+  const isSavanna = biomeId === 'savanna';
+  const isAmazon = biomeId !== 'grove' && !isDesert && !isSavanna;
+  const biome = isAmazon ? 'amazon' : isDesert ? 'desert' : isSavanna ? 'savanna' : 'grove';
   const scene = pipeline.scene;
   const qual = Q[quality] || Q.medium;
   const rng = makeRng(seed * 7919 + (isAmazon ? 11 : 23));
@@ -72,6 +77,7 @@ export function createEnvironment(pipeline, biomeId = 'amazon', { quality = 'med
 
   const noiseTex = track(makeTileNoiseTexture(256, seed + 3));
   const puffTex = track(makePuffTexture(128, seed + 5));
+  setCloudTex(noiseTex);   // 1.4.4 set 10: cloud shadows read the island's own tiling noise (src/env/cloud-shade.js)
 
   // Shared uniforms (same objects referenced by many materials)
   const U = {
@@ -85,7 +91,7 @@ export function createEnvironment(pipeline, biomeId = 'amazon', { quality = 'med
   };
 
   // one shared context for the parts (see the header); each part's results are merged into it, in creation order
-  const ctx = { pipeline, scene, biome, isAmazon, isDesert, quality, qual, seed, impostorTrees, noise, noiseB, root, disposables, track,
+  const ctx = { pipeline, scene, biome, isAmazon, isDesert, isSavanna, quality, qual, seed, impostorTrees, noise, noiseB, root, disposables, track,
     noiseTex, puffTex, U, river, bare };
   Object.assign(ctx, createTerrain(ctx));      // ─ island shape & height field, water layout, log crossings, rocks layout
   Object.assign(ctx, createGround(ctx));       // ─ ground (top surface)
@@ -119,10 +125,14 @@ export function createEnvironment(pipeline, biomeId = 'amazon', { quality = 'med
     rockMesh, sun, update, setLightOverlay, setGap, setQuality, dispose, setTreeShadows, setFallenFruit,
     night
   } = ctx;
+  const ER = Math.round(44 * COMMON.K);   // the island's edge radius, for the game's camera and roaming (≈ edgeR)
   const env = {
-    biome, radius: R, root,
+    biome, radius: COMMON.R, root,
     heightAt, isWater, isPlaceable, waterLevel: WL, water,
     waterDist, nearWadi: isDesert ? nearWadi : null,   // 1.4: the desert's water (src/game/game/water.js)
+    holes: (ctx.holes || []).map((p) => ({ x: p.x, z: p.z, r: p.r })),   // 1.4.2: the savanna's waterholes
+    setGrassMap: ctx.setGrassMap || null,
+    clearScatter: ctx.clearScatter || null,   // 1.4.3: no grass on a robot field's mud, water and ditch (scatter.js)   // 1.4.2: the savanna's grass (height, green, burnt) from the game, scatter.js
     bridges: bridges.map(b => ({ ax: b.ax, az: b.az, bx: b.bx, bz: b.bz })), bridgeAt, walkRoute,
     rocks: rocks.map(r => ({ x: r.x, z: r.z, r: r.r, top: r.top })),
     groundMeshes: [groundMesh],
@@ -131,6 +141,7 @@ export function createEnvironment(pipeline, biomeId = 'amazon', { quality = 'med
     sun,
     update, setLightOverlay, setGap, setQuality, dispose, setTreeShadows, setFallenFruit,
     get night() { return night.v; },
+    edgeRadius: ER,
   };
   update(0, { t: 0, dayFrac: 0.5 });
   return env;

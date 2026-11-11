@@ -1,0 +1,48 @@
+[
+{
+"js": "window.__app.journey.unlockAll('2580'); window.__app.journey.markTrained(); window.__journey.markIntro('g:svfilm'); try{window.__guide.close()}catch(e){}; window.__app.bus.emit('start:biome',{id:'savanna'}); 1"
+},
+{
+"until": "window.__game && window.__game.debug && window.__game.debug.tools",
+"timeout": 300
+},
+{
+"wait": 3
+},
+{
+"js": "(window.__game.debug.savannaTut && window.__game.debug.savannaTut() && window.__game.debug.savannaTut().stop()); 1"
+},
+{
+"js": "window.__T={ G:()=>window.__game, tools:()=>window.__game.debug.tools(), close(){ try{window.__guide.close()}catch(e){}; document.querySelectorAll('[data-h=skip]').forEach(b=>b.click()); window.__app.bus.emit('coach:skip'); }, put(id,x,z){ const W=this.G(); const hit={x,z,y:W.env.heightAt(x,z)}; const T=this.tools(); const c=T.check(id,hit); if(!c.ok) return id+': '+c.reason; T.use(id,hit,c); return id+' ok'; }, spot(id){ let s='none'; for(let i=0;i<60;i++){ const a=i*0.7, r=4+i*0.5; s=this.put(id,Math.cos(a)*r,Math.sin(a)*r); if(/ok/.test(s)) break; } return s; }, look(x,y,z,d){ const r=this.G().debug.rig; r.focusOn(r.controls.target.clone().set(x,y,z), d); for(let i=0;i<8;i++) r.update(0.4); }, cam(px,py,pz,tx,ty,tz){ const r=this.G().debug.rig; for(let i=0;i<8;i++) r.update(0.4); r.controls.target.set(tx,ty,tz); r.controls.object.position.set(px,py,pz); r.controls.update&&r.controls.update(); } }; const st=document.createElement('style'); st.textContent='#ui .toast{display:none!important}'; document.head.appendChild(st); __T.close(); const d=__T.G().debug; d.unlockAll(); window.__app.bus.emit('quality',{q:'medium'}); __T.G().points=9999; ['umbrella','umbrella','whistling','redoat','redoat','redoat','zebra','elephant','elephant','giraffe'].forEach(id=>{try{d.place(id,(Math.random()-.5)*30,(Math.random()-.5)*30)}catch(e){}}); d.ff(20); 'animals '+__T.G().animals.length"
+},
+{
+"js": "const a=__T.spot('solarpump'); const b=__T.spot('beefence'); const c=__T.spot('firetower'); 'CHECK sav-dev-place '+(/ok/.test(a)&&/ok/.test(b)&&/ok/.test(c)?'ok':'FAIL '+a+' / '+b+' / '+c)"
+},
+{
+"js": "const W=__T.G(); const D=__T.tools().serialize().devices; const p=D.find(d=>d.id==='solarpump'); const w=W.waterAt(p.x+2.6,p.z+0.9); 'CHECK sav-dev-pump-water '+(w>0.5?'ok':'FAIL '+w.toFixed(2))"
+},
+{
+"js": "const D=__T.tools().serialize().devices; const b=D.find(d=>d.id==='beefence'); const g=__T.tools().tech.desert.guardAt(b.x,b.z+2.4); 'CHECK sav-dev-bee-guard '+(g>0.5?'ok':'FAIL '+g)"
+},
+{
+"js": "const D=__T.tools().serialize().devices; const p=D.find(d=>d.id==='solarpump'); __T.close(); __T.look(p.x+1,1,p.z,14); 1"
+},
+{
+"wait": 2
+},
+{
+"shot": "shots/sav-pump.png"
+},
+{
+"js": "const D=__T.tools().serialize().devices; const p=D.find(d=>d.id==='beefence'); __T.close(); __T.look(p.x,1,p.z-2,16); 1"
+},
+{
+"wait": 2
+},
+{
+"shot": "shots/sav-bees.png"
+},
+{
+"js": "__T.G().debug.ff(30); 'CHECK sav-dev-run ok'"
+}
+]

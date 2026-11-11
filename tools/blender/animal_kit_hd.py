@@ -14,7 +14,8 @@ import numpy as np
 
 HD = dict(k=0.5, hi_tris=140000, game_mult=1.8, game_min=1600, game_max=6500, tex=512, ao=16, lod1=0.34, lod1_min=500,
           q_col=82, q_nrm=80, ao_mix=0.5)
-BIRDS = {'owl', 'jay', 'blackbird', 'hoopoe', 'chukar', 'toucan', 'macaw', 'harpy', 'hummingbird'}
+BIRDS = {'owl', 'jay', 'blackbird', 'hoopoe', 'chukar', 'toucan', 'macaw', 'harpy', 'hummingbird',
+         'eagleowl', 'houbara', 'sandgrouse', 'weaver'}   # 2.11: the 1.4 birds had been missed, so they got fur and no folded wings
 SCALY = {'agama', 'chameleon', 'tortoise'}
 SMOOTHSKIN = {'dartfrog', 'butterfly', 'morpho'}
 _HD = globals().get('_HD', {})   # survives a re-exec of this module

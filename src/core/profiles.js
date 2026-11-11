@@ -11,7 +11,7 @@
 // API: list(), current(), setCurrent(id), add(name, animal), rename(id, name), setAnimal(id, animal),
 //      remove(id), key(base), state(), MAX, NAME_MAX.   Exposed as window.__profiles for tests.
 
-import { unmovedKeys } from './storage.js';
+import { unmovedKeys } from './storage-keys.js';   // the key list only (storage.js imports this module: no cycle)
 
 export const STORE = 'web-of-life-profiles';   // = K.profiles in core/storage.js (tools/validate-storage.mjs checks it)
 export const MAX = 6;   // 1.3.2: six children (was four)

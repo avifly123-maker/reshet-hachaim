@@ -14,6 +14,7 @@
 import { BLOCKS, SENSORS } from './blocks.js';
 import { makeWorld, cellAt, canEnter, ahead, DIRS } from './world.js';
 import { checkGoal } from './goals.js';
+import { partsFor } from './build.js';
 
 const MAX_TICKS = 600, MAX_DEPTH = 40;
 
@@ -62,6 +63,9 @@ function* agent(prog, list, tool, W, depth = 0) {
       W.cur = nd.id || null;   // the screen lights the block that runs (trace entries carry nid)
       W.act(tool, nd);
       yield 1;
+      // 1.4.3: a slow built robot (heavy, strong gears) takes more than one step for each move
+      const T = W.tools[tool], extra = T && T.st && (nd.b === 'fwd' || nd.b === 'back') ? T.st.stepsPerMove - 1 : 0;
+      for (let i = 0; i < extra && !W.done; i++) { W.trace.push({ t: W.ticks, tool, a: 'slow', x: T.x, y: T.y, dir: T.dir, nid: nd.id || null }); yield 1; }
     }
   }
 }
@@ -69,6 +73,8 @@ function* agent(prog, list, tool, W, depth = 0) {
 export function sense(W, tool, c) {
   const S = SENSORS[c];
   if (!S) { W.fail('sensor', tool, { c }); return false; }
+  const T = W.tools[tool];
+  if (T && T.st && !T.st.sees.has(c)) { W.fail('nosensor', tool, { c, need: partsFor(c) }); return false; }   // a built robot sees only with its sensors
   return !!S.test(W, W.tools[tool]);
 }
 
@@ -80,6 +86,8 @@ export function runProgram(level, program, opts = {}) {
   for (const k of ['robot', 'drone', 'sub']) if (W.tools[k] && prog[k] && prog[k].length && !W.tools[k].parked) gens[k] = agent(prog, prog[k], k, W);
   W.startAgent = (k) => { if (prog[k] && !gens[k]) gens[k] = agent(prog, prog[k], k, W); };   // a drone that the robot launches
   const handlers = (prog.on || []).map((h) => ({ ...h, fired: false }));
+  // a built robot hears only the events its parts can hear (the light sensor knows sunset, the camera sees animals)
+  for (const h of handlers) { const T = W.tools[h.tool]; if (T && T.st && !T.st.hears.has(h.ev)) { W.fail('nosensor', h.tool, { c: h.ev, need: partsFor(h.ev) }); break; } }
   while (!W.done && W.ticks < max) {
     // events: a handler runs when its moment comes, and its tool's main program stops (e.g. "when the sun sets, go home")
     for (const h of handlers) {
@@ -114,7 +122,7 @@ export function runProgram(level, program, opts = {}) {
       if (r.done) delete gens[k]; else moved = true;
       if (W.done) break;
     }
-    W.tick();
+    W.tick(); if (W.recharge) W.recharge();
     const heard = handlers.some((h) => h.ev === 'msg' && W.msgs.slice(h.seen || 0).some((q) => q.m === (h.m || 'a') && q.from !== h.tool));
     if (!moved && !Object.keys(gens).length && !heard) break;
   }

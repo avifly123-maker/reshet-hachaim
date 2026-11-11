@@ -1,0 +1,12 @@
+[{"wait": 4},
+{"js": "['stage:1','g:hubtut','g:album','g:learn','g:start:chat','g:start:howstages','g:start:settings','g:nztut'].forEach((k) => window.__journey.markIntro(k)); window.__journey.markTrained(); window.__guide && window.__guide.close(); window.__journey.unlockAll('2580'); window.dispatchEvent(new CustomEvent('wol-journey')); window.__errs=[]; window.addEventListener('error',(e)=>window.__errs.push(String(e.message))); window.addEventListener('unhandledrejection',(e)=>window.__errs.push(String(e.reason))); 1"},
+{"js": "window.__guide.say([{ id: 'nz.hello.1', f: 'בזזזט! הנה אתם!', k: 'בְּזזזט!' }], { speaker: 'nitzotz' }); 1"},
+{"until": "!!document.querySelector('#rguide .rg-fig.nitz') && !document.querySelector('#rguide .rg-say[hidden]')", "timeout": 30},
+{"js": "const b=document.querySelector('#rguide .rg-say'); 'CHECK voiced-line-has-say-again ' + (b && !b.hidden && b.offsetParent ? 'ok' : 'FAIL')"},
+{"js": "document.querySelector('#rguide .rg-say').click(); 1"},
+{"wait": 1},
+{"js": "window.__guide.close(); window.__guide.say([{ id: 'nz.none.1', f: 'שיא חדש!', k: 'שִׂיא חָדָשׁ!' }], { speaker: 'nitzotz' }); 1"},
+{"wait": 3},
+{"js": "const b=document.querySelector('#rguide .rg-say'); 'CHECK unvoiced-line-no-say-again ' + (!b || b.hidden ? 'ok' : 'FAIL')"},
+{"js": "window.__guide.close(); 'CHECK no-errors ' + (!window.__errs.length ? 'ok' : 'FAIL ' + window.__errs.join(' | '))"}
+]

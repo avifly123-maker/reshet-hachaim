@@ -86,8 +86,9 @@ export class Plant {
     const sp = this.sp;
     if (this.host && !this.host.alive) { this.die(); return; }
     const grove = W.biomeId === 'grove';
+    const seasonal = grove || W.biomeId === 'savanna';   // 1.4.2: the savanna's two seasons (wet / dry) work like the grove's four
     const season = W.season;
-    const dormant = grove && sp.seasons && (sp.seasons.dormant || []).includes(season);
+    const dormant = seasonal && sp.seasons && (sp.seasons.dormant || []).includes(season);
     const need = sp.lightNeed ?? 0.5;
     const effNeed = sp.shadeTolerant ? need * 0.75 : need;
     let lightOK = clamp((this.light - effNeed * 0.3) / (effNeed * 0.7 + 1e-3));
@@ -108,6 +109,7 @@ export class Plant {
     if (dormant) target = Math.max(target, 0.6);
     if (sp.kind === 'fungus') target = W.rain > 0.3 || W.season === 'winter' || W.season === 'autumn' || !grove ? 1 : 0.75 - W.drought * 0.3;
     if (W.fireAt(this.x, this.z) > 0) { this.burnFire(W); return; }
+    if (this.burn && W.biomeId === 'savanna') this.burn = 0;   // 1.4.2: a savanna plant that came through a fire can burn again next year
     const rate = target < this.health ? 0.018 : 0.03;
     this.health = damp(this.health, target, rate * 3, dt);
     if (this.healthCap != null && this.health > this.healthCap) this.health = damp(this.health, this.healthCap, 0.6, dt);   // a mystery shows this one sick (a bleached coral)
@@ -119,11 +121,11 @@ export class Plant {
     // bloom & fruit
     let bloomT = 0, fruitT = 0;
     const pollNeeded = sp.pollinators.length > 0;
-    if (grove && sp.seasons) {
+    if (seasonal && sp.seasons) {
       const bl = sp.seasons.bloom || [], fr = sp.seasons.fruit || [];
       if (this.growth > 0.5 && this.health > 0.35 && !dormant && bl.includes(season)) bloomT = 1;
       if (this.growth > 0.6 && fr.includes(season)) fruitT = pollNeeded ? (this.pollinated ? 1 : 0.35) : 1;
-      if (season === 'winter' && W.seasonFrac < 0.05 && !bl.includes('winter')) this.pollinated = false;
+      if ((season === 'winter' || season === 'wet') && W.seasonFrac < 0.05 && !bl.includes(season)) this.pollinated = false;
     } else {
       const cyc = (this.age + this.phase) % 150;
       if (cyc < 2) this.pollinated = false;
@@ -148,6 +150,14 @@ export class Plant {
     const sp = this.sp;
     if (this.burn > 0) return;
     this.burn = 1;
+    // 1.4.2, the savanna: fire is part of its life. The grasses grow back from their roots, a grown tree's thick bark
+    // keeps it alive (scorched), a termite mound does not burn; seedlings and young shrubs are lost
+    if (W.biomeId === 'savanna') {
+      if (sp.kind === 'herb') { this.growth = Math.max(0.1, this.growth * 0.15); this.health = 0.6; return; }
+      if (sp.id === 'termitemound' || sp.kind === 'water-plant') { this.burn = 0; return; }
+      if (this.isTree && this.growth > 0.6) { this.health = Math.min(this.health, 0.55); return; }
+      this.die('fire'); return;
+    }
     if (W.biomeId === 'grove' && (W.resprouters.has(sp.id))) { this.growth = Math.max(0.12, this.growth * 0.2); this.health = 0.45; W.note('resprout', this); }
     else if (GEOPHYTES.has(sp.id)) { this.health = 0.5; }
     else if (sp.id === 'pine') { W.pineAfterFire(this); this.die('fire'); }
@@ -177,7 +187,7 @@ export class Plant {
     if (Math.abs((this._h ?? -1) - this.health) > 0.01) { this.vis.setHealth(this.health); this._h = this.health; }
     if (Math.abs((this._b ?? -1) - this.bloom) > 0.02) { this.vis.setBloom(this.bloom); this._b = this.bloom; }
     if (Math.abs((this._f ?? -1) - this.fruit) > 0.02) { this.vis.setFruit(this.fruit); this._f = this.fruit; }
-    if (W.biomeId === 'grove' && (this._s !== W.season || Math.abs((this._sf ?? 0) - W.seasonFrac) > 0.05)) { this.vis.setSeason(W.season, W.seasonFrac); this._s = W.season; this._sf = W.seasonFrac; }
+    if ((W.biomeId === 'grove' || W.biomeId === 'savanna') && (this._s !== W.season || Math.abs((this._sf ?? 0) - W.seasonFrac) > 0.05)) { this.vis.setSeason(W.season, W.seasonFrac); this._s = W.season; this._sf = W.seasonFrac; }
     this.vis.setNightGlow(W.nightGlow);
     this.vis.update(dt, t, W.wind);
     if (this.host && this.sp.kind === 'epiphyte' && ((t * 2 + this.uid) % 2) < dt * 2) this.placeOnHost();

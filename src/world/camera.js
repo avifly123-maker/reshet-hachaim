@@ -39,6 +39,8 @@ export function createCameraRig(camera, dom, env) {
     shrub: { target: [0, 3, 0], dist: 26, elev: 0.12, polar: 1.7 },
     water: { target: [0, 1, 0], dist: 30, elev: 0.3, polar: 1.6 },
   };
+  // 1.4.2: a bigger island (the savanna) is seen from further away (Avi, 28.10: "a camera that moves further back")
+  if (R > 39) VIEWS.all.dist *= R / 38;
   const overviewDist = () => VIEWS.all.dist * (api.distScale || 1);
 
   function goTo(target, pos, dur = 1.6) {

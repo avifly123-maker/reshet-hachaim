@@ -301,3 +301,6 @@
   #ui.wol .lb-dpic { width: 15vh; }
 }
 @media (max-width: 860px) { #ui.wol .lb:not(.at-st) .lb-logo { display: none; } }
+/* 1.4.3 closing (the tour): while a panel is open over the room (questions, a station's frame, the talk), the room's
+   orange dots stay hidden, so none of them sits on the panel's words */
+#ui.wol .lb:has(.lb-panels > *) .lb-hots { opacity: 0; visibility: hidden; }

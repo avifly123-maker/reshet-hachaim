@@ -1,0 +1,36 @@
+[
+{
+"wait": 3
+},
+{
+"js": "['stage:1','g:svfilm','g:savtut','g:start:chat','g:start:howstages'].forEach(k=>window.__journey.markIntro(k)); window.__journey.markTrained(); window.__journey.unlockAll('2580'); window.__guide && window.__guide.close(); window.__app.bus.emit('start:biome', { id: 'savanna' }); 1"
+},
+{
+"until": "window.__game && window.__game.savanna && window.__game.debug",
+"timeout": 240
+},
+{
+"wait": 14
+},
+{
+"js": "const b=[...document.querySelectorAll('button')].find(x=>/דלג/.test(x.textContent)); if (b) b.click(); window.__guide.close(); 1"
+},
+{
+"wait": 2
+},
+{
+"js": "const W=window.__game, D=W.debug, env=W.env; D.unlockAll && D.unlockAll(); W.points = 9999; let spot=null, m=null; for (let i=0;i<300 && !m;i++){ const a=i*2.39, r=5+(i%12); const x=Math.cos(a)*r, z=Math.sin(a)*r; let ok=true; for (let k=-6;k<=6;k+=2) if (env.isWater(x+k,z)) ok=false; if (!ok) continue; const res=D.place('termitemound',x,z); if (res && typeof res==='object') { m=res; spot=[x,z]; } else window.__why=res; } window.__spot=spot; window.__mound=W.plants.filter(p=>p.sp.id==='termitemound').pop(); if (window.__mound) { window.__mound.growth=1; } const l=spot && D.place('lion',spot[0]-5,spot[1]); window.__lion=W.animals.filter(a=>a.sp.id==='lion').pop(); 'placed '+JSON.stringify(spot)+' why '+window.__why+' lion '+(window.__lion?'ok':l)"
+},
+{
+"wait": 2
+},
+{
+"js": "const L=window.__lion, s=window.__spot; window.__inside=0; window.__goal=[s[0]+5,s[1]]; const go=()=>{ L.energy=1; L.state='idle'; L.prey=null; L.food=null; L.pos.z=s[1]; L.heading=Math.PI/2; L.startWalk(new L.pos.constructor(window.__goal[0], 0, window.__goal[1]), { run: true }); }; go(); window.__t0=performance.now(); window.__arr=0; window.__samp=setInterval(()=>{ const d=Math.hypot(L.pos.x-s[0], L.pos.z-s[1]); if (d < 0.95) window.__inside++; if (!window.__arr && Math.hypot(L.pos.x-window.__goal[0], L.pos.z-window.__goal[1])<0.6) window.__arr=(performance.now()-window.__t0)/1000; if (L.state!=='walk' && Math.hypot(L.pos.x-window.__goal[0], L.pos.z-window.__goal[1])>1.5) go(); }, 250); 1"
+},
+{
+"wait": 25
+},
+{
+"js": "const L=window.__lion, g=window.__goal; clearInterval(window.__samp); const d=Math.hypot(L.pos.x-g[0], L.pos.z-g[1]); 'CHECK lion-passes-mound ' + (window.__arr && window.__arr < 12 && window.__inside === 0 ? 'ok '+window.__arr.toFixed(1)+'s' : 'FAIL arrived '+window.__arr+' dist '+d.toFixed(2)+' inside '+window.__inside)"
+}
+]

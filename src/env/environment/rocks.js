@@ -5,12 +5,13 @@
 // skirt, U.
 import * as THREE from 'three';
 import { DESERT } from './desert-look.js';
+import { SAVANNA } from './savanna-look.js';
 import { makeRng, lerp, smoothstep, mergeGeometries } from '../../core/util.js';
 import { TAU, C, tmpC, V3, patchMaterial } from './common.js';
 
 export function createRocks(ctx) {
   const {
-    noiseB, seed, rocks, isAmazon, isDesert, heightAt, skirtPoint, edgeR, WL, waterDist, track, root, rootMat,
+    noiseB, seed, rocks, isAmazon, isDesert, isSavanna, heightAt, skirtPoint, edgeR, WL, waterDist, track, root, rootMat,
     ground, skirt, U
   } = ctx;
   // ───────────────────────────── rocks (merged)
@@ -30,7 +31,13 @@ export function createRocks(ctx) {
     const nr = g.attributes.normal;
     for (let i = 0; i < n; i++) {
       const ny = nr.getY(i);
-      if (limestone && isDesert) {   // sandstone: warm reds and creams, darker desert varnish on the tops
+      if (isSavanna) {   // 1.4.2: granite – grey with warm light, dark lichen streaks down the sides
+        tmpC.set(SAVANNA.rockA).lerp(C(SAVANNA.rockB), rr() * 0.6);
+        if (ny < -0.2) tmpC.multiplyScalar(0.72);
+        const v = noiseB(p.getX(i) * 1.1 + k1, p.getZ(i) * 1.1);
+        if (v > 0.4) tmpC.lerp(C(SAVANNA.rockLight), 0.4);
+        else if (v < -0.45 && ny < 0.6) tmpC.lerp(C(SAVANNA.rockDark), 0.5);
+      } else if (limestone && isDesert) {   // sandstone: warm reds and creams, darker desert varnish on the tops
         tmpC.set(DESERT.rockA).lerp(C(DESERT.rockB), rr() * 0.6);
         if (ny < -0.2) tmpC.multiplyScalar(0.72);
         const v = noiseB(p.getX(i) * 1.3 + k1, p.getZ(i) * 1.3);
@@ -141,7 +148,7 @@ export function createRocks(ctx) {
   let vinesMesh = null;
   {
     const rr = makeRng(seed * 307 + 1);
-    const nV = isAmazon ? 150 : isDesert ? 0 : 34;   // the desert's edge has no hanging plants
+    const nV = isAmazon ? 150 : isDesert || isSavanna ? 0 : 34;   // the desert's edge has no hanging plants
     const pos = [], col = [], hang = [], idx = [];
     for (let i = 0; i < nV; i++) {
       const th = rr() * TAU;

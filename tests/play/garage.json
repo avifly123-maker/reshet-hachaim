@@ -1,0 +1,123 @@
+[
+{
+"wait": 4
+},
+{
+"js": "window.__journey.markIntro('stage:1'); window.__guide && window.__guide.close(); window.__journey.unlockAll('2580'); window.__app.bus.emit('quality',{q:'medium'}); window.__app.bus.emit('ui:robolab'); 1"
+},
+{
+"until": "!!document.querySelector('.rl-home')",
+"timeout": 60
+},
+{
+"wait": 1
+},
+{
+"js": "const i=document.querySelector('.rl-intro [data-iskip]'); if(i) i.click(); window.__guide && window.__guide.close(); 1"
+},
+{
+"wait": 1
+},
+{
+"clickSel": ".rl-home [data-garage]"
+},
+{
+"wait": 2.5
+},
+{
+"until": "(() => { const g = window.__rlDebug.gar(); return g && g.tiles >= 4; })()",
+"timeout": 40
+},
+{
+"js": "const g=window.__rlDebug.gar(); 'CHECK tiles-drawn ' + (g && g.tiles >= 4 && [...document.querySelectorAll('.rl-gtile img')].every(i=>i.src.startsWith('data:image/png') && i.src.length>2000) ? 'ok' : 'FAIL '+JSON.stringify(g))"
+},
+{
+"js": "'CHECK tutorial-starts ' + (window.__rlDebug.gar().tut === 'part' && document.querySelector('#rguide:not([hidden])') ? 'ok' : 'FAIL '+window.__rlDebug.gar().tut)"
+},
+{
+"js": "const c=document.querySelector('.rl-gcount'); 'CHECK count-line ' + (c && /\\d+\\/18/.test(c.textContent) && /\\d+\\/12/.test(c.textContent) ? 'ok' : 'FAIL '+(c&&c.textContent))"
+},
+{
+"shot": "shots/garage-tiles.png"
+},
+{
+"js": "const b=document.querySelector('.rl-garage .rl-gtile[data-gpart=planter]'); b.scrollIntoView({block:'center'}); b.click(); 1"
+},
+{
+"wait": 0.3
+},
+{
+"js": "const g=window.__rlDebug.gar(), i=document.querySelector('.rl-ginfo'); 'CHECK part-picked-info ' + (g.picked==='planter' && g.parts.arm==='planter' && i && !i.hidden && i.textContent.includes('שתול') ? 'ok' : 'FAIL '+JSON.stringify(g)+' '+(i&&i.textContent))"
+},
+{
+"wait": 0.8
+},
+{
+"js": "'CHECK tutorial-paint-step ' + (window.__rlDebug.gar().tut === 'paint' ? 'ok' : 'FAIL '+window.__rlDebug.gar().tut)"
+},
+{
+"shot": "shots/garage-drop.png"
+},
+{
+"js": "const b=document.querySelector(\".rl-garage .rl-sw[data-gslot=body][style*='#1a9e99']\"); b.scrollIntoView({block:'center'}); b.click(); 1"
+},
+{
+"wait": 0.8
+},
+{
+"until": "(() => { const g = window.__rlDebug.gar(); return g && g.tiles >= 4; })()",
+"timeout": 40
+},
+{
+"until": "window.__rlDebug.gar().tut === 'end'",
+"timeout": 10
+},
+{
+"js": "const g=window.__rlDebug.gar(); 'CHECK paint-and-tiles-repainted ' + (g.paint.body==='#1a9e99' && g.tiles>=4 && g.tut==='end' ? 'ok' : 'FAIL '+JSON.stringify(g))"
+},
+{
+"js": "window.__guide && window.__guide.close(); 1"
+},
+{
+"wait": 0.6
+},
+{
+"js": "const b=document.querySelector('.rl-garage [data-gsurp]'); b.click(); const g=window.__rlDebug.gar(); const n=new Set(Object.values(g.paint)); 'CHECK surprise ' + (Object.keys(g.parts).length>=3 && n.size===3 ? 'ok' : 'FAIL '+JSON.stringify(g))"
+},
+{
+"shot": "shots/garage-surprise.png"
+},
+{
+"js": "document.querySelector('.rl-garage [data-greset]').click(); const g=window.__rlDebug.gar(); 'CHECK reset ' + (Object.keys(g.parts).length===0 && Object.keys(g.paint).length===0 ? 'ok' : 'FAIL '+JSON.stringify(g))"
+},
+{
+"js": "document.querySelector('.rl-garage [data-gtool=drone]').click(); 1"
+},
+{
+"wait": 2.5
+},
+{
+"js": "const g=window.__rlDebug.gar(); 'CHECK drone-tiles ' + (g.tool==='drone' && g.tiles>=3 ? 'ok' : 'FAIL '+JSON.stringify(g))"
+},
+{
+"js": "document.querySelector(\".rl-garage .rl-sw[data-gslot=body][style*='#ffc72e']\").click(); 1"
+},
+{
+"key": "Escape"
+},
+{
+"wait": 0.6
+},
+{
+"js": "window.__rlDebug.garage(); document.querySelector('.rl-garage [data-gtool=drone]').click(); const g=window.__rlDebug.gar(); 'CHECK saved-after-close ' + (g.paint.body==='#ffc72e' && window.__journey.introSeen('g:gartut') === true ? 'ok' : 'FAIL '+JSON.stringify(g))"
+},
+{
+"key": "Escape"
+},
+{
+"wait": 0.4
+},
+{
+"js": "'garage done'"
+}
+]

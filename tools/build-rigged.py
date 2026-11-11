@@ -16,7 +16,7 @@ def rescale(d):
     for c in d['clips'].values():
         if c.get('r'): c['r'] = [round(x * k, 5) for x in c['r']]
     return d
-for zone in ('grove', 'amazon', 'reef', 'desert'):
+for zone in ('grove', 'amazon', 'reef', 'desert', 'savanna'):   # 1.4.2: the savanna
     m = {}
     for f in sorted(glob.glob(f'art/rigged/{zone}/*.json')):
         d = rescale(json.load(open(f))); m[d['id']] = d

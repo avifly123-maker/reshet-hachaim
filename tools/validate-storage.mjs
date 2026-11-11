@@ -50,7 +50,7 @@ function walk(dir, out = []) {
 }
 for (const file of walk(path.join(ROOT, 'src'))) {
   const rel = path.relative(ROOT, file);
-  if (rel === path.join('src', 'core', 'storage.js') || rel.startsWith(path.join('src', 'data') + path.sep)) continue;
+  if (rel === path.join('src', 'core', 'storage.js') || rel === path.join('src', 'core', 'storage-keys.js') || rel.startsWith(path.join('src', 'data') + path.sep)) continue;
   const lines = fs.readFileSync(file, 'utf8').split('\n');
   lines.forEach((line, i) => {
     const at = line.search(/['"`]web-of-life/);

@@ -193,6 +193,12 @@
 "wait": 1.5
 },
 {
+"js": "if (window.__game.debug.training().step==='web') { document.querySelector(\"#ui .tb[data-a='web']\").click(); 'eval web retry (the first real click came during the bubble animation)'; } else 'eval web ok first time'"
+},
+{
+"wait": 1
+},
+{
 "js": "'step '+window.__game.debug.training().step"
 },
 {

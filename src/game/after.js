@@ -11,6 +11,7 @@ import * as THREE from 'three';
 import { esc, icon } from '../ui/ui.js';
 import { createPhotos, photoMissions, photoMatches, CAM_SVG } from './photos.js';
 import { createVisitors } from './visitors.js';
+import { createGuests } from './guests.js';   // 1.4.4: the rare guests of the weekly events, who stay
 import { createChallenges } from './challenges.js';
 import { rankOf, rankEmblem, zoneAfter, updateZone, snapshot, readPhotos, addVisitor, addChallenge, CH_POINTS } from './rank.js';
 import { makeRng } from '../core/util.js';
@@ -24,7 +25,7 @@ const T = {
   lv: 'רמה', done: ['משימת צילום', 'מְשִׂימַת צִלּוּם'], next: ['עד הדרגה הבאה', 'עַד הַדַּרְגָּה הַבָּאָה'],
 };
 const DECOR = Object.fromEntries(ZONE_IDS.map((z) => [z, ZONE_LOOK[z].decor]));
-const DECOR_N = { amazon: [0, 2, 4, 6], grove: [0, 2, 4, 6], reef: [0, 4, 7, 10], desert: [0, 2, 4, 6] };
+const DECOR_N = { amazon: [0, 2, 4, 6], grove: [0, 2, 4, 6], reef: [0, 4, 7, 10], desert: [0, 2, 4, 6], savanna: [0, 2, 4, 6] };
 
 export function createAfter({ W, env, reg, scene, camera, canvas, pipe, ui, audio, bus, markers, rig, imv, tools, spawnAnimal, art }) {
   const zone = W.biomeId, kids = !!W.kids, root = document.getElementById('ui');
@@ -47,6 +48,7 @@ export function createAfter({ W, env, reg, scene, camera, canvas, pipe, ui, audi
   let visitors = null;
   const photos = createPhotos({ W, reg, camera, canvas, pipe, ui, audio, imv, bus, rig, markers, onShot: (rec, info) => onPhoto(rec, info), robo: tools && tools.tech ? tools.tech.robo : null });
   visitors = createVisitors({ W, env, reg, ui, audio, markers, rig, imv, spawnAnimal, art, Q, photoOpen: () => photos.isOpen, openPhoto: () => photos.open() });
+  const guests = createGuests({ W, env, reg, spawnAnimal });
   const chCtx = {
     grove: zone === 'grove',
     kinds: () => W.aliveSpecies().length,
@@ -226,6 +228,7 @@ export function createAfter({ W, env, reg, scene, camera, canvas, pipe, ui, audi
     photos.update(rdt);
     visitors.setEnabled(!!W.missions && W.missions.doneCount >= (kids ? 2 : 4));
     visitors.update(dt);
+    guests.update();
     if (!afterOn && regularDone()) turnOn();
     if (afterOn && full() && !chOffered) { offerT -= dt; if (offerT <= 0) offerChallenge(false); }
     chT -= rdt;
@@ -243,9 +246,9 @@ export function createAfter({ W, env, reg, scene, camera, canvas, pipe, ui, audi
     if (disposed) return; disposed = true;
     try { if (W.simT > 5) snapshot(zone, kids, live()); } catch (e) { }
     if (tools && tools.hooks && prevShot !== undefined) tools.hooks.onShot = prevShot;
-    photos.dispose(); visitors.dispose(); clearDecor(); panel.remove(); root.classList.remove('af-done', 'af-shoot');
+    photos.dispose(); visitors.dispose(); guests.dispose(); clearDecor(); panel.remove(); root.classList.remove('af-done', 'af-shoot');
   }
-  const api = { update, dispose, photos, visitors, challenges, get rank() { return rank; }, get on() { return afterOn; }, turnOn, paint, offerChallenge: () => { chOffered = false; offerChallenge(false); },
+  const api = { update, dispose, photos, visitors, guests, challenges, get rank() { return rank; }, get on() { return afterOn; }, turnOn, paint, offerChallenge: () => { chOffered = false; offerChallenge(false); },
     decor: (i) => { decorForced = true; decorI = -1; buildDecor(i); }, get flock() { return flock.length; }, flockAt: (k) => (flock[k] ? flock[k].obj.position.clone() : null) };   // tests: the extras of rank i
   return api;
 }

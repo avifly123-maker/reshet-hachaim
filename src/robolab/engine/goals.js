@@ -9,7 +9,9 @@
 //   { t: 'landed' }                   the drone came back and landed
 //   { t: 'nooops' }                   no wasted action (planting where there is nothing to plant)
 //   { t: 'steps', max }               the whole run took at most max steps
-const ITEM = { seeds: 'seed', fruit: 'fruit', thirsty: 'thirsty', fires: 'fire', nets: 'net', trash: 'trash', corals: 'coral', animals: 'animal' };
+//   { t: 'shots', n }                1.4.4 set 8: the herd was photographed at least n times (from a distance)
+//   { t: 'cleared' }                  1.4.3: every rock was pushed away;  { t: 'battery', min } the robot kept that much battery
+const ITEM = { seeds: 'seed', fruit: 'fruit', thirsty: 'thirsty', fires: 'fire', nets: 'net', trash: 'trash', corals: 'coral', animals: 'animal', logs: 'log', flowers: 'flower', feeders: 'feeder' };
 
 function one(c, W) {
   const T = c.tool ? W.tools[c.tool] : null;
@@ -24,6 +26,9 @@ function one(c, W) {
     case 'landed': return !!W.tools.drone && W.tools.drone.landed;
     case 'nooops': return W.oops === 0;
     case 'steps': return W.ticks <= c.max;
+    case 'shots': return W.items.filter((it) => it.path).reduce((a, it) => a + (it.shots || 0), 0) >= (c.n || 1);
+    case 'cleared': return !W.items.some((it) => it.t === 'rock' && !it.pushed);   // 1.4.3: every rock was pushed off its place
+    case 'battery': { const R = W.tools[c.tool || 'robot']; return !!R && R.battery >= (c.min || 1); }   // 1.4.3: came back with battery left
     default: return false;
   }
 }

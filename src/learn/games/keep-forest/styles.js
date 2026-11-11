@@ -1,4 +1,4 @@
-// מחזיקים את היער – the game's CSS, injected once into <head> and scoped under #wol-learn.wol-learn (the hub's id-weighted
+// מחזיקים את הסביבה – the game's CSS, injected once into <head> and scoped under #wol-learn.wol-learn (the hub's id-weighted
 // rules win otherwise).
 // Exports: injectCss(). Needs nothing.
 
@@ -274,6 +274,8 @@ const CSS = `
 .kf-bt[data-b="reef"].on{border-color:#2a8ac0!important;box-shadow:0 0 0 4px rgba(64,160,210,.45),var(--shadow)}
 .kf-bt[data-b="desert"]{--paper:#f0e0c0}.kf-bt[data-b="desert"] h2{color:#8a5a22}
 .kf-bt[data-b="desert"].on{border-color:#c08a3a!important;box-shadow:0 0 0 4px rgba(214,160,80,.45),var(--shadow)}
+.kf-bt[data-b="savanna"]{--paper:#ece4b8}.kf-bt[data-b="savanna"] h2{color:#7a6a1a}
+.kf-bt[data-b="savanna"].on{border-color:#b8a03a!important;box-shadow:0 0 0 4px rgba(200,180,80,.45),var(--shadow)}
 .kf-bt[data-b="amazon"].on{border-color:#3f8f84!important;box-shadow:0 0 0 4px rgba(79,163,154,.45),var(--shadow)}
 .kf-bt[data-b="grove"].on{border-color:#b07a12!important;box-shadow:0 0 0 4px rgba(236,199,126,.55),var(--shadow)}
 .kf-goalbox{--paper:#ece6d0}

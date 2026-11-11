@@ -10,6 +10,7 @@
   background: var(--canopy2); box-shadow: inset 0 0 0 1.5px rgba(180, 203, 102, .32), 0 4px 12px rgba(0, 0, 0, .35); transition: background .2s, transform .2s, color .2s; animation: wol-rise .9s .25s both; }
 #ui.wol .st-gear .ic { width: 24px; height: 24px; }
 #ui.wol .st-gear:hover, #ui.wol .st-gear[aria-expanded="true"] { background: #23432f; color: var(--chalk); transform: rotate(-12deg); }
+#ui.wol .st-chat:hover { transform: translateY(-2px); }   /* 1.4.3: the talk with רובו־דע: it does not turn like the gear */
 #ui.wol .st-gear:focus-visible, #ui.wol .st-jbar:focus-visible { outline: 3px solid var(--honey); outline-offset: 2px; }
 
 /* the journey bar: the rank medallion, the rank name, a progress line to the next stage, what is still missing */
@@ -338,3 +339,18 @@
 @media (prefers-reduced-motion: reduce) {
   #ui.wol .jm, #ui.wol .jm.out, #ui.wol .jm-st.cur .jm-med, #ui.wol .jv .jv-curtain { animation: none; }
 }
+/* 1.4.3 closing (the tour at 800x460, nine stages): a stage with many parts keeps one column on a narrow screen, and
+   a name breaks only between words (it broke inside words: "הממציאי ם") */
+@media (max-width: 1100px) {
+  #ui.wol .jm-stages { grid-template-columns: none !important; grid-auto-flow: column;   /* over the inline widths of journey-map.js */
+    grid-auto-columns: minmax(0, 1fr); }
+  #ui.wol .jm-st { grid-column: auto; }
+  #ui.wol .jm-st.many .jm-parts { display: flex; }
+  #ui.wol .jm-part { padding: 3px 4px; gap: 3px; font-size: calc(.7em * var(--ts, 1)); }
+  #ui.wol .jm-part .jm-dot { flex: none; width: 8px; height: 8px; }
+  #ui.wol .jm-part span { overflow-wrap: normal; word-break: normal; }
+}
+/* 6.11 (Avi): the player chip and the weekly chip each have their own place: the week and the play time sit under the journey bar */
+#ui.wol .st-corner .st-who { flex: 0 1 auto; overflow: hidden; }
+#ui.wol .st-corner .st-row2 { gap: 8px; }
+#ui.wol .st-corner .st-row2:not(:has(> :not([hidden]))) { display: none; }

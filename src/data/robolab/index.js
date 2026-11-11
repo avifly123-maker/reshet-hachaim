@@ -6,6 +6,8 @@ import { LESSONS_4 } from './lessons-4.js';
 import { LESSONS_5 } from './lessons-5.js';
 import { PUZZLES as PZ } from './puzzles.js';
 import { LESSONS_6 } from './lessons-6.js';
+import { LESSONS_SAVANNA } from './lessons-savanna.js';
+import { LESSONS_9 } from './lessons-9.js';   // 1.4.4 set 8: משימות רחפן
 // the eight chapters (docs/PLAN-1.4.md 7.2): title, the idea in a few words, colour of the chapter card
 export const CHAPTERS = [
   { n: 1, color: '#3b82c4', title: { f: 'סדר פעולות', k: 'סֵדֶר פְּעֻלּוֹת' }, idea: { f: 'הרובוט עושה בדיוק מה שכתוב, לפי הסדר', k: 'הָרוֹבּוֹט עוֹשֶׂה בְּדִיּוּק מָה שֶׁכָּתוּב, לְפִי הַסֵּדֶר' } },
@@ -16,7 +18,10 @@ export const CHAPTERS = [
   { n: 6, color: '#c4504a', title: { f: 'מונים ומשתנים', k: 'מוֹנִים וּמִשְׁתַּנִּים' }, idea: { f: 'סופרים וזוכרים מספרים', k: 'סוֹפְרִים וְזוֹכְרִים מִסְפָּרִים' } },
   { n: 7, color: '#2a9a9a', title: { f: 'עבודת צוות', k: 'עֲבוֹדַת צֶוֶת' }, idea: { f: 'רובוט ורחפן עובדים יחד', k: 'רוֹבּוֹט וְרַחְפָן עוֹבְדִים יַחַד' } },
   { n: 8, color: '#d66aa8', title: { f: 'אתגרים', k: 'אֶתְגָּרִים' }, idea: { f: 'פחות בלוקים, יותר כוכבים', k: 'פָּחוֹת בְּלוֹקִים, יוֹתֵר כּוֹכָבִים' } },
+  { n: 9, color: '#3a8ad6', title: { f: 'משימות רחפן', k: 'מְשִׂימוֹת רַחְפָן' }, idea: { f: 'מלכודות מצלמה, לילה ועדר בתנועה', k: 'מַצְלֵמוֹת, לַיְלָה וְעֵדֶר' } },
 ];
-export const LESSONS = [...LESSONS_1, ...LESSONS_2, ...LESSONS_5, ...LESSONS_3, ...LESSONS_4, ...LESSONS_6];
+const BASE = [...LESSONS_1, ...LESSONS_2, ...LESSONS_5, ...LESSONS_3, ...LESSONS_4, ...LESSONS_6, ...LESSONS_9];
+// the savanna's lessons (1.4.2) sit right after the grove lesson each one comes from
+export const LESSONS = BASE.flatMap((L) => [L, ...LESSONS_SAVANNA.filter((S) => S.from === L.id)]);
 export const PUZZLES = [...PZ];
 export const ALL_LEVELS = [...LESSONS, ...PUZZLES];

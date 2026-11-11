@@ -9,6 +9,7 @@ import { howto } from '../../ui/howto.js';
 import { zoneHowto, HOWTO_LABELS } from '../../data/howto-cards.js';
 import { zoneWord } from '../../core/place.js';
 import { desertTutorial } from '../desert-tutorial.js';   // 1.4.1: the desert's first visit, hands-on
+import { savannaTutorial } from '../savanna-tutorial.js';
 import { svcGuide } from '../../core/services.js';
 
 export function createIntro(ctx) {
@@ -65,6 +66,8 @@ export function createIntro(ctx) {
   function startIntro() {
     const fresh = missions.doneCount === 0;
     if (biome.id === 'desert') { const t = desertTutorial({ W, guide: svcGuide() }); if (t) { ctx.desertTut = t; return; } }
+    if (biome.id === 'savanna' && ctx.svFilm && !ctx.svFilmTried) { ctx.svFilmTried = true; if (ctx.svFilm.play({ onEnd: () => { if (!ctx.disposed) startIntro(); } })) return; }   // the opening film first (once)
+    if (biome.id === 'savanna') { const t = savannaTutorial({ W, guide: svcGuide() }); if (t) { ctx.savannaTut = t; return; } }   // 1.4.2
     if (W.xp) { if (fresh) robo('zone:' + biome.id, { tip: false }); return; }   // חוויה: רובו־דע instead of the cards and the coach
     if (W.kids) { const after = W.restored ? null : () => startCoach(false); if (!showHowto(false, after) && after) after(); return; }
     const after = () => { if (ctx.disposed) return; if (!W.restored && !coachSeen()) startCoach(false); else if (fresh) robo('zone:' + biome.id, { tip: false }); };

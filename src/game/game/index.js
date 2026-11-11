@@ -39,7 +39,8 @@ import { createImmersive } from '../immersive.js';
 import { createFieldCam } from '../fieldcam.js';
 import { createTour } from '../tour.js';
 import { START_POINTS } from '../../data/common.js';
-import { clamp, makeRng } from '../../core/util.js';
+import { clamp, makeRng, disposeOwned } from '../../core/util.js';
+import { logError } from '../../core/log.js';
 import { createFieldReport } from '../report.js';
 import { createResearchSession } from '../../research/session.js';
 import { zoneWord, setPlace } from '../../core/place.js';
@@ -49,6 +50,8 @@ import { createAfter } from '../after.js';   /* H: after the missions (visitors,
 import { MAX_ANIMALS, MAX_ALL_PLANTS, farTreeSources, addPart } from './common.js';
 import { createEcology } from './ecology.js';
 import { createWater } from './water.js';
+import { createSavanna } from '../savanna/index.js';   // 1.4.2
+import { createSavannaFilm } from '../savanna/film.js';   // 1.4.2: the savanna's opening film
 import { createPlacement } from './placement.js';
 import { createSelection } from './selection.js';
 import { createTrayDrag } from './tray-drag.js';
@@ -65,14 +68,30 @@ import { createDispose } from './dispose.js';
 import { svcGuide } from '../../core/services.js';
 import { startTraining } from '../training.js';
 
-export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, animalBuilders, zoneEnv = null, quality, onExit, save = null, research = null, training = false }) {
+// 1.4.4 stability set: a load that fails halfway frees what it already built. Every resource registers its cleanup in
+// `undo` the moment it is made; once the whole forest stands, its own dispose takes the list's place. On a failure the
+// list runs from the last to the first and the error goes on to main.js, which shows the way back.
+export async function createGame(opts) {
+  const undo = [];
+  try { return await buildGame(undo, opts); }
+  catch (e) {
+    for (const f of undo.reverse()) { try { f(); } catch (err) { console.error(err); } }
+    throw e;
+  }
+}
+// tests only (tests/play/load-fail.json): window.__failLoadAt = 'env' | 'warm' | 'parts' makes the next load fail there
+function failAt(stage) { if (window.__failLoadAt === stage) { window.__failLoadAt = null; throw new Error('test: the load failed at ' + stage); } }
+
+async function buildGame(undo, { pipe, ui, audio, bus, biome: content, plantBuilders, animalBuilders, zoneEnv = null, quality, onExit, save = null, research = null, training = false }) {
   const scene = pipe.scene, camera = pipe.camera, canvas = pipe.renderer.domElement;
-  setPlace(training ? 'field' : biome.id);
-  const reg = buildRegistry(biome);
+  const before = new Set(scene.children);   // whatever the load adds to the scene goes again if it fails (runs last)
+  undo.push(() => { for (const o of [...scene.children]) if (!before.has(o)) { scene.remove(o); disposeOwned(o); } });
+  setPlace(training ? 'field' : content.id);
+  const reg = buildRegistry(content), biome = reg.biome;   // the game's own copy of the zone (the content stays as written)
   const W = {
     biome, biomeId: biome.id, reg, plantBuilders, animalBuilders,
     plants: [], animals: [], fires: [], resprouters: RESPROUTERS,
-    simT: 0, day: 1, dayFrac: 0.3, season: biome.id === 'grove' ? 'winter' : null, seasonFrac: 0, nightGlow: 0,
+    simT: 0, day: 1, dayFrac: 0.3, season: biome.id === 'grove' ? 'winter' : biome.id === 'savanna' ? 'wet' : null, seasonFrac: 0, nightGlow: 0,
     rain: 0, rainTarget: 0, rainT: 0, drought: 0, droughtT: 0, flood: 0, floodT: 0, heat: 0, heatT: 0, wind: 0.25, storm: 0,
     growBoost: 1, points: START_POINTS, vitality: 0.5, speed: 1, lastTickDt: 0,
     unlocked: new Set(biome.species.filter(s => s.unlock === 'start').map(s => s.id)),
@@ -120,6 +139,8 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   const markers = createMarkers(scene);
   const rig = createCameraRig(camera, canvas, env);
   setGamepadRig(rig);
+  undo.push(() => env.dispose(), () => light.texture.dispose(), () => links.dispose(), () => markers.dispose(), () => { rig.controls.dispose(); setGamepadRig(null); });
+  failAt('env');
   camera.position.set(70, 62, 86); rig.controls.target.set(0, 5, 0);
   const thumbs = THUMBS[biome.id] || (biome.id === 'reef' ? CARD_ART : {});   // the reef has no rendered thumbnails: its card paintings stand in
   // compile every shader up front (while the loading screen is showing) so the game never freezes mid-play
@@ -127,25 +148,27 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   await tick0();
   {
     const stage = new THREE.Group(); stage.position.set(0, -200, 0); const temp = [];
+    undo.push(() => { scene.remove(stage); for (const v of temp) { try { v.dispose(); } catch (err) { } } });
     for (const sp of biome.species) {
       try {
         const isP = !!plantBuilders[sp.id];
         const v = isP ? plantBuilders[sp.id]({ seed: 11, rng: makeRng(11), hostHeight: 8, hostRadius: 0.4 }) : animalBuilders[sp.id]({ seed: 11, rng: makeRng(11) });
         if (isP) { v.setGrowth(1); v.setBloom(1); v.setFruit(1); v.setNightGlow(1); }
         stage.add(v.object); temp.push(v);
-      } catch (e) { }
+      } catch (e) { logError('warm', sp.id, e); }   // a model that cannot be built is written down; the forest goes on
     }
     scene.add(stage);
-    try { const r = pipe.renderer; if (r.compileAsync && r.extensions && r.extensions.has('KHR_parallel_shader_compile')) await r.compileAsync(scene, camera); else r.compile(scene, camera); } catch (e) { try { pipe.renderer.compile(scene, camera); } catch (e2) { } }
+    try { const r = pipe.renderer; if (r.compileAsync && r.extensions && r.extensions.has('KHR_parallel_shader_compile')) await r.compileAsync(scene, camera); else r.compile(scene, camera); } catch (e) { logError('warm', 'compileAsync', e); try { pipe.renderer.compile(scene, camera); } catch (e2) { logError('warm', 'compile', e2); } }
     ui.setLoading(0.8, 'מכינים את הצמחים ובעלי החיים...');
     await tick0();
-    try { pipe.render(0.016); } catch (e) { }    // also builds the shadow shaders
+    try { pipe.render(0.016); } catch (e) { logError('warm', 'render', e); }    // also builds the shadow shaders
     scene.remove(stage);
     // keep these warm-up models (off-scene) for the whole visit: they hold the compiled shader programs of parts that
     // live plants keep hidden until their season (flowers, fruit) – disposing them would free the programs, and the
     // first bloom would then stall while compiling
     W.warm = temp;
   }
+  failAt('warm');
   ui.setLoading(0.9, 'כמעט מוכן...');
   const missions = createMissions(W); W.missions = missions;
   // one shared context for the parts (see the header): the forest's basics and helpers, and the state that more than
@@ -158,6 +181,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
     imv: null, fieldcam: null, tour: null, moments: null,   // immersive views: looking through a field camera, the animal-eye tour
     after: null,   /* H: after the missions */
   };
+  undo.push(() => { for (const e of [...W.plants, ...W.animals]) { if (e.obj.parent) e.obj.parent.remove(e.obj); try { e.vis.dispose(); } catch (err) { } } W.plants = []; W.animals = []; });   // what the parts spawn
 
   // keep the island centred in the part of the screen that the HUD and the tray leave free
   let lastFit = '';
@@ -190,6 +214,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   addPart(ctx, createPointer(ctx), 'Pointer');         // ─ canvas pointer: hover, click-select, moving by dragging
   addPart(ctx, createRoad(ctx), 'Road');            // ─ human impact: stumps and roads
   addPart(ctx, createSave(ctx), 'Save');            // ─ save / restore the whole ecosystem
+  addPart(ctx, createSavanna(ctx), 'Savanna');      // ─ 1.4.2: the savanna's seasons, grass, herds, fire, elephants, stability
   const { spawnPlant, spawnAnimal, findSpotNear, select, refreshPanel, refreshTray, randomPlaceSpot, addStump,
     restore, seedStartingNature, alive, updateLight } = ctx;
 
@@ -200,6 +225,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   ctx.imv = createImmersive({ W, rig, camera, ui, camPad, refit: () => fitViewToUI(true), deselect: () => { select(null); ctx.panelId = null; rig.stopFollow(); } });
   ctx.fieldcam = createFieldCam({ W, env, tools: ctx.tools, camera, canvas, ui, audio, imv: ctx.imv });
   ctx.moments = createSourceMoments({ W, ui, audio });   // torah edition: short source moments in the forest
+  ctx.svFilm = biome.id === 'savanna' && !research && !training ? createSavannaFilm({ W, env, imv: ctx.imv, camera, audio, pipe }) : null;   // before the tour: its button comes first
   ctx.tour = createTour({ W, env, reg, camera, canvas, ui, audio, imv: ctx.imv, missions, art: (id) => thumbs[id] || CARD_ART[id] || null });
   /* H: after the missions (not inside a mystery) */
   if (!research && !training) { try { ctx.after = createAfter({ W, env, reg, scene, camera, canvas, pipe, ui, audio, bus, markers, rig, imv: ctx.imv, tools: ctx.tools, spawnAnimal, art: (id) => CARD_ART[id] || thumbs[id] || null }); W.after = ctx.after; } catch (e) { console.error(e); ctx.after = null; } }
@@ -234,7 +260,9 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   addPart(ctx, { camPad, onJourney }, 'start');   // for dispose
 
   addPart(ctx, createUpdate(ctx), 'Update');          // ─ main update
+  failAt('parts');
   addPart(ctx, createDispose(ctx), 'Dispose');         // ─ dispose
+  undo.length = 0; undo.push(() => ctx.dispose());     // the forest stands: from here its own dispose frees everything
   ctx.training = training ? startTraining(ctx) : null;   // רובו־דע leads the training field (stopped in dispose)
   const { checkPlace, place, setView, applyEffect, groundHit, startExperiment, endExperiment, chooseEvent, update,
     openJournal, dispose } = ctx;
@@ -242,7 +270,7 @@ export async function createGame({ pipe, ui, audio, bus, biome, plantBuilders, a
   // debug / testing hooks
   let fakeT = 0;
   window.__game = W;
-  W.debug = { place: (id, x, z) => { const sp = reg.byId.get(id); const hit = { x, z, y: env.heightAt(x, z) }; const c = checkPlace(sp, hit); if (c.ok) return place(sp, hit, c); return c.reason; }, select, rig, setView, applyEffect, check: (cx, cy, id) => { const h = groundHit(cx, cy); return JSON.stringify({ h, c: checkPlace(reg.byId.get(id), h) }); }, startExperiment, endExperiment, unlockAll: () => { for (const s of biome.species) W.unlocked.add(s.id); W.allToolsUnlocked = true; refreshTray(); }, tools: () => ctx.tools, moments: () => ctx.moments, fieldcam: () => ctx.fieldcam, tour: () => ctx.tour, training: () => ctx.training, desertTut: () => ctx.desertTut, light: () => ({ score: light.score, shafts: ctx.shafts }), crowns: () => ctx.crowns, auto: () => { let r = ''; if (ctx.pendingEvent) { r = ctx.pendingEvent.id; chooseEvent({ eventId: ctx.pendingEvent.id, choiceId: ctx.pendingEvent.choices[0].id }); } ui.hideEvent(); ui.hideOutcome(); ui.hideDialog(); ui.hideJournal && ui.hideJournal(); return r; }, ff: (sec, step = 0.1) => { for (let i = 0; i < sec / step; i++) { if (ui.isModalOpen()) return 'modal at ' + W.simT.toFixed(0); fakeT += step; update(step, fakeT); } return 'ok ' + W.simT.toFixed(0); }, openJournal };
+  W.debug = { place: (id, x, z) => { const sp = reg.byId.get(id); const hit = { x, z, y: env.heightAt(x, z) }; const c = checkPlace(sp, hit); if (c.ok) return place(sp, hit, c); return c.reason; }, select, rig, setView, applyEffect, check: (cx, cy, id) => { const h = groundHit(cx, cy); return JSON.stringify({ h, c: checkPlace(reg.byId.get(id), h) }); }, startExperiment, endExperiment, unlockAll: () => { for (const s of biome.species) W.unlocked.add(s.id); W.allToolsUnlocked = true; refreshTray(); }, tools: () => ctx.tools, moments: () => ctx.moments, fieldcam: () => ctx.fieldcam, tour: () => ctx.tour, training: () => ctx.training, desertTut: () => ctx.desertTut, savannaTut: () => ctx.savannaTut, light: () => ({ score: light.score, shafts: ctx.shafts }), crowns: () => ctx.crowns, auto: () => { let r = ''; if (ctx.pendingEvent) { r = ctx.pendingEvent.id; chooseEvent({ eventId: ctx.pendingEvent.id, choiceId: ctx.pendingEvent.choices[0].id }); } ui.hideEvent(); ui.hideOutcome(); ui.hideDialog(); ui.hideJournal && ui.hideJournal(); return r; }, ff: (sec, step = 0.1) => { for (let i = 0; i < sec / step; i++) { if (ui.isModalOpen()) return 'modal at ' + W.simT.toFixed(0); fakeT += step; update(step, fakeT); } return 'ok ' + W.simT.toFixed(0); }, openJournal };
   return { W, update, dispose, rig };
 
   function tick0() { return new Promise(r => setTimeout(r, 30)); }

@@ -71,7 +71,7 @@ const T = {
   linked: ['קשר ברשת!', 'קֶשֶׁר בָּרֶשֶׁת!'], saved: ['נשמר באלבום', 'נִשְׁמַר בָּאַלְבּוֹם'], landscape: ['נוף', 'נוֹף'],
   empty: ['עוד אין תמונות באלבום. צלמו משהו!', 'עוֹד אֵין תְּמוּנוֹת בָּאַלְבּוֹם. צַלְּמוּ מַשֶּׁהוּ!'],
   count: ['{n} תמונות מתוך {m}', '{n} תְּמוּנוֹת מִתּוֹךְ {m}'], close: ['סגירה', 'סְגִירָה'], also: ['וגם:', 'וְגַם:'],
-  zones: { amazon: ['באמזונס', 'בָּאָמָזוֹנָס'], grove: ['בחורש', 'בַּחֹרֶשׁ'], reef: ['בשונית', 'בַּשּׁוּנִית'], desert: ['במדבר', 'בַּמִּדְבָּר'] },
+  zones: { amazon: ['באמזונס', 'בָּאָמָזוֹנָס'], grove: ['בחורש', 'בַּחֹרֶשׁ'], reef: ['בשונית', 'בַּשּׁוּנִית'], desert: ['במדבר', 'בַּמִּדְבָּר'], savanna: ['בסוואנה', 'בַּסַּוָּנָה'] },
   oldest: ['כשיש {m} תמונות, הישנה ביותר יוצאת', 'כְּשֶׁיֵּשׁ {m} תְּמוּנוֹת, הַיְּשָׁנָה בְּיוֹתֵר יוֹצֵאת'],   // {m}: MAX_PHOTOS (rank.js)
   visitor: ['מבקר נדיר', 'מְבַקֵּר נָדִיר'],
   savedT: ['התמונה נשמרה באלבום', 'הַתְּמוּנָה נִשְׁמְרָה בָּאַלְבּוֹם'],
@@ -177,6 +177,20 @@ export function createPhotos({ W, reg, camera, canvas, pipe, ui, audio, imv, bus
     return { ents, ids, pairs, visitors, main: ents[0] ? ents[0].sp : null };
   }
 
+  // the photo's depth of field, without a depth buffer: a blurred copy laid over the picture through a round mask that is
+  // clear in the middle (where the child aims) and full at the edges. Works the same on every computer.
+  function softEdges(c) {
+    try {
+      const m = document.createElement('canvas'); m.width = c.width; m.height = c.height;
+      const x = m.getContext('2d');
+      x.filter = `blur(${Math.max(1.5, c.width / 260).toFixed(1)}px)`; x.drawImage(c, 0, 0); x.filter = 'none';
+      x.globalCompositeOperation = 'destination-in';
+      const g = x.createRadialGradient(c.width / 2, c.height * 0.52, c.height * 0.3, c.width / 2, c.height * 0.52, c.width * 0.62);
+      g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,1)');
+      x.fillStyle = g; x.fillRect(0, 0, m.width, m.height);
+      c.getContext('2d').drawImage(m, 0, 0);
+    } catch (e) { /* an old browser: the photo stays sharp */ }
+  }
   // ── the picture: draw a fresh frame, then copy the rectangle into a small JPEG
   function capture(rect) {
     // רובו־דע's island model must not be in the picture (the field camera shoots outside the photo mode too)
@@ -191,6 +205,7 @@ export function createPhotos({ W, reg, camera, canvas, pipe, ui, audio, imv, bus
     let sw = rect.width, sh = rect.height; if (sw / sh > PW / PH) sw = sh * PW / PH; else sh = sw * PH / PW;
     const sx = rect.left + (rect.width - sw) / 2 - cr.left, sy = rect.top + (rect.height - sh) / 2 - cr.top;
     try { ctx.drawImage(canvas, sx * kx, sy * ky, sw * kx, sh * ky, 0, 0, PW, PH); } catch (e) { return null; }
+    softEdges(c);   // 1.4.4 set 10: a camera's depth of field: the middle sharp, the edges softly out of focus
     let q = 0.64, url = c.toDataURL('image/jpeg', q);
     while (url.length * 0.75 > MAX_BYTES && q > 0.3) { q -= 0.08; url = c.toDataURL('image/jpeg', q); }
     return url.length * 0.75 > MAX_BYTES ? null : url;

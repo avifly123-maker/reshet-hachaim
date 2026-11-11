@@ -1,0 +1,36 @@
+[
+{
+"wait": 4
+},
+{
+"js": "window.__guide && window.__guide.close(); 1"
+},
+{
+"js": "\nconst P = window.__profiles, id = P.current().id; window.__journey.state();\nconst jk = Object.keys(localStorage).find(k => k.endsWith('web-of-life-journey::' + id)); const pre = jk.slice(0, jk.indexOf('web-of-life-journey::'));\nconst put = (k, v) => localStorage.setItem(pre + k + '::' + id, JSON.stringify(v));\nconst js = JSON.parse(localStorage.getItem(jk)); js.legacy = false; js.best = 8; js.shown = { observer: 1, collector: 1, keeper: 1, researcher: 1, inventor: 1, expert: 1, programmer: 1, entrepreneur: 1 };\njs.done = Object.assign(js.done || {}, { savanna: Array.from({ length: 12 }, (_, i) => 'sv' + (i + 1)) }); js.intro = Object.assign(js.intro || {}, { 'stage:1': 1 }); localStorage.setItem(jk, JSON.stringify(js));\nconst done = {}; for (const c of [1, 2, 3, 4, 5]) for (let i = 1; i <= (c < 5 ? 4 : 2); i++) done['l' + c + '-' + i] = { stars: 3, blocks: 5, t: 1 };\nput('web-of-life-robolab', { done, seen: { intro: 1 }, fun: 0, look: {}, isl: 0, robots: [], wk: {}, tc: {} });\nput('web-of-life-lab', { found: { a: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] } });\nwindow.__journey.reload && window.__journey.reload(); 'seeded ' + pre + ' ' + id"
+},
+{
+"js": "const m = window.__journey.metrics(); 'CHECK metrics ' + (m.codech === 5 && m.code === 18 && m.savanna >= 12 && m.lab >= 10 ? 'ok' : 'FAIL ' + JSON.stringify({ codech: m.codech, code: m.code, sv: m.savanna, lab: m.lab }))"
+},
+{
+"js": "const J = window.__journey; 'CHECK workshop-closed-before ' + (!J.isOpen('robolab:workshop') && !J.isOpen('robolab:sandbox') && J.lockWords('robolab:sandbox').includes('9') ? 'ok' : 'FAIL')"
+},
+{
+"js": "window.__wst = null; addEventListener('wol-stage', (e) => { window.__wst = e.detail; }); window.__journey.check(); const st = window.__journey.state(); 'CHECK stage9-reached ' + (st.stage === 9 && window.__wst && window.__wst.stage === 9 && window.__wst.parts.includes('robolab:sandbox') ? 'ok' : 'FAIL ' + st.stage + ' ' + JSON.stringify(window.__wst))"
+},
+{
+"js": "const J = window.__journey; 'CHECK parts-open ' + (J.isOpen('robolab:workshop') && J.isOpen('robolab:island') && J.isOpen('robolab:sandbox') ? 'ok' : 'FAIL')"
+},
+{
+"until": "!!document.querySelector('#rguide.modal:not([hidden])') && document.querySelector('#rguide').textContent.includes('מהנדסים')",
+"timeout": 60
+},
+{
+"js": "'CHECK stage9-words ' + (document.querySelector('#rguide').textContent.includes('מהנדסים') ? 'ok' : 'FAIL')"
+},
+{
+"shot": "shots/stage9.png"
+},
+{
+"js": "'stage9 done'"
+}
+]

@@ -15,6 +15,7 @@ export function createDispose(ctx) {
   ctx.disposed = false;
   function dispose() {
     ctx.disposed = true;
+    if (ctx.savannaTut) { try { ctx.savannaTut.stop(); } catch (e) { console.error(e); } ctx.savannaTut = null; }   // the savanna's first-visit steps (1.4.2)
     if (ctx.desertTut) { try { ctx.desertTut.stop(); } catch (e) { console.error(e); } ctx.desertTut = null; }   // the desert's first-visit steps (1.4.1)
     if (ctx.training) { try { ctx.training.stop(); } catch (e) { console.error(e); } ctx.training = null; }   // the training field's steps (1.3.3)
     if (ctx.after) { try { ctx.after.dispose(); } catch (e) { console.error(e); } ctx.after = null; W.after = null; }   /* H: before the entities go (its snapshot reads them) */
@@ -38,7 +39,8 @@ export function createDispose(ctx) {
     for (const v of W.warm || []) { try { v.dispose(); } catch (err) { } }
     W.warm = null;
     try { light.texture.dispose(); } catch (err) { }
-    ctx.tour.dispose(); ctx.fieldcam.dispose(); ctx.imv.dispose(); ctx.moments?.dispose();
+    ctx.svFilm?.dispose(); ctx.tour.dispose(); ctx.fieldcam.dispose(); ctx.imv.dispose(); ctx.moments?.dispose();
+    if (ctx.savanna) { try { ctx.savanna.dispose(); } catch (e) { console.error(e); } }   // 1.4.2: the herds and the stability bar
     links.dispose(); markers.dispose(); rig.controls.dispose(); env.dispose(); ctx.tools.dispose(); camPad.dispose(); setGamepadRig(null);
     disposeObject(impactGroup); barkMat.dispose(); cutMat.dispose(); W.stumps = []; ctx.roadMesh = null; ctx.bridgeMesh = null;
     ui.hideSpecies(); ui.hideCoach();

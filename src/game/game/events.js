@@ -14,6 +14,7 @@ import * as THREE from 'three';
 import { clamp } from '../../core/util.js';
 import { late } from './common.js';
 
+import { svc } from '../../core/services.js';
 export function createEvents(ctx) {
   const { W, missions, audio, ui, rig, reg, alive, amb, light, spawnPlant, env, spacingOK, findSpotNear,
     randomPlaceSpot, spawnAnimal } = ctx;
@@ -140,7 +141,8 @@ export function createEvents(ctx) {
         if (n) { rig.focusOn(new THREE.Vector3(trees[0].x, 3, trees[0].z), 30); ctx.lightDirty = true; }
         break;
       }
-      case 'sandstorm': W.sandT = fx.seconds || 30; break;   // 1.4, the desert (src/game/game/water.js)
+      case 'sandstorm': W.sandT = fx.seconds || 30; break;
+      case 'migrate': case 'grassfire': if (ctx.savanna) ctx.savanna.effect(fx); break;   // 1.4.2, the savanna (src/game/savanna/)   // 1.4, the desert (src/game/game/water.js)
       case 'locust': W.locustT = fx.seconds || 25; break;
       case 'protect': W.protected = true; amb('היער הוא עכשיו שמורת טבע 🛡', 'good'); break;
       case 'road': buildRoad(); break;
@@ -163,6 +165,7 @@ export function createEvents(ctx) {
       let base = null;
       if (sp.needs?.water && env.water) { const pts = env.water.path || env.water.pools || []; const p = pts[(Math.random() * pts.length) | 0]; if (p) base = { x: p.x + 4, z: p.z + 4 }; }
       if (!base) base = randomPlaceSpot({ kind: 'herb', needs: sp.needs }) || { x: 0, z: 0 };
+      if (sp.maxCount) count = Math.min(count, Math.max(0, sp.maxCount - W.countAlive(sp.id)));   // 1.4.3: an arrival keeps the species' cap (it brought a fourth lion)
       for (let i = 0; i < count; i++) {
         const a = Math.random() * Math.PI * 2; let x = base.x + Math.cos(a) * 2, z = base.z + Math.sin(a) * 2;
         if (!env.isPlaceable(x, z)) { x = base.x; z = base.z; }
@@ -185,13 +188,13 @@ export function createEvents(ctx) {
     for (const id of m.reward?.unlock || []) { unlock(id, false); names.push(reg.byId.get(id)?.name); }
     audio.play('mission');
     // a card pack for two missions out of every three (not every one – packs should stay special)
-    if (!m.expert && !W.training && missions.doneCount % 3 !== 0) { try { window.__wolLearn?.grantPack(1); } catch (e) { } }
+    if (!m.expert && !W.training && missions.doneCount % 3 !== 0) { try { svc('learn')?.grantPack(1); } catch (e) { } }
     const badges = W.research || W.training ? [] : grantBadge('mission:' + m.id);   // an expert mission gives a badge (תג), not a pack
     // torah edition: a mission from the sources gives its source card for the album ("מן המקורות")
     let srcText = '';
     if (m.reward?.source) { const card = SOURCE_CARDS.find(c => c.id === m.reward.source); if (card && grantSource(card.id)) srcText = ' · קלף מקור חדש באלבום: ' + card.title; }
     ui.missionDone({ title: m.title, note: m.autoNote || '', rewardText: `+${m.reward?.points || 0} נקודות חיים${names.length ? ' · נפתחו: ' + names.join(', ') : ''}${srcText}${badges.length ? ' · תג חדש: ' + badges.map(b => b.name).join(', ') : ''}` });
-    try { const g = m.goal || {}; const sid = [g.from, g.id, g.species, g.to].find((x) => typeof x === 'string' && reg.byId.has(x) && reg.byId.get(x).kind === 'animal'); window.__flourish && window.__flourish.mission(sid); } catch (e) { }   // area I: an animal from the mission celebrates
+    try { const g = m.goal || {}; const sid = [g.from, g.id, g.species, g.to].find((x) => typeof x === 'string' && reg.byId.has(x) && reg.byId.get(x).kind === 'animal'); svc('flourish') && svc('flourish').mission(sid); } catch (e) { }   // area I: an animal from the mission celebrates
     refreshTray();
     if (W.experiment) W._saveAfterExperiment = true; else saveGame(true);
     if (!W.research) saveProgress();

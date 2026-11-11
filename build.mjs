@@ -26,7 +26,9 @@ const DEFINE = { __EDITION__: JSON.stringify(EDITION) };
 const editionPlugin = { name: 'edition-assets', setup(b) {
   if (EDITION !== 'torah') b.onLoad({ filter: /[\\/]src[\\/]data[\\/]source-art\.js$/ }, () => ({ contents: 'export const SOURCE_ART = {};', loader: 'js' }));
 } };
-const title = EDITION === 'torah' ? 'רשת החיים – מהדורה תורנית' : 'רשת החיים';
+// 4.11 (Avi): there is one product with a sources switch, never called a torah edition anywhere; in the 1.4 series its
+// name is "רשת החיים – המסע הגדול" (desktop/builder-1.4.json productName; Electron shows the page title in the window bar)
+const title = EDITION === 'torah' ? 'רשת החיים – המסע הגדול' : 'רשת החיים';
 const BASE_CSS = 'html,body{margin:0;height:100%;overflow:hidden;background:#0d1a14;}canvas#game{display:block;position:fixed;inset:0;width:100%;height:100%;touch-action:none}';
 const readCss = (fontsCss) => {
   let css = '';
@@ -90,7 +92,7 @@ async function buildDesktop(outdir) {
   };
   // The generated picture tables (src/data/*.js written by tools/build-*.py) hold base64 data URIs; in the desktop build
   // each module is replaced by the same table with file paths, so a picture costs nothing until something shows it.
-  const ASSET_MODULES = /[\\/]src[\\/]data[\\/](panorama|ground-textures|card-art|thumbs|island-art|tree-shadow|logo|pack-art|source-art|lab-art|reef-backdrop|music|voice|kubi-voice|robo-art|frame-art|lab-items-art)\.js$/;
+  const ASSET_MODULES = /[\\/]src[\\/]data[\\/](?:robolab[\\/])?(panorama|ground-textures|card-art|thumbs|island-art|tree-shadow|logo|pack-art|source-art|lab-art|reef-backdrop|music|voice|kubi-voice|nitzotz-voice|robo-art|frame-art|lab-items-art|tech-card-art|kubi-art|wk-icons|wk-hero|code-hero|film-art)\.js$/;   // 1.4.3: the technology cards' paintings, קוּבִּי's portrait and the workshop's icons too
   const assetPlugin = {
     name: 'asset-files',
     setup(b) {

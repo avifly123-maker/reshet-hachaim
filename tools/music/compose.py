@@ -487,7 +487,75 @@ def piece_lab():
     return T, dict(rt=1.8, length=3.0, wet=0.24)
 
 
-PIECES = {'start': piece_start, 'lab': piece_lab}
+def piece_workshop():
+    """ניצוץ's workshop (6.11, Avi: "soft music for the workshop", "a chocolate-factory feel, not extreme"): a light waltz
+    for a music box, pizzicato and a woody flute, with a chromatic wink here and there. 48 bars, loops on itself."""
+    bpm = 138.0
+    beat = 60.0 / bpm
+    hum = lambda: RNG.normal(0, 0.004)
+    A = ['C', 'Am', 'Dm', 'G7', 'C', 'E7', 'Am', 'F', 'Dm', 'G', 'C', 'A7', 'Dm', 'G7', 'C', 'G7']
+    B = ['F', 'Fm', 'C', 'A7', 'Dm', 'G7', 'C', 'G7']
+    prog = ['C', 'Am', 'F', 'G7'] + A + B + A + ['C', 'F', 'Dm', 'G7']
+    bars = len(prog)
+    T = Track(bars * 3 * beat)
+    melA = ['E5:1 G5:1 C6:1', 'B5:.5 A5:.5 E5:2', 'F5:1 A5:1 D6:1', 'C6:.5 B5:.5 G5:1 F5:1',
+            'E5:1 G5:.5 A5:.5 G5:1', 'G#5:1 B5:1 D6:1', 'C6:1.5 B5:.5 A5:1', 'A5:2 r:1',
+            'D5:.5 E5:.5 F5:1 A5:1', 'B5:1 D6:1 B5:1', 'C6:.5 B5:.5 C6:1 G5:1', 'C#6:1 E6:1 G5:1',
+            'F5:1 D6:1.5 C6:.5', 'B5:1 A5:.5 G5:.5 F5:1', 'E5:.5 G5:.5 C6:1 E6:1', 'D6:1 B5:1 G5:1']
+    melB = ['A4:1 C5:1 F5:1', 'Ab4:1 C5:1 F5:1', 'G5:1.5 E5:.5 C5:1', 'C#5:1 E5:1 A5:1',
+            'D5:.5 F5:.5 A5:1 D6:1', 'B5:1 G5:1 F5:1', 'E5:1 C5:1 G4:1', 'B4:1 D5:1 G5:1']
+    box = ['C6:1 G5:1 E5:1', 'C6:1 A5:1 E5:1', 'C6:1 A5:1 F5:1', 'B5:1 G5:1 F5:1']
+    def play(bar_t, text, inst, pan, vel):
+        for nb, m, d in melody(text):
+            if m is None:
+                continue
+            t = bar_t + nb * beat + hum()
+            if inst == 'cel':
+                T.add(t, celesta(hz(m), vel), pan=pan)
+            elif inst in ('flu', 'flu8'):
+                m = m - 12 if inst == 'flu8' else m
+                T.add(t, wind(hz(m), d * beat * 0.9, vel=vel, harm=((1, 1.0), (2, 0.3), (3, 0.18), (4, 0.06), (5, 0.04)), breath=0.05, vib=6.0), pan=pan)
+            elif inst == 'pz':
+                T.add(t, pizz(hz(m), vel, d * beat), pan=pan)
+            elif inst == 'mb':
+                T.add(t, marimba(hz(m), vel), pan=pan)
+    for b, sym in enumerate(prog):
+        bar_t = b * 3 * beat
+        part = 'intro' if b < 4 else 'A' if b < 20 else 'B' if b < 28 else "A'" if b < 44 else 'outro'
+        bpc, tones, root = chord(sym)
+        # the waltz: a plucked bass on one, two soft marimba dyads on two and three
+        bm = near(bpc, 41, 52, 46)
+        T.add(bar_t + hum(), bass(hz(bm), 0.5 * beat, vel=0.9, pl=True))
+        dy = sorted(near(pc, 60, 72, 66) for pc in tones[1:3])
+        for k in (1, 2):
+            for m in dy:
+                T.add(bar_t + k * beat + hum(), marimba(hz(m), 0.36), pan=-0.25)
+        # a quiet pad under the B part only
+        if part == 'B':
+            for pc in sorted(set(tones)):
+                l, r = pad_note(hz(near(pc, 55, 67, 61)), 3 * beat + 0.1, vel=0.3, att=0.6, rel=1.2, bright=0.7)
+                T.add2(bar_t, l, r)
+        if part in ('intro', 'outro'):
+            play(bar_t, box[b % 4], 'cel', 0.3, 0.5)
+        elif part == 'A':
+            play(bar_t, melA[b - 4], 'cel', 0.25, 0.68)
+        elif part == 'B':
+            play(bar_t, melB[b - 20], 'pz', 0.3, 0.85)
+            if b % 2:
+                play(bar_t, 'r:2 ' + melB[b - 20].split()[-1].split(':')[0] + ':1', 'flu', -0.15, 0.55)
+        elif part == "A'":
+            play(bar_t, melA[b - 28], 'flu8', -0.1, 0.72)
+            last = melA[b - 28].split()[-1].split(':')[0]
+            if last != 'r':
+                play(bar_t, 'r:2 ' + last + ':.5', 'cel', 0.35, 0.45)   # a little bell on the last beat
+        # a soft shaker on the second and third beats in the middle
+        if part in ('B', "A'"):
+            for k in (1, 2):
+                T.add(bar_t + k * beat + hum(), shaker(0.35), pan=0.4)
+    return T, dict(rt=1.6, length=2.8, wet=0.22)
+
+
+PIECES = {'start': piece_start, 'lab': piece_lab, 'workshop': piece_workshop}
 
 
 # ───────────────────────────────────────────────────────────── mix, measure, encode
@@ -564,5 +632,5 @@ if __name__ == '__main__':
         mp3 = args[i + 1]
         del args[i:i + 2]
     for n in (args or list(PIECES)):
-        RNG = np.random.default_rng(7 if n == 'start' else 11)
+        RNG = np.random.default_rng({'start': 7, 'workshop': 13}.get(n, 11))
         render(n, mp3)

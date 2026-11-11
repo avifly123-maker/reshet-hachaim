@@ -1,4 +1,4 @@
-// מחזיקים את היער – drawing: the message line and the owl's bubble (msg, say), the setup screen (the three places), the
+// מחזיקים את הסביבה – drawing: the message line and the owl's bubble (msg, say), the setup screen (the three places), the
 // game screen, the top bar, the board with its gold threads (SVG), the side panel (the event card, its outcome) and the
 // hand.
 // Gives K: msg, say, renderSetup, renderGame, render, renderBoard, drawThreads, renderHand.
@@ -29,7 +29,7 @@ export function createRender(K) {
   }
   function renderSetup() {
     K.S = null; K.sel = null; cleanupDrag();
-    ctx.setTitle('מחזיקים את היער');
+    ctx.setTitle('מחזיקים את הסביבה');
     const tile = (b) => {
       const { mine, add } = biomeInfo(b);
       const sp = mine.filter((c) => c.type === 'species');
@@ -43,7 +43,7 @@ export function createRender(K) {
       </button>`;
     };
     root.innerHTML = `<section class="wl-screen kf-pick">
-      <div class="kf-phead"><h1>${tileIcon('keep', 'wl-tic')}מחזיקים את היער</h1><p>בונים יער מהקלפים שלכם, ועוזרים לו לעבור את מה שהטבע מביא.</p></div>
+      <div class="kf-phead"><h1>${tileIcon('keep', 'wl-tic')}מחזיקים את הסביבה</h1><p>בוחרים סביבה, בונים אותה מהקלפים שלכם, ועוזרים לה לעבור את מה שהטבע מביא.</p></div>
       <div class="kf-biomes">${BIOMES.map(tile).join('')}</div>
       <div class="kf-goalbox paper">
         <div class="kf-hgoal">${I.target}<div><small>המטרה</small><b>${Y('לשמור על היער חי ובריא', 'לשמור על השונית חיה ובריאה')} במשך ${kids ? 5 : 8} אירועים של הטבע</b></div></div>
@@ -55,7 +55,7 @@ export function createRender(K) {
   }
 
   function renderGame() {
-    ctx.setTitle(`מחזיקים את היער · ${BNAME[K.S.biome]}`);
+    ctx.setTitle(`מחזיקים את הסביבה · ${BNAME[K.S.biome]}`);
     root.innerHTML = `<section class="wl-screen kf-game">
       <div class="kf-bar"></div>
       <div class="kf-mid">

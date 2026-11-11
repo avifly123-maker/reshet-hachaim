@@ -1,0 +1,133 @@
+[
+{
+"wait": 4
+},
+{
+"js": "['stage:1','g:hubtut','g:album','g:learn','g:start:chat','g:start:howstages','g:start:settings'].forEach((k) => window.__journey.markIntro(k)); window.__journey.markTrained(); window.__guide && window.__guide.close(); window.__journey.unlockAll('2580'); window.dispatchEvent(new CustomEvent('wol-journey')); 1"
+},
+{
+"js": "['g:nztut','g:nztut:mach','g:nztut:mix','g:nztut:card','g:nztut:build','g:nztut:test','g:nztut:ord'].forEach((k)=>window.__journey.markIntro(k)); window.__app.bus.emit('ui:workshop'); 1"
+},
+{
+"until": "!!window.__wsDebug && !!document.querySelector('.ws:not([hidden]) .ws-path .wp-c')",
+"timeout": 90
+},
+{
+"wait": 2
+},
+{
+"js": "const c=document.querySelectorAll('.ws-path .wp-c'), r=document.querySelectorAll('.ws-path .wp-route .wp-c b'); 'CHECK path-seven ' + (c.length===7 && r.length===4 && !!document.querySelector('[data-wshelp]') ? 'ok' : 'FAIL ' + c.length)"
+},
+{
+"clickSel": ".ws-path .wp-route .wp-c[data-st=orders]"
+},
+{
+"wait": 2
+},
+{
+"js": "const h=document.querySelector('#howto'); 'CHECK how-first-orders ' + (window.__wsDebug.state().place==='orders' && h && h.querySelectorAll('.howto-dots i').length===5 && h.querySelector('.howto-img img') ? 'ok' : 'FAIL')"
+},
+{
+"js": "'CHECK path-lit ' + (document.querySelector('.wp-c.on[data-st=orders]') && document.querySelector('.wp-c.next[data-st=build]') ? 'ok' : 'FAIL')"
+},
+{
+"clickSel": "#howto [data-h=skip]"
+},
+{
+"wait": 1
+},
+{
+"clickSel": "[data-wshelp]"
+},
+{
+"wait": 1
+},
+{
+"js": "'CHECK help-again ' + (document.querySelector('#howto') ? 'ok' : 'FAIL')"
+},
+{
+"js": "window.__wsDebug.go('machine'); 1"
+},
+{
+"wait": 2
+},
+{
+"js": "'CHECK how-closes-on-move ' + (!document.querySelector('#howto') && window.__wsDebug.state().place==='machine' ? 'ok' : 'FAIL')"
+},
+{
+"js": "const t=document.querySelectorAll('.wm-things [data-wsthing]'), w=document.querySelector('.wm'), m=document.querySelector('.ws-main'); 'CHECK shelf-16-fits ' + (t.length===16 && w.scrollWidth<=m.clientWidth+2 && t[0].getBoundingClientRect().width>=70 ? 'ok' : 'FAIL ' + t.length + ' ' + w.scrollWidth + '/' + m.clientWidth)"
+},
+{
+"js": "window.__x0=document.querySelector('.wm-things').scrollLeft; 1"
+},
+{
+"clickSel": ".wm-carb.next"
+},
+{
+"until": "document.querySelector('.wm-things').scrollLeft !== window.__x0",
+"timeout": 30
+},
+{
+"js": "'CHECK shelf-arrow ' + (document.querySelector('.wm-things').scrollLeft !== window.__x0 ? 'ok' : 'FAIL ' + window.__x0)"
+},
+{
+"js": "document.querySelector('[data-wsthing=tyre]').scrollIntoView({inline:'center'}); 1"
+},
+{
+"clickSel": "[data-wsthing=tyre]"
+},
+{
+"wait": 1
+},
+{
+"js": "window.__xk=document.querySelector('.wm-things').scrollLeft; 1"
+},
+{
+"clickSel": "[data-wslever=flip]"
+},
+{
+"wait": 1
+},
+{
+"js": "const L=document.querySelector('[data-wslever=flip]').getBoundingClientRect(); 'CHECK lever-big-keeps-shelf ' + (window.__wsDebug.state().last && window.__wsDebug.state().thing==='tyre' && L.height>=44 && Math.abs(document.querySelector('.wm-things').scrollLeft-window.__xk)<2 ? 'ok' : 'FAIL ' + L.height)"
+},
+{
+"shot": "shots/ws-path/machine.png"
+},
+{
+"js": "window.__wsDebug.go('patent'); 1"
+},
+{
+"wait": 1
+},
+{
+"js": "const g=document.querySelector('.wp-go'); 'CHECK patent-empty-way ' + (window.__wsDebug.state().patents>0 || (g && g.getBoundingClientRect().bottom<=innerHeight) ? 'ok' : 'FAIL')"
+},
+{
+"clickSel": ".wp-go"
+},
+{
+"wait": 1
+},
+{
+"js": "'CHECK patent-to-orders ' + (window.__wsDebug.state().place==='orders' ? 'ok' : 'FAIL')"
+},
+{
+"js": "document.querySelectorAll('.bdg-pop').forEach((b)=>b.click()); 1"
+},
+{
+"wait": 0.8
+},
+{
+"js": "['b_ax1','b_ax2','b_ax3','b_ax4'].forEach((id)=>window.dispatchEvent(new CustomEvent('wol-badge',{detail:id}))); 1"
+},
+{
+"wait": 1.5
+},
+{
+"js": "const p=document.querySelectorAll('.bdg-pop'); 'CHECK many-badges-one-note ' + (p.length===1 && p[0].classList.contains('many') && p[0].querySelectorAll('.bdg').length===2 && /4/.test(p[0].textContent) && !!p[0].querySelector('.bdg-more') ? 'ok' : 'FAIL ' + p.length + ' ' + (p[0]&&p[0].textContent))"
+},
+{
+"shot": "shots/ws-path/badges.png"
+}
+]

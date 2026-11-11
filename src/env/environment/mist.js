@@ -4,14 +4,14 @@
 // Needs from ctx: U, isAmazon, track, root; the banks also puffTex, seed, qual, heightAt, waterfall, riverExit.
 import * as THREE from 'three';
 import { makeRng } from '../../core/util.js';
-import { TAU, C, V3 } from './common.js';
+import { TAU, C, V3, K } from './common.js';
 
 export function createMistSea(ctx) {
   const { U, isAmazon, track, root } = ctx;
   // ───────────────────────────── sea of mist below
   const mistSeaU = {
     uTime: U.uTime, uNoise: U.uNoise, uLit: { value: C('#fff') }, uShade: { value: C('#99a') }, uDensity: { value: 0.5 },
-    uSunDir: U.uSunDir, uSunCol: U.uSunCol, uIsland: { value: V3(0, 0, 44) },
+    uSunDir: U.uSunDir, uSunCol: U.uSunCol, uIsland: { value: V3(0, 0, 44 * K) },
     ...THREE.UniformsLib.fog,
   };
   const makeMistSeaMat = (extra) => track(new THREE.ShaderMaterial({
@@ -37,7 +37,7 @@ export function createMistSea(ctx) {
         float lo = 0.86 - (uDensity + uDensAdd) * 0.5;
         float d = smoothstep(lo, lo + 0.12, h);
         float r = length(vW.xz);
-        d *= smoothstep(36.0, 64.0, r) * (1.0 - smoothstep(uOuter * 0.55, uOuter, r));
+        d *= smoothstep(${(36 * K).toFixed(1)}, ${(64 * K).toFixed(1)}, r) * (1.0 - smoothstep(uOuter * 0.55, uOuter, r));
         float lit = clamp(dot(N, normalize(uSunDir + vec3(0.0, 0.25, 0.0))) * 0.6 + 0.45, 0.0, 1.0);
         float thick = smoothstep(lo, lo + 0.35, h);
         vec3 col = mix(uShade, uLit, lit * (0.4 + 0.6 * thick));

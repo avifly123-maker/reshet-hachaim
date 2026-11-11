@@ -1,0 +1,183 @@
+[
+{
+"wait": 4
+},
+{
+"js": "window.__journey.markIntro('stage:1'); ['g:rltut','g:rltut:ev','g:rltut:loop'].forEach(k=>window.__journey.markIntro(k)); window.__guide && window.__guide.close(); window.__journey.unlockAll('2580'); window.__app.bus.emit('quality',{q:'medium'}); window.__app.bus.emit('ui:robolab'); 1"
+},
+{
+"until": "!!document.querySelector('.rl-home')",
+"timeout": 90
+},
+{
+"js": "const i=document.querySelector('.rl-intro [data-iskip]'); if(i) i.click(); window.__leak = []; 1"
+},
+{
+"js": "window.__rlDebug.open('l1-1'); 1"
+},
+{
+"until": "window.__rlDebug.in3d() && window.__rlDebug.cur() === 'l1-1' && !!window.__rlDebug.field()",
+"timeout": 240
+},
+{
+"wait": 1.5
+},
+{
+"js": "window.__leak.push((() => { const r = window.__app.pipe.renderer, m = r.info.memory, P = r.info.programs || []; return { g: m.geometries, t: m.textures, p: P.length, u: P.reduce((s, q) => s + q.usedTimes, 0) }; })()); 1"
+},
+{
+"js": "window.__rlDebug.open('l1-2'); 1"
+},
+{
+"until": "window.__rlDebug.in3d() && window.__rlDebug.cur() === 'l1-2' && !!window.__rlDebug.field()",
+"timeout": 240
+},
+{
+"wait": 1.5
+},
+{
+"js": "window.__leak.push((() => { const r = window.__app.pipe.renderer, m = r.info.memory, P = r.info.programs || []; return { g: m.geometries, t: m.textures, p: P.length, u: P.reduce((s, q) => s + q.usedTimes, 0) }; })()); 1"
+},
+{
+"js": "window.__rlDebug.open('l1-1'); 1"
+},
+{
+"until": "window.__rlDebug.in3d() && window.__rlDebug.cur() === 'l1-1' && !!window.__rlDebug.field()",
+"timeout": 240
+},
+{
+"wait": 1.5
+},
+{
+"js": "window.__leak.push((() => { const r = window.__app.pipe.renderer, m = r.info.memory, P = r.info.programs || []; return { g: m.geometries, t: m.textures, p: P.length, u: P.reduce((s, q) => s + q.usedTimes, 0) }; })()); 1"
+},
+{
+"js": "window.__rlDebug.open('l1-2'); 1"
+},
+{
+"until": "window.__rlDebug.in3d() && window.__rlDebug.cur() === 'l1-2' && !!window.__rlDebug.field()",
+"timeout": 240
+},
+{
+"wait": 1.5
+},
+{
+"js": "window.__leak.push((() => { const r = window.__app.pipe.renderer, m = r.info.memory, P = r.info.programs || []; return { g: m.geometries, t: m.textures, p: P.length, u: P.reduce((s, q) => s + q.usedTimes, 0) }; })()); 1"
+},
+{
+"js": "window.__rlDebug.open('l1-1'); 1"
+},
+{
+"until": "window.__rlDebug.in3d() && window.__rlDebug.cur() === 'l1-1' && !!window.__rlDebug.field()",
+"timeout": 240
+},
+{
+"wait": 1.5
+},
+{
+"js": "window.__leak.push((() => { const r = window.__app.pipe.renderer, m = r.info.memory, P = r.info.programs || []; return { g: m.geometries, t: m.textures, p: P.length, u: P.reduce((s, q) => s + q.usedTimes, 0) }; })()); 1"
+},
+{
+"js": "window.__rlDebug.open('l1-2'); 1"
+},
+{
+"until": "window.__rlDebug.in3d() && window.__rlDebug.cur() === 'l1-2' && !!window.__rlDebug.field()",
+"timeout": 240
+},
+{
+"wait": 1.5
+},
+{
+"js": "window.__leak.push((() => { const r = window.__app.pipe.renderer, m = r.info.memory, P = r.info.programs || []; return { g: m.geometries, t: m.textures, p: P.length, u: P.reduce((s, q) => s + q.usedTimes, 0) }; })()); 1"
+},
+{
+"js": "window.__rlDebug.open('l1-1'); 1"
+},
+{
+"until": "window.__rlDebug.in3d() && window.__rlDebug.cur() === 'l1-1' && !!window.__rlDebug.field()",
+"timeout": 240
+},
+{
+"wait": 1.5
+},
+{
+"js": "window.__leak.push((() => { const r = window.__app.pipe.renderer, m = r.info.memory, P = r.info.programs || []; return { g: m.geometries, t: m.textures, p: P.length, u: P.reduce((s, q) => s + q.usedTimes, 0) }; })()); 1"
+},
+{
+"js": "window.__rlDebug.open('l1-2'); 1"
+},
+{
+"until": "window.__rlDebug.in3d() && window.__rlDebug.cur() === 'l1-2' && !!window.__rlDebug.field()",
+"timeout": 240
+},
+{
+"wait": 1.5
+},
+{
+"js": "window.__leak.push((() => { const r = window.__app.pipe.renderer, m = r.info.memory, P = r.info.programs || []; return { g: m.geometries, t: m.textures, p: P.length, u: P.reduce((s, q) => s + q.usedTimes, 0) }; })()); 1"
+},
+{
+"js": "window.__rlDebug.open('l1-1'); 1"
+},
+{
+"until": "window.__rlDebug.in3d() && window.__rlDebug.cur() === 'l1-1' && !!window.__rlDebug.field()",
+"timeout": 240
+},
+{
+"wait": 1.5
+},
+{
+"js": "window.__leak.push((() => { const r = window.__app.pipe.renderer, m = r.info.memory, P = r.info.programs || []; return { g: m.geometries, t: m.textures, p: P.length, u: P.reduce((s, q) => s + q.usedTimes, 0) }; })()); 1"
+},
+{
+"js": "window.__rlDebug.open('l1-2'); 1"
+},
+{
+"until": "window.__rlDebug.in3d() && window.__rlDebug.cur() === 'l1-2' && !!window.__rlDebug.field()",
+"timeout": 240
+},
+{
+"wait": 1.5
+},
+{
+"js": "window.__leak.push((() => { const r = window.__app.pipe.renderer, m = r.info.memory, P = r.info.programs || []; return { g: m.geometries, t: m.textures, p: P.length, u: P.reduce((s, q) => s + q.usedTimes, 0) }; })()); 1"
+},
+{
+"js": "window.__rlDebug.open('l1-1'); 1"
+},
+{
+"until": "window.__rlDebug.in3d() && window.__rlDebug.cur() === 'l1-1' && !!window.__rlDebug.field()",
+"timeout": 240
+},
+{
+"wait": 1.5
+},
+{
+"js": "window.__leak.push((() => { const r = window.__app.pipe.renderer, m = r.info.memory, P = r.info.programs || []; return { g: m.geometries, t: m.textures, p: P.length, u: P.reduce((s, q) => s + q.usedTimes, 0) }; })()); 1"
+},
+{
+"js": "window.__rlDebug.open('l1-2'); 1"
+},
+{
+"until": "window.__rlDebug.in3d() && window.__rlDebug.cur() === 'l1-2' && !!window.__rlDebug.field()",
+"timeout": 240
+},
+{
+"wait": 1.5
+},
+{
+"js": "window.__leak.push((() => { const r = window.__app.pipe.renderer, m = r.info.memory, P = r.info.programs || []; return { g: m.geometries, t: m.textures, p: P.length, u: P.reduce((s, q) => s + q.usedTimes, 0) }; })()); 1"
+},
+{
+"js": "JSON.stringify({ early: [window.__leak[2], window.__leak[3]], late: window.__leak.slice(-2) })"
+},
+{
+"js": "const L = window.__leak, n = L.length, d = (k) => Math.max(L[n - 2][k] - L[2][k], L[n - 1][k] - L[3][k]); 'CHECK course-geometries ' + (d('g') <= 2 ? 'ok' : 'FAIL +' + d('g'))"
+},
+{
+"js": "const L = window.__leak, n = L.length, d = (k) => Math.max(L[n - 2][k] - L[2][k], L[n - 1][k] - L[3][k]); 'CHECK course-textures ' + (d('t') <= 1 ? 'ok' : 'FAIL +' + d('t'))"
+},
+{
+"js": "const L = window.__leak, n = L.length, d = (k) => Math.max(L[n - 2][k] - L[2][k], L[n - 1][k] - L[3][k]); 'CHECK course-materials ' + (d('u') <= 4 ? 'ok' : 'FAIL program uses +' + d('u'))"
+}
+]

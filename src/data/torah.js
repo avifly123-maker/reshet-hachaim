@@ -107,6 +107,22 @@ export const SOURCE_CARDS = [
   { id: 'yesusum', title: 'יְשֻׂשׂוּם מִדְבָּר וְצִיָּה', ref: 'ישעיהו לה, א', icon: 'flower', col: '#c08a3a', earn: 'mission:dt1',
     quote: 'יְשֻׂשׂוּם מִדְבָּר וְצִיָּה, וְתָגֵל עֲרָבָה וְתִפְרַח כַּחֲבַצָּלֶת.',
     lesson: 'גם במקום הכי יבש יש פרחים. הצלף פורח בקיץ החם, ואחרי גשם טוב המדבר כולו מתכסה פרחים.' },
+  // חוקרי הטבע, the savanna, beginners: "השיחים שמשתלטים" (src/research/cases/thorny-plain.js)
+  { id: 'chatzir', title: 'מַצְמִיחַ חָצִיר לַבְּהֵמָה', ref: 'תהלים קד, יד', icon: 'leaf', col: '#a8822a', earn: 'research:thorny-plain',
+    quote: 'מַצְמִיחַ חָצִיר לַבְּהֵמָה, וְעֵשֶׂב לַעֲבֹדַת הָאָדָם.',
+    lesson: 'ה׳ מצמיח עשב לבהמות. כשהשיחים תופסים את כל המקום, העדרים נשארים בלי מרעה, והפיל עוזר להחזיר את העשב.' },
+  // חוקרי הטבע, the savanna, middle: "העדרים שלא נשארים" (src/research/cases/old-grass.js)
+  { id: 'deshe', title: 'כִּי דָשְׁאוּ נְאוֹת מִדְבָּר', ref: 'יואל ב, כב', icon: 'leaf', col: '#6a8a2a', earn: 'research:old-grass',
+    quote: 'אַל תִּירְאוּ בַּהֲמוֹת שָׂדַי, כִּי דָשְׁאוּ נְאוֹת מִדְבָּר.',
+    lesson: 'אחרי זמן קשה, המרעה חוזר להוריק. בסוואנה, אחרי אש קטנה, העשב צומח מחדש מהשורשים, והעדרים חוזרים.' },
+  // חוקרי הטבע, the savanna, advanced: "יותר מדי פילים" (src/research/cases/too-many-elephants.js)
+  { id: 'zman', title: 'לַכֹּל זְמָן', ref: 'קהלת ג, א', icon: 'sun', col: '#7a6a4a', earn: 'research:too-many-elephants',
+    quote: 'לַכֹּל זְמָן, וְעֵת לְכָל חֵפֶץ תַּחַת הַשָּׁמָיִם.',
+    lesson: 'לכל דבר יש זמן. הפילים נשארים ליד המים בעונת הגשמים, וממשיכים ללכת בעונת היובש. כך גם העצים מקבלים מנוחה.' },
+  // the savanna's torah mission st1 (TORAH_MISSIONS below)
+  { id: 'bahamot', title: 'בְּהֵמוֹת בְּהַרְרֵי אָלֶף', ref: 'תהלים נ, י', icon: 'paw', col: '#8a6a3a', earn: 'mission:st1',
+    quote: 'כִּי לִי כָל חַיְתוֹ יָעַר, בְּהֵמוֹת בְּהַרְרֵי אָלֶף.',
+    lesson: 'כל בעלי החיים שייכים לבורא העולם, גם העדרים הגדולים שנודדים בסוואנה. אנחנו שומרים עליהם ועל המרעה שלהם.' },
   // חוקרי הטבע, the Amazon, middle: "הנמלים שאכלו את היער" (src/research/cases/leafcutters.js)
   { id: 'shnayim', title: 'טוֹבִים הַשְּׁנַיִם מִן הָאֶחָד', ref: 'קהלת ד, ט', icon: 'bug', col: '#7a6a2a', earn: 'research:leafcutters',
     quote: 'טוֹבִים הַשְּׁנַיִם מִן הָאֶחָד, אֲשֶׁר יֵשׁ לָהֶם שָׂכָר טוֹב בַּעֲמָלָם.',
@@ -147,6 +163,8 @@ export const SOURCE_SETS = [
     cards: ['tzvi', 'tzvaim', 'kfirim', 'yam'] },
   { id: 'src-midbar', name: 'המדבר יפרח', col: '#b07a32', sub: 'שיטה, מעיין ופרחים, גם במקום הכי יבש',
     cards: ['shita', 'shittim', 'mayim', 'yesusum'] },
+  { id: 'src-savanna', name: 'מצמיח חציר לבהמה', col: '#a8822a', sub: 'עשב, עדרים וזמן לכל דבר',
+    cards: ['chatzir', 'deshe', 'zman', 'bahamot'] },
 ];
 export const EARN_TEXT = { quiz: 'מקבלים בחידון "מן המקורות" (7 תשובות נכונות ומעלה)', 'mission:gt1': 'מקבלים במשימה "לך אל נמלה" בחורש',
   'mission:gt2': 'מקבלים במשימה "החרוב של חוני" בחורש', 'set:avot': 'מקבלים כשמשלימים את הסדרה "רץ כצבי"',
@@ -168,6 +186,10 @@ export const EARN_TEXT = { quiz: 'מקבלים בחידון "מן המקורות
   'research:lonely-acacias': 'מקבלים כשפותרים את התעלומה "השיטות שלא מתחדשות" בחוקרי הטבע',
   'research:shrinking-oasis': 'מקבלים כשפותרים את התעלומה "נווה המדבר שהולך ונעלם" בחוקרי הטבע',
   'mission:dt1': 'מקבלים במשימה "ישושום מדבר" במדבר',
+  'research:thorny-plain': 'מקבלים כשפותרים את התעלומה "השיחים שמשתלטים" בחוקרי הטבע',
+  'research:old-grass': 'מקבלים כשפותרים את התעלומה "העדרים שלא נשארים" בחוקרי הטבע',
+  'research:too-many-elephants': 'מקבלים כשפותרים את התעלומה "יותר מדי פילים" בחוקרי הטבע',
+  'mission:st1': 'מקבלים במשימה "בהמות בהררי אלף" בסוואנה',
   'lab:sharkskin': 'מקבלים כשממציאים את מעיל עור הכריש במעבדה של רובו־דע' };
 
 // ───────────────────────────────────────── missions in the grove (inserted into the chain after g3 and g4)
@@ -187,6 +209,12 @@ export const TORAH_MISSIONS = {
       text: 'הנביא אמר: "ישושום מדבר וציה, ותגל ערבה ותפרח כחבצלת". גם במדבר יש פרחים. שתלו צלף, ושמרו עליו עד שיגדל ויפרח.',
       hint: 'הצלף אוהב לגדול בין סלעים. הוא פורח בקיץ, כשכמעט כל המדבר יבש.',
       goal: { type: 'growTo', species: 'caper', min: 0.7, count: 1 }, reward: { points: 35, source: 'yesusum' } },
+  ],
+  savanna: [
+    { id: 'st1', insertAfter: 'sv7', title: 'בהמות בהררי אלף',
+      text: 'דוד המלך אמר: "כי לי כל חיתו יער, בהמות בהררי אלף". הביאו לסוואנה עדר של 4 גנו, וגלו מה הם אוכלים.',
+      hint: 'הגנו אוכלים עשב. שתלו הרבה עשב שיבולת ועשב כוכב לפני שהעדר מגיע.',
+      goal: { type: 'place', species: 'wildebeest', count: 4 }, reward: { points: 35, source: 'bahamot' } },
   ],
   reef: [
     { id: 'rt1', insertAfter: 'r3', title: 'שם רמש ואין מספר',

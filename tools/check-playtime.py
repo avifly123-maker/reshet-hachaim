@@ -32,6 +32,9 @@ async def main(build, out):
         ok(await pg.locator('.set-time').count() == 1, 'the play time row is in the settings')
         await pg.click('.set-time [data-v="30"]'); await pg.wait_for_timeout(300)
         ok(await pg.locator('#set-pcode').count() == 1, 'a choice asks for the parents\' code')
+        # 1.4.4 set 0 (Avi): a press on the button with nothing typed asks for the code, it does not call it wrong
+        await pg.click('[data-set="tcode"]'); await pg.wait_for_timeout(300)
+        ok(await pg.evaluate("(() => { const e = document.querySelector('.set-perr'); return !!e && !e.hidden && /הקלידו/.test(e.textContent) && !/לא נכון/.test(e.textContent); })()"), 'an empty code asks for the code (not "wrong")')
         await pg.fill('#set-pcode', '1111'); await pg.click('[data-set="tcode"]'); await pg.wait_for_timeout(300)
         ok(await pg.evaluate("window.__playtime.limitMin() === 0 && !document.querySelector('.set-perr').hidden"), 'a wrong code changes nothing and says so')
         await pg.fill('#set-pcode', '2358'); await pg.screenshot(path=str(out / 'settings-code.png'))
@@ -53,7 +56,9 @@ async def main(build, out):
         await pg.mouse.click(400, 40); await pg.wait_for_timeout(300)
         ok(await pg.evaluate("!document.querySelector('.set-layer') && !!document.querySelector('.pt-lock')"), 'clicks do not reach the start screen')
         # more time with the code
-        await pg.click('.pt-par summary'); await pg.fill('#pt-code', '2358'); await pg.click('[data-pt="code"]'); await pg.wait_for_timeout(300)
+        await pg.click('.pt-par summary'); await pg.click('[data-pt="code"]'); await pg.wait_for_timeout(300)
+        ok(await pg.evaluate("(() => { const e = document.querySelector('.pt-err'); return !!e && !e.hidden && /הקלידו/.test(e.textContent); })()"), 'the lock screen: an empty code asks for the code')
+        await pg.fill('#pt-code', '2358'); await pg.click('[data-pt="code"]'); await pg.wait_for_timeout(300)
         await pg.screenshot(path=str(out / 'lock-parents.png'))
         await pg.click('[data-pt="add"][data-min="30"]'); await pg.wait_for_timeout(1500)
         ok(await pg.evaluate("!document.querySelector('.pt-lock') && window.__playtime.leftSec() > 25 * 60"), 'half an hour more opens the game again')

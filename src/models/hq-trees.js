@@ -227,6 +227,19 @@ export function amazonHQ(AMAZON) {
     heliconia: (o) => AMAZON.heliconia(o),
   };
 }
+// 1.11 (Avi: "the trees are geometric shapes stuck together"): the savanna's trees are built with the grove kit (the same
+// aCenter / aRank patch), so the grove's leaf-card foliage replaces their faceted blob crowns the same way. Acacias and
+// the marula have fine feathery (bipinnate / pinnate) leaves, the baobab hand-shaped ones, the fig small round ones.
+export function savannaHQ(SAV) {
+  return {
+    umbrella: groveTree(SAV, 'umbrella', 'pinnate', { cardsPerCluster: 14, cardSize: 1.5, color: '#7e9444', color2: '#6c8a3c', outward: 0.35, normalUp: 0.6 }),
+    whistling: groveTree(SAV, 'whistling', 'pinnate', { cardsPerCluster: 10, cardSize: 1.3, color: '#8a9a4a', color2: '#7a8e44' }),
+    baobab: groveTree(SAV, 'baobab', 'palmate', { cardsPerCluster: 10, cardSize: 1.5, color: '#6e8a3a', color2: '#86a046', outward: 0.55 }),
+    kigelia: groveTree(SAV, 'kigelia', 'long', { cardsPerCluster: 13, cardSize: 1.7, color: '#4e7a2e', color2: '#5e8a36' }),
+    sycamore: groveTree(SAV, 'sycamore', 'small', { cardsPerCluster: 14, cardSize: 1.6, color: '#5a8a38', color2: '#6a9a40' }),
+    marula: groveTree(SAV, 'marula', 'pinnate', { cardsPerCluster: 13, cardSize: 1.6, color: '#6a9040', color2: '#7aa048' }),
+  };
+}
 // zone packs: the base library with its HQ species swapped in
 export const withHQ = (base, hq) => { const o = { ...base }; for (const k of Object.keys(hq)) if (k in base) o[k] = hq[k]; return o; };
 // Called by the zone pack when its zone closes: frees the derived foliage / trimmed trunk geometry (rebuilt on demand).

@@ -9,13 +9,13 @@ import { TAU, C, V3 } from './common.js';
 
 export function createWater(ctx) {
   const {
-    U, isAmazon, hasRiver, track, root, seed, noise, riverPts, riverHW, WL, springPool, poolShapeR, bridges,
-    bridgeTops, riverExit, pools
+    U, isAmazon, isSavanna, hasRiver, track, root, seed, noise, riverPts, riverHW, WL, springPool, poolShapeR, bridges,
+    bridgeTops, riverExit, pools, holes = []
   } = ctx;
   // ───────────────────────────── water
   const waterU = {
     uTime: U.uTime, uNoise: U.uNoise, uSunDir: U.uSunDir, uSunCol: U.uSunCol, uSky: U.uSkyCol, uLight: U.uLightCol, uWet: U.uWet,
-    uDeep: { value: C(isAmazon ? '#2a3a1c' : '#174a52') }, uShallow: { value: C(isAmazon ? '#8a7440' : '#4a9a90') },
+    uDeep: { value: C(isAmazon ? '#2a3a1c' : isSavanna ? '#0f5a78' : '#174a52') }, uShallow: { value: C(isAmazon ? '#8a7440' : isSavanna ? '#3ec0b8' : '#4a9a90') },   // the savanna (Avi, 31.10): a beautiful clear blue-green river, not a muddy one
     uFlow: { value: hasRiver ? 1 : 0 }, uNight: { value: 0 },
     ...THREE.UniformsLib.fog,
   };
@@ -46,6 +46,13 @@ export function createWater(ctx) {
         vec3 Hh = normalize(uSunDir + V);
         float spec = pow(max(dot(nrm, Hh), 0.0), 220.0);
         col += uSunCol * spec * 5.0 * smoothstep(-0.02, 0.1, uSunDir.y);
+        // 1.4.4 set 10: sparkles: tiny bright points that blink on the moving surface, toward the sun
+        {
+          vec2 sp = vW.xz * 2.6 + vec2(uTime * 0.21, -uTime * 0.17);
+          float tw = texture2D(uNoise, sp).b * texture2D(uNoise, sp * 0.73 + uTime * 0.05).a;
+          float glit = smoothstep(0.72, 0.86, tw) * pow(max(dot(nrm, Hh), 0.0), 18.0);
+          col += uSunCol * glit * 2.4 * smoothstep(0.02, 0.2, uSunDir.y) * (1.0 - uNight);
+        }
         // moon glint
         col += vec3(0.6, 0.7, 1.0) * pow(max(dot(nrm, normalize(vec3(-uSunDir.x, abs(uSunDir.y), -uSunDir.z) + V)), 0.0), 160.0) * uNight * 1.5;
         float foam = smoothstep(0.9, 1.05, edge) * smoothstep(0.5, 0.75, n2);
@@ -89,6 +96,18 @@ export function createWater(ctx) {
       puv.setXY(i, rr0 * 0.0, 0);  // centre-ish → treat as calm
     }
     const pool = new THREE.Mesh(track(pg), waterMat); pool.renderOrder = 1; root.add(pool); waterMeshes.push(pool);
+    // 1.4.2: the savanna's waterholes, each a pool of its own (update.js shrinks them in the dry season: userData.hole)
+    for (const P of holes) {
+      const hg = new THREE.CircleGeometry(1, 40); hg.rotateX(-Math.PI / 2);
+      const hp = hg.attributes.position, huv = hg.attributes.uv;
+      for (let i = 0; i < hp.count; i++) {
+        const x = hp.getX(i), z = hp.getZ(i), rr0 = Math.hypot(x, z);
+        const k = poolShapeR(P, P.x + x * P.r, P.z + z * P.r) * 1.1;
+        hp.setXYZ(i, P.x + x * k, 0, P.z + z * k); huv.setXY(i, rr0, 0);
+      }
+      const hm = new THREE.Mesh(track(hg), waterMat); hm.position.y = P.wl; hm.renderOrder = 1; hm.name = 'waterhole';
+      hm.userData.hole = P; root.add(hm); waterMeshes.push(hm);
+    }
 
     // fallen-log crossings: an old trunk lying bank to bank, roots torn up at one end, mossy on top
     const logParts = [];

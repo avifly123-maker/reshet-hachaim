@@ -588,6 +588,277 @@ const SNAIL = {
   },
 };
 
-export const SAMPLES = [SHARK, OWL, BEE, CORAL, MORPHO, FIREFLY, TOUCAN, CHAMELEON, OCTOPUS, HEDGEHOG, SLOTH, KAPOK, PARROT, URCHIN, MYCEL, CLAM, LEAFBAC, SCORP, SNAIL];
+// 1.4.2, the savanna
+const ZEBRA = {
+  id: 'zebrahair', species: 'zebra', name: 'פרווה של זברה', zone: 'savanna', zoom: 2, focus: 52,
+  task: 'מצאו שלוש שערות לבנות בתוך הפס השחור.',
+  hints: ['בהגדלה הכי גדולה רואים שהפס בנוי משערות רבות.', 'רוב השערות בפס השחור כהות. חפשו את הבהירות.'],
+  found: 'הפסים של הזברה בנויים משערות שחורות ושערות לבנות. חוקרים מצאו שזבובים מתקשים לנחות על פסים כאלה.',
+  idea: 'אולי בגד עם פסים ירחיק זבובים?',
+  targets: [],
+  view(level) {
+    const r = rnd(71 + level);
+    if (level === 0) {
+      // the stripes: smooth black bands across a white coat
+      let b = ''; for (let k = -2; k < 9; k++) { const x = k * 56; b += `<path d="M${f(x)} 0 C${f(x + 40)} 120 ${f(x - 20)} 260 ${f(x + 30)} 400 L${f(x + 58)} 400 C${f(x + 8)} 260 ${f(x + 68)} 120 ${f(x + 28)} 0 z" fill="#1e1c1a"/>`; }
+      return `<defs>${grain('g0', 0.05, 0.14)}</defs><rect width="400" height="400" fill="#f2efe6"/>${b}<rect width="400" height="400" fill="#000" filter="url(#g0)"/>`;
+    }
+    if (level === 1) {
+      // the edge of a stripe: dark hairs on one side, light hairs on the other
+      let h = ''; for (let k = 0; k < 420; k++) { const x = r() * 400, y = r() * 400, dark = x + (r() - 0.5) * 60 < 210, a = 1.1 + r() * 0.4; h += `<line x1="${f(x)}" y1="${f(y)}" x2="${f(x + Math.cos(a) * 26)}" y2="${f(y + Math.sin(a) * 26)}" stroke="${dark ? '#2a2622' : '#ece6d6'}" stroke-width="3" stroke-linecap="round"/>`; }
+      return `<rect width="400" height="400" fill="#8a8274"/>${h}`;
+    }
+    // single hairs inside a black stripe; three of them are white
+    let h = '', tips = [];
+    for (let k = 0; k < 60; k++) {
+      const x = 20 + (k % 10) * 38 + r() * 8, y = 20 + Math.floor(k / 10) * 64 + r() * 10, white = k % 23 === 6;
+      h += `<path d="M${f(x)} ${f(y)} q14 26 6 52" stroke="${white ? '#fbf8ee' : '#24201c'}" stroke-width="${white ? 9 : 8}" fill="none" stroke-linecap="round"/>`;
+      h += `<path d="M${f(x - 2)} ${f(y + 4)} q12 22 5 44" stroke="${white ? '#ffffff' : '#4a443c'}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".7"/>`;
+      if (white) tips.push({ x: x + 8, y: y + 26, r: 32 });
+    }
+    ZEBRA.targets = tips.slice(0, 3);
+    return `<defs>${grain('g2', 0.07, 0.12)}</defs><rect width="400" height="400" fill="#5a544a"/>${h}<rect width="400" height="400" fill="#000" filter="url(#g2)"/>`;
+  },
+};
+
+const MOUND = {
+  id: 'moundwall', species: 'termitemound', name: 'קיר של תל טרמיטים', zone: 'savanna', zoom: 2, focus: 44,
+  task: 'מצאו שלוש תעלות אוויר גדולות בקיר.',
+  hints: ['הקיר נראה מלא, אבל בהגדלה רואים בו חורים.', 'התעלות הגדולות כהות ועמוקות יותר מהחורים הקטנים.'],
+  found: 'קיר התל מלא תעלות וחורים זעירים. אוויר זורם בהם, וכך הקן בפנים לא מתחמם מדי.',
+  idea: 'בניין עם תעלות כאלה יכול להתקרר כמעט בלי מזגן.',
+  targets: [],
+  view(level) {
+    const r = rnd(83 + level);
+    if (level === 0) {
+      // the mound: a red earth tower with a few dark openings
+      let o = ''; for (let k = 0; k < 9; k++) o += `<ellipse cx="${f(150 + r() * 100)}" cy="${f(90 + k * 30)}" rx="${f(4 + r() * 4)}" ry="${f(3 + r() * 3)}" fill="#4a2410"/>`;
+      return `<defs><linearGradient id="md" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8a4420"/><stop offset=".5" stop-color="#c06a3a"/><stop offset="1" stop-color="#7a3a1a"/></linearGradient>${grain('g0', 0.06, 0.2)}</defs>
+        <rect width="400" height="400" fill="#e8d8a8"/><path d="M200 30 C230 40 250 120 270 230 C290 320 300 370 310 400 L90 400 C100 370 110 320 130 230 C150 120 170 40 200 30 z" fill="url(#md)"/>${o}<rect width="400" height="400" fill="#000" filter="url(#g0)"/>`;
+    }
+    if (level === 1) {
+      // grains of earth glued together, with small pores between them
+      let g = ''; for (let k = 0; k < 300; k++) { const x = r() * 400, y = r() * 400; g += `<circle cx="${f(x)}" cy="${f(y)}" r="${f(6 + r() * 8)}" fill="${r() < 0.5 ? '#b8603a' : '#a0502e'}" stroke="#6a3018" stroke-width="1.5"/>`; }
+      return `<rect width="400" height="400" fill="#4a2010"/>${g}`;
+    }
+    // the wall up close: many tiny pores and three big air tunnels
+    let d = '', tips = [];
+    for (let k = 0; k < 90; k++) d += `<ellipse cx="${f(r() * 400)}" cy="${f(r() * 400)}" rx="${f(4 + r() * 5)}" ry="${f(3 + r() * 4)}" fill="#3a1a0a"/>`;
+    for (const [x, y] of [[90, 110], [290, 170], [170, 300]]) {
+      d += `<ellipse cx="${x}" cy="${y + 6}" rx="30" ry="24" fill="#c87a4a" opacity=".6"/><ellipse cx="${x}" cy="${y}" rx="26" ry="20" fill="#2a1006"/><ellipse cx="${x - 4}" cy="${y - 4}" rx="14" ry="10" fill="#120602"/>`;
+      tips.push({ x, y, r: 34 });
+    }
+    MOUND.targets = tips;
+    return `<defs>${grain('g2', 0.08, 0.16)}</defs><rect width="400" height="400" fill="#a85a34"/>${d}<rect width="400" height="400" fill="#000" filter="url(#g2)"/>`;
+  },
+};
+
+// 1.4.3 set 6 (Avi, 1.11: more of the desert and the savanna in the lab); facts in docs/sources.md ("המעבדה, 1.4.3")
+const ELESKIN = {
+  id: 'elephantskin', species: 'elephant', name: 'עור של פיל', zone: 'savanna', zoom: 2, focus: 61,
+  task: 'מצאו שלושה מקומות שבהם הסדקים נפגשים ומלאים במים.',
+  hints: ['בהגדלה הכי גדולה רואים שהעור מחולק לחלקות קטנות.', 'במקום שבו כמה סדקים נפגשים נשארים מים כחולים.'],
+  found: 'העור של הפיל מלא סדקים זעירים. הם שומרים מים ובוץ הרבה יותר מעור חלק, וכשהמים מתאדים הפיל מתקרר.',
+  idea: 'אולי בגד עם סדקים כאלה ישמור על הגוף קריר בשמש?',
+  targets: [],
+  view(level) {
+    const r = rnd(91 + level);
+    if (level === 0) {
+      // grey wrinkled skin: long soft folds
+      let w = ''; for (let k = 0; k < 16; k++) { const y = 10 + k * 25 + r() * 8; const c1 = f(y - 14 + r() * 28), c2 = f(y - 14 + r() * 28), e = f(y + r() * 10), sw = 2 + r() * 3;
+        w += `<path d="M-10 ${f(y + 4)} C100 ${+c1 + 4} 260 ${+c2 + 4} 410 ${+e + 4}" stroke="#b4aea4" stroke-width="${f(sw * 1.6)}" fill="none" opacity=".45"/><path d="M-10 ${f(y)} C100 ${c1} 260 ${c2} 410 ${e}" stroke="#4e4a46" stroke-width="${f(sw)}" fill="none" opacity=".75"/>`; }
+      return `<defs><radialGradient id="sk0" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#9e988e"/><stop offset="1" stop-color="#6e6860"/></radialGradient>${grain('g0', 0.05, 0.22)}</defs><rect width="400" height="400" fill="url(#sk0)"/>${w}<rect width="400" height="400" fill="#000" filter="url(#g0)"/>`;
+    }
+    // a net of cracks: the corners are shared, so the plates tile the skin with a dark crack between them
+    const n = level === 1 ? 9 : 5, step = 400 / (n - 1), P = [];
+    for (let i = 0; i <= n; i++) { P.push([]); for (let j = 0; j <= n; j++) P[i].push([i * step - step / 2 + (r() - 0.5) * step * 0.45, j * step - step / 2 + (r() - 0.5) * step * 0.45]); }
+    const pl = (i, j) => [P[i][j], P[i + 1][j], P[i + 1][j + 1], P[i][j + 1]].map((q) => f(q[0]) + ' ' + f(q[1])).join(' L');
+    let d = '';
+    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+      d += `<path d="M${pl(i, j)} z" fill="url(#pl${level})" stroke="#2e2a27" stroke-width="${level === 1 ? 4 : 7}" stroke-linejoin="round"/>`;
+      if (r() < 0.35) { const [x0, y0] = P[i][j], [x1, y1] = P[i + 1][j + 1]; d += `<path d="M${f(x0 + (x1 - x0) * 0.2)} ${f(y0 + (y1 - y0) * 0.3)} q${f((x1 - x0) * 0.2)} ${f((y1 - y0) * 0.5)} ${f((x1 - x0) * 0.55)} ${f((y1 - y0) * 0.45)}" stroke="#4a4540" stroke-width="${level === 1 ? 1.6 : 2.4}" fill="none" opacity=".7"/>`; }
+    }
+    const shade = `<radialGradient id="pl${level}" cx=".38" cy=".32" r=".8"><stop offset="0" stop-color="#b9b3a7"/><stop offset=".7" stop-color="#9c968a"/><stop offset="1" stop-color="#7a746a"/></radialGradient>`;
+    if (level === 1) return `<defs>${shade}${grain('g1', 0.09, 0.2)}</defs><rect width="400" height="400" fill="#2e2a27"/>${d}<rect width="400" height="400" fill="#000" filter="url(#g1)"/>`;
+    // up close: water stays where the cracks meet
+    const tips = [];
+    for (const [i, j] of [[1, 2], [3, 1], [2, 3]]) { const [x, y] = P[i][j]; d += `<ellipse cx="${f(x)}" cy="${f(y)}" rx="21" ry="16" fill="#6fb6d8" opacity=".88"/><ellipse cx="${f(x - 6)}" cy="${f(y - 5)}" rx="7" ry="4" fill="#e8f6fc" opacity=".85"/>`; tips.push({ x: Math.round(x), y: Math.round(y), r: 30 }); }
+    ELESKIN.targets = tips;
+    return `<defs>${shade}${grain('g2', 0.08, 0.18)}</defs><rect width="400" height="400" fill="#2e2a27"/>${d}<rect width="400" height="400" fill="#000" filter="url(#g2)"/>`;
+  },
+};
+
+const ACACIA = {
+  id: 'acacialeaf', species: 'umbrella', name: 'עלה של שיטה סוככנית', zone: 'savanna', zoom: 2, focus: 36,
+  task: 'מצאו שלושה פתחי נשימה זעירים על העלעל.',
+  hints: ['העלה בנוי מהרבה עלעלים קטנים. בהגדלה הכי גדולה רואים עלעל אחד.', 'פתח נשימה נראה כמו שתי שפתיים קטנות עם חריץ באמצע.'],
+  found: 'העלה של השיטה בנוי מהרבה עלעלים זעירים, ובכל עלעל יש פתחי נשימה קטנים. לעלה קטן יש פחות שטח שממנו יוצאים מים, וכך העץ חוסך מים בעונה היבשה.',
+  idea: 'אולי לוח שמש מחולק לחלקים קטנים יתחמם פחות?',
+  targets: [],
+  view(level) {
+    const r = rnd(97 + level);
+    if (level === 0) {
+      // a leaf: a stem with many pairs of tiny leaflets
+      let l = ''; for (let k = 0; k < 14; k++) { const y = 30 + k * 25; for (const sx of [-1, 1]) l += `<ellipse cx="${f(200 + sx * 26)}" cy="${f(y)}" rx="22" ry="8" transform="rotate(${sx * -18} ${f(200 + sx * 26)} ${f(y)})" fill="${r() < 0.5 ? '#6f9a3a' : '#5e8a32'}"/>`; }
+      return `<rect width="400" height="400" fill="#efe6c8"/><path d="M200 10 L200 395" stroke="#7a6a3a" stroke-width="5"/>${l}`;
+    }
+    if (level === 1) {
+      // a few leaflets close up, with their veins
+      let l = ''; for (let k = 0; k < 5; k++) { const y = 50 + k * 75; l += `<ellipse cx="200" cy="${y}" rx="170" ry="30" fill="#6e9a3c" stroke="#4a6e22" stroke-width="3"/><path d="M40 ${y} L360 ${y}" stroke="#8fb85a" stroke-width="3"/>`; }
+      return `<defs>${grain('g1', 0.06, 0.15)}</defs><rect width="400" height="400" fill="#3e5a1e"/>${l}<rect width="400" height="400" fill="#000" filter="url(#g1)"/>`;
+    }
+    // the skin of one leaflet: cells like paving stones, and three open breathing pores
+    let c = '', tips = [];
+    for (let gy = 0; gy < 9; gy++) for (let gx = 0; gx < 7; gx++) { const x = gx * 60 + (gy % 2) * 30 - 20 + r() * 6, y = gy * 46 - 10 + r() * 6; c += `<rect x="${f(x)}" y="${f(y)}" width="56" height="42" rx="12" fill="${r() < 0.5 ? '#8cbc5a' : '#7eb04e'}" stroke="#4e7a2a" stroke-width="2.5"/>`; }
+    for (const [x, y] of [[110, 120], [290, 200], [170, 310]]) { c += `<ellipse cx="${x}" cy="${y}" rx="22" ry="15" fill="#3e6a20"/><ellipse cx="${x - 9}" cy="${y}" rx="10" ry="13" fill="#a8d878"/><ellipse cx="${x + 9}" cy="${y}" rx="10" ry="13" fill="#a8d878"/><ellipse cx="${x}" cy="${y}" rx="3" ry="9" fill="#1e3a10"/>`; tips.push({ x, y, r: 30 }); }
+    ACACIA.targets = tips;
+    return `<defs>${grain('g2', 0.07, 0.12)}</defs><rect width="400" height="400" fill="#4e7a2a"/>${c}<rect width="400" height="400" fill="#000" filter="url(#g2)"/>`;
+  },
+};
+
+const WEAVER = {
+  id: 'weavernest', species: 'weaver', name: 'קן של אורג', zone: 'savanna', zoom: 2, focus: 47,
+  task: 'מצאו שלושה קשרים שהאורג קשר במקור.',
+  hints: ['בהגדלה רואים שהקן קלוע מרצועות של עשב.', 'קשר נראה כמו לולאה שרצועת העשב עוברת בתוכה.'],
+  found: 'האורג קולע את הקן מרצועות של עשב ירוק, ובכמה מקומות הוא קושר קשרים אמיתיים במקור וברגליים. כך הקן תלוי על ענף ולא נופל ברוח.',
+  idea: 'אולי נלמד ממנו לקלוע סלים ורשתות חזקים?',
+  targets: [],
+  view(level) {
+    const r = rnd(103 + level);
+    if (level === 0) {
+      // a round nest hanging from a twig
+      let g = ''; for (let k = 0; k < 120; k++) { const a = r() * Math.PI * 2, rr = 70 + r() * 48; g += `<path d="M${f(200 + Math.cos(a) * rr)} ${f(230 + Math.sin(a) * rr * 0.9)} q${f(r() * 40 - 20)} ${f(r() * 40 - 20)} ${f(r() * 50 - 25)} ${f(r() * 50 - 25)}" stroke="${['#c4b462', '#a89a4e', '#8c8038'][Math.floor(r() * 3)]}" stroke-width="${f(2 + r() * 2)}" fill="none" stroke-linecap="round"/>`; }
+      return `<defs><radialGradient id="ns" cx=".36" cy=".3" r=".85"><stop offset="0" stop-color="#c8b866"/><stop offset=".65" stop-color="#a0924a"/><stop offset="1" stop-color="#6e6430"/></radialGradient>${grain('g0', 0.06, 0.16)}</defs><rect width="400" height="400" fill="#cfe4f0"/><path d="M0 70 Q200 50 400 80" stroke="#6a4a2a" stroke-width="10" fill="none" stroke-linecap="round"/><path d="M200 60 C196 84 204 100 200 122" stroke="#9a9048" stroke-width="6" fill="none"/><ellipse cx="200" cy="230" rx="120" ry="110" fill="url(#ns)"/>${g}<ellipse cx="200" cy="322" rx="27" ry="19" fill="#2e2a14"/><ellipse cx="200" cy="318" rx="20" ry="12" fill="#1e1c0c"/><rect width="400" height="400" fill="#000" filter="url(#g0)"/>`;
+    }
+    if (level === 1) {
+      // woven strips, over and under: each crossing shows the strip that lies on top
+      const S = 40, W = 30; let w = '';
+      for (let k = 0; k < 11; k++) w += `<rect x="-10" y="${k * S + 5}" width="420" height="${W}" rx="10" fill="url(#hs)"/>`;
+      for (let i = 0; i < 11; i++) for (let j = 0; j < 11; j++) if ((i + j) % 2) w += `<rect x="${i * S + 5}" y="${j * S - 6}" width="${W}" height="${S + 12}" rx="10" fill="url(#vs)" stroke="#5a5222" stroke-width="1.5"/>`;
+      return `<defs><linearGradient id="hs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8e8236"/><stop offset=".45" stop-color="#cbbc68"/><stop offset="1" stop-color="#7c7230"/></linearGradient><linearGradient id="vs" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7e7430"/><stop offset=".5" stop-color="#b8aa58"/><stop offset="1" stop-color="#6e6428"/></linearGradient>${grain('g1', 0.07, 0.18)}</defs><rect width="400" height="400" fill="#3a3418"/>${w}<rect width="400" height="400" fill="#000" filter="url(#g1)"/>`;
+    }
+    // strips of grass up close, and three knots
+    let w = '', tips = [];
+    for (let k = 0; k < 9; k++) { const y = 20 + k * 46; w += `<path d="M-10 ${y} C120 ${y + 18} 280 ${y - 18} 410 ${y}" stroke="${k % 2 ? '#b8aa5a' : '#a29446'}" stroke-width="18" fill="none"/><path d="M-10 ${y - 5} C120 ${y + 13} 280 ${y - 23} 410 ${y - 5}" stroke="#d4c878" stroke-width="3" fill="none" opacity=".6"/>`; }
+    for (const [x, y] of [[100, 112], [300, 204], [180, 296]]) { w += `<ellipse cx="${x}" cy="${y}" rx="24" ry="18" fill="none" stroke="#8a7c30" stroke-width="12"/><path d="M${x - 20} ${y + 14} L${x + 26} ${y - 22}" stroke="#c4b664" stroke-width="12" stroke-linecap="round"/><path d="M${x - 6} ${y - 18} q10 18 0 36" stroke="#6a5e20" stroke-width="4" fill="none"/>`; tips.push({ x, y, r: 32 }); }
+    WEAVER.targets = tips;
+    return `<defs>${grain('g2', 0.08, 0.14)}</defs><rect width="400" height="400" fill="#5a5224"/>${w}<rect width="400" height="400" fill="#000" filter="url(#g2)"/>`;
+  },
+};
+
+const PAPYRUS = {
+  id: 'papyrusstem', species: 'papyrus', name: 'גבעול של פפירוס', zone: 'savanna', zoom: 2, focus: 70,
+  task: 'מצאו שלושה חללי אוויר גדולים בתוך הגבעול.',
+  hints: ['זה חתך של הגבעול: חתכנו אותו לרוחב.', 'חללי האוויר הגדולים בהירים וריקים, ומסביבם תאים קטנים.'],
+  found: 'בתוך הגבעול יש הרבה חללי אוויר. הם מעבירים אוויר לשורשים שבבוץ, ועוזרים לצמח לעמוד ישר. במצרים הקדומה עשו מהגבעול הזה נייר.',
+  idea: 'אולי חומר בנייה עם חללי אוויר יהיה קל וחזק?',
+  targets: [],
+  view(level) {
+    const r = rnd(107 + level);
+    if (level === 0) {
+      // a cut stem: a green triangle with a pale soft inside
+      return `<defs>${grain('g0', 0.05, 0.18)}</defs><rect width="400" height="400" fill="#e8e4cc"/><path d="M200 40 L370 340 L30 340 z" fill="#4e8a2e" stroke="#2e5a1a" stroke-width="6" stroke-linejoin="round"/><path d="M200 70 L345 325 L55 325 z" fill="#e6efc8"/><rect width="400" height="400" fill="#000" filter="url(#g0)"/>`;
+    }
+    if (level === 1) {
+      // soft tissue full of small holes
+      let h = ''; for (let k = 0; k < 180; k++) h += `<circle cx="${f(r() * 400)}" cy="${f(r() * 400)}" r="${f(6 + r() * 9)}" fill="#f8faea" stroke="#a6b878" stroke-width="2"/>`;
+      return `<rect width="400" height="400" fill="#c4d49a"/>${h}`;
+    }
+    // star-shaped cells around three big air spaces
+    let c = '', tips = [];
+    for (let k = 0; k < 140; k++) c += `<circle cx="${f(r() * 400)}" cy="${f(r() * 400)}" r="${f(9 + r() * 6)}" fill="#bcd08a" stroke="#7e9452" stroke-width="2"/>`;
+    for (const [x, y] of [[110, 130], [290, 150], [200, 300]]) { c += `<ellipse cx="${x}" cy="${y}" rx="40" ry="34" fill="#fbfdf0" stroke="#7e9452" stroke-width="4"/>`; tips.push({ x, y, r: 40 }); }
+    PAPYRUS.targets = tips;
+    return `<defs>${grain('g2', 0.07, 0.12)}</defs><rect width="400" height="400" fill="#9cb468"/>${c}<rect width="400" height="400" fill="#000" filter="url(#g2)"/>`;
+  },
+};
+
+const BEETLE = {
+  id: 'beetleback', species: 'darkling', name: 'גב של חיפושית שחורה', zone: 'desert', zoom: 2, focus: 33,
+  task: 'מצאו שלוש טיפות מים שנתפסו על הבליטות.',
+  hints: ['בהגדלה הכי גדולה רואים בליטות קטנות על הגב.', 'הטיפות נתפסות דווקא על הבליטות, לא בחריצים שביניהן.'],
+  found: 'אצל חיפושיות שחורות במדבר נמיב יש על הגב בליטות קטנות. בבוקר טיפות ערפל נתפסות עליהן, גדלות ומתגלגלות אל הפה.',
+  idea: 'אולי רשת עם בליטות כאלה תאסוף מים מהערפל?',
+  targets: [],
+  view(level) {
+    const r = rnd(109 + level);
+    if (level === 0) {
+      // the beetle's black back
+      return `<defs><radialGradient id="bb" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#4a4640"/><stop offset="1" stop-color="#121010"/></radialGradient>${grain('g0', 0.05, 0.2)}</defs><rect width="400" height="400" fill="#e2cfa0"/><ellipse cx="200" cy="220" rx="140" ry="170" fill="url(#bb)"/><path d="M200 60 L200 390" stroke="#000" stroke-width="4"/><rect width="400" height="400" fill="#000" filter="url(#g0)"/>`;
+    }
+    if (level === 1) {
+      // rows of bumps
+      let b = ''; for (let k = 0; k < 140; k++) { const x = r() * 400, y = r() * 400; b += `<circle cx="${f(x)}" cy="${f(y)}" r="${f(7 + r() * 5)}" fill="#3a3632"/><circle cx="${f(x - 2)}" cy="${f(y - 2)}" r="3" fill="#6a645c"/>`; }
+      return `<rect width="400" height="400" fill="#1a1816"/>${b}`;
+    }
+    // big bumps; on three of them a drop of fog water
+    let b = '', tips = [];
+    for (let gy = 0; gy < 5; gy++) for (let gx = 0; gx < 5; gx++) { const x = 40 + gx * 80 + (gy % 2) * 20, y = 40 + gy * 80; b += `<circle cx="${x}" cy="${y}" r="26" fill="#2e2a26"/><circle cx="${x - 7}" cy="${y - 8}" r="9" fill="#5a544c"/>`; }
+    for (const [x, y] of [[120, 120], [260, 200], [140, 280]]) { b += `<circle cx="${x}" cy="${y - 4}" r="20" fill="#9fd6f0" opacity=".9"/><circle cx="${x - 6}" cy="${y - 11}" r="6" fill="#ffffff" opacity=".85"/>`; tips.push({ x, y, r: 30 }); }
+    BEETLE.targets = tips;
+    return `<defs>${grain('g2', 0.08, 0.14)}</defs><rect width="400" height="400" fill="#141210"/>${b}<rect width="400" height="400" fill="#000" filter="url(#g2)"/>`;
+  },
+};
+
+const SALT = {
+  id: 'saltleaf', species: 'saltbush', name: 'עלה של מלוח', zone: 'desert', zoom: 2, focus: 58,
+  task: 'מצאו שלוש שלפוחיות מלח על העלה.',
+  hints: ['בהגדלה רואים שהעלה מכוסה בנקודות לבנות.', 'השלפוחיות נראות כמו בלונים קטנים ושקופים על רגל קצרה.'],
+  found: 'על העלה של המלוח יש שערות קטנות כמו בלונים, ושם הצמח שם את המלח שהוא מוציא מהמים. הן נותנות לעלה צבע כסוף, ומחזירות חלק מאור השמש.',
+  idea: 'אולי מכונה במדבר תוכל לסלק מלח לשכבה חיצונית, כמו המלוח?',
+  targets: [],
+  view(level) {
+    const r = rnd(113 + level);
+    if (level === 0) {
+      // a silvery grey-green leaf
+      return `<defs>${grain('g0', 0.06, 0.2)}</defs><rect width="400" height="400" fill="#efe8d2"/><path d="M200 30 C320 90 340 250 200 380 C60 250 80 90 200 30 z" fill="#a6b49a" stroke="#6e7e62" stroke-width="5"/><path d="M200 40 L200 370" stroke="#8a9a7e" stroke-width="4"/><rect width="400" height="400" fill="#fff" opacity=".12"/><rect width="400" height="400" fill="#000" filter="url(#g0)"/>`;
+    }
+    if (level === 1) {
+      // white dots all over
+      let d = ''; for (let k = 0; k < 300; k++) d += `<circle cx="${f(r() * 400)}" cy="${f(r() * 400)}" r="${f(3 + r() * 5)}" fill="#f4f6ee" opacity=".85"/>`;
+      return `<rect width="400" height="400" fill="#7e9070"/>${d}`;
+    }
+    // the leaf's skin with salt bladders on short stalks; three are big and full
+    let d = '', tips = [];
+    for (let k = 0; k < 40; k++) { const x = r() * 400, y = r() * 400; d += `<path d="M${f(x)} ${f(y + 10)} l0 10" stroke="#5e7052" stroke-width="3"/><circle cx="${f(x)}" cy="${f(y)}" r="${f(9 + r() * 5)}" fill="#e8eee0" opacity=".7" stroke="#b8c4ac" stroke-width="1.5"/>`; }
+    for (const [x, y] of [[100, 140], [280, 110], [220, 300]]) { d += `<path d="M${x} ${y + 26} l0 16" stroke="#4e6044" stroke-width="5"/><circle cx="${x}" cy="${y}" r="28" fill="#fafcf6" stroke="#c8d2be" stroke-width="2"/><path d="M${x - 10} ${y - 4} l6 -6 l6 6 l-6 6 z M${x + 4} ${y + 6} l5 -5 l5 5 l-5 5 z" fill="#d8e0f0"/><circle cx="${x - 9}" cy="${y - 10}" r="6" fill="#fff"/>`; tips.push({ x, y, r: 34 }); }
+    SALT.targets = tips;
+    return `<defs>${grain('g2', 0.07, 0.12)}</defs><rect width="400" height="400" fill="#6e8262"/>${d}<rect width="400" height="400" fill="#000" filter="url(#g2)"/>`;
+  },
+};
+
+const GROUSE = {
+  id: 'grousefeather', species: 'sandgrouse', name: 'נוצה מהבטן של קטה', zone: 'desert', zoom: 2, focus: 42,
+  task: 'מצאו שלושה חוטים מתולתלים שמחזיקים טיפות מים.',
+  hints: ['בהגדלה הכי גדולה רואים חוטים דקים שיוצאים מהנוצה.', 'החוטים המתולתלים מחזיקים טיפות כחולות בין הסלסולים.'],
+  found: 'בנוצות הבטן של זכר הקטה יש חוטים דקים ומתולתלים. כשהוא נכנס למים הם נפתחים ומחזיקים מים כמו ספוג, והוא עף איתם רחוק אל הגוזלים.',
+  idea: 'אולי ספוג כזה יעזור להעביר מים בלי שיישפכו?',
+  targets: [],
+  view(level) {
+    const r = rnd(127 + level);
+    if (level === 0) {
+      // a soft buff feather
+      let b = ''; for (let k = 0; k < 40; k++) { const y = 60 + k * 7; b += `<path d="M200 ${y} q-70 ${f(-10 + r() * 20)} -130 ${f(30 + r() * 20)} M200 ${y} q70 ${f(-10 + r() * 20)} 130 ${f(30 + r() * 20)}" stroke="#c8a878" stroke-width="3" fill="none"/>`; }
+      return `<rect width="400" height="400" fill="#efe6d4"/><path d="M200 40 L200 380" stroke="#8a6a44" stroke-width="5"/>${b}`;
+    }
+    if (level === 1) {
+      // barbs side by side
+      let b = ''; for (let k = 0; k < 22; k++) { const x = k * 19; b += `<path d="M${x} 0 Q${x + 30} 200 ${x} 400" stroke="#b89868" stroke-width="7" fill="none"/>`; }
+      return `<defs>${grain('g1', 0.07, 0.16)}</defs><rect width="400" height="400" fill="#7a5e3e"/>${b}<rect width="400" height="400" fill="#000" filter="url(#g1)"/>`;
+    }
+    // thin barbules, many coiled; three hold drops of water
+    let b = '', tips = [];
+    for (let k = 0; k < 7; k++) {
+      const y = 30 + k * 56;
+      let path = `M0 ${y}`; for (let t = 0; t < 40; t++) path += ` q5 ${t % 2 ? 9 : -9} 10 0`;
+      b += `<path d="${path}" stroke="#c4a474" stroke-width="5" fill="none"/>`;
+    }
+    for (const [x, y] of [[90, 142], [270, 198], [170, 310]]) { b += `<ellipse cx="${x}" cy="${y}" rx="26" ry="16" fill="#8fd0f0" opacity=".85"/><circle cx="${x - 8}" cy="${y - 5}" r="5" fill="#fff" opacity=".85"/>`; tips.push({ x, y, r: 32 }); }
+    GROUSE.targets = tips;
+    return `<defs>${grain('g2', 0.08, 0.12)}</defs><rect width="400" height="400" fill="#5e4a32"/>${b}<rect width="400" height="400" fill="#000" filter="url(#g2)"/>`;
+  },
+};
+
+export const SAMPLES = [SHARK, OWL, BEE, CORAL, MORPHO, FIREFLY, TOUCAN, CHAMELEON, OCTOPUS, HEDGEHOG, SLOTH, KAPOK, PARROT, URCHIN, MYCEL, CLAM, LEAFBAC, SCORP, SNAIL, ZEBRA, MOUND, ELESKIN, ACACIA, WEAVER, PAPYRUS, BEETLE, SALT, GROUSE];
 export const sampleById = (id) => SAMPLES.find((s) => s.id === id) || null;
 export const ZOOMS = ['פי 10', 'פי 100', 'פי 1000'];

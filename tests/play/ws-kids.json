@@ -1,0 +1,171 @@
+[
+{
+"wait": 4
+},
+{
+"js": "['stage:1','g:hubtut','g:album','g:learn','g:start:chat','g:start:howstages','g:start:settings'].forEach((k) => window.__journey.markIntro(k)); window.__journey.markTrained(); window.__guide && window.__guide.close(); window.__journey.unlockAll('2580'); window.dispatchEvent(new CustomEvent('wol-journey')); 1"
+},
+{
+"js": "window.__app.bus.emit('start:mode',{mode:'kids'}); ['g:nztut','g:nztut:mach','g:nztut:mix','g:nztut:card'].forEach((k)=>window.__journey.markIntro(k)); window.__app.bus.emit('ui:workshop'); 1"
+},
+{
+"until": "!!window.__wsDebug && !!document.querySelector('.ws.kids:not([hidden]) .ws-path .wp-c')",
+"timeout": 90
+},
+{
+"wait": 2
+},
+{
+"js": "const r=document.querySelectorAll('.ws-path .wp-route .wp-c'); 'CHECK kids-three-steps ' + (r.length===3 && !document.querySelector('.ws-path .wp-route [data-st=test]') ? 'ok' : 'FAIL ' + r.length)"
+},
+{
+"clickSel": ".ws-path .wp-route .wp-c[data-st=orders]"
+},
+{
+"wait": 2
+},
+{
+"js": "const h=document.querySelector('#howto'); 'CHECK kids-how-four ' + (h && h.querySelectorAll('.howto-dots i').length===4 && /[\\u05B0-\\u05BC]/.test(h.textContent) ? 'ok' : 'FAIL')"
+},
+{
+"clickSel": "#howto [data-h=skip]"
+},
+{
+"until": "window.__wsDebug.state().tut === 'pick'",
+"timeout": 30
+},
+{
+"js": "const n=document.querySelectorAll('.wo-note'), w=document.querySelector('.wo-note .wo-who'); 'CHECK kids-orders-big ' + (n.length===10 && !document.querySelector('.wo-note .wo-tags') && w.getBoundingClientRect().width>=80 && /[\\u05B0-\\u05BC]/.test(n[0].textContent) ? 'ok' : 'FAIL ' + n.length)"
+},
+{
+"js": "'orders ' + (() => {\n  const vis = (e) => { const r = e.getBoundingClientRect(); if (r.width < 6 || r.height < 6 || r.bottom < 0 || r.right < 0 || r.top > innerHeight || r.left > innerWidth) return null;\n    const cx = Math.min(innerWidth - 1, Math.max(0, r.left + r.width / 2)), cy = Math.min(innerHeight - 1, Math.max(0, r.top + r.height / 2)); const t = document.elementFromPoint(cx, cy); return t && (t === e || e.contains(t)) ? r : null; };\n  const B = [...document.querySelectorAll('button, [role=button]')].map((e) => [e, vis(e)]).filter((x) => x[1]);\n  const bad = [];\n  for (let i = 0; i < B.length; i++) for (let j = i + 1; j < B.length; j++) {\n    const [a, r] = B[i], [b, q] = B[j]; if (a.contains(b) || b.contains(a) || /carb/.test(a.className + ' ' + b.className)) continue;\n    const ox = Math.min(r.right, q.right) - Math.max(r.left, q.left), oy = Math.min(r.bottom, q.bottom) - Math.max(r.top, q.top);\n    if (ox > 8 && oy > 8) bad.push((a.className || a.tagName).toString().slice(0, 30) + ' x ' + (b.className || b.tagName).toString().slice(0, 30));\n  }\n  const cut = B.filter(([e, r]) => r.right > innerWidth + 1 || r.left < -1 || r.bottom > innerHeight + 1 || r.top < -1).map(([e]) => String(e.className).slice(0, 30));\n  return 'OVL ' + bad.length + (bad.length ? ' ' + bad.slice(0, 5).join(' | ') : '') + ' ; CUT ' + cut.length + (cut.length ? ' ' + cut.slice(0, 4).join(' | ') : '');\n})()"
+},
+{
+"shot": "shots/ws-kids/orders.png"
+},
+{
+"js": "document.querySelector('[data-woopen=phone]').scrollIntoView({block:'center'}); 1"
+},
+{
+"clickSel": "[data-woopen=phone]"
+},
+{
+"wait": 1
+},
+{
+"js": "'CHECK kids-ticket-simple ' + (document.querySelector('.wo-ticket') && !document.querySelector('.wo-ticket .wo-tests') && !document.querySelector('.wo-ticket .wo-hint') ? 'ok' : 'FAIL')"
+},
+{
+"shot": "shots/ws-kids/ticket.png"
+},
+{
+"clickSel": ".wo-go"
+},
+{
+"until": "window.__wsDebug.state().place === 'build'",
+"timeout": 30
+},
+{
+"wait": 2
+},
+{
+"js": "const t=document.querySelectorAll('.wb-tabs button'); 'CHECK kids-two-drawers ' + (t.length===2 && document.querySelector('.wb-go').disabled && !!window.__wsDebug.state().tut ? 'ok' : 'FAIL ' + t.length + ' ' + window.__wsDebug.state().tut)"
+},
+{
+"until": "window.__wsDebug.state().tut === 'shape'",
+"timeout": 30
+},
+{
+"clickSel": "#rguide .rg-next"
+},
+{
+"clickSel": "[data-wbshape=dome]"
+},
+{
+"wait": 0.5
+},
+{
+"clickSel": ".wb-tabs [data-wbtab=nature]"
+},
+{
+"wait": 0.5
+},
+{
+"clickSel": "[data-wbadd=shell]"
+},
+{
+"wait": 1
+},
+{
+"js": "const b=window.__wsDebug.state().bench; 'CHECK kids-auto-fit ' + (b.proto.shape==='dome' && b.proto.add.includes('shell') && b.sc.drop>=65 && !document.querySelector('.wb-go').disabled ? 'ok' : 'FAIL ' + JSON.stringify(b.proto) + ' ' + b.sc.drop)"
+},
+{
+"js": "'build ' + (() => {\n  const vis = (e) => { const r = e.getBoundingClientRect(); if (r.width < 6 || r.height < 6 || r.bottom < 0 || r.right < 0 || r.top > innerHeight || r.left > innerWidth) return null;\n    const cx = Math.min(innerWidth - 1, Math.max(0, r.left + r.width / 2)), cy = Math.min(innerHeight - 1, Math.max(0, r.top + r.height / 2)); const t = document.elementFromPoint(cx, cy); return t && (t === e || e.contains(t)) ? r : null; };\n  const B = [...document.querySelectorAll('button, [role=button]')].map((e) => [e, vis(e)]).filter((x) => x[1]);\n  const bad = [];\n  for (let i = 0; i < B.length; i++) for (let j = i + 1; j < B.length; j++) {\n    const [a, r] = B[i], [b, q] = B[j]; if (a.contains(b) || b.contains(a) || /carb/.test(a.className + ' ' + b.className)) continue;\n    const ox = Math.min(r.right, q.right) - Math.max(r.left, q.left), oy = Math.min(r.bottom, q.bottom) - Math.max(r.top, q.top);\n    if (ox > 8 && oy > 8) bad.push((a.className || a.tagName).toString().slice(0, 30) + ' x ' + (b.className || b.tagName).toString().slice(0, 30));\n  }\n  const cut = B.filter(([e, r]) => r.right > innerWidth + 1 || r.left < -1 || r.bottom > innerHeight + 1 || r.top < -1).map(([e]) => String(e.className).slice(0, 30));\n  return 'OVL ' + bad.length + (bad.length ? ' ' + bad.slice(0, 5).join(' | ') : '') + ' ; CUT ' + cut.length + (cut.length ? ' ' + cut.slice(0, 4).join(' | ') : '');\n})()"
+},
+{
+"shot": "shots/ws-kids/build.png"
+},
+{
+"clickSel": ".wb-go"
+},
+{
+"until": "window.__wsDebug.state().place === 'test'",
+"timeout": 30
+},
+{
+"wait": 1
+},
+{
+"js": "'CHECK kids-test-no-stations ' + (document.querySelector('.wt.kidtest') && !document.querySelector('.wt-st') && !document.querySelector('.wt-gauge') ? 'ok' : 'FAIL')"
+},
+{
+"until": "!!document.querySelector('.wt-verdict b.big')",
+"timeout": 30
+},
+{
+"js": "'CHECK kids-big-sign ' + (/הִצְלַחְתֶּם/.test(document.querySelector('.wt-verdict').textContent) && !/\\d/.test(document.querySelector('.wt.kidtest').textContent.replace(/3000/g,'')) ? 'ok' : 'FAIL ' + document.querySelector('.wt.kidtest').textContent)"
+},
+{
+"shot": "shots/ws-kids/test.png"
+},
+{
+"until": "!!document.querySelector('.wp-cer .wp-cert')",
+"timeout": 30
+},
+{
+"js": "'CHECK kids-certificate ' + (window.__wsDebug.state().patents===1 ? 'ok' : 'FAIL')"
+},
+{
+"shot": "shots/ws-kids/cert.png"
+},
+{
+"js": "window.__guide && window.__guide.close(); document.querySelectorAll('.bdg-pop').forEach((b)=>b.click()); window.__wsDebug.go('machine'); 1"
+},
+{
+"wait": 1.5
+},
+{
+"clickSel": ".wm-surp"
+},
+{
+"wait": 2
+},
+{
+"js": "const s=window.__wsDebug.state(); 'CHECK kids-surprise ' + (s.thing && s.last && document.querySelectorAll('.wm-levers button').length===4 ? 'ok' : 'FAIL')"
+},
+{
+"js": "'machine ' + (() => {\n  const vis = (e) => { const r = e.getBoundingClientRect(); if (r.width < 6 || r.height < 6 || r.bottom < 0 || r.right < 0 || r.top > innerHeight || r.left > innerWidth) return null;\n    const cx = Math.min(innerWidth - 1, Math.max(0, r.left + r.width / 2)), cy = Math.min(innerHeight - 1, Math.max(0, r.top + r.height / 2)); const t = document.elementFromPoint(cx, cy); return t && (t === e || e.contains(t)) ? r : null; };\n  const B = [...document.querySelectorAll('button, [role=button]')].map((e) => [e, vis(e)]).filter((x) => x[1]);\n  const bad = [];\n  for (let i = 0; i < B.length; i++) for (let j = i + 1; j < B.length; j++) {\n    const [a, r] = B[i], [b, q] = B[j]; if (a.contains(b) || b.contains(a) || /carb/.test(a.className + ' ' + b.className)) continue;\n    const ox = Math.min(r.right, q.right) - Math.max(r.left, q.left), oy = Math.min(r.bottom, q.bottom) - Math.max(r.top, q.top);\n    if (ox > 8 && oy > 8) bad.push((a.className || a.tagName).toString().slice(0, 30) + ' x ' + (b.className || b.tagName).toString().slice(0, 30));\n  }\n  const cut = B.filter(([e, r]) => r.right > innerWidth + 1 || r.left < -1 || r.bottom > innerHeight + 1 || r.top < -1).map(([e]) => String(e.className).slice(0, 30));\n  return 'OVL ' + bad.length + (bad.length ? ' ' + bad.slice(0, 5).join(' | ') : '') + ' ; CUT ' + cut.length + (cut.length ? ' ' + cut.slice(0, 4).join(' | ') : '');\n})()"
+},
+{
+"shot": "shots/ws-kids/machine.png"
+},
+{
+"js": "window.__wsDebug.go('orders'); 1"
+},
+{
+"wait": 1.5
+},
+{
+"js": "'CHECK kids-order-done ' + (document.querySelector('[data-woopen=phone] .wo-stamp') ? 'ok' : 'FAIL')"
+}
+]

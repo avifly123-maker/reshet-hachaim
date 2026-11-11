@@ -51,6 +51,9 @@ import { createQuiz } from './quiz.js';
 import { loadState } from './storage.js';
 import { injectCss } from './styles.js';
 import { svcGuide } from '../../core/services.js';
+import { openChat } from '../../ui/robo-chat.js';
+import { openWeekly, chipState } from '../../ui/weekly-ui.js';   // 1.4.4: אירוע השבוע
+import { hubIcon } from '../../ui/icons-hub.js';
 
 /* ───────────────────────────────────────────── the hub */
 export function createLearningHub(rootEl, { onClose, audio } = {}) {
@@ -79,6 +82,8 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
       <button class="wl-back" data-wl="back">${IC.back}<span>חזרה</span></button>
       <h2 class="wl-crumb"></h2><span class="wl-sp"></span>
       <span class="wl-who"></span>
+      <button class="wl-gear wl-chat" data-wl="chat" title="לדבר עם רובו־דע" aria-label="לדבר עם רובו־דע">${icon('chat')}</button>
+      <button class="wl-gear wl-week" data-wl="week" title="אירוע השבוע" aria-label="אירוע השבוע" hidden>${hubIcon('week')}<i class="wl-wkdot" aria-hidden="true"></i></button>
       ${TORAH ? `<button class="wl-gear" data-wl="settings" title="הגדרות" aria-label="הגדרות">${icon('sliders')}</button>` : ''}
       <button class="wl-chip" data-wl="packs" title="חבילות קלפים">${icon('pack')}<span class="wl-chipn"></span></button>
       <img class="wl-logo" src="${BABA_DA_LOGO}" alt="בבא דע">
@@ -97,6 +102,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   const ownedCount = () => Object.keys(S.owned).length;
   function updateChip(bump) {
     $('.wl-chipn').textContent = `חבילות: ${S.packs}`;
+    const wk = $('.wl-week'); if (wk) { const c = chipState(); wk.hidden = !c.show; wk.classList.toggle('dot', !!c.dot); }
     const c = $('.wl-chip'); if (bump) { c.classList.remove('bump'); void c.offsetWidth; c.classList.add('bump'); }
   }
   let toastT;
@@ -153,7 +159,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
 
   /* ── navigation */
   const PARENT = { home: null, setup: 'home', quiz: 'setup', end: 'home', album: 'home', pack: 'album', duel: 'home', webpuzzle: 'home', keepforest: 'home', inventors: 'home', expedition: 'home', badges: 'home', frames: 'home', versematch: 'home' };
-  const TITLES = { home: 'מרכז הלמידה', setup: 'חידון', quiz: 'חידון', end: 'חידון', album: 'אלבום הקלפים', pack: 'פתיחת חבילה', duel: 'מי חזק ברשת?', webpuzzle: 'חוט הקשר', keepforest: 'מחזיקים את היער', inventors: 'הממציאים', expedition: 'משלחת לעומק', badges: 'התגים שלי', frames: 'המסגרות שלי', versematch: 'מה הפסוק מלמד?' };
+  const TITLES = { home: 'מרכז הלמידה', setup: 'חידון', quiz: 'חידון', end: 'חידון', album: 'אלבום הקלפים', pack: 'פתיחת חבילה', duel: 'מי חזק ברשת?', webpuzzle: 'חוט הקשר', keepforest: 'מחזיקים את הסביבה', inventors: 'הממציאים', expedition: 'משלחת לעומק', badges: 'התגים שלי', frames: 'המסגרות שלי', versematch: 'מה הפסוק מלמד?' };
   /* ── מסע החוקר: the journey part behind each screen (core/journey.js PARTS) */
   const PART_OF = { setup: 'quiz', quiz: 'quiz', end: 'quiz', album: 'album', pack: 'album', duel: 'duel', webpuzzle: 'webpuzzle', keepforest: 'keepforest', inventors: 'inventors', expedition: 'expedition', badges: 'badges', frames: 'frames', versematch: 'versematch' };
   // רובו־דע presents a screen the first time it opens (src/data/guide/hub.js); 'learn' is the hub itself
@@ -291,7 +297,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
   };
   const { renderHome, bzoom, openSettings, renderBadges, renderFrames } = createHomeScreens(ctx);
   const { QS, renderSetup, startQuiz, renderEnd, answer, nextQ, quizNow } = createQuiz(ctx);
-  const { renderAlbum, showSets, onResize, szoom, zoom, cardLegend, closeModal } = createAlbum(ctx);
+  const { renderAlbum, showSets, onResize, szoom, tzoom, zoom, cardLegend, closeModal } = createAlbum(ctx);
   const { renderPack, tearPack, revealCard, revealAll, opensLeft } = createPacks(ctx);
   ctx.opensLeft = opensLeft;
   const { startDuel, playCard, duelNext } = createDuel(ctx);
@@ -308,7 +314,7 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
     set: (t) => { const v = 'set:' + t.dataset.v; const fromZoom = !modal.hidden; closeModal(); ctx.setsOpen = false; ctx.filter = ctx.filter === v && !fromZoom ? 'all' : v; sfx('select'); if (screen === 'album') renderAlbum(); else go('album'); },
     pack: () => { sfx('click'); go('pack'); }, tear: tearPack, reveal: (t) => revealCard(t), revealall: revealAll, legend: () => cardLegend(),
     game: (t) => { sfx('click'); go(t.dataset.g); },
-    szoom: (t) => szoom(t.dataset.s),
+    szoom: (t) => szoom(t.dataset.s), tzoom: (t) => tzoom(t.dataset.t),
     // the switch in the settings: the screen below follows it (a game in play is left alone, the source game closes)
     srctoggle: () => {
       setSourcesOn(!sourcesOn()); sfx('click');
@@ -317,6 +323,8 @@ export function createLearningHub(rootEl, { onClose, audio } = {}) {
       else if (['home', 'album', 'setup', 'badges', 'frames'].includes(screen)) go(screen, { force: true });
       openSettings();
     },
+    chat: () => { sfx('click'); openChat({ place: 'hub' }); },
+    week: () => { sfx('click'); openWeekly(el, { onClose: () => updateChip() }); },   // 1.4.4: the week's sheet over the hub   // 1.4.3: a talk with רובו־דע (src/ui/robo-chat.js)
     settings: () => openSettings(), bzoom: (t) => bzoom(t.dataset.b),
     duel: () => { sfx('click'); go('duel'); }, play: (t) => playCard(+t.dataset.k), dnext: duelNext,
     badges: () => { sfx('click'); go('badges'); }, frames: () => { sfx('click'); go('frames'); },

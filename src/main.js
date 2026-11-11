@@ -32,7 +32,8 @@ import './ui/flourish.js';   // window.__flourish: short flourishes (a part open
 // Zones (biomes): the start screen draws them from the registry (data/zones.js); a zone's content and species models
 // arrive in its pack – { zone: { data, plants, animals }, release() } – loaded when the zone is chosen (core/packs.js).
 const zoneOf = (id) => { const m = loadedPack(id); return m ? m.zone : null; };
-import { setService } from './core/services.js';
+import { setService, svc } from './core/services.js';
+import { logError, lastErrors } from './core/log.js';   // 1.4.4 stability set: failures written down, never swallowed
 
 // Beginners (ages 6–8): a small set of species, short missions, no events, two tools.
 function kidsBiome(base) {
@@ -94,6 +95,7 @@ async function boot() {
   // until the hub is in, window.__wolLearn forwards what the game may ask of it (a card pack won in a forest);
   // createLearningHub replaces it with the real one
   window.__wolLearn = { open: () => getHub().then((h) => h.open()), close: () => hub && hub.close(), isOpen: () => !!hub && hub.isOpen(), grantPack: (n) => getHub().then((h) => h.grantPack(n), (e) => console.error(e)) };
+  setService('learn', window.__wolLearn);   // the game reaches the hub through core/services.js
   const audio = createAudio();
   const music = createMusic(audio);   // soft music on the start screen and in the lab only (see musicWanted below)
   ui.setToggles({ music: music.enabled });
@@ -101,10 +103,12 @@ async function boot() {
   // מסע החוקר (1.3.2): the game opens stage by stage (core/journey.js); רובו־דע presents each new part and speaks
   journey.applyTextSize();
   const voice = createVoice(audio);
-  const guide = createGuide(root, { voice });
+  // ניצוץ's own voice (6.11: Gemini TTS lines, src/data/nitzotz-voice.js, loaded the first time he speaks)
+  const nitzVoice = createVoice(audio, { load: () => import('./data/nitzotz-voice.js').then((m) => m.NITZ_VOICE, () => ({})) });
+  const guide = createGuide(root, { voice, nitzVoice });
   // a stage was reached: its short scene (ui/stage-scenes.js, when present), then רובו־דע says what opened
   const stageMoment = (n) => {
-    const scene = window.__stageScene ? Promise.resolve(window.__stageScene(n)).catch(() => { }) : Promise.resolve();
+    const scene = svc('stageScene') ? Promise.resolve(svc('stageScene')(n)).catch(() => { }) : Promise.resolve();
     return scene.then(() => guide.say(STAGE_LINES[n] || [], { key: 'stage:' + n, modal: true, place: 'center' }))
       .then((r) => { try { window.dispatchEvent(new CustomEvent('wol-stage-done', { detail: { stage: n, result: r } })); } catch (e) { } return r; });
   };
@@ -115,13 +119,14 @@ async function boot() {
   const STAGE_GAP_MS = 600;     // a breath between two stage moments
   const STAGE_RETRY_MS = 1000;  // how often a waiting moment looks again for a calm place
   let robolab = null, robolabP = null;   // מעבדת הרובוטים (1.4.1), see openRoboLab
+  let workshop = null, workshopP = null;   // הסדנה של ניצוץ (1.4.4), see openWorkshop
   const stageQ = []; let stageRun = null, stageT = 0;
   const playerId = () => { try { return profiles.current().id; } catch (e) { return ''; } };
   const calmForStage = () => {
     if (game || loading || labOpening) return false;
     if (document.querySelector('.ss, .bdg-pop, #howto, #rguide.modal:not([hidden])')) return false;
     if (hub && hub.isOpen()) return !!root.querySelector('#wol-learn .wl-home');   // the hub's home (over the lab too)
-    if ((lab && lab.isOpen()) || researchHub.isOpen() || (robolab && robolab.isOpen())) return false;
+    if ((lab && lab.isOpen()) || researchHub.isOpen() || (robolab && robolab.isOpen()) || (workshop && workshop.isOpen())) return false;
     return ui.isStartShown();
   };
   function nextStage() {
@@ -179,7 +184,7 @@ async function boot() {
     root.classList.remove('kids');
     try { journey.check(); } catch (e) { console.error(e); }   // a stage reached in a forest, the lab or a game is announced here at the latest
     threads.announceSoon(THREAD_NOTE_MS);   // a thread opened in a forest, the lab or a game: רובו־דע says it on the start screen (after a stage moment)
-    ui.showStart(Object.values(ZONES).map((z) => ({ id: z.id, name: z.name, subtitle: z.subtitle, intro: z.intro, kidsIntro: KIDS[z.id]?.intro, palette: z.palette, dev: !!z.dev })));
+    ui.showStart(Object.values(ZONES).filter((z) => !z.wip).map((z) => ({ id: z.id, name: z.name, subtitle: z.subtitle, intro: z.intro, kidsIntro: KIDS[z.id]?.intro, palette: z.palette, dev: !!z.dev })));
     if (window.__app_journey) window.__app_journey.nextStage();   // a stage moment that waited in a forest or the lab plays now
     setTimeout(howStages, HOW_STAGES_MS);
   }
@@ -207,8 +212,9 @@ async function boot() {
   });
   function howStages() {
     if (game || loading || !ui.isStartShown()) return;   // (another bubble on screen: this one waits in the guide's queue)
-    try { if (!journey.wasUsed('training') || journey.introSeen('g:start:howstages')) return; } catch (e) { return; }
-    guide.say(GUIDE['start:howstages'] || [], { key: 'g:start:howstages', modal: true });
+    try { if (!journey.wasUsed('training')) return; } catch (e) { return; }
+    if (!journey.introSeen('g:start:howstages')) guide.say(GUIDE['start:howstages'] || [], { key: 'g:start:howstages', modal: true });
+    guide.intro('start:chat');   // 1.4.3: once, the button that opens a talk with him (src/ui/robo-chat.js); it waits in the queue
   }
 
   let gameZone = null;   // the zone whose pack the running (or last) game uses
@@ -225,15 +231,26 @@ async function boot() {
   const backAction = (research) => (research && research.robolab && research.onExit
     ? { label: 'חזרה למעבדה', onClick: () => { ui.hideLoading(); research.onExit(); } }
     : { label: 'חזרה למסך הפתיחה', onClick: () => showStart() });
+  // set 11: every visit of a place shows its whole short film (about 10 s, Avi 6.11: "they are very beautiful"; a
+  // "דלג" button ends it) while its pack loads (src/ui/loading-film.js)
+  async function watchFilm(id, text) {
+    if (!id || !ui.watchLoadingFilm) return false;
+    ui.setLoading(0.01, text);
+    return ui.watchLoadingFilm(id);   // false: a test browser, or no film (then setLoadingFilm shows it while loading)
+  }
   async function loadBiome(id, save = null, research = null, training = false) {
     if (loading) return; loading = true;
     ui.hideStart();
     root.classList.toggle('kids', MODE === 'kids' && !research && !training);
     try {
       // the zone's pack: already in (chosen before, or loading since the click), or fetched now behind the loading screen
+      const film = research && research.robolab ? null : training ? null : id;   // set 11: a short film of the place
+      let watched = false;
+      if (film && !research) { loadPack(id).catch(() => { /* reported below */ }); watched = await watchFilm(film, 'מכינים את היער...'); }
+      if (!watched && ui.setLoadingFilm) ui.setLoadingFilm(film);
       if (!zoneOf(id) || !loadedPack('game')) { ui.setLoading(0.01, 'מכינים את היער...'); await Promise.all([loadPack(id), loadPack('game')]); }
     } catch (e) {
-      console.error(e);
+      logError('load', id + ':pack', e);
       ui.setLoading(0, 'משהו השתבש בטעינה. אפשר לחזור למסך הפתיחה ולנסות שוב.');
       ui.setLoadingActions([backAction(research)]);
       loading = false; return;
@@ -254,7 +271,7 @@ async function boot() {
       ui.hideLoading();
       resetAutoQ(2);
     } catch (e) {
-      console.error(e);
+      logError('load', id, e);
       closeGame();
       const hasSave = !research && !training && (!!save || !!readSave(id));
       ui.setLoading(0, hasSave ? 'משהו השתבש בטעינה של היער השמור. אפשר לחזור, או להתחיל יער חדש.' : 'משהו השתבש בטעינה. אפשר לחזור למסך הפתיחה ולנסות שוב.');
@@ -343,8 +360,9 @@ async function boot() {
       }
       return lab;
     });
+    // (1.4.3: a player who knows the lab hears once what is new in it: lab:news)
     // the first visit: רובו־דע's hands-on steps (turn the room, the "?" button, a station); the four cards stay on "?"
-    labP.then((L) => { labOpening = false; ui.hideLoading(); L.open(); setTimeout(() => { if (!L.isOpen()) return; if (labTut) return; labTut = labTutorial({ guide, lab: L }); }, LAB_TUT_MS); }, (e) => { labOpening = false; labP = null; ui.hideLoading(); console.error(e); showStart(); });
+    Promise.all([labP, watchFilm('lab', 'פותחים את המעבדה...').then((w) => w || (ui.setLoadingFilm && ui.setLoadingFilm('lab')))]).then(([L]) => { labOpening = false; ui.hideLoading(); L.open(); setTimeout(() => { if (!L.isOpen()) return; if (labTut) return; labTut = labTutorial({ guide, lab: L }); if (labTut) journey.markIntro('g:lab:news'); else guide.intro('lab:news'); }, LAB_TUT_MS); }, (e) => { labOpening = false; labP = null; ui.hideLoading(); console.error(e); showStart(); });
   }
   bus.on('ui:research', () => { audio.start(); researchHub.open(); });
   // מעבדת הרובוטים (1.4.1): its own pack, opened from the science centre; leaving goes back to the start screen
@@ -356,9 +374,17 @@ async function boot() {
       enter3d: (desc) => { loadPack(desc.zone).catch(() => { /* reported by loadBiome */ }); loadBiome(desc.zone, desc.ownIsland ? readSave(desc.zone) : null, desc); },
       hasIsland: (zone) => { const sv = readSave(zone); return !!(sv && Array.isArray(sv.plants) && sv.plants.length); },
       leave3d: () => { if (game) { closeGame(); resetAutoQ(2); audio.setBiome(null); } } })));
-    robolabP.then((R) => { ui.hideLoading(); R.open(); }, (e) => { robolabP = null; ui.hideLoading(); console.error(e); showStart(); });
+    Promise.all([robolabP, watchFilm('robolab', 'פותחים את מעבדת הרובוטים...').then((w) => w || (ui.setLoadingFilm && ui.setLoadingFilm('robolab')))]).then(([R]) => { ui.hideLoading(); R.open(); }, (e) => { robolabP = null; ui.hideLoading(); console.error(e); showStart(); });
   }
   bus.on('ui:robolab', openRoboLab);
+  // הסדנה של ניצוץ (1.4.4 set 3): its own pack, opened from the science centre; leaving goes back to the start screen
+  function openWorkshop() {
+    audio.start(); ui.hideStart();
+    ui.setLoading && ui.setLoading(0.3, 'פותחים את הסדנה של ניצוץ...');
+    workshopP = workshopP || loadPack('workshop').then((m) => (workshop = m.createWorkshop({ root, audio, kids: () => playerMode() === 'kids', onExit: () => { startDrawn = false; showStart(); } })));
+    Promise.all([workshopP, watchFilm('workshop', 'פותחים את הסדנה של ניצוץ...').then((w) => w || (ui.setLoadingFilm && ui.setLoadingFilm('workshop')))]).then(([W]) => { ui.hideLoading(); W.open(); }, (e) => { workshopP = null; ui.hideLoading(); console.error(e); showStart(); });
+  }
+  bus.on('ui:workshop', openWorkshop);
   bus.on('audio:mute', ({ muted }) => { audio.setMuted(muted); writeDeviceRaw(K.sound, muted ? 'off' : 'on'); });   // remembered for the computer (1.3.2)
   if (readDeviceRaw(K.sound) === 'off') { audio.setMuted(true); ui.setToggles({ sound: false }); }
   // the parents' play time (1.3.3): when the day's time is over the lock screen covers everything; the forest stops
@@ -366,14 +392,15 @@ async function boot() {
   const playtime = startPlaytime({ root, kids: () => playerMode() === 'kids',
     onLock: () => { audio.setMuted(true); if (game) { try { bus.emit('ui:save'); } catch (e) { } } },
     onUnlock: () => { audio.setMuted(readDeviceRaw(K.sound) === 'off'); } });
-  window.__ptCheck = () => playtime.check();
+  window.__ptCheck = () => playtime.check(); setService('playtimeCheck', window.__ptCheck);
   bus.on('music:toggle', ({ on }) => { music.setEnabled(on); ui.setToggles({ music: music.enabled }); });
   // which piece the screen on top would like: none in a forest, the learning hub, its games or the mysteries' centre
   const musicWanted = () => {
+    if (robolab && robolab.isOpen() && !loading) return 'lab';   // the robot lab shares the lab's music, in its lessons on the islands too (Avi, 6.11)
     if (game || loading) return null;
     if (hub && hub.isOpen()) return null;
     if ((lab && lab.isOpen()) || labOpening) return 'lab';
-    if (robolab && robolab.isOpen()) return 'lab';   // the robot lab shares the lab's music
+    if (workshop && workshop.isOpen()) return 'workshop';   // ניצוץ's own light waltz (tools/music/compose.py)
     if (researchHub.isOpen()) return null;
     return ui.isStartShown() ? 'start' : null;
   };
@@ -390,12 +417,12 @@ async function boot() {
         const v = isP ? W.plantBuilders[sp.id]({ seed: 11, rng: makeRng(11), hostHeight: 8, hostRadius: 0.4 }) : W.animalBuilders[sp.id]({ seed: 11, rng: makeRng(11) });
         if (isP) { v.setGrowth(1); v.setBloom(1); v.setFruit(1); v.setNightGlow(1); }
         stage.add(v.object); temp.push(v);
-      } catch (e) { }
+      } catch (e) { logError('warm', sp.id, e); }
     }
     scene.add(stage);
     const g = game;
     const finish = () => {
-      if (game === g) { try { pipe.render(0.016); } catch (e) { } }   // also builds the shadow shaders
+      if (game === g) { try { pipe.render(0.016); } catch (e) { logError('warm', 'render', e); } }   // also builds the shadow shaders
       scene.remove(stage);
       if (game !== g) { for (const v of temp) { try { v.dispose(); } catch (e) { } } return; }   // the forest was closed meanwhile
       // the new set keeps the freshly compiled programs alive (see game.js), the old set can go
@@ -406,7 +433,7 @@ async function boot() {
     const r = pipe.renderer;
     if (r.compileAsync && r.extensions && r.extensions.has('KHR_parallel_shader_compile')) {
       r.compileAsync(scene, camera).then(finish, finish);
-    } else { try { r.compile(scene, camera); } catch (e) { } finish(); }
+    } else { try { r.compile(scene, camera); } catch (e) { logError('warm', 'compile', e); } finish(); }
   }
   function applyQuality(q, remember) {
     quality = q; if (remember) writeDeviceRaw(K.quality, q);
@@ -493,7 +520,7 @@ async function boot() {
     const ts = window.__timeScale || 1;   // test hook (headless runs are slow)
     const dt = Math.min(clock.getDelta() * ts, 0.1 * ts);
     window.__frames = (window.__frames || 0) + 1;
-    const mw = musicWanted(); music.want(mw); ui.setMusicPlace(mw);
+    const mw = musicWanted(); music.want(mw); ui.setMusicPlace(game ? null : mw);   // no corner button over a robot lesson on an island
     t += dt;
     if (lab && lab.isOpen()) { if (!(hub && hub.isOpen())) { lab.update(dt); pipe.render(dt); } startDrawn = false; }   // the learning hub covers the lab: no need to draw the room under it
     else if (game && robolab && robolab.coversGame()) { /* the robot lab's home covers a kept lesson island: nothing to update or draw */ }
@@ -517,7 +544,7 @@ async function boot() {
     let bin = ''; const u = new Uint8Array(out.buffer); for (let i = 0; i < u.length; i += 0x8000) bin += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000));
     return btoa(bin);
   };
-  window.__app = { bus, ui, audio, music, pipe, voice, guide, journey, loadBiome, researchHub, openLab: () => openLab(), openCase: (id, opts) => { let C = caseById(id); if (C && opts && opts.tutorial) C = { ...C, tutorial: true }; if (C) loadBiome(C.zone, null, C); }, get game() { return game; } };
+  window.__app = { bus, ui, audio, music, pipe, voice, guide, journey, loadBiome, lastErrors, researchHub, get quality() { return quality; }, openLab: () => openLab(), openCase: (id, opts) => { let C = caseById(id); if (C && opts && opts.tutorial) C = { ...C, tutorial: true }; if (C) loadBiome(C.zone, null, C); }, get game() { return game; }, get workshop() { return workshop; } };
   setService('app', window.__app);   // the parts read it through src/core/services.js; window.__app stays for the test tools
 }
 

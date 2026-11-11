@@ -10,7 +10,10 @@
 //   d.waterAt(x, z) → 0..1 the water the devices bring here      d.shelterAt(x, z) → 0..1 shelter from blowing sand
 import * as THREE from 'three';
 
-export const DESERT_TECH_IDS = new Set(['drip', 'fognet', 'sandfence']);
+// 1.4.2: the savanna's devices live here too (the dry lands share water.js):
+//   solarpump  a solar pump fills a round trough with water from a deep well, by day (water for the animals far from the river)
+//   beefence   a fence of beehives on a wire: elephants keep away from bees, so the trees inside it are not pushed over
+export const DESERT_TECH_IDS = new Set(['drip', 'fognet', 'sandfence', 'solarpump', 'beefence']);
 const std = (c, o = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: 0.6, metalness: 0.05, ...o });
 const mesh = (g, m, cast = true) => { const x = new THREE.Mesh(g, m); x.castShadow = cast; x.receiveShadow = true; return x; };
 
@@ -70,8 +73,48 @@ function makeSandfence() {
   const rope = mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(tops), 40, 0.025, 5), std('#d8c49a'), false); g.add(rope);
   return g;
 }
+// the solar pump: a tilted panel (dark, with lines in one direction only) on a post, a pipe, a round trough of water
+function makeSolarpump() {
+  const g = new THREE.Group();
+  const post = mesh(new THREE.CylinderGeometry(0.08, 0.1, 2.0, 8), std('#8a8f92', { metalness: 0.4, roughness: 0.4 })); post.position.set(0, 1.0, 0); g.add(post);
+  const c = document.createElement('canvas'); c.width = 64; c.height = 64; const x = c.getContext('2d');
+  x.fillStyle = '#1e3a74'; x.fillRect(0, 0, 64, 64); x.strokeStyle = '#4a6aa8'; x.lineWidth = 2;
+  for (let i = 8; i < 64; i += 11) { x.beginPath(); x.moveTo(0, i); x.lineTo(64, i); x.stroke(); }
+  const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
+  const panel = mesh(new THREE.BoxGeometry(1.9, 0.06, 1.2), [std('#c8ccd0'), std('#c8ccd0'), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.25, metalness: 0.3 }), std('#c8ccd0'), std('#c8ccd0'), std('#c8ccd0')]);
+  panel.position.set(0, 2.05, 0); panel.rotation.x = -0.45; g.add(panel);
+  const pipe = mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([new THREE.Vector3(0.05, 0.3, 0), new THREE.Vector3(0.9, 0.35, 0.2), new THREE.Vector3(1.7, 0.6, 0.5)]), 12, 0.05, 6), std('#3a3f44'), false); g.add(pipe);
+  const rim = mesh(new THREE.TorusGeometry(1.5, 0.14, 8, 40), std('#9a7a5a', { roughness: 0.95 })); rim.rotation.x = Math.PI / 2; rim.position.set(2.4, 0.35, 0.8); g.add(rim);
+  const base = mesh(new THREE.CylinderGeometry(1.5, 1.55, 0.35, 36), std('#8a6a4a', { roughness: 0.95 })); base.position.set(2.4, 0.17, 0.8); g.add(base);
+  const water = mesh(new THREE.CylinderGeometry(1.38, 1.38, 0.05, 36), new THREE.MeshStandardMaterial({ color: '#3a9ad8', roughness: 0.15, transparent: true, opacity: 0.85 }), false);
+  water.position.set(2.4, 0.38, 0.8); g.add(water); g.userData.water = water;
+  return g;
+}
+// the beehive fence: posts in an arc, a wire that sags between them, a box hive hanging from it between every two posts
+function makeBeefence() {
+  const g = new THREE.Group();
+  const wood = std('#7a5a3a', { roughness: 0.9 }), hiveM = [std('#e8c050', { roughness: 0.7 }), std('#d8a838', { roughness: 0.7 })], roof = std('#6a6a62', { roughness: 0.6 });
+  const posts = [];
+  for (let i = 0; i < 6; i++) {
+    const a = -0.9 + i / 5 * 1.8, px = Math.sin(a) * 5, pz = (Math.cos(a) - 1) * 5;
+    const post = mesh(new THREE.CylinderGeometry(0.07, 0.09, 1.6, 7), wood); post.position.set(px, 0.8, pz); g.add(post);
+    posts.push(new THREE.Vector3(px, 1.5, pz));
+  }
+  const wirePts = [];
+  for (let i = 0; i < posts.length - 1; i++) {
+    const a = posts[i], b = posts[i + 1];
+    for (let k = 0; k < 6; k++) { const t = k / 6; const p = a.clone().lerp(b, t); p.y -= Math.sin(Math.PI * t) * 0.25; wirePts.push(p); }
+    const mid = a.clone().lerp(b, 0.5); mid.y -= 0.25;
+    const hive = mesh(new THREE.BoxGeometry(0.55, 0.42, 0.42), hiveM[i % 2]); hive.position.set(mid.x, mid.y - 0.3, mid.z); hive.rotation.y = Math.atan2(b.x - a.x, b.z - a.z); g.add(hive);
+    const lid = mesh(new THREE.BoxGeometry(0.62, 0.06, 0.48), roof); lid.position.set(mid.x, mid.y - 0.06, mid.z); lid.rotation.y = hive.rotation.y; g.add(lid);
+  }
+  wirePts.push(posts[posts.length - 1]);
+  g.add(mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(wirePts), 60, 0.015, 4), std('#5a5a52', { metalness: 0.5 }), false));
+  return g;
+}
 export function desertModel(id) {
-  const g = id === 'drip' ? makeDrip() : id === 'fognet' ? makeFognet() : id === 'sandfence' ? makeSandfence() : null;
+  const g = id === 'drip' ? makeDrip() : id === 'fognet' ? makeFognet() : id === 'sandfence' ? makeSandfence()
+    : id === 'solarpump' ? makeSolarpump() : id === 'beefence' ? makeBeefence() : null;
   if (g) g.scale.setScalar(1.15);
   return g;
 }
@@ -86,23 +129,34 @@ export function createDesertTech({ W }) {
     for (const p of mine('drip')) { const d = Math.hypot(p.x - x, p.z - z); if (d < 6.5) w = Math.max(w, 0.7 * Math.sqrt(1 - d / 6.5)); }
     const fog = fogNow();
     for (const p of mine('fognet')) { const d = Math.hypot(p.x - x, p.z - z); if (d < 9) w = Math.max(w, (0.25 + 0.4 * (p.fill || 0)) * (1 - d / 9) * (0.5 + 0.5 * fog)); }
+    for (const p of mine('solarpump')) { const d = Math.hypot(p.x + 2.6 - x, p.z + 0.9 - z); if (d < 9) w = Math.max(w, (0.3 + 0.5 * (p.fill ?? 0.5)) * (1 - d / 9)); }
     return w;
+  }
+  // 1.4.2: elephants keep away from the bees: the trees near a beehive fence are not pushed over (savanna/index.js)
+  function guardAt(x, z) {
+    let g = 0;
+    for (const p of mine('beefence')) { const d = Math.hypot(p.x - x, p.z - (z + 2.4)); if (d < 8) g = Math.max(g, 1 - d / 10); }
+    return g;
   }
   function shelterAt(x, z) {
     let s = 0;
     for (const p of mine('sandfence')) { const d = Math.hypot(p.x - x, p.z - z); if (d < 9) s = Math.max(s, 0.95 * (1 - d / 9) + 0.05); }
     return s;
   }
-  function init(p, saved) { p.fill = saved && saved.fill != null ? saved.fill : 0.2; }
+  function init(p, saved) { p.fill = saved && saved.fill != null ? saved.fill : (p.id === 'solarpump' ? 0.6 : 0.2); }
   function tick(p, dt, rdt, t) {
     const u = p.mesh && p.mesh.userData;
     if (p.id === 'fognet') {
       p.fill = Math.max(0, Math.min(1, (p.fill || 0) + dt * (fogNow() - 0.4) * 0.01));
       if (u && u.water) { u.water.scale.y = 0.05 + p.fill * 0.95; u.water.position.y = 0.45 * (0.05 + p.fill * 0.95) + 0.02; }
+    } else if (p.id === 'solarpump') {   // the sun fills the trough by day; the animals drink it down at night
+      const sun = (W.nightGlow || 0) > 0.5 ? 0 : 1;
+      p.fill = Math.max(0, Math.min(1, (p.fill ?? 0.5) + dt * (sun ? 0.006 : -0.004)));
+      if (u && u.water) u.water.position.y = 0.2 + 0.18 * p.fill;
     } else if (p.id === 'drip' && u && u.drops) {
       for (const d of u.drops.children) { const k = ((t * 0.9 + d.userData.ph) % 1); d.position.y = 0.16 - k * 0.12; d.visible = k < 0.9; }
     }
   }
-  const save = (p) => (p.id === 'fognet' ? { fill: +(p.fill || 0).toFixed(2) } : {});
-  return { waterAt, shelterAt, init, tick, save, removed() {}, setDevices(fn) { devicesFn = fn; } };
+  const save = (p) => (p.id === 'fognet' || p.id === 'solarpump' ? { fill: +(p.fill || 0).toFixed(2) } : {});
+  return { waterAt, shelterAt, guardAt, init, tick, save, removed() {}, setDevices(fn) { devicesFn = fn; } };
 }

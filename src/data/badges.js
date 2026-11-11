@@ -11,14 +11,19 @@ export const BADGE_GROUPS = [
   { id: 'grove', name: 'החורש הארץ־ישראלי', short: 'חורש', col: '#8a6a2a', col2: '#e8202a' },
   { id: 'reef', name: 'שונית האלמוגים של אילת', short: 'שונית', col: '#1f7a9a', col2: '#f08a24' },
   { id: 'desert', name: 'המדבר', short: 'מדבר', col: '#a8702a', col2: '#3a8a8a' },
+  { id: 'savanna', name: 'הסוואנה האפריקאית', short: 'סוואנה', col: '#a8822a', col2: '#5a8a3a' },
   { id: 'lab', name: 'הממציאים והמעבדה', short: 'מעבדה', col: '#5a4a8a', col2: '#f6cf72' },
   { id: 'deep', name: 'משלחת לעומק', short: 'משלחת', col: '#163a5a', col2: '#6fd0ff' },
   { id: 'research', name: 'חוקרי הטבע', short: 'חוקרים', col: '#3a5a2a', col2: '#f6cf72' },
   { id: 'robolab', name: 'מעבדת הרובוטים', short: 'רובוטים', col: '#1f4a6e', col2: '#e8873a' },
+  { id: 'weekly', name: 'אירועי השבוע', short: 'אירועים', col: '#6a2a5a', col2: '#f6cf72' },   // 1.4.4
+  { id: 'workshop', name: 'הסדנה של ניצוץ', short: 'ניצוץ', col: '#8a5a12', col2: '#ffe08a' },   // 1.4.4
+  { id: 'rare', name: 'תגים למצטיינים', short: 'מצטיינים', col: '#3a3a4a', col2: '#e8c050' },   // 1.4.4 set 9: metal medallions (src/data/rare-badges.js)
   // torah edition only (hidden in the general edition and while "מקורות ופסוקים" is off)
   { id: 'sources', name: 'מה הפסוק מלמד?', short: 'מקורות', col: '#7a5420', col2: '#f6dfa0', torah: true },
 ];
 
+import { RARE_BADGES } from './rare-badges.js';
 export const BADGES = [
   // ── expert missions (src/data/<zone>.js, ids ax*, gx*, rx*: open after the regular missions)
   { id: 'b_ax1', group: 'amazon', art: 'harpy', name: 'שומר החופה', how: 'משימת מומחים "גג היער" באמזונס', earn: 'mission:ax1' },
@@ -33,10 +38,24 @@ export const BADGES = [
   { id: 'b_rx2', group: 'reef', art: 'parrotfish', name: 'רועה האצות', how: 'משימת מומחים "אצות במידה" בשונית', earn: 'mission:rx2' },
   { id: 'b_rx3', group: 'reef', art: 'cleaner', name: 'מנהל התחנה', how: 'משימת מומחים "תחנת ניקוי עמוסה" בשונית', earn: 'mission:rx3' },
   { id: 'b_rx4', group: 'reef', art: 'turtle', name: 'מים צלולים', how: 'משימת מומחים "השונית שורדת חום" בשונית', earn: 'mission:rx4' },
+  // 1.4.4 set 8: the hard challenges (ax5–7, gx5–7, rx5–7): a problem at the start, to understand and solve
+  { id: 'b_ax5', group: 'amazon', art: 'dartfrog', name: 'בית לצפרדע', how: 'אתגר קשה "צפרדעים בלי בית" באמזונס', earn: 'mission:ax5' },
+  { id: 'b_ax6', group: 'amazon', art: 'fruitbat', name: 'שותלי הלילה', how: 'אתגר קשה "השותלים של הלילה" באמזונס', earn: 'mission:ax6' },
+  { id: 'b_ax7', group: 'amazon', art: 'anteater', name: 'איזון הנמלים', how: 'אתגר קשה "נמלים בכל מקום" באמזונס', earn: 'mission:ax7' },
+  { id: 'b_gx5', group: 'grove', art: 'honeybee', name: 'מחזירי המאביקים', how: 'אתגר קשה "פרחים בלי פירות" בחורש', earn: 'mission:gx5' },
+  { id: 'b_gx6', group: 'grove', art: 'owl', name: 'שומרי הלילה', how: 'אתגר קשה "יותר מדי קוצנים" בחורש', earn: 'mission:gx6' },
+  { id: 'b_gx7', group: 'grove', art: 'blackbird', name: 'זורעי השיחים', how: 'אתגר קשה "אלות שלא מתחדשות" בחורש', earn: 'mission:gx7' },
+  { id: 'b_rx5', group: 'reef', art: 'starfish', name: 'מצילי האלמוגים', how: 'אתגר קשה "כוכבי ים על האלמוגים" בשונית', earn: 'mission:rx5' },
+  { id: 'b_rx6', group: 'reef', art: 'seagrass', name: 'שדה לצבים', how: 'אתגר קשה "הצבים רעבים" בשונית', earn: 'mission:rx6' },
+  { id: 'b_rx7', group: 'reef', art: 'moray', name: 'בוני מחסות', how: 'אתגר קשה "בלי מחבוא" בשונית', earn: 'mission:rx7' },
   { id: 'b_dx1', group: 'desert', art: 'dorcas', name: 'מחדש השיטים', how: 'משימת מומחים "שיטות חדשות" במדבר', earn: 'mission:dx1' },
   { id: 'b_dx2', group: 'desert', art: 'retama', name: 'עוצר החול', how: 'משימת מומחים "סופה בדרך" במדבר', earn: 'mission:dx2' },
   { id: 'b_dx3', group: 'desert', art: 'ibex', name: 'מביא המים', how: 'משימת מומחים "יעלים רחוק מהמעיין" במדבר', earn: 'mission:dx3' },
   { id: 'b_dx4', group: 'desert', art: 'eagleowl', name: 'שומר הלילה של המדבר', how: 'משימת מומחים "רשת של לילה" במדבר', earn: 'mission:dx4' },
+  { id: 'b_sx1', group: 'savanna', art: 'redoat', name: 'מחדש המרעה', how: 'משימת מומחים "אחרי האש" בסוואנה', earn: 'mission:sx1' },
+  { id: 'b_sx2', group: 'savanna', art: 'elephant', name: 'מאזן הפילים', how: 'משימת מומחים "פילים ועצים" בסוואנה', earn: 'mission:sx2' },
+  { id: 'b_sx3', group: 'savanna', art: 'zebra', name: 'מסדר הרעייה', how: 'משימת מומחים "סדר הרעייה" בסוואנה', earn: 'mission:sx3' },
+  { id: 'b_sx4', group: 'savanna', art: 'baobab', name: 'שומר הסוואנה', how: 'משימת מומחים "יציבה בכל עונה" בסוואנה', earn: 'mission:sx4' },
   // ── הממציאים (src/learn/games/inventors.js) and the lab
   { id: 'b_inv1', group: 'lab', art: 'reefshark', name: 'הפטנט הראשון', how: 'ממציאים המצאה ראשונה במשחק "הממציאים"', earn: 'inv:first' },
   { id: 'b_inv5', group: 'lab', art: 'owl', name: 'ממציא חרוץ', how: 'חמש המצאות שונות ב"הממציאים"', earn: 'inv:five' },
@@ -84,7 +103,7 @@ export const BADGES = [
   { id: 'b_invcreative', group: 'lab', art: 'liana', name: 'רעיון יצירתי', how: 'פותרים בעיה ב"הממציאים" בדרך אחרת, שגם היא עובדת באמת', earn: 'inv:creative' },
   { id: 'b_invcreative5', group: 'lab', art: 'seaanemone', name: 'חושבים אחרת', how: 'חמישה רעיונות יצירתיים שעובדים ב"הממציאים"', earn: 'inv:creative5' },
   { id: 'b_robot1', group: 'lab', art: 'surgeonfish', name: 'משימה ראשונה', how: 'רובוט שעובר את כל הבדיקות של משימה בסדנת הרובוטים', earn: 'inv:robot' },
-  { id: 'b_robotall', group: 'lab', art: 'hyrax', name: 'צוות הרובוטים', how: 'רובוט מוצלח לכל שש המשימות בסדנת הרובוטים', earn: 'inv:robotall' },
+  { id: 'b_robotall', group: 'lab', art: 'hyrax', name: 'צוות הרובוטים', how: 'רובוט מוצלח לכל המשימות בסדנת הרובוטים', earn: 'inv:robotall' },
   { id: 'b_robotlean', group: 'lab', art: 'tapir', name: 'פשוט וחכם', how: 'משימה עם הצטיינות בכל הבדיקות, ורק שתי תכונות לרובוט', earn: 'inv:lean' },
   { id: 'b_robotround', group: 'lab', art: 'capybara', name: 'רובוט לכל דבר', how: 'במבחן הגדול: רובוט שעובר בהצטיינות שבע בדיקות או יותר', earn: 'inv:allround' },
   // ── משלחת לעומק (src/learn/games/expedition.js)
@@ -110,6 +129,9 @@ export const BADGES = [
   { id: 'b_rc_sand', group: 'research', art: 'retama', name: 'עוצרים את החול', how: 'פותרים את התעלומה "החול שקובר את השתילים"', earn: 'research:case:moving-sand' },
   { id: 'b_rc_acacias', group: 'research', art: 'dorcas', name: 'הדרך של הצבי', how: 'פותרים את התעלומה "השיטות שלא מתחדשות"', earn: 'research:case:lonely-acacias' },
   { id: 'b_rc_oasis', group: 'research', art: 'sandgrouse', name: 'שומרי המעיין', how: 'פותרים את התעלומה "נווה המדבר שהולך ונעלם"', earn: 'research:case:shrinking-oasis' },
+  { id: 'b_rc_thorny', group: 'research', art: 'elephant', name: 'פותחים את המישור', how: 'פותרים את התעלומה "השיחים שמשתלטים"', earn: 'research:case:thorny-plain' },
+  { id: 'b_rc_oldgrass', group: 'research', art: 'buffalo', name: 'עשב חדש', how: 'פותרים את התעלומה "העדרים שלא נשארים"', earn: 'research:case:old-grass' },
+  { id: 'b_rc_elephants', group: 'research', art: 'giraffe', name: 'הדרך של הפילים', how: 'פותרים את התעלומה "יותר מדי פילים"', earn: 'research:case:too-many-elephants' },
   { id: 'b_rc_frogs', group: 'research', art: 'dartfrog', name: 'בריכה על ענף', how: 'פותרים את התעלומה "איפה הצפרדעים?"', earn: 'research:case:frogs' },
   { id: 'b_rc_brazil', group: 'research', art: 'orchidbee', name: 'שותפי האגוז', how: 'פותרים את התעלומה "אגוזי הברזיל שלא נותנים פרי"', earn: 'research:case:brazil-nut' },
   { id: 'b_rc_cleaning', group: 'research', art: 'cleaner', name: 'התחנה נפתחה', how: 'פותרים את התעלומה "תחנת הניקוי נסגרה"', earn: 'research:case:cleaning-station' },
@@ -136,12 +158,40 @@ export const BADGES = [
   { id: 'b_ro_ch5', group: 'robolab', art: 'gazelle', name: 'מגיב בזמן', how: 'כל השיעורים של פרק "אירועים"', earn: 'robo:ch:5' },
   { id: 'b_ro_ch6', group: 'robolab', art: 'parrotfish', name: 'סופר מדויק', how: 'כל השיעורים של פרק "מונים"', earn: 'robo:ch:6' },
   { id: 'b_ro_ch7', group: 'robolab', art: 'harpy', name: 'צוות מנצח', how: 'כל השיעורים של פרק "עבודת צוות"', earn: 'robo:ch:7' },
+  { id: 'b_ro_ch9', group: 'robolab', art: 'zebra', name: 'טייס שטח', how: 'כל השיעורים של פרק "משימות רחפן"', earn: 'robo:ch:9' },
   { id: 'b_ro_star10', group: 'robolab', art: 'toucan', name: 'מתכנת חסכן', how: 'שלושה כוכבים בעשרה שיעורים', earn: 'robo:stars:10' },
   { id: 'b_ro_star30', group: 'robolab', art: 'macaw', name: 'קוד קצר וחכם', how: 'שלושה כוכבים בשלושים שיעורים', earn: 'robo:stars:30' },
   { id: 'b_ro_puz1', group: 'robolab', art: 'octopus', name: 'פותר חידות', how: 'פותרים חידה ראשונה במעבדת הרובוטים', earn: 'robo:puzzles:1' },
   { id: 'b_ro_puz5', group: 'robolab', art: 'chameleon', name: 'ראש חידות', how: 'פותרים חמש חידות', earn: 'robo:puzzles:5' },
   { id: 'b_ro_fun', group: 'robolab', art: 'firefly', name: 'זיקוקים לכל הכיוונים', how: 'לוחצים עשרים פעם על בלוקים מפתיעים', earn: 'robo:fun' },
   { id: 'b_ro_design', group: 'robolab', art: 'butterfly', name: 'מעצב רובוטים', how: 'צובעים כלי בסדנת העיצוב', earn: 'robo:design' },
+  // ── הסדנה של ניצוץ (1.4.4, src/workshop/progress.js earned(): the four measures of creative thinking and the places)
+  { id: 'b_nz_first', group: 'workshop', art: 'firefly', name: 'ניצוץ ראשון', how: 'רעיון ראשון בסדנה של ניצוץ', earn: 'nz:first' },
+  { id: 'b_nz_flu15', group: 'workshop', art: 'leafcutter', name: 'מעיין של רעיונות', how: 'חמישה עשר רעיונות (שטף)', earn: 'nz:fluency15' },
+  { id: 'b_nz_flu60', group: 'workshop', art: 'honeybee', name: 'כוורת של רעיונות', how: 'שישים רעיונות (שטף)', earn: 'nz:fluency60' },
+  { id: 'b_nz_flex', group: 'workshop', art: 'chameleon', name: 'מכל הכיוונים', how: 'רעיונות מכל שמונת הסוגים (גמישות)', earn: 'nz:flex' },
+  { id: 'b_nz_orig', group: 'workshop', art: 'octopus', name: 'אף אחד לא חשב על זה', how: 'עשרים וחמש נקודות מקוריות', earn: 'nz:orig25' },
+  { id: 'b_nz_elab', group: 'workshop', art: 'harvesterant', name: 'גרסה ב׳', how: 'שישה שיפורים (פירוט ושיפור)', earn: 'nz:elab6' },
+  { id: 'b_nz_crazy', group: 'workshop', art: 'sloth', name: 'תיבת השיגעונות', how: 'חמישה רעיונות מצחיקים בתיבה', earn: 'nz:crazy5' },
+  { id: 'b_nz_mixer', group: 'workshop', art: 'hummingbird', name: 'הטבע מלמד', how: 'שישה פתרונות שעובדים במערבל הטבע', earn: 'nz:mixer6' },
+  { id: 'b_nz_cards', group: 'workshop', art: 'jay', name: 'אוהב אתגרים', how: 'עומדים בחמישה קלפי אילוץ', earn: 'nz:cards5' },
+  { id: 'b_nz_pat1', group: 'workshop', art: 'scorpion', name: 'פטנט ראשון', how: 'מקבלים תעודת פטנט ראשונה', earn: 'nz:patent1' },
+  { id: 'b_nz_pat10', group: 'workshop', art: 'termitemound', name: 'ממציא רשום', how: 'עשרה פטנטים', earn: 'nz:patent10' },
+  { id: 'b_nz_ord10', group: 'workshop', art: 'weaver', name: 'הלקוחות מרוצים', how: 'מסיימים עשר הזמנות עבודה', earn: 'nz:orders10' },
+  { id: 'b_nz_six', group: 'workshop', art: 'tortoise', name: 'עובר הכול', how: 'אב טיפוס שעובר את כל שש הבדיקות', earn: 'nz:allsix' },
+  { id: 'b_nz_fail', group: 'workshop', art: 'hedgehog', name: 'כישלון הוא חגיגה', how: 'עשרה כישלונות באולם הבדיקות', earn: 'nz:fails10' },
+  { id: 'b_nz_fair', group: 'workshop', art: 'macaw', name: 'שלושה כוכבים ביריד', how: 'שלושה שופטים נותנים כוכב לפטנט אחד', earn: 'nz:fair3' },
+  // ── אירוע השבוע (1.4.4, core/weekly.js finish(): the first win of a version gives these)
+  { id: 'b_wk_first', group: 'weekly', art: 'hoopoe', name: 'אירוע ראשון', how: 'מצליחים באירוע שבוע ראשון', earn: 'weekly:first' },
+  { id: 'b_wk_glitch', group: 'weekly', art: 'chameleon', name: 'מחזירים הביתה', how: 'מצליחים ב"התקלה במעבדה"', earn: 'weekly:glitch' },
+  { id: 'b_wk_jar', group: 'weekly', art: 'firefly', name: 'עולם בצנצנת', how: 'צנצנת שמחזיקה עד יום חמישי', earn: 'weekly:jar' },
+  { id: 'b_wk_detective', group: 'weekly', art: 'owl', name: 'בלש חד עין', how: 'פותרים את "הבלש של השבוע"', earn: 'weekly:detective' },
+  { id: 'b_wk_race', group: 'weekly', art: 'gazelle', name: 'עובר את כל המסלול', how: 'רובוט שמסיים את מירוץ הרובוטים', earn: 'weekly:race' },
+  { id: 'b_wk_all4', group: 'weekly', art: 'octopus', name: 'ארבעה בארבעה', how: 'מצליחים בכל ארבעת סוגי האירועים', earn: 'weekly:all4' },
+  { id: 'b_wk_8', group: 'weekly', art: 'harpy', name: 'שמונה שבועות', how: 'מצליחים בשמונה אירועים', earn: 'weekly:8' },
+  { id: 'b_wk_20', group: 'weekly', art: 'elephant', name: 'שנה של אירועים', how: 'מצליחים בעשרים אירועים', earn: 'weekly:20' },
+  { id: 'b_wk_record', group: 'weekly', art: 'hummingbird', name: 'שובר שיאים', how: 'שוברים את השיא האישי באירוע', earn: 'weekly:record' },
+  ...RARE_BADGES,   // 1.4.4 set 9
 ];
 
 // card frames for the album: a group's frame opens with `need` of its badges ('all': badges of any group)
@@ -155,6 +205,19 @@ export const FRAMES = [
   { id: 'silver', name: 'כסף של חוקרי הטבע', need: 2, group: 'research' },
   { id: 'sources', name: 'קלף עתיק', need: 2, group: 'sources', torah: true },
   { id: 'gold', name: 'זהב', need: 12, group: 'all' },
+  // 1.4.4 set 9: twelve more frames from Blender (tools/blender/medals.py)
+  { id: 'desert', name: 'אבן חול ודיונות', need: 2, group: 'desert' },
+  { id: 'savanna', name: 'שיטה בסוואנה', need: 2, group: 'savanna' },
+  { id: 'robolab', name: 'פלדה ומעגלים', need: 3, group: 'robolab' },
+  { id: 'workshop', name: 'נחושת ונורה', need: 3, group: 'workshop' },
+  { id: 'weekly', name: 'כוכבי השבוע', need: 2, group: 'weekly' },
+  { id: 'night', name: 'ירח וכוכבים', need: 5, group: 'weekly' },
+  { id: 'pearl', name: 'צדף ופנינה', need: 8, group: 'reef' },
+  { id: 'bloom', name: 'פריחה', need: 30, group: 'all' },
+  { id: 'bronze', name: 'ענף דפנה מנחושת', need: 1, group: 'rare' },
+  { id: 'silverlaurel', name: 'ענף דפנה מכסף', need: 5, group: 'rare' },
+  { id: 'goldlaurel', name: 'ענף דפנה מזהב', need: 12, group: 'rare' },
+  { id: 'crystal', name: 'בדולח', need: 20, group: 'rare' },
 ];
 
 export const badgeById = (id) => BADGES.find((b) => b.id === id) || null;

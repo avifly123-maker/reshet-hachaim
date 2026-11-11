@@ -36,7 +36,7 @@ export function createMissions(W) {
     m.started = true; m.t0 = W.simT;
     // a mission that was running before the game was saved keeps its starting point (restored from the save)
     if (!W.stats.missionStart[m.id]) W.stats.missionStart[m.id] = { pollinations: { ...W.stats.pollinations }, dispersals: W.stats.dispersals, experiments: W.stats.experiments, rescues: W.stats.rescues || 0, seeded: W.stats.seeded || 0,
-      toolUse: { ...(W.stats.toolUse || {}) }, uprooted: W.stats.uprooted || 0, moved: W.stats.moved || 0, letGo: W.stats.letGo || 0, transplants: W.stats.transplants || 0, scarsHealed: W.stats.scarsHealed || 0, t: W.simT };
+      toolUse: { ...(W.stats.toolUse || {}) }, uprooted: W.stats.uprooted || 0, moved: W.stats.moved || 0, letGo: W.stats.letGo || 0, transplants: W.stats.transplants || 0, scarsHealed: W.stats.scarsHealed || 0, stableSeasons: W.stats.stableSeasons || 0, t: W.simT };
     for (const e of events) if (!e.fired && e.trigger.type === 'mission' && e.trigger.id === m.id) fire(e, e.trigger.delay ?? 6);
   }
 
@@ -54,6 +54,9 @@ export function createMissions(W) {
     switch (g.type) {
       case 'place': return Math.min(1, W.countPlaced(g.species) / g.count);   // only what the player placed, not the wild forest
       case 'speciesAlive': return Math.min(1, W.aliveSpecies().length / g.count);
+      // 1.4.2, the savanna: a whole season (g.season) ended with the stability meter at g.value or more (savanna/index.js
+      // counts W.stats.stableSeasons); while the season runs, the bar shows how close the island is
+      case 'stable': { const done = (S.stableSeasons || 0) - (base.stableSeasons || 0); if (done >= (g.count || 1)) return 1; return Math.min(0.9, (W.stability || 0) / g.value) * (!g.season || W.season === g.season ? 0.9 : 0.4); }
       case 'link': return W.linkDiscovered(g.from, g.to) ? 1 : (aliveCount(g.from) > 0) * 0.4 + (aliveCount(g.to) > 0) * 0.4;
       case 'chain': return Math.min(1, W.longestChain() / g.length);
       case 'health': {
@@ -142,7 +145,7 @@ export function createMissions(W) {
       case 'link': return `איך עושים: לחצו על ${nm(g.from)} ${zoneWord('in')} או על הקלף שלו במגש. בכרטיס שנפתח, ברשימה "קשרים ברשת", מצאו את ${nm(g.to)} ולחצו "גלה את הקשר". שניהם צריכים להיות ${zoneWord('in')}.`;
       case 'chain': return `איך עושים: הביאו ${zoneWord('to')} צמח, בעל חיים שאוכל אותו, ובעל חיים שאוכל את בעל החיים הזה. בכרטיס של כל אחד, ב"קשרים ברשת", רואים מי אוכל את מי.`;
       case 'discover': return 'איך עושים: לחצו על צמח או על בעל חיים, ובכרטיס שלו לחצו "גלה את הקשר" ליד קשר שעוד לא גיליתם.';
-      case 'place': case 'grow': case 'growTo': case 'bloom': return `איך עושים: גררו ${nm(g.species)} מהמגש אל היער.` + find(g.species);
+      case 'place': case 'grow': case 'growTo': case 'bloom': return `איך עושים: גררו ${nm(g.species)} מהמגש ${zoneWord('to')}.` + find(g.species);
       case 'pollinate': return 'איך עושים: מאביקים צריכים להיות קרובים לפרחים.' + find(g.species);
       case 'experiment': return 'איך עושים: לחצו על צמח או על בעל חיים, ובכרטיס שלו לחצו "מה יקרה אם ייעלם?".';
       case 'tool': case 'photos': case 'rescue': case 'seeded': return 'איך עושים: הכלים נמצאים בלשונית "טכנולוגיה" במגש. גוררים אותם אל היער כמו צמח.';
@@ -220,7 +223,7 @@ export function createMissions(W) {
     const last = doneList[doneList.length - 1];
     if (last) out.push({ id: last.id, title: last.title, text: last.text, hint: last.hint, progress: 1, done: true, note: last.autoNote || '', expert: !!last.expert });
     const c = current();
-    if (c) out.push({ id: c.id, title: c.title, text: c.text, hint: c.hint, k: c.k, how: c.how || howTo(c), progress: c.progress, done: false, expert: !!c.expert, checks: checks(c),
+    if (c) out.push({ id: c.id, title: c.title, text: c.text, hint: c.hint, k: c.k, how: c.how || howTo(c), progress: c.progress, done: false, expert: !!c.expert, hard: !!c.hard, checks: checks(c),
       kind: c.goal?.type || '', sp: c.goal?.species || c.goal?.from || (c.goal?.tool ? 'tool:' + c.goal.tool : '') });   // kind + sp: the icon of the one-line mission (חוויה)
     const next = c && missions.find(m => m.after === c.id && (!m.expert || expertsOn()));
     if (next) out.push({ id: next.id, title: next.title, text: 'המשימה הבאה תיפתח אחרי שתסיימו את הנוכחית.', hint: '', progress: 0, done: false, locked: true, expert: !!next.expert });

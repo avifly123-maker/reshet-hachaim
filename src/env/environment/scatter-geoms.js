@@ -1,6 +1,6 @@
 // Small geometry builders for the instanced ground scatter (grass tufts, ferns, bushes, big leaves, leaf litter, pebbles,
 // flowers, thistles) and vertex-colour helpers. Pure functions: every random choice comes from the rr() passed in.
-// Exports: colorize, geoFromArrays, twoSided, upNormals, grassTuftGeom, fernGeom, blobGeom, bigLeafGeom, leafLitterGeom,
+// Exports: colorize, geoFromArrays, twoSided, upNormals, grassTuftGeom, savGrassGeom (1.4.2), fernGeom, blobGeom, bigLeafGeom, leafLitterGeom,
 // pebbleGeom, flowerGeom, thistleGeom.  Needs: three, core/util.js, common.js.
 import * as THREE from 'three';
 import { clamp, mergeGeometries } from '../../core/util.js';
@@ -49,6 +49,27 @@ export function grassTuftGeom(blades = 7, rr) {
     const v = [[ox - px * w, 0, oz - pz * w], [ox + px * w, 0, oz + pz * w], [mid[0] - px * w * 0.6, mid[1], mid[2] - pz * w * 0.6], [mid[0] + px * w * 0.6, mid[1], mid[2] + pz * w * 0.6], tip];
     const sh = [0.7, 0.7, 0.9, 0.9, 1.12];
     for (const t of [[0, 1, 2], [1, 3, 2], [2, 3, 4]]) for (const k of t) { pos.push(...v[k]); col.push(sh[k], sh[k], sh[k]); }
+  }
+  return geoFromArrays(pos, col);
+}
+// 1.4.2, the savanna: a full clump of tall grass – many long blades in three bending segments, leaning out in a fan, and
+// a few thin seed heads above them (a little rusty: the vertex colour is a multiplier on the material and instance colour)
+export function savGrassGeom(blades = 14, rr) {
+  const pos = [], col = [];
+  for (let b = 0; b < blades; b++) {
+    const a = b / blades * TAU + rr() * 0.5, lean = 0.25 + rr() * 0.55, h = 0.7 + rr() * 0.5, w = 0.035 + rr() * 0.02;
+    const dx = Math.cos(a), dz = Math.sin(a), px = -dz, pz = dx, ox = dx * 0.07 * rr(), oz = dz * 0.07 * rr();
+    const P = (t) => { const bend = lean * t * t; return [ox + dx * bend * h, h * t * (1 - 0.15 * lean * t), oz + dz * bend * h]; };
+    const ring = [0, 0.38, 0.72, 1].map((t, i) => { const c = P(t), ww = w * (1 - t * 0.85); return { l: [c[0] - px * ww, c[1], c[2] - pz * ww], r: [c[0] + px * ww, c[1], c[2] + pz * ww], c, sh: 0.62 + 0.5 * t }; });
+    for (let i = 0; i < 3; i++) {
+      const A = ring[i], B = ring[i + 1];
+      const quad = i < 2 ? [[A.l, A.sh], [A.r, A.sh], [B.l, B.sh], [A.r, A.sh], [B.r, B.sh], [B.l, B.sh]] : [[A.l, A.sh], [A.r, A.sh], [B.c, B.sh]];
+      for (const [v, sh] of quad) { pos.push(...v); col.push(sh, sh, sh); }
+    }
+    if (rr() < 0.4) {   // a seed head: a thin spike on a stalk above the blade
+      const t0 = P(1), sx = dx * 0.06, sz = dz * 0.06, top = [t0[0] + sx, t0[1] + 0.32 * h, t0[2] + sz], hw = 0.022;
+      for (const v of [[t0[0] - px * hw, t0[1] + 0.12 * h, t0[2] - pz * hw], [t0[0] + px * hw, t0[1] + 0.12 * h, t0[2] + pz * hw], top]) { pos.push(...v); col.push(1.15, 0.86, 0.68); }
+    }
   }
   return geoFromArrays(pos, col);
 }

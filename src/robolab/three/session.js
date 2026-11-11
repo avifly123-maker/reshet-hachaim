@@ -5,10 +5,13 @@
 // and hands the field to the robot lab's screen (R.attach), which drives it like the flat map.
 import { createCourse } from './course.js';
 import { makeIslandLevel } from './island-level.js';
+import { makeMission, makeSandbox, practiceView, isBig } from '../island-missions.js';   // 1.4.3 set 4: workshop missions from the child's own island; set 5: the sandbox
+import { statsOf } from '../engine/build.js';
+import { BASE_BLOCKS } from '../../data/robolab/workshop.js';
 
 export function createRoboSession(ctx, R) {
   const { W, env, scene, reg, markers, rig, spawnPlant, spawnAnimal, ui } = ctx;
-  let course = null, panelW = -1, viewT = 0, disposed = false, leaveSoon = false;
+  let course = null, panelW = -1, viewT = 0, disposed = false, leaveSoon = false, follow = null, follow0 = false, wasPlaying = false;
   const camera = ctx.camera || (rig && rig.camera) || null;
   // the field; the first one is framed at once (the loading screen hides the jump), a next lesson with a short flight
   function build(L, { quick = false } = {}) {
@@ -17,7 +20,7 @@ export function createRoboSession(ctx, R) {
     frame(quick ? 1 : 0.05);
     return course;
   }
-  function frame(dur = 1.4) { const v = course.view(); rig.goTo(v.target, v.pos, dur); }
+  function frame(dur = 1.4, mode = 0) { const v = course.view(mode); rig.goTo(v.target, v.pos, dur); }
   // the lesson's panel covers the right part of the screen (RTL): shift the picture so the field sits in the free part
   function fitPanel() {
     if (!camera) return;
@@ -34,21 +37,55 @@ export function createRoboSession(ctx, R) {
       W.speed = 1;
       // a mission on the player's own island: the level is made from the island now that it is loaded
       const newIsland = (kind) => makeIslandLevel({ W, env }, R.zone, { kind, seed: Date.now() });
-      if (!R.level && R.ownIsland) R.level = newIsland();
+      // a template mission of the workshop (R.templateMission = { id, tpl, shape, build, name, step, seed, island }):
+      // made now from what is on this island (his own, when he asked for it), or from the zone's practice island
+      const alive = (p) => p && p.alive && !p.removed && p.sp;
+      const species = reg && reg.byId ? [...reg.byId.values()] : [];
+      const viewOf = (own) => (own ? { plants: (W.plants || []).filter(alive).map((p) => ({ id: p.sp.id, x: p.x, z: p.z, g: p.growth, tree: isBig(p.sp, !!env.underwater) })),
+          animals: (W.animals || []).filter((a) => a && a.alive !== false && a.sp).map((a) => ({ id: a.sp.id, x: a.x, z: a.z })),
+          isWater: (x, z) => !!(env.isWater && env.isWater(x, z)), isPlaceable: (x, z) => !env.isPlaceable || env.isPlaceable(x, z),
+          heightAt: env.heightAt ? (x, z) => env.heightAt(x, z) : null, bridgeAt: env.bridgeAt ? (x, z) => !!env.bridgeAt(x, z) : null,
+          radius: env.radius || 38, sea: !!env.underwater } : practiceView(R.zone, species));
+      const fromTemplate = () => {
+        const Q = R.templateMission, view = viewOf(Q.island);
+        const M = makeMission(view, { zone: R.zone, species, step: Q.step, seed: Q.seed || 1, tpl: Q.tpl, shape: Q.shape, id: Q.id });
+        if (!M) return null;
+        return { ...M, build: { robot: Q.build }, robotName: Q.name || '' };
+      };
+      // ארגז החול (R.sandbox = { build, name, step, seed, island }): a free field, the robot's own blocks, no goal
+      const fromSandbox = () => {
+        const Q = R.sandbox, M = makeSandbox(viewOf(Q.island), { zone: R.zone, species, step: Q.step, seed: Q.seed || 1 });
+        if (!M) return null;
+        const st = statsOf(Q.build); if (!st) return null;   // a build that breaks a rule has no numbers (index.js sends the gardener instead)
+        const can = [...st.blocks], acts = can.filter((b) => !BASE_BLOCKS.includes(b));
+        const blocks = ['fwd', 'back', 'right', 'left', ...acts, 'wait', 'repeat', 'if', 'until', 'add', 'fireworks', 'dance', 'lights', 'beep'].filter((b, i, a) => a.indexOf(b) === i && (can.includes(b) || ['repeat', 'if', 'until'].includes(b)));
+        return { ...M, blocks, acts, build: { robot: Q.build }, robotName: Q.name || '' };
+      };
+      if (!R.level && R.sandbox) { R.level = fromSandbox(); if (!R.level) R.noMission = true; }
+      if (!R.level && R.templateMission) { R.level = fromTemplate(); if (!R.level) R.noMission = true; }
+      else if (!R.level && R.ownIsland) R.level = newIsland();
       if (!R.level) { R.noRoom = true; leaveSoon = true; return; }   // no room for a field on his island: closed from the first update, once the game is in place
       build(R.level);
       const api = {
         get level() { return R.level; },
         newIsland: () => { const L = newIsland(); if (L) R.level = L; return L; },
-        get course() { return course; }, rebuild: (L, o) => { const c = build(L, o); return c; }, frame: () => frame(1) };
+        get course() { return course; }, rebuild: (L, o) => { const c = build(L, o); return c; }, frame: (mode = 0) => frame(1, mode) };
       if (R.attach) R.attach(api);
     },
     update(dt, rdt) {
       if (leaveSoon) { leaveSoon = false; if (ctx.exit) ctx.exit(); else if (R.onExit) R.onExit(); return; }
       if (disposed || !course) return;
-      // a training field is in good daylight; the "sunset" event of a run turns it to evening, slowly
-      { const want = W._rlSunset ? 0.735 : 0.42; W.dayFrac += (want - W.dayFrac) * Math.min(1, (rdt || 0) * (W._rlSunset ? 0.8 : 4)); }
+      // a training field is in good daylight; the "sunset" event of a run turns it to evening, slowly (1.4.4 set 8: a
+      // night mission is night from the start)
+      { const want = W._rlNight ? 0.9 : W._rlSunset ? 0.735 : 0.42; W.dayFrac += (want - W.dayFrac) * Math.min(1, (rdt || 0) * (W._rlSunset ? 0.8 : 4)); }
       course.update(rdt || dt || 0);
+      if (course.setFar && camera && course.robotAt) { const p = course.robotAt(); if (p) course.setFar(camera.position.distanceTo(p) > 16); }   // far from the camera: the light eyes
+      // a big field (a mission on an island): while the robot runs the camera goes with it, nearer; then back to all of it
+      if (course.span > 26 && course.robotAt) {
+        const playing = course.isPlaying();
+        if (playing) { const p = course.robotAt(); if (p && (!follow || follow.distanceTo(p) > course.span * 0.06)) { follow = p.clone(); rig.goTo(p.clone().setY(p.y + 0.5), p.clone().add({ x: 0, y: 7.5, z: 7 }), follow0 ? 0.9 : 1.2); follow0 = true; } wasPlaying = true; }
+        else if (wasPlaying) { wasPlaying = false; follow = null; follow0 = false; setTimeout(() => { if (!disposed && course && !course.isPlaying()) frame(1.2); }, 1400); }
+      }
       fitPanel();
       viewT += rdt || 0; if (viewT > 5) { viewT = 0; if (rig.poke) rig.poke(); }   // no idle orbit: north stays up
     },

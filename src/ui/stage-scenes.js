@@ -5,7 +5,7 @@
 // the frames. It draws on its own canvas with its own small WebGLRenderer, made for the scene and thrown away after it,
 // so the game's pipeline is never touched. A "דלג" button and Escape end it at once.
 //
-//   window.__stageScene(n, { at }) → Promise   n = 1..6 (STAGES in src/core/journey.js)
+//   window.__stageScene(n, { at }) → Promise   n = 1..9 (STAGES in src/core/journey.js)
 //                                               at: hold the film at that second (headless screenshots), until .stop()
 //   window.__stageScene.stop()                  end the running scene (as "דלג")
 //   window.__stageScene.info                    the last scene: { n, frames, seconds, tier } (a frame-rate check)
@@ -16,9 +16,13 @@
 // 4 חוקר    the underwater robot dives, a school of fish opens, the reef appears, the doors of the lab open
 // 5 ממציא   robot parts fly onto the table and click together, the new robot stands up and waves
 // 6 מומחה   the three islands from above, a fleet of drones flies between them, a gold frame shines
+// 7 מתכנת   (1.4.2) the savanna: zebras walk, a drone flies its programmed path and each step lights a tile
+// 8 יזם     (1.4.2) a bulb lights over the lab, gears turn, nature's cards fly into the idea
+// 9 מהנדס   (1.4.2) קוּבִּי on his pad, the robot, drone and diving robot gather round him, the five islands wait
 // Every scene ends with the stage's name and the Baba Da logo. Weak computers ('min' / 'low' quality) get fewer pixels
 // and fewer things. No human figures, no cross shapes (the sparkles are round), no text inside the 3D.
 import * as THREE from 'three';
+import { decodePart } from '../models/packed-geo.js';   // the packed robot geometry (one decoder for every screen)
 import { ISLAND_ART } from '../data/island-art.js';
 import { CARD_ART } from '../data/card-art.js';
 import { BABA_DA_LOGO } from '../data/logo.js';
@@ -29,7 +33,7 @@ import { makeRng } from '../core/util.js';
 import { toolProp } from '../world/props.js';
 import { drawRoboFace } from './robo-face.js';
 import { stageEmblem, STAGE_COLOR } from './journey-map.js';
-import { svcApp } from '../core/services.js';
+import { svcApp, setService } from '../core/services.js';
 
 // ───────────────────────────────────────── small helpers
 const clamp01 = (x) => (x < 0 ? 0 : x > 1 ? 1 : x);
@@ -256,19 +260,7 @@ function boxOf(obj) { obj.updateMatrixWorld(true); return new THREE.Box3().setFr
 
 // ───────────────────────────────────────── רובו־דע (the lab's robot, decoded like src/lab/lab.js)
 let ROBOT_DATA = null;
-const b64 = (s) => { const bin = atob(s); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; };
 const robotGeo = new Map();   // decoded once per visit to a scene, freed with the scene
-function decodePart(e) {
-  const g = new THREE.BufferGeometry();
-  const q = new Int16Array(b64(e.p).buffer); const n = q.length / 3; const P = new Float32Array(n * 3);
-  for (let i = 0; i < n; i++) for (let k = 0; k < 3; k++) P[3 * i + k] = e.o[k] + (q[3 * i + k] + 32767) * e.s[k];
-  g.setAttribute('position', new THREE.BufferAttribute(P, 3));
-  if (e.n) { const nn = new Int8Array(b64(e.n).buffer); const N = new Float32Array(nn.length); for (let i = 0; i < nn.length; i++) N[i] = nn[i] / 127; g.setAttribute('normal', new THREE.BufferAttribute(N, 3)); }
-  if (e.uv) { const uu = new Uint16Array(b64(e.uv).buffer); const U = new Float32Array(uu.length); for (let i = 0; i < uu.length; i++) U[i] = uu[i] / 65535; g.setAttribute('uv', new THREE.BufferAttribute(U, 2)); }
-  g.setIndex(new THREE.BufferAttribute(new Uint16Array(b64(e.i).buffer), 1));
-  if (!e.n) g.computeVertexNormals();
-  return g;
-}
 async function robotData() {
   if (ROBOT_DATA) return ROBOT_DATA;
   try { ROBOT_DATA = (await import('../data/lab-robot.js')).LAB_ROBOT || null; } catch (e) { console.warn('stage scene: robot', e); }
@@ -880,6 +872,114 @@ SCENES[6] = async (S, { low }) => {
   };
 };
 
+// ───────────────────────────────────────── 1.4.2 (Avi, 1.11: stages 7 to 9 showed the film of stage 6): their own films
+// 7 מתכנת  the savanna at golden hour: zebras walk across, a drone flies its programmed path, each step lights a tile
+SCENES[7] = async (S, { low }) => {
+  const { scene, camera } = S;
+  scene.add(skyDome(S, '#e9a35a', '#f6d39a', '#c9a46a', V(0.4, 0.15, -1), '#fff0c0'));
+  scene.add(lights(S, { sky: '#fff2dc', ground: '#8a6a40', hemi: 1.3, sun: '#ffe0b0', sunI: 2.3, sunPos: [6, 7, 4] }));
+  const [ts, Z1, Z2, Z3] = await Promise.all([S.imgTex(ISLAND_ART.c_savanna), animal('savanna', 'zebra', { seed: 3, len: 1.7 }), animal('savanna', 'zebra', { seed: 8, len: 1.55 }), low ? null : animal('savanna', 'zebra', { seed: 12, len: 1.4 })]);
+  const isl = picture(S, ts, 6.4, { bottom: -1.4 }); isl.position.set(0, 0.2, -9); scene.add(isl);
+  const ground = new THREE.Mesh(S.own(new THREE.CircleGeometry(9, 48)), S.own(new THREE.MeshStandardMaterial({ color: '#c8a35c', roughness: 0.95 })));
+  ground.rotation.x = -Math.PI / 2; ground.position.y = -0.02; scene.add(ground);
+  const zebras = [Z1, Z2, Z3].filter(Boolean).map((Z, i) => { scene.add(Z.holder); return { Z, z: 1.4 - i * 0.9, x0: -7 - i * 1.6, sp: 1.15 + i * 0.08 }; });
+  // the program's path: tiles that light one after another under the drone
+  const path = [V(-3, 0, 0.6), V(-2, 0, 0.6), V(-1, 0, 0.6), V(-1, 0, -0.4), V(0, 0, -0.4), V(1, 0, -0.4), V(1, 0, 0.6), V(2, 0, 0.6), V(3, 0, 0.6)];
+  const tileM = path.map(() => S.own(new THREE.MeshBasicMaterial({ color: '#7ff0ff', transparent: true, opacity: 0, toneMapped: false, depthWrite: false })));
+  const tileG = S.own(new THREE.PlaneGeometry(0.86, 0.86));
+  path.forEach((P, i) => { const m = new THREE.Mesh(tileG, tileM[i]); m.rotation.x = -Math.PI / 2; m.position.set(P.x, 0.03, P.z); scene.add(m); });
+  const drone = tool(S, 'drone', 0.9); if (drone) scene.add(drone);
+  const pop = burst(S, low ? 14 : 28, '#ffd27a', { speed: 1.5, size: 0.12, gravity: -0.6 }); scene.add(pop);
+  let popped = false;
+  return {
+    dur: 6.8,
+    update(t, dt) {
+      lookCam(camera, V(lerp(-1.2, 1.2, E.sine(seg(t, 0, 6.8))), lerp(3.3, 2.6, E.sine(seg(t, 0, 6.8))), 7.6), V(0, 1.5, -2.4));
+      for (const Q of zebras) { const x = Q.x0 + t * Q.sp * 1.6; Q.Z.holder.position.set(x, 0, Q.z - 2.6); Q.Z.holder.rotation.y = Math.PI / 2; try { Q.Z.v.update(dt, { action: 'walk', speed: 1, t }); } catch (e) { } }
+      const k = seg(t, 1.0, 5.2) * (path.length - 1), i = Math.min(path.length - 2, Math.floor(k)), f = k - i;
+      if (drone) { const a = path[i], b = path[i + 1]; drone.position.set(lerp(a.x, b.x, E.io(f)), 1.4 + Math.sin(t * 3) * 0.06, lerp(a.z, b.z, E.io(f))); drone.rotation.y = Math.atan2(b.x - a.x, b.z - a.z); spinRotors(drone, t); drone.visible = t > 0.6; }
+      tileM.forEach((m, j) => { m.opacity = t < 1 ? 0 : clamp01((k - j + 0.6) * 2) * 0.75; });
+      if (!popped && t > 5.3) { popped = true; pop.userData.fire(t, V(3, 1.2, 0.6)); sfx('mission'); }
+      pop.userData.tick(t);
+    },
+  };
+};
+
+// 8 יזם  an idea is born: a bulb lights over the lab, gears turn round it, cards of nature fly into its light
+SCENES[8] = async (S, { low }) => {
+  const { scene, camera } = S;
+  scene.add(skyDome(S, '#2b3e52', '#4a6478', '#1e2a36'));
+  scene.add(lights(S, { sky: '#fff4e6', ground: '#4a4038', hemi: 1.1, sun: '#ffefd8', sunI: 1.6, sunPos: [3, 7, 6] }));
+  const ids = ['camel', 'giraffe', 'weaver', 'fennec', 'elephant'].filter((id) => CARD_ART[id]).slice(0, low ? 3 : 5);
+  const [tlab, ...tc] = await Promise.all([S.imgTex(ISLAND_ART.lab), ...ids.map((id) => S.imgTex(CARD_ART[id]))]);
+  const back = picture(S, tlab, 7.4, { opaque: true, color: '#b8b2a8' }); back.position.set(0, 1.6, -6); scene.add(back);
+  // the bulb: glass, a warm core and a glow that grows
+  const bulb = new THREE.Group(); bulb.position.set(0, 1.9, 0); scene.add(bulb);
+  const glassM = S.own(new THREE.MeshStandardMaterial({ color: '#ffe9a8', emissive: '#ffb83a', emissiveIntensity: 0, transparent: true, opacity: 0.9, roughness: 0.25 }));
+  const glass = new THREE.Mesh(S.own(new THREE.SphereGeometry(0.62, 40, 28)), glassM); bulb.add(glass);
+  const cap = new THREE.Mesh(S.own(new THREE.CylinderGeometry(0.28, 0.3, 0.42, 28)), S.own(new THREE.MeshStandardMaterial({ color: '#9aa4ac', metalness: 0.6, roughness: 0.35 }))); cap.position.y = -0.72; bulb.add(cap);
+  const glow = glowSprite(S, '#ffd27a', 1, 0); bulb.add(glow);
+  // two gears: rings with round teeth (no bars that meet as a cross)
+  const gearM = S.own(new THREE.MeshStandardMaterial({ color: '#d9a43a', metalness: 0.7, roughness: 0.35 }));
+  const gear = (R, n) => { const g = new THREE.Group(); g.add(new THREE.Mesh(S.own(new THREE.TorusGeometry(R, R * 0.16, 10, 48)), gearM)); const tg = S.own(new THREE.SphereGeometry(R * 0.17, 12, 8)); for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2, m = new THREE.Mesh(tg, gearM); m.position.set(Math.cos(a) * R * 1.18, Math.sin(a) * R * 1.18, 0); g.add(m); } return g; };
+  const g1 = gear(0.55, 10), g2 = gear(0.38, 8); g1.position.set(-1.35, 1.9, -0.3); g2.position.set(1.3, 1.15, -0.3); scene.add(g1, g2);
+  const cardG = S.own(new THREE.PlaneGeometry(0.9, 0.9));
+  const cards = tc.map((t, i) => { const m = new THREE.Mesh(cardG, S.own(new THREE.MeshBasicMaterial({ map: t, transparent: true, side: THREE.DoubleSide }))); const a = i / tc.length * Math.PI * 2; scene.add(m); return { m, from: V(Math.cos(a) * 4.2, 1.6 + Math.sin(a) * 2.2, 1.2), t0: 1.2 + i * 0.55, hit: false }; });
+  const spark = burst(S, low ? 12 : 24, '#ffe39a', { speed: 1.3, size: 0.1, gravity: -0.3 }); scene.add(spark);
+  return {
+    dur: 6.8,
+    update(t) {
+      lookCam(camera, V(Math.sin(t * 0.12) * 1.2, 2.1, 5.6), V(0, 1.55, 0));
+      const lit = E.out(seg(t, 0.3, 1.4)) * 0.4 + 0.6 * E.out(seg(t, 4.2, 5.2));
+      glassM.emissiveIntensity = 0.2 + lit * 0.9; glow.material.opacity = lit * 0.7; glow.scale.setScalar(1.5 + lit * 1.1 + Math.sin(t * 6) * 0.06);
+      bulb.position.y = 1.9 + Math.sin(t * 1.4) * 0.06;
+      g1.rotation.z = t * 0.9; g2.rotation.z = -t * 1.3;
+      for (const C of cards) {
+        const k = E.io(seg(t, C.t0, C.t0 + 1.1));
+        C.m.position.lerpVectors(C.from, V(0, 1.9, 0), k); C.m.scale.setScalar(lerp(1, 0.15, k)); C.m.rotation.y = t * 1.5; C.m.visible = t > C.t0 - 0.2 && k < 0.99;
+        if (!C.hit && k >= 0.99) { C.hit = true; spark.userData.fire(t, V(0, 1.9, 0)); sfx('click'); }
+      }
+      spark.userData.tick(t);
+    },
+  };
+};
+
+// 9 מהנדס  קוּבִּי on his pad: the robot, the drone and the diving robot gather round him, and the five islands wait
+SCENES[9] = async (S, { low }) => {
+  const { scene, camera } = S;
+  scene.add(skyDome(S, '#6fb0dc', '#cfe8f2', '#e9e2cc', V(0.2, 0.25, -1), '#fff6d8'));
+  const water = sea(S, { deep: '#1b6e98', shallow: '#2f93b8', horizon: '#c4e2ec', far: 200 }); scene.add(water);
+  scene.add(lights(S, { sky: '#f2f7ff', ground: '#6a8a98', hemi: 1.4, sunPos: [5, 9, 6] }));
+  const zones = ['amazon', 'grove', 'reef', 'desert', 'savanna'];
+  const [km, mm, ...ti] = await Promise.all([import('../robolab/three/kubi.js'), import('../robolab/three/models.js'), ...zones.map((z) => S.imgTex(ISLAND_ART['c_' + z]))]);
+  const isl = ti.map((t, i) => { const m = picture(S, t, 3.6, { bottom: -0.9 }); const a = (i - 2) * 0.42; m.position.set(Math.sin(a) * 15, 0.2, -Math.cos(a) * 15 + 2); scene.add(m); return m; });
+  const pad = new THREE.Mesh(S.own(new THREE.CylinderGeometry(1.5, 1.6, 0.2, 48)), S.own(new THREE.MeshStandardMaterial({ color: '#e9e4d6', roughness: 0.6 }))); pad.position.y = 0.1; scene.add(pad);
+  const ring = new THREE.Mesh(S.own(new THREE.TorusGeometry(1.52, 0.035, 8, 64)), S.own(new THREE.MeshBasicMaterial({ color: '#f0a040', toneMapped: false }))); ring.rotation.x = Math.PI / 2; ring.position.y = 0.21; scene.add(ring);
+  let K = null; try { K = km.createKubi(); K.object.scale.multiplyScalar(0.62); K.object.position.set(0, 0.2, 0); scene.add(K.object); K.set('wave'); } catch (e) { console.warn('stage 9: kubi', e); }
+  const tools = ['robot', 'drone', 'sub'].map((k, i) => { let o = null; try { o = mm.makeTool(k); } catch (e) { } if (!o) return null; o.scale.multiplyScalar(0.42); scene.add(o); const a = -1.0 + i * 1.0; return { o, k, a, t0: 1.0 + i * 0.6 }; }).filter(Boolean);
+  const pop = burst(S, low ? 14 : 30, '#ffd27a', { speed: 1.6, size: 0.12, gravity: -0.6 }); scene.add(pop);
+  let cheered = false, popped = false;
+  return {
+    dur: 7.2,
+    update(t, dt) {
+      const pull = E.io(seg(t, 3.6, 6.4));
+      lookCam(camera, V(Math.sin(t * 0.1) * 0.8, lerp(1.9, 4.8, pull), lerp(4.6, 10.5, pull)), V(0, lerp(0.95, 0.6, pull), lerp(0, -4, pull)));
+      water.userData.tick(t, camera);
+      isl.forEach((m, i) => { m.rotation.y = Math.atan2(camera.position.x - m.position.x, camera.position.z - m.position.z); m.position.y = 0.2 + Math.sin(t * 0.8 + i) * 0.06; });
+      for (const T of tools) {
+        const k = E.out(seg(t, T.t0, T.t0 + 0.8)), r = 1.05;
+        const y = T.k === 'drone' ? 1.25 + Math.sin(t * 3) * 0.05 : 0.22;
+        T.o.position.set(Math.sin(T.a) * r, lerp(3.5, y, k), Math.cos(T.a) * r * 0.6 + 0.2); T.o.rotation.y = T.a + Math.PI; T.o.visible = t > T.t0 - 0.05;
+        if (T.k === 'drone' && t > 5.6) { T.o.position.y += (t - 5.6) * 1.6; T.o.position.z -= (t - 5.6) * 2.2; }
+      }
+      if (K) { if (!cheered && t > 3.0) { cheered = true; K.set('cheer'); } K.update(dt); }
+      if (!popped && t > 3.1) { popped = true; pop.userData.fire(t, V(0, 1.4, 0)); sfx('mission'); }
+      pop.userData.tick(t);
+    },
+    dispose() { try { K && K.dispose(); } catch (e) { } },
+  };
+};
+
 // a test stand for the models (headless checks of size and facing): __stageScene(0, { at: 0, probe: { zone, id, action, yaw } })
 SCENES[0] = async (S, { probe = {} }) => {
   const { scene, camera } = S;
@@ -902,7 +1002,7 @@ function endCardHTML(n, kids) {
 }
 
 export function playStageScene(n, opts = {}) {
-  n = opts.probe ? 0 : Math.max(1, Math.min(6, Math.round(+n) || 1));
+  n = opts.probe ? 0 : Math.max(1, Math.min(9, Math.round(+n) || 1));
   if (running) return running.promise;
   const kids = isKids(), q = tier(), low = q === 'min' || q === 'low';
   const host = document.getElementById('ui') || document.body;
@@ -931,6 +1031,7 @@ export function playStageScene(n, opts = {}) {
         if (S) {
           try {
             for (const a of animals) try { a.v.dispose(); } catch (e) { }
+            try { sc && sc.dispose && sc.dispose(); } catch (e) { }
             for (const x of S.owned) try { x.dispose(); } catch (e) { }
             for (const g of robotGeo.values()) g.dispose(); robotGeo.clear();
             S.renderer.dispose(); S.renderer.forceContextLoss();
@@ -970,6 +1071,7 @@ export function playStageScene(n, opts = {}) {
   return promise;
 }
 
-window.__stageScene = (n, opts) => playStageScene(n, opts);
+window.__stageScene = (n, opts) => playStageScene(n, opts);   // the tests' handle (info, stop, seek below)
+setService('stageScene', window.__stageScene);
 window.__stageScene.stop = () => { if (running) running.finish(); };
 window.__stageScene.seek = (x) => { if (running) running.seek(x); };   // tools/record-scenes.py

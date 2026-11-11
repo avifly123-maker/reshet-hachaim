@@ -2,7 +2,7 @@
    Identity: a naturalist's field kit. Two materials only:
    – always-on chrome = dark canopy plates (chamfered corners, a double engraved rule, honey seed pins at the corners);
    – anything you open (menus, cards, dialogs) = herbarium paper with a pencil-ruled double border.
-   Display face: Suez One (titles, numbers). Text face: Rubik. Both embedded (fonts.css). */
+   Display face: Suez One (titles, numbers). Text face: Varela Round (6.11; Rubik before). Both embedded (fonts.css). */
 #ui.wol {
   --canopy: #11241a;
   --canopy2: #1b3626;
@@ -1189,7 +1189,9 @@
 #ui.wol .st-isl[data-k="1"] { transform: translate(calc(-50% - 86%), -56%) translateZ(-420px) rotateY(26deg) scale(.8); z-index: 1; opacity: .62; filter: saturate(.55) brightness(.62); }
 #ui.wol .st-isl[data-k="-1"] { transform: translate(calc(-50% + 86%), -56%) translateZ(-420px) rotateY(-26deg) scale(.8); z-index: 1; opacity: .62; filter: saturate(.55) brightness(.62); }
 /* 1.4: a fourth island waits behind the chosen one, small and dim */
-#ui.wol .st-isl[data-k="2"], #ui.wol .st-isl[data-k="-2"] { transform: translate(-50%, -66%) translateZ(-760px) scale(.62); z-index: 0; opacity: .36; filter: saturate(.4) brightness(.5); pointer-events: none; }
+/* 1.4.2 (Avi, 1.11): the two islands behind peek out past the side ones, small and faded, so the child sees there are five */
+#ui.wol .st-isl[data-k="2"] { transform: translate(calc(-50% - 185%), -80%) translateZ(-900px) rotateY(36deg) scale(.6); z-index: 0; opacity: .5; pointer-events: none; }
+#ui.wol .st-isl[data-k="-2"] { transform: translate(calc(-50% + 185%), -80%) translateZ(-900px) rotateY(-36deg) scale(.6); z-index: 0; opacity: .5; pointer-events: none; }
 #ui.wol .st-isl[data-k="1"]:hover, #ui.wol .st-isl[data-k="-1"]:hover { opacity: .85; filter: saturate(.8) brightness(.85); }
 #ui.wol .st-isl[data-k="0"]:hover img { filter: drop-shadow(0 30px 34px rgba(0, 0, 0, .6)) brightness(1.06); }
 #ui.wol .st-arrow { position: absolute; top: 50%; z-index: 5; width: 54px; height: 54px; margin-top: -27px; border-radius: 50%; display: grid; place-items: center; color: #2a1d0c;
@@ -1218,19 +1220,23 @@
 #ui.wol .st-panel:hover { transform: translateY(-4px) rotate(-.4deg); }
 #ui.wol .st-pimg { position: relative; display: block; height: clamp(150px, 30vh, 300px); overflow: hidden; }
 #ui.wol .st-pimg.lab img { width: 100%; height: 100%; object-fit: cover; display: block; }
+#ui.wol .st-pimg.rlb.pic { background: linear-gradient(#a9d6e8, #cfe7ee); }
+#ui.wol .st-pimg.rlb.pic img { width: 100%; height: 100%; object-fit: contain; object-position: 50% 100%; display: block; }
 #ui.wol .st-pimg.rs { background: radial-gradient(ellipse at 50% 70%, #2f5a3a, #102419); }
-#ui.wol .st-pimg.rs img { position: absolute; width: 46%; bottom: 8%; object-fit: contain; filter: drop-shadow(0 12px 14px rgba(0, 0, 0, .5)); }
-#ui.wol .st-pimg.rs img:nth-child(1) { right: 2%; bottom: 20%; transform: scale(.8); }
-#ui.wol .st-pimg.rs img:nth-child(2) { right: 27%; z-index: 2; }
-#ui.wol .st-pimg.rs img:nth-child(3) { left: 2%; bottom: 20%; transform: scale(.8); }
-#ui.wol .st-lens { position: absolute; top: 12%; left: 10%; z-index: 3; width: 74px; height: 74px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(180deg, #f8d98a, #e8a43a); color: #3a2608; box-shadow: 0 6px 16px rgba(0, 0, 0, .45); transform: rotate(-12deg); }
+#ui.wol .st-pimg.rs img { position: absolute; width: 38%; object-fit: contain; filter: drop-shadow(0 12px 14px rgba(0, 0, 0, .5)); }
+/* 1.4.2: the five islands (amazon, grove, reef, desert, savanna): three behind, two in front */
+#ui.wol .st-pimg.rs img:nth-child(1) { right: 0; bottom: 42%; transform: scale(.78); }
+#ui.wol .st-pimg.rs img:nth-child(2) { right: 31%; bottom: 48%; transform: scale(.72); }
+#ui.wol .st-pimg.rs img:nth-child(3) { left: 0; bottom: 42%; transform: scale(.78); }
+#ui.wol .st-pimg.rs img:nth-child(4) { right: 10%; bottom: 3%; width: 44%; z-index: 2; }
+#ui.wol .st-pimg.rs img:nth-child(5) { left: 10%; bottom: 3%; width: 44%; z-index: 2; }
+#ui.wol .st-lens { position: absolute; top: 6%; left: 44%; z-index: 4; width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(180deg, #f8d98a, #e8a43a); color: #3a2608; box-shadow: 0 6px 16px rgba(0, 0, 0, .45); transform: rotate(-12deg); }
 #ui.wol .st-lens .ic { width: 42px; height: 42px; }
 #ui.wol .st-ptext { display: flex; flex-direction: column; gap: 4px; padding: 14px 18px 16px; }
 #ui.wol .st-ptext b { font-family: var(--serif); font-size: 1.7em; line-height: 1.05; color: var(--moss); }
 #ui.wol .st-ptext small { font-size: .98em; color: #4a4a3a; line-height: 1.45; }
 #ui.wol .st-ptext em { font-style: normal; align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; padding: .4em 1.2em; border-radius: 999px; background: var(--leaf2); color: #fbf7e6; font-weight: 800; }
 #ui.wol .st-ptext em .ic { width: 17px; height: 17px; }
-#ui.wol .st-learnwrap { display: grid; grid-template-columns: minmax(200px, 1fr) 2.7fr; gap: clamp(14px, 3vw, 40px); align-items: center; width: 100%; }
 #ui.wol .st-fan { position: relative; height: clamp(170px, 32vh, 300px); }
 #ui.wol .st-fan img { position: absolute; left: 50%; top: 50%; width: clamp(100px, 16vh, 150px); aspect-ratio: 1; object-fit: cover; border-radius: 12px; border: 6px solid #f4ecd0;
   box-shadow: 0 10px 22px rgba(0, 0, 0, .5); transform: translate(-50%, -50%) translateX(calc(var(--k) * 46%)) rotate(calc(var(--k) * 9deg)) translateY(calc(var(--k) * var(--k) * 8px)); }
@@ -1245,7 +1251,7 @@
 #ui.wol .st-lgrid .st-lic { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; flex: none;
   background: linear-gradient(160deg, rgba(255, 255, 255, .24), rgba(0, 0, 0, .14)), var(--tc, #3a4d5c); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .28), 0 3px 8px rgba(0, 0, 0, .35); }
 #ui.wol .st-lgrid .st-lic .ic { width: 26px; height: 26px; color: #fff1c4; }
-@media (max-width: 760px) { #ui.wol .st-learnwrap { grid-template-columns: 1fr; } #ui.wol .st-fan { height: 150px; } #ui.wol .st-tabs button small { display: none; } }
+@media (max-width: 760px) { #ui.wol .st-fan { height: 150px; } #ui.wol .st-tabs button small { display: none; } }
 @media (max-height: 720px) {
   #ui.wol .v13 .st-sub, #ui.wol .v13 .st-vine { display: none; }
   #ui.wol .st-inner.v13 { padding-top: 1.6vh; gap: 6px; }
@@ -1277,7 +1283,6 @@
   #ui.wol .st-go { margin-top: 2px; padding-block: .36em; font-size: 1.05em; }
   #ui.wol .st-pimg { height: clamp(100px, 26vh, 150px); }
   #ui.wol .st-ptext { padding: 8px 14px 10px; } #ui.wol .st-ptext b { font-size: 1.4em; } #ui.wol .st-ptext em { margin-top: 2px; }
-  #ui.wol .st-learnwrap { grid-template-columns: minmax(150px, .8fr) 3fr; gap: 14px; }
   #ui.wol .st-fan { height: 150px; } #ui.wol .st-fan img { width: 86px; border-width: 4px; }
   #ui.wol .st-lgrid { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 7px; }
   #ui.wol .st-lgrid button { padding: 7px 12px; gap: 9px; } #ui.wol .st-lgrid button .ic { width: 26px; height: 26px; }
@@ -1285,7 +1290,7 @@
   #ui.wol .st-lgrid .st-lic { width: 34px; height: 34px; border-radius: 10px; } #ui.wol .st-lgrid .st-lic .ic { width: 21px; height: 21px; }
 }
 /* low and narrow: the card fan gives its place to the buttons (three in a row) */
-@media (max-height: 520px) and (max-width: 940px) { #ui.wol .st-learnwrap { grid-template-columns: 1fr; } #ui.wol .st-fan { display: none; } #ui.wol .st-lgrid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-height: 520px) and (max-width: 940px) { #ui.wol .st-lgrid { grid-template-columns: repeat(3, 1fr); } }
 @media (prefers-reduced-motion: reduce) { #ui.wol .st-isl img { animation: none; } }
 /* the side islands lean back in 3D and could reach over the level switch: keep the controls on top */
 #ui.wol .st-pane .st-modes, #ui.wol .st-info, #ui.wol .st-dots { position: relative; z-index: 6; }
@@ -1350,5 +1355,81 @@
 #ui.wol .mus-btn:focus-visible { outline: 3px solid #f0b44c; outline-offset: 2px; }
 #ui.wol .mus-btn.off { opacity: .7; color: #cfc6a8; }
 #ui.wol.has-modal .mus-btn { display: none; }
+#ui.wol:has(.set-layer) .mus-btn { display: none; }   /* the settings sheet has its own music switch, and the corner button sat on the sheet (6.11 final check) */
 #ui.wol .km-row[data-a="music"] .ic { color: #8a5aa8; }
 #ui.wol .km-row[data-a="music"].off .ic { color: #8a6e5c; }
+
+/* ===================================================== LOADING: the place's short film (1.4.4 set 11, src/ui/loading-film.js) */
+#ui.wol .loading .film { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .9s ease; }
+#ui.wol .loading .film.on { opacity: 1; }
+#ui.wol .loading .film-back { position: absolute; inset: -6%; width: 112%; height: 112%; object-fit: cover; filter: blur(28px) saturate(1.15) brightness(.5); }
+#ui.wol .loading .film-frame { position: absolute; left: 50%; top: 7%; transform: translateX(-50%); width: min(62vw, 92vh); aspect-ratio: 16 / 9;
+  border-radius: 18px; overflow: hidden; box-shadow: 0 0 0 3px rgba(233, 214, 150, .75), 0 0 0 9px rgba(15, 33, 24, .55), 0 22px 60px rgba(0, 0, 0, .55); }
+#ui.wol .loading .film-front { width: 100%; height: 100%; object-fit: cover; display: block; }
+#ui.wol .loading.has-film .ld-inner { margin-top: min(42vw, 62vh); }
+#ui.wol .loading.has-film .ld-inner .emblem, #ui.wol .loading.has-film .ld-title { display: none; }
+#ui.wol .loading.has-film .ld-tip { margin-top: .9em; text-shadow: 0 1px 3px #000; }
+#ui.wol .loading .film-frame, #ui.wol .loading .film-back { transition: opacity .6s ease; }
+#ui.wol .loading .film.dip .film-frame, #ui.wol .loading .film.dip .film-back { opacity: 0; }
+#ui.wol .loading .film-skip { position: absolute; pointer-events: auto; left: calc(50% - min(31vw, 46vh) + 14px); top: calc(7% + 12px); z-index: 2; min-height: 40px; padding: .35em 1.1em; }
+#ui.wol .loading.has-film .ld-logo { bottom: auto; top: 14px; left: auto; right: 16px; transform: none; height: 40px; padding: 6px 10px; z-index: 1; }
+/* the weekly event's film in its card (set 11) */
+#ui.wol .wkv-film { position: relative; flex: 0 0 auto; width: min(34%, 260px); aspect-ratio: 16 / 9; align-self: center; opacity: 0; transition: opacity .8s; }
+#ui.wol .wkv-film.on { opacity: 1; }
+#ui.wol .wkv-film .film-back { display: none; }
+#ui.wol .wkv-film .film-frame { position: absolute; inset: 0; border-radius: 12px; overflow: hidden; box-shadow: 0 0 0 2px rgba(120, 90, 40, .35), 0 6px 16px rgba(0, 0, 0, .25); transition: opacity .6s; }
+#ui.wol .wkv-film.dip .film-frame { opacity: 0; }
+#ui.wol .wkv-film .film-front { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* nothing over a playing film (Avi, 6.11): רובו־דע's bubbles wait under it until the loading screen goes */
+#ui.wol:has(.loading.on.has-film) #rguide { visibility: hidden; }
+
+/* ===================================================== 6.11 (Avi): carousels on the start screen
+   the science centre's four places in one row (arrows when they do not fit), the learning centre's two big doors
+   (album, badges) over a row of the other games */
+#ui.wol .st-cw { position: relative; width: 100%; }
+#ui.wol .st-carrow { display: grid; grid-auto-flow: column; grid-template-columns: none; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: none; scroll-behavior: smooth; padding: 6px 4px 10px; }
+#ui.wol .st-carrow::-webkit-scrollbar { display: none; }
+#ui.wol .st-carrow > * { scroll-snap-align: start; }
+/* the science centre: its four places side by side, with no arrows (Avi, 8.11: all four fit on the screen) */
+#ui.wol .st-big2.st-sci4 { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(10px, 1.8vw, 24px); }
+@media (max-width: 640px) { #ui.wol .st-big2.st-sci4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 1000px) { #ui.wol .st-sci4 .st-ptext em { white-space: nowrap; font-size: .86em; padding-inline: 10px; } }
+#ui.wol .st-big2.st-carrow { grid-auto-columns: calc((100% - 3 * clamp(14px, 2vw, 24px)) / 4); gap: clamp(14px, 2vw, 24px); }
+@media (max-width: 1100px) { #ui.wol .st-big2.st-carrow { grid-auto-columns: calc((100% - 2 * 14px) / 3); gap: 14px; } }
+@media (max-width: 760px) { #ui.wol .st-big2.st-carrow { grid-auto-columns: calc((100% - 14px) / 2); } }
+#ui.wol .st-carb { position: absolute; top: 50%; z-index: 4; display: grid; place-items: center; width: 52px; height: 52px; margin-top: -26px; border: 0; border-radius: 50%; cursor: pointer;
+  color: #3a2408; background: radial-gradient(circle at 35% 30%, #ffe9a6, #f0b33c 70%); box-shadow: 0 3px 0 #a86f15, 0 8px 18px rgba(0, 0, 0, .45); transition: transform .15s, opacity .2s; }
+#ui.wol .st-carb:hover { transform: scale(1.08); }
+#ui.wol .st-carb .ic { width: 26px; height: 26px; }
+#ui.wol .st-carb.prev { right: -14px; } #ui.wol .st-carb.next { left: -14px; }
+#ui.wol .st-cw.fits .st-carb { opacity: 0; pointer-events: none; }
+/* 6.11 (Avi: "arrows on both sides, so they see there is more"): both arrows stay, outside the tiles; at an end its arrow
+   only fades. The learning row shows half a tile more at its edge, so it reads as a row that goes on */
+#ui.wol .st-cw:not(.fits) { padding-inline: 36px; }
+#ui.wol .st-cw:not(.fits) .st-carb.prev { right: -6px; } #ui.wol .st-cw:not(.fits) .st-carb.next { left: -6px; }
+#ui.wol .st-cw.at0 .st-carb.prev, #ui.wol .st-cw.atEnd .st-carb.next { opacity: .35; pointer-events: none; }
+/* the learning centre */
+#ui.wol .st-learn2 { display: flex; flex-direction: column; gap: clamp(10px, 2vh, 18px); width: 100%; }
+#ui.wol .st-lbig2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(12px, 2vw, 24px); }
+#ui.wol .st-lbig { position: relative; width: 100%; max-width: none; justify-self: stretch; display: flex; align-items: center; gap: 14px; min-height: clamp(130px, 30vh, 250px); padding: 14px 22px; border: 0; border-radius: 20px; cursor: pointer; text-align: right; color: var(--chalk); overflow: hidden;
+  background: linear-gradient(140deg, #6a4420, #3a2410 70%); box-shadow: 0 0 0 3px rgba(255, 214, 106, .5), 0 10px 24px rgba(0, 0, 0, .4); transition: transform .2s, box-shadow .2s; }
+#ui.wol .st-lbig.bdg { background: linear-gradient(140deg, #2c4f6a, #182d40 70%); }
+#ui.wol .st-lbig:hover { transform: translateY(-3px); box-shadow: 0 0 0 4px #ffd66a, 0 14px 30px rgba(0, 0, 0, .45); }
+#ui.wol .st-lbig .st-lbt { min-width: 0; flex: 1; } #ui.wol .st-lbig .st-lbt b { display: block; font-family: var(--serif); font-size: 1.6em; color: #ffd66a; }
+#ui.wol .st-lbig .st-lbt small { display: block; font-size: .95em; color: #e6dcc6; }
+#ui.wol .st-lbpic { position: relative; flex: 0 0 44%; height: 100%; min-height: inherit; }
+#ui.wol .st-lbig .st-fan { display: block; position: relative; height: clamp(110px, 27vh, 230px); width: 56%; }   /* 6.11 (Avi): the pictures fill their doors */
+#ui.wol .st-lbig .st-fan img { width: 40%; }   /* four cards spread by --k stay inside the fan box (47% reached over the title) */
+#ui.wol .st-lbig.bdg .st-medals { flex: 0 0 56%; }
+#ui.wol .st-medals { display: flex; align-items: center; justify-content: center; gap: 0; }
+#ui.wol .st-medal { display: block; width: clamp(64px, 15vh, 128px); aspect-ratio: 1; margin-inline: -12px; border-radius: 50%; overflow: hidden; background: #f4d88a;
+  box-shadow: 0 0 0 4px #e8b941, 0 0 0 7px #8a5a14, 0 6px 14px rgba(0, 0, 0, .45); }
+#ui.wol .st-medal:nth-child(2) { transform: translateY(-10px) scale(1.15); z-index: 1; }
+#ui.wol .st-medal img { width: 100%; height: 100%; object-fit: cover; }
+#ui.wol .st-lgrid.st-carrow { grid-auto-columns: calc((100% - 3 * 12px) / 3.5); gap: 12px; }
+@media (max-width: 1000px) { #ui.wol .st-lgrid.st-carrow { grid-auto-columns: calc((100% - 2 * 10px) / 2.5); gap: 10px; } }
+#ui.wol .st-lgrid.st-carrow button { min-height: 76px; }
+@media (max-height: 520px) { #ui.wol .st-lbig { min-height: 110px; padding: 8px 14px; } #ui.wol .st-lbig .st-lbt b { font-size: 1.25em; } #ui.wol .st-lbig .st-fan { height: 100px; } #ui.wol .st-medal { width: 62px; } #ui.wol .st-lgrid.st-carrow button { min-height: 60px; } }
+#ui.wol .st-learn2, #ui.wol .st-cw, #ui.wol .st-carrow { min-width: 0; max-width: 100%; }
+#ui.wol .st-pane[data-pane=learn], #ui.wol .st-pane[data-pane=sci] { min-width: 0; max-width: 100%; }
+#ui.wol .st-cw { width: 100%; contain: inline-size; }   /* (a row of columns would otherwise widen the whole start screen) */

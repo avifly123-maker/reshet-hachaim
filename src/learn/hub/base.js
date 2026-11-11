@@ -10,6 +10,7 @@ import { ALIASES } from '../../data/common.js';
 import { BIOME as GROVE } from '../../data/grove.js';
 import { BIOME as REEF } from '../../data/reef.js';
 import { BIOME as DESERT } from '../../data/desert.js';
+import { BIOME as SAVANNA } from '../../data/savanna.js';
 import { ZONE_IDS, ZONE_LOOK } from '../../data/zones.js';
 
 export const STORE_KEY = K.cards;   // per player (core/storage.js)
@@ -22,7 +23,7 @@ export const START_PACKS = 3;   // a new player starts with 3 packs as a welcome
 // packs can be earned without limit, but only OPEN_PER_DAY are opened a day: the album should last more than a day
 export const OPEN_PER_DAY = 6;
 export const todayKey = () => { const d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); };
-export const BIOMES = { amazon: AMAZON, grove: GROVE, reef: REEF, desert: DESERT };
+export const BIOMES = { amazon: AMAZON, grove: GROVE, reef: REEF, desert: DESERT, savanna: SAVANNA };
 export const BIOME_SHORT = Object.fromEntries(ZONE_IDS.map((z) => [z, ZONE_LOOK[z].short]));
 export const BIOME_IN = Object.fromEntries(ZONE_IDS.map((z) => [z, ZONE_LOOK[z].inside]));
 // reef cards show מחסה instead of מים: in the sea there is always water (Avi, 18.10), but a reef is a city of homes
@@ -34,8 +35,8 @@ export const RARITY_GEMS = { common: 1, rare: 2, epic: 3 };
 // what the rarity means, in a child's words (tooltips, zoom, the "מה רואים על הקלף?" legend)
 export const RARITY_TIP = {
   common: 'קלף נפוץ – יהלום נדירות 1 מתוך 3',
-  rare: 'קלף נדיר – 2 יהלומי נדירות מתוך 3. במשחק "מחזיקים את היער" – בונוס קטן',
-  epic: 'קלף נדיר מאוד – מין מפתח! 3 יהלומי נדירות מתוך 3. כוח מיוחד במשחק "מחזיקים את היער"',
+  rare: 'קלף נדיר – 2 יהלומי נדירות מתוך 3. במשחק "מחזיקים את הסביבה" – בונוס קטן',
+  epic: 'קלף נדיר מאוד – מין מפתח! 3 יהלומי נדירות מתוך 3. כוח מיוחד במשחק "מחזיקים את הסביבה"',
   tech: 'כלי טכנולוגי (גלגל שיניים) – לא יצור חי',
 };
 export const RARITY_MORE = {
@@ -44,10 +45,10 @@ export const RARITY_MORE = {
   epic: 'מוצאים אותו רק לפעמים בחבילות – שמרו עליו!',
   tech: 'כלים עוזרים לאנשים לשמור על הטבע.',
 };
-// what the rarity does in "מחזיקים את היער" (keep-forest.js): a keystone guards the forest once, a rare card gives +1
+// what the rarity does in "מחזיקים את הסביבה" (keep-forest.js): a keystone guards the forest once, a rare card gives +1
 export const RARITY_POWER = {
-  rare: 'במשחק "מחזיקים את היער": אם הוא מתחבר בחוט זהב כשמניחים אותו – עוד נקודת חִיּוּת אחת.',
-  epic: 'מין מפתח – הרבה יצורים צריכים אותו. במשחק "מחזיקים את היער" הוא שומר על היער פעם אחת, כשהיער לא מוכן לאירוע.',
+  rare: 'במשחק "מחזיקים את הסביבה": אם הוא מתחבר בחוט זהב כשמניחים אותו – עוד נקודת חִיּוּת אחת.',
+  epic: 'מין מפתח – הרבה יצורים צריכים אותו. במשחק "מחזיקים את הסביבה" הוא שומר על הסביבה פעם אחת, כשהיא לא מוכנה לאירוע.',
 };
 
 /* ───────────────────────────────────────────── helpers */

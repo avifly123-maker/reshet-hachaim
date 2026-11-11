@@ -1,0 +1,124 @@
+[
+{
+"wait": 4
+},
+{
+"js": "window.__journey.markIntro('stage:1'); window.__guide && window.__guide.close(); window.__journey.unlockAll('2580'); window.__app.bus.emit('ui:robolab'); 1"
+},
+{
+"until": "!!document.querySelector('.rl-home')",
+"timeout": 60
+},
+{
+"wait": 1
+},
+{
+"js": "const i=document.querySelector('.rl-intro [data-iskip]'); if(i) i.click(); 1"
+},
+{
+"wait": 1
+},
+{
+"js": "'CHECK no-cards-before ' + (!document.querySelector('.bdg-pop.tech') ? 'ok' : 'FAIL')"
+},
+{
+"clickSel": ".rl-wkbtn"
+},
+{
+"wait": 1.5
+},
+{
+"js": "'CHECK toast-waits-for-step-card ' + (!document.querySelector('.bdg-pop.tech') ? 'ok' : 'FAIL')"
+},
+{
+"clickSel": "[data-wstepok]"
+},
+{
+"wait": 1.2
+},
+{
+"js": "const p=document.querySelector('.bdg-pop.tech'); 'CHECK toast-waits-for-guide ' + (!p && window.__guide.isOpen() ? 'ok' : 'FAIL')"
+},
+{
+"js": "window.__guide.close(); 1"
+},
+{
+"wait": 1.2
+},
+{
+"js": "const p=document.querySelector('.bdg-pop.tech'); 'CHECK toast-two-cards ' + (p && p.querySelectorAll('.tc-card').length===1 && /ועוד 1/.test(p.textContent) ? 'ok' : 'FAIL '+(p&&p.textContent))"
+},
+{
+"shot": "shots/wk/t1-toast.png"
+},
+{
+"wait": 5.5
+},
+{
+"js": "window.__guide && window.__guide.close(); const b=document.querySelector('.rl-wk [data-wclose]'); b&&b.click(); 1"
+},
+{
+"wait": 0.8
+},
+{
+"js": "const b=document.querySelector('.rl-home [data-exit]'); if(b) b.click(); 'eval back '+!!b"
+},
+{
+"wait": 1.5
+},
+{
+"js": "window.__guide && window.__guide.close(); ['g:hubtut','g:album','g:learn'].forEach((k)=>window.__journey.markIntro(k)); window.__app.bus.emit('ui:learn',{screen:'album'}); 1"
+},
+{
+"until": "!!document.querySelector('.wl-album')",
+"timeout": 60
+},
+{
+"wait": 1
+},
+{
+"clickSel": ".wl-tab[data-v=tech]"
+},
+{
+"wait": 1
+},
+{
+"js": "const all=document.querySelectorAll('.wl-grid .tc-card'), own=document.querySelectorAll('.wl-grid .tc-card:not(.locked)'); 'CHECK album-tech-section ' + (document.querySelector('.wl-tab.sel[data-v=tech]') && all.length===15 && own.length===2 ? 'ok' : 'FAIL '+all.length+'/'+own.length)"
+},
+{
+"js": "document.querySelector('.wl-grid .tc-card').scrollIntoView({block:'center'}); 1"
+},
+{
+"wait": 0.5
+},
+{
+"shot": "shots/wk/t2-album.png"
+},
+{
+"clickSel": ".wl-grid .tc-card[data-t=wheel]"
+},
+{
+"wait": 0.8
+},
+{
+"js": "const m=document.querySelector('.wl-tcwin'); 'CHECK zoom-nature ' + (m && /רעיון מהטבע/.test(m.textContent) && /נמיב/.test(m.textContent) ? 'ok' : 'FAIL')"
+},
+{
+"shot": "shots/wk/t3-zoom.png"
+},
+{
+"clickSel": ".wl-tcwin [data-wl=close]"
+},
+{
+"wait": 0.5
+},
+{
+"clickSel": ".wl-grid .tc-card[data-t=rover]"
+},
+{
+"wait": 0.6
+},
+{
+"js": "'CHECK locked-says-how ' + (!document.querySelector('.wl-tcwin') ? 'ok' : 'FAIL')"
+}
+]

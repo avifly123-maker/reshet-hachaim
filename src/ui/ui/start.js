@@ -9,15 +9,21 @@ import { EDITION_NAME } from '../../core/edition.js';
 import * as JR from '../../core/journey.js';
 import { CARD_ART } from '../../data/card-art.js';
 import { ISLAND_ART } from '../../data/island-art.js';
+import { NITZOTZ_ART } from '../../data/nitzotz-art.js';
 import { islandRankHTML } from '../../game/rank.js';   /* H: the island's rank under the island */
 import { AVATAR_IDS, avatarHTML, avatarName } from '../avatars.js';
-import { tileIcon } from '../icons-hub.js';
+import { tileIcon, hubIcon } from '../icons-hub.js';
+import { openWeekly, chipState } from '../weekly-ui.js';
 import { lockTip, lockWords, mapIcon, openJourneyMap, STAGE_COLOR, stageEmblem } from '../journey-map.js';
 import { openSettings } from '../settings.js';
 import { canopySVG, VINE, waxSeal } from './art.js';
 import { esc } from './helpers.js';
 import { icon } from './icons.js';
-import { svcGuide } from '../../core/services.js';
+import { svcGuide, svc } from '../../core/services.js';
+import { openChat } from '../robo-chat.js';
+import { WS_DOOR } from '../../data/workshop-door-art.js';
+import { drawNitzotzFace } from '../nitzotz-face.js';
+import { bindCarousel } from '../carousel.js';
 
 export function createStart(ctx) {
   const { root, emit, S, toolbar, startEl } = ctx;
@@ -34,15 +40,17 @@ export function createStart(ctx) {
     startEl.innerHTML = `<div class="st-bg">${canopySVG('top')}${canopySVG('bottom')}<i class="st-shaft s1"></i><i class="st-shaft s2"></i><i class="st-tint"></i></div>
       ${S.logo ? `<div class="st-logo"><img src="${S.logo}" alt="בבא דע"></div>` : ''}
       <div class="st-corner"><div class="st-corner-row"><button class="st-who" aria-haspopup="dialog" aria-expanded="false" hidden></button>
-        <button class="st-time" aria-haspopup="dialog" hidden>${icon('hourglass')}<b></b></button>
-        <button class="st-gear" aria-haspopup="dialog" aria-label="הגדרות" title="הגדרות">${icon('gear')}</button></div>
-        <button class="st-jbar" data-part="journey" aria-haspopup="dialog"></button></div>
+        <button class="st-gear" aria-haspopup="dialog" aria-label="הגדרות" title="הגדרות">${icon('gear')}</button>
+        <button class="st-gear st-chat" aria-label="לדבר עם רובו־דע" title="לדבר עם רובו־דע">${icon('chat')}</button></div>
+        <button class="st-jbar" data-part="journey" aria-haspopup="dialog"></button>
+        <div class="st-corner-row st-row2"><button class="st-week" aria-haspopup="dialog" hidden><span class="st-wkic">${hubIcon('week')}</span><b></b><i class="st-wkdot" aria-hidden="true"></i></button>
+        <button class="st-time" aria-haspopup="dialog" hidden>${icon('hourglass')}<b></b></button></div></div>
       <div class="st-pp-layer" hidden><div class="st-pp-scrim"></div><div class="st-pp paper" role="dialog" aria-modal="true" aria-label="מי משחק?"></div></div>
       <div class="st-inner v13">
       <header class="st-head"><div class="st-seal">${waxSeal(124)}</div>
         <div class="st-titles"><h1 class="st-title">רשת החיים</h1>${EDITION_NAME ? `<span class="st-edition">${EDITION_NAME}</span>` : ''}${VINE}<p class="st-sub">בונים יער חי, מגלים מי צריך את מי</p></div></header>
       <nav class="st-tabs" role="tablist">
-        <button role="tab" data-tab="env">${icon('leaf')}<span><b>סביבות משחק</b><small>אמזונס, חורש, שונית ומדבר</small></span></button>
+        <button role="tab" data-tab="env">${icon('leaf')}<span><b>סביבות משחק</b><small>אמזונס, חורש, שונית, מדבר וסוואנה</small></span></button>
         <button role="tab" data-tab="sci" data-research-tab="1" data-part="science">${icon('flask')}<span><b>המרכז המדעי</b><small>חוקרי הטבע, המעבדה ומעבדת הרובוטים</small><small class="jv-note"></small></span></button>
         <button role="tab" data-tab="learn" data-part="learn">${icon('book')}<span><b>מרכז הלמידה</b><small>חידון, אלבום ומשחקי קלפים</small><small class="jv-note"></small></span></button>
       </nav>
@@ -63,29 +71,35 @@ export function createStart(ctx) {
         <div class="st-dots">${biomes.map((b, i) => `<button data-dot="${i}" aria-label="${esc(b.name)}"></button>`).join('')}</div>
       </section>
       <section class="st-pane" data-pane="sci">
-        <div class="st-big2">
-          <button class="st-panel" data-research="1" data-part="research"><span class="st-pimg rs">${biomes.slice(0, 3).map((b) => `<img src="${isl(b.id)}" alt="" draggable="false">`).join('')}<i class="st-lens">${icon('search')}</i><i class="jv-curtain" aria-hidden="true"></i></span>
-            <span class="st-ptext"><b>חוקרי הטבע</b><small>תעלומות בטבע: מודדים, משערים, מנסים ומאזנים. שלוש רמות, משלוש הסביבות.</small><em>${icon('arrowL')}לתעלומות</em><em class="jv-note"></em></span></button>
+        <div class="st-big2 st-sci4">
+          <button class="st-panel" data-research="1" data-part="research"><span class="st-pimg rs">${biomes.slice(0, 5).map((b) => `<img src="${isl(b.id)}" alt="" draggable="false">`).join('')}<i class="st-lens">${icon('search')}</i><i class="jv-curtain" aria-hidden="true"></i></span>
+            <span class="st-ptext"><b>חוקרי הטבע</b><small>תעלומות בטבע: מודדים, משערים, מנסים ומאזנים. שלוש רמות, מחמש הסביבות.</small><em>${icon('arrowL')}לתעלומות</em><em class="jv-note"></em></span></button>
           <button class="st-panel" data-lab="1" data-part="lab"><span class="st-pimg lab">${ISLAND_ART.lab ? `<img src="${ISLAND_ART.lab}" alt="" draggable="false">` : ''}<i class="jv-curtain" aria-hidden="true"></i></span>
             <span class="st-ptext"><b>המעבדה של רובו־דע</b><small>מיקרוסקופ, שולחן ממציאים ואטלס. ממציאים בעזרת הטבע ומשדרגים את הכלים.</small><em>${icon('arrowL')}למעבדה</em><em class="jv-note"></em></span></button>
-          <button class="st-panel" data-robolab="1" data-part="robolab"><span class="st-pimg rlb" aria-hidden="true"><i class="rlb-bot"></i><i class="rlb-drone"></i><i class="rlb-blocks"></i><i class="jv-curtain" aria-hidden="true"></i></span>
+          <button class="st-panel" data-robolab="1" data-part="robolab"><span class="st-pimg rlb${ISLAND_ART.robolab ? ' pic' : ''}" aria-hidden="true">${ISLAND_ART.robolab ? `<img src="${ISLAND_ART.robolab}" alt="" draggable="false">` : '<i class="rlb-bot"></i><i class="rlb-drone"></i><i class="rlb-blocks"></i>'}<i class="jv-curtain" aria-hidden="true"></i></span>
             <span class="st-ptext"><b>מעבדת הרובוטים</b><small>מתכננים, בונים ומפעילים: רובוט, רחפן ורובוט צולל בתוך הסביבות. שיעורים, חידות ותגים.</small><em>${icon('arrowL')}למעבדת הרובוטים</em><em class="jv-note"></em></span></button>
+          <button class="st-panel" data-workshop="1" data-part="workshop"><span class="st-pimg nzw" aria-hidden="true"><img class="nzw-room" src="${WS_DOOR}" alt="" draggable="false">${NITZOTZ_ART.frames && NITZOTZ_ART.frames.wave ? `<i class="nzw-glow"></i><span class="nzw-fig"><img class="nzw-nz" src="${NITZOTZ_ART.frames.wave}" alt="" draggable="false">${NITZOTZ_ART.screen ? `<canvas class="nzw-face" width="256" height="200" style="left:${NITZOTZ_ART.screen.x * 100}%;top:${NITZOTZ_ART.screen.y * 100}%;width:${NITZOTZ_ART.screen.w * 100}%;height:${NITZOTZ_ART.screen.h * 100}%"></canvas>` : ''}</span>` : ''}<i class="jv-curtain" aria-hidden="true"></i></span>
+            <span class="st-ptext"><b>הסדנה של ניצוץ</b><small>מכונת רעיונות, מערבל הטבע וקלפי אילוץ. חושבים כמו ממציאים, וניצוץ מאיר יותר ויותר.</small><em>${icon('arrowL')}לסדנה</em><em class="jv-note"></em></span></button>
         </div>
       </section>
       <section class="st-pane" data-pane="learn">
-        <div class="st-learnwrap">
-          <div class="st-fan">${fan.map((src, i) => `<img src="${src}" alt="" draggable="false" style="--k:${i - (fan.length - 1) / 2}">`).join('')}</div>
-          <div class="st-lgrid">
+        <div class="st-learn2">
+          <div class="st-lbig2">
+            <button class="st-lbig alb" data-learn="album" data-part="album"><span class="st-lbpic st-fan">${fan.map((src, i) => `<img src="${src}" alt="" draggable="false" style="--k:${i - (fan.length - 1) / 2}">`).join('')}</span>
+              <span class="st-lbt"><b>אלבום הקלפים</b><small>חבילות, סדרות ואוסף</small><small class="jv-note"></small></span></button>
+            <button class="st-lbig bdg" data-learn="badges" data-part="badges"><span class="st-lbpic st-medals">${CARD_ART['owl'] ? `<i class="st-medal"><img src="${CARD_ART['owl']}" alt="" draggable="false"></i>` : ''}${CARD_ART['toucan'] ? `<i class="st-medal"><img src="${CARD_ART['toucan']}" alt="" draggable="false"></i>` : ''}${CARD_ART['turtle'] ? `<i class="st-medal"><img src="${CARD_ART['turtle']}" alt="" draggable="false"></i>` : ''}</span>
+              <span class="st-lbt"><b>התגים שלי</b><small>תגים נדירים ומסגרות לקלפים</small><small class="jv-note"></small></span></button>
+          </div>
+          <div class="st-cw"><button type="button" class="st-carb prev" data-carb="-1" aria-label="הקודם">${icon('arrowR')}</button>
+          <div class="st-lgrid st-carrow">
             <button data-learn="home" data-part="learn">${tileIcon('learn', 'st-lic')}<span><b>מרכז הלמידה</b><small>כל המשחקים במקום אחד</small><small class="jv-note"></small></span></button>
-            <button data-learn="setup" data-part="quiz">${tileIcon('quiz', 'st-lic')}<span><b>חידון</b><small>שאלות על היער והשונית</small><small class="jv-note"></small></span></button>
-            <button data-learn="album" data-part="album">${tileIcon('album', 'st-lic')}<span><b>אלבום הקלפים</b><small>חבילות, סדרות ואוסף</small><small class="jv-note"></small></span></button>
+            <button data-learn="setup" data-part="quiz">${tileIcon('quiz', 'st-lic')}<span><b>חידון</b><small>שאלות על כל הסביבות</small><small class="jv-note"></small></span></button>
             <button data-learn="duel" data-part="duel">${tileIcon('strong', 'st-lic')}<span><b>מי חזק ברשת?</b><small>קלף מול קלף</small><small class="jv-note"></small></span></button>
-            <button data-learn="keepforest" data-part="keepforest">${tileIcon('keep', 'st-lic')}<span><b>מחזיקים את היער</b><small>משחק קלפים ואירועים</small><small class="jv-note"></small></span></button>
+            <button data-learn="keepforest" data-part="keepforest">${tileIcon('keep', 'st-lic')}<span><b>מחזיקים את הסביבה</b><small>משחק קלפים ואירועים</small><small class="jv-note"></small></span></button>
             <button data-learn="webpuzzle" data-part="webpuzzle">${tileIcon('thread', 'st-lic')}<span><b>חוט הקשר</b><small>מחברים את הרשת</small><small class="jv-note"></small></span></button>
             <button data-learn="inventors" data-part="inventors">${tileIcon('invent', 'st-lic')}<span><b>הממציאים</b><small>פותרים בעיות בעזרת הטבע</small><small class="jv-note"></small></span></button>
             <button data-learn="expedition" data-part="expedition">${tileIcon('dive', 'st-lic')}<span><b>משלחת לעומק</b><small>צוללים עם הקלפים לשונית</small><small class="jv-note"></small></span></button>
-            <button data-learn="badges" data-part="badges">${tileIcon('medal', 'st-lic')}<span><b>התגים שלי</b><small>תגים ומסגרות לקלפים</small><small class="jv-note"></small></span></button>
-          </div>
+          </div><button type="button" class="st-carb next" data-carb="1" aria-label="הבא">${icon('arrowL')}</button></div>
         </div>
       </section>
       </div>`;
@@ -118,6 +132,9 @@ export function createStart(ctx) {
     rsBtn.addEventListener('click', gate(rsBtn, () => emit('ui:research')));
     labBtn.addEventListener('click', gate(labBtn, () => emit('ui:lab')));
     const rlBtn = startEl.querySelector('[data-robolab]'); if (rlBtn) rlBtn.addEventListener('click', gate(rlBtn, () => emit('ui:robolab')));
+    startEl.querySelectorAll('.nzw-face').forEach((c) => { try { drawNitzotzFace(c.getContext('2d'), c.width, c.height, { mood: 'happy' }); } catch (e) { } });   // ניצוץ's smile on the workshop's door
+    startEl.querySelectorAll('.st-cw').forEach((car) => bindCarousel(car, car.querySelector('.st-carrow'), { onArrow: () => emit('ui:click') }));
+    const wsBtn = startEl.querySelector('[data-workshop]'); if (wsBtn) wsBtn.addEventListener('click', gate(wsBtn, () => emit('ui:workshop')));
     // tabs
     const paintTab = () => {
       startEl.querySelectorAll('[data-tab]').forEach((b) => { const on = b.dataset.tab === S.stTab; b.classList.toggle('on', on); b.setAttribute('aria-selected', String(on)); });
@@ -195,7 +212,15 @@ export function createStart(ctx) {
       if (S.paintTrain) S.paintTrain();
       paintInfo();
     };
-    S.paintJourney = paintJourney;
+    // 1.4.4: אירוע השבוע. The chip shows once stage 8 is reached (or the instructors' switch is on); a dot while this
+    // week's event waits for the child. It opens the week's sheet (src/ui/weekly-ui.js).
+    const wkChip = startEl.querySelector('.st-week');
+    const paintWeek = () => { if (!wkChip) return; const c = chipState(); wkChip.hidden = !c.show; if (!c.show) return;
+      wkChip.querySelector('b').textContent = c.label; wkChip.title = c.sub || c.label; wkChip.classList.toggle('dot', !!c.dot); wkChip.classList.toggle('shut', !c.open); };
+    if (wkChip) wkChip.addEventListener('click', () => { emit('ui:click'); openWeekly(startEl, { emit, onClose: () => { paintWeek(); try { wkChip.focus({ preventScroll: true }); } catch (e) { } } }); });
+    S.paintJourney = () => { paintJourney(); paintWeek(); };
+    S.paintWeek = paintWeek;
+    if (!S.wkListen) { S.wkListen = true; addEventListener('wol-progress', (e) => { if (e.detail && e.detail.kind === 'weekly' && S.paintWeek) S.paintWeek(); }); }
     let map = null;
     const goPart = (part) => {   // an open tile on the map: go there
       const showTab = (tab) => { S.stTab = tab; paintTab(); };
@@ -208,16 +233,19 @@ export function createStart(ctx) {
       if (part === 'robots') { emit('ui:learn', { screen: 'inventors', opts: { view: 'robots' } }); return true; }   // the robot workshop tab
       if (part === 'lab' || part.startsWith('lab:')) { emit('ui:lab'); return true; }
       if (part === 'robolab' || part.startsWith('robolab:')) { emit('ui:robolab'); return true; }
+      if (part === 'workshop') { emit('ui:workshop'); return true; }
       return false;
     };
     const openMap = () => { emit('ui:click'); map = openJourneyMap(root, { emit, onPart: goPart, onClose: () => { map = null; try { jbar.focus({ preventScroll: true }); } catch (e) { } } }); };
     jbar.addEventListener('click', openMap);
     S.openJourneyMap = openMap;
-    const gear = startEl.querySelector('.st-gear');
+    const gear = startEl.querySelector('.st-gear:not(.st-chat)');
+    // 1.4.3: a talk with רובו־דע (src/ui/robo-chat.js)
+    startEl.querySelector('.st-chat').addEventListener('click', () => { emit('ui:click'); openChat({ place: 'start' }); });
     // the parents' play time (1.3.3): the chip shows what is left today (ui/playtime-ui.js paints it) and opens the settings
     const ptChip = startEl.querySelector('.st-time');
     if (ptChip) ptChip.addEventListener('click', () => gear.click());
-    try { window.__ptCheck && window.__ptCheck(); } catch (e) { }
+    try { svc('playtimeCheck') && svc('playtimeCheck')(); } catch (e) { }
     gear.addEventListener('click', () => {
       emit('ui:click'); gear.setAttribute('aria-expanded', 'true');
       openSettings(startEl, { emit, getMusic: () => S.toggles.music !== false,
@@ -230,7 +258,7 @@ export function createStart(ctx) {
     // listen once (the start screen is drawn again after every visit)
     if (!S.jListen) {
       S.jListen = true;
-      const onStart = () => startEl.classList.contains('on') && !root.classList.contains('ingame') && !root.querySelector('.rs-hub.on') && !(window.__wolLearn && window.__wolLearn.isOpen && window.__wolLearn.isOpen());
+      const onStart = () => startEl.classList.contains('on') && !root.classList.contains('ingame') && !root.querySelector('.rs-hub.on') && !(svc('learn') && svc('learn').isOpen && svc('learn').isOpen());
       // the first visit of a player: רובו־דע presents the journey bar (after his hello, which main.js queues first)
       S.journeyIntro = () => { clearTimeout(S.jIntroT); S.jIntroT = setTimeout(() => { if (onStart() && svcGuide()) svcGuide().intro('journey', { modal: true }); }, 1500); };
       addEventListener('wol-journey', () => { if (S.paintJourney) S.paintJourney(); S.journeyIntro(); });
@@ -251,7 +279,7 @@ export function createStart(ctx) {
         });
       });
     }
-    paintModes(); paintTab(); paintCar(); paintJourney();
+    paintModes(); paintTab(); paintCar(); paintJourney(); paintWeek();
     S.journeyIntro();
     const renderStartIntros = () => paintInfo();
     S.repaintStartMode = () => { paintModes(); paintJourney(true); renderStartIntros(); };   // another player was chosen: show their level

@@ -1,4 +1,4 @@
-// "מחזיקים את היער" – solitaire mini-game for the learning hub (single player, gentle, cooperative).
+// "מחזיקים את הסביבה" – solitaire mini-game for the learning hub (single player, gentle, cooperative).
 // The player builds a small forest (3 layers × 3 slots) from album cards; every 2 turns "nature" flips an
 // event card (drought, heat, flood...). A forest that is ready holds on; otherwise its weakest card wilts a little.
 // Every real relation between two cards on the board is a glowing gold thread = +1 vitality (חִיּוּת).
@@ -23,7 +23,7 @@
 // state that more than one part reads or changes (K.S, K.biome, K.sel, K.drag, K.ro, K.seenThreads, K.uidN, K.quiet)
 // and the helpers of this file. Each part adds its functions to K; a part calls a later part's function through late().
 import { createBoard } from './board.js';
-import { BIOMES, oasisWords, ROW_SHORT, ROW_SHORT_DESERT, ROW_SHORT_REEF, ROWS, ROWS_DESERT, ROWS_REEF } from './data.js';
+import { BIOMES, oasisWords, plainWords, ROW_SHORT, ROW_SHORT_DESERT, ROW_SHORT_REEF, ROW_SHORT_SAVANNA, ROWS, ROWS_DESERT, ROWS_REEF, ROWS_SAVANNA } from './data.js';
 import { createDeck } from './deck.js';
 import { EV } from './events.js';
 import { createFinish } from './finish.js';
@@ -54,12 +54,14 @@ export function mountKeepForest(root, ctx, opts = {}) {
   // the desert's oasis (נווה המדבר, masculine) takes the forest's words through oasisWords
   const reef = () => (K.S ? K.S.biome : K.biome) === 'reef';
   const desert = () => (K.S ? K.S.biome : K.biome) === 'desert';
-  const Y = (f, r) => (reef() ? r : desert() ? oasisWords(f) : f);
-  const ROWN = () => (reef() ? ROWS_REEF : desert() ? ROWS_DESERT : ROWS);
-  const ROWSH = () => (reef() ? ROW_SHORT_REEF : desert() ? ROW_SHORT_DESERT : ROW_SHORT);
+  const savanna = () => (K.S ? K.S.biome : K.biome) === 'savanna';   // 1.4.2: the plain (המישור, masculine) takes the forest's words
+  const W2 = (t) => (desert() ? oasisWords(t) : savanna() ? plainWords(t) : t);
+  const Y = (f, r) => (reef() ? r : W2(f));
+  const ROWN = () => (reef() ? ROWS_REEF : desert() ? ROWS_DESERT : savanna() ? ROWS_SAVANNA : ROWS);
+  const ROWSH = () => (reef() ? ROW_SHORT_REEF : desert() ? ROW_SHORT_DESERT : savanna() ? ROW_SHORT_SAVANNA : ROW_SHORT);
   const icOf = (D) => I[(reef() && D.ric) || D.ic];
-  const tipOf = (id) => (reef() && EV[id].rtip) || (desert() ? oasisWords(EV[id].tip) : EV[id].tip);
-  const needOf = (ev) => { const t = EV[ev.id].need(ev.need, K.S ? K.S.biome : K.biome); return desert() ? oasisWords(t) : t; };
+  const tipOf = (id) => (reef() && EV[id].rtip) || W2(EV[id].tip);
+  const needOf = (ev) => { const t = EV[ev.id].need(ev.need, K.S ? K.S.biome : K.biome); return W2(t); };
   // the 'canopy' of the reef is its corals in the shallow water
   const canopyCard = (c) => !c.sp.animal && (!reef() || c.sp.kind === 'coral');
   Object.assign(K, { esc, kids, ST, save, $, later, C, reef, Y, ROWN, ROWSH, icOf, tipOf, needOf, canopyCard });

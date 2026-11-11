@@ -15,6 +15,9 @@ export const BLOCK_ICONS = {
   spray: S('<path d="M8 3c3 4 4 6 4 8a4 4 0 0 1-8 0c0-2 1-4 4-8z"/><path d="M15 14c2 0 4 2 4 4a3 3 0 0 1-6 0c0-1 1-3 2-4z" opacity=".7"/>'),
   photo: S('<rect x="3" y="7" width="18" height="13" rx="3"/><circle cx="12" cy="13.5" r="3.6"/><path d="M8 7l2-3h4l2 3"/>'),
   collect: S('<path d="M4 10h16l-2 10H6z"/><path d="M8 10a4 4 0 0 1 8 0"/>'),
+  // 1.4.3 (the robot workshop): a rock pushed on, a log lifted up
+  push: S('<path d="M13 9c1-3 6-3 7 0s1 7-3 8-6-2-5-5z"/><path d="M3 13h6"/><path d="M6 10l3 3-3 3"/>'),
+  lift: S('<rect x="5" y="16" width="14" height="4" rx="2"/><path d="M12 13V4"/><path d="M8 8l4-4 4 4"/>'),
   coral: S('<path d="M12 21v-7"/><path d="M12 14c0-4-4-5-4-9"/><path d="M12 14c0-3 4-4 4-8"/><path d="M12 17c-3 0-5-1-6-4"/>'),
   repeat: S('<path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12"/><path d="M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/>'),
   until: S('<path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/>'),
@@ -48,6 +51,7 @@ export const BLOCK_ICONS = {
   paint: S('<path d="M12 3a9 9 0 1 0 0 18c1.2 0 1.8-.8 1.8-1.7 0-1.2-1-1.6-1-2.6 0-1 .8-1.7 1.9-1.7H17a4 4 0 0 0 4-4c0-4.4-4-8-9-8z"/><circle cx="7.5" cy="11" r="1.3" fill="currentColor"/><circle cx="10" cy="7" r="1.3" fill="currentColor"/><circle cx="15" cy="7.5" r="1.3" fill="currentColor"/>'),
   send: S('<path d="M4 12h9"/><path d="M10 8l4 4-4 4"/><path d="M17 7a7 7 0 0 1 0 10"/><path d="M19.5 4.5a10.5 10.5 0 0 1 0 15"/>'),
   waitmsg: S('<path d="M7 7a7 7 0 0 0 0 10"/><path d="M4.5 4.5a10.5 10.5 0 0 0 0 15"/><circle cx="15" cy="12" r="5"/><path d="M15 9.5V12l1.6 1.2"/>'),
+  hint: S('<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10c1 1 1 2 1 3h6c0-1 0-2 1-3a6 6 0 0 0-4-10z"/><path d="M12 7v4"/>'),
   eye: S('<path d="M2 12c3-5 6.5-7 10-7s7 2 10 7c-3 5-6.5 7-10 7s-7-2-10-7z"/><circle cx="12" cy="12" r="3"/>'),
   puzzle: S('<path d="M4 8h4a2 2 0 1 1 4 0h4v4a2 2 0 1 1 0 4v4H4z"/>'),
 };

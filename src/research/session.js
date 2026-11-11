@@ -14,6 +14,7 @@ import { textsFor } from './texts.js';
 import { createResearchUI, R_ICONS } from './ui.js';
 import { saveCaseResult, researchProgress } from './progress.js';
 import { CASES } from './cases/index.js';
+import { isWip } from '../data/zones.js';
 import { grant as grantBadge } from '../core/badges-store.js';
 import { TORAH } from '../core/edition.js';
 import { grantSource } from '../core/sources-store.js';
@@ -571,10 +572,10 @@ export function createResearchSession(ctx) {
     if (stars.every(Boolean)) grantBadge('research:stars');
     if (other) grantBadge('research:other');
     const done = researchProgress().cases;
-    if (CASES.every((c) => done[c.id])) grantBadge('research:all');
+    if (CASES.filter((c) => !isWip(c.zone)).every((c) => done[c.id])) grantBadge('research:all');
     // 1.3.1: a badge for this mystery, for a whole level, and for good research habits
     grantBadge('research:case:' + C.id);
-    if (CASES.filter((c) => c.level === C.level).every((c) => done[c.id])) grantBadge('research:level:' + C.level);
+    if (CASES.filter((c) => c.level === C.level && !isWip(c.zone)).every((c) => done[c.id])) grantBadge('research:level:' + C.level);
     const firstGuess = guessHist.length ? C.guesses.find((g) => g.id === guessHist[0]) : null;
     if (firstGuess && firstGuess.right) grantBadge('research:firstguess');
     if (!hintsUsed) grantBadge('research:nohints');

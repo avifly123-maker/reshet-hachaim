@@ -3,7 +3,7 @@
 "wait": 4
 },
 {
-"js": "window.__guide && window.__guide.close(); window.__journey.unlockAll('2580'); window.__app.bus.emit('ui:robolab'); 1"
+"js": "window.__journey.markIntro('stage:1'); window.__guide && window.__guide.close(); window.__journey.unlockAll('2580'); window.__app.bus.emit('ui:robolab'); 1"
 },
 {
 "until": "!!document.querySelector('.rl-intro')",

@@ -17,3 +17,5 @@ release-files/
 art/voice/*.wav
 desktop/release-1.4/
 tools/blender/refs/*.png
+art/techcards/raw/
+art/films/raw/

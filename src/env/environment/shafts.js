@@ -4,7 +4,7 @@
 // Needs from ctx: U, track, root, qual, seed.
 import * as THREE from 'three';
 import { makeRng } from '../../core/util.js';
-import { MAX_SHAFTS, TAU, C, V3 } from './common.js';
+import { MAX_SHAFTS, TAU, C, V3, K } from './common.js';
 
 export function createShafts(ctx) {
   const { U, track, root, qual, seed } = ctx;
@@ -20,7 +20,7 @@ export function createShafts(ctx) {
     uniforms: shaftU, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, fog: false,
     vertexShader: /* glsl */`
       attribute vec3 aShaft; // strength, layer, seed
-      const float edgeR0 = 42.5; varying float vWr;
+      const float edgeR0 = ${(42.5 * K).toFixed(2)}; varying float vWr;
       varying float vT; varying float vFace; varying float vStr; varying float vLayer; varying vec2 vN; varying float vDist; varying float vInside;
       void main(){
         vec3 p = position;

@@ -53,7 +53,7 @@ export function createUpdate(ctx) {
         else if (W.day % 6 === 0 && W.simT - (W._roboT ?? -999) > 150) roboOne('zone:dayend', W.day / 6);   // every sixth day (25.10: was third), and only after a quiet while
       }
     }
-    W.seasonFrac = W.dayFrac;
+    if (biome.id !== 'savanna') W.seasonFrac = W.dayFrac;   // 1.4.2: the savanna's seasons last several days (savanna/seasons.js)
     // weather
     weatherUpdate(dt, rdt);
     ctx.report?.tick(dt);
@@ -68,6 +68,7 @@ export function createUpdate(ctx) {
     if (W.fires.length && W.fires.every(f => f.t >= f.dur)) { W.fires = []; afterFire(); }
     const summerDry = biome.id === 'grove' ? (W.season === 'summer' ? 0.45 + W.seasonFrac * 0.2 : W.season === 'autumn' ? 0.35 * (1 - W.seasonFrac) : 0) : 0;
     if (ctx.water) ctx.water.tick(dt);   // 1.4: the desert's water, sand and locusts
+    if (ctx.savanna) ctx.savanna.tick(dt, rdt);   // 1.4.2: the savanna's seasons, grass, herds, fire, elephants, stability
     env.update(rdt, {
       t, dayFrac: W.dayFrac, season: W.season, seasonFrac: W.seasonFrac, rain: W.rain, wind: W.wind, nightGlow: night, camera,
       vitality: W.vitality, drought: Math.max(W.drought, summerDry), flood: W.flood || 0, heat: W.heat || 0, fire: W.fires.filter(f => f.intensity > 0).map(f => ({ x: f.x, z: f.z, r: f.r, intensity: f.intensity })),
@@ -215,6 +216,7 @@ export function createUpdate(ctx) {
         let chance = 0;
         if (biome.id === 'amazon') chance = W.dayFrac > 0.5 && W.dayFrac < 0.72 ? 0.35 : 0.06;
         else if (biome.id === 'reef') chance = 0.04;   // a passing shower only ruffles the surface
+        else if (biome.id === 'savanna') chance = W.season === 'wet' ? 0.32 : 0.0;   // 1.4.2: rain only in the rainy season
         else chance = W.season === 'winter' ? 0.35 : W.season === 'autumn' ? 0.12 : W.season === 'spring' ? 0.1 : 0;
         if (Math.random() < chance) { W.rainTarget = 0.6 + Math.random() * 0.35; W.rainT = 25 + Math.random() * 35; }
       }

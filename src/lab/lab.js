@@ -5,6 +5,7 @@
 // aquarium. The child moves between stations; the microscope and the inventors table open their own panels.
 // Fully offline: the pictures and the robot are inside the game (src/data/lab-art.js, src/data/lab-robot.js).
 import * as THREE from 'three';
+import { decodePart } from '../models/packed-geo.js';   // the packed robot geometry (one decoder for every screen)
 import { esc, icon } from '../ui/ui.js';
 import { LAB_ART } from '../data/lab-art.js';
 import { LAB_ROBOT } from '../data/lab-robot.js';
@@ -21,6 +22,7 @@ import { THINK, OPEN as THINK_OPEN, openThinkMenu, thinkById, thinkDone } from '
 import { openQuestions, answeredCount, islandQuestions } from './questions.js';
 import { markHTML } from '../ui/threads-ui.js';   // חוטים: "מהאי שלכם" on the atlas's questions button
 import { labKids, fmt, readMs } from './level.js';
+import { openChat } from '../ui/robo-chat.js';
 import { ROOM_K, TALK_K, FACTS_K, JOKES_K, ATLAS_K, SAMPLES_K, THINK_K } from './kids-text.js';   // the beginners' words (ניקוד מלא)
 // the station worlds (19.10): the aquarium, the greenhouse and the cabinet open a menu of their own activities
 import { openStationMenu, one, face as stFace, injectStationCss } from './station-kit.js';
@@ -35,7 +37,7 @@ import { openGrow, openSeeds } from './greenhouse.js';
 import { openCollection, openSort, openClues, collectionCount, shelfPeek } from './cabinet.js';
 // the look-around room (19.10): a panorama from the room's centre, turning, and the robot's walks to the stations
 import { createRoomView, yawOf } from './room-view.js';
-import { svcGuide, svcApp } from '../core/services.js';
+import { svcGuide, svcApp, svc } from '../core/services.js';
 
 const STATION_INFO = {
   home: { name: 'החדר', ic: 'home' },
@@ -73,19 +75,7 @@ const wrapA = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 const ORDER = ['home', 'scope', 'table', 'aquarium', 'greenhouse', 'cabinet', 'atlas'];
 const IMG_ASPECT = 16 / 9;
 
-// ───────────────────────────────────────── decoding the packed robot (tools/build-lab.py)
-const b64 = (s) => { const bin = atob(s); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; };
-function decodePart(e) {
-  const g = new THREE.BufferGeometry();
-  const q = new Int16Array(b64(e.p).buffer); const n = q.length / 3; const P = new Float32Array(n * 3);
-  for (let i = 0; i < n; i++) for (let k = 0; k < 3; k++) P[3 * i + k] = e.o[k] + (q[3 * i + k] + 32767) * e.s[k];
-  g.setAttribute('position', new THREE.BufferAttribute(P, 3));
-  if (e.n) { const nn = new Int8Array(b64(e.n).buffer); const N = new Float32Array(nn.length); for (let i = 0; i < nn.length; i++) N[i] = nn[i] / 127; g.setAttribute('normal', new THREE.BufferAttribute(N, 3)); }
-  if (e.uv) { const uu = new Uint16Array(b64(e.uv).buffer); const U = new Float32Array(uu.length); for (let i = 0; i < uu.length; i++) U[i] = uu[i] / 65535; g.setAttribute('uv', new THREE.BufferAttribute(U, 2)); }
-  g.setIndex(new THREE.BufferAttribute(new Uint16Array(b64(e.i).buffer), 1));
-  if (!e.n) g.computeVertexNormals();
-  return g;
-}
+// the packed robot is decoded by src/models/packed-geo.js (decodePart)
 
 // ───────────────────────────────────────── the face on the visor (a canvas: eyes, blinks, a smile, talking)
 function makeFace() {
@@ -767,7 +757,7 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     robot.root.visible = true; updateFishVisible();
     // warm up the other pictures in the background
     setTimeout(() => ORDER.forEach(texOf), 300);
-    try { window.__flourish && window.__flourish.labDoors(); } catch (e) { }   // 1.3.2: the doors part as the child comes in (src/ui/flourish.js)
+    try { svc('flourish') && svc('flourish').labDoors(); } catch (e) { }   // 1.3.2: the doors part as the child comes in (src/ui/flourish.js)
     if (!greeted) { greeted = true; setTimeout(() => { robot.wave(); say(kids ? ROOM_K.hello : 'שלום! אני רובו־דע. כאן במעבדה מגלים איך הטבע עובד, וממציאים בעזרתו. במה נתחיל?', 'happy'); }, 600); }
     else { setTimeout(() => robot.wave(), 700); say(kids ? ROOM_K.back : 'ברוכים השבים למעבדה!', 'happy'); }
   }
@@ -804,6 +794,7 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     fact: { q: 'ספר לי משהו מפתיע', a: () => FACTS[(talkN++) % FACTS.length], e: 'wow' },
     joke: { q: 'בדיחה!', a: () => JOKES[(jokeN++) % JOKES.length], e: 'happy' },
     feel: { q: 'איך אתה מרגיש?', a: () => { const n = Object.keys(labProgress().seen).length; return n >= 6 ? 'מצוין! מצאתם כבר ' + n + ' דגימות. אני מרגיש כמו רובוט של חוקרים אמיתיים.' : n ? 'שמח! כבר מצאתם ' + n + (n === 1 ? ' דגימה' : ' דגימות') + '. יש עוד הרבה לגלות.' : 'קצת משועמם... עוד לא בדקנו אף דגימה. בואו למיקרוסקופ!'; }, e: 'happy' },
+    more: { q: 'בוא נדבר על עוד דברים', a: () => '', e: 'happy' },   // 1.4.3: the talk of the whole game (src/ui/robo-chat.js)
   };
   // true facts, gently said (docs/sources.md, the lab)
   const FACTS = [
@@ -816,14 +807,22 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
     'יונק הדבש יכול לעוף גם אחורה!',
     'העלה של הוויקטוריה האמזונית יכול להיות רחב יותר משני מטרים.',
     'תפוז עם קליפה צף במים, ותפוז קלוף שוקע. הקליפה מלאה כיסי אוויר קטנים.',
+    // 1.4.3: the desert and the savanna
+    'העור של הפיל מלא סדקים זעירים, והם מחזיקים מים כמו ספוג. ככה העור שלו נשאר קריר.',
+    'על העלים של המלוח יש בלונים זעירים מלאים במלח. כך הצמח נפטר מהמלח העודף.',
+    'בסהרה חיה נמלה כסופה שיוצאת דווקא בצהריים, כשהחול הכי חם. השערות שלה מחזירות את השמש.',
+    'מהגבעולים של הגומא עשו בעבר הרחוק דפים לכתיבה.',
   ];
-  const JOKES = [
-    'למה פחדתי להיכנס לאקווריום? חשבתי שאחליד. מאז שקיבלתי ציפוי עור כריש, אני כבר לא מפחד!',
-    'ניסיתי ללמוד מהעצלן איך לנוח. אבל עד שהתחלתי, כבר נגמר היום.',
-    'שאלתי את הזיקית מה הצבע האהוב עליה. היא אמרה: "תלוי איפה אני עומדת".',
-    'בניתי רובוט עם קוצים של קיפוד. עכשיו אף אחד לא רוצה לחבק אותו.',
-    'התמנון ניצח אותי בציור. יש לו שמונה מכחולים!',
-    'שקלתי את עצמי שלוש פעמים ולקחתי את האמצעית. עדיין כבד. כנראה המשקל צודק.',
+  const JOKES = [   // 1.4.4 set 0 (Avi: the old jokes were not funny)
+    'שיחקתי מחבואים עם הזיקית. אני מחפש אותה כבר שבוע.',
+    'ניסיתי לישון הפוך כמו העטלף. כל הברגים שלי נפלו לי לראש!',
+    'שאלתי את התוכי מה נשמע. הוא שאל אותי מה נשמע. אנחנו עדיין עומדים שם.',
+    'העצלן הבטיח לעזור לי לסדר את המעבדה. הוא בדרך. כבר שלושה חודשים.',
+    'הקיפוד ביקש חיבוק. חיבקתי. עכשיו יש לי חורים בציפוי!',
+    'התמנון ניצח אותי במשחק מסירות. לו יש שמונה ידיים, ולי שתיים ומברג.',
+    'קניתי לפיל מחשב חדש. הוא עדיין עומד על הכיסא, בגלל העכבר.',
+    'שאלתי את התנשמת אם ישנה טוב. היא פיהקה ושאלה: "מה, כבר בוקר?"',
+    'למדתי לקפוץ כמו ירבוע. עכשיו כל המבחנות רועדות כשאני עובר.',
   ];
   // the beginners' answers: the same questions, fully vocalised and in short bubbles (src/lab/kids-text.js)
   const KA = {
@@ -850,7 +849,9 @@ export function createLab({ root, pipe, audio, thumbs = CARD_ART, onExit, openGa
       <div class="lb-qs">${Object.entries(TALK).map(([k, t]) => `<button data-q="${k}">${esc(kids ? TALK_K.q[k] : t.q)}</button>`).join('')}</div><div class="lb-pv lb-chat-pv" aria-live="polite"></div>`;
     panels.appendChild(talkEl);
     talkEl.querySelector('.lb-back').onclick = () => { talkEl.remove(); talkEl = null; };
-    talkEl.querySelectorAll('[data-q]').forEach((b) => b.onclick = () => { const k = b.dataset.q, t = TALK[k]; audio && audio.play('click'); robot.wave(); say(kids ? KA[k]() : t.a(), t.e); });
+    talkEl.querySelectorAll('[data-q]').forEach((b) => b.onclick = () => { const k = b.dataset.q, t = TALK[k]; audio && audio.play('click');
+      if (k === 'more') { talkEl.remove(); talkEl = null; openChat({ place: 'lab' }); return; }
+      robot.wave(); say(kids ? KA[k]() : t.a(), t.e); });
     say(kids ? TALK_K.open : 'שאלו אותי מה שתרצו. כלומר... מה שכתוב על הכפתורים.', 'happy');
   }
 

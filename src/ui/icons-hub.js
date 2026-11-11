@@ -35,7 +35,7 @@ export const HUB_ICONS = {
   // חוט הקשר: two creatures joined by a curving thread
   thread: '<circle class="f" cx="5.5" cy="17.5" r="3"/><circle cx="5.5" cy="17.5" r="3"/><circle class="f" cx="18.5" cy="6.5" r="3"/><circle cx="18.5" cy="6.5" r="3"/>'
     + '<path d="M8 15.8c3.4-1.8 1-5.6 4.4-6.6 1.6-.5 2.6.3 3.6-.6"/><circle cx="11.2" cy="11.6" r=".9" fill="currentColor" stroke="none"/>',
-  // מחזיקים את היער: a young tree (a wide, bumpy crown) cradled by two leaves
+  // מחזיקים את הסביבה: a young tree (a wide, bumpy crown) cradled by two leaves
   keep: '<path class="f" d="M7.6 10.4a2.7 2.7 0 0 1 .1-5.4 4.5 4.5 0 0 1 8.6-.3 2.8 2.8 0 0 1 .3 5.7z"/><path d="M7.6 10.4a2.7 2.7 0 0 1 .1-5.4 4.5 4.5 0 0 1 8.6-.3 2.8 2.8 0 0 1 .3 5.7z"/><path d="M12 10.4v9.4M12 13.4l-1.6-1.4"/>'
     + '<path class="f" d="M12 20.2c-4 0-7-2-8-5.8 4 0 7 2 8 5.8zM12 20.2c4 0 7-2 8-5.8-4 0-7 2-8 5.8z"/>'
     + '<path d="M12 20.2c-4 0-7-2-8-5.8 4 0 7 2 8 5.8zM12 20.2c4 0 7-2 8-5.8-4 0-7 2-8 5.8z"/>',
@@ -76,7 +76,14 @@ export const HUB_ICONS = {
   // the desert (1.4): a dune under the sun
   desert: '<circle class="f" cx="16.5" cy="7" r="3.2"/><circle cx="16.5" cy="7" r="3.2"/>'
     + '<path class="f" d="M2.5 19.5c3.2-5 7.6-6.6 11.4-4.4 2.4 1.4 4.6 1.6 7.6.8v3.6z"/><path d="M2.5 19.5c3.2-5 7.6-6.6 11.4-4.4 2.4 1.4 4.6 1.6 7.6.8"/><path d="M2.5 19.5h19"/>',
+  // the savanna (1.4.2): an umbrella acacia on the plain
+  savanna: '<path class="f" d="M4 9.6c1.6-2.6 4.8-3.6 8-3.6s6.4 1 8 3.6c-2.4 1-5.2 1.4-8 1.4s-5.6-.4-8-1.4z"/><path d="M4 9.6c1.6-2.6 4.8-3.6 8-3.6s6.4 1 8 3.6c-2.4 1-5.2 1.4-8 1.4s-5.6-.4-8-1.4z"/>'
+    + '<path d="M12 11v8.6M12 14.2l-2.6-3M12 13l2.4-2.2"/><path d="M2.5 19.6c3-1 6-1.4 9.5-1.4s6.5.4 9.5 1.4"/>',
   zones: '<circle class="f" cx="12" cy="8.2" r="4.6"/><circle cx="12" cy="8.2" r="4.6"/><circle cx="8" cy="15" r="4.6"/><circle cx="16" cy="15" r="4.6"/>',
+  // a talk with רובו־דע (1.4.3): a speech bubble with his two eyes
+  chat: '<path class="f" d="M5.5 4.5h13A2.5 2.5 0 0 1 21 7v7a2.5 2.5 0 0 1-2.5 2.5h-7.2L7 20v-3.5H5.5A2.5 2.5 0 0 1 3 14V7a2.5 2.5 0 0 1 2.5-2.5z"/>'
+    + '<path d="M5.5 4.5h13A2.5 2.5 0 0 1 21 7v7a2.5 2.5 0 0 1-2.5 2.5h-7.2L7 20v-3.5H5.5A2.5 2.5 0 0 1 3 14V7a2.5 2.5 0 0 1 2.5-2.5z"/>'
+    + '<circle cx="9" cy="10.6" r="1.4" fill="currentColor" stroke="none"/><circle cx="15" cy="10.6" r="1.4" fill="currentColor" stroke="none"/>',
   // technology cards: a small robot head with one antenna
   robot: '<rect class="f" x="4.5" y="7.5" width="15" height="11.5" rx="3.6"/><rect x="4.5" y="7.5" width="15" height="11.5" rx="3.6"/>'
     + '<path d="M12 7.5V5"/><circle cx="12" cy="3.6" r="1.3"/><circle cx="9.3" cy="13" r="1.4" fill="currentColor" stroke="none"/><circle cx="14.7" cy="13" r="1.4" fill="currentColor" stroke="none"/>'
@@ -92,13 +99,22 @@ export const HUB_ICONS = {
   frame: '<rect class="f" x="4" y="3.5" width="16" height="17" rx="2.4"/><rect x="4" y="3.5" width="16" height="17" rx="2.4"/><rect x="7.5" y="7" width="9" height="10" rx="1.2" stroke-width="1.6"/>',
   // the lab (המעבדה): a round flask with bubbles
   lab: '<path class="f" d="M7 13.6a5.5 5.5 0 1 0 10 0z"/><path d="M10 3h4M10.6 3v5.6a6.6 6.6 0 1 0 2.8 0V3"/><path d="M7 13.6h10" stroke-width="1.6"/><circle cx="10.6" cy="16.6" r=".9" fill="currentColor" stroke="none"/><circle cx="13.6" cy="17.8" r=".7" fill="currentColor" stroke="none"/>',
+  // 1.4.4 אירוע השבוע: a page of a calendar with a star (two rings on top, no lines crossing)
+  week: '<rect class="f" x="3.5" y="5" width="17" height="15.5" rx="2.6"/><rect x="3.5" y="5" width="17" height="15.5" rx="2.6"/><path d="M3.5 9.6h17" stroke-width="1.6"/>'
+    + '<path d="M8 3v3.6M16 3v3.6"/><path d="M12 11.6l1.3 2.6 2.8.4-2 2 .5 2.8-2.6-1.4-2.6 1.4.5-2.8-2-2 2.8-.4z" fill="currentColor" stroke-width="1"/>',
+  // the four events: a lightning bolt (the glitch), a jar with a lid, a flag on a pole (the race)
+  bolt: '<path class="f" d="M13.5 2.5L5 13.5h6l-1.5 8 8.5-11h-6z"/><path d="M13.5 2.5L5 13.5h6l-1.5 8 8.5-11h-6z"/>',
+  jar: '<path class="f" d="M7 7.5h10v1.2c1.6.9 2.5 2.4 2.5 4.3v5a2.5 2.5 0 0 1-2.5 2.5H7A2.5 2.5 0 0 1 4.5 18v-5c0-1.9.9-3.4 2.5-4.3z"/>'
+    + '<path d="M7 7.5h10v1.2c1.6.9 2.5 2.4 2.5 4.3v5a2.5 2.5 0 0 1-2.5 2.5H7A2.5 2.5 0 0 1 4.5 18v-5c0-1.9.9-3.4 2.5-4.3z"/><rect x="6" y="3.5" width="12" height="4" rx="1.2"/>'
+    + '<path d="M9 16.5c.6-2.4 2.4-3.6 4.6-3.6-.4 2.4-2.1 3.6-4.6 3.6z" stroke-width="1.4"/>',
+  flag: '<path d="M6 21V3.5" stroke-width="2.2"/><path class="f" d="M6 4h12l-2.6 4L18 12H6z"/><path d="M6 4h12l-2.6 4L18 12H6z"/>',
 };
 
 // one colour per game / place: the tile behind its icon, on the start screen and in the hub alike
 export const TILE_TONE = {
   learn: '#3d7a3a', quiz: '#2f7a52', album: '#a8641a', strong: '#b2492e', keep: '#2b7268', thread: '#a3466e',
   invent: '#3a4d5c', dive: '#22648c', medal: '#8e6a12', scroll: '#8a6420', lab: '#3a4d5c', research: '#3f6a2e',
-  amazon: '#2f7a52', grove: '#9a6a1a', reef: '#22648c', desert: '#a8702a', zones: '#4f6a3a', robot: '#3a4d5c',
+  amazon: '#2f7a52', grove: '#9a6a1a', reef: '#22648c', desert: '#a8702a', savanna: '#a8822a', zones: '#4f6a3a', robot: '#3a4d5c', week: '#8a3a6a', bolt: '#b0602a', jar: '#2b7268', flag: '#2f5f8f',
 };
 // the svg the same way ui.js icon() draws it (class "ic": the game's CSS sizes it and softens the "f" fill)
 export const hubIcon = (n, cls) => `<svg class="ic${cls ? ' ' + cls : ''}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${HUB_ICONS[n] || ''}</svg>`;

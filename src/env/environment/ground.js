@@ -6,13 +6,14 @@ import * as THREE from 'three';
 import { GROUND_TEX } from '../../data/ground-textures.js';
 import { R, MAX_SHAFTS, MAX_FIRES, MAX_GAPS, C, patchMaterial } from './common.js';
 import { DESERT } from './desert-look.js';
+import { SAVANNA } from './savanna-look.js';
 
 export function createGround(ctx) {
-  const { U, isAmazon, isDesert, noiseTex, biome, quality, track, root, buildGround } = ctx;
+  const { U, isAmazon, isDesert, isSavanna, noiseTex, biome, quality, track, root, buildGround } = ctx;
   const G = {
     ...U,
-    uGrass: { value: C(isAmazon ? '#3f6a24' : isDesert ? DESERT.grass : '#7da544') },
-    uGrass2: { value: C(isAmazon ? '#6e4a2a' : isDesert ? DESERT.grass2 : '#8f9a48') },
+    uGrass: { value: C(isAmazon ? '#3f6a24' : isDesert ? DESERT.grass : isSavanna ? SAVANNA.wet.grass : '#7da544') },
+    uGrass2: { value: C(isAmazon ? '#6e4a2a' : isDesert ? DESERT.grass2 : isSavanna ? SAVANNA.wet.grass2 : '#8f9a48') },
     uCoverAmt: { value: ctx.bare ? 0.22 : 0.85 },   // the training field (1.3.3): mostly bare soil
     uSoilWet: { value: 0 },
     uDetail: { value: noiseTex },
@@ -22,7 +23,7 @@ export function createGround(ctx) {
     uGaps: { value: Array.from({ length: MAX_GAPS }, () => new THREE.Vector4(0, 0, 0, 0)) },
     uOverlay: { value: null }, uOverlayOn: { value: 0 }, uR: { value: R },
     uAmazon: { value: isAmazon ? 1 : 0 },
-    uDesert: { value: isDesert ? 1 : 0 }, uBedCol: { value: isDesert ? new THREE.Vector3(...DESERT.bedrock) : new THREE.Vector3(0.62, 0.56, 0.45) },
+    uDesert: { value: isDesert ? 1 : 0 }, uBedCol: { value: isDesert ? new THREE.Vector3(...DESERT.bedrock) : isSavanna ? new THREE.Vector3(...SAVANNA.bedrock) : new THREE.Vector3(0.62, 0.56, 0.45) },
     // real surface textures baked in Blender: A = litter / grass, B = moss / limestone (albedo + normal map each)
     uGTexA: { value: null }, uGNrmA: { value: null }, uGTexB: { value: null }, uGNrmB: { value: null }, uGTexOn: { value: 0 },
     uGAvgA: { value: C('#808080') }, uGAvgB: { value: C('#808080') }, uGTile: { value: new THREE.Vector2(3, 4) }, uGNrmK: { value: 1 },

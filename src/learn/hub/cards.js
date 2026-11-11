@@ -37,7 +37,7 @@ for (const s of SP) {
 
 const KEYSTONE = new Set(['amazon:kapok', 'amazon:fig', 'amazon:brazilnut', 'amazon:glowfungus', 'grove:oak', 'grove:honeybee', 'grove:firefly',
   'reef:branching', 'reef:parrotfish', 'reef:seaanemone', 'reef:cleaner',
-  'desert:acacia', 'desert:columncactus']);   // 1.4: the acacia of the Negev and the saguaro are keystone trees of their deserts (docs/sources.md)
+  'desert:acacia', 'desert:columncactus', 'savanna:elephant', 'savanna:umbrella']);   // 1.4.2: the elephant (the savanna's engineer) and the umbrella acacia   // 1.4: the acacia of the Negev and the saguaro are keystone trees of their deserts (docs/sources.md)
 const LAYER_LIGHT = { emergent: 5, canopy: 4, water: 4, understory: 3, floor: 2, shallow: 5, slope: 3, sand: 4, open: 4 };
 const WATER_OVR = { 'amazon:dartfrog': 5, 'amazon:capybara': 5, 'amazon:waterlily': 5, 'amazon:bromeliad': 5, 'amazon:tapir': 5,
   'grove:hyrax': 1, 'grove:agama': 1, 'grove:sage': 1, 'grove:rockrose': 1, 'grove:gazelle': 1, 'grove:carob': 1, 'grove:pine': 1, 'grove:cyclamen': 3, 'grove:firefly': 3, 'grove:mushroom': 4 };
@@ -148,6 +148,13 @@ const SET_DEFS = [
     sp: (s) => s.biome === 'desert' && ['fennec', 'sandcat', 'jerboa', 'deserthedgehog', 'scorpion', 'eagleowl'].includes(s.id) },
   { id: 'acacia', name: 'סביב השיטה', where: 'desert', col: '#a8702a', ic: IC.tree, sub: 'השיטה היא מין מפתח במדבר, כל אלה קשורים אליה',
     sp: (s) => s.biome === 'desert' && linkedTo(s, 'acacia') },
+  // 1.4.2: the savanna
+  { id: 'grazing', name: 'סדר הרעייה', where: 'savanna', col: '#a8822a', ic: IC.leaf, sub: 'כל אחד אוכל גובה אחר של עשב, ומכין את המרעה לבא אחריו',
+    sp: (s) => s.biome === 'savanna' && ['zebra', 'wildebeest', 'impala', 'buffalo', 'redoat', 'stargrass'].includes(s.id) },
+  { id: 'river', name: 'ליד הנהר', where: 'savanna', col: '#2a7ab0', ic: IC.drop, sub: 'מי שצריך מים כל יום חי קרוב לנהר',
+    sp: (s) => s.biome === 'savanna' && ['crocodile', 'papyrus', 'buffalo', 'sycamore', 'kigelia', 'doum'].includes(s.id) },
+  { id: 'umbrella', name: 'סביב השיטה הסוככנית', where: 'savanna', col: '#7a6a1a', ic: IC.tree, sub: 'השיטה נותנת צל, אוכל וקן, וכל אלה קשורים אליה',
+    sp: (s) => s.biome === 'savanna' && linkedTo(s, 'umbrella') },
   { id: 'desertwater', name: 'מים למדבר', where: 'tech', col: '#2a7ab0', ic: SET_IC.eye, sub: 'מביאים מים לשורשים, עוצרים את החול וזורעים מחדש',
     tools: ['drip', 'fognet', 'sandfence', 'seeddrone'] },
   { id: 'watchers', name: 'שומרי היער', where: 'tech', col: '#2c5f8f', ic: SET_IC.eye, sub: 'רואים, שומעים ומזהירים בזמן',
@@ -166,7 +173,7 @@ if (TORAH) for (const d of SOURCE_SETS) SETS.push({ ...d, where: 'src', torah: t
 export const activeSets = () => SETS.filter((st) => !st.torah || sourcesOn());
 export const SET_BY = new Map(SETS.map((st) => [st.id, st]));
 export const setsOf = (id) => activeSets().filter((st) => st.cards.some((c) => c.id === id));
-export const SET_WHERE = { amazon: 'אמזונס', grove: 'חורש', reef: 'שונית', desert: 'מדבר', both: 'שני היערות', tech: 'טכנולוגיה', src: 'מן המקורות' };
+export const SET_WHERE = { amazon: 'אמזונס', grove: 'חורש', reef: 'שונית', desert: 'מדבר', savanna: 'סוואנה', both: 'שני היערות', tech: 'טכנולוגיה', src: 'מן המקורות' };
 // sanity check (dev console): 4–8 cards, and a rare or very rare card in every species set
 for (const st of SETS) {
   if (st.torah) continue;

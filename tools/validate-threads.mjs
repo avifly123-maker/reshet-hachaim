@@ -4,6 +4,7 @@
 // - references exist: problem / invention ids, case ids, event ids, tools, species, relation keys, samples, questions
 // - every child-facing text is { f, k } with full nikud in k, no forbidden words, no em dash
 // - every fact has a source, and docs/sources.md has the threads section naming every thread
+import { TECH_CARDS } from '../src/data/robolab/tech-cards.js';
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { THREADS, SAMPLE_OF, PHOTO_SAMPLE, QUESTION_SPECIES, CASE_SPECIES, REGULAR, STAMPS, STAMP_NAME, THREAD_WORDS } from '../src/data/threads.js';
@@ -20,6 +21,8 @@ import { BIOME as AMAZON } from '../src/data/amazon.js';
 import { BIOME as GROVE } from '../src/data/grove.js';
 import { BIOME as REEF } from '../src/data/reef.js';
 import { BIOME as DESERT } from '../src/data/desert.js';
+const TECH_IDS = new Set(TECH_CARDS.map((c) => c.id));
+import { BIOME as SAVANNA } from '../src/data/savanna.js';
 
 const errors = []; const err = (m) => errors.push(m);
 const HEB = /[א-ת]/g, NIK = /[ְ-ׇּׁׂ]/g;
@@ -41,7 +44,7 @@ function text(where, v) {
   }
 }
 
-const ZONE = { amazon: AMAZON, grove: GROVE, reef: REEF, desert: DESERT };
+const ZONE = { amazon: AMAZON, grove: GROVE, reef: REEF, desert: DESERT, savanna: SAVANNA };
 const SP = {}; const EDGES = new Set(); const EVENTS = new Map();
 for (const [z, B] of Object.entries(ZONE)) {
   SP[z] = new Set(B.species.map((s) => s.id));
@@ -79,6 +82,8 @@ for (const t of THREADS) {
     case 'event': for (const id of f.ids || [f.id]) if (!EVENTS.has(id)) err(`${w}: no island event "${id}"`); break;
     case 'zone': if (!REGULAR[f.id]) err(`${w}: no zone "${f.id}"`); break;
     case 'think': if (!THINK.has(f.id)) err(`${w}: no thinking-corner activity "${f.id}"`); break;
+    case 'techcard': for (const id of f.ids || [f.id]) if (!TECH_IDS.has(id)) err(`${w}: no technology card "${id}"`); break;   // 1.4.4
+    case 'patent': if (!(f.n >= 1)) err(`${w}: patent needs n >= 1`); break;
     default: err(`${w}: unknown from.kind ${f.kind}`);
   }
   // to

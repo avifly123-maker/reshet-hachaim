@@ -3,13 +3,15 @@
 // Exports: createControls(ctx) → { setLightOverlay, setGap, isPlaceable, setQuality, dispose }.
 // Needs from ctx: G, gaps, isWater, onRock, nearBridge, heightAt, quality, scatterMeshes, sunLight, scene, root, prevFog,
 // prevBg, disposables, boltMesh.
+import * as THREE from 'three';
+import { CLOUD_U } from '../cloud-shade.js';
 import { clamp } from '../../core/util.js';
 import { Q, R, MAX_GAPS } from './common.js';
 
 export function createControls(ctx) {
   const {
     G, gaps, isWater, onRock, nearBridge, heightAt, quality, scatterMeshes, sunLight, scene, root,
-    prevFog, prevBg, disposables, boltMesh
+    prevFog, prevBg, disposables, boltMesh, pipeline
   } = ctx;
   function setLightOverlay(tex) {
     G.uOverlay.value = tex || null;
@@ -38,6 +40,7 @@ export function createControls(ctx) {
     const qq = Q[q]; if (!qq) return;
     const full = Q[quality].scatter;
     for (const m of scatterMeshes) m.count = Math.max(1, Math.min(m.userData.fullCount, Math.round(m.userData.fullCount * qq.scatter / full)));
+    if (ctx.grassLOD) ctx.grassLOD.setQuality(qq.scatter / full);   // 1.4.2: the savanna's grass tiles thin themselves
     for (const m of scatterMeshes) m.castShadow = qq.shadowScatter && ['bush', 'bigleaf', 'chunk'].some(k => m.name.endsWith(k));
     const s = ({ min: 512, low: 512, medium: 1024, high: 2048 })[q];
     if (sunLight.shadow.mapSize.x !== s) { sunLight.shadow.mapSize.set(s, s); if (sunLight.shadow.map) { sunLight.shadow.map.dispose(); sunLight.shadow.map = null; } }
@@ -45,6 +48,8 @@ export function createControls(ctx) {
 
   function dispose() {
     scene.remove(root);
+    CLOUD_U.uCloudK.value = 0; CLOUD_U.uCloudTex.value = null;
+    if (pipeline && pipeline.setGrade) pipeline.setGrade({ lift: new THREE.Color(0.0, 0.004, 0.012), gain: new THREE.Color(1.015, 1.0, 0.975), sat: 1.06 });   // the next place (the reef, the lab) has no cloud shadows unless its own update sets them
     scene.fog = prevFog; scene.background = prevBg;
     for (const d of disposables) d.dispose && d.dispose();
     boltMesh.geometry.dispose();

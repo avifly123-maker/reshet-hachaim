@@ -4,6 +4,7 @@ import { BIOME as AMAZON } from '../src/data/amazon.js';
 import { BIOME as GROVE } from '../src/data/grove.js';
 import { BIOME as REEF } from '../src/data/reef.js';
 import { BIOME as DESERT } from '../src/data/desert.js';
+import { BIOME as SAVANNA } from '../src/data/savanna.js';
 import * as COMMON from '../src/data/common.js';
 
 const SPECIES = {
@@ -28,12 +29,18 @@ const SPECIES = {
     'fennec', 'sandcat', 'caracal', 'ibex', 'dorcas', 'camel', 'jerboa', 'psammomys', 'deserthedgehog', 'uromastyx', 'scorpion',
     'darkling', 'desertant', 'sandgrouse', 'eagleowl', 'houbara', 'hawkmoth', 'desertsnail',
   ],
+  // 1.4.2
+  savanna: [
+    'umbrella', 'baobab', 'whistling', 'redoat', 'stargrass', 'kigelia', 'sycamore', 'marula', 'doum', 'papyrus', 'termitemound',
+    'zebra', 'wildebeest', 'impala', 'giraffe', 'elephant', 'lion', 'crocodile', 'weaver', 'buffalo', 'hyena', 'baboon',
+  ],
 };
 const LAYER_IDS = {
   amazon: ['emergent', 'canopy', 'understory', 'floor', 'water'],
   grove: ['canopy', 'understory', 'floor'],
   reef: ['shallow', 'slope', 'sand', 'open'],
   desert: ['canopy', 'understory', 'floor'],
+  savanna: ['canopy', 'understory', 'floor'],
 };
 const KINDS = ['tree', 'palm', 'shrub', 'herb', 'epiphyte', 'vine', 'fungus', 'water-plant', 'animal', 'colony', 'swarm', 'coral', 'sessile', 'seaplant', 'cactus'];
 const ANIMAL_KINDS = ['animal', 'colony', 'swarm'];
@@ -43,11 +50,14 @@ const GROWTH = ['fast', 'medium', 'slow'];
 const PARTS = ['leaves', 'fruit', 'nectar', 'seeds', 'insects', 'animals', 'fungus', 'dead', 'roots', 'algae', 'plankton', 'polyps'];
 const REL_TYPES = ['pollinates', 'disperses', 'home', 'shelter', 'decomposes', 'partner', 'climbs', 'eats'];
 const SEASONS = ['winter', 'spring', 'summer', 'autumn'];
+const SAV_SEASONS = ['wet', 'dry'];   // 1.4.2: the savanna's year (src/game/savanna/seasons.js)
+const seasonOk = (id, s) => (id === 'savanna' ? SAV_SEASONS : SEASONS).includes(s);
 const GOALS = {
   place: ['species', 'count'], speciesAlive: ['count'], link: ['from', 'to'], chain: ['length'],
   health: ['min', 'seconds'], grow: ['species', 'count'], floorLight: ['min'], pollinate: ['species', 'count'],
   disperse: ['count'], discover: ['count'], observeNight: [], survive: ['event'], bloom: ['species', 'season'], experiment: [],
   tool: ['tool', 'count'], photos: ['count'], rescue: ['count'], seeded: ['count'],
+  stable: ['value', 'season'],   // the savanna (1.4.2): the stability meter (optional season)
   all: ['parts'],   // expert missions: every part at once (src/game/missions.js evalPart), optional hold / holdLabel
 };
 // the parts of an expert mission's 'all' goal (each also needs a label for the checklist)
@@ -66,6 +76,7 @@ const EFFECTS = {
   boost: ['species', 'amount'], plant: ['species', 'count', 'where'],
   logging: ['count'], anchor: ['count'], breakCorals: ['count'], protect: [], road: [], ecoBridge: [], removeRoad: [],
   sandstorm: ['seconds'], locust: ['seconds'],   // the desert (1.4)
+  migrate: ['herds'], grassfire: ['size'],   // the savanna (1.4.2)
 };
 // Forbidden content (hard content rules). Matched as substrings on all Hebrew/English text.
 const FORBIDDEN = [
@@ -225,7 +236,8 @@ function validateBiome(B, id) {
     const g = m.goal || {};
     if (!GOALS[g.type]) err(id, `${p}: goal type "${g.type}" invalid`);
     else if (g.type === 'all') {
-      if (!m.expert) err(id, `${p}: an 'all' goal is for expert missions`);
+      // 1.4.2 (Avi, 1.11): the desert and the savanna are the advanced zones; their regular missions ask for several things
+      if (!m.expert && !['desert', 'savanna'].includes(id)) err(id, `${p}: an 'all' goal is for expert missions`);
       if (!Array.isArray(g.parts) || !g.parts.length) err(id, `${p}: goal all needs parts`);
       for (const k of Object.keys(g)) if (!['type', 'parts', 'hold', 'holdLabel'].includes(k)) err(id, `${p}: goal all unknown param ${k}`);
       if (g.hold !== undefined && !(Number.isInteger(g.hold) && g.hold > 0)) err(id, `${p}: hold must be positive int`);
@@ -246,7 +258,7 @@ function validateBiome(B, id) {
       for (const k of GOALS[g.type]) if (g[k] === undefined) err(id, `${p}: goal ${g.type} missing ${k}`);
       for (const k of Object.keys(g)) if (k !== 'type' && !GOALS[g.type].includes(k)) err(id, `${p}: goal ${g.type} unknown param ${k}`);
       for (const k of ['species', 'from', 'to']) if (g[k] !== undefined && !idSet.has(g[k])) err(id, `${p}: goal ${k} "${g[k]}" not in biome`);
-      if (g.season !== undefined && !SEASONS.includes(g.season)) err(id, `${p}: goal season invalid`);
+      if (g.season !== undefined && !seasonOk(id, g.season)) err(id, `${p}: goal season invalid`);
       if (g.event !== undefined && !eventIds.has(g.event)) err(id, `${p}: goal event "${g.event}" not an event id`);
       for (const k of ['count', 'length', 'seconds']) if (g[k] !== undefined && !(Number.isInteger(g[k]) && g[k] > 0)) err(id, `${p}: goal ${k} must be positive int`);
       if (g.min !== undefined && !(isNum(g.min) && g.min > 0 && g.min <= 1)) err(id, `${p}: goal min must be 0..1`);
@@ -304,7 +316,7 @@ function validateBiome(B, id) {
     else if (t.type === 'mission') { if (!missionIds.has(t.id)) err(id, `${p}: trigger mission "${t.id}" invalid`); }
     else if (t.type === 'random') {
       if (!(isNum(t.chancePerDay) && t.chancePerDay > 0 && t.chancePerDay <= 1)) err(id, `${p}: chancePerDay`);
-      if (t.season !== undefined && (id === 'amazon' || !SEASONS.includes(t.season))) err(id, `${p}: trigger season invalid`);
+      if (t.season !== undefined && (id === 'amazon' || !seasonOk(id, t.season))) err(id, `${p}: trigger season invalid`);
     } else err(id, `${p}: trigger type "${t.type}" invalid`);
     const checkEffects = (list, where) => {
       if (!Array.isArray(list)) { err(id, `${p}: ${where} must be array`); return; }
@@ -360,6 +372,7 @@ validateBiome(AMAZON, 'amazon');
 validateBiome(GROVE, 'grove');
 validateBiome(REEF, 'reef');
 validateBiome(DESERT, 'desert');
+validateBiome(SAVANNA, 'savanna');
 
 // common.js
 for (const t of REL_TYPES) if (!COMMON.RELATION_TYPES?.[t]?.name) err('common', `RELATION_TYPES.${t} missing`);
@@ -376,8 +389,9 @@ checkForbidden('common', COMMON);
   const fs = await import('node:fs'), path = await import('node:path');
   const files = [];
   const walk = (d) => { for (const f of fs.readdirSync(d)) { const q = path.join(d, f); if (fs.statSync(q).isDirectory()) walk(q); else if (/\.js$/.test(f)) files.push(q); } };
-  for (const d of ['src/learn', 'src/ui', 'src/research', 'src/lab']) if (fs.existsSync(d)) walk(d);
+  for (const d of ['src/learn', 'src/ui', 'src/research', 'src/lab', 'src/workshop', 'src/data/workshop', 'src/weekly', 'src/data/weekly']) if (fs.existsSync(d)) walk(d);   // 1.4.4: ניצוץ's workshop
   for (const f of fs.readdirSync('src/data')) if (/torah|source|invention|expedition|badge|quiz|lab-questions/i.test(f)) files.push(path.join('src/data', f));
+  for (const f of ['src/data/robolab/tech-cards.js', 'src/data/robolab/workshop-text.js', 'src/robolab/workshop-ui.js', 'src/robolab/earn-words.js']) if (fs.existsSync(f)) files.push(f);   // 1.4.3
   const W = ['אישה', 'אשה', 'נשים', 'ילדה', 'ילדות', 'נערה', 'דינוזאור', 'דינוזאורים', 'אבולוציה'];
   const re = new RegExp(`(^|[^\u05d0-\u05ea])[והבלכמש]{0,2}(${W.join('|')})(?=$|[^\u05d0-\u05ea])`);
   const en = /\b(girls?|wom[ae]n|dinosaurs?|millions of years)\b/i;

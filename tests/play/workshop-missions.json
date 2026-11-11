@@ -1,0 +1,197 @@
+[
+{
+"wait": 4
+},
+{
+"js": "window.__journey.markIntro('stage:1'); window.__journey.markIntro('g:wktut'); window.__guide && window.__guide.close(); window.__journey.unlockAll('2580'); window.__app.bus.emit('ui:robolab'); 1"
+},
+{
+"until": "!!document.querySelector('.rl-home')",
+"timeout": 60
+},
+{
+"wait": 1
+},
+{
+"js": "const i=document.querySelector('.rl-intro [data-iskip]'); if(i) i.click(); 1"
+},
+{
+"wait": 1
+},
+{
+"clickSel": ".rl-wkbtn"
+},
+{
+"wait": 1.5
+},
+{
+"clickSel": "[data-wstepok]"
+},
+{
+"wait": 1.2
+},
+{
+"js": "const s=window.__rlDebug.workshopState(); 'CHECK missions-tutorial-starts ' + (s.tut==='tab' ? 'ok' : 'FAIL '+s.tut)"
+},
+{
+"shot": "shots/wkm/01-tut-tab.png"
+},
+{
+"clickSel": ".rl-wk [data-wtab=missions]"
+},
+{
+"wait": 1
+},
+{
+"js": "const b=[...document.querySelectorAll('.wk-mis')]; const open=b.filter(x=>!x.disabled).map(x=>x.dataset.wmis); 'CHECK first-missions-open ' + (b.length===30 && open.includes('wm-am-4') && open.includes('wm-gr-3') && !open.includes('wm-am-6') ? 'ok' : 'FAIL '+b.length+' '+open)"
+},
+{
+"js": "const s=window.__rlDebug.workshopState(); 'CHECK tut-pick ' + (s.tut==='pick' ? 'ok' : 'FAIL '+s.tut)"
+},
+{
+"js": "const b=document.querySelector('.wk-mis[data-wmis=wm-am-4]'); b.click(); 1"
+},
+{
+"wait": 1
+},
+{
+"js": "const c=document.querySelector('.wk-card:not([hidden])'); 'CHECK mission-card ' + (c && /מה כדאי לרובוט/.test(c.textContent) && /טעות/.test(c.textContent) && c.querySelector('[data-wgo]') ? 'ok' : 'FAIL')"
+},
+{
+"shot": "shots/wkm/02-card.png"
+},
+{
+"clickSel": "#rguide .rg-next"
+},
+{
+"wait": 0.8
+},
+{
+"clickSel": "[data-wgo]"
+},
+{
+"until": "window.__rlDebug.in3d()",
+"timeout": 120
+},
+{
+"wait": 1
+},
+{
+"js": "'CHECK mission-in-3d ' + (window.__rlDebug.cur()==='wm-am-4' && /רובוט 1/.test(document.querySelector('.rl-level .rl-title').textContent) && window.__journey.introSeen('g:wmtut') ? 'ok' : 'FAIL '+window.__rlDebug.cur())"
+},
+{
+"wait": 3
+},
+{
+"js": "'CHECK run-tutorial ' + (window.__rlDebug.tut()==='robot' ? 'ok' : 'FAIL '+window.__rlDebug.tut())"
+},
+{
+"js": "const f=window.__rlDebug.field(); const p=window.__rlDebug.prog(); 'CHECK built-robot-and-fix-program ' + (f && f.built && p && p.robot && p.robot.length>3 ? 'ok' : 'FAIL '+JSON.stringify(f))"
+},
+{
+"shot": "shots/wkm/03-field.png"
+},
+{
+"clickSel": "#rguide .rg-next"
+},
+{
+"wait": 0.6
+},
+{
+"js": "'eval solve '+window.__rlDebug.autoplan('fast')"
+},
+{
+"wait": 2.2
+},
+{
+"js": "'CHECK run-tutorial-end ' + (window.__rlDebug.tut()==='end' ? 'ok' : 'FAIL '+window.__rlDebug.tut())"
+},
+{
+"clickSel": "#rguide .rg-next"
+},
+{
+"shot": "shots/wkm/03b-counter.png"
+},
+{
+"until": "!window.__rlDebug.playing()",
+"timeout": 60
+},
+{
+"wait": 1
+},
+{
+"js": "const c=window.__rlDebug.counter(); 'CHECK run-counter ' + (c && c.visible && c.rows.some(r=>/סוללה|סוֹלְלָה/.test(r)) && c.t > 3 ? 'ok' : 'FAIL '+JSON.stringify(c))"
+},
+{
+"js": "const w=window.__rlDebug.wk(); const m=document.querySelector('.rl-msg.win'); 'CHECK mission-counts ' + (w.missions===1 && w.done['wm-am-4'] && m && /כלי האוכל/.test(m.textContent) && !window.__rlDebug.tut() ? 'ok' : 'FAIL '+JSON.stringify(w))"
+},
+{
+"shot": "shots/wkm/04-win.png"
+},
+{
+"clickSel": ".rl-msg [data-wsback]"
+},
+{
+"wait": 2
+},
+{
+"js": "const s=window.__rlDebug.workshopState(); const d=document.querySelector('.wk-mis[data-wmis=wm-am-4]'); 'CHECK back-to-missions ' + (s && s.tab==='missions' && !s.card && d && d.classList.contains('done') ? 'ok' : 'FAIL '+JSON.stringify(s && [s.tab, s.card]))"
+},
+{
+"shot": "shots/wkm/05-back.png"
+},
+{
+"js": "window.__rlDebug.mission('wm-am-6','picker'); 1"
+},
+{
+"until": "window.__rlDebug.in3d() && window.__rlDebug.cur()==='wm-am-6'",
+"timeout": 60
+},
+{
+"wait": 1
+},
+{
+"js": "window.__guide && window.__guide.close(); const r=window.__rlDebug.solveMission(0); 'eval picker '+JSON.stringify(r)"
+},
+{
+"until": "!window.__rlDebug.playing()",
+"timeout": 60
+},
+{
+"wait": 1
+},
+{
+"js": "const m=document.querySelector('.rl-msg.fail'); 'CHECK missing-part-help ' + (m && /מה יכול לעזור/.test(m.textContent) && /מיכל זרעים/.test(m.textContent) && m.querySelector('.rl-wsfix') ? 'ok' : 'FAIL '+(m&&m.textContent.slice(0,140)))"
+},
+{
+"shot": "shots/wkm/06-fail.png"
+},
+{
+"clickSel": ".rl-msg .rl-wsfix"
+},
+{
+"wait": 2
+},
+{
+"js": "const s=window.__rlDebug.workshopState(); 'CHECK fix-goes-to-workshop ' + (s && s.tab==='missions' ? 'ok' : 'FAIL')"
+},
+{
+"js": "window.__rlDebug.mission('wm-am-6'); 1"
+},
+{
+"until": "window.__rlDebug.in3d() && window.__rlDebug.cur()==='wm-am-6' && !!document.querySelector('.rl-level')",
+"timeout": 60
+},
+{
+"wait": 1
+},
+{
+"key": "Escape"
+},
+{
+"wait": 1.5
+},
+{
+"js": "const s=window.__rlDebug.workshopState(); 'CHECK escape-to-workshop ' + (s && s.tab==='missions' ? 'ok' : 'FAIL')"
+}
+]
